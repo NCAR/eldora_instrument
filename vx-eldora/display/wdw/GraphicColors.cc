@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:20:36  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -53,8 +56,7 @@ void GraphicController::setOverlayColorMap(FAST long color)
 void GraphicController::defaultColorMap(void)
 {
     FAST int i = 0;
-    FAST int j = MAX_DEFAULT_COLORS;
-    FAST long white = WHITE_LUT;
+    FAST int j = MAX_CLUT_SIZE;
     FAST unsigned char *ramdacAddr = (baseAddr + RAMDAC_ADDR);
     FAST long *clut = (baseAddr + RAMDAC_CLUT);
     FAST long *colors = defaultColors;
@@ -63,24 +65,5 @@ void GraphicController::defaultColorMap(void)
       {
 	  *ramdacAddr = i;
 	  *clut = *colors++;
-      }
-
-    FAST int k = MAX_CLUT_SIZE;
-
-    *ramdacAddr = i++;		// First entry past default colors is black.
-    *clut = 0;
-
-    for (; i < k; i++)		// Everything else is white.
-      {
-	  *ramdacAddr = i;
-	  *clut = white;
-      }
-
-    clut = (baseAddr + RAMDAC_OLUT);
-
-    for (i = 0, k = 4; i < k; i++) // Overlay defaults to white.
-      {
-	  *ramdacAddr = i;
-	  *clut = white;
       }
 }
