@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/08/12  17:58:31  thor
+// Fixs nit found by gcc-2.6.0.
+//
 // Revision 1.1  1994/04/08  20:25:56  thor
 // Initial revision
 //
@@ -24,6 +27,7 @@
 #include "string.h"
 #include "stdlib.h"
 #include "taskLib.h"
+#include <fstream.h>
 
 #pragma implementation
 
@@ -57,6 +61,21 @@ Display::Display(GraphicController *gbd)
 	  ptr->cos = (int)(cos(angle) * 65536.0);
 	  ptr->sin = (int)(sin(angle) * 65536.0);
       }
+}
+
+void Display::setColors()
+{
+    long colors[256];
+
+    ifstream input("userColor.tbl");
+
+    FAST int j = 256;
+    FAST long *l = colors;
+
+    for (FAST int i = 0; i < j; i++, l++)
+      input >> *l;
+
+    agc->setColorMap(colors,256);
 }
 
 void Display::setPriority(FAST unsigned short priority)
