@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/09/17  23:40:40  shawn
+ * writes to rpc global status structure "currStatus" now.  Will set
+ * the appropriate "slave dead" bit to zero, and will set or clear
+ * overtemp bits as appropriate to the temperature returned.
  *
  * Revision 1.5  1992/09/17  21:07:58  shawn
  * safety check-in;  debugged;  this copy prior to adding writes
@@ -26,7 +30,7 @@
  *
  * Revision 1.1  1992/06/16  22:25:18  shawn
  * Initial revision
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ *
  *
  * description: ECB "Command Complete" Interrupt Service Routine.
  *        
@@ -47,7 +51,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <stdioLib.h>
 #include "semLib.h"
 
+#include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
+#include "ecbStat.h"     /* global structures for ecb status */
+#include "ecbSem.h"      /* semaphore definitions for ecb master */
 #include "ecbAdr.h"      /* Slave addresses on ECB bus */
 #include "ecbErrBound.h" /* Various #defines for error bounds */
 #include "hskpInt.h"     /* interrupt vector definitions for hskp */
@@ -90,9 +97,10 @@ void ecbCmpltIsr()
 
     if (checkOUT()) return;  /* check for OUT FIFO EMPTY */
     numbytes = *ecb_out_fifo; /* get numbytes (of status) */
-#ifdef ECBDEBUG
-logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID);
-#endif
+    chksumback += numbytes;
+
+    if (checkOUT()) return;  /* check for OUT FIFO EMPTY */
+    ecbcomID = *ecb_out_fifo; /* get Command ID status is associated with */
     chksumback += ecbcomID;
 
     /* load global status structure to be rpc'd back to control processor */
@@ -270,6 +278,14 @@ else
 }
 
 void procDDSool(unsigned char ecbadr,unsigned char numbytes)
+{
+if (numbytes == 1)  /* check for correct number of status bytes */
+  {   /* load "DDS out-of-lock status" global status structure */
+      ecbOol.ecbadr = ecbadr;      /* load ecb address */
+      ecbOol.oolbits = status[0];  /* load onboard temperature */
+      ecbOol.newdata = 1;          /* set newdata flag */
+      if (ecbadr == ECBRFFOR)      /* forward rcvr/xctr? */
+	currStatus->forDDSool = status[0];
       else if (ecbadr == ECBRFAFT) /* aft rcvr/xctr? */
 	currStatus->aftDDSool = status[0];
       else                         /* bad ecbadr */
