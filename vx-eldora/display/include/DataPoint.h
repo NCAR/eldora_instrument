@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1992/02/10  15:58:25  thor
+ * Added DualData definition.
+ *
  * Revision 1.10  1991/12/20  14:14:02  thor
  * Changed old DataPoint into HorizPoint with some changes as well.
  *
@@ -110,6 +113,7 @@ struct Dual_Data {
     Beam_Time time;
     float angle;
     float altitude;
+    int direction;
     unsigned char colors[DISPLAYED_GATES];
 };
 
