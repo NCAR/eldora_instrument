@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:56:12  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  20:42:10  craig
  * Initial revision
  *
@@ -48,9 +51,66 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "cntrlGbl.h"
 #include "cntrlFunc.h"
 
-void goto_pos(float position)
+void goto_pos(float gain,float zero,float pole,float sample_rate,int position)
 {
+unsigned char *mot_pole, *mot_zero, *pos_msb, *pos_lsb, *pos;
 
-printf("The go to position function has not been implemented as yet\n");
+union
+  {
+      int posit;
+      unsigned char pos[4];
+  }cmnd;
 
+
+mot_zero = (unsigned char *)(FILTER_ZERO_A);
+mot_pole = (unsigned char *)(FILTER_POLE_B);
+pos_msb = (unsigned char *)(COMMAND_POSITION_MSB);
+pos = (unsigned char *)(COMMAND_POSITION_MID);
+pos_lsb = (unsigned char *)(COMMAND_POSITION_LSB);
+
+
+*mot_timer = ((2000000 * sample_rate) -1) / 16;
+taskDelay(1);
+
+/* *mot_gain = 0.5 + (gain*((12.8*60)/(cntrlPeriod*cntrlCounts))); *//* FOR ROTO
+DOME */
+*mot_gain = gain;
+taskDelay(1);
+*mot_zero = 0.5 + zero*256;
+taskDelay(1);
+*mot_pole = 0.5 + pole*256;
+taskDelay(1);
+cmnd.posit = position;
+*pos_msb = cmnd.pos[1];
+taskDelay(1);
+*pos = cmnd.pos[2];
+taskDelay(1);
+*pos_lsb = cmnd.pos[3];
+taskDelay(1);
+/* Set up Position Command by Clearing F0,F3,F5 */
+*mot_flag = 0x0;
+taskDelay(1);
+*mot_flag = 0x3;
+taskDelay(1);
+*mot_flag = 0x5;
+taskDelay(1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
