@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.8  1992/09/01  17:54:07  thor
  * Moved DisplayRpc.h out of extern block.
  *
@@ -67,7 +70,7 @@ GE_SCOPE DispStatus *AlarmStatus;
 GE_SCOPE DispCommand *GeCommand;
 GE_SCOPE Header *Hdr;
 GE_SCOPE GeAlarm *Alarm;
-GE_SCOPE int system;
+GE_SCOPE int dispSystem;
 
 GE_SCOPE Mouse *Rodent;
 
