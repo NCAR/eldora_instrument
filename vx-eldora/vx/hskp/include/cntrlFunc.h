@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/01  20:07:15  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/03  15:20:24  craig
  * *** empty log message ***
  *
@@ -37,6 +40,6 @@ float read_rpm(void);
 void init_motor(void);
 void go_motor(void);
 void stop_motor(void);
-void goto_pos(float);
+void goto_pos(float,float,float,float,float);
 
 #endif /* INC */
