@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/01/02  20:41:07  thor
+ * Added method & C function to change TAPEHEADER of object.
+ *
+ * Revision 1.6  1992/01/02  20:41:07  thor
+ * Added method & C function to change TAPEHEADER of object.
+ *
  * Revision 1.5  1992/01/02  20:28:51  thor
  * Added method for copying.
  *
@@ -63,6 +69,12 @@ extern VOLUME *GetVolume(HeaderPtr header);
 
 extern void SetWaveform(HeaderPtr ptr, WAVEFORM *cs);
 extern WAVEFORM *GetWaveform(HeaderPtr header);
+
+extern void SetNavDesc(HeaderPtr ptr, NAVDESC *nd);
+extern NAVDESC *GetNavDesc(HeaderPtr ptr);
+
+extern void SetInsitu(HeaderPtr ptr, INSITUDESC *id);
+extern INSITUDESC *GetInsitu(HeaderPtr ptr);
 
 extern void GetRpcHeader(HeaderPtr header, TAPEHEADER *th);
 
