@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.6  2003/04/09 18:56:51  martinc
+* --------- bug fixes, testEth29 now working
+* ---------
 * --------- Revision 1.5  2003/04/09 18:28:15  martinc
 * --------- adding eldora specific functions to initialize the eth29 and send datagrams on a socket that is kept open
 * ---------
@@ -267,8 +270,10 @@ GENERAL NOTES
 /*
  * vxWorks routines
  */
-#define INTLOCK(ik)	((int)(ik) = intLock())
-#define INTUNLOCK(ik)	intUnlock((int)(ik))
+#define INTLOCK(ik)	sysIntDisable(eth29InterruptLevel)
+#define INTUNLOCK(ik)	sysIntEnable(eth29InterruptLevel)
+//#define INTLOCK(ik)	((int)(ik) = intLock())
+//#define INTUNLOCK(ik)	intUnlock((int)(ik))
 
 #define SEMBCREATE(sid,state)	sid = semBCreate(SEM_Q_FIFO,state)
 #define SEMCCREATE(sid,count)	sid = semCCreate(SEM_Q_FIFO,count)
@@ -635,6 +640,8 @@ ETH29_RX_STAT eth29_rx_stat;
 /*	PUBLIC GLOBALS							     */
 /*****************************************************************************/
 
+int eth29InterruptLevel;
+
 // set true after the eth29 has been succesfully initialized
 int eth29hasBeenInitialized = 0;
 
@@ -669,7 +676,7 @@ void testEth29(int count) {
   if (count <= 0) 
     count = 1000;
 
-  status = eth29Init("128.117.80.81", 0xb0, 3);
+  status = eth29Init("192.168.10.2", 0xb0, 3);
   
   if (status) {
     logMsg("testEth29: warning, initialization failed\n");
@@ -678,7 +685,7 @@ void testEth29(int count) {
   // try to send anyway; the thing may have already been initialized
 
   for (i=0; i < count; i++) {
-    status = eth29SendDgram("128.117.80.170", 50000, 
+    status = eth29SendDgram("192.168.10.11", 3101, 
 			    buffer, sizeof(buffer));
     if (status < 0) {
       logMsg("testEth29: eth29SendDgram failed\n");
@@ -848,6 +855,11 @@ int eth29SendDgram(char* sendToIPaddress, int dest_port, unsigned char* buffer, 
   int optlen = 0;					    /* option length */
   u_long dest_addr = inet_addr(sendToIPaddress);
   int status = 0;
+
+  if (dest_addr == ERROR) {
+    logMsg("eth29SendDgram: unable to translate IP address\n");
+    return -1;
+  }
 
   /* check data length */
   if(length == 0)
@@ -1095,6 +1107,8 @@ int eth29_init_l2(int interruptVector, int interruptLevel)
   int i;
   u_char ieee_addr[6];
   int error = 0;
+
+  eth29InterruptLevel = interruptLevel;
 
   printd("\neth29_init_l2: initialize ETH29\n");
 

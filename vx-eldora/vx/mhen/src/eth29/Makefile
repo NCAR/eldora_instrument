@@ -43,7 +43,8 @@ BIN=.
 compile: $(OBJS)
 
 install: $(OBJS)	
-	scp eth29.o martinc@dyn80-25:/magnus/dt/eldora/vx/eth29fc
+#	scp eth29.o martinc@dyn80-25:/magnus/dt/eldora/vx/eth29fc
+	cp eth29.o  ../../bin
 
 depend:	
 	makedepend ${INCLUDES} ${SRCS}
