@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.1.1.1  2003/04/07 19:24:03  martinc
+* --------- import
+* ---------
 * 011025 cg added routine eth29_check_data to check data sent by two different
 *           remote systems;
 * 011023 cg in the two copying while-loops in eth29_poll_rx removed check
@@ -230,7 +233,7 @@ typedef void *caddr_t;
 //#define ETH29_IP_ADDR		ETH29_IP_REM_ADDR	       /* IP address */
 #define SEND_IP                 "128.117.80.170"     /* address to send datagrams to */
 
-#define DATAGRAM_SIZE           20000
+#define DATAGRAM_SIZE           5000
 
 /*
  * ETH29 access
@@ -688,8 +691,8 @@ int eth29(void)
 	}
 
 	/* open socket for configuration */
-	//	status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, 0);
-		status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, 0);
+	//status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	/* set firmware debug level */
 	optval = 9;
@@ -733,8 +736,8 @@ int eth29(void)
 	status = P_Close(sock_a[0]);
 
 	/* open socket to send data */
-	//status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	//status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	logMsg("P_Socket returned a status of %d\n", status);
 
 	/* bind to it */
