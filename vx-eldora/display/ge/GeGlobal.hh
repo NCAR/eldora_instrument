@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/23  20:38:35  thor
+ * Added Mouse support.
+ *
  * Revision 1.3  1991/10/15  15:37:34  thor
  * Added include of globals for radial case.
  *
@@ -58,6 +61,8 @@ GE_SCOPE Mouse *Rodent;
 GE_SCOPE Task *AlarmTask;
 GE_SCOPE Task *CtrlTask;
 GE_SCOPE Task *DrawingTask;
+
+GE_SCOPE Beam_Time *LastTime;
 
 // Flag masks.
 static const unsigned int TASK_STOP   = 0x1;

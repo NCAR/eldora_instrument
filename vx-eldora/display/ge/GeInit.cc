@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/17  16:48:44  thor
+ * Increased stack size.
+ *
  * Revision 1.2  1991/10/14  19:21:29  thor
  * Changed to use Task class & added new tasks to spawn.
  *
@@ -32,6 +35,7 @@ extern "C" {
 
 static DispStatus ge_status;
 static DispCommand ge_command;
+static Beam_Time lasttime;
 
 void GeStart(char *server, int sys)
 {
@@ -43,6 +47,7 @@ void GeStart(char *server, int sys)
 
     GeStatus = &ge_status;
     GeCommand = &ge_command;
+    LastTime = &lasttime;
 
     ge_status.status = LOADED;
     ge_status.count = 0;
