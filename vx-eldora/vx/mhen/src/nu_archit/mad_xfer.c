@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:33:03  eric
+ * Initial revision
+ *
  * Revision 1.2  1993/09/30  15:27:09  eric
  * modified calculation for number of areas to use logical length
  * rather than fixed size of 0x8000 bytes.
@@ -44,6 +47,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "systime.h"
 #include "sysLib.h"
 
+#include "HeaderRpc.h"
 #include "Parameter.h"
 #include "RadarDesc.h"
 #include "Header.h"
@@ -202,7 +206,7 @@ for(j=0;j<27;j++)
 
       /* Time Series Block */
 
-      t_s = (TIME_SERIES *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (j * DATA_RAY_OFFSET) + data_len + indep_freq_len + sizeof(ray_i) + sizeof(platform_i) + sizeof(field_parameter_data) + sizeof(indep_freq));
+      t_s = (TIME_SERIES *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (j * DATA_RAY_OFFSET) + data_len + indep_freq_len + sizeof(ray_i) + sizeof(platform_i) + sizeof(field_parameter_data));
 /*      printf("t_s = %X \n", t_s); */
       t_s -> time_series_id[0] = 'T';
       t_s -> time_series_id[1] = 'I';
@@ -307,10 +311,15 @@ for (proc=0; proc<4; proc++)
 	data_length = logical_length + F_FACTOR;
       else
 	data_length = NAV_LENGTH + F_FACTOR;
+
       madinfo[proc][mad][SIZE_AREAS] = data_length;
-      if((madinfo[proc][mad][NUM_AREAS] = (madinfo[proc][mad][MAX_MEM]-0x1800)/
-                              madinfo[proc][mad][SIZE_AREAS])>1000)
-                              madinfo[proc][mad][NUM_AREAS] = 1000;
+
+      madinfo[proc][mad][NUM_AREAS] = 
+	(madinfo[proc][mad][MAX_MEM] - STARTOF_MAD_DATA) /
+	  madinfo[proc][mad][SIZE_AREAS];
+
+     if(madinfo[proc][mad][NUM_AREAS] > 3000)
+	madinfo[proc][mad][NUM_AREAS] = 3000;
       printf("\nlogical length = %d\n",logical_length);
       printf("area size = %ld\n",madinfo[proc][mad][SIZE_AREAS]);
       printf("max mem = %ld\n",madinfo[proc][mad][MAX_MEM]);
@@ -324,7 +333,7 @@ for (proc=0; proc<4; proc++)
       for(i=0; i<madinfo[proc][mad][NUM_AREAS]; i++)
 	{
          gmad->mailboxes[i] = 0;
-	 gmad->addresses[i] = madinfo[proc][mad][MAD_BASE] + 0x1800 +
+	 gmad->addresses[i] = madinfo[proc][mad][MAD_BASE] + STARTOF_MAD_DATA +
                              i * madinfo[proc][mad][SIZE_AREAS];
         }
 
@@ -362,7 +371,7 @@ for (proc=0; proc<4; proc++)
       else
 	{
 	    printf("#1 TPB transfer unsuccessful proc: %d mailbox: %x status: %x\n",proc,*mailbox,status);
-	    currStatus->count++;
+
 	    currStatus->mcpl |= MAD_XFER;
 	    switch(proc)
 	      {
