@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:21  thor
+ * *** empty log message ***
+ *
  * Revision 1.9  1992/10/21  14:02:25  thor
  * A little tighter.
  *
@@ -57,18 +60,18 @@ static void ddpIsr(SEM_ID);
 
 Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
 {
-    mailBase = addr + 8;
+    mailBase = (unsigned short *)(addr + 8);
 
     fore = mailBase;
     aft = mailBase + 1;
 
-    addrBase = addr + 0x800;
+    addrBase = (long *)(addr + 0x800);
 
     foreSavedAddr = addrBase;
 
     aftSavedAddr = addrBase + 1;
 
-    repeat = addr + 4;
+    repeat = (long *)(addr + 4);
 
     Count = 0;
     foreCurr = 0;
@@ -109,7 +112,8 @@ void Ddp::Next(void)
 		*fptr = 0;
 
 		if (status != 0xbfff)
-		  PostAlarm();
+		  ;
+//		  PostAlarm();
 		else if (!radar) // We want fore beams!
 		  {
 
@@ -156,7 +160,8 @@ void Ddp::Next(void)
 		      *aptr = 0;
 		      
 		      if (status != 0xbfff)
-			PostAlarm();
+			;
+//			PostAlarm();
 		      else if (radar) // We want aft beams!
 			{
 			    FAST DataBeam *db = (DataBeam *)*aftAddr;
