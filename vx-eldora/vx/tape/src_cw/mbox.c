@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:18:07  craig
+ * Fixed flushing of buffers
+ *
  * Revision 1.2  1994/11/14  17:48:45  craig
  * Fixed Buffer Flushing
  *
@@ -85,6 +88,11 @@ if(*sync_word != 0x55555555)
 /* Sync word now indicates good path status */
 
 *sync_word=0; /* Clear sync word so that next time we will wait on it */
+for(i=0; i<8; i++)    
+  {
+      rad_xfer_len[i]=0;  /* Reinit both arrays */
+      rad_xfer_addr[i]=0; /* So we can use them again*/
+  }
 fore_raycnt_errcnt=0;
 aft_raycnt_errcnt=0;
 rad_dscr_blk_cnt = 0;
@@ -194,19 +202,74 @@ do
 		  if(fore_raycnt!=fpd->ray_count)
 		    {
 			fore_raycnt_errcnt++;
-			if(fore_raycnt_errcnt >2) /*First few are not errors */
+			if(fore_raycnt_errcnt >1) /*First one is not an error*/
 			  {
 			      tapeStatus->status[current_unit] |=
 				RAY_COUNT_PROBLEMS;
-			      printf("FORE IS %d SHOULD BE %d\n",
+			      printf("FORE %d :  %d flushing\n",
 				     fpd->ray_count,fore_raycnt);
-			fore_raycnt=fpd->ray_count;
-			/* Log and report bad fore radar ray count */
-			  }
-		    }
-		  type=rad_dscr->data_reduction;
 
+                 /* Flush out all mail boxes with zeros */
+
+                   mb_ptr = (unsigned short *)MAIL_BOX;
+                   for(mb_count=0; mb_count<*num_recs; mb_count++)
+                           {
+			       *mb_ptr=0; /*Flush all mailboxes */
+			       mb_ptr++;
+			       if((int)mb_ptr > last_mailbox)
+				 break;
+			   }
+
+			      /* Look for first occurence of good fore_mb */
+
+			      i = 0;
+			      while(*fore_mb!=0xBFFF)
+				{
+				    fore_mb+=2;
+				    fore_addr+=2;
+				    /* Test for last mail box */
+				    if((int)fore_mb > last_mailbox) 
+				      {
+					 fore_mb = (unsigned short *)MAIL_BOX;
+					 fore_addr = (unsigned int *)DATA_RECS;
+					 if(i++ > 2000) break;
+				     } 
+				}
+
+			      /* Look for first occurence of good aft_mb */
+
+			      i = 0;
+			      while(*aft_mb!=0xBFFF)
+				{
+				    aft_mb+=2;
+				    aft_addr+=2;
+				    /* Test for last mail box */
+				    if((int)aft_mb > last_mailbox)
+				      {
+					aft_mb = (unsigned short *)MAIL_BOX+1;
+					aft_addr = (unsigned int *)DATA_RECS+1;
+					if(i++ > 2000) break;
+				      } 
+				}
+
+			 /* Log flushed buffer */
+			      loggerEvent("Flushed Buffer (fore) %2d:%2d:%2d\n"
+					  , log_ints,3);
+
+			      (unsigned int)fpd=*aft_addr+sizeof(RAY)
+				+sizeof(PLATFORM);
+			      aft_raycnt=fpd->ray_count;
+			      (unsigned int)fpd=*fore_addr+sizeof(RAY)
+				+sizeof(PLATFORM);
+			      *fore_mb = 0;
+
+			  }
+			fore_raycnt=fpd->ray_count;
+		    }
+
+		  type=rad_dscr->data_reduction;
 		  keep=reduce_data(type,fore_addr);
+
 		  if(keep==0)
 		    {
 			fore_mb+=2;
@@ -237,7 +300,7 @@ do
 		  /* If this record takes us over maximum block size,
 		     Write tape and start new Scatter Gather */
 
-		  if((rad_blk_sz + rad_rec_length)>=MAX_BLK_SZ)
+		  if((rad_blk_sz + rad_rec_length)>=max_blk_sz)
 		    {
 			done=1; /* Sets address of last dscr blk to -1 */
 			rad_sctr_gthr(rad_dscr_blk_cnt,done); /* Write to SG */
@@ -342,7 +405,7 @@ do
 
 		  /* Will this record take us over the maximum block size? */
 
-		  if((nav_blk_sz + nav_rec_length)>=MAX_BLK_SZ)
+		  if((nav_blk_sz + nav_rec_length)>=max_blk_sz)
 		    {
 			/* Copy temporary arrays to the scatter-gather
 			   structure */
@@ -446,7 +509,7 @@ do
 		  ads_rec_length=ads_length(fore_addr);
 
 		  /* Will this record put us over maximum block size? */
-		  if((ads_blk_sz + ads_rec_length)>=MAX_BLK_SZ)
+		  if((ads_blk_sz + ads_rec_length)>=max_blk_sz)
 		    {
 
 			/* Copy temporary arrays into the scatter-gather
@@ -605,14 +668,67 @@ do
 	    if(aft_raycnt!=fpd->ray_count)
 	      {
 		  aft_raycnt_errcnt++;
-		  if(aft_raycnt_errcnt > 2) /* First few are not errors */
+		  if(aft_raycnt_errcnt > 1) /* First few are not errors */
 		    {
 			tapeStatus->status[current_unit] |= RAY_COUNT_PROBLEMS;
-			printf("AFT IS %d SHOULD BE %d\n",
+			printf("AFT: %d   %d flushing\n",
 			       fpd->ray_count,aft_raycnt);
-			aft_raycnt=fpd->ray_count;
-			/* Log a bad aft ray-count event */
+
+                 /* Flush out all mail boxes with zeros */
+
+                   mb_ptr = (unsigned short *)MAIL_BOX;
+                   for(mb_count=0; mb_count<*num_recs; mb_count++)
+                           {
+			       *mb_ptr=0; /*Flush all mailboxes */
+			       mb_ptr++;
+			       if((int)mb_ptr > last_mailbox)
+				 break;
+			   }
+
+			      /* Look for first occurence of good fore_mb */
+
+			      i = 0;
+			      while(*fore_mb!=0xBFFF)
+				{
+				    fore_mb+=2;
+				    fore_addr+=2;
+				    /* Test for last mail box */
+				    if((int)fore_mb > last_mailbox) 
+				      {
+					 fore_mb = (unsigned short *)MAIL_BOX;
+					 fore_addr = (unsigned int *)DATA_RECS;
+					 if(i++ > 2000) break;
+				     } 
+				}
+
+			      /* Look for first occurence of good aft_mb */
+
+			      i = 0;
+			      while(*aft_mb!=0xBFFF)
+				{
+				    aft_mb+=2;
+				    aft_addr+=2;
+				    /* Test for last mail box */
+				    if((int)aft_mb > last_mailbox)
+				      {
+					aft_mb = (unsigned short *)MAIL_BOX+1;
+					aft_addr = (unsigned int *)DATA_RECS+1;
+					if(i++ > 2000) break;
+				      } 
+				}
+
+			 /* Log flushed buffer */
+			      loggerEvent("Flushed Buffer (aft) %2d:%2d:%2d\n",
+					  log_ints,3);
+			(unsigned int)fpd=*fore_addr+sizeof(RAY)
+			  +sizeof(PLATFORM);
+			fore_raycnt = fpd->ray_count;
+			(unsigned int)fpd=*aft_addr+sizeof(RAY)
+			  +sizeof(PLATFORM);
+			*aft_mb = 0;
 		    }
+
+		  aft_raycnt=fpd->ray_count;
 	      }
 
 	    /* Perform required data reduction algorithm (or non at all) */
@@ -648,7 +764,7 @@ do
 
 	    /* Will this record put us over the maximum block size ? */
 
-		  if((rad_blk_sz + rad_rec_length)>=MAX_BLK_SZ)
+		  if((rad_blk_sz + rad_rec_length)>=max_blk_sz)
 		    {
 
 			/* Copy the temporary length and address array over to
@@ -792,7 +908,7 @@ for(i=0; i<number_of_drives; i++)
 	    /* Log this error in the log file */
 	    log_ints[3] = drives_to_use[i];
 	    log_ints[4] = stat;
-	    loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error ending header write\n",log_ints,5);
+	    loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Ending header wrt\n",log_ints,5);
 	      }
       printf("WROTE ENDING HEADER TO %d\n",drives_to_use[i]);
       exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
@@ -801,7 +917,7 @@ for(i=0; i<number_of_drives; i++)
 /* Log end of volume in the log file */
 log_ints[3] = vol_num;
 log_ints[4] = tape_num;
-loggerEvent("Volume_End Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d Operator stopped system, or turned off recording\n",log_ints,5);
+loggerEvent("Volume_End: %2d/%2d/%2d Vol#: %3d Tape#: %2d Operator intervention\n",log_ints,5);
 new_volume = 1;
 
 return; 
