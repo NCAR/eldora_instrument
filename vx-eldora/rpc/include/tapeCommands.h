@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/05/07  16:32:13  thor
+ * Added commands for parallel recording on/off.
+ *
  * Revision 1.2  1992/01/14  15:21:24  thor
  * Added code for data reduction.
  *
@@ -25,18 +28,14 @@
 
 #include "GblCommands.h"
 
-#define PP_ON     0x10
-#define PP_OFF    0x20
+#define LOG       0x10
 #define REC_ON    0x40
 #define REC_OFF   0x80
 #define REWIND    0x100
 #define EJECT     0x200
-#define SET_UNIT  0x400
-#define PIE_SLICE 0x800
-#define CLIP      0x1000
-#define THRESHOLD 0x2000
-#define PAR_ON    0x4000
-#define PAR_OFF   0x8000
+
 
 #endif /* INCtapeCommandsh */
+
+
 
