@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/09/24  20:25:34  kapoor
+ * Initial revision
+ *
  * Revision 1.2  2003/09/23  22:58:15  kapoor
  * changed include to "hskpAll.h"
  *
@@ -51,39 +54,44 @@ void get_time(void)
 
 
 /* read in the time */
-    time = (short *)(SHORT_BASE + BASE_CLOCK + TIME);
-    for(i=0; i<5; i++) a[i] = *time++;
+    time_reg = (short *)(SHORT_BASE + BASE_CLOCK + TIME);
+    for(i=0; i<5; i++) a[i] = *time_reg++;
 
 /* place into binary global variables */
-    julian_day = 100 * (a[0] & 0xF);
-    julian_day += ((a[1] & 0xF000) >> 12) * 10;
-    julian_day += (a[1] & 0x0F00) >> 8;
+    jday = 100 * (a[0] & 0xF);
+    jday += ((a[1] & 0xF000) >> 12) * 10;
+    jday += (a[1] & 0x0F00) >> 8;
 
-    hour = ((a[1] & 0x00F0) >> 4) * 10;
-    hour += a[1] & 0x000f;
+    hr = ((a[1] & 0x00F0) >> 4) * 10;
+    hr += a[1] & 0x000f;
 
-    minute = ((a[2] & 0xF000) >> 12) * 10;
-    minute += (a[2] & 0x0F00) >> 8;
+    min = ((a[2] & 0xF000) >> 12) * 10;
+    min += (a[2] & 0x0F00) >> 8;
 
-    second = ((a[2] & 0x00F0) >> 4) * 10;
-    second += a[2] & 0x000f;
+    sec = ((a[2] & 0x00F0) >> 4) * 10;
+    sec += a[2] & 0x000f;
 
-    millisecond = ((a[3] & 0xF000) >> 12) * 100; 
-    millisecond += ((a[3] & 0x0F00) >> 8) * 10; 
-    millisecond += ((a[3] & 0x00F0) >> 4); 
+    msec = ((a[3] & 0xF000) >> 12) * 100; 
+    msec += ((a[3] & 0x0F00) >> 8) * 10; 
+    msec += ((a[3] & 0x00F0) >> 4); 
 
-/* Calculate day and month here here */
+/* Calculate day and mon here here */
 
     dummy = 0;
     for(i=0; i<13; i++)
       {
-	  if(julian_day <= dummy)
+	  if(jday <= dummy)
 	    break;
 	  else
 	    dummy += day_mon_calc[i];
       }
 
-    month = i;
-    day = julian_day - dummy + day_mon_calc[i-1];
+    mon = i;
+    day = jday - dummy + day_mon_calc[i-1];
+
+/* Calculate the year */
+    
+    get_year();
 
 }
+
