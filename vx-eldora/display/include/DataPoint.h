@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1991/12/12  20:50:34  thor
+ * Added new height & width variables to VertPoint struct.
+ *
  * Revision 1.8  1991/12/06  15:46:53  thor
  * Added structure for vertical display.
  *
@@ -59,10 +62,12 @@
 #endif /* VERTICES */
 
 struct Horiz_Move {
+    int direction;		/* Where are we going. */
     float latitude;
     float longitude;
-    int direction;
 };
+
+typedef struct Horiz_Move HorizMove;
 
 struct Beam_Time {
     short hour;
@@ -73,10 +78,13 @@ struct Beam_Time {
 
 typedef struct Beam_Time Beam_Time;
 
-struct Data_Point {
+struct Horiz_Point {
+    HorizMove move;
     Beam_Time time;
-    Point aircraft;
-    Point rect[VERTICES];
+    Point aircraft;		/* Location of aircraft. */
+    Point ul;			/* Data's location. */
+    unsigned short width;	/* Size of rectangle. */
+    unsigned short height;
     unsigned char colors[4];
 };
 
@@ -90,7 +98,7 @@ struct Vert_Point {
 
 struct Radial_Data {
     Beam_Time time;
-    float angle;
+    float angle;		/* Rotation angle. */
     int direction;
     unsigned char colors[DISPLAYED_GATES * 3];
 };
@@ -98,6 +106,7 @@ struct Radial_Data {
 static const int POSITIVE = 1;
 static const int NEGATIVE = 0;
 
+static const int NO_MOVE     = -1;
 static const int UPPER_LEFT  = 0;
 static const int LEFT        = 1;
 static const int LOWER_LEFT  = 2;
@@ -109,9 +118,15 @@ static const int DOWN        = 7;
 static const int INITIAL_LAT_LONG = 8; /* This means update only the */
 				       /* location data. */
 
-typedef struct Data_Point DataPoint;
-typedef struct Horiz_Move HorizMove;
+typedef struct Horiz_Point HorizPoint;
 typedef struct Radial_Data RadialData;
 typedef struct Vert_Point VertPoint;
+
+static int HorizMoveSize  = sizeof(HorizMove);
+static int HorizPointSize = sizeof(HorizPoint);
+static int BeamTimeSize   = sizeof(Beam_Time);
+static int VertPointSize  = sizeof(VertPoint);
+static int RadialDataSize = sizeof(RadialData);
+
 #endif INCDataPointh
 
