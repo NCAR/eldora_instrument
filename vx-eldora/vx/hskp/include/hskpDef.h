@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1996/10/29  23:28:18  craig
+ * *** empty log message ***
+ *
  * Revision 1.6  1996/10/11  23:27:24  craig
  * *** empty log message ***
  *
@@ -44,8 +47,8 @@ struct DATARAY
 /* Definitions to handle the test pulse */
 #define TP_ATTEN_STEP  10
 #define TP_ATTEN_MAX   40
-#define MAX_TP_VEL_DIFF 1000            /* In m/s */
-#define MAX_TP_PWR_DIFF 50000000           /* In mw  */
+#define MAX_TP_VEL_DIFF 0.05              /* In m/s */
+#define MAX_TP_PWR_DIFF 0.2               /* In dbm */
 
 /*Definitions of the pattern that point the waveguide switch at each antenna*/
 #define WG_SW_FORE 0x04
