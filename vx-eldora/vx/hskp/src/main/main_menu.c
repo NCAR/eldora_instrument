@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/08  23:15:54  craig
+ * Initial revision
+ *
  * Revision 1.2  1992/09/08  22:55:48  craig
  * *** empty log message ***
  *
@@ -130,7 +133,7 @@ do{
 	  stop_flag = 0;
 	  break;
 	case 2:        /* Stop the executive */
-	  stopxx_flag = 1;
+	  stop_flag = 1;
 	  break;
 	case 3:        /* Reload the executive */
 	  reload_flag = 1;
