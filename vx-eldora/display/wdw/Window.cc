@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.6  1992/03/17  20:17:02  thor
  * Fixed aPan to add in base offset of window memory.
  *
@@ -308,16 +311,16 @@ int Window::pan(FAST Point panOrigin)
 
     botX++;			// Include all pixels.
 
-    if (x > 0x7fff)		// Negative value?
-      x = 0;
-    else if (x > botX)		// Too close to edge.
+     if (x > 0x7fff || x < upperLeft.x) // Negative value?
+    x = upperLeft.x;
+    else if (x > botX)
       x = botX;
 
     FAST unsigned short botY = bottomRight.y - (height * 2);
     botY++;
 
-    if (y > 0x7fff)
-      y = 0;
+    if (y > 0x7fff || y < upperLeft.y)
+      y = upperLeft.y;
     else if (y > botY)
       y = botY;
 
