@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  90/12/27  09:48:00  thor
+ * Modified to use new semaphore syntax.
+ * 
  * Revision 1.3  90/12/07  13:48:46  thor
  * Fixed bug in test for already set flags.
  * 
