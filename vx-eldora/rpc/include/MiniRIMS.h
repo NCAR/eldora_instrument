@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:23:46  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,9 +22,9 @@
 
 #ifdef OK_RPC
 
-#ifdef UNIX
+#if defined(UNIX) && defined(sun)
 #include <rpc/rpc.h>
-#else
+#else if defined(WRS)
 #include "rpc/rpc.h"
 #endif /* UNIX */
 
@@ -48,7 +51,9 @@ struct minirims_data {
 typedef struct minirims_data minirims_data;
 typedef struct minirims_data MINIRIMS_DATA;
 
+#if defined(sun) || defined(WRS)
 extern bool_t xdr_minirims_data(XDR *, minirims_data *);
+#endif
 
 #endif /* OK_RPC */
 #endif /* INCMiniRIMSh */
