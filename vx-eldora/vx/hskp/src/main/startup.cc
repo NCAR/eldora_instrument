@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1999/09/27  15:53:59  thor
+ * Switched over to new mode of handling commands.
+ *
  * Revision 1.7  1996/09/12  17:21:50  craig
  * *** empty log message ***
  *
@@ -76,6 +79,8 @@ void startup(void)
 
 static void startCmd(void)
 {
+  char string[20];
+
   currStatus = &status;
 
   udpSvr svr(3000);
@@ -141,7 +146,7 @@ static void startCmd(void)
 	  if(cmd & START_CLOCK)  /* Has Control processor told us to
 				    start clock? */
 	    {
-	      start_clock();
+	      /*  start_clock(); */
 	      currStatus->clock = 0;
 	    }
 	  if(cmd & START)  /* Has control Processor told us to start? */
@@ -167,12 +172,13 @@ static void startCmd(void)
 				  the time of day card to the ADS's
 				  IRIG-B signal? */
 	    {
-	      currStatus->clock = IRIGB_SYNCING;
+	      /********** No Synching for Bancomm Clock Card *****/
+	      /*   currStatus->clock = IRIGB_SYNCING;
 	      char test = sync_irig();
-	      if(test)            /* Were we successful? */
+	      if(test)             Were we successful? */
 		currStatus->clock = 0;
-	      else
-		currStatus->clock = IRIGB_SYNC_FAILED;
+	      /* else
+		 currStatus->clock = IRIGB_SYNC_FAILED; */
 	    }
 	  if(cmd & SET_TIME)  /* Has the Control Processor told us to set
 				 the time? */
@@ -183,14 +189,20 @@ static void startCmd(void)
 	      char hour = cmdBlk.hour;
 	      char minute = cmdBlk.minute;
 	      char second = cmdBlk.second;
-	      set_time(hour,minute,second,month,date,year);
+	      set_time(hour,minute,second,month,date,year,string); 
+	      start_clock(string); /* modified - added string var for clock*/
 
-	      /* Check for leap year, update the jday_calc array if it is */
+	      /******** Commented out TOD card jday calculation **********
+	      * Check for leap year, update the jday_calc array if it is *
 	      if((((int)(year/4))*4 == year) && (jday_calc[2] == 60))
 		{
 		  for(int i = 2; i < 12; i++)
 		    jday_calc[i]++;
 		}
+	      */
+
+	      get_time();  /* will set the correct julian day */
+
 	      currStatus->clock = TIME_SET_READY;
 	    }
 	}
@@ -199,3 +211,14 @@ static void startCmd(void)
       svr.sendto((void *)currStatus,sizeof(status));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
