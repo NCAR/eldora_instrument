@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.11  1994/11/01  17:17:37  thor
+// Whoops, forgot VS & VL.
+//
 // Revision 1.10  1994/11/01  15:21:53  thor
 // Added dual PRT support.
 //
@@ -128,23 +131,29 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
                     (param == ParamNames::VEL_LONG) ||
                     (param == ParamNames::VEL_SHORT))
 		  {
-		      if (max[0] == 0.0 && min[0] == 0.0)
-			{
-                            if (rd->num_ipps_trans == 2)
-                                {
-                                    float range = 75.0 /
-                                        (rd->freq1 * (rd->interpulse_per2
-                                                      - rd->interpulse_per1));
-
-                                    max[0] = range;
-                                    min[0] = -range;
-                                }
+		    if (max[0] == 0.0 && min[0] == 0.0)
+		      {
+                        float range;
+                        
+                        if (rd->num_ipps_trans == 2)
+                          {
+                            if (param == ParamNames::VELOCITY)
+                              range = 75.0 /
+                                  (rd->freq1 * (rd->interpulse_per2
+                                                - rd->interpulse_per1));
+                            else if (param == ParamNames::VEL_LONG)
+                              range = 75.0 /
+                                  (rd->freq1 * rd->interpulse_per2);
                             else
-                                {
-                                    max[0] = rd->eff_unamb_vel;
-                                    min[0] = -(rd->eff_unamb_vel);
-                                }
-			}
+                              range = 75.0 /
+                                  (rd->freq1 * rd->interpulse_per1);
+                          }
+                        else
+                          range = rd->eff_unamb_vel;
+
+                        max[0] = range;
+                        min[0] = -range;
+                      }
 		  }
 		break;
 	    }
@@ -171,21 +180,27 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
                     (param == ParamNames::VEL_SHORT))
                     {
                       if (max[1] == 0.0 && min[1] == 0.0)
-                          {
-                              if (rd->num_ipps_trans == 2)
-                                  {
-                                      float range = 75.0 /
-                                          (rd->freq1 * (rd->interpulse_per2
-                                                        - rd->interpulse_per1));
+                        {
+                          float range;
+                        
+                          if (rd->num_ipps_trans == 2)
+                            {
+                                if (param == ParamNames::VELOCITY)
+                                  range = 75.0 /
+                                      (rd->freq1 * (rd->interpulse_per2
+                                                    - rd->interpulse_per1));
+                                else if (param == ParamNames::VEL_LONG)
+                                  range = 75.0 /
+                                      (rd->freq1 * rd->interpulse_per2);
+                                else
+                                  range = 75.0 /
+                                      (rd->freq1 * rd->interpulse_per1);
+                            }
+                          else
+                            range = rd->eff_unamb_vel;
 
-                                    max[1] = range;
-                                    min[1] = -range;
-                                }
-                            else
-                                {
-                                    max[1] = rd->eff_unamb_vel;
-                                    min[1] = -(rd->eff_unamb_vel);
-                                }
+                          max[1] = range;
+                          min[1] = -range; 
 			}
 		  }
 		break;
