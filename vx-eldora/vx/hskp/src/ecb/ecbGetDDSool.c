@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/23  19:47:15  shawn
+ * Revision 1.1  1992/09/24  22:29:25  shawn
  * Initial revision
  *
  * description: Write "Send DDS out-of-lock status" command

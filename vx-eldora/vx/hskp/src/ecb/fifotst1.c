@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/05/29  19:24:55  shawn
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -28,6 +31,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include <vxWorks.h>
 #include <stdioLib.h>
+
 #include "ecbMaster.h"
 
 #define WTIME 3000

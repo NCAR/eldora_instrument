@@ -9,9 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/23  19:44:45  shawn
+ * Initial revision
  *
- *
- * description:
+ * description: Write "Set Attenuator value" command into ECB MASTER IN FIFO
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -44,6 +45,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 #include "ecbAdr.h"      /* Slave addresses on ECB bus */
+#include "ecbErrBound.h" /* various #defines for error bounds */
 
 unsigned char ecbSetAtten(unsigned char ecbadr,unsigned char foraft,unsigned char attenval)
 {
@@ -95,9 +97,9 @@ unsigned char ecbSetAtten(unsigned char ecbadr,unsigned char foraft,unsigned cha
       }
 
     /* Check for valid attenval */
-    if (attenval > 121)
+    if ((attenval < ECBATLOWATTEN) || (attenval > ECBATHIGHATTEN))
       {
-	  printf("ecbSetAtten: attenuator value passed [%d] is out ",attenval);
+	  printf("ecbSetAtten: attenuator value passed [%u] is out ",attenval);
 	  printf("of range (0..121).\n");
 	  printf("ecbSetAtten: Returning without issuing command.\n");
 	  printf("ecbSetAtten: Re-Giving ecb_cmd_not_pending Semaphore.\n");

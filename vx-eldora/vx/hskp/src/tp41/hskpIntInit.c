@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/19  00:19:22  shawn
+ * Revision 1.1  1992/06/19  00:25:57  shawn
  * Initial revision
  *
  *
@@ -27,10 +27,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /*****************************************************************************/
 
 #define IRQ1 1       /* set these #defines to 1 to enable */
-#define IRQ2 0       /* the VME interrupt level (onto the */
-#define IRQ3 0       /* 68040 card), set them to 0 to     */
-#define IRQ4 0       /* disable the VME interupt level    */
-#define IRQ5 0
+#define IRQ2 1       /* the VME interrupt level (onto the */
+#define IRQ3 1       /* 68040 card), set them to 0 to     */
+#define IRQ4 1       /* disable the VME interupt level    */
+#define IRQ5 1
 #define IRQ6 0
 #define IRQ7 0
 #define ACFAIL 0
@@ -50,6 +50,6 @@ void hskpIntInit()
 
     cio1porta   = (unsigned char *) 0x0d000008;
 
-    *cio1porta = (unsigned char) 0xfd;  /* enable IRQ*(1) level int. on tp41 */
+    *cio1porta  = workbyte;  /* enable IRQ* levels on tp41 */
 
 }

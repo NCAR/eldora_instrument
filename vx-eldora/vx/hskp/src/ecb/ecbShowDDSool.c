@@ -9,9 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/23  19:38:40  shawn
+ * Revision 1.1  1992/09/24  22:33:27  shawn
  * Initial revision
- *
  *
  * description: Read ECB "DDS out-of-lock Status" (ecbOol) structure
  *              in Global memory and print the contents.
@@ -42,7 +41,7 @@ void ecbShowDDSool()
     printf("ecbShowDDSool: oolbits  ==> 0x%x\n",ecbOol.oolbits);
     printf("ecbShowDDSool: the address corresponds to:");
     
-    switch(ecbTempi.ecbadr)
+    switch(ecbOol.ecbadr)
       {
 	case ECBRFFOR:
  	  printf(" FORWARD RCVR/XCTR SLAVE.\n");

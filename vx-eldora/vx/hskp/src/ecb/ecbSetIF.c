@@ -9,11 +9,14 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/19  01:03:24  shawn
+ * Does error checking for appropriate ecbadr.  Checks for empty IN and
+ * OUT FIFO's and returns an error code if non-empty.
+ *
  * Revision 1.1  1992/06/16  22:22:43  shawn
  * Initial revision
  *
- *
- * description:
+ * description: Write "set IF processor filter" command to ECB MASTER IN FIFO
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -33,6 +36,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /*                  things are probably pretty messed up.                    */
 /*              5 - ecbadr passed is not for an IF processor; no action      */
 /*                  taken.                                                   */
+/*              6 - unitnum passed is out of range; no action taken.         */
+/*              7 - filtnum passed is out of range; no action taken.         */
 /*****************************************************************************/
 
 #include <vxWorks.h>
@@ -43,31 +48,74 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 #include "ecbAdr.h"      /* Slave addresses on ECB bus */
+#include "ecbErrBound.h" /* various #defines for error bounds */
 
 unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char filtnum)
 {
     unsigned char *vmestat,*infifo,*outfifo;
     unsigned char readback=0,chksumback=0;
 
+    /* Check for pending Command */
     if (semTake(ecb_cmd_not_pending,1) == ERROR)
       {
-	  printf("ecbSetIF: command still pending... returning without issuing command.\n");
+	  printf("ecbSetIF: command still pending...");
+	  printf("Returning without issuing command.\n");
 	  return(1);
       }
 
+    /* Check for valid ecbadr */
     if (ecbadr!=ECBIFFOR && ecbadr!=ECBIFAFT)
       {
-	  printf("ecbSetIF: ecbadr passed (%d) is not the ECB bus address\n",ecbadr);
-	  printf("ecbSetIF: for an IF Processor slave...returning without issuing command.\n");
+	  printf("ecbSetIF: ecbadr passed [%d] is not the ",ecbadr);
+	  printf("ECB bus address\n");
+	  printf("ecbSetIF: for an IF Processor slave...");
+	  printf("Returning without issuing command.\n");
 	  printf("ecbSetIF: Re-Giving ecb_cmd_not_pending Semaphore.\n");
 	  if(semGive(ecb_cmd_not_pending) == ERROR)
 	    {
-		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
 		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
-		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		printf("ecbSetIF:  Returning without Give-ing semaphore.\n");
 		return(4);
 	    }
 	  return(5);
+      }
+
+    /* Check for valid unitnum */
+    if (unitnum < ECBIFLOWUNIT  ||  unitnum > ECBIFHIGHUNIT)
+      {
+	  printf("ecbSetIF: unitnum passed [%d] is out of ",unitnum);
+	  printf("range (0..4).\n");
+	  printf("ecbSetIF: Returning without issuing command.\n");
+	  printf("ecbSetIF: Re-Giving ecb_cmd_not_pending Semaphore.\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
+		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
+		printf("ecbSetIF:  Returning without Give-ing semaphore.\n");
+		return(4);
+	    }
+	  return(6);
+      }
+
+    /* Check for valid filtnum */
+    if (filtnum < ECBIFLOWFILT  ||  filtnum > ECBIFHIGHFILT)
+      {
+	  printf("ecbSetIF: filtnum passed [%d] is out of ",filtnum);
+	  printf("range (1..5).\n");
+	  printf("ecbSetIF: Returning without issuing command.\n");
+	  printf("ecbSetIF: Re-Giving ecb_cmd_not_pending Semaphore.\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
+		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
+		printf("ecbSetIF:  Returning without Give-ing semaphore.\n");
+		return(4);
+	    }
+	  return(7);
       }
 
     vmestat = (unsigned char *)(MASTERBASE + MASTERSTAT);
@@ -81,9 +129,10 @@ unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char 
 	  printf("ecbSetIF: ecb_cmd_not_pending semaphore...\n");
 	  if(semGive(ecb_cmd_not_pending) == ERROR)
 	    {
-		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
 		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
-		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		printf("ecbSetIF:  Returning without Give-ing semaphore.\n");
 		return(4);
 	    }
 	  return(2);
@@ -96,9 +145,10 @@ unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char 
 	  printf("ecbSetIF: ecb_cmd_not_pending semaphore...\n");
 	  if(semGive(ecb_cmd_not_pending) == ERROR)
 	    {
-		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
 		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
-		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		printf("ecbSetIF:  Returning without Give-ing semaphore.\n");
 		return(4);
 	    }
 	  return(3);

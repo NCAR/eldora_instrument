@@ -9,6 +9,8 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/23  19:39:12  shawn
+ * Initial revision
  *
  *
  * description: Read ECB "Temperature Status, raw counts" (ecbTempr) structure
@@ -41,7 +43,7 @@ void ecbShowTempr()
     printf("ecbShowTempr: offbtemp ==> %u\n",ecbTempr.offbtemp);
     printf("ecbShowTempr: the address corresponds to:");
     
-    switch(ecbLastCmd.ecbadr)
+    switch(ecbTempr.ecbadr)
       {
 	case ECBRFFOR:
  	  printf(" FORWARD RCVR/XCTR SLAVE.\n");

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/18  19:59:47  shawn
+ * uses proper include files (ecbFunc.h and ecbStat.h)
+ *
  * Revision 1.1  1992/06/17  22:53:32  shawn
  * Initial revision
  *
@@ -31,9 +34,33 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbStat.h"     /* global structures for ecb status */
+#include "ecbAdr.h"      /* Slave addresses on ECB bus */
 
 void ecbShowLast()
 {
-printf("ecbShowLast: values in ecbLastCmd global status structure:\n");
-printf("ecbShowLast: ecbadr ==> 0x%x, comID ==> 0x%x\n",ecbLastCmd.ecbadr,ecbLastCmd.comID);
+    printf("ecbShowLast: values in ecbLastCmd global status structure:\n");
+    printf("ecbShowLast: ecbadr ==> 0x%x, comID ==> 0x%x\n",ecbLastCmd.ecbadr,ecbLastCmd.comID);
+    printf("ecbShowLast: this address corresponds to:");
+    
+    switch(ecbLastCmd.ecbadr)
+      {
+	case ECBRFFOR:
+ 	  printf(" FORWARD RCVR/XCTR SLAVE.\n");
+	  break;
+	case ECBRFAFT:
+ 	  printf(" AFT RCVR/XCTR SLAVE.\n");
+	  break;
+	case ECBIFFOR:
+ 	  printf(" FORWARD IF PROCESSOR SLAVE.\n");
+	  break;
+	case ECBIFAFT:
+ 	  printf(" AFT IF PROCESSOR SLAVE.\n");
+	  break;
+	case ECBATTEN:
+ 	  printf(" ATTENUATOR CHASSIS SLAVE.\n");
+	  break;
+	default:
+	  printf(" NO KNOWN ADDRESS!!!!\n");
+	  break;
+      }
 }

@@ -9,9 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/25  23:21:23  shawn
+ * Revision 1.1  1992/09/24  22:31:43  shawn
  * Initial revision
- *
  *
  * description: Read ECB "Slave Status" (ecbSlvStat) structure
  *              in Global memory and print the contents.

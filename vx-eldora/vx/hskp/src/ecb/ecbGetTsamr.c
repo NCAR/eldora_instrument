@@ -9,18 +9,20 @@
  * revision history
  * ----------------
  * $Log$
- *
+ * Revision 1.1  1992/06/23  19:48:11  shawn
+ * Initial revision
  *
  * description: Write "send Temperature Sample, raw counts" command
  *              to ECB MASTER IN FIFO
- *        
+ *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 /*****************************************************************************/
 /*	ecbGetTsamr()                                                        */
 /*		Write "Send Temperature Sample, raw counts" command to ECB   */
-/*              MASTER IN FIFO*/
+/*              MASTER IN FIFO.  Clears the newdata flag in the ecbTempr     */
+/*              global status structure.                                     */
 /*      Return values:                                                       */
 /*              0 - command placed into IN FIFO and "command-not-pending"    */
 /*                  semaphore taken.                                         */
@@ -42,6 +44,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 #include "ecbAdr.h"      /* Slave addresses on ECB bus */
+#include "ecbStat.h"     /* global structures for ecb status */
 
 unsigned char ecbGetTsamr(unsigned char ecbadr)
 {
@@ -119,6 +122,8 @@ unsigned char ecbGetTsamr(unsigned char ecbadr)
     *infifo = (unsigned char) 1;  /* write numbytes into IN FIFO */
     *infifo = 0x02;  /* write command ID Code into IN FIFO */
     *infifo = (unsigned char) ECBEOS; /* write end-of-sequence into IN FIFO */
+
+    ecbTempr.newdata = 0; /* clear newdata flag in global status structure */
 
     return(0);
 }

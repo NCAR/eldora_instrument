@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/23  19:46:26  shawn
+ * Initial revision
+ *
  *
  *
  * description: Write "set IF processof filter" command to ECB MASTER IN FIFO
@@ -30,7 +33,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 
-unsigned char ecbGiveSem()
+void ecbGiveSem()
 {
     /* Check for pending Command */
     if (semTake(ecb_cmd_not_pending,1) == ERROR)

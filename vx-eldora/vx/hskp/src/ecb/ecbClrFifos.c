@@ -9,10 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/23  19:46:26  shawn
+ * Revision 1.1  1992/06/26  00:23:54  shawn
  * Initial revision
- *
- *
  *
  * description: Clear ECB MASTER IN FIFO AND OUT FIFO.  Useful for debug.
  *        

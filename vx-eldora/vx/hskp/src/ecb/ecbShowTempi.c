@@ -9,6 +9,8 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/23  19:38:40  shawn
+ * Initial revision
  *
  *
  * description: Read ECB "Temperature Status, scaled int" (ecbTempi) structure
@@ -41,7 +43,7 @@ void ecbShowTempi()
     printf("ecbShowTempi: offbtemp ==> %d\n",ecbTempi.offbtemp);
     printf("ecbShowTempi: the address corresponds to:");
     
-    switch(ecbLastCmd.ecbadr)
+    switch(ecbTempi.ecbadr)
       {
 	case ECBRFFOR:
  	  printf(" FORWARD RCVR/XCTR SLAVE.\n");
@@ -63,3 +65,8 @@ void ecbShowTempi()
 	  break;
       }
 }
+
+
+
+
+
