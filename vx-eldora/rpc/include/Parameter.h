@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/15  17:56:03  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.1  1991/08/30  18:39:32  thor
  * Initial revision
  *
@@ -64,6 +67,7 @@ struct parameter_d {
     float parameter_bias;	/* Bias factor for parameter. */
     long  bad_data;		/* Bad data flag (Length is same as */
 				/* that of the data). */
+    long  filter_flag;		/* 0 = no filtering, 1 = filtering. */
 }; /* End of Structure */
 
 
