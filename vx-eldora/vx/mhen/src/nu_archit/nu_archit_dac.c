@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  2003/04/18  01:47:59  martinc
+ * fixed IP addresses for initialization, and changed the NAT interrupt level to 5.
+ *
  * Revision 1.10  2003/04/18  00:48:17  ericloew
  * added support for eth29 ethernet.
  *
@@ -131,7 +134,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 char* dataSendToIP = "192.168.10.11";
 char* dataIFIP;
-int Eth29 = 0;
+int Eth29 = 1;
+int Eth29ivec = 0x5;
 extern int Silent;
 int Param = 6;
 short task_sync = 0;
@@ -163,13 +167,16 @@ volatile static int  f1_flag, f2_flag, f3_flag, f4_flag, f5_flag;
 static unsigned char weather, selection, curr_mask;
 static char *mb_clr;
 static char HdrBuf[10000];
-static int Beamcount = 0;
+static int Firstime = 1;
+static int Firstbeam = 1;
 dac()
 {
 
 
-  long           h, i, j, k, l, q, p, r, num_coll_int, num_dspq_int, tst_pls, tp_width;
-
+  long           h, j, k, q, r, num_coll_int, num_dspq_int, tst_pls, tp_width;
+  register long i,l,p,xmt_cnt,prev_count;
+  long num_dropped;
+  register int Beamcount;
 
   volatile unsigned char   *bim_vr0, *bim_vr1, *bim_vr2, *led, *pio_acc,
     *bim_vr3, stat, *coll_sync;
@@ -198,6 +205,7 @@ dac()
 
   double         n_frq, Pn;
 
+ struct DATA_RAY *beam;
 
   void galil();
   void bim_int0_isr();
@@ -246,6 +254,8 @@ dac()
 
 	  stop = 0;
 	  int_cnt = 0;  /* reset interrupt counter */
+	  Beamcount = 0;
+	  prev_count = 0;
 	  ppp_stat = 0;
 	  proc_stat = 0;
 	  err_cnt = 0;
@@ -305,10 +315,10 @@ dac()
 
 	  if(!radar_fore_aft)          /* fore */
 	    /*	      Fudge_fac = 5.0; */
-	    Fudge_fac = 9.0;   /* for lab testing */
+	    Fudge_fac = 10.0;   /* for lab testing */
 	  else
 	    /* Fudge_fac = 4.0; */         /* aft */
-	    Fudge_fac = 8.5;   /* for lab testing */
+	    Fudge_fac = 9.5;   /* for lab testing */
 	  printf("Fudge_fac = %d\n",Fudge_fac);
 #endif
 	  /* Initialize mcpl hanshake indeces to zero */
@@ -317,6 +327,7 @@ dac()
 	  q = 0;
 	  p = 0;
 	  r = 0;
+	  xmt_cnt = 0;
 
 	  /* Reset send_ray, send_nav, send_ads handshake flags */
 
@@ -440,7 +451,8 @@ dac()
 	  Pnoise = rdsc -> noise_power;
 	  Pnoise -= rdsc -> radar_const;
 	  Pnoise -= Fudge_fac;
-	  Pn = pow(10.0,((double)(Pnoise)/10.0));
+	  /*	  Pn = pow(10.0,((double)(Pnoise)/10.0)); */
+	  Pn = 0.0; /* For lab testing!!! */
 	  Pnoise = Pn;
 	  printf("Pnoise = %g \n",Pnoise);
 
@@ -467,23 +479,18 @@ dac()
 	  if(Eth29)
 	    {
 	      if(radar_fore_aft)  /* try using enet on aft processor */
-		{
-		  dataIFIP = "192.168.10.2";
-		  eth_stat = eth29Init(dataIFIP,0xb0,0x5); /* initialize eth29 */
-		  hdrsz = GetRealHeader(inHeader,HdrBuf);
-		  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send data out eth29 */
-
-		}
+		dataIFIP = "192.168.10.2";
 	      else             /* fore processor */
+		dataIFIP = "192.168.10.1";
+	      if(Firstime)
 		{
-		  dataIFIP = "192.168.10.1";
-		  eth_stat = eth29Init(dataIFIP,0xb0,0x5); /* initialize eth29 */
-		  hdrsz = GetRealHeader(inHeader,HdrBuf);
-		  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send data out eth29 */
-
-		}
-	      if(eth_stat)
-		printf("eth29: Initialization Failed\n");
+		  eth_stat = eth29Init(dataIFIP,0xb0,Eth29ivec); /* initialize eth29 */
+		  if(eth_stat)
+		    printf("eth29: Initialization Failed\n");
+		  Firstime = 0;
+		}		      
+	      hdrsz = GetRealHeader(inHeader,HdrBuf);
+	      eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send header out eth29 */
 	    }
 
 #ifndef ETH29
@@ -1501,52 +1508,67 @@ dac()
 			}
 		      else
 			{
-				
-			  if(vme2_pntr -> radar_hndshk[l] == 1)
+			  /*  if(vme2_pntr -> radar_hndshk[l] == 1) 
 			    {
-			      /*    for(i=0;i<3;i++) */
-			      for(i=0;i<26;i++)
+			        for(i=0;i<3;i++) */
+
+			  for(i=0;i<26;i++)
+			    {
+			      if(vme2_pntr -> radar_hndshk[l] == 1)
 				{
-				  if(vme2_pntr -> radar_hndshk[l] == 1)
+				  curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
+				  curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
+				  beam = (struct DATA_RAY *)curr_ray_add[p][r];
+				  if(Firstbeam)
 				    {
-				      curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
-				      curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
+					Firstbeam = 0;
+					break;
+				    }
 #ifdef ETH29
-				      if(Eth29)
+				  if(Eth29)
+				    {
+				      if(Beamcount == 800)
 					{
-					  if(Beamcount == 800)
-					    {
-					      eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send header out eth29, periodically */
-					      Beamcount = 0;
-					    }
-					  else
-					    Beamcount += 1;
-					  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)curr_ray_add[p][r],logical_length); /* send data out eth29 */
-					  vme2_pntr -> radar_hndshk[l] = 0xAFFF;
+					  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send header out eth29, periodically */
+					  Beamcount = 0;
 					}
+				      else
+					Beamcount += 1;
+				      eth29SendDgram(dataSendToIP, 3102,(unsigned char *)curr_ray_add[p][r],logical_length); /* send data out eth29 */
+				      vme2_pntr -> radar_hndshk[l] = 0xAFFF;
+
+				      num_dropped = beam->fielddata.ray_count - prev_count;
+
+				      if(num_dropped != 1)
+					printf("Dropped %d beams\n",num_dropped);
+
+				      prev_count = beam->fielddata.ray_count;
+				    }
 #endif
 #ifndef ETH29				      
-				      broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
+				  broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
 #endif
-
+				  
 #ifdef PIO_CARD
-				      /* Toggle bit 7 of PIO port A */
-						
-				      *pio_acc = 0x80; 
-				      *pio_acc = 0x0;
+				  /* Toggle bit 7 of PIO port A */
+				  
+				  *pio_acc = 0x80; 
+				  *pio_acc = 0x0;
 #endif
-					      
-				      /*						ray->fielddata.ray_count = l + (q * 27); */
-				      p = p<2?p+1:0;
-				      l = l<26?l+1:0;
-				    }
-				  /*				  else
-					    i = 3; *//* exit loop if fail any test */
-				    
-				}
 
-			      /*  r = r<1?r+1:0; */
+				  /*						ray->fielddata.ray_count = l + (q * 27); */
+
+				}
+			     else if(!Firstbeam)
+				break;
+			      /*			      p = p<2?p+1:0; */
+			      l = l<26?l+1:0;
+
+			      /*			      else
+							      i = 3;  *//* exit loop if fail any test */
 			    }
+			  /*  r = r<1?r+1:0; */
+			  /*			    } */
 
 			}
 
