@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1991/12/18  20:33:36  thor
+ * Fixed bad pointer incrementing in GetBeam.
+ *
  * Revision 1.13  1991/12/18  16:12:35  thor
  * Added bounding code to prevent generation of negative counts.
  *
@@ -486,6 +489,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     if (!(--count))
       return;
 	  lkup += 0x10000;
+    tbls++;
     table = *tbls++;
     FAST unsigned char inc = nbins;	// Offset into color table.
 
@@ -688,7 +692,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     if (!(--count))
     
 
-    table = *tbls++;
+    table = *tbls;
     inc *= 2;
 
 
