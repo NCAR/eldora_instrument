@@ -9,14 +9,17 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/11  20:02:04  shawn
+ * Revision 1.1  1992/09/13  23:43:20  shawn
  * Initial revision
- *
  *
  * description:
  *
   Purpose:       Program ELDORA timing module rev B test pulse parameters.
-  Arguments:     foraft     int, 1 for forward, 0 for aft.
+  Arguments:     prf        int, prf of chip/preknock that triggers testpulse;
+                            This is to provide error checking to abort if the
+			    requested testpulse position overruns the prf of
+			    the selected chip/preknock.
+                 foraft     int, 1 for forward, 0 for aft.
                  mux        int, mux value to trigger test pulse:
 		            0 - CHIP(0)
 			    1 - CHIP(1)
@@ -37,15 +40,14 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-
 #include "ELDRP7.h"
 
-void testpulseb(foraft,mux,dist,width)
+void testpulseb(prf,foraft,mux,dist,width)
      
-     int foraft,mux,dist,width;
+     int prf,foraft,mux,dist,width;
      
 {
-  unsigned int realdist,realwidth;
+  unsigned int realdist,realwidth,endpulse,prfmeters;
   unsigned short *timmux,*timdist,*timwidth;
   unsigned short distcounts,widthcounts;
 
@@ -72,8 +74,8 @@ else
 
   /* print out usage info */
   printf("Hello, this is testpulseb.  Usage:\n");
-  printf("testpulseb foraft[1,0],mux,dist[m],width[m]\n\n");
-  printf("values actually passed to testpulseb==> %d,%d,%d,%d\n",foraft,mux,dist,width);
+  printf("testpulseb prf[Hz],foraft[1,0],mux,dist[m],width[m]\n\n");
+  printf("values actually passed to testpulseb==> %d,%d,%d,%d,%d\n",prf,foraft,mux,dist,width);
 
   /* do minor error checking */
   if ((mux<0) || (mux==6) || (mux==7) || (mux > 13))
@@ -88,6 +90,21 @@ else
   widthcounts = width/10; /* 10 meters per 15MHz count */
   realdist = distcounts * 10;
   realwidth = widthcounts * 10;
+  endpulse = realdist + realwidth;
+  prfmeters = (1.0/(float) prf) * 150000000.0;
+
+  /* check if end of testpulse is greater than 99% of a prt */
+  if ( endpulse > (0.99 * prfmeters) )
+    {
+	printf("testpulseb: end of testpulse (%d[m]) occurs after\n",endpulse);
+	printf("            next occurance of selected chip or preknock.\n");
+	printf("testpulseb: The end of the testpulse must be within 99%%\n");
+	printf("            of the interpulse distance (%d[m]).\n",prfmeters);
+	printf("testpulseb: In other words, the end of the testpulse is\n");
+	printf("            positioned too far out.\n");
+	printf("testpulseb: aborting without programming testpulse values.\n");
+	return;
+    }	
 
   /* write actual values out */
   *timmux   = mux;
