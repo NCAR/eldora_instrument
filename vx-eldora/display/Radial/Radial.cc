@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/02/05  19:39:32  thor
+ * Changed code to put any radius circle at center of data window.
+ *
  * Revision 1.11  1991/12/03  18:03:14  thor
  * Changed hash circles to draw at 5 or 10 km depending on max distance.
  *
@@ -553,6 +556,7 @@ void Radial::SetBounds(float max, float first)
 
     float step = max / rad;
 
-    
-    firstGate = (int)(first / step);
+    FAST int fg = (int)(first / step);
+
+    firstGate = fg;
 }
