@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/11/01  19:39:58  thor
+ * Added new Beam_time structure.
+ *
  * Revision 1.5  1991/04/29  18:45:38  thor
  * Added direction member to RadialData & constants for direction.
  *
@@ -49,12 +52,6 @@
 #define VERTICES 4
 #endif /* VERTICES */
 
-struct Data_Point {
-    Point aircraft;
-    Point rect[VERTICES];
-    unsigned char colors[4];
-};
-
 struct Horiz_Move {
     float latitude;
     float longitude;
@@ -69,6 +66,13 @@ struct Beam_Time {
 };
 
 typedef struct Beam_Time Beam_Time;
+
+struct Data_Point {
+    Beam_Time time;
+    Point aircraft;
+    Point rect[VERTICES];
+    unsigned char colors[4];
+};
 
 struct Radial_Data {
     Beam_Time time;
