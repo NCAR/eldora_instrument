@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/14  19:18:20  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -56,8 +59,19 @@ bool_t xdr_LOG(XDR *xdrs, LOG *objp);
 #define LogMessage ((u_long)1)
 
 #ifdef CLIENT_SIDE
+extern void logmessage_1(LOG *argp, CLIENT *clnt);
+extern void loggerError(char *message);
+extern void loggerEvent(char *message);
+extern int loggerInit(char *host);
 
-extern void *logmessage_1(LOG *argp, CLIENT *clnt);
+#define LOGGER_PRI 2
+
+#ifndef LOGGER_SCOPE
+#define LOGGER_SCOPE extern
+#endif
+
+LOGGER_SCOPE STATUS LoggerError;
+
 #else
 extern void *logmessage_1(LOG *argp, struct svc_req *);
 extern void logger_1(struct svc_req *rqstp, SVCXPRT *transp);
