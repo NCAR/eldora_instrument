@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/06/25  14:06:08  thor
+ * Rewrote beam sizing routine to handle variable gate sizes.
+ *
  * Revision 1.2  1991/05/08  20:09:37  thor
  * Major change - dropped floating point, switched to table of levels.
  *
@@ -64,7 +67,8 @@ class ColorConverter {
 
     ColorConverter(void) {}
 
-    int SetBeamSize(int nchanges, short *cPts, int *sizes);
+    int SetBeamSize(int ngates, int nchanges, short *cPts, int *sizes,
+		    float maxRange);
 
     // Horizontal & vertical case.
     void GetPoint(short *data, DataPoint &dp, int index);
