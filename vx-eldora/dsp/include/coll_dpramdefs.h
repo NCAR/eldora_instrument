@@ -4,7 +4,7 @@
 * 	National Center for Atmospheric Research                              *
 *									      *
 *******************************************************************************
-/*
+*
 *		Module:	coll_dpramdefs.h
 *		Author:	E. Loew
 *		Date:	3/24/92
