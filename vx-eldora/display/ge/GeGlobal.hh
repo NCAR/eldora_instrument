@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/14  19:20:39  thor
+ * Added Task control items.
+ *
  * Revision 1.1  1991/10/01  16:15:15  thor
  * Initial revision
  *
@@ -30,6 +33,9 @@ extern "C" {
 #include "Header.hh"
 #include "GeAlarm.hh"
 #include "Task.hh"
+
+#define WINDOW_GBLS_SCOPE
+#include "GblRadial.hh"
 
 
 #ifndef GE_SCOPE
