@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/08/27  16:50:04  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1996/02/09  18:29:29  craig
  * Initial revision
  *
@@ -66,7 +69,7 @@ if(fake_angles)
 
       if(dumb_start == 0)
 	{
-	    dumb_start = 1;
+	    dumb_start = 1;  
 	    dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
 	    /* 2 pi radians per second */
 	    dumb_stepp = 0.000757 / (float)dwelltime_msec;
@@ -169,11 +172,14 @@ fore_ray_pntr->this_rayi.hour = (short)hr;
 fore_ray_pntr->this_rayi.minute = (short)min;
 fore_ray_pntr->this_rayi.second = (short)sec;
 fore_ray_pntr->this_rayi.millisecond = (short)msec;
+fore_ray_pntr->this_rayi.peak_power = fore_xmit_pwr;
+
 aft_ray_pntr->this_rayi.julian_day = (long)jday;
 aft_ray_pntr->this_rayi.hour = (short)hr;
 aft_ray_pntr->this_rayi.minute = (short)min;
 aft_ray_pntr->this_rayi.second = (short)sec;
 aft_ray_pntr->this_rayi.millisecond = (short)msec;
+aft_ray_pntr->this_rayi.peak_power = aft_xmit_pwr;
 
 msecs_ray[current_index] = msecs_today;
 
