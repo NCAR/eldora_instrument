@@ -13,6 +13,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/09/24  20:15:54  kapoor
+ * Added global var declarations, to satisfy convert_iru.c
+ *
  * Revision 1.1  2003/09/24  20:14:30  kapoor
  * Initial revision
  *
@@ -32,8 +35,10 @@
  *        
  */
  
-/* Define global time words for any task to use */ 
- 
+/* Define global time words for any task to use  
+
+************** USED in SABL, RENAMED BELOW FOR ELDORA *********** 
+
 scope short year;
 scope short month;
 scope short day;
@@ -43,10 +48,12 @@ scope short minute;
 scope short second;
 scope short millisecond;
 
+*/
+
 /* pointers to the clock registers */
 
 scope short *timereq;            /* Time request register (latches time) */
-scope short *time;               /* Starting address where time is stored */
+scope short *time_reg;           /* Starting address where time is stored */
 scope short *clk_ack;            /* Acknowledge register */
 scope short *clk_cmd;            /* Command register */
 scope short *clk_intstat;        /* Interrupt status register */
@@ -55,9 +62,7 @@ scope short *clk_fifo;           /* clock command fifo */
 /* array used to calculate month and day */
 scope int day_mon_calc[13];
 
-
-
-/* global time holding variables (necessary for convert_iru.c) */
+/* global time holding variables */
 
 scope unsigned short msec;
 scope unsigned short jday;
@@ -67,3 +72,5 @@ scope unsigned char hr;
 scope unsigned char day;
 scope unsigned char mon;
 scope unsigned char yr;
+
+
