@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/02/27  16:56:44  thor
+ * Added shift, copyBlock and rootXY methods.
+ *
  * Revision 1.2  91/01/02  08:52:23  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -101,6 +104,8 @@ class Window {
     int center(Point center);
 
     int pan(Point panOrigin);
+
+    void aPan(Point newOrigin);
 
     void home(void);
 

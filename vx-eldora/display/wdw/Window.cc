@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/12/02  18:00:06  thor
+ * Fixed several bugs in pan method.
+ *
  * Revision 1.3  1991/10/24  19:11:53  thor
  * Major rewrite of center method.
  *
@@ -325,6 +328,21 @@ int Window::pan(FAST Point panOrigin)
       }
 
     return(OK);
+}
+
+void Window::aPan(FAST Point newOrigin)
+{
+    FAST unsigned short x = newOrigin.x;
+    FAST unsigned short y = newOrigin.y;
+
+    FAST long l = x << 16;
+
+    l |= y;
+
+    gbd->pan(window,l);
+
+    controlSetting.xoffset = x;
+    controlSetting.yoffset = y;
 }
 
 void Window::home(void)
