@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/19  19:33:48  craig
+ * Initial revision
+ *
  *        
  */
 
@@ -30,11 +33,14 @@ struct DATARAY
        FORE ANTENNA AND 9.5 GHZ NUMBERS FOR THE AFT ANTENNA 
 */
 
-#define ENCODER_ZERO_ANGLE     0
+#define ENCODER_ZERO_FORE_UP   97.19054 - 0.537  /* Measured Plus Roll Angle */
+#define ENCODER_ZERO_AFT_UP    277.0751 - 0.537  /* Measured Plus Roll Angle */
 #define FORE_SQUINT_ANGLE       -0.8
 #define AFT_SQUINT_ANGLE        0.05
 #define FORE_TILT_ANGLE        18.5
 #define AFT_TILT_ANGLE        -17.5
+#define SIN_FTILT              0.317305
+#define SIN_ATILT             -0.300706
 #define COS_FTILT              0.948324
 #define COS_ATILT              0.953717
 
