@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/09/02  18:20:32  thor
+ * Major rewrite.
+ *
  * Revision 1.3  1993/08/20  17:43:44  thor
  * *** empty log message ***
  *
@@ -34,7 +37,7 @@ static void tapecontrol_1(struct svc_req *, SVCXPRT *);
 void startControl(void)
 {
     FAST SVCXPRT *transp;
-    FAST void (*dispatch)(...) = (void (*)(...))tapecontrol_1;
+    FAST void (*dispatch)() = (void (*)())tapecontrol_1;
     
     (void) pmap_unset(TapeControl,TapeCtrlVers);
 
@@ -93,7 +96,7 @@ static void tapecontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 	  return;
       }
 
-    result = (*local)(&argument, rqstp);
+    result = (*local)((char *)&argument, rqstp);
 
     if (result != NULL && !svc_sendreply(transp, xdr_result, result)) 
       {
