@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/12/04  18:00:40  eric
+ * Initial revision
+ *
  *
  * description:
  *
@@ -27,7 +30,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 
-#include "/ELDORA/vx/mhen/include/ELDRP7.h"
+#include "ELDRP7.h"
 
 #define NUMFREQ 5
 
