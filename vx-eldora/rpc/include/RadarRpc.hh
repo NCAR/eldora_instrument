@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1994/09/06  16:09:47  thor
+ * Updated to use TLIRPC.
+ *
  * Revision 1.6  1992/08/12  20:12:53  thor
  * Added extern "C" around RadarGbls.h.
  *
@@ -75,12 +78,12 @@ bool_t xdr_RadarStatus(XDR *, RadarStatus *);
 
 #define RadarControl ((u_long)0x30000400)
 #define RadarCtrlVers ((u_long)1)
-#define SendCommand ((u_long)1)
+#define SendRadarCommand ((u_long)1)
 #define GetRadarStatus ((u_long)2)
 
-extern struct RadarStatus *sendcommand_1(struct RadarCommand *, CLIENT *);
+extern struct RadarStatus *sendradarcommand_1(struct RadarCommand *, CLIENT *);
 extern struct RadarStatus *getradarstatus_1(void *, CLIENT *);
-extern struct RadarStatus *sendcommand_1_svc(struct RadarCommand *,
+extern struct RadarStatus *sendradarcommand_1_svc(struct RadarCommand *,
 					 struct svc_req *);
 extern struct RadarStatus *getradarstatus_1_svc(void *, struct svc_req *);
 extern int radarcontrol_1_freeresult(SVCXPRT *, xdrproc_t, caddr_t);
@@ -89,7 +92,7 @@ extern int StartRadarCtrl(void);
 #else // OK_RPC
 program RadarControl {
     version RadarCtrlVers {
-	struct RadarStatus SendCommand(struct RadarCommand) = 1;
+	struct RadarStatus SendRadarCommand(struct RadarCommand) = 1;
 	struct RadarStatus GetRadarStatus(void) = 2;
     } = 1;
 } = 0x30000400;

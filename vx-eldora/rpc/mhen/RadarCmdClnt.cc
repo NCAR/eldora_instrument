@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/09/06  16:15:48  thor
+ * Updated to TLIRPC, among other changes.
+ *
  * Revision 1.1  1992/06/25  17:38:56  thor
  * Initial revision
  *
@@ -27,15 +30,15 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
 
-struct RadarStatus *sendcommand_1(struct RadarCommand *argp, CLIENT *clnt)
+struct RadarStatus *sendradarcommand_1(struct RadarCommand *argp, CLIENT *clnt)
 {
     static struct RadarStatus res;
     
     memset((char *)&res,0,sizeof(res));
 
-    if (clnt_call(clnt,SendCommand,(xdrproc_t)xdr_RadarCommand,(caddr_t)argp,
-		  (xdrproc_t)xdr_RadarStatus,(caddr_t)&res,TIMEOUT)
-        != RPC_SUCCESS)
+    if (clnt_call(clnt,SendRadarCommand,(xdrproc_t)xdr_RadarCommand,
+                  (caddr_t)argp,(xdrproc_t)xdr_RadarStatus,(caddr_t)&res,
+                  TIMEOUT) != RPC_SUCCESS)
       {
 	  return(NULL);
       }

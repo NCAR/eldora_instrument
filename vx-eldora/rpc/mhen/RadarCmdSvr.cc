@@ -44,7 +44,7 @@ static void radarcontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
     union
       {
-	  struct RadarCommand sendcommand_1_arg;
+	  struct RadarCommand sendradarcommand_1_arg;
       } argument;
     char *result;
     xdrproc_t xdr_argument, xdr_result;
@@ -56,10 +56,10 @@ static void radarcontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	  (void)svc_sendreply(transp,(xdrproc_t)xdr_void,(char *)NULL);
 	  return;
 	  
-        case SendCommand:
+        case SendRadarCommand:
 	  xdr_argument = (xdrproc_t)xdr_RadarCommand;
 	  xdr_result = (xdrproc_t)xdr_RadarStatus;
-	  local = (char *(*)(char *,struct svc_req *))sendcommand_1_svc;
+	  local = (char *(*)(char *,struct svc_req *))sendradarcommand_1_svc;
 	  break;
 	  
         case GetRadarStatus:
@@ -92,8 +92,8 @@ static void radarcontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
 }
 
 #ifndef DEBUG_ONLY
-struct RadarStatus *sendcommand_1_svc(FAST struct RadarCommand *cmdBlk,
-                                      struct svc_req *)
+struct RadarStatus *sendradarcommand_1_svc(FAST struct RadarCommand *cmdBlk,
+                                           struct svc_req *)
 {
     FAST u_long cmd = cmdBlk->cmd;
 
@@ -179,7 +179,7 @@ struct RadarStatus *getradarstatus_1_svc(void *, struct svc_req *)
     return(&status);
 }
 
-struct RadarStatus *sendcommand_1_svc(FAST struct RadarCommand *cmdBlk,
+struct RadarStatus *sendradarcommand_1_svc(FAST struct RadarCommand *cmdBlk,
                                       struct svc_req *)
 {
     static RadarStatus status;
