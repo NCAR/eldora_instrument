@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ *        
+ */
+
 /* Global variables for using the Vme to Vme interfaces */
 
 scope struct vmevmehndshk *fore_vmehndshk;
@@ -48,3 +51,4 @@ scope long ads_current_index;
 scope short in_vmevme_isr;
 
 /* Global "use fake angles flag" */
+scope short fake_angles;
