@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/22  17:03:16  thor
+ * Removed now unneeded params pointer.
+ *
+ * Revision 1.4  1991/10/16  14:36:01  thor
  * Changed GetRealHeader to use user supplied memory.
  *
  * Revision 1.3  1991/10/14  19:14:37  thor
@@ -72,7 +76,7 @@ class Header {
 
     void Waveform(WAVEFORM &w);
     WAVEFORM *Waveform(void);
-    int GetRealHeader(void **header);
+
 
     INSITUDESC *Insitu(void);
 

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/14  19:13:34  thor
+ * Fixed radar descriptor functions to handle 2 descriptors & added error repor
+ * ing for parameter functions.
+ *
  * Revision 1.2  1991/09/11  16:28:11  thor
  * Fixed routines to match class.
  *
@@ -56,7 +60,7 @@ extern WAVEFORM *GetWaveform(HeaderPtr header);
 
 extern void GetRpcHeader(HeaderPtr header, TAPEHEADER *th);
 
-extern int GetRealHeader(HeaderPtr ptr, void **header);
+extern int GetRealHeader(HeaderPtr ptr, void *header);
 
 extern void DestroyHeader(HeaderPtr ptr);
 
