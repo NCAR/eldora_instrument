@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  19:57:16  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  16:21:56  craig
  * Initial revision
  *
@@ -88,10 +91,14 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "gpsDef.h"
 #include "gpsGbl.h"
 #include "gpsFunc.h"
+#include "iruDef.h"
+#include "iruGbl.h"
+#include "iruFunc.h"
 #include "minDef.h"
 #include "minFunc.h"
 #include "tp41vAdr.h"
 #include "vmevmeDef.h"
+#include "vme_hndshk.h"
 #include "vmevmeAdr.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"

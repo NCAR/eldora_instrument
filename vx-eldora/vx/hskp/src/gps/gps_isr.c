@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/03  20:28:02  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/03  15:25:32  craig
  * *** empty log message ***
  *
@@ -94,6 +97,7 @@ extern HeaderPtr inHeader;
 #include "minFunc.h"
 #include "tp41vAdr.h"
 #include "vmevmeDef.h"
+#include "vme_hndshk.h"
 #include "vmevmeAdr.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
@@ -176,6 +180,7 @@ else  /* We have a good data buffer ready */
 
 	    if((nav_flag & nav_mask) == nav_mask)
 	      {
+		  currStatus->fore &= (char)(~GPS_SYNC);
 		  nav_current_size += sizeof(struct nav_data);
 
 		  /* Check to see if current buffer is full */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/17  16:43:12  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/08  22:56:42  craig
  * *** empty log message ***
  *
@@ -307,9 +310,7 @@ do{
 	  start_vmevme();
 	  do{
 	       if(fore_vmehndshk->polled != 0)
-		 vmevme_fisr();
-	       if(aft_vmehndshk->polled != 0)
-		 vmevme_aisr();
+		 vmevme_isr();
 	       }while(kill == 0);
 	  break;
 

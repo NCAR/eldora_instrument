@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/10  15:37:28  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/09/10  19:35:36  craig
  * Initial revision
  *
@@ -23,8 +26,8 @@ char salute[8];             /* Will contain the characters "HI RADAR" when
                                the housekeeper has finished initialization */
 short tpulse_flg;           /* Test pulse handshaking flag */
 float tpulse_level;         /* Test pulse measured level in dbm */
-short tpulse_dist;          /* Distance to Test pulse in 15 MHz clock periods*/
-short tpulse_width;         /* Width of Test pulse in 15 MHz clock periods */
+long tpulse_dist;           /* Distance to Test pulse in meters */
+long tpulse_width;          /* Width of Test pulse in meters */
 float tpulse_freq;          /* Test Pulse transmitted frequency in GHz */
 short tpulse_atten;         /* Test Pulse attennuator setting in db */
 short tpulse_freq_num;      /* Test Pulse frequency Number (1 to 5) */

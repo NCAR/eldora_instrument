@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1992/09/03  19:58:37  craig
+// Initial revision
+//
  * Revision 1.1  1992/08/14  17:52:04  reif
  * Initial revision
  *
@@ -33,20 +36,19 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "global.hh"
 extern "C"{
 #include "memLib.h"
+#include "stdioLib.h"
     HeaderPtr inHeader;
 }
 static char junk;		/* Something to return. */
 
 void *sendheader_1(FAST TAPEHEADER *th, struct svc_req *x)
 {
-    if(Hdr==NULL)
-      {
-	  Hdr=new Header(th);
-	  inHeader= (HeaderPtr)Hdr;
-      }
-    else
-      *Hdr = th;
+    if (Hdr != NULL)
+      delete(Hdr);
 
+    Hdr = new Header(th);
+
+    inHeader = (HeaderPtr)Hdr;
     return((void *)&junk);
 }
 

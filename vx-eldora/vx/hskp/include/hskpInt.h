@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/09/04  18:42:54  craig
+ * Added levels for all other interfaces
+ *
  * Revision 1.4  1992/06/24  20:48:14  shawn
  * periodic safety revision.  Current as of 6/24/92
  *
@@ -38,6 +41,7 @@
 #define ECB_DPCNTD_IRQ   4    /* "ECB Master DPRAM contention interrupt */
 #define IEEE_IRQ         4    /*  IEEE-488 interface IRQ level */
 #define ARINC_IRQ        4    /*   ARINC 429 interface IRQ level */
+#define ARINC_VEC      249    /*   ARINC 429 interface vector number */
 #define GPS_IRQ          4    /*  GPS mailbox interrupt level */
 #define MINI_IRQ         6    /*  Interrupt level from clock BIM to
                                    read the MiniRIMS */

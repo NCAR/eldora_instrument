@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/28  23:03:51  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  15:56:56  craig
  * Initial revision
  *
@@ -108,7 +111,7 @@ else   /* It is an odd numbered interrupt */
       num_words = iru_rpntr->words_buf2;
   }
 
-if(num_words == 300)  /* never found latitude */
+if(num_words == 300)  /* never found longitude */
   currStatus->iru |= (char)IRU_WORDS_BAD;
 else currStatus->iru &= (char)~IRU_WORDS_BAD;
 
@@ -124,6 +127,8 @@ old_iru_interrupts = iru_rpntr->num_interrupts;
 where_data_goes = (ins_data *)(&current_nav_pntr->
                              s_ins_data.ins_data_id[0]);
 
+/* printf("In iru_isr calling convert iru, num words = %d source = %x sink = %x\n"
+       ,num_words,long_pntr,where_data_goes); */
 test = convert_iru(num_words,long_pntr,where_data_goes);
 
 /* If the INS data block is completely full, then go ahead and handle sending

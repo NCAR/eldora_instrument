@@ -9,8 +9,9 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/03  17:30:06  craig
+ * Revision 1.1  1992/09/04  19:49:12  craig
  * Initial revision
+ *
  *
  * description: These are the global variables used to handle the
  *              Inertial Reference Unit (IRU) interface.
@@ -24,7 +25,9 @@
 
 /**** Declare global variables associated with the ARINC-429 board  ****/
 
-scope struct iru_control *iru_pntr;  /* Pointer to the iru control structure */
+scope struct iru_rcontrol *iru_rpntr;  /* Pointer to the iru receive
+                                            control structure */
+scope short *iru_hi8282a; /* Pointer to the HI8282 control register port a */
 
 /***** data structure that contains the lastest and greatest IRU data ****/
 
@@ -33,10 +36,13 @@ scope struct single_iru last_iru_data;
 /***** Global IRU flag saying the ISR has been entered *****/
 
 scope short in_iru_isr;
+scope long  iru_isr_count;   /* Counter to make sure enough iru interrupts are
+                                being handled */
+scope char old_iru_interrupts; /* Used to be able to poll for iru data */
 
 /***** Indexes into all of the data arrays */
 
-scope short msec_latitude_indx;
+scope short msec_longitude_indx;
 scope short status_indx;
 scope short latitude_indx;
 scope short longitude_indx;
@@ -50,9 +56,8 @@ scope short altitude_indx;
 scope short inertial_vspeed_indx;
 scope short pitch_indx;
 scope short roll_indx;
-scope short long_accel_indx;
-scope short lateral_accel_indx;
-scope short normal_accel_indx;
+scope short integ_vert_acc_indx;
+scope short vert_acc_indx;
 scope short track_rate_indx;
 scope short pitch_rate_indx;
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.2  1992/08/25  20:43:46  craig
+// *** empty log message ***
+//
  * Revision 1.1  1992/08/19  17:27:19  craig
  * Initial revision
  *
@@ -47,7 +50,8 @@ static void startRpc(void);
 
 void startup(void)
 {
-    if(taskSpawn("RpcLoop",2,0,6000,(FUNCPTR)startRpc) == ERROR)
+    Hdr = NULL;
+    if(taskSpawn("RpcLoop",9,0,12000,(FUNCPTR)startRpc) == ERROR)
       fprintf(stderr,"Failed to start Rpc loop!!!\n");
 }
 
