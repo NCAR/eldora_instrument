@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/07/13  16:49:51  thor
+ * *** empty log message ***
+ *
  * Revision 1.2  1997/11/12 19:46:57  eric
  * modified to support Graph Mode for xmit pulse. Also made it
  * it compatible with existing housekeeper software.
@@ -40,7 +43,7 @@ void start_ieee()
   /* Initialize some global flags and counters */
 
   isr_count = 0;  /* Make these globals! */
-  fore_aft = 0;
+  fore_aft = 1;
   freq_count = 1;
   tp_cnt = 0;
 
@@ -58,7 +61,9 @@ void start_ieee()
   init_gpib(1);
   init_gpib(2);
   xmit_csr_delay = (0.5 * (float)wave->chip_width[0] + (float)wave->chip_offset[0]) / 60.0; /* xmit pulsewidth in microseconds */
-  testp_csr_delay = 1.5 * ((float)wave->gate_dist1[1] / 60.0); /* test pulse width is 3 times gate spacing in microseconds */
+  /*  testp_csr_delay = 1.5 * ((float)wave->gate_dist1[1] / 60.0); *//* test pulse width is 3 times gate spacing in microseconds */
+
+  testp_csr_delay = 3.5 * ((float)wave->gate_dist1[1] / 60.0); /* test pulse width is 5 times gate spacing in microseconds */
 
 /**************  SEND COMMAND STRINGS TO 8502A PPM  **********************/
 
@@ -100,7 +105,8 @@ void start_ieee()
   taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
   ecbaddr = ECBATTEN;
   xmit_tp = 1; /* select xmit mux */
-  muxval = 13;  /* select aft preknock as trigger */
+  /*  muxval = 13;   select aft preknock as trigger */
+  muxval = 5; /* select fore preknock as trigger */
   timeout = 0;
   do
     {
@@ -111,13 +117,38 @@ void start_ieee()
   taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
   ecbaddr = ECBATTEN;
   xmit_tp = 0; /* select test pulse mux */
-  muxval = 14; /* select aft testpulse as trigger */
+  /*  muxval = 14;  select aft testpulse as trigger */
+  muxval = 6; /* select fore testpulse as trigger */
   timeout = 0;
   do
     {
       if(timeout > 0)taskDelay(1);
       timeout++;
     }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
+
+  /************* PROGRAM Trigger Divider via ECB ****************/
+
+  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  ecbaddr = ECBATTEN;
+  xmit_tp = 1; /* select xmit mux */
+  muxval = 2; /* set N = 2; this is Minimum */
+  timeout = 0;
+  do
+    {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+    }while((test = ecbSetDivN(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
+
+  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  ecbaddr = ECBATTEN;
+  xmit_tp = 0; /* select test pulse mux */
+  muxval = 2; /* set N = 2; this is Minimum */
+  timeout = 0;
+  do
+    {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+    }while((test = ecbSetDivN(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 
 
 /*********** TURN PPM INTO TALKER, MZ7500 INTO LISTENER ************/
@@ -149,7 +180,7 @@ sysAuxClkEnable();
   taskDelay(1);
   *d1ccr=0xC8; /* Set start, continue, and interrupt bits in the */
                /* channel control register */
-
+taskRestart(pgm);  /* re-start run-time power task */
 taskRestart(xmit); /* re-start run-time power task */
 taskRestart(testp); /* re-start run-time power task */
 
