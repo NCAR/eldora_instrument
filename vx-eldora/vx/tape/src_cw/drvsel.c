@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:50:23  craig
+ * Modified prints to the log file
+ *
  * Revision 1.1  1994/01/06  21:31:47  craig
  * Initial revision
  *
@@ -110,9 +113,8 @@ if(file_size >= MAX_FILE_SIZE)
       loggerEvent("Volume_End Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d Maximum Volume Size Reached\n",log_ints,5);
       new_volume = 1;
 
-      /* Increment volume number write new header on active drives */
+      /* Do not increment volume number write new header on active drives */
 
-      vol->volume_num = vol_num++;
       for(i=0; i<number_of_drives; i++)
 	{
 	    drive_id = drives_to_use[i];
