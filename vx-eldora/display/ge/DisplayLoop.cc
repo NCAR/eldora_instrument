@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:51:58  thor
+// Initial revision
+//
 //
 //
 //
@@ -46,7 +49,7 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 
 	      case LOAD_ONLY:
 		dispPtr = display;
-                // We loop hear until we get a valid header.
+                // We loop here until we get a valid header.
                 FAST volatile Header **h = &Hdr;
                 while (*h == NULL) ;
 		dispPtr->reset(Hdr,GeCommand);
@@ -144,14 +147,14 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 		dispPtr->drawBeam(data);
 
 		// Check for time update.
-// 		if (!doClkUpdate)
-// 		  {
-// 		      doClkUpdate = clkUpdateStart;
-// 		      dispPtr->updateClock(data);
-// 		  }
-// 		else
-// 		  --doClkUpdate;
-	    }
+ 		if (!doClkUpdate)
+                    {
+                        doClkUpdate = clkUpdateStart;
+                        dispPtr->updateClock(data);
+                    }
+ 		else
+ 		  --doClkUpdate;
+            }
 	  if (pipe.Empty() == FALSE)
 	    self.SetFlags(NEW_DATA_FLAG);
       }
