@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/01/02  08:50:48  thor
+ * Made changes for VxWorks Version 5.0.
+ *
  * Revision 1.1  90/12/04  10:21:18  thor
  * Initial revision
  * 
@@ -326,16 +329,14 @@ static void mouseISR(FAST MouseISRData *isr)
 
     semGive(isr->sem);		// Signal user level code.
 #else
+
     static int lastTick = 0;	// Previous time.
 
     FAST int ctick = tickGet();	// Current time.
 
-    if (ctick - lastTick < 2)	// If not enough don't tell user.
+    if (ctick - lastTick < 25)	// If not .25 sec, don't tell user.
       {
-	  lastTick = ctick;
-
 	  *ptr = 0;
-
 	  return;
       }
     else
