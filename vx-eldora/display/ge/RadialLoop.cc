@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.18  1991/12/05  17:58:49  thor
+ * Really fixed scaling?
+ *
  * Revision 1.17  1991/12/04  18:43:27  thor
  * Changed scaling computation per Eric.
  *
@@ -261,10 +264,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     FAST RADARDESC *rd = Hdr->Radar(1);
 
     FAST int np = rd->num_parameter_des;
-		      max[0] = (max[0] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[0] = (min[0] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[0] = (max[0] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[0] = (min[0] / p->parameter_scale) +
+			p->parameter_bias;
 
     FAST int param = ptr->param0;
 
@@ -285,10 +288,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[0] = p->parameter_bias;
 		      break;
 		  }
-		      max[1] = (max[1] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[1] = (min[1] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[1] = (max[1] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[1] = (min[1] / p->parameter_scale) +
+			p->parameter_bias;
 
     param = ptr->param1;
 
@@ -309,10 +312,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[1] = p->parameter_bias;
 		      break;
 		  }
-		      max[2] = (max[2] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[2] = (min[2] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[2] = (max[2] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[2] = (min[2] / p->parameter_scale) +
+			p->parameter_bias;
 
     param = ptr->param2;
 
