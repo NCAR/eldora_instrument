@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/11/03  22:53:59  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  16:51:08  craig
  * Initial revision
  *
@@ -58,4 +61,4 @@ scope long ads_current_index;
 scope short in_vmevme_isr;
 
 /* Global "use fake angles flag" */
-scope short fake_angles;
+scope int fake_angles;
