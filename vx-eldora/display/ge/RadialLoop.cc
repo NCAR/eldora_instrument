@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/10/27  16:04:16  thor
+ * Fixed code to allow clean switch between types on the fly.
+ *
  * Revision 2.2  1993/09/28  13:06:50  thor
  * Use inproved inlining & check corrected angle for <0 | >360.
  *
@@ -358,6 +361,15 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      offsets[0] = i;
 		      scales[0] = p->parameter_scale;
 		      biases[0] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[0] == 0.0 && min[0] == 0.0)
+			      {
+				  max[0] = rd->eff_unamb_vel;
+				  min[0] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }
@@ -380,6 +392,15 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      offsets[1] = i;
 		      scales[1] = p->parameter_scale;
 		      biases[1] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[1] == 0.0 && min[1] == 0.0)
+			      {
+				  max[1] = rd->eff_unamb_vel;
+				  min[1] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }
@@ -402,6 +423,15 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      offsets[2] = i;
 		      scales[2] = p->parameter_scale;
 		      biases[2] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[2] == 0.0 && min[2] == 0.0)
+			      {
+				  max[2] = rd->eff_unamb_vel;
+				  min[2] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.2  1993/10/27  16:04:16  thor
+// Fixed code to allow clean switch between types on the fly.
+//
 // Revision 1.1  1993/09/28  13:19:09  thor
 // Initial revision
 //
@@ -248,6 +251,15 @@ static Dual *makeDisplay(FAST Dual *old, FAST GraphicController *agc)
 		offsets[0] = i;
 		scales[0] = p->parameter_scale;
 		biases[0] = p->parameter_bias;
+
+		if (param == VELOCITY)
+			{
+			    if (max[0] == 0.0 && min[0] == 0.0)
+			      {
+				  max[0] = rd->eff_unamb_vel;
+				  min[0] = -(rd->eff_unamb_vel);
+			      }
+			}
 		break;
 	    }
       }
@@ -267,6 +279,15 @@ static Dual *makeDisplay(FAST Dual *old, FAST GraphicController *agc)
 		offsets[1] = i;
 		scales[1] = p->parameter_scale;
 		biases[1] = p->parameter_bias;
+
+		if (param == VELOCITY)
+			{
+			    if (max[1] == 0.0 && min[1] == 0.0)
+			      {
+				  max[1] = rd->eff_unamb_vel;
+				  min[1] = -(rd->eff_unamb_vel);
+			      }
+			}
 		break;
 	    }
       }

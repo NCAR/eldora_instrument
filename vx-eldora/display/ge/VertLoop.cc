@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1993/10/27  16:04:16  thor
+ * Fixed code to allow clean switch between types on the fly.
+ *
  * Revision 1.10  1992/10/26  15:15:07  thor
  * Added sysInt[En|Dis]able to keep interrupts out on stops.
  *
@@ -270,6 +273,15 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
                       offsets[0] = i;
                       scales[0] = p->parameter_scale;
                       biases[0] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[0] == 0.0 && min[0] == 0.0)
+			      {
+				  max[0] = rd->eff_unamb_vel;
+				  min[0] = -(rd->eff_unamb_vel);
+			      }
+			}
                       break;
                   }
             }
@@ -294,6 +306,15 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
                       offsets[1] = i;
 		      scales[1] = p->parameter_scale;
                       biases[1] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[1] == 0.0 && min[1] == 0.0)
+			      {
+				  max[1] = rd->eff_unamb_vel;
+				  min[1] = -(rd->eff_unamb_vel);
+			      }
+			}
                       break;
                   }
             }
@@ -318,6 +339,15 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
                       offsets[2] = i;
                       scales[2] = p->parameter_scale;
                       biases[2] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[2] == 0.0 && min[2] == 0.0)
+			      {
+				  max[2] = rd->eff_unamb_vel;
+				  min[2] = -(rd->eff_unamb_vel);
+			      }
+			}
                       break;
                   }
             }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/10/27  16:04:16  thor
+ * Fixed code to allow clean switch between types on the fly.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -324,6 +327,15 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 		      offsets[0] = i;
                       scales[0] = p->parameter_scale;
                       biases[0] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[0] == 0.0 && min[0] == 0.0)
+			      {
+				  max[0] = rd->eff_unamb_vel;
+				  min[0] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }
@@ -346,6 +358,15 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 		      offsets[1] = i;
                       scales[1] = p->parameter_scale;
                       biases[1] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[1] == 0.0 && min[1] == 0.0)
+			      {
+				  max[1] = rd->eff_unamb_vel;
+				  min[1] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }
@@ -368,6 +389,15 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 		      offsets[2] = i;
                       scales[2] = p->parameter_scale;
                       biases[2] = p->parameter_bias;
+
+		      if (param == VELOCITY)
+			{
+			    if (max[2] == 0.0 && min[2] == 0.0)
+			      {
+				  max[2] = rd->eff_unamb_vel;
+				  min[2] = -(rd->eff_unamb_vel);
+			      }
+			}
 		      break;
 		  }
 	    }
