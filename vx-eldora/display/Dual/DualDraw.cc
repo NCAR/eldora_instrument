@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.11  1994/11/01  15:25:59  thor
+// Let's try a faster(?) way to draw.
+//
 // Revision 1.10  1994/10/27  16:54:04  thor
 // Fixed incorrect offset for 2nd set of colors.
 //
@@ -63,16 +66,13 @@ void Dual::drawBeam(FAST DataBeam *beam)
       index += maxIndex;
     else if (index > maxIndex)
       index -= maxIndex;
-    
-    if (index == maxIndex)
+    else if (index == maxIndex)
       index = 0;
     
     float alt = beam->air.altitude_msl * 1000.0;
     float max = maxAlt;
 
     FAST int direction = fastround(beam->ray.true_scan_rate);
-
-    FAST int j = lastIndex;
     
     if (alt >= max && (index <= 180 || index >= 540))
       {
@@ -100,6 +100,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 	  return;
       }
 
+    FAST int j = lastIndex;
+    
     if (direction > 0)
       {
 	  // This is positive rotation.
@@ -121,7 +123,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
           
           if (q < 700)
             {
-                cout << "Angle too big - " << index << "," << j << endl;
+                if (q)
+                  cout << "Angle too big - " << index << "," << j << endl;
                 lastIndex = index;
                 return;
             }
@@ -158,7 +161,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
           
           if (q < 700)
             {
-                cout << "Angle too big - " << index << "," << j << endl;
+                if (q)
+                  cout << "Angle too big - " << index << "," << j << endl;
                 lastIndex = index;
                 return;
             }
@@ -216,6 +220,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
     FAST unsigned char *video1 = videoMemory[0];
     FAST unsigned char *video2 = videoMemory[1];
 
+    FAST int xoff = xoffset;
+
     if (ax > ay)
       {
 	  FAST int D = ay - (ax >> 1);
@@ -224,13 +230,13 @@ void Dual::drawBeam(FAST DataBeam *beam)
 	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
 	       s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (Display::FULL_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (Display::FULL_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + xoff;
+		FAST int x2 = (c2 >> 16) + xoff;
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 
 		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
-		  continue;			  // drawing area!
+		  break;			  // drawing area!
 
 		FAST int d = D;
 		FAST int x = x1;
@@ -240,12 +246,13 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		FAST int Ay = ay;
                 FAST unsigned char *ptr1 = video1 + x + (y1 * 4096);
                 FAST unsigned char *ptr2 = video2 + x + (y1 * 4096);
+
+                if (!clip(x,y1)) break;
                 
 		if (sy == 1)
 		  {
 		      for (;;)
 			{
-			    if (!clip(x,y1)) break;
                             *ptr1 = *colors1;
 			    *ptr2 = *colors2;
 			    
@@ -255,7 +262,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  y1++;
-				  if (!clip(x,y1)) break;
+				  if (!clipy(y1)) break;
                                   ptr1 += 4096;
                                   ptr2 += 4096;
                                   *ptr1 = *colors1;
@@ -263,6 +270,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 				  d -= Ax;
 			      }
 			    x += Sx;
+                            if (!clipx(x))
+                              break;
                             ptr1 += Sx;
                             ptr2 += Sx;
 			    d += Ay;
@@ -272,7 +281,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		  {
 		      for (;;)
 			{
-			    if (!clip(x,y1)) break;
                             *ptr1 = *colors1;
                             *ptr2 = *colors2;
 			    
@@ -282,7 +290,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  y1--;
-				  if (!clip(x,y1)) break;
+				  if (!clipy(y1)) break;
                                   ptr1 -= 4096;
                                   ptr2 -= 4096;
 				  *ptr1 = *colors1;
@@ -290,6 +298,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 				  d -= Ax;
 			      }
 			    x += Sx;
+                            if (!clipx(x))
+                              break;
                             ptr1 += Sx;
                             ptr2 += Sx;
 			    d += Ay;
@@ -306,25 +316,26 @@ void Dual::drawBeam(FAST DataBeam *beam)
 	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
 	       s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (Display::FULL_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (Display::FULL_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + xoff;
+		FAST int x2 = (c2 >> 16) + xoff;
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 		
 		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
-		  continue;			  // drawing area!
+		  break;			  // drawing area!
 		
 		FAST int d = D;
 		FAST int y = y1;
 		FAST int yend = y2;
                 FAST unsigned char *ptr1 = video1 + x1 + (y * 4096);
                 FAST unsigned char *ptr2 = video2 + x1 + (y * 4096);
-		
+
+                if (!clip(x1,y)) break;
+                
 		if (sy == 1)
 		  {
 		      for (;;) 
 			{
-			    if (!clip(x1,y)) break;
                             *ptr1 = *colors1;
                             *ptr2 = *colors2;
 			    
@@ -334,7 +345,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  x1 += sx;
-				  if (!clip(x1,y)) break;
+				  if (!clipx(x1)) break;
                                   ptr1 += sx;
                                   ptr2 += sx;
                                   *ptr1 = *colors1;
@@ -342,6 +353,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 				  d -= ay;
 			      }   
 			    y++;
+                            if (!clipy(y))
+                              break;
                             ptr1 += 4096;
                             ptr2 += 4096;
 			    d += ax;
@@ -351,7 +364,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		  {
 		      for (;;) 
 			{
-			    if (!clip(x1,y)) break;
                             *ptr1 = *colors1;
                             *ptr2 = *colors2;
     
@@ -361,14 +373,17 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  x1 += sx;
+                                  if (!clipx(x1))
+                                    break;
                                   ptr1 += sx;
                                   ptr2 += sx;
-				  if (!clip(x1,y)) break;
                                   *ptr1 = *colors1;
                                   *ptr2 = *colors2;
 				  d -= ay;
 			      }
 			    y--;
+                            if (!clipy(y))
+                              break;
                             ptr1 -= 4096;
                             ptr2 -= 4096;
 			    d += ax;
