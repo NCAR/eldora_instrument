@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/03/01  20:29:20  thor
+ * Added DISPLAYED_GATES for radial displays.
+ *
  * Revision 1.1  1991/02/28  21:53:32  thor
  * Initial revision
  *
@@ -58,6 +61,12 @@ static const int AFT = 1;
 
 /* Size of radial display in displayed gates */
 static const int DISPLAYED_GATES = 500;
+
+/* Some predefined colors. */
+static const unsigned char WHITE = 0x80;
+static const unsigned char WHITE1 = 0x7f;
+static const unsigned char ALL_SET = 0xff;
+static const unsigned char BLACK = 0x7e;
 
 #endif /* INCWdwGblsh */
 
