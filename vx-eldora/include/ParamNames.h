@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/02/19  16:08:04  thor
+ * Added items for 3 frequencies for reflectivity, velocity & spectral width.
+ *
  * Revision 1.5  1991/10/14  19:50:46  thor
  * Fixed typo.
  *
@@ -60,8 +63,10 @@ static const int SPEC_WIDTH2  = 0x20000;
 static const int SPEC_WIDTH3  = 0x40000;
 static const int NO_PARAM     = -1;
 
-#ifndef _GNUC_
+#ifndef __cplusplus
 #define INLINE
+#else
+#define INLINE inline
 #endif 
 
 static INLINE int ParamToNum(register int p)
@@ -117,7 +122,22 @@ static INLINE int NumToParam(register int n)
     }
 }
 
+static INLINE int StringToParam(char *c)
+{
+    char **names = ParamTapeNames;
+    int param = 0;
+
+    while (*names != 0)
+      {
+	  if (!strcmp(c,*names))
+	    return(param);
+
+	  names++;
+	  param++;
+      }
+    return(NO_PARAM);
+}
+    
 #undef INLINE
 
 #endif /* INCParamNamesh */
-
