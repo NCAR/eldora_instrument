@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/11/19  17:54:32  thor
+ * Added code to select forward/aft beams only.
+ *
  * Revision 1.7  1991/11/19  17:17:23  thor
  * Put color change after new.
  *
@@ -133,6 +136,14 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		{
 		    FAST DispCommand *ptr = GeCommand;
 		    FAST int tmo = ptr->tmo;
+		      display->StartTimer(tmo);
+		}
+	    }
+
+	  DataBeam *dataBeam;
+
+	  // Get next DDP data item.
+	  if (pipe.QueryRead(&dataBeam))
 
 		      horizFilter->ResetCoord(dataBeam->air.latitude,
 					  dataBeam->air.longitude);
