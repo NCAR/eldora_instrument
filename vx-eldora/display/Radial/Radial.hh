@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/04/29  18:46:53  thor
+ * Changed calling of drawing routines to use new RadialData format.
+ *
  * Revision 1.1  1991/04/08  20:29:04  thor
  * Initial revision
  *
@@ -19,12 +22,15 @@
  * draw a color table with associated units, title text, hash marks &
  * text and most of the drawing & window operations available from the
  * Window class. Methods are also available to display the window
- * sets. These are the logical pairing of a data & table window. 
+ * sets. These are the logical pairing of a data & table window. An
+ * embedded clock is provided via the Clock class member. This clock
+ * must be manually updated.
  *
  */
 #ifndef INCRadialhh
 #define INCRadialhh
 
+#include "Clock.hh"
 #include "Window.hh"
 #include "DataPoint.h"
 
@@ -69,6 +75,8 @@ class Radial {
     int radius;
 
     TrigData *trigData;
+
+    Clock clk;
 
     void Draw1(RadialData &data);
     void Draw2(RadialData &data);
@@ -275,7 +283,12 @@ class Radial {
           Wdw[2].home();
           Wdw[4].home();
       }
-    
+
+    void UpdateClock(FAST short h, FAST short m, FAST short s)
+      {
+	  clk.Update(h,m,s);
+      }
+
     ~Radial(void);
 
 };

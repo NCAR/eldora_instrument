@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/04/29  18:47:43  thor
+ * Fixed angles so we match radar conventions.
+ *
  * Revision 1.1  1991/04/08  20:28:42  thor
  * Initial revision
  *
@@ -26,8 +29,13 @@ extern "C" {
 };
 
 Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
-		 unsigned short xoff, unsigned short yoff)
+	       unsigned short xoff, unsigned short yoff) :
+	       clk(gbd,3,PLOT_WIDTH,1024 - (CLKHEIGHT + 8),
+		   xoff + PLOT_WIDTH + (3 * TBL_WIDTH),
+		   yoff + PLOT_HEIGHT)
 {
+    clk.Display();
+
     // Set the base video memory addresses.
     videoMemory[0] = gbd->videoBufferAddr() + xoff + (yoff * 4096);
     videoMemory[1] = videoMemory[0] + PLOT_WIDTH;
@@ -514,4 +522,6 @@ Radial::~Radial(void)
 	  clear(i);
 	  undisplay(i);
       }
+    clk.clear();
+    clk.undisplay();
 }
