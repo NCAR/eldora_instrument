@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:21:06  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -19,7 +22,9 @@
  */
 #include "GraphicController.hh"
 
-#include "taskLib.hh"
+extern "C" {
+#include "taskLib.h"
+};
 
 void GraphicController::qpdmCmd(FAST long *cmd, FAST int number)
 {
@@ -29,7 +34,7 @@ void GraphicController::qpdmCmd(FAST long *cmd, FAST int number)
     FAST unsigned char test = FIFO_HF | FIFO_AE;
     FAST unsigned char hf = FIFO_HF;
 
-    semTake(semaphore);
+    semTake(semaphore,WAIT_FOREVER);
 
     while (1)
       {

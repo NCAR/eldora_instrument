@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:22:55  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -20,8 +23,10 @@
 #ifndef INCGraphicControllerhh
 #define INCGraphicControllerhh
 
-#include "vxWorks.hh"
-#include "semLib.hh"
+extern "C" {
+#include "vxWorks.h"
+#include "semLib.h"
+};
 
 #include "point.h"
 #include "qpdm.h"

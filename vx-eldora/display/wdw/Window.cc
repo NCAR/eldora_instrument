@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:21:29  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -22,8 +25,10 @@
 #include "Window.hh"
 #include "WindowP.hh"
 
-#include "stdioLib.hh"
-#include "taskLib.hh"
+extern "C" {
+#include "stdioLib.h"
+#include "taskLib.h"
+};
 
 #include "mitchFont.h"
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  90/12/11  13:21:44  thor
+ * Changed code to handle correct initialization to black.
+ * 
  * Revision 1.1  90/12/04  10:19:29  thor
  * Initial revision
  * 
@@ -26,7 +29,9 @@
 #define GRAPHIC_CTLR_PRIVATE
 #include "GraphicController.hh"
 
-#include "taskLib.hh"
+extern "C" {
+#include "taskLib.h"
+};
 
 GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 				     screenWidth, FAST unsigned short
@@ -64,8 +69,8 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 
     qpdmFifo = addr + QPDM_FIFO;
 
-    accessSem = semCreate();	// Create synch. semaphore and
-    semGive(accessSem);		// make sure it's available.
+    accessSem = semMCreate(SEM_Q_PRIORITY | SEM_INVERSION_SAFE |
+			   SEM_DELETE_SAFE); // Create synch. semaphore.
 
 // Start of initialization.
 

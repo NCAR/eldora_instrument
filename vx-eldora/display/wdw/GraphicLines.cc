@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:20:07  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -44,7 +47,7 @@ void GraphicController::drawLine(Point start, Point end,
     *ptr++ = end.y;
     *ptr = 0;			// Pad out long with a no-op.
 
-    semTake(accessSem);
+    semTake(accessSem,WAIT_FOREVER);
 
     while (!(*busy & (FIFO_HF | FIFO_AE))); // If either is set there
 					     // is at least 256 bytes left.

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:23:25  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -27,10 +30,12 @@
 #ifndef INCMousehh
 #define INCMousehh
 
-#include "vxWorks.hh"
-#include "semLib.hh"
-#include "taskLib.hh"
-#include "memLib.hh"
+extern "C" {
+#include "vxWorks.h"
+#include "semLib.h"
+#include "taskLib.h"
+#include "memLib.h"
+};
 
 #include "point.h"
 

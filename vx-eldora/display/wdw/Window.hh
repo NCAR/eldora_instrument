@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:23:17  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -22,7 +25,9 @@
 
 #include "GraphicController.hh"
 
-#include "vxWorks.hh"
+extern "C" {
+#include "vxWorks.h"
+};
 
 #include "point.h"
 

@@ -9,13 +9,19 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:22:05  thor
+ * Initial revision
+ * 
  *
  *
  * description:
  *        
  */
 #include "Window.hh"
-#include "strLib.hh"
+
+extern "C" {
+#include "strLib.h"
+};
 
 void Window::setTextScale(FAST int x, FAST int y)
 {

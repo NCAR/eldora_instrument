@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:21:18  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -29,10 +32,12 @@
 #define MOUSE_CLASS
 #include "Mouse.hh"
 
-#include "intLib.hh"
-#include "stdioLib.hh"
-#include "bALib.hh"
-#include "tickLib.hh"
+extern "C" {
+#include "intLib.h"
+#include "stdioLib.h"
+#include "string.h"
+#include "tickLib.h"
+};
 
 static void mouseISR(MouseISRData *);
 
@@ -62,16 +67,16 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
     bcopy((char *)cursorBits,(char *)cursorImage,CURSOR_SIZE);
 
 // Now create the needed semaphores.
-    accessSem = semCreate();
-    semGive(accessSem);
+    accessSem = semBCreate(SEM_Q_FIFO,SEM_FULL);
 
-    isrData.sem = semCreate();
+    isrData.sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 
 // Now link ISR to vector.
     vector &= 0xf0;		// First strip off AGC controlled bits.
     vector += 8;		// Now add offset for MCU interrupt
 
-    if (intConnect((FUNCPTR *)(vector*4),mouseISR,(int)&isrData) == ERROR)
+    if (intConnect((VOIDFUNCPTR *)(vector*4),(VOIDFUNCPTR)mouseISR,
+		   (int)&isrData) == ERROR)
       {
 	  fprintf(stderr,
 		  "Failed to connect to interrupt vector %d. Exiting.\n");
@@ -158,36 +163,24 @@ void Mouse::enableCursor(void)
     FAST unsigned char *dis = crosshairBase;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
-    FAST SEM_ID sem = accessSem;
-
-    semTake(sem);
 
     *en = CURSOR_ENABLE;
     *dis = ~CROSSHAIR_ENABLE;
 
-    taskLock();			// Need to lock to avoid losing semaphore.
-
-    semGive(sem);		// Must do this to allow calls to work.
-
     setCursorXY(getXY());	// Make sure we are at correct location.
-
-    semTake(sem);		// Now block others.
-
-    taskUnlock();
 
     *cmd = CURSOR_PARAM_CHANGE;
     *mcuInt = 1;
     *cmd = CROSSHAIR_PARAM_CHANGE;
     *mcuInt = 2;
-
-    semGive(sem);
 }
 
 void Mouse::setCursorXY(Point newLocation)
 {
     FAST unsigned short *ptr = (unsigned short *)(cursorBase + CURSOR_SET_OFF);
+    FAST SEM_ID sem = accessSem;
 
-    semTake(accessSem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr++ = newLocation.x;
 
@@ -199,7 +192,7 @@ void Mouse::setCursorXY(Point newLocation)
     *cmd = CURSOR_XY_CHANGE;
     *mcuInt = 1;
 
-    semGive(accessSem);
+    semGive(sem);
 }
 
 void Mouse::setCursorImage(FAST long *cursorBits)
@@ -207,15 +200,16 @@ void Mouse::setCursorImage(FAST long *cursorBits)
     FAST long *target = cursorImage;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
+    FAST SEM_ID sem = accessSem;
 
-    semTake(accessSem);
+    semTake(sem,WAIT_FOREVER);
 
     bcopy((char *)cursorBits,(char *)target,CURSOR_SIZE);
 
     *cmd = CURSOR_PARAM_CHANGE;
     *mcuInt = 1;
 
-    semGive(accessSem);
+    semGive(sem);
 }
 
 void Mouse::enableCrosshair(void)
@@ -224,37 +218,25 @@ void Mouse::enableCrosshair(void)
     FAST unsigned char *dis = cursorBase;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
-    FAST SEM_ID sem = accessSem;
-
-    semTake(sem);
 
     *en = CROSSHAIR_ENABLE;
     *dis = ~CURSOR_ENABLE;
 
-    taskLock();
-
-    semGive(sem);
-
     setCrosshairXY(getXY());
-
-    semTake(sem);
-
-    taskUnlock();
 
     *cmd = CROSSHAIR_PARAM_CHANGE;
     *mcuInt = 1;    
     *cmd = CURSOR_PARAM_CHANGE;
     *mcuInt = 2;    
-
-    semGive(sem);
 }
 
 void Mouse::setCrosshairXY(Point newLocation)
 {
     FAST unsigned short *ptr = (unsigned short *)(crosshairBase +
 						  CROSSHAIR_SET_OFF);
+    FAST SEM_ID sem = accessSem;
 
-    semTake(accessSem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr++ = newLocation.x;
 
@@ -266,7 +248,7 @@ void Mouse::setCrosshairXY(Point newLocation)
     *cmd = CURSOR_XY_CHANGE;
     *mcuInt = 1;
 
-    semGive(accessSem);
+    semGive(sem);
 }
 
 // getNextKey() will return the next key event in the buffer -
@@ -280,7 +262,7 @@ int Mouse::getNextKey(void)
     FAST keyEvent *kev = kbdQueue;
     FAST unsigned char *index = kbdTail;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     FAST unsigned char loc = *index;
 
@@ -309,7 +291,7 @@ Point Mouse::getXY(void)
 
 int Mouse::waitOnInterrupt(void)
 {
-    semTake(isrData.sem);
+    semTake(isrData.sem,WAIT_FOREVER);
 
     return(isrData.interruptReason);
 }
@@ -323,13 +305,14 @@ void Mouse::enableInterrupts(FAST int mask)
 {
     FAST unsigned char *mouse = (unsigned char *)(mouseBase + MOUSE_INT_OFF);
     FAST unsigned char *kbd = (unsigned char *)(mouseBase + MOUSE_INT_OFF);
+    FAST SEM_ID sem = accessSem;
 
-    semTake(accessSem);
+    semTake(sem,WAIT_FOREVER);
     
     *mouse = mask & (BUTTON_UP | BUTTON_DOWN);	// Only button events allowed.
     *kbd = mask & 1;				// Only one keyboard case.
 
-    semGive(accessSem);
+    semGive(sem);
 }
 
 static void mouseISR(FAST MouseISRData *isr)

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:20:47  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -34,7 +37,7 @@ void GraphicController::priority(FAST int window, FAST unsigned short
 {
     FAST SEM_ID sem = accessSem;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
    *windows[window].priority = priority;
     semGive(sem);
 }
@@ -48,7 +51,7 @@ void GraphicController::display(FAST int window, FAST WindowControlRegs
 
     FAST SEM_ID sem = accessSem;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr++ = *data++;		// Since we're overwriting current
 				// logical window, all registers get set.
@@ -64,7 +67,7 @@ void GraphicController::undisplay(FAST int window)
     FAST SEM_ID sem = accessSem;
     FAST unsigned short *ptr = windows[window].zoom;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
     
     *ptr = 0;
 
@@ -77,7 +80,7 @@ void GraphicController::screenMove(FAST int window, FAST long newLocation)
 
     FAST long *ptr = windows[window].base;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr = newLocation;
 
@@ -90,7 +93,7 @@ void GraphicController::screenResize(FAST int window, FAST long newLocation)
 
     FAST long *ptr = windows[window].scrSize;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr = newLocation;
 
@@ -103,7 +106,7 @@ void GraphicController::pan(FAST int window, FAST long newLocation)
 
     FAST long *ptr = windows[window].offsets;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr = newLocation;
 
@@ -115,7 +118,7 @@ void GraphicController::zoom(FAST int window, FAST unsigned short zoom)
     FAST SEM_ID sem = accessSem;
     FAST unsigned short *ptr = windows[window].zoom;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     *ptr = zoom;
 
@@ -128,7 +131,7 @@ int GraphicController::setMask(FAST int mask)
     
     FAST SEM_ID sem = accessSem;
 
-    semTake(sem);
+    semTake(sem,WAIT_FOREVER);
 
     FAST int oldMask = *reg & 0xff; // Get current bitmask.
 
