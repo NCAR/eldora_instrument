@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/10/09  14:56:29  thor
+ * Tightened code.
+ *
  * Revision 1.7  1992/10/02  20:30:38  thor
  * Many changes to use a more correct method of following mcpl input.
  *
@@ -103,8 +106,7 @@ void Ddp::Next(void)
 		*fptr = 0;
 
 		if (status != 0xbfff)
-//		  PostAlarm();
-		  printf("F %x\n",status);
+		  PostAlarm();
 		else if (!radar) // We want fore beams!
 		  {
 
@@ -151,8 +153,7 @@ void Ddp::Next(void)
 		      *aptr = 0;
 		      
 		      if (status != 0xbfff)
-//			PostAlarm();
-		  printf("A %x\n",status);
+			PostAlarm();
 		      else if (radar) // We want aft beams!
 			{
 			    FAST DataBeam *db = (DataBeam *)*aftAddr;
@@ -165,7 +166,9 @@ void Ddp::Next(void)
 			    
 // We perform this test to keep from sending incorrect packets.
 			    if (rname == 'A')
-			      pipe.Write(aftAddr);
+			      {
+				  pipe.Write(aftAddr);
+			      }
 			}
 		      acount++;
 		      
