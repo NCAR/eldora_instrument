@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1999/09/27  16:38:10  eric
+ * added support for separate pgm task.
+ *
  * Revision 1.1  1997/11/12  19:50:37  eric
  * Initial revision
  *
@@ -33,9 +36,8 @@ void stop_ieee()
   sysAuxClkDisable(); /* disable Auxilliary Clock Interrupt */
 #endif  
 
-taskSuspend(pgm); /* stop run-time power task */
-taskSuspend(xmit); /* stop run-time power task */
-taskSuspend(testp); /* stop run-time power task */
+  sem_status = semTake(cal_sync_sem,WAIT_FOREVER); /* ensure pgm_rt has completed before a stop */
+
 
 /*********** DMA CHANNEL 0 - STOP! ***************/
 
@@ -46,7 +48,15 @@ taskSuspend(testp); /* stop run-time power task */
 
   *d1csr=0xff; /* Clear channel status register by writing all ones */
   *d1ccr=0x10; /* Abort DMA operation */
+
+  /* the following 3 lines wer placed above the DMA Channel Stops */
+
+taskSuspend(xmit); /* stop run-time power task */
+taskSuspend(testp); /* stop run-time power task */
+taskSuspend(pgm); /* stop run-time power task */
   
+#ifdef DESPERATE
+
   /* Try clearing GPIB interface */
 
   *g1acr = 0x00; /* CLEAR SOFTWARE RESET */
@@ -59,6 +69,12 @@ taskSuspend(testp); /* stop run-time power task */
   taskDelay(1);  /* SET DELAY */
   *g2acr = 0x0f; /* CLEAR sic */
 
+#endif
+  /* Return both PPMs to Local Control */
+
+  Return_to_Local(1);
+  Return_to_Local(2);
+
   /* handle any pending interrupts */
 
   sem_status = semTake(xmit_pwr_sem,NO_WAIT);
@@ -67,7 +83,15 @@ taskSuspend(testp); /* stop run-time power task */
   sem_status = semTake(testp_data_sem,NO_WAIT);
   sem_status = semTake(testp_err_sem,NO_WAIT);
 
+  /* give sync semaphore */
+
+  semGive(cal_sync_sem);
 }
+
+
+
+
+
 
 
 
