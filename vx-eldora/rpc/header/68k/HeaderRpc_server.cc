@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/11/01  17:32:11  thor
+// More 1st time protection & new error message.
+//
 // Revision 1.1  1994/08/30  15:21:34  thor
 // Initial revision
 //
@@ -20,6 +23,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "HeaderRpc.h"
 #include <fstream.h>
+#include <stat.h>
 
 int *headerrpcfunc_1_svc(FAST struct headername *argp,
                          FAST struct svc_req *rqstp)
@@ -33,7 +37,18 @@ int *headerrpcfunc_1_svc(FAST struct headername *argp,
             firstTime = 0;
         }
 
-    char *file = &argp->name[0];
+    FAST char *file = &argp->name[0];
+
+    struct stat fileStatus;
+    
+    result = (int)stat(file,&fileStatus);
+
+    if ((result == ERROR) || (fileStatus.st_size == 0))
+      {
+          cout << "Bad or zero length file: " << file << endl;
+          return(&result);
+      }
+
     
     ifstream input(file);
 
@@ -44,7 +59,7 @@ int *headerrpcfunc_1_svc(FAST struct headername *argp,
             result = input.good();
         }
     else
-      cout << "Bad open of file " << file << endl;
+      cout << "Bad open of file: " << file << endl;
 
     return(&result);
 }
