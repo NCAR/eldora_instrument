@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/06/29  14:54:09  thor
+ * Optimized Next loop.
+ *
  * Revision 1.4  1991/11/13  14:37:48  thor
  * A little optimizing.
  *
@@ -46,6 +49,7 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
 
     fore = mailBase;
     aft = mailBase + 1;
+
     addrBase = addr + 0x800;
 
     foreSavedAddr = addrBase;
@@ -56,23 +60,31 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
 
     Count = 0;
     foreCurr = 0;
-    FAST volatile unsigned short *mb = mailBase + count;
-    FAST long *aBase = addrBase + count;
+    aftCurr = 0;
+
+    sem = semCCreate(SEM_Q_FIFO,0);
+
     intConnect((VOIDFUNCPTR *)(vector * 4),(VOIDFUNCPTR)ddpIsr,(int)sem);
-    FAST volatile long *rep = repeat;
 }
 
 void Ddp::Next(void)
 {
     FAST long fcount = foreCurr;
-	  FAST long end = *rep; // Wait till here to make certain
-				   // we have a valid repeat count!
+    FAST unsigned short status;
+    FAST volatile unsigned short *fptr = fore;
+    FAST volatile long *foreAddr = foreSavedAddr;
+    FAST SEM_ID semaphore = sem;
+
+    do				// Must fall through at least once!
+      {
+	  semTake(semaphore,WAIT_FOREVER);
+
 	  FAST int foreEnd = Count;
 
 	  while (!foreEnd)
 	    {
-		mb = mailBase;
-		aBase = addrBase;
+		FAST volatile long *rep = repeat;
+		foreEnd = *rep; // Wait till here to make certain
 			    // we have a valid repeat count!
 
 		foreEnd /= 2;
@@ -82,8 +94,8 @@ void Ddp::Next(void)
 	  if (*fptr != 0)
 	    {
 		status = *fptr;
-		      mb = mailBase;
-		      aBase = addrBase;
+		*fptr = 0;
+
 		if (status != 0xbfff)
 		  PostAlarm();
 		else if (!radar) // We want fore beams!
