@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1996/02/23  18:04:25  eric
+ * modified code to support test pulse (slow cal).
+ *
  * Revision 1.5  1995/01/25  17:38:01  eric
  * Initialized global Header pointers in this routine only to eliminate
  * conflicts.
@@ -81,6 +84,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "string.h"
 #include "systime.h"
 #include "sysLib.h"
+#include "tickLib.h"
 
 #include "HeaderRpc.h"
 #include "Parameter.h"
@@ -165,6 +169,8 @@ volatile unsigned long  *tdpl_status, freq, board;
 
 volatile short ray_hndshk_stat, *digif_gates;
 
+unsigned long e_time;
+
 double         n_frq, Pn;
 
 
@@ -202,6 +208,7 @@ for(;;)
 	    proc_stat = 0;
 	    err_cnt = 0;
 	    max_time = 0;
+            tickSet(0);   /* reset tick counter */
 
       /* Read 68040 status register to determine if FORE or AFT radar */
 
@@ -1214,6 +1221,9 @@ for(;;)
 
 /*	    sysIntEnable(4);  try moving to different location */
 	    dspgo(1,4,0,0);
+
+            taskDelay(1);
+            
 	    dspgo(1,2,3,3);
 	    dspgo(1,2,3,2);
 	    dspgo(1,2,3,1);
@@ -1499,6 +1509,9 @@ Determine which DP went out of sync by reading sync flag status back from all op
 			      break;
 
 			  }	
+                        e_time = tickGet()/6000;
+                        printf("SYSTEM FAILED AFTER %d MINUTES \n",e_time);
+
 		    }
 
 	      }
