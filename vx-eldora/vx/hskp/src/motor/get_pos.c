@@ -2,7 +2,7 @@
 
  *	$Id$
  *
- *	Module:	pos.c	 
+ *	Module:	get_pos.c	 
  *	Original Author: Reif Heck 
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
@@ -10,25 +10,41 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/08/14  21:34:34  reif
+ * Revision 1.1  1992/09/01  20:42:14  craig
  * Initial revision
  *
  *
- * description: The purpose of this module is to read the position from the 2016
- *              chip and return this floating point value to the calling routine.
- *             
- *             
- *              
- *              
- *             
- *             
+ * description: The purpose of this module is to read the position from the
+ *              2016 chip convert it to degrees and return this floating
+ *              point value to the calling routine.
  *             
  */
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#include <cntrlIncl.h>
+#define scope extern
 
+/* Include fifty million vx-works .h files */
+
+#include "vxWorks.h"
+#include "math.h"
+#include "stdioLib.h"
+#include "intLib.h"
+#include "memLib.h"
+#include "semLib.h"
+#include "taskLib.h"
+#include "tyLib.h"
+#include "ioLib.h"
+#include "in.h"
+#include "systime.h"
+#include "sysLib.h"
+
+/* include the .h files that are housekeeper code specific */
+
+#include "tp41vAdr.h"
+#include "cntrlDef.h"
+#include "cntrlGbl.h"
+#include "cntrlFunc.h"
 
 float get_pos()
 {
@@ -40,11 +56,16 @@ union
       unsigned char degr[2];
   }position;
 
-*ltch=0x0C; /* Latch 2016OE* */
-for(i=0; i<1; i++);
-position.degr[0]=*rd2016; /* Read high byte */
-position.degr[1]=*rd2016; /* Read low byte */
-*ltch=0x0E; /* Release 2016OE* */
-count=(((float)position.degrees)/COUNTS)*360;/* Convert to degrees */
+*mot_ltch=0x0C;                   /* Latch 2016OE* */
+
+for(i=0; i<1; i++);               /* Waste a little time */
+
+position.degr[0]=*rd2016;          /* Read high byte */
+position.degr[1]=*rd2016;          /* Read low byte */
+
+*mot_ltch=0x0E;                   /* Release 2016OE* */
+
+count=(((float)position.degrees)/COUNTS)*360; /* Convert to degrees */
+
 return(count);
 }
