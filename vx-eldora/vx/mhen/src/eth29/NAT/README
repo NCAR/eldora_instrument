@@ -22,10 +22,17 @@ nif_drv_020611.tgz - NAT "sample driver"
 nif_drv_030306.tgz - identical to the previous
 C_Sample_Driver.zip - the sample driver, after bug fixes by NAT
 nif_c.c - another bug fix to the by NAT.
+sample_drive_final.tar - the place where I stopped working
+  on the NAT sample driver and switched to their vxWorks 
+  code. This code partially worked, but could not complete
+  the connection.
+
 
 2.) After the debauchle of trying to get the sample code to work, 
 NAT put together code which they had running under vxWorks,
-on an MVME-162. This code does work, but only has partial 
+on an MVME-162. This code borrowed heavily from their
+sample driver, but with a lot of cruft removed.
+This code does work, but only has partial 
 functionality, mainly demonstrating the ability to
 receive ethernet data. It uses taskDelay() to wait
 for asynchronous notification from the eth29, rather than
@@ -37,7 +44,7 @@ as P_Connect() and P_Send(). Note that the sample
 driver code from nif_drv.tgz, especially nifsock.c,
 is useful for adding scoket functions like P_Send, etc:
 
-eth29.tar - the NAT vxWorks limited functionality driver code.
+eth29.tar - the NAT vxWorks limited functionality, but working, driver code.
 
 3.) NAT provided some example code, which really illustrates
 socket programming, and a little bit about how to configure their 
