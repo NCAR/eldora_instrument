@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:07:37  craig
+ * Initial revision
+ *
  *
  * description:  Calculates size of the tape control area needed.
  *        
@@ -19,7 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <tapeDef.h>
 #include <tapeGbl.h>
 
-/******************** CHANNEL ATTENTION **********************/
+/******************** INITIALIZE TAPE CONTROL AREA **********************/
 
 void initialize_tape(int start_address, int sg_or_blocked)
 {
@@ -29,20 +32,17 @@ curr_address = start_address;
 if(((int)(curr_address / 4) * 4) != curr_address)
   curr_address = ((int)(curr_address / 4) + 1) * 4;
 
-for(i=0; i<LAST_PARAM_BLOCK + 1; i++)
+for(i=0; i<LAST_CIP_CMD + 1; i++)
   {
       parmblk[i] = (struct param_block *)(curr_address);
       curr_address += sizeof(struct param_block);
       if(((int)(curr_address / 4) * 4) != curr_address)
 	curr_address = ((int)(curr_address / 4) + 1) * 4;
   }
-mod_sel = (struct mode_select *)curr_address;
-curr_address += sizeof(struct mode_select);
-if(((int)(curr_address / 4) * 4) != curr_address)
-  curr_address = ((int)(curr_address / 4) + 1) * 4;
 
-mod_sen = (struct mode_sense *)curr_address;
-curr_address += sizeof(struct mode_sense);
+mod_sen = (struct mode_struct *)curr_address;
+printf("Starting address of the mode sense structure is: %8x\n",mod_sen);
+curr_address += sizeof(struct mode_struct);
 if(((int)(curr_address / 4) * 4) != curr_address)
   curr_address = ((int)(curr_address / 4) + 1) * 4;
 
@@ -51,10 +51,25 @@ curr_address += sizeof(struct request_sense);
 if(((int)(curr_address / 4) * 4) != curr_address)
   curr_address = ((int)(curr_address / 4) + 1) * 4;
 
+log_page = (struct log_pg *)curr_address;
+curr_address += sizeof(struct log_pg);
+if(((int)(curr_address / 4) * 4) != curr_address)
+  curr_address = ((int)(curr_address / 4) + 1) * 4;
+
+suprt_pgs = (struct supported_pgs *)curr_address;
+curr_address += sizeof(struct supported_pgs);
+if(((int)(curr_address / 4) * 4) != curr_address)
+  curr_address = ((int)(curr_address / 4) + 1) * 4;
+
+mod_sel = (struct mode_struct *)curr_address;
+printf("Starting address of the mode select structure is: %8x\n",mod_sel);
+curr_address += sizeof(struct mode_struct);
+if(((int)(curr_address / 4) * 4) != curr_address)
+  curr_address = ((int)(curr_address / 4) + 1) * 4;
 
 if(sg_or_blocked == SCATTER_GATHER)
   {
-      for(j=0; j<2; j++)
+      for(j=0; j<NUM_SG_STRUCTS; j++)
 	{
 	    for(i=0; i<MAX_SG_BLK + 2; i++)
 	      {
@@ -66,16 +81,19 @@ if(sg_or_blocked == SCATTER_GATHER)
 	}
   }
 
+printf("Ending address of tape control area: %8x\n",curr_address);
+
 /* now initialize every thing */
 
 parm_blk_init();
 md_sel_init();
 rqst_sns_init();
 md_sns_init();
+
 if(sg_or_blocked == SCATTER_GATHER)
   {
-      sg_init(0);
-      sg_init(1);
+    for(i=0; i<NUM_SG_STRUCTS; i++)
+      sg_init(i);
   }
 
 cip_cmds(GEN_OPS,GOPS,scsi_id[0]);
