@@ -9,10 +9,14 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/05/03  15:19:17  thor
+ * Initial revision
+ *
  *
  *
  * description:
- *        
+ *        This contains the methods for the Clcok class.
+ *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
@@ -23,17 +27,17 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 	     short y, unsigned short xoff, unsigned short yoff) : 
 	     Window(cntlr, window, x, y, 100, 24, xoff, yoff)
 {
-    foreground = WHITE1;
+    foreground = WHITE1;	// Default colors are white on black.
     background = BLACK;
 
-    lastHour = -1;
+    lastHour = -1;		// Force redraw on first update.
     lastMin = -1;
     lastSec = -1;
 
     FAST Point *ptr = location;
 
     FAST int j = 8;
-    FAST unsigned short lx = 4;
+    FAST unsigned short lx = 4;	// 4 pixel wide boarders.
     FAST unsigned short ly = 4;
 
     for (FAST int i = 0; i < j; i++, ptr++, lx += 12)
@@ -45,7 +49,8 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
     j = 11;
 
     lx = 0;
-    ly = 24;
+    ly = 24;			// Start data storage directly below
+				// displayed area.
 
     ptr = patterns;
 
@@ -55,12 +60,12 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 	  ptr->y = ly;
       }
 
-    SetPatterns();
+    SetDefPatterns();
 
     setPriority(MAXWDWPRI);
 }
 
-void Clock::SetPatterns(void)
+void Clock::SetDefPatterns(void)
 {
     FAST Point *ptr = patterns;
 
@@ -76,18 +81,22 @@ void Clock::SetPatterns(void)
     Pattern(ptr++,NineMap);
     Pattern(ptr,ColonMap);
 
-    frect(location[2],CLKWIDTH,CLKHEIGHT,BLACK);
-    frect(location[5],CLKWIDTH,CLKHEIGHT,BLACK);
-    copyBlock(patterns[10],location[2],CLKWIDTH,CLKHEIGHT);
-    copyBlock(patterns[10],location[5],CLKWIDTH,CLKHEIGHT);
+    // Clear displayed area and draw colons.
+    Point a;
+    a.x = 0;
+    a.y = 0;
+    frect(a,CLKWIDTH,CLKHEIGHT,BLACK);
+    shift(patterns[10],location[2],CLKWIDTH,CLKHEIGHT);
+    shift(patterns[10],location[5],CLKWIDTH,CLKHEIGHT);
 }
 
 void Clock::Pattern(FAST Point *ptr, FAST unsigned char *pattern)
 {
-    Point pt = *ptr;
+    Point pt = *ptr;		// Where is data space to draw character.
 
     FAST int j = CLKHEIGHT;
 
+    // Loop drawing each line.
     for (FAST int i = 0; i < j; i++, pattern++)
       {
 	  FAST int l = CLKWIDTH;
@@ -96,7 +105,7 @@ void Clock::Pattern(FAST Point *ptr, FAST unsigned char *pattern)
 
 	  for (FAST int k = 0; k < l; k++)
 	    {
-		if ((p & 0x80))
+		if ((p & 0x80))	// Set bit means draw foreground color.
 		  point(pt,foreground);
 		else
 		  point(pt,background);
@@ -105,62 +114,33 @@ void Clock::Pattern(FAST Point *ptr, FAST unsigned char *pattern)
 
 		pt.x += 1;
 	    }
-	  pt.x = ptr->x;
+	  pt.x = ptr->x;	// Get ready for start of next line.
 	  pt.y += 1;
       }
 }
 
-void Clock::Foreground(unsigned char fg)
-{
-    foreground = fg;
-
-    SetPatterns();
-}
-
-void Clock::Background(unsigned char bg)
-{
-    background = bg;
-
-    SetPatterns();
-}
-
-void Clock::Display(void)
-{
-    display();
-}
-
-void Clock::Undisplay(void)
-{
-    undisplay();
-}
-
-void Clock::Move(Point newPt)
-{
-    move(newPt);
-}
-
 void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 {
-    if (second != lastSec)
+    if (second != lastSec)	// Only perform as needed.
       {
 	  lastSec = second;
 
 	  FAST short i = second;
 
-	  if (i > 9)
+	  if (i > 9)		// Get the tens index.
 	    {
 		i /= 10;
 
-		second -= (i * 10);
+		second -= (i * 10); // Get correct ones index.
 	    }
 	  else
 	    i = 0;
 	  
 	  frect(location[6],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[i],location[6],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[i],location[6],CLKWIDTH,CLKHEIGHT);
 	  
 	  frect(location[7],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[second],location[7],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[second],location[7],CLKWIDTH,CLKHEIGHT);
       }
 
     if (minute != lastMin)
@@ -178,10 +158,10 @@ void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 	    i = 0;
 
 	  frect(location[3],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[i],location[3],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[i],location[3],CLKWIDTH,CLKHEIGHT);
 
 	  frect(location[4],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[minute],location[4],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[minute],location[4],CLKWIDTH,CLKHEIGHT);
       }
 
     if (hour != lastHour)
@@ -207,9 +187,9 @@ void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 	    i = 0;
 
 	  frect(location[0],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[i],location[0],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[i],location[0],CLKWIDTH,CLKHEIGHT);
 
 	  frect(location[1],CLKWIDTH,CLKHEIGHT,BLACK);
-	  copyBlock(patterns[hour],location[1],CLKWIDTH,CLKHEIGHT);
+	  shift(patterns[hour],location[1],CLKWIDTH,CLKHEIGHT);
       }
 }
