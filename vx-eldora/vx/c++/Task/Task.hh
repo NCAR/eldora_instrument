@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/11/24  18:51:43  vanandel
+ * added destructor - delete allocated flags
+ *
  * Revision 1.5  1992/10/02  13:39:30  vanandel
  * added method to return process's flags
  *
@@ -78,7 +81,7 @@ class Task {
 	 int stacksize = 3000, int options = VX_FP_TASK | VX_STDIO,
 	 int go = 1, char *name = "");
 
-    ~Task(void) {delete flags;};
+    ~Task(void) {flags->set(0x1);delete flags;};
 
     STATUS Delete(void) { return(taskDelete(taskId)); }
 
