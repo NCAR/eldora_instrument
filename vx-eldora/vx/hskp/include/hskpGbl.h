@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/19  19:33:48  craig
+ * Initial revision
+ *
  *        
  */
 
@@ -44,6 +47,12 @@ scope char  last_day;
 scope float last_fore_position;
 scope float last_aft_position;
 scope float last_position;
+scope float last_fore_angle;
+scope float last_aft_angle;
+scope long fore_sweep_num;
+scope long aft_sweep_num;
+
+/* Milliseconds since midnight of all rays in the handshake areas */
 scope long msecs_ray[27];
 scope long dwelltime_msec;
 
