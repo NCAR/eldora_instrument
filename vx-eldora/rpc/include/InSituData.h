@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:25:10  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -29,7 +32,7 @@
 
 struct insitu_data {
     char  insitu_data_id[4];	/* Identifier = ISIT. */
-    long  insitu_data_len;		/* Block size in bytes. */
+    long  insitu_data_len;	/* Block size in bytes. */
     short julian_day;
     short hours;
     short minutes;
