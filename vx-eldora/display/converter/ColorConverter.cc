@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/11/14  18:24:43  thor
+ * Fixed a number of bugs that caused incorrect calculation of gate index.
+ *
  * Revision 1.7  1991/10/22  17:17:37  thor
  * Do beam size calculations in ints.
  *
@@ -43,6 +46,7 @@
  */
 
 #include "math.h"
+#include "memLib.h"
 #include "string.h"
 #include "stdioLib.h"
 ColorConverter::ColorConverter(FAST int bins, float *max, float *min,
@@ -115,8 +119,6 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		dist += width;
     float inc = (float)maxDist / (float)DISPLAYED_GATES; // Meters/pixel.
 
-    FAST int index = 0;
-
     FAST int dcells = pgates;
 
     FAST int *ptr = gateIndex;
@@ -130,6 +132,8 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	  FAST int index = 0;
 
 	  for (FAST int k = 0; k < ngates; k++)
+	    {
+		newDiff = *fp++ - dist;
 
 		if (newDiff >= oldDiff)	// If difference increased
 					// this is our gate.
@@ -151,10 +155,11 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 {
     FAST unsigned char bins = nbins;
     FAST unsigned char tsize = bins - 1; // Loop count maximum.
-    FAST unsigned char inc = 0;		 // Offset into color table.
+    FAST unsigned char inc = 0;	   // Offset into color table.
     FAST int count = numOfValues;
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
+    FAST unsigned char *colors = &dp.colors[0];
     --count;
     for (FAST int i = 0; i < count; i++, inc += bins)
 	  FAST unsigned short datum = *(data + offset);
@@ -162,30 +167,23 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 
 	  FAST short datum = *(data + offset);
     else
-	  FAST short *ptr = tbl[i];
+	  FAST short *lkup = tbl[i];
 	  
-	  FAST unsigned char color = 0;
-
-	  do
+	  for (FAST unsigned char color = 0; color < tsize; color++)
 	    {
-		if (datum <= *ptr)
-		      break;
-		else
-		  {
-		      ptr++;
-		      color++;
-		  }
-	    } while (color < tsize);
+		if (datum <= *lkup++)
+		  break;
+	    }
 }
-	  dp.colors[i] = color + inc;
+	  *colors++ = color + inc;
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
 void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
-    FAST unsigned char bins = nbins;
+    FAST unsigned char bins = bins;
     FAST unsigned char tsize = bins - 1; // Loop count maximum.
-    FAST unsigned char inc = 0;		 // Offset into color table.
+    FAST unsigned char inc = 0;	   // Offset into color table.
     FAST int count = numOfValues;
     FAST int np = numOfParams;
     FAST unsigned char *colors = &rad.colors[0];
@@ -202,24 +200,15 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
 		FAST int off = offset + (*ptr++ * np);	// Offset to param +
 							// index to correct 
 							// gate.
-
 		FAST short datum = *(data + off);
 
 		FAST short *lkup = tbl[i];
 
-		FAST unsigned char color = 0;
-
-		do
+		for (FAST unsigned char color = 0; color < tsize; color++)
 		  {
-		      if (datum <= *lkup)
+		      if (datum <= *lkup++)
 			break;
-		      else
-			{
-			    lkup++;
-			    color++;
-			}
-		  } while (color < tsize);
-
+		  }
 		*colors++ = color + inc;
 	    }
     
