@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/04/08  20:37:01  thor
+ * Added angle member to RadialData.
+ *
  * Revision 1.3  1991/03/27  16:54:06  thor
  * Changed RadialData structure to eliminate redundant angle data.
  *
@@ -57,8 +60,12 @@ struct Horiz_Move {
 
 struct Radial_Data {
     float angle;
+    int direction;
     unsigned char colors[DISPLAYED_GATES * 3];
 };
+
+static const int POSITIVE = 1;
+static const int NEGATIVE = 0;
 
 static const int UPPER_LEFT  = 0;
 static const int LEFT        = 1;
