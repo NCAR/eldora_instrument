@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.7  1994/08/12  18:01:36  thor
+// Fixed another nit.
+//
 // Revision 1.6  1994/04/08  20:31:30  thor
 // Many changes!
 //
@@ -174,14 +177,11 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
     agc->setMask(0);
 
     agc->clear();
-    
-    FAST u_long *colors = &cmd->colorTable[0];
 
-    if (*colors != 0xffffffff)
-          agc->setColorMap((long *)colors,256);
+    if (cmd->userColors)
+          setColors();
 
     numOfParams = nv;
-    radius = cmd->radius;
 
     if (cmd->cmd == AFT_DUAL)
       dispType = Display::DUAL_AFT;
@@ -197,6 +197,15 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
     drawTable(Display::B_SET,max[1],min[1],param);
 
     drawTitle(Display::A_SET,dispType);
+
+    refreshClock();
+
+    Point cpt;
+
+    cpt.x = 0;
+    cpt.y = 0;
+
+    moveClock(cpt);
 
     agc->setMask(0x80);
 
