@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1993/12/14  17:21:05  thor
+// Fixed things to use static data member.
+//
 // Revision 1.1  1993/12/09  20:19:24  thor
 // Initial revision
 //
@@ -24,7 +27,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include <string.h>
 
-int ParamNames::paramToNum(register int p)
+int ParamNames::paramToNum(register int p) const
 {
     switch(p) {
       case ParamNames::REFLECT: return(0);
@@ -51,7 +54,7 @@ int ParamNames::paramToNum(register int p)
     }
 }
 
-int ParamNames::numToParam(register int n)
+int ParamNames::numToParam(register int n) const
 {
     switch(n) {
       case 0: return(ParamNames::REFLECT);
@@ -77,7 +80,7 @@ int ParamNames::numToParam(register int n)
     }
 }
 
-int ParamNames::nameToParam(register char *c)
+int ParamNames::nameToParam(register const char *c) const
 {
     char **n = names;
     int param = 0;
@@ -93,7 +96,7 @@ int ParamNames::nameToParam(register char *c)
     return(NO_PARAM);
 }
 
-int ParamNames::nameToNum(register char *c)
+int ParamNames::nameToNum(register const char *c) const
 {
     char **n = names;
     int param = 0;
@@ -109,7 +112,7 @@ int ParamNames::nameToNum(register char *c)
     return(-1);
 }
  
-const char *ParamNames::numToName(register int num)
+const char *ParamNames::numToName(register int num) const
 {
     if (num < 0 || num > paramToNum(ParamNames::SPEC_WIDTH3))
       return(NULL);
@@ -117,10 +120,11 @@ const char *ParamNames::numToName(register int num)
     return(names[num]);
 }
 
-const char *ParamNames::paramToName(register int num)
+const char *ParamNames::paramToName(register int num) const
 {
-    if (paramToNum(num) == -1)
+    register int index = paramToNum(num);
+    if (index == -1)
       return(NULL);
     
-    return(names[num]);
+    return(names[index]);
 }

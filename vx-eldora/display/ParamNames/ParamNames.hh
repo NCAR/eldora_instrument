@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1993/12/14  17:21:05  thor
+// Fixed things to use static data member.
+//
 // Revision 1.1  1993/12/09  20:19:26  thor
 // Initial revision
 //
@@ -52,17 +55,17 @@ class ParamNames {
     
     ParamNames() {}
 
-    const char *numToName(int i);
+    const char *numToName(int i) const;
 
-    const char *paramToName(int p);
+    const char *paramToName(int p) const;
 
-    int numToParam(int i);
+    int numToParam(int i) const;
 
-    int paramToNum(int i);
+    int paramToNum(int i) const;
 
-    int nameToNum(char *n);
+    int nameToNum(const char *n) const;
 
-    int nameToParam(char *n);
+    int nameToParam(const char *n) const;
 
     ~ParamNames() {}
 
