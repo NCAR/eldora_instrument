@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/11/19  17:17:23  thor
+ * Put color change after new.
+ *
  * Revision 1.6  1991/11/15  16:57:06  thor
  * Added new radar variable and removed test taskDelay.
  *
@@ -308,12 +311,12 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     FAST int maxDist = cs->distToFirst;
 
+    for (FAST int i = 0; i < seg; i++) // Calculate maximum distance & # gates.
+      {
           FAST int c = *ncells++;
 
           FAST int width = *widths++;
 
-
-    FAST HorizDisplay *New = new HorizDisplay(agc,MAX_RECT,0.0,0.0,nv,0,0);
           maxDist += (c * width);
     New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,MAX_RECT);
 
