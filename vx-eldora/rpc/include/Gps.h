@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/11  13:46:30  thor
+ * Added more doc.
+ *
  * Revision 1.1  1992/07/28  17:23:46  thor
  * Initial revision
  *
@@ -39,10 +42,10 @@ struct gps_data {
     long  utc_offset;		/* Offset from UTC. */
     long  gps_mode;		/* Defined by Trimbal. */
     short satellite[4];		/* Satellites being used. */
-    long  pdop;
-    long  hdop;
-    long  vdop;
-    long  tdop;
+    float  pdop;
+    float  hdop;
+    float  vdop;
+    float  tdop;
     short software_version;	/* Trimbal software version. */
     short month;
     short day;
