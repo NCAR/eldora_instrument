@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/31  22:37:59  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/30  20:12:58  craig
  * Initial revision
  *
@@ -133,6 +136,8 @@ do {
       case 's':
 	if((test = sync_irig()) == 0)
 	  printf("IRIG-B syncing was unsuccessful\n");
+	else
+	  printf("IRIG-B syncing was successful\n");
 	break;
       case 'm':
 	printf("\nEnter the hour in 24 hour format: ");
