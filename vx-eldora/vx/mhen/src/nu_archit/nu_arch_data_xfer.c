@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1995/01/20  14:52:57  eric
+ * Added code to handle 10 variable and 6 variable data sorting.
+ *
  * Revision 1.3  1994/11/14  17:26:43  eric
  * Updated code to handle Staggered PRT's and
  * variable parameter headers.
@@ -80,11 +83,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define EOB 0x2
 
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern WAVEFORM *wvfm;
-extern PARAMETER *prm;
-extern FIELDRADAR *fldrdr;
 extern short task_sync;
 extern int int_cnt, proc_stat;
 
@@ -128,7 +126,6 @@ for(;;)
 
 /* Parse Header for required system parameters */
 
-	    wvfm = GetWaveform(inHeader);
 	    gates = wvfm -> num_gates[0];
             f1_flag = wvfm -> num_chips[0];
             prt_flag = 0;    /* default is single prt */
@@ -153,30 +150,17 @@ for(;;)
             lgate_off2 = (f_flag - 1)*8;
 	    sampl = wvfm -> repeat_seq_dwel;
 	    incr = ((f_flag * 8) - 4)/4;
-	    if(!radar_fore_aft)
-	      cs = GetCellSpacing(inHeader,1);
-	    else
-	      cs = GetCellSpacing(inHeader,2);
             num_int1 = cs -> num_cells[0];
             num_int2 = cs -> num_cells[1];
             num_int3 = cs -> num_cells[2];
             num_int4 = cs -> num_cells[3];
 	    tnum_int = num_int1 + num_int2 + num_int3 + num_int4;
-
-            if(!radar_fore_aft)
-              rdsc = GetRadar(inHeader,1);
-            if(radar_fore_aft)
-              rdsc = GetRadar(inHeader,2);
             num_param = rdsc -> num_parameter_des;
             if(num_param == 10) /* we really have 12 parameters in collator */
               num_param = 12;
             
 /* Substitute code to process indf_ts here !!! */
 
-	    if(!radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,1);
-            if(radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,2);
 	    indf_ts = fldrdr -> indepf_times_flg;
 
       /* General Initialization */
