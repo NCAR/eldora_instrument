@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/17  23:41:50  shawn
+ * Writes to rpc global status structure "currStatus" now.  Will set
+ * the appropriate "slave dead" bit.
+ *
  * Revision 1.2  1992/09/17  21:07:15  shawn
  * debugged; copy prior to adding writes to global hskp rpc status.
  *
@@ -101,7 +105,6 @@ logMsg("\necbErrorIsr:  LAST ECB COMMAND ISSUED ENDED IN ERROR!!!\n");
     /* load global status structure to be rpc'd back to control processor */
     /* (Set appropriate slave-dead bit) */
     currStatus->slvdead = currStatus->slvdead | (0x01<<ecbadr);
-    logMsg("ecbErrorIsr:  currStatus->slvdead = 0x%2x\n",currStatus->slvdead);
 
     if (errCheckOUT())   /* check for OUT FIFO EMPTY */
       {
