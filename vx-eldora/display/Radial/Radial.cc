@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/07/29  19:21:37  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 2.1  1993/07/01  16:40:28  thor
  * Brought up to latest ANSI spec.
  *
@@ -516,6 +519,10 @@ void Radial::nextZoom(Point cursor)
 	  break;
 
 	case ZOOM4:
+	  zoom = ZOOM8;
+	  break;
+
+	case ZOOM8:
 	  zoom = ZOOM1;
 	  break;
       }
@@ -543,8 +550,7 @@ Radial::~Radial(void)
 	  clear(i);
 	  undisplay(i);
       }
-    clk.clear();
-    clk.undisplay();
+    clk.Undisplay();
 }
 
 void Radial::SetBounds(float max, float first)
