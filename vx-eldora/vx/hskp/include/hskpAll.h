@@ -72,9 +72,9 @@ extern HeaderPtr inHeader;
 /* #include "minFunc.h" */
 #include "pwrDef.h"
 #include "pwrFunc.h"
-#include "todDef.h"
-#include "todFunc.h"
-#include "todGbl.h"
+/* #include "todDef.h" */
+/* #include "todFunc.h" */
+/* #include "todGbl.h" */
 #include "tp41vAdr.h"
 #include "vme_hndshk.h"
 #include "vmevmeAdr.h"
@@ -83,5 +83,9 @@ extern HeaderPtr inHeader;
 #include "vmevmeGbl.h"
 #include "HskpCmd.h"
 #include "HskpStatus.h"
+
+#include "clockDef.h"
+#include "clockGbl.h"
+#include "clockFunc.h"
 
 
