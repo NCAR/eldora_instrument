@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/12/04  18:00:37  eric
+ * Initial revision
+ *
  *
  * description:
   Purpose:       Load timing module for ELDORA RP7
@@ -33,8 +36,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 
 
-#include "/ELDORA/vx/mhen/include/ELDRP7.h"
-#include "/ELDORA/dsp/include/col_dpramdefs.h"
+#include "ELDRP7.h"
+#include "col_dpramdefs.h"
 
 #define PRE_KNOCK_RISE 250.0  /* in nsec    */
 #define PRE_KNOCK_FALL 200.0  /* in nsec    */
