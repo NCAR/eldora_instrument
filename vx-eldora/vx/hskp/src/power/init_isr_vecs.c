@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12  19:38:33  eric
+ * Added semaphore support.
+ *
  * Revision 1.1  1993/09/20  17:35:54  reif
  * Initial revision
  *
@@ -56,4 +59,5 @@ xmit_data_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 xmit_err_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 testp_data_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 testp_err_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
+cal_sync_sem = semBCreate(SEM_Q_FIFO,SEM_FULL);
 }
