@@ -10,6 +10,9 @@
 | revision history
 | ----------------
 | $Log$
+ * Revision 1.1  1992/11/10  19:32:32  eric
+ * Initial revision
+ *
 |
 | calling convention:
 |
@@ -25,7 +28,7 @@
  * 27 May 1992
 */
 
-#include "/ELDORA/vx/mhen/tadpole/include/ELDRP7.h"
+#include "ELDRP7.h"
 #include "col_dpramdefs.h"
 #include "dspaddr.h"	
 
