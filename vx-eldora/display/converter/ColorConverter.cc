@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  1992/01/17  20:26:26  thor
+ * Added cast to call to free().
+ *
  * Revision 1.15  1991/12/20  15:36:47  thor
  * Changed to new HorizPoint form.
  *
@@ -215,7 +218,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
     free((char *)fptr);
 }
 
-    free(fptr);
+void ColorConverter::GetPoint(FAST unsigned short *data,
 			      FAST unsigned char *colors,
 			      FAST int index)
 void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
