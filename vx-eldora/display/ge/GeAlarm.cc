@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  1991/10/14  19:17:48  thor
  * Eliminated unused methods & added new method for posting alarms.
  *
@@ -33,7 +36,7 @@ extern "C" {
 #include "ioLib.h"
 };
 
-GeAlarm::GeAlarm(char *server, int system)
+GeAlarm::GeAlarm(char *server, int sys)
 {
     struct timeval tmo = { 10, 0 };
 
@@ -60,8 +63,6 @@ GeAlarm::GeAlarm(char *server, int system)
 	  taskDelay(60);
       }
 
-    socket = s;
-
     if (clnt == NULL)
       {
           clnt_pcreateerror(NULL);
@@ -70,10 +71,7 @@ GeAlarm::GeAlarm(char *server, int system)
     else
       client = clnt;
 
-    clnt_control(clnt,CLSET_FD_CLOSE,NULL); // May be someday WRS will
-					    // have clnt_destroy.
-
-    status.count = system;	// Tell where it came from!
+    status.count = sys;		// Tell where it came from!
 }
 
 void GeAlarm::Set(int error)
@@ -83,7 +81,5 @@ void GeAlarm::Set(int error)
 
 GeAlarm::~GeAlarm(void)
 {
-    free((char *)client);	// These really should be done with
-				// clnt_destroy. 
-    close(socket);
+    clnt_destroy(client);
 }
