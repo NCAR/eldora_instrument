@@ -54,14 +54,17 @@
 * ==========================
 *
 * --------- $Log$
-* --------- Revision 1.2  2003/04/07 19:47:33  martinc
-* --------- *** empty log message ***
-* ---------
-* --------- Revision 1.1.1.1  2003/04/07 19:24:03  martinc
-* --------- import
-* ---------
-* 011025 cg added routine eth29_check_data to check data sent by two different
-*           remote systems;
+* 030408 cg added routine eth29_dbg to switch the debug level on the
+*           ETH29;
+*           renamed eth29_init into eth29_init_l2;
+* 030404 cg adapted to be compilable using special VxWorks mechanisms
+*           that requires inclusion of VxWorks header files (VXWORKS
+*           must be defined in the makefile);
+*           according to these adaptions now VxWorks semaphores are
+*           used to avoid polling and taskDelay that reduced speed;
+*           removed unused routines eth29_poll_rx and eth29_check_data;
+* 011025 cg added routine eth29_check_data to check data sent by two
+*           different remote systems;
 * 011023 cg in the two copying while-loops in eth29_poll_rx removed check
 *           on sb_cc to copy the whole mbuf-list into the host system, sb_cc
 *           now is only used to check if there is a valid datagram containing
@@ -108,85 +111,52 @@ GENERAL NOTES
 /*
  * test application's version
  */
-#define ETH29_APP_VER	"0.4"
+#define ETH29_APP_VER	"0.6"
 
-#ifdef DEFINE_BASIC_TYPES
+
 
 /*
- * missing types
+ * application configuration
  */
-#ifndef _U_CHAR
-#define _U_CHAR
-typedef unsigned char	u_char;
+/* enable receive */
+//#define ETH29_RX
+
+/* receive statistics support */
+#define ETH29_RX_STAT_SUPP
+
+/* check compile time configuration */
+#if defined ETH29_RX_STAT_SUPP && !defined VXWORKS
+#error ETH29_RX_STAT_SUPP only valid for VXWORKS
 #endif
 
-#ifndef _U_SHORT
-#define _U_SHORT
-typedef unsigned short	u_short;
+#if defined ETH29_RX_STAT_SUPP && !defined ETH29_RX
+#warning ETH29_RX_STAT_SUPP only valid for ETH29_RX
+#undef ETH29_RX_STAT_SUPP
 #endif
 
-#ifndef _U_INT
-#define _U_INT
-typedef unsigned int	u_int;
-#endif
 
-#ifndef _U_LONG
-#define _U_LONG
-typedef unsigned long	u_long;
-#endif
-
-#ifndef U_CHAR
-#define U_CHAR	unsigned char
-#endif
-
-#ifndef U_SHORT
-#define U_SHORT	unsigned short
-#endif
-
-#ifndef U_INT
-#define U_INT	unsigned int
-#endif
-
-#ifndef U_LONG
-#define U_LONG	unsigned long
-#endif
-
-#ifndef UCHAR
-#define UCHAR	unsigned char
-#endif
-
-#ifndef USHORT
-#define USHORT	unsigned short
-#endif
-
-#ifndef UINT
-#define UINT	unsigned int
-#endif
-
-#ifndef ULONG
-#define ULONG	unsigned long
-#endif
-
-#ifndef _CADDR_T
-#define _CADDR_T
-typedef void *caddr_t;
-#endif
-
-#endif
 
 /*****************************************************************************/
 /*	INCLUDES							     */
 /*****************************************************************************/
 
+#ifdef VXWORKS
 #include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
+#include <ioLib.h>						    /* ioctl */
+#include <intLib.h>			       /* generic interrupt routines */
+#include <iv.h>					/* intConnect, intEnable ... */
+#include <semLib.h>					/* semaphore library */
+#include <taskLib.h>					     /* task library */
+#include <string.h>					   /* memcpy, memset */
+#include "sysLib.h"				 /* system dependent library */
+#include "tickLib.h"					     /* tick library */
+#endif	/* VXWORKS */
 
 #include "mbuf.h"
 #include "nif.h"
 #include "socket.h"
 #include "neterr.h"
-#include "neterrno.h"
+#include "fifo.h"
 
 
 
@@ -214,55 +184,47 @@ typedef void *caddr_t;
 #define PRINTB(buf,len)
 #endif
 
-#ifdef ETH29_INT_DBG
-#define PRINTI(fmt,arg...)	printi(fmt, ## arg)
-#else
-#define PRINTI(fmt,arg...)
+#ifndef printd
+#define printd	printf
 #endif
 
-#ifndef printd
-//#define printd	logMsg
-#define printd	//
-#endif
+
 
 /*
  * ETH29 configuration
  */
-//#define ETH29_POLL_RX		  /* use rx data polling instead of irq ind. */
+#define LOOPBACK_IP_ADDR        "127.0.0.1"
+#define ETH29_IP_ADDR           "128.117.80.81"
+#define SEND_TO_IP_ADDR         "128.117.80.170"
 
-//#define ETH29_IP_REM_ADDR	0x8493a0f2		/* remote IP address */
-#define ETH29_IP                "128.117.80.81"       /* IP address of eth29 interface */
-//#define ETH29_LOOP_IP_ADDR	0x7f000001	      /* loopback IP address */
-//#define ETH29_IP_ADDR		ETH29_IP_REM_ADDR	       /* IP address */
-#define SEND_IP                 "128.117.80.170"     /* address to send datagrams to */
 
-#define DATAGRAM_SIZE           5000
 
 /*
  * ETH29 access
  */
 #define ETH29_VME_BASE		0x90000000		 /* VME base address */
-//#define ETH29_VME_BASE		0xeac00000		 /* VME base address */
 
 #define ETH29_MPRAM_BASE	ETH29_VME_BASE	       /* MPRAM base address */
 #define ETH29_MPRAM_SIZE	0x00400000		       /* MPRAM size */
 #define ETH29_MPRAM_MASK	(ETH29_MPRAM_SIZE - 1)	       /* MPRAM mask */
-//#define ETH29_RESET_CELL	0xeacffffc	   /* ETH29 reset if written */
-#define ETH29_RESET_CELL	(ETH29_VME_BASE + 0xffffc)	   /* ETH29 reset if written */
-//#define ETH29_MBOX_CELL		0xeacfffe0			 /* mail box */
-#define ETH29_MBOX_CELL		(ETH29_VME_BASE + 0xfffe0)		 /* mail box */
+#define ETH29_RESET_CELL	((ETH29_VME_BASE)+0xffffc)   /* ETH29 reset if written */
+#define ETH29_MBOX_CELL		((ETH29_VME_BASE)+0xfffe0)   /* mail box */
 #define ETH29_NIF_ADDR		((ETH29_VME_BASE) + 0x4000)   /* NIF address */
 
-#define ETH29_INT_VEC		0xa0			 /* interrupt vector */
-#define ETH29_INT_LEV		2			  /* interrupt level */
+#define ETH29_INT_VEC		0xb0			 /* interrupt vector */
+#define ETH29_INT_LEV		3			  /* interrupt level */
 
 #define ETH29_PID		1		   /* for compatibility only */
 #define ETH29_MAX_SOCK		8	 /* max. number of supported sockets */
+
+
 
 /*
  * NIF related
  */
 #define NIF_MAX_WAIT		400		      /* NIF polling timeout */
+
+
 
 /*
  * address conversion over VME bus
@@ -272,6 +234,40 @@ typedef void *caddr_t;
 
 #define ADDR_H2S(a) \
 	(void *)(a) = (void *)((u_long)(a) & ETH29_MPRAM_MASK)
+
+
+
+/*
+ * vxWorks routines
+ */
+#define INTLOCK(ik)	((int)(ik) = intLock())
+#define INTUNLOCK(ik)	intUnlock((int)(ik))
+
+#define SEMBCREATE(sid,state)	sid = semBCreate(SEM_Q_FIFO,state)
+#define SEMCCREATE(sid,count)	sid = semCCreate(SEM_Q_FIFO,count)
+#define SEMCREATE(sid)		sid = semBCreate(SEM_Q_FIFO,SEM_EMPTY)
+#define SEMTAKE(sid)		semTake(sid,WAIT_FOREVER)
+#define SEMGIVE(sid)		semGive(sid)
+#define SEMDELETE(sid)		semDelete(sid)
+
+#define TSPAWN(name,prio,stack_size,entry_func) \
+	taskSpawn(name,prio,0,(int)stack_size,(FUNCPTR)entry_func, \
+		  0,0,0,0,0,0,0,0,0,0)
+#define TSLEEP			taskDelay
+
+
+
+/*
+ * receive statistics related
+ */
+/* rx rate update time (seconds) */
+#define ETH29_RX_RATE_UPDATE_TIME	2
+
+#if ETH29_RX_RATE_UPDATE_TIME == 0
+#error ETH29_RX_RATE_UPDATE_TIME must be > 0
+#endif
+
+
 
 /*
  * protocols defined by the internet system, RFC 790, 09/81
@@ -509,16 +505,31 @@ struct socket {
 
 
 
+/*
+ * receive statistics
+ */
+#ifdef ETH29_RX_STAT_SUPP
+typedef struct eth29_receive_statistics {
+	unsigned long num_rx_buf;	/* number of received buffer */
+	unsigned long rx_buf_size_max;	/* maximum rx buf size */
+	unsigned long num_rx_byte;	/* number of received bytes */
+	unsigned long rx_rate_max;	/* maximum rx rate */
+} ETH29_RX_STAT;
+#endif	/* ETH29_RX_STAT_SUPP */
+
+
+
 /*****************************************************************************/
 /*	PRIVATE FUNCTION PROTOTYPES					     */
 /*****************************************************************************/
 
 /* PUBLIC */
 int eth29(void);
-int eth29_init(void);
-int eth29_poll_rx(int sock);
-int eth29_check_data(u_char *data, int data_count);
+int eth29_init_l2(void);
 void eth29_isr(int dummy);
+long eth29_com_with_slave(struct mbuf *m_cmd);
+int eth29_tx(int loops, int dlen);
+int eth29_dbg(int dlevel);
 
 /* L2 support */
 int L2_Init(struct L2M_init_p *initpar);
@@ -533,9 +544,10 @@ int P_Bind(int sock, caddr_t name, int namelen);
 int P_Getsockopt(int sock, int level, int optname, caddr_t optval, int *optlen);
 int P_Setsockopt(int sock, int level, int optname, caddr_t optval, int optlen);
 int P_Ioctl(int sock, u_long cmd, caddr_t cmdarg);
+int P_Connect(int sock, caddr_t name, int namelen);
+int P_Send(int sock, caddr_t buf, int len, int flags);
+int P_Sendto(int sock, caddr_t buf, int len, int flags, caddr_t to, int tolen);
 int P_Recvfrom(int sock, caddr_t buf, int len, int flags, caddr_t from, int *fromlen);
-int P_Send(int sock, caddr_t buf, int len);
-int P_Sendto(int sock, caddr_t buf, int len, int flags, caddr_t from, int *fromlen);
 int P_DropData(int sock, caddr_t sockbuf, int len);
 
 /* NIF handling */
@@ -547,14 +559,19 @@ int put_page(u_char *page);
 int action(struct mbuf *m);
 int do_mbox(u_char irq_code);
 struct mbuf *wait_sl(void);
-void *wait_sem(int timeout);
 
 /* miscellaneous */
-int printi(const char *fmt, ...);
 u_int printb(void *vpb, u_int lb);
 void print_nif(void);
 void print_mbuf(struct mbuf *m, int mode);
 void print_ieee(u_char *buf, char *txt);
+
+#ifdef ETH29_RX_STAT_SUPP
+void eth29_rx_stat_clear(void);
+void eth29_rx_stat_print(void);
+void eth29_rx_stat_print_rate(void);
+void eth29_rx_rate_task(void);
+#endif
 
 
 
@@ -569,16 +586,22 @@ ETH29_ADDR addr;
 struct mbuf loc_m;
 
 /* receive buffer */
-u_char dg_buf[DATAGRAM_SIZE];
+u_char rx_buf[0x20000];
 
 /* array holding socket parameter */
 int sock_a[ETH29_MAX_SOCK];				 /* socket identifer */
 u_long so_rcv_a[ETH29_MAX_SOCK];		  /* socket buffer addresses */
 
-/* semaphore to indicate irq and var to save mbuf */
-static int sem_flag = 0;
-static struct mbuf *m_save = NULL;
+/* semaphore to indicate interrupt event */
+SEM_ID i_evt_sem;
 
+/* receive fifo */
+FIFO rx_fifo;
+
+#ifdef ETH29_RX_STAT_SUPP
+/* receive statistics */
+ETH29_RX_STAT eth29_rx_stat;
+#endif
 
 
 /*****************************************************************************/
@@ -591,16 +614,12 @@ static struct mbuf *m_save = NULL;
 /*	EXTERNAL REFERENCES						     */
 /*****************************************************************************/
 
-#include <vxWorks.h>
-#include <semLib.h>
-#include <iv.h>
-
-#ifdef NEVER
 /* vxWorks specific */
 int intConnect(VFP *vec, VFP isr, int par);	       /* connect isr to irq */
 int sysIntEnable(int level);				 /* enable interrupt */
 int intLock(void);				      /* disables interrupts */
 int intUnlock(int lockKey);			       /* enables interrupts */
+
 int taskDelay(int ticks);				    /* delays a task */
 
 int logMsg(char *fmt,				    /* vxWorks print routine */
@@ -611,10 +630,9 @@ int logMsg(char *fmt,				    /* vxWorks print routine */
 	   int arg4,
 	   int arg5);
 
+//int sysClkRateGet(void);
 
-#endif
 
-volatile SEM_ID taskSem;
 
 /*****************************************************************************/
 /*	PUBLIC FUNCTION DEFINITIONS					     */
@@ -631,22 +649,20 @@ Return:		0 => ok
 
 int eth29(void)
 {
-	int nDatagram = 0;
 	int status = 0;
 	u_long ip_addr;					       /* IP address */
-	u_long ip_addr_to;					       /* IP address */
 	char if_name[32];				   /* interface name */
+	struct ifreq ifr;		      /* interface request structure */
+#if defined ETH29_RX || defined ETH29_FIRMWARE_DBG
 	u_long optval;					     /* option value */
 	int optlen = 0;					    /* option length */
-	struct ifreq ifr;		      /* interface request structure */
+#endif
+#ifdef ETH29_RX
 	struct sockaddr_in sa;			  /* internet socket address */
-#ifndef ETH29_POLL_RX
 	struct sockaddr rem_sa;			    /* remote socket address */
 #endif
 	u_char *buf_p;					   /* buffer pointer */
 	int i;
-
-        taskSem = semBCreate(SEM_Q_FIFO, SEM_EMPTY);
 
 	printd("*** ETH29 test application V%s (%s %s) ***\n",
 		ETH29_APP_VER, __DATE__, __TIME__);
@@ -670,21 +686,33 @@ int eth29(void)
 
 	print_mbuf(&loc_m, 0);
 
+	/* initialize rx fifo */
+	INIT_FIFO(rx_fifo);
+
 	/* clear receive buffer */
-	buf_p = dg_buf;
-	printd("buf_p 0x%lx dg_buf 0x%lx size %d\n",
-		(u_long)buf_p, (u_long)dg_buf, sizeof(dg_buf));
+	buf_p = rx_buf;
+	printd("buf_p 0x%lx rx_buf 0x%lx size %d\n",
+		(u_long)buf_p, (u_long)rx_buf, sizeof(rx_buf));
 	for(i = 0; i < 256; i++)
 		*buf_p++ = 0xff;
 
+#ifdef ETH29_RX_STAT_SUPP
+	/* clear rx statistics */
+	eth29_rx_stat_clear();
+#endif
+
 	/* initialize ETH29 */
-	eth29_init();
+	eth29_init_l2();
+
+	/* create semaphore */
+	SEMCREATE(i_evt_sem);
 
 	/* connect interrupt service routine and enable interrupt */
 	printd("  enable isr 0x%lx vector 0x%x level %d\n",
 		(u_long)eth29_isr, ETH29_INT_VEC, ETH29_INT_LEV);
-	//	status = intConnect((VFP *)ETH29_INT_VEC, eth29_isr, 0);
 	status = intConnect(INUM_TO_IVEC(ETH29_INT_VEC), eth29_isr, 0);
+	//	status = intConnect((VFP *)ETH29_INT_VEC, eth29_isr, 0);
+	status = intConnect((VFP *)ETH29_INT_VEC, eth29_isr, 0);
 	if(status != 0) {
 		printd("eth29: connecting isr 0x%lx to vector 0x%x failed\n",
 			(u_long)eth29_isr, ETH29_INT_VEC);
@@ -693,31 +721,35 @@ int eth29(void)
 
 	status = sysIntEnable(ETH29_INT_LEV);
 	if(status != 0) {
-		logMsg("eth29: enabling irq level %d failed\n",
+		printd("eth29: enabling irq level %d failed\n",
 			ETH29_INT_LEV);
 		return(-1);
 	}
 
 	/* open socket for configuration */
-		status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, 0);
-	//status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, 0);
 
+#ifdef ETH29_FIRMWARE_DBG
 	/* set firmware debug level */
-		// optval = 9;
-		//optlen = sizeof(optval);
-	//	status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_DEBUG, &optval, optlen);
+	optval = 6;
+	optlen = sizeof(optval);
+	status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_DEBUG, &optval, optlen);
+#endif
 
 	/* issue ioctl to set IP address */
-	ip_addr = inet_addr(ETH29_IP);
-	strcpy(if_name, "nat0");
+	ip_addr = inet_addr(ETH29_IP_ADDR);
+	if(ip_addr == ETH29_IP_ADDR)
+		strcpy(if_name, "lo0");
+	else
+		strcpy(if_name, "nat0");
 
 	memset(&ifr, 0x00, sizeof(struct ifreq));
 	strcpy(ifr.ifr_name, if_name);
 	((struct sockaddr_in *) &ifr.ifr_addr)->sin_family = AF_INET;
 	((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr = ip_addr;
-	status = P_Ioctl(sock_a[0], SIOCSIFADDR, &ifr);
+	status = P_Ioctl(sock_a[0], SIOCSIFADDR, (caddr_t)&ifr);
 
-	logMsg("  set if '%s' to IP address %lu.%lu.%lu.%lu / 0x%lx\n",
+	printd("  set if '%s' to IP address %lu.%lu.%lu.%lu / 0x%lx\n",
 		if_name,
 		(ip_addr >> 24) & 0xff,
 		(ip_addr >> 16) & 0xff,
@@ -728,11 +760,11 @@ int eth29(void)
 	/* issue ioctl to read back IP address */
 	memset(&ifr, 0x00, sizeof(struct ifreq));
 	strcpy(ifr.ifr_name, if_name);
-	status = P_Ioctl(sock_a[0], SIOCGIFADDR, &ifr);
+	status = P_Ioctl(sock_a[0], SIOCGIFADDR, (caddr_t)&ifr);
 
 	strcpy(if_name, ifr.ifr_name);
 	ip_addr = ((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr;
-	logMsg("  read back if '%s' IP address %lu.%lu.%lu.%lu / 0x%lx\n",
+	printd("  read back if '%s' IP address %lu.%lu.%lu.%lu / 0x%lx\n",
 		if_name,
 		(ip_addr >> 24) & 0xff,
 		(ip_addr >> 16) & 0xff,
@@ -743,61 +775,40 @@ int eth29(void)
 	/* close configuration socket */
 	status = P_Close(sock_a[0]);
 
-	/* open socket to send data */
+#ifdef ETH29_RX
+	/* open socket to receive data */
 	status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	//status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	logMsg("P_Socket returned a status of %d\n", status);
 
-	/* bind to it */
+	/* set receive buffer length (maximum is 55758) */
+	optval = 54600;
+//	optval = 16384;
+	optlen = sizeof(optval);
+	status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_RCVBUF, (caddr_t)&optval, optlen);
+
+	/* bind to protocol */
 	memset(&sa, 0x00, sizeof(struct sockaddr_in));
 	sa.sin_family = AF_INET;
 	sa.sin_port = 50000;
 	sa.sin_addr.s_addr = ip_addr;
-	status = P_Bind(sock_a[0], &sa, sizeof(sa));
-	logMsg("P_Bind returned a status of %d\n", status);
+	status = P_Bind(sock_a[0], (caddr_t)&sa, sizeof(struct sockaddr_in));
 
-	/* enable broadcast */
-	//	i = 1;
-	// status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_BROADCAST, &i, sizeof(i));
-	// logMsg("P_Setsockopt (SO_BROADCAST) returned %d\n", status);
+#ifdef ETH29_RX_STAT_SUPP
+	/* start rx rate task */
+	TSPAWN("eths", 1, 0x400, eth29_rx_rate_task);
+#endif
 
-	/* set up the destination address for sendto */
-	ip_addr_to = inet_addr(SEND_IP);
-	strcpy(if_name, SEND_IP);
-
-	memset(&ifr, 0x00, sizeof(struct ifreq));
-	strcpy(ifr.ifr_name, if_name);
-	((struct sockaddr_in *) &ifr.ifr_addr)->sin_family = AF_INET;
-	((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr = ip_addr_to;
-
-	logMsg("  set destination if '%s' to IP address %lu.%lu.%lu.%lu / 0x%lx\n",
-		if_name,
-		(ip_addr_to >> 24) & 0xff,
-		(ip_addr_to >> 16) & 0xff,
-		(ip_addr_to >> 8) & 0xff,
-		ip_addr_to & 0xff,
-		ip_addr_to);
-
-	memset(&sa, 0x00, sizeof(struct sockaddr_in));
-	sa.sin_family = AF_INET;
-	sa.sin_port = 50000;
-	sa.sin_addr.s_addr = ip_addr_to;
-	status = P_Connect(sock_a[0], &sa, sizeof(sa));
-	logMsg("P_Connect returned %d\n", status);
-
-	logMsg("starting datagram loop\n");
 	/* wait for receive data via interrupt indication */
 	while(status >= 0) {
-	  status = P_Send(sock_a[0], dg_buf, DATAGRAM_SIZE);
-	  
-	  if (status != DATAGRAM_SIZE)
-	    logMsg("P_Send status is %d\n", status);
-
-	  nDatagram++;
-	  if ((nDatagram %100) == 0) {
-	    //	    logMsg("\r%d", nDatagram);
-	  }
+		optval = sizeof(rem_sa);
+		status = P_Recvfrom(sock_a[0], rx_buf, 0x10000, 0, (caddr_t)&rem_sa, (int *)&optval);
+#ifdef ETH29_RX_STAT_SUPP
+		eth29_rx_stat.num_rx_buf++;
+		eth29_rx_stat.num_rx_byte += status;
+		if(status > eth29_rx_stat.rx_buf_size_max)
+			eth29_rx_stat.rx_buf_size_max = status;
+#endif
 	}
+#endif	/* ETH29_RX */
 
 	printd("*** %s ***\n", (status < 0) ? "ERROR" : "done");
 	return(status);
@@ -814,14 +825,14 @@ Return:		0 => ok
 		!0 => error
 *----------------------------------------------------------------------------*/
 
-int eth29_init(void)
+int eth29_init_l2(void)
 {
 	struct L2M_init_p initpar;
 	int i;
 	u_char ieee_addr[6];
 	int error = 0;
 
-	printd("\neth29_init: initialize ETH29\n");
+	printd("\neth29_init_l2: initialize ETH29\n");
 
 	/* set L2 initialization parameter and run L2_Init */
 	initpar.L_mode = 0;		  /* no spec bits for net controller */
@@ -834,7 +845,7 @@ int eth29_init(void)
 
 	error = L2_Init(&initpar);
 	if(error) {
-		printd("eth29_init: L2_Init ERROR 0x%x\n", error);
+		printd("eth29_init_l2: L2_Init ERROR 0x%x\n", error);
 		if(error != EACCES)
 			return(error);
 	}
@@ -844,7 +855,7 @@ int eth29_init(void)
 	/* read back IEEE address from slave */
 	error = L2_PhysEthID(ieee_addr);
 	if(error) {
-		printd("eth29_init: L2_PhysEthID ERROR 0x%x\n", error);
+		printd("eth29_init_l2: L2_PhysEthID ERROR 0x%x\n", error);
 		return(error);
 	}
 
@@ -853,7 +864,7 @@ int eth29_init(void)
 	/* set irq vector and level for TCP/IP on slave */
 	error = L2_AddVect(COMPROT_TCPIP, ETH29_INT_VEC, ETH29_INT_LEV);
 	if(error) {
-		printd("eth29_init: L2_AddVect ERROR 0x%x\n", error);
+		printd("eth29_init_l2: L2_AddVect ERROR 0x%x\n", error);
 		return(error);
 	}
 
@@ -861,254 +872,6 @@ int eth29_init(void)
 		ETH29_INT_VEC, ETH29_INT_LEV);
 
 	return(0);
-}
-
-
-
-/*---------------------------------------------------------------------------*
-Function:	endless poll on ETH29 for receive
-Parameters:	sock: socket identifier
-Input:		socket buffer information
-Output:		global receive buffer filled with data
-Return:		0 => ok
-		!0 => error
-*----------------------------------------------------------------------------*/
-
-int eth29_poll_rx(int sock)
-{
-	int ix, loop_count = 0, buf_count = 0, mbuf_count;	  /* counter */
-	struct mbuf *m;						     /* mbuf */
-	struct sockbuf *so_rcv;			    /* receive socket buffer */
-	u_long sb_cc;		  /* receive socket buffer character counter */
-	u_char *src, *dst;		      /* copy source and destination */
-	u_char *src_save;				    /* temp save src */
-	int m_len, copied_len;	 /* mbuf data length, number of copied bytes */
-
-	/*
-	 * look for socket buffer address
-	 */
-	for(ix = 0; ix < ETH29_MAX_SOCK; ix++) {
-		if(sock_a[ix] == sock)
-			break;
-	}	
-
-	if(ix == ETH29_MAX_SOCK) {
-		printd("eth29_poll_rx: invalid sock %d\n", sock);
-		return(-1);
-	}
-
-	printd("eth29_poll_rx: sock %d so_rcv[%d] 0x%lx\n",
-		sock, ix, so_rcv_a[ix]);
-
-	so_rcv = (struct sockbuf *)so_rcv_a[ix];
-	ADDR_S2H(so_rcv);
-
-	/*
-	 * poll on byte counter of socket buffer
-	 */
-	while(1) {
-		sb_cc = so_rcv->sb_cc;
-
-		/*
-		 * check if data available: socket buffer character counter
-		 * must be greater than UDP header size and locking flags
-		 * must not be set
-		 */
-		if((sb_cc > 16) && ((so_rcv->sb_flags & (SB_CPY | SB_LOCK)) == 0x0000)) {
-			PRINTD("\neth29_poll_rx: start copying %lu bytes\n", sb_cc);
-
-			/*
-			 * get and check if mbuf list is already linked
-			 * to socket buffer (check if we have mbuf list
-			 * to avoid copying only the UDP header: at least
-			 * we need one user data mbuf)
-			 */
-			m = so_rcv->sb_mb;
-			if(m == NULL) {
-				PRINTD("  buf_count %d: no mbuf\n",
-					buf_count);
-				continue;
-			}
-
-			ADDR_S2H(m);
-
-			if(m->m_next == NULL) {
-				PRINTD("  buf_count %d: no mbuf list\n",
-					buf_count);
-				continue;
-			}
-
-			/*
-			 * prepare copying data -
-			 * use global receive buffer
-			 */
-			so_rcv->sb_flags |= SB_CPY;
-			dst = dg_buf;
-			copied_len = 0;
-			mbuf_count = 0;
-
-			/*
-			 * step through the mbuf list
-			 */
-			while((u_long)m & ETH29_MPRAM_MASK) {
-				/*
-				 * get mbuf's data and data length
-				 */
-				ADDR_S2H(m);
-				src = mtod(m, u_char *);
-				src_save = src;
-				m_len = m->m_len;
-
-				/*
-				 * copy data from actual mbuf
-				 */
-				while(m_len--) {
-					*dst++ = *src++;
-					copied_len++;
-				}
-
-				PRINTD("  m[%d] 0x%lx mlen %d m_next 0x%lx m_act 0x%lx mtod 0x%lx copied %d\n",
-					mbuf_count,
-					(u_long)m, m->m_len,
-					(u_long)m->m_next, (u_long)m->m_act,
-					(u_long)src_save,
-					copied_len);
-
-				mbuf_count++;
-
-				/*
-				 * get next mbuf in list
-				 */
-				m = m->m_next;
-			}
-
-			/*
-			 * print copy results
-			 */
-			PRINTD("  buf_count %d => copied %d from %d mbuf (todo %lu)\n",
-				buf_count, copied_len, mbuf_count, sb_cc);
-			PRINTB(dg_buf, copied_len);
-
-			/*
-			 * check copied data
-			 */
-			eth29_check_data(dg_buf, buf_count);
-
-			/*
-			 * inform ETH29 about copy data finish
-			 */
-			P_DropData(sock, (caddr_t)so_rcv_a[ix], (int)copied_len);
-
-			buf_count++;
-
-			taskDelay(50);
-		}
-
-		/* 
-		 * polling count
-		 */
-		loop_count++;
-		if(loop_count % 8000000 == 0)
-			printd("\n");
-		if(loop_count % 1000000 == 0)
-			printd("%d ", buf_count);
-
-	}	/* next poll */
-
-	return(0);
-}
-
-
-
-/*---------------------------------------------------------------------------*
-Function:	check received data
-Parameters:	data: data buffer
-		data_count: data number counter
-Input:		none
-Output:		none
-Return:		0 => ok
-		!0 => error
-*----------------------------------------------------------------------------*/
-
-int eth29_check_data(u_char *data, int data_count)
-{
-	u_short family;					   /* address family */
-	u_short port;					      /* port number */
-	u_long addr;					       /* ip address */
-	int ulen;				/* expected user data length */
-	u_char udata;			      /* expected user data contents */
-	int i;							  /* counter */
-	int error_fp = 0;			     /* family or port error */
-	int error_a = 0;				 /* ip address error */
-	int error_u = 0;				  /* user data error */
-	int result = 0;						   /* result */
-
-	/*
-	 * first 16 bytes contain socket address:
-	 * address family, port and ip address
-	 */
-	family = (data[0] << 8) + (data[1]);
-	port = (data[2] << 8) + (data[3]);
-	addr = (data[4] << 24) + (data[5] << 16) + (data[6] << 8) + (data[7]);
-
-	PRINTD("eth29_check_data(%d): fam %d port %d addr %lu.%lu.%lu.%lu\n",
-		data_count, family, port,
-		(addr >> 24) & 0xff, (addr >> 16) & 0xff,
-		(addr >> 8) & 0xff, addr & 0xff);
-
-	if((family != AF_INET) || (port != 50000)) {
-		error_fp++;
-	}
-
-	/* 132.147.160.110 */
-	if(addr == 0x8493a06e) {
-		ulen = 300;
-		udata = 0x00;
-	}
-
-	/* 132.147.160.101 */
-	else if(addr == 0x8493a065) {
-		ulen = 42;
-		udata = 0x01;
-	}
-
-	/* unknown sender */
-	else {
-		printd("eth29_check_data(%d): %lu.%lu.%lu.%lu unknown\n",
-			data_count,
-			(addr >> 24) & 0xff, (addr >> 16) & 0xff,
-			(addr >> 8) & 0xff, addr & 0xff);
-		ulen = 0;
-		udata = 0xff;
-		error_a++;
-	}
-
-	/*
-	 * leftover bytes contain user data
-	 */
-	for(i = 16; i < (ulen + 16); i++) {
-		if(data[i] != udata) {
-			if(error_u < 1)	   /* print at least once what found */
-				printd("(%d) %d: exp 0x%02x found 0x%02x\n",
-					data_count, i, udata, data[i]);
-			error_u++;
-		}
-	}
-
-	/*
-	 * print result
-	 */
-	if((error_fp) || (error_a) || (error_u)) {
-		printd("ERR (%d) %lu.%lu.%lu.%lu fam/port %d addr %d udata %d\n",
-			data_count,
-			(addr >> 24) & 0xff, (addr >> 16) & 0xff,
-			(addr >> 8) & 0xff, addr & 0xff,
-			error_fp, error_a, error_u);
-		result = -1;
-	}
-
-	data_count++;
-	return(result);
 }
 
 
@@ -1134,21 +897,27 @@ void eth29_isr(int dummy)
 	/* get and check for mbuf in NIF */
 	m = nif->ActS2H;
 	if(((u_long)m & ETH29_MPRAM_MASK) == 0) {
-		printi("[ENOM]\n");
+		logMsg("[ENOM]\n", 0, 0, 0, 0, 0, 0);
 		return;
 	}
 
 	/* clear NIF field */
 	nif->ActS2H = NULL;
-	m_save = NULL;
 
 	/* check command */
 	ADDR_S2H(m);
 	nifp = mtod(m, struct nifpar *);
-	PRINTI("[0x%lx %lu]\n", (u_long)m, nifp->Command);
 
+#ifdef ETH29_INT_DBG
+	logMsg("[0x%lx %lu pid 0x%x]\n",
+		(u_long)m, nifp->Command, nifp->PID, 0, 0, 0);
+#endif	/* ETH29_INT_DBG */
 	switch(nifp->Command) {
 		case L2_RCV:
+			/*
+			 * by default unused calls unless somebody
+			 * wants to implement a raw interface
+			 */
 			break;
 
 		case S_COPYIN:
@@ -1164,7 +933,7 @@ void eth29_isr(int dummy)
 			while((nif->ActH2S != NULL) && (timeout--))
 				dummy_cnt++;
 			if(timeout == 0) {
-				printi("[ET S_COPYIN]\n");
+				logMsg("[ET S_COPYIN]\n", 0, 0, 0, 0, 0, 0);
 				return;
 			}
 			nif->ActH2S = m;
@@ -1185,7 +954,7 @@ void eth29_isr(int dummy)
 			while((nif->ActH2S != NULL) && (timeout--))
 				dummy_cnt++;
 			if(timeout == 0) {
-				printi("[ET S_COPYIN]\n");
+				logMsg("[ET S_COPYIN]\n", 0, 0, 0, 0, 0, 0);
 				return;
 			}
 			nif->ActH2S = m;
@@ -1218,7 +987,7 @@ void eth29_isr(int dummy)
 			while((nif->ActH2S != NULL) && (timeout--))
 				dummy_cnt++;
 			if(timeout == 0) {
-				printi("[ET S_COPYIN]\n");
+				logMsg("[ET S_COPYIN]\n", 0, 0, 0, 0, 0, 0);
 				return;
 			}
 			nif->ActH2S = m;
@@ -1227,15 +996,190 @@ void eth29_isr(int dummy)
 			break;
 
 		case S_SELWAKEUP:
+			/*
+			 * by default unused calls unless somebody
+			 * wants to implement the UNIX select() call
+			 */
 			break;
 
 		default:
-			m_save = m;
-			sem_flag = 1;
-			printd("giving semaphore\n");
-			semGive(taskSem);
+			/* put mbuf into fifo and give signal */
+			PUT_FIFO(rx_fifo, m);
+			SEMGIVE(i_evt_sem);
+
 			break;
 	}
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	basic interface routine for communication with slave board
+Parameters:	m_cmd: command mbuf
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
+
+long eth29_com_with_slave(struct mbuf *m_cmd)
+{
+	struct nifpar *nifp;
+	struct mbuf *m;
+	long result = 0;
+
+	/* handle mbuf over to slave */
+	action(m_cmd);
+
+	/* wait for slave answer */
+	for(;;) {
+		GET_FIFO(rx_fifo, m);
+		if(m)
+			break;
+
+		SEMTAKE(i_evt_sem);
+	}
+
+	/* get the return status */
+	nifp = mtod(m, struct nifpar *);
+	result = (long)nifp->Status;
+	if(result < 0) {
+		printd("eth29_com_with_slave(cmd %ld): ERR - status %ld errno 0x%lx\n",
+			nifp->Command & 0xff, result, nifp->Errno);
+	}
+
+	/* return transport buffer back to slave */
+	put_mbuf(m);
+
+	return(result);
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	transmit data over a socket
+Parameters:	loops: number of transmit loops
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
+
+int eth29_tx(int loops, int dlen)
+{
+	u_char *data;
+	int i;
+	u_long optval;					     /* option value */
+	int optlen = 0;					    /* option length */
+	struct sockaddr_in sa;		/* internet socket address struct */
+	u_long rh_addr = inet_addr(SEND_TO_IP_ADDR);
+	int status = 0;
+	u_long tx_bytes = 0;
+	u_long ticks;
+	u_long tx_rate;
+
+	/* check data length */
+	if(dlen == 0)
+		dlen = 1000;
+
+	/* allocate data buffer */
+	data = malloc(dlen);
+	if(data == NULL) {
+		printd("eth29_tx: ERR - no memory\n");
+		return(-1);
+	}
+
+	/* set up data buffer */
+	for(i = 0; i < dlen; i++)
+		data[i] = 0x5a;
+
+
+	/* open UDP transmit socket */
+	sock_a[1] = P_Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);	
+
+	/* set transmit buffer length (maximum is 55758) */
+	optval = 54600;
+//	optval = 16384;
+	optlen = sizeof(optval);
+	status = P_Setsockopt(sock_a[1], SOL_SOCKET, SO_SNDBUF, (caddr_t)&optval, optlen);
+
+	/* set up remote host socket address */
+	memcpy((char*)&sa.sin_addr,(char*)&rh_addr,sizeof(rh_addr));
+	sa.sin_family = AF_INET;
+	sa.sin_port = 50000;
+
+	/* save start time */
+	ticks = tickGet();
+
+	/* transmit data */
+	for(i = 0; i < loops; i++) {
+		status = P_Sendto(sock_a[1], data, dlen, 0, (caddr_t)&sa, sizeof(sa));
+		if(status < 0)
+			break;
+		tx_bytes += status;
+	}
+
+	/* transmit ENDE indication (for sockrcv utility) */
+	status = P_Sendto(sock_a[1], "ENDE", sizeof("ENDE"), 0, (caddr_t)&sa, sizeof(sa));
+	if(status > 0)
+		tx_bytes += status;
+
+	/* calculate transfer rate */
+	ticks = tickGet() - ticks;
+	if(ticks != 0)
+		tx_rate = (tx_bytes * sysClkRateGet()) / (1000 * ticks);
+	else
+		tx_rate = (u_long)(-1);
+
+	/* print results */
+	printd("eth29_tx: transmit statistics\n");
+	printd("  tx buffer: %d (size %d)\n", i, dlen);
+	printd("  tx bytes:  %lu\n", tx_bytes);
+	printd("  ticks:     %lu = %lu sec (sysClkRate %d)\n",
+		ticks, ticks / sysClkRateGet(), sysClkRateGet());
+	printd("  tx rate:   %lu kbit/s = %lu kByte/s %s\n",
+		tx_rate * 8, tx_rate, ticks ? "" : "(invalid)");
+
+	/* close UDP transmit socket */
+	status = P_Close(sock_a[1]);
+
+	return(status);
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	set ETH29 debug level
+Parameters:	dlevel: debug level
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
+
+int eth29_dbg(int dlevel)
+{
+	int status = 0;
+
+	if((dlevel < 0) || (dlevel > 9)) {
+		printd("eth29_dbg: invalid debug level %d\n", dlevel);
+		return(-1);
+	}
+
+	/* open socket for configuration */
+	status = sock_a[0] = P_Socket(AF_INET, SOCK_DGRAM, 0);
+	if(status < 0)
+		return(status);
+
+	/* set firmware debug level */
+	status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_DEBUG, (caddr_t)&dlevel, sizeof(dlevel));
+	if(status < 0)
+		return(status);
+
+	/* close configuration socket */
+	status = P_Close(sock_a[0]);
+
+	return(status);
 }
 
 
@@ -1441,13 +1385,10 @@ Return:		0 => ok
 
 int P_Socket(int dom, int type, int proto)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
-	u_long sock = 0;
-	//	u_long errno = 0;
-	struct socket *psock;
 
-	printd("\nP_Socket: domain %d type %d proto %d pid %d\n",
+	printd("P_Socket: domain %d type %d proto %d pid %d\n",
 		dom, type, proto, ETH29_PID);
 
 	/* get mbuf */
@@ -1470,28 +1411,7 @@ int P_Socket(int dom, int type, int proto)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	sock = nifp->Status;
-	errno = nifp->Errno;
-	printd("  answer: sock %lu errno 0x%lx\n",
-		sock, errno);
-	psock = (struct socket *)nifp->Opt.Par_Socket.psock;
-	printd("  psock 0x%lx so_rcv 0x%lx\n",
-		(u_long)psock, (u_long)&(psock->so_rcv));
-	so_rcv_a[sock] = (u_long)&(psock->so_rcv);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return((int)(errno ? -1 : sock));
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1507,10 +1427,10 @@ Return:		0 => ok
 
 int P_Close(int sock)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Close: sock %d\n", sock);
+	printd("P_Close: sock %d\n", sock);
 
 	/* get mbuf */
 	m = get_mbuf();
@@ -1528,22 +1448,7 @@ int P_Close(int sock)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return(nifp->Errno ? -1 : 0);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1562,10 +1467,10 @@ Return:		0 => ok
 
 int P_Shutdown(int sock, int how)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Shutdown: sock %d how %d\n", sock, how);
+	printd("P_Shutdown: sock %d how %d\n", sock, how);
 
 	/* get mbuf */
 	m = get_mbuf();
@@ -1584,22 +1489,7 @@ int P_Shutdown(int sock, int how)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return(nifp->Errno ? -1 : 0);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1617,10 +1507,10 @@ Return:		0 => ok
 
 int P_Bind(int sock, caddr_t name, int namelen)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Bind: sock %d name 0x%lx namelen %d\n",
+	printd("P_Bind: sock %d name 0x%lx namelen %d\n",
 		sock, (u_long)name, namelen);
 
 	/* get mbuf */
@@ -1641,22 +1531,7 @@ int P_Bind(int sock, caddr_t name, int namelen)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return(nifp->Errno ? -1 : 0);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1676,10 +1551,10 @@ Return:		0 => ok
 
 int P_Getsockopt(int sock, int level, int optname, caddr_t optval, int *optlen)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Getsockopt: sock %d level 0x%x optname 0x%x optval 0x%lx\n",
+	printd("P_Getsockopt: sock %d level 0x%x optname 0x%x optval 0x%lx\n",
 		sock, level, optname, (u_long)optval);
 
 	/* get mbuf */
@@ -1702,30 +1577,7 @@ int P_Getsockopt(int sock, int level, int optname, caddr_t optval, int *optlen)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	switch(optname) {
-		case SO_RCVBUF:
-			printd("  SO_RCVBUF: 0x%lx\n", nifp->Status);
-			break;
-		default:
-			printd("  unknown optname: 0x%lx\n", nifp->Status);
-	}
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return(nifp->Errno ? -1 : 0);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1745,10 +1597,10 @@ Return:		0 => ok
 
 int P_Setsockopt(int sock, int level, int optname, caddr_t optval, int optlen)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Setsockopt: sock %d level %d optname %d optval 0x%lx optlen %d\n",
+	printd("P_Setsockopt: sock %d level %d optname %d optval 0x%lx optlen %d\n",
 		sock, level, optname, (u_long)optval, optlen);
 
 	/* get mbuf */
@@ -1771,22 +1623,7 @@ int P_Setsockopt(int sock, int level, int optname, caddr_t optval, int optlen)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return(nifp->Errno ? -1 : 0);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1804,10 +1641,10 @@ Return:		0 => ok
 
 int P_Ioctl(int sock, u_long cmd, caddr_t cmdarg)
 {
-	struct mbuf *m, *ma;
+	struct mbuf *m;
 	struct nifpar *nifp;
 
-	printd("\nP_Ioctl: request: sock %d cmd 0x%lx cmdarg 0x%lx\n",
+	printd("P_Ioctl: sock %d cmd 0x%lx cmdarg 0x%lx\n",
 		sock, cmd, (u_long)cmdarg);
 
 	/* get mbuf */
@@ -1828,27 +1665,139 @@ int P_Ioctl(int sock, u_long cmd, caddr_t cmdarg)
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
+	return(eth29_com_with_slave(m));
+}
 
-	/* wait for slave answer */
-	ma = wait_sem(200);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
 
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: nifp cmd %lu status 0x%lx errno 0x%lx\n",
-		nifp->Command, nifp->Status, nifp->Errno);
-	printd("  sock %d cmd 0x%lx cmdarg 0x%lx\n",
-		nifp->Opt.Par_Ioctl.socket,
-		nifp->Opt.Par_Ioctl.cmd,
-		(u_long)nifp->Opt.Par_Ioctl.cmarg);
-	PRINTB(nifp->Opt.Par_Ioctl.cmarg, sizeof(struct ifreq));
 
-	/* return mbuf back to slave */
-	put_mbuf(ma);
+/*---------------------------------------------------------------------------*
+Function:	connect to a remote server
+Parameters:	sock: socket identifier
+		name: internet socket address struct
+		namelen: length of internet socket address struct
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
 
-	return(nifp->Errno ? -1 : 0);
+int P_Connect(int sock, caddr_t name, int namelen)
+{
+	struct mbuf *m;
+	struct nifpar *nifp;
+
+	printd("P_Connect: sock %d name 0x%lx namelen 0x%x\n",
+		sock, (u_long)name, namelen);
+
+	/* get mbuf */
+	m = get_mbuf();
+	if(m == NULL)
+		return(E_MEM);
+
+	/* set up ioctl call parameters */
+	nifp = (struct nifpar*)loc_m.m_dat;
+	nifp->Command = SOC_CONNECT;
+	nifp->Command |= (COMPROT_TCPIP << 8);
+	nifp->PID = ETH29_PID;
+	nifp->Opt.Par_Connect.socket = sock;
+	nifp->Opt.Par_Connect.name = name;
+	nifp->Opt.Par_Connect.namelen = namelen;
+
+	/* copy NIF parameter from local mbuf into slave mbuf */
+	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
+	m->m_len = sizeof(struct nifpar);
+
+	return(eth29_com_with_slave(m));
+}
+
+/*---------------------------------------------------------------------------*
+Function:	send data to socket (connected)
+Parameters:	sock: socket identifier
+		buf: buffer to send
+		len: length of buffer
+		flags: transmit option flags
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
+
+int P_Send(int sock, caddr_t buf, int len, int flags)
+{
+	struct mbuf *m;
+	struct nifpar *nifp;
+
+	PRINTD("P_Send: sock %d buf 0x%lx len %d flags 0x%lx\n",
+		sock, (u_long)buf, len, (u_long)flags);
+
+	/* get mbuf */
+	m = get_mbuf();
+	if(m == NULL)
+		return(E_MEM);
+
+	/* set up ioctl call parameters */
+	nifp = (struct nifpar*)loc_m.m_dat;
+	nifp->Command = SOC_SEND;
+	nifp->Command |= (COMPROT_TCPIP << 8);
+	nifp->PID = ETH29_PID;
+	nifp->Opt.Par_Send.socket = sock;
+	nifp->Opt.Par_Send.buf = buf;
+	nifp->Opt.Par_Send.len = len;
+	nifp->Opt.Par_Send.flags = flags;
+
+	/* copy NIF parameter from local mbuf into slave mbuf */
+	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
+	m->m_len = sizeof(struct nifpar);
+
+	return(eth29_com_with_slave(m));
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	send data to socket (not connected)
+Parameters:	sock: socket identifier
+		buf: buffer to send
+		len: length of buffer
+		flags: transmit option flags
+		to: if !NULL => socket address of remote socket
+		tolen: lenght of to
+Input:		none
+Output:		none
+Return:		0 => ok
+		!0 => error
+*----------------------------------------------------------------------------*/
+
+int P_Sendto(int sock, caddr_t buf, int len, int flags, caddr_t to, int tolen)
+{
+	struct mbuf *m;
+	struct nifpar *nifp;
+
+	PRINTD("P_Sendto: sock %d buf 0x%lx len %d flags 0x%lx to 0x%lx tolen %d\n",
+		sock, (u_long)buf, len, (u_long)flags, (u_long)to, tolen);
+
+	/* get mbuf */
+	m = get_mbuf();
+	if(m == NULL)
+		return(E_MEM);
+
+	/* set up ioctl call parameters */
+	nifp = (struct nifpar*)loc_m.m_dat;
+	nifp->Command = SOC_SENDTO;
+	nifp->Command |= (COMPROT_TCPIP << 8);
+	nifp->PID = ETH29_PID;
+	nifp->Opt.Par_Send.socket = sock;
+	nifp->Opt.Par_Send.buf = buf;
+	nifp->Opt.Par_Send.len = len;
+	nifp->Opt.Par_Send.flags = flags;
+	nifp->Opt.Par_Sendto.to = to;
+	nifp->Opt.Par_Sendto.tolen = tolen;
+
+	/* copy NIF parameter from local mbuf into slave mbuf */
+	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
+	m->m_len = sizeof(struct nifpar);
+
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -1869,12 +1818,10 @@ Return:		0 => ok
 
 int P_Recvfrom(int sock, caddr_t buf, int len, int flags, caddr_t from, int *fromlen)
 {
-	struct mbuf *m, *ma = NULL;
+	struct mbuf *m;
 	struct nifpar *nifp;
-	struct sockaddr_in *sa;			  /* internet socket address */
-	int i = 1;
 
-	printd("\nP_Recvfrom: sock %d buf 0x%lx len %d flags 0x%x from 0x%lx\n",
+	PRINTD("P_Recvfrom: sock %d buf 0x%lx len %d flags 0x%x from 0x%lx\n",
 		sock, (u_long)buf, len, flags, (u_long)from);
 
 	/* get mbuf */
@@ -1898,179 +1845,7 @@ int P_Recvfrom(int sock, caddr_t buf, int len, int flags, caddr_t from, int *fro
 	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
 	m->m_len = sizeof(struct nifpar);
 
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	while(((u_long)ma & ETH29_MPRAM_MASK) == 0) {
-		ma = wait_sem(50);
-		printd("%s", (i++ % 60) ? "." : "\n.");
-	}
-	PRINTD(" ma 0x%lx\n", (u_long)ma);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* status value returns length of received buffer */
-	PRINTB(buf, nifp->Status);
-
-	sa = from;
-	printd("  family 0x%x port %d ip %lu.%lu.%lu.%lu\n",
-		sa->sin_family, sa->sin_port,
-		(sa->sin_addr.s_addr >> 24) & 0xff,
-		(sa->sin_addr.s_addr >> 16) & 0xff,
-		(sa->sin_addr.s_addr >> 8) & 0xff,
-		sa->sin_addr.s_addr & 0xff);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return((nifp->Errno || (nifp->Status < 0)) ? -1 : 0);
-}
-
-/*---------------------------------------------------------------------------*
-Function:	read data from socket (connected or disconnected)
-Parameters:	sock: socket identifier
-		buf: buffer to store received data
-		len: length of recieve buffer
-		flags: receive option flags
-		from: if !NULL => socket address of remote socket
-		fromlen: lenght of from
-Input:		none
-Output:		none
-Return:		0 => ok
-		!0 => error
-*----------------------------------------------------------------------------*/
-
-int P_Sendto(int sock, caddr_t buf, int len, int flags, caddr_t to, int *tolen)
-{
-	struct mbuf *m, *ma = NULL;
-	struct nifpar *nifp;
-	struct sockaddr_in *sa;			  /* internet socket address */
-	int i = 1;
-
-	/* get mbuf */
-	m = get_mbuf();
-	if(m == NULL)
-		return(E_MEM);
-
-	/* set up 'Sendto socket' call parameters */
-	nifp = (struct nifpar*)loc_m.m_dat;
-	nifp->Command = SOC_SENDTO;
-	nifp->Command |= (COMPROT_TCPIP << 8);
-	nifp->PID = ETH29_PID;
-	nifp->Opt.Par_Sendto.socket = sock;
-	nifp->Opt.Par_Sendto.buf = buf;
-	nifp->Opt.Par_Sendto.len = len;
-	nifp->Opt.Par_Sendto.flags = flags;
-	nifp->Opt.Par_Sendto.to = to;
-	nifp->Opt.Par_Sendto.tolen = tolen;
-
-	/* copy NIF parameter from local mbuf into slave mbuf */
-	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
-	m->m_len = sizeof(struct nifpar);
-
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	while(((u_long)ma & ETH29_MPRAM_MASK) == 0) {
-		ma = wait_sem(50);
-		printd("%s", (i++ % 60) ? "." : "\n.");
-	}
-	PRINTD(" ma 0x%lx\n", (u_long)ma);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	/* status value returns length of received buffer */
-	PRINTB(buf, nifp->Status);
-
-	sa = to;
-	printd("  family 0x%x port %d ip %lu.%lu.%lu.%lu\n",
-		sa->sin_family, sa->sin_port,
-		(sa->sin_addr.s_addr >> 24) & 0xff,
-		(sa->sin_addr.s_addr >> 16) & 0xff,
-		(sa->sin_addr.s_addr >> 8) & 0xff,
-		sa->sin_addr.s_addr & 0xff);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return((nifp->Errno || (nifp->Status < 0)) ? -1 : 0);
-}
-
-/*---------------------------------------------------------------------------*
-Function:	read data from socket (connected or disconnected)
-Parameters:	sock: socket identifier
-		buf: buffer to store received data
-		len: length of recieve buffer
-		flags: receive option flags
-		from: if !NULL => socket address of remote socket
-		fromlen: lenght of from
-Input:		none
-Output:		none
-Return:		0 => ok
-		!0 => error
-*----------------------------------------------------------------------------*/
-
-int P_Send(int sock, caddr_t buf, int len)
-{
-	struct mbuf *m, *ma = NULL;
-	struct nifpar *nifp;
-	int i = 1;
-
-	printd("\nP_Send: sock %d buf 0x%lx len %d\n",
-		sock, (u_long)buf, len);
-
-	/* get mbuf */
-	m = get_mbuf();
-	if(m == NULL)
-		return(E_MEM);
-
-	/* set up 'Send socket' call parameters */
-	nifp = (struct nifpar*)loc_m.m_dat;
-	nifp->Command = SOC_SEND;
-	nifp->Command |= (COMPROT_TCPIP << 8);
-	nifp->PID = ETH29_PID;
-	nifp->Opt.Par_Send.socket = sock;
-	nifp->Opt.Par_Send.buf = buf;
-	nifp->Opt.Par_Send.len = len;
-	nifp->Opt.Par_Send.flags = 0;
-
-	/* copy NIF parameter from local mbuf into slave mbuf */
-	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
-	m->m_len = sizeof(struct nifpar);
-
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	while(((u_long)ma & ETH29_MPRAM_MASK) == 0) {
-		ma = wait_sem(50);
-		printd("%s", (i++ % 60) ? "." : "\n.");
-	}
-	PRINTD(" ma 0x%lx\n", (u_long)ma);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-	       nifp->Status, nifp->Errno);
-
-	/* status value returns length of received buffer */
-	PRINTB(buf, nifp->Status);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return((nifp->Errno || (nifp->Status < 0)) ? -1 : nifp->Status);
+	return(eth29_com_with_slave(m));
 }
 
 
@@ -2120,78 +1895,6 @@ int P_DropData(int sock, caddr_t sockbuf, int len)
 }
 
 
-/*---------------------------------------------------------------------------*
-Function:	Connect to a  socket
-Parameters:	sock: socket identifier
-		to: socket address of remote socket
-		to: lenght of from
-Input:		none
-Output:		none
-Return:		0 => ok
-		!0 => error
-*----------------------------------------------------------------------------*/
-
-int P_Connect(int sock, caddr_t to, int *tolen)
-{
-	struct mbuf *m, *ma;
-	struct nifpar *nifp;
-	struct sockaddr_in *sa;
-	int i = 1;
-
-	printd("\nP_Connect: sock %d to 0x%lx\n",
-		sock, (u_long)to);
-
-	m = get_mbuf();
-	if (m == 0) {
-	  return(E_MEM);
-	}
-
-	/*
-	 * Put connect call parameters to the network interface.
-	 */
-	nifp = (struct nifpar*)loc_m.m_dat;
-	nifp->Command = SOC_CONNECT;
-	nifp->Command |= (COMPROT_TCPIP << 8);
-	nifp->PID = ETH29_PID;
-	nifp->Opt.Par_Connect.socket = sock;
-	nifp->Opt.Par_Connect.name = to;
-	nifp->Opt.Par_Connect.namelen = tolen;
-
-	/* copy NIF parameter from local mbuf into slave mbuf */
-	memcpy(m->m_dat, loc_m.m_dat, sizeof(struct nifpar));
-	m->m_len = sizeof(struct nifpar);
-
-	/* handle over command to slave */
-	action(m);
-
-	/* wait for slave answer */
-	while(((u_long)ma & ETH29_MPRAM_MASK) == 0) {
-		ma = wait_sem(50);
-		printd("%s", (i++ % 60) ? "." : "\n.");
-	}
-	PRINTD(" ma 0x%lx\n", (u_long)ma);
-	if(((u_long)ma & ETH29_MPRAM_MASK) == 0)
-		return(E_TIMEL2);
-
-	nifp = mtod(ma, struct nifpar *);
-	printd("  answer: status 0x%lx errno 0x%lx\n",
-		nifp->Status, nifp->Errno);
-
-	sa = to;
-	printd("  family 0x%x port %d ip %lu.%lu.%lu.%lu\n",
-		sa->sin_family, sa->sin_port,
-		(sa->sin_addr.s_addr >> 24) & 0xff,
-		(sa->sin_addr.s_addr >> 16) & 0xff,
-		(sa->sin_addr.s_addr >> 8) & 0xff,
-		sa->sin_addr.s_addr & 0xff);
-
-	/* return mbuf back to slave */
-	put_mbuf(ma);
-
-	return((nifp->Errno || (nifp->Status < 0)) ? -1 : 0);
-}
-
-
 
 /*****************************************************************************/
 /*	NIF handling							     */
@@ -2232,12 +1935,12 @@ struct mbuf *get_mbuf(void)
 	int ik;
 
 	nif = addr.nif;
-	ik = intLock();
+	INTLOCK(ik);
 
 	while((*addr.mbox_cell != 0) || (nif->mget == NULL)) {
 		i++;
 		if(i == NIF_MAX_WAIT) {
-			intUnlock(ik);
+			INTUNLOCK(ik);
 			printd("get_mbuf: ERROR - mbox 0x%02x mget 0x%lx\n",
 				*addr.mbox_cell, (u_long)nif->mget);
 			return(NULL);
@@ -2247,7 +1950,7 @@ struct mbuf *get_mbuf(void)
 
 	m = nif->mget;
 	nif->mget = NULL;
-	intUnlock(ik);
+	INTUNLOCK(ik);
 	do_mbox(IRQ_MGET);
 	ADDR_S2H(m);
 	PRINTD("get_mbuf: 0x%lx\n", (u_long)m);
@@ -2273,12 +1976,12 @@ u_char *get_page(void)
 	int ik;
 
 	nif = addr.nif;
-	ik = intLock();
+	INTLOCK(ik);
 
 	while((*addr.mbox_cell != 0) || (nif->pget == NULL)) {
 		i++;
 		if(i == NIF_MAX_WAIT) {
-			intUnlock(ik);
+			INTUNLOCK(ik);
 			printd("get_page: ERROR - mbox 0x%02x pget 0x%lx\n",
 				*addr.mbox_cell, (u_long)nif->pget);
 			return(NULL);
@@ -2287,7 +1990,7 @@ u_char *get_page(void)
 	}
 
 	p = (u_char *)nif->pget;
-	intUnlock(ik);
+	INTUNLOCK(ik);
 	do_mbox(IRQ_MGET);
 	ADDR_S2H(p);
 	PRINTD("get_page: 0x%lx\n", (u_long)p);
@@ -2312,12 +2015,12 @@ int put_mbuf(struct mbuf *m)
 	int ik;
 
 	nif = addr.nif;
-	ik = intLock();
+	INTLOCK(ik);
 
 	while((*addr.mbox_cell != 0) || (nif->mput != NULL)) {
 		i++;
 		if(i == NIF_MAX_WAIT) {
-			intUnlock(ik);
+			INTUNLOCK(ik);
 			printd("put_mbuf: ERROR - mbox 0x%02x mput 0x%lx\n",
 				*addr.mbox_cell, (u_long)nif->mput);
 			return(-1);
@@ -2326,7 +2029,7 @@ int put_mbuf(struct mbuf *m)
 	}
 
 	nif->mput = m;
-	intUnlock(ik);
+	INTUNLOCK(ik);
 	do_mbox(IRQ_MPUT);
 	PRINTD("put_mbuf: 0x%lx\n", (u_long)m);
 	return(0);
@@ -2350,12 +2053,12 @@ int put_page(u_char *p)
 	int ik;
 
 	nif = addr.nif;
-	ik = intLock();
+	INTLOCK(ik);
 
 	while((*addr.mbox_cell != 0) || (nif->pput != NULL)) {
 		i++;
 		if(i == NIF_MAX_WAIT) {
-			intUnlock(ik);
+			INTUNLOCK(ik);
 			printd("put_page: ERROR - mbox 0x%02x pput 0x%lx\n",
 				*addr.mbox_cell, (u_long)nif->pput);
 			return(-1);
@@ -2364,7 +2067,7 @@ int put_page(u_char *p)
 	}
 
 	nif->pput = (struct mbuf *)p;
-	intUnlock(ik);
+	INTUNLOCK(ik);
 	do_mbox(IRQ_MPUT);
 	PRINTD("put_page: 0x%lx\n", (u_long)p);
 	return(0);
@@ -2388,12 +2091,12 @@ int action(struct mbuf *m)
 	int ik;
 
 	nif = addr.nif;
-	ik = intLock();
+	INTLOCK(ik);
 
 	while((*addr.mbox_cell != 0) || (nif->ActH2S != NULL)) {
 		i++;
 		if(i == NIF_MAX_WAIT) {
-			intUnlock(ik);
+			INTUNLOCK(ik);
 			printd("action: ERROR - mbox 0x%02x ActH2S 0x%lx\n",
 				*addr.mbox_cell, (u_long)nif->ActH2S);
 			return(-1);
@@ -2402,7 +2105,7 @@ int action(struct mbuf *m)
 	}
 
 	nif->ActH2S = m;
-	intUnlock(ik);
+	INTUNLOCK(ik);
 	do_mbox(IRQ_ActH2S);
 	PRINTD("action: 0x%lx\n", (u_long)m);
 	return(0);
@@ -2455,7 +2158,7 @@ struct mbuf *wait_sl(void)
 	u_long i1 = 0;
 	struct mbuf *m;
 
-	taskDelay(20);
+	TSLEEP(20);
 
 	while(nif->ActS2H == NULL) {
 		nif_wait();
@@ -2476,77 +2179,9 @@ struct mbuf *wait_sl(void)
 
 
 
-/*---------------------------------------------------------------------------*
-Function:	wait until semaphore is set in eth29_isr()
-Parameters:	timeout: maximum time to wait in 1/100 s
-Input:		semaphore
-Output:		none
-Return:		!NULL => pointer to mbuf saved in eth29_isr()
-		NULL => error
-*----------------------------------------------------------------------------*/
-
-void *wait_sem(int timeout)
-{
-	int ik;
-
-	int semStatus;
-	printd("taking semaphore\n");
-	semStatus = semTake(taskSem, WAIT_FOREVER);
-	printd("semaphore taken\n");
-	if (semStatus == ERROR)
-	  return NULL;
-	ADDR_S2H(m_save);
-	return m_save;
-
-	ik = intLock();
-	//	while((sem_flag == 0) && (timeout--)) {
-	while((sem_flag == 0)) {
-		intUnlock(ik);
-		//		taskDelay(1);
-		ik = intLock();
-	}
-	if(timeout == 0)
-		return(NULL);
-
-	sem_flag = 0;
-	intUnlock(ik);
-
-	ADDR_S2H(m_save);
-	PRINTD("wait_sem: 0x%lx\n", (u_long)m_save);
-	return(m_save);
-}
-
-
 /*****************************************************************************/
 /*	miscellaneous							     */
 /*****************************************************************************/
-
-/*---------------------------------------------------------------------------*
-Function:	vxWorks interrupt print routine
-		NOTE:	this routine only maps a variable argument list to
-			logMsg()
-Parameters:	fmt: format string
-		... further arguments to be printed
-Input:		format string and parameter to be printed
-Output:		printed message
-Return:		number of printed characters
-*----------------------------------------------------------------------------*/
-
-int printi(const char *fmt, ...)
-{
-	static char buf[1024];
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsprintf(buf, fmt, ap);
-	va_end(ap);
-
-	taskDelay(2);
-
-	return(logMsg("%s", (int)buf,0,0,0,0,0));
-}
-
-
 
 /*---------------------------------------------------------------------------*
 Function:	print buffer
@@ -2590,7 +2225,7 @@ void print_nif(void)
 	NIF *nif = addr.nif;
 	int ik;
 
-	ik = intLock();
+	INTLOCK(ik);
 	printd("NIF at 0x%08lx\n", (u_long)nif);
 	printd("  mget   0x%08lx\n", (u_long)nif->mget);
 	printd("  mput   0x%08lx\n", (u_long)nif->mput);
@@ -2602,7 +2237,7 @@ void print_nif(void)
 	printd("  SndRSz 0x%08lx/%lu\n", nif->SndRSz, nif->SndRSz);
 	printd("  RcvRaw 0x%08lx\n", (u_long)nif->RcvRaw);
 	printd("  RcvRSz 0x%08lx/%lu\n", nif->RcvRSz, nif->RcvRSz);*/
-	intUnlock(ik);
+	INTUNLOCK(ik);
 }
 
 
@@ -2656,5 +2291,111 @@ void print_ieee(u_char *buf, char *txt)
 		txt ? txt : "",
 		buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]); 
 }
+
+
+#ifdef ETH29_RX_STAT_SUPP
+/*---------------------------------------------------------------------------*
+Function:	clear receive statistics
+Parameters:	none
+Input:		none
+Output:		none
+Return:		none
+*----------------------------------------------------------------------------*/
+
+void eth29_rx_stat_clear(void)
+{
+	u_char *cur = (u_char *)&eth29_rx_stat;
+	int i;
+
+	for(i = 0; i < sizeof(ETH29_RX_STAT); i++)
+		cur[i] = 0x00;
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	print receive statistics
+Parameters:	none
+Input:		none
+Output:		none
+Return:		none
+*----------------------------------------------------------------------------*/
+
+void eth29_rx_stat_print(void)
+{
+	printd("eth29_rx_stat_print: rx stat at 0x%lx\n",
+		(u_long)&eth29_rx_stat);
+	printd("  num_rx_buf:      %lu\n", eth29_rx_stat.num_rx_buf);
+	printd("  rx_buf_size_max: %lu\n", eth29_rx_stat.rx_buf_size_max);
+	printd("  num_rx_byte:     %lu\n", eth29_rx_stat.num_rx_byte);
+	printd("  rx_rate_max:     %lu kByte/s\n", eth29_rx_stat.rx_rate_max);
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	print receive data rate
+Parameters:	none
+Input:		none
+Output:		none
+Return:		none
+*----------------------------------------------------------------------------*/
+
+void eth29_rx_stat_print_rate(void)
+{
+	static int first_call = 0;
+	static u_long num_rx_byte;
+	u_long rate;
+	u_long seconds = ETH29_RX_RATE_UPDATE_TIME;
+
+	/* initialize variable on first call */
+	if(first_call == 0) {
+		num_rx_byte = eth29_rx_stat.num_rx_byte;
+		first_call = 1;
+		return;
+	}
+
+	/* calculate rx rate */
+	rate = (eth29_rx_stat.num_rx_byte - num_rx_byte) / seconds;
+	rate /= 1000;
+	printd("%5lu kbit/s %5lu kByte/s\n", 8 * rate, rate);
+
+	if(rate > eth29_rx_stat.rx_rate_max)
+		eth29_rx_stat.rx_rate_max = rate;
+
+	/* update local variables */
+	num_rx_byte = eth29_rx_stat.num_rx_byte;
+}
+
+
+
+/*---------------------------------------------------------------------------*
+Function:	periodically rx statistics
+Parameters:	none
+Input:		none
+Output:		none
+Return:		none
+*----------------------------------------------------------------------------*/
+
+void eth29_rx_rate_task(void)
+{
+	int delay = ETH29_RX_RATE_UPDATE_TIME * sysClkRateGet();
+	int count = 0;
+
+	printd("eth29_rx_rate_task: update time %d s sysClkRate %d\n",
+		ETH29_RX_RATE_UPDATE_TIME, sysClkRateGet());
+
+	for(;;) {
+		TSLEEP(delay);
+		eth29_rx_stat_print_rate();
+
+		if(count == 10) {
+			eth29_rx_stat_print();
+			count = 0;
+		}
+		count++;
+	}
+}
+#endif	/* ETH29_RX_STAT_SUPP */
 
 
