@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/06/29  17:29:39  thor
+ * Added Fore & Aft methods.
+ *
  * Revision 1.4  1992/06/29  14:11:48  thor
  * Add Clear method.
  *
@@ -30,7 +33,6 @@
 #define INCDdphh
 
 #include "Pipe.hh"
-#include "Task.hh"
 
 extern "C" {
 #include "string.h"
@@ -41,17 +43,20 @@ class Ddp {
   private:
     Pipe &pipe;
 
-    long *repeat;
-    unsigned short *mailBase;
-    long *addrBase;
+    long *repeat;		// Pointer to how many mailboxes.
+    unsigned short *mailBase;	// Their base address.
+    unsigned short *fore;	// Current fore mailbox address.
+    unsigned short *aft;	// Current aft mailbox address.
+    long *addrBase;		// Address base.
+    long *foreSavedAddr;	// Current fore.
+    long *aftSavedAddr;		// Current aft.
 
-    long current;
-    int mailboxCount;
-    int radar;
+    int Count;			// How many mail boxes. Same for fore & aft.
+    int foreCurr;		// How many fore mailboxes were checked.
+    int aftCurr;		// How many aft mailboxes were checked.
+    int radar;			// Use fore or aft beams.
 
-    SEM_ID sem;
-
-    Task **drawingTask;
+    SEM_ID sem;			// Semaphore given by ISR.
 
   public:
     Ddp(void *addr, int vector, Pipe &p);
@@ -60,7 +65,7 @@ class Ddp {
 
     void Next(void);
     
-    void Clear(void) { taskLock(); sem->semCount = 0; taskUnlock(); }
+    void Clear(void);
 
     void Fore(void) { radar = 0; }
     
