@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/23  19:50:36  thor
+// Changed formatted string output to use strstreams.
+//
 // Revision 1.2  1994/09/23  15:00:02  thor
 // New color code, moved windows about in AGC memory to fit in clock,
 // added clock code, fixed meters.
@@ -85,6 +88,14 @@ Horiz::Horiz(GraphicController *gbd) : Display(gbd)
     Wdw[3].setTextBackGround(BLACK);
     Wdw[5].setTextBackGround(BLACK);
 
+    double d = 0.0;
+    
+    for (FAST int i = 0; i < 180; i++, d += 0.5)
+        {
+            isines[i] = 1.0 / sin(DegreesToRadians(d));
+            itangents[i] = 1.0 / tan(DegreesToRadians(d));
+        }
+    
     makeStr->setf(ios::fixed);
     makeStr->precision(2);
 }
@@ -407,6 +418,7 @@ void Horiz::drawTitle(int set, int radar)
 
     hashMarks(meters);
     degrees = meters / METERS_PER_DEGREE;
+    eighth =  degrees / 8.0;
 }
 
 void Horiz::drawTable(int set, float max, float min, int param, int tblsize)
