@@ -8,11 +8,11 @@
 #define OK 0
 #define ERROR 1
 #else
-extern "C" {
-#include "stdioLib.h"
+#include "stdio.h"
 #include "semLib.h"
 #include "rpc/pmap_clnt.h"
-};
+#include "stdlib.h"
+#include "taskLib.h"
 #endif // UNIX
 
 static void radarcontrol_1(struct svc_req *,SVCXPRT *);
@@ -23,14 +23,14 @@ int StartRadarCtrl(void)
 
     (void)pmap_unset(RadarControl,RadarCtrlVers);
     
-    transp = svcudp_create(RPC_ANYSOCK);
+    transp = svcudp_create(RPC_ANYSOCK,8192,8192);
     if (transp == NULL)
       {
 	  fprintf(stderr,"cannot create udp service.");
 	  return(ERROR);
       }
-    if (!svc_register(transp,RadarControl,RadarCtrlVers,(void *)radarcontrol_1,
-		      IPPROTO_UDP))
+    if (!svc_register(transp,RadarControl,RadarCtrlVers,
+		      radarcontrol_1,IPPROTO_UDP))
       {
 	  fprintf(stderr,"unable to register RadarControl,RadarCtrlVers,udp.");
 	  return(ERROR);
@@ -159,9 +159,11 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
       {
 	  memcpy((char *)tass_ptr,(char *)&(cmdBlk->tass_info),sizeof(TSACQ));
 	  /* Now whatever turns on time series.*/
+	  ts_acq_on = 1;
       }
     if (cmd & TS_OFF)
-      ; /* Whatever turns it off. */
+      ts_acq_on = 0; /* Whatever turns it off. */
+
 #endif /* TASS */
 	
     printf("ts_freq = %d \n",ts_freq);
