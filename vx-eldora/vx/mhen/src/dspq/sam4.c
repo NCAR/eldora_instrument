@@ -8,7 +8,10 @@
  *
  * revision history
  * ----------------
- * $Log$ 
+ * $Log$
+ * Revision 1.1  1992/11/09  22:58:28  eric
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -24,17 +27,22 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
 #include "stdioLib.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ctype.h"
+#ifndef NU_ARCHIT
 #include "ELDRP7.h"
+#endif
+#ifdef NU_ARCHIT
+#include "NU_ELDRP7.h"
+#endif
  
 unsigned long getaddr();
 unsigned int  load4();
 unsigned int num_samples; 
-int sam4(va_alist)
+extern int Silent;
+int sam4(int sampl)
 
 
-va_dcl
 {
     va_list ap;
     unsigned long  bd, frq, dspc;
@@ -42,8 +50,8 @@ va_dcl
     unsigned int val, i, status;
     int n, na;
     
-    va_start(ap);
-    num_samples = va_arg(ap, int);   /* Read in no. samples */
+    va_start(ap,sampl);
+    num_samples = sampl;   /* Read in no. samples */
     val = num_samples;
     n = va_arg(ap, int);
     for(na=0; na < n; na++)
@@ -73,7 +81,8 @@ va_dcl
 		temp = (unsigned char *)(pio + PDRH);
 		status += ((*temp & 0xff)<< 8);
 		if(status != val)
-		  printf("PIO R/W ERROR in Board %x, Processor %d \n",bd,i);
+		  if(!Silent)
+		    printf("PIO R/W ERROR in Board %x, Processor %d \n",bd,i);
 
 	    }
  
@@ -99,7 +108,8 @@ va_dcl
     temp = (unsigned char *)(pio + PDRH);
     status += ((*temp & 0xff)<< 8);
     if(status != val)
-      printf("PIO R/W ERROR in Collator, Processor 0 \n");
+      if(!Silent)
+	printf("PIO R/W ERROR in Collator, Processor 0 \n");
 }
 
 
