@@ -11,6 +11,10 @@
  * $Log$
  * Revision 1.1  1992/09/01  16:51:08  reif
  * Initial revision
+ *
+ * Revision 1.1  1992/08/19  19:35:34  craig
+ * Initial revision
+ *
  *        
  */
 
@@ -20,5 +24,4 @@ scope void init_vmevme();
 scope void stop_vmevme();
 scope void start_vmevme();
 scope void vmevme_isr();
-scope void vmevme_menu();
-scope void fill_nav_info(int);
+
