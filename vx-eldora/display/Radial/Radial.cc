@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1992/02/05  20:44:06  thor
+ * Faster firstGate calc.
+ *
  * Revision 1.12  1992/02/05  19:39:32  thor
  * Changed code to put any radius circle at center of data window.
  *
@@ -168,6 +171,8 @@ int Radial::move(Point newOrigin)
 
     if (Wdw[5].move(newOrigin) != OK)
       return(ERROR);
+
+    return(OK);
 }
 
 unsigned short Radial::getZoom(void)
@@ -324,48 +329,10 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
     
     FAST char *title = "Unknown";
 
-    switch(param)
-      {
-	case REFLECT:
-	  title = "dbZ";
-	  break;
+    FAST int index = ParamToNum(param);
 
-	case VELOCITY:
-	  title = "VR m/s";
-	  break;
-
-	case SNR:
-	  title = "SNR";
-	  break;
-
-	case SPEC_WIDTH:
-	  title = "Spectral Width";
-	  break;
-
-	case LINEAR_POWER:
-	  title = "Linear Power";
-	  break;
-
-	case REAL_R1:
-	  title = "Real R(1)";
-	  break;
-
-	case IMAG_R1:
-	  title = "Imaginary R(1)";
-	  break;
-
-	case REAL_R2:
-	  title = "Real R(2)";
-	  break;
-
-	case IMAG_R2:
-	  title = "Imaginary R(2)";
-	  break;
-
-	case NCP:
-	  title = "NCP";
-	  break;
-      }
+    if (index != -1)
+      title = ParamTapeNames[index];
 
     horText(wdw,a,title,WHITE);
     
