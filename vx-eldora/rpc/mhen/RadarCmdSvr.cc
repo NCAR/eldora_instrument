@@ -93,31 +93,33 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
 
     FAST u_long cmd = cmdBlk->cmd;
 
-    switch(cmd)
+    if (cmd & INIT)
+      count = 0;
+    else if (count < cmdBlk->count)
       {
-	case INIT:
-	  count = 0;
-	  break;
+	  count = cmdBlk->count;
 
-	case START:
-	  break;
+	  switch(cmd)
+	    {
+	      case START:
+		break;
+		
+	      case STOP:
+		break;
 
-	case STOP:
-	  break;
+	      case REBOOT:
+		break;
 
-	case REBOOT:
-	  break;
+	      case RELOAD:
+		break;
 
-	case RELOAD:
-	  break;
+	      case DC_REMOVAL:
+		break;
 
-	case DC_REMOVAL:
-	  break;
-
-	case FFT:
-	  break;
+	      case FFT:
+		break;
+	    }
       }
-
     currStatus->count++;
 
     return(currStatus);
