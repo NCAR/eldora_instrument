@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1993/10/21  14:52:45  thor
+ * Complete rewrite of SetBeam to correctly handle all cases.
+ *
  * Revision 2.3  1993/10/13  16:13:51  thor
  * Add an error message for debugging.
  *
@@ -135,6 +138,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 
     float fbins = (float)bins;	// How many colors.
     float fb = 0.0;		// Color offset.
+
 
     for (FAST int i = 0; i < nvalues; i++)
       {
@@ -269,7 +273,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		      *ptr = work_index + valueOffset[0];
 		      ptr[pgates] = work_index + valueOffset[1];
 		      ptr[pgates * 2] = work_index + valueOffset[2];
-
+//		      printf("%d %d.\n",*ptr,ptr[pgates]);
 		      break;
 		  }
 		oldDiff = newDiff;
@@ -336,7 +340,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
     FAST int j = numGates;
     FAST int *ptr = gateIndex;
     FAST unsigned char *lkup = convertTbl;
-    
+
     for (FAST int i = 0; i < j; i++)
       {
 	  FAST unsigned short datum = *(data + *ptr++);

@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/10/13  16:13:51  thor
+ * Lowered size of conversion table since we are only using 8 bit values,
+ * increased size of gateIndex to handle Dual display & changed hardcoded
+ * increment values to defines.
+ *
  * Revision 2.1  1993/07/29  18:14:03  thor
  * *** empty log message ***
  *
@@ -95,6 +100,7 @@
 static const int MAX_DATA_PLANES = 3;
 static const int MAX_BINS = 31;
 static const int CONV_TBL_SIZE = 256; // 65536;
+static const int CONV_MAX_GATES = 1024;
 
 class ColorConverter {
   protected:
@@ -105,7 +111,7 @@ class ColorConverter {
     int numOfValues;		// Number of parameters used.
     int numGates;		// Number of pixels in display.
 
-    int gateIndex[2 * DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
+    int gateIndex[2 * CONV_MAX_GATES * MAX_DATA_PLANES]; // List of
 						      // indexes into
 						      // data array.
 
@@ -121,7 +127,7 @@ class ColorConverter {
     ColorConverter(void) {}
 
     // For radial case.
-    void SetBeamSize(CELLSPACING &cs, int pgates, float realMax = -1.00);
+    void SetBeamSize(CELLSPACING &cs, int pgates, float mpp = -1.00);
 
     // Horizontal & Vertical case.
     void GetPoint(unsigned short *data, unsigned char *colors, int index);
