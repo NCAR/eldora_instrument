@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/01/14  15:21:24  thor
+ * Added code for data reduction.
+ *
  * Revision 1.1  1991/08/28  19:49:30  thor
  * Initial revision
  *
@@ -32,6 +35,8 @@
 #define PIE_SLICE 0x800
 #define CLIP      0x1000
 #define THRESHOLD 0x2000
+#define PAR_ON    0x4000
+#define PAR_OFF   0x8000
 
 #endif /* INCtapeCommandsh */
 
