@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/10/29  22:53:43  craig
+ * *** empty log message ***
+ *
  * Revision 1.3  1996/09/12  17:22:18  craig
  * completed code
  *
@@ -43,9 +46,9 @@ tp_dwell_count = 0;
 
 /* Check to see if the previous testpulse was within the proper error band */
 
-dbz = ((fore_dbz_sum / tp_sum_count)) - 280.0 / 8.0;
-log_power = (dbz - fore_lna_radar_const - log_testpulse_range2) / 10.0;
-received_lna_pwr = pow((double)10.0,(double)log_power);
+dbz = (((fore_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
+log_power = dbz + fore_lna_radar_const - log_testpulse_range2;
+received_lna_pwr = log_power;
 injected_lna_pwr = fore_tp_level_sum / tp_sum_count + 
                    ffrad->test_pulse_offset - fore_vmehndshk->tpulse_atten;
 diff = received_lna_pwr - injected_lna_pwr;
@@ -56,9 +59,9 @@ diff = received_vel - fore_tp_velocity[tp_freq_offset_count];
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_VEL_DIFF) printf("FV "); 
 
-dbz = ((aft_dbz_sum / tp_sum_count)) - 280.0 / 8.0;
-log_power = (dbz - aft_lna_radar_const - log_testpulse_range2) / 10.0;
-received_lna_pwr = pow((double)10.0,(double)log_power);
+dbz = (((aft_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
+log_power = dbz + aft_lna_radar_const - log_testpulse_range2;
+received_lna_pwr = log_power;
 injected_lna_pwr = aft_tp_level_sum / tp_sum_count + 
                    afrad->test_pulse_offset - aft_vmehndshk->tpulse_atten;
 diff = received_lna_pwr - injected_lna_pwr;
@@ -80,11 +83,11 @@ aft_vel_sum = 0;
 /* Now re-program the fore testpulse with a new value */
 
 fore_vmehndshk->tpulse_freq_num = tp_freq_count + 1;
-frequency = fore_freqs[tp_freq_count] + 
+frequency = fore_freqs[tp_freq_count] +
 (double)fore_freq_offset[tp_freq_offset_count];
 printf("Fore frequency: %lf\n",frequency);
 attenuation = tp_atten;
-fore_vmehndshk->tpulse_freq = frequency;
+fore_vmehndshk->tpulse_freq = fore_freq_offset[tp_freq_offset_count]; /* use offset */
 fore_vmehndshk->tpulse_atten = tp_atten;
 fore_vmehndshk->tpulse_flg = 1;
 
@@ -127,7 +130,7 @@ frequency = aft_freqs[tp_freq_count] +
 printf("Aft frequency: %lf\n",frequency);
 attenuation = tp_atten;
 aft_vmehndshk->tpulse_atten = tp_atten;
-aft_vmehndshk->tpulse_freq = frequency;
+aft_vmehndshk->tpulse_freq = aft_freq_offset[tp_freq_offset_count]; /* use offset */
 aft_vmehndshk->tpulse_flg = 1;
 
 /* Update the counters for next time */
