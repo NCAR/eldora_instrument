@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  2003/09/25  15:27:51  rich
+ * *** empty log message ***
+ *
  * Revision 1.6  2002/03/21 00:17:18  thor
  * Useless attempt to fix fake_angles & elevation.
  *
@@ -75,7 +78,7 @@ semTake(vmeSem,WAIT_FOREVER);
 
 /* Read the time from the time-of-day card */
 
-    get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
+    get_time();
     msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 
 /* Put in a fake rotational position if global variable fake_angles is true */
