@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/04/22  19:56:20  eric
+ * Initial revision
+ *
  * Revision 1.2  1993/05/12  22:03:50  eric
  * Corrected "last gate" data buffer offsets.
  *
@@ -60,19 +63,22 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "mcpl_def.h"
 #include "mcpl_gbl.h"
 #include "ELDRP7.h"
+#include "LclCommands.h"
 #include "coll_dpramdefs.h"
 #include "colquadsubs.h"
 #include "dspdefs.h"
 #include "dspaddr.h"
 #include "rp7.h"
 
+#define EOB 0x2
 
 extern CELLSPACING *cs;
 extern RADARDESC *rdsc;
 extern WAVEFORM *wvfm;
 extern PARAMETER *prm;
 extern FIELDRADAR *fldrdr;
-extern task_sync;
+extern short task_sync;
+extern int int_cnt, proc_stat;
 
 coll_data_xfer()
 {
@@ -85,7 +91,7 @@ register long  i;
 int            *samps, data_samps, buff_cnt, prf, gates,sem_status, sampl,
                prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, tp_pwr_off,
                f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, offset, lgate_off,
-               indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int;
+               indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int, cnt;
 
 volatile short indf_ts, ray_hndshk_stat;
 
@@ -146,6 +152,7 @@ for(;;)
 	    data_samps = (tnum_int - 1) * 2;
 	    buff_cnt = 0;
 	    ts_cnt = 0;
+	    cnt = 0;
 	    fill_busy = 0;
 	    n = 0;
 	    k = 0;
@@ -168,11 +175,16 @@ for(;;)
 		  ts_sampl = 2 * sampl * f_flag;
 		  break;
 	      }
+     
+     /* wait for timing module to start */
+
+	    sem_status = semTake(exec_int0_sem,WAIT_FOREVER);
+
 	    while(!(stop || reboot))
 	      {
 	    /* Wait 5 ticks for End of Beam Interrupt */
 		  
-		  sem_status = semTake(bim_int0_sem,5); /* wait 5 ticks for ISR to pass sem */
+		  sem_status = semTake(bim_int0_sem,30); /* wait 30 ticks for ISR to pass sem */
 		  
 		  if (sem_status == OK)
 		    {
@@ -197,10 +209,15 @@ for(;;)
 			data_loc_base = (unsigned long)data_loc;
 			/* Check Handshake Status of Housekeeper */			
 			ray_hndshk_stat = vme2_pntr -> radar_hndshk[k];
-
+			      
 			if((unsigned short)ray_hndshk_stat != 0xAFFF)
 			  {
-			      printf("m %4X \n",ray_hndshk_stat);
+			      if((((unsigned short)ray_hndshk_stat == 0) || ((unsigned short)ray_hndshk_stat == 1)) && cnt == 0)
+				printf("m %4X \n",ray_hndshk_stat);
+			      cnt = cnt<1000?cnt+1:0;				    
+			      if((unsigned short)ray_hndshk_stat != 0 && (unsigned short)ray_hndshk_stat !=1)
+				printf("m %4X \n",ray_hndshk_stat);
+
 			      /* send error status to control processor */
 			  }
 
@@ -210,7 +227,7 @@ for(;;)
 			i = data_samps;
 
 			/* Pull data from Collator's Dual Port Ram */
-
+			
 			while(i-- != 0)
 			  {
 			      *dptr++ = *data_loc++;
@@ -246,7 +263,7 @@ for(;;)
 			if(k == 0)
 			  q++;
 			      
-	      /* Write testpulse power into vme to vme handshake area */
+			/* Write testpulse power into vme to vme handshake area */
 			
 			tp_pwr_loc = (float *)(data_loc_base + tp_pwr_off);
 			vme2_pntr -> tpulse_level_proc = *tp_pwr_loc;
@@ -261,48 +278,27 @@ for(;;)
 			      buff_cnt = 0;
 			      data_loc = (unsigned long *)(COL0BASE + DB_1);
 			  }
-
+			
 
 			/* check for valid NAV data */
 			      
-			      if(vme2_pntr -> nav_hndshk[m] == 1)
-				{
-				    curr_nav_add = (long)(VMEMEM_BASE + STD_BASE + DATA_NAV_BASE + (m * DATA_NAV_OFFSET));
-				    curr_nav_mailbox_add = (long)(&vme2_pntr -> nav_hndshk[m]); 
-				    send_nav = 1;
-				    m = m<1?m+1:0;
-				}
+			if(vme2_pntr -> nav_hndshk[m] == 1)
+			  {
+			      curr_nav_add = (long)(VMEMEM_BASE + STD_BASE + DATA_NAV_BASE + (m * DATA_NAV_OFFSET));
+			      curr_nav_mailbox_add = (long)(&vme2_pntr -> nav_hndshk[m]); 
+			      send_nav = 1;
+			      m = m<1?m+1:0;
+			  }
 			      
 			      /* check for valid ADS data */
 			      
-			      else if(vme2_pntr -> ads_hndshk[p] == 1)
-				{ 
-				    curr_ads_add = (long)(VMEMEM_BASE + STD_BASE + DATA_ADS_BASE + (p * DATA_ADS_OFFSET));
-				    curr_ads_mailbox_add = (long)(&vme2_pntr -> ads_hndshk[p]); 
-				    send_ads = 1;
-				    p = p<1?p+1:0;
-				}
-			      else
-				{
-				    if(vme2_pntr -> radar_hndshk[l] == 1)
-				      {
-					  for(i=0;i<3;i++)
-					    {
-						if(vme2_pntr -> radar_hndshk[l] == 1)
-						  {
-						      curr_ray_add[r][s] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
-						      curr_mailbox_add[r][s] = (long)(&vme2_pntr -> radar_hndshk[l]); 
-						      send_ray[r][s] = 1;
-						      r = r<2?r+1:0;
-						      l = l<26?l+1:0;
-						  }
-						else 
-						  i = 3; /* exit loop if any test fails */
-					    }
-					  s = s<1?s+1:0;
-				      }
-				}
-			  
+			else if(vme2_pntr -> ads_hndshk[p] == 1)
+			  { 
+			      curr_ads_add = (long)(VMEMEM_BASE + STD_BASE + DATA_ADS_BASE + (p * DATA_ADS_OFFSET));
+			      curr_ads_mailbox_add = (long)(&vme2_pntr -> ads_hndshk[p]); 
+			      send_ads = 1;
+			      p = p<1?p+1:0;
+			  }
 			if(fill_ts_array)
 			  {
 			      if(!fill_busy)
@@ -336,32 +332,43 @@ for(;;)
 				    ts_cnt = 0;
 				    ts_loc = (float *)(COL0BASE + DB_2 + ts_off + offset);
 				}
-			      for(i=0; i<sampl; i++)
-				{
-				    if(n < pts)
+				    for(i=0; i<sampl; i++)
 				      {
-					  a_dummy = *ts_loc++;  /* read in i from collator */
-					  *a_pntr++ = a_dummy;  
-					  a_dummy = *ts_loc;    /* read in q from collator */
-
-					  *a_pntr++ = a_dummy;
-					  ts_loc += incr;       /* point to next i,q pair in */
+					  if(n < pts)
+					    {
+						a_dummy = *ts_loc++;  /* read in i from collator */
+						*a_pntr++ = a_dummy;  
+						a_dummy = *ts_loc;    /* read in q from collator */
+						
+						*a_pntr++ = a_dummy;
+						ts_loc += incr;       /* point to next i,q pair in */
 					  /* collator DPRAM */
-					  n++;
+						n++;
+					    }
+					  else
+					    {
+						i = sampl;
+						n = 0;
+						fill_ts_array = 0;
+						fill_busy = 0;
+						semGive(array_full_sem);
+					    }
 				      }
-				    else
-				      {
-					  i = sampl;
-					  n = 0;
-					  fill_ts_array = 0;
-					  fill_busy = 0;
-					  semGive(array_full_sem);
-				      }
-				}
-			  }
 
+			  }
 		    }
+		  else
+		    {
+/*			printf("ERROR: NO END OF BEAM INTERRUPT \n"); */
+			int_cnt++;
+			      /* Update Status */
+			currStatus -> count++;
+			currStatus -> rp7 |= END_OF_BEAM;
+			proc_stat |= EOB;
+		    }
+	   
 	      }
+
        /* Make sure that semaphore is empty after last Stop Command */
 
 	    sem_status = semTake(bim_int0_sem,NO_WAIT);
