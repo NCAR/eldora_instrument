@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/09/25  17:26:10  kapoor
+ * change of gbl variable names, time_reg variable
+ *
  * Revision 1.1  2003/09/24  20:25:34  kapoor
  * Initial revision
  *
@@ -44,7 +47,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define scope extern
 #include "hskpAll.h"
 
-void get_time(void)
+void get_time(char *hour,char *minute,char *second,short *millisec,
+	      short *julday, char *month,char *today,char *year)
 {
     int i, dummy;
     short a[5];
@@ -58,40 +62,37 @@ void get_time(void)
     for(i=0; i<5; i++) a[i] = *time_reg++;
 
 /* place into binary global variables */
-    jday = 100 * (a[0] & 0xF);
-    jday += ((a[1] & 0xF000) >> 12) * 10;
-    jday += (a[1] & 0x0F00) >> 8;
+    *julday = 100 * (a[0] & 0xF);
+    *julday += ((a[1] & 0xF000) >> 12) * 10;
+    *julday += (a[1] & 0x0F00) >> 8;
 
-    hr = ((a[1] & 0x00F0) >> 4) * 10;
-    hr += a[1] & 0x000f;
+    *hour = ((a[1] & 0x00F0) >> 4) * 10;
+    *hour += a[1] & 0x000f;
 
-    min = ((a[2] & 0xF000) >> 12) * 10;
-    min += (a[2] & 0x0F00) >> 8;
+    *minute = ((a[2] & 0xF000) >> 12) * 10;
+    *minute += (a[2] & 0x0F00) >> 8;
 
-    sec = ((a[2] & 0x00F0) >> 4) * 10;
-    sec += a[2] & 0x000f;
+    *second = ((a[2] & 0x00F0) >> 4) * 10;
+    *second += a[2] & 0x000f;
 
-    msec = ((a[3] & 0xF000) >> 12) * 100; 
-    msec += ((a[3] & 0x0F00) >> 8) * 10; 
-    msec += ((a[3] & 0x00F0) >> 4); 
+    *millisec = ((a[3] & 0xF000) >> 12) * 100; 
+    *millisec += ((a[3] & 0x0F00) >> 8) * 10; 
+    *millisec += ((a[3] & 0x00F0) >> 4); 
 
-/* Calculate day and mon here here */
+/* Calculate day and month here here */
 
     dummy = 0;
     for(i=0; i<13; i++)
       {
-	  if(jday <= dummy)
+	  if(*julday <= dummy)
 	    break;
 	  else
 	    dummy += day_mon_calc[i];
       }
 
-    mon = i;
-    day = jday - dummy + day_mon_calc[i-1];
+    *month = i;
+    *today = *julday - dummy + day_mon_calc[i-1];
 
-/* Calculate the year */
-    
-    get_year();
 
 }
 
