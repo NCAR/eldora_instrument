@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1996/06/28  21:34:09  eric
+ * Added code to change time series gate "on the fly".
+ *
  * Revision 1.7  1996/03/04  19:53:29  eric
  * Added task delay after Collator dspgo -- this improved
  * power on startup synchronization. Added code to give elapsed
@@ -1371,60 +1374,64 @@ nal priority */
      
                         if(vme2_pntr->tpulse_flg == 1)
                           {
-                              testpulseb(prf,!radar_fore_aft,vme2_pntr->tpulse_freq_num-1,vme2_pntr->tpulse_dist,vme2_pntr->tpulse_width);
+                              testpulseb(prf,1,vme2_pntr->tpulse_freq_num-1,vme2_pntr->tpulse_dist,vme2_pntr->tpulse_width);
                               vme2_pntr->tpulse_flg = 0;
                           }
 #endif
                         
                   /* Send data across mcpl at mid-beam */
 
+			if(vme2_pntr->mcpl_hndshk == 1)
+			  {
                         /* check for valid NAV data */
 
-			if(send_nav)
-			  {
-			      send_nav = 0;
-			      broadcast_data(curr_nav_add,curr_nav_mailbox_add,vme2_pntr->nav_length);
-			  }
+			    if(send_nav)
+			      {
+				send_nav = 0;
+				broadcast_data(curr_nav_add,curr_nav_mailbox_add,vme2_pntr->nav_length);
+			      }
                                     
                               /* check for valid ADS data */
                               
-			else if(send_ads)
-			  {
-			      send_ads = 0;
-			      broadcast_data(curr_ads_add,curr_ads_mailbox_add,vme2_pntr->ads_length);
-			  }
-			else
-			  {
-
-			      if(vme2_pntr -> radar_hndshk[l] == 1)
-				{
+			    else if(send_ads)
+			      {
+				send_ads = 0;
+				broadcast_data(curr_ads_add,curr_ads_mailbox_add,vme2_pntr->ads_length);
+			      }
+			    else
+			      {
+				
+				if(vme2_pntr -> radar_hndshk[l] == 1)
+				  {
 				    for(i=0;i<3;i++)
 				      {
 					  if(vme2_pntr -> radar_hndshk[l] == 1)
 					    {
-						curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
-						curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
-						broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
+					      curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
+					      curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
+					      broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
 #ifdef PIO_CARD
                                                /* Toggle bit 7 of PIO port A */
 						
-						*pio_acc = 0x80; 
-						*pio_acc = 0x0;
+					      *pio_acc = 0x80; 
+					      *pio_acc = 0x0;
 #endif
-                                                 
-/*						ray->fielddata.ray_count = l + (q * 27); */
-						p = p<2?p+1:0;
-						l = l<26?l+1:0;
+					      
+					      /*						ray->fielddata.ray_count = l + (q * 27); */
+					      p = p<2?p+1:0;
+					      l = l<26?l+1:0;
 					    }
 					  else
 					    i = 3; /* exit loop if fail any test */
 				      }
 
 				    /*  r = r<1?r+1:0; */
-				}
+				  }
 
+			      }
+
+			    vme2_pntr->mcpl_hndshk = 0;
 			  }
-
 		    }
 
 		  else
