@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:20:44  thor
+ * Renamed RESTART RESTART_DISP.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -120,28 +123,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 extern "C" {
 #include "sysLib.h"
 };
-
-static inline int fastround(double d);
-
-static inline int fastround(double d)
-{
-    register int i;
-    register int cm;
-    register int im;
-
-    asm volatile ("fmove%.l fpcr,%0" : "=dm" (cm) : );
-
-    im = cm & 0xff00;
-
-    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
-
-    asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
-
-    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
-
-    return(i);
-}
-
 
 static Radial *makeDisplay(Radial *, GraphicController *);
 
@@ -289,6 +270,11 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 		ra -= roll;
 
+		if (ra < 0.0)
+		  ra += 360.0;
+		else if (ra > 360.0)
+		  ra -= 360.0;
+		
 		radData.angle = ra;
 
 		FAST int direct = fastround(dataBeam->ray.true_scan_rate);
