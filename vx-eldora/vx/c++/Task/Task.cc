@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/10/02  13:26:43  vanandel
+ * added include to declare type of logMsg()
+ *
  * Revision 1.5  1992/10/02  13:23:35  vanandel
  * added optional task name
  *
@@ -42,6 +45,11 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	   int go = 1, char *name = "")
 {
    
+    flags = new Flags();
+    if (flags == NULL)
+    {
+      logMsg("couldn't allocate flags for task %x\n", taskId);
+    }
     if (!go)
       {
 	  start = entry;
@@ -66,11 +74,6 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
       }
     else
       {
-	flags = new Flags();
-	if (flags == NULL)
-	{
-	  logMsg("couldn't allocate flags for task %x\n", taskId);
-	}
 	  if (argsize)
 	    taskId = 
 	    taskSpawn(name,pri,options,stacksize,entry,(int)this,args[0],
