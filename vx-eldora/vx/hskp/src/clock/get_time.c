@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/05/20  20:36:39  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:42:58  reif
  * Initial revision
  *
@@ -24,8 +27,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define scope extern
 #include "hskpAll.h"
 
-void get_time(char *hour,char *minute,char *second,short *millisec,short *jday,
-              char *month,char *day0,char *year)
+void get_time(char *hour,char *minute,char *second,short *millisec,
+	      short *julday, char *month,char *today,char *year)
 {
 short i;
 char hund, vday, vmon,dummy;
@@ -41,9 +44,9 @@ hund = *hsec_reg; /* Latch clock by first accessing hseconds register */
 vmon = *mon_reg;
 *month = vmon;
 vday = *day_reg;
-*day0 = vday;
+*today = vday;
 *year = *yr_reg;
 /* Calculate julian day here */
-*jday = jday_calc[vmon-1] + vday - 1;
+*julday = jday_calc[vmon-1] + vday - 1;
 dummy=*int_msk; /* Resets the 1 sec int flag */
 }
