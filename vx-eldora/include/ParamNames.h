@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/09/18  15:26:38  thor
+ * Fixed backwards naming of inlines.
+ *
  * Revision 1.1  1991/09/17  16:32:29  thor
  * Initial revision
  *
@@ -30,6 +33,7 @@ static const int REAL_R1      = 0x20;
 static const int REAL_R2      = 0x40;
 static const int IMAG_R1      = 0x80;
 static const int IMAG_R2      = 0x100;
+static const int NO_PARAM     = -1;
 
 #ifndef _GNUC_
 #define INLINE
@@ -47,6 +51,7 @@ static INLINE int ParamToNum(register int p)
       case REAL_R2: return(6);
       case IMAG_R1: return(7);
       case IMAG_R2: return(8);
+      case NO_PARAM: return(9);
       default: return(-1);
     }
 }
