@@ -153,6 +153,17 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
       ts_freq = 2;
     if(cmd & FFT_3)
       ts_freq = 3;
+
+#ifdef TASS
+    if (cmd & TS_ON)
+      {
+	  memcpy((char *)tass_ptr,(char *)&(cmdBlk->tass_info),sizeof(TSACQ));
+	  /* Now whatever turns on time series.*/
+      }
+    if (cmd & TS_OFF)
+      ; /* Whatever turns it off. */
+#endif /* TASS */
+	
     printf("ts_freq = %d \n",ts_freq);
     currStatus->count++;
 
