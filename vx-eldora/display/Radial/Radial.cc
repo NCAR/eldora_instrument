@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  1992/06/05  13:08:40  thor
+ * Fixed centering of number labels.
+ *
  * Revision 1.15  1992/05/04  16:46:58  thor
  * Added/changed code to handle display of parameter values hopefully to
  * most people's liking.
@@ -364,13 +367,24 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 	  switch(tblsize)	// This is predicated on 31 colors!!!!!
 	    {
 	      case 31:
-	      case 25:
-	      case 20:
+		sprintf(label,"%d",iround(max));
+		horText(wdw,a,label,WHITE);
+		break;
 	      case 16:
-	      case 10:
-	      case 5:
+		sprintf(label,"%d",iround((max + min) / 2.0));
+		horText(wdw,a,label,WHITE);
+		break;
 	      case 1:
-		int i = iround(m + .5);
+		sprintf(label,"%d",iround(min));
+		horText(wdw,a,label,WHITE);
+		break;
+	      case 24:
+	      case 8:
+		int i;
+		if (i < 0.0)
+		  i = iround(m - .5);
+		else
+		  i = iround(m);
 		sprintf(label,"%d",i);
 		horText(wdw,a,label,WHITE);
 		break;
