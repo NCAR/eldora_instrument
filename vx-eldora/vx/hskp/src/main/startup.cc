@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1996/02/09  18:29:50  craig
+ * *** empty log message ***
+ *
  * Revision 1.5  1994/05/20  20:37:22  craig
  * *** empty log message ***
  *
@@ -44,6 +47,7 @@ Header *Hdr;
 
 static HskpStatus status;
 static void startRpc(void);
+extern void HeaderRpcInit();
 
 /*********************************************/
 /* This is the start of the function startup */
