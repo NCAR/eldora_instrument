@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/09/27  16:22:49  eric
+ * turned off diagnostic messages; disable SRQ for underflow.
+ *
  * Revision 1.2  1997/11/12  19:51:01  eric
  * modified code to be compatible with existing housekeeper
  * software structure.
@@ -61,6 +64,7 @@ xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
   init_isr_vecs();
   Debug = 0;
 
+#ifdef OLD_INIT
 /******************* INITIALIZE GPIB AND DMA **********************/
 
   init_gpib(1);
@@ -161,6 +165,8 @@ xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
   strncpy(string_array,"AVPK\0",5); /* Set # points to avg for tp meter*/  
   strncat(string_array,number_array,strlen(number_array));
   send_cmnd_string(TESTP,string_array);
+
+#endif
 
 /* Spawn run-time power task */
 
