@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/24  19:11:53  thor
+ * Major rewrite of center method.
+ *
  * Revision 1.2  91/01/02  08:50:55  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -258,15 +261,15 @@ int Window::pan(FAST Point panOrigin)
 
     FAST unsigned short zoom = getZoom();
 
-    if (zoom = ZOOM1)
+    if (zoom == ZOOM1)
       {
 	  width /= 2;
-	  width /= 2;
+	  height /= 2;
       }
     if (zoom == ZOOM2)
       {
-	  x /= 2;
-	  y /= 2;
+ 	  x /= 2;
+ 	  y /= 2;
 	  width /= 4;		// Calculate the half size of a window.
 	  height /= 4;
       }
@@ -314,9 +317,9 @@ int Window::pan(FAST Point panOrigin)
 
     if (displayState == DISPLAYED)
       {
-	  FAST long l = panOrigin.x << 16;
+	  FAST long l = x << 16;
 
-	  l |= panOrigin.y;
+	  l |= y;
 	  
 	  gbd->pan(window,l);
       }
