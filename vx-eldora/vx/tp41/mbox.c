@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/24  18:10:56  thor
+ * Initial revision
+ *
  *
  * description:
  *        These routines allow one to create a memory region that is

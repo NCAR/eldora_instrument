@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/01/16  19:40:57  thor
+ * Decreased size of messages to 81 characters & fixed logmessage_1 prototype.
+ *
  * Revision 1.2  1992/01/14  19:46:24  thor
  * Added functions to transparently move messages.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/14  16:32:30  thor
+ * Added stdio.h.
+ *
  * Revision 1.1  1992/01/14  19:18:18  thor
  * Initial revision
  *

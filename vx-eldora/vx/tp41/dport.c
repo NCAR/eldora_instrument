@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/09/28  21:03:49  thor
+ * Added missing shift to extended mode lut write.
+ *
  * Revision 1.5  1992/08/27  13:31:21  thor
  * Major changes. Fixed code to correctly set up STD addressing in LUT.
  * Added support for mailboxes.

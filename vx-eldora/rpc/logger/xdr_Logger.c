@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/01/16  19:42:37  thor
+ * Changed char array to size 81.
+ *
  * Revision 1.1  1992/01/14  19:18:19  thor
  * Initial revision
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/14  16:31:52  thor
+ * Added new host & made things a little clearer.
+ *
  * Revision 1.1  1992/01/16  19:40:11  thor
  * Initial revision
  *

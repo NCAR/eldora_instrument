@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/28  15:44:41  thor
+ * Initial revision
+ *
  *
  * description:
  *        These routines manipulate the TP41V cio registers. To use

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/08/24  18:16:50  thor
+ * Added conditional around includes to avoid user dragging in obscure .h
+ * files.
+ *
  * Revision 1.4  1992/08/24  18:10:36  thor
  * Added new routines.
  *

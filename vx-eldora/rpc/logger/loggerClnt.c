@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/01/16  19:41:47  thor
+ * Major rewrite to use semaphore locked statics.
+ *
  * Revision 1.2  1992/01/14  19:46:52  thor
  * Added functions to transparently move messages.
  *
