@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/23  15:03:57  thor
+// Added clock code.
+//
 // Revision 1.1  1994/04/08  20:51:58  thor
 // Initial revision
 //
@@ -99,7 +102,6 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 	      case SHOW_FORWARD:
 	      case (SHOW_FORWARD | NEW_DATA_FLAG):
 		radar = 'F';
-                cout << "Radar = " << radar << endl;
 		dispPtr = display;
 		dispPtr->reset(Hdr,GeCommand);
 		sysIntDisable(3);
@@ -112,7 +114,6 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 	      case SHOW_AFT:
 	      case (SHOW_AFT | NEW_DATA_FLAG):
 		radar = 'A';
-                cout << "Radar = " << radar << endl;
 		dispPtr = display;
 		dispPtr->reset(Hdr,GeCommand);
 		sysIntDisable(3);
