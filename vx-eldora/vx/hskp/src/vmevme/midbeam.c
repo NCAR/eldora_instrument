@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/07/20  17:42:56  eric
+ * *** empty log message ***
+ *
  * Revision 1.2  1997/08/27  16:50:04  craig
  * *** empty log message ***
  *
@@ -191,14 +194,14 @@ fore_ray_pntr->this_fdata.test_pulse_dist = fore_vmehndshk->tpulse_dist;
 fore_ray_pntr->this_fdata.test_pulse_width = fore_vmehndshk->tpulse_width;
 fore_ray_pntr->this_fdata.test_pulse_freq = fore_vmehndshk->tpulse_freq;
 fore_ray_pntr->this_fdata.test_pulse_atten = fore_vmehndshk->tpulse_atten;
-fore_ray_pntr->this_fdata.test_pulse_fnum = fore_vmehndshk->tpulse_freq_num;
+fore_ray_pntr->this_fdata.test_pulse_fnum = fore_vmehndshk->tpulse.combined_freq_num;
 
 aft_ray_pntr->this_fdata.test_pulse_level = aft_testp_pwr;
 aft_ray_pntr->this_fdata.test_pulse_dist = aft_vmehndshk->tpulse_dist;
 aft_ray_pntr->this_fdata.test_pulse_width = aft_vmehndshk->tpulse_width;
 aft_ray_pntr->this_fdata.test_pulse_freq = aft_vmehndshk->tpulse_freq;
 aft_ray_pntr->this_fdata.test_pulse_atten = aft_vmehndshk->tpulse_atten;
-aft_ray_pntr->this_fdata.test_pulse_fnum = aft_vmehndshk->tpulse_freq_num;
+aft_ray_pntr->this_fdata.test_pulse_fnum = aft_vmehndshk->tpulse.combined_freq_num;
 
 if((tp_dwell_count > tp_sum_start) && (tp_dwell_count < tp_sum_end))
   sum_testpulse();
