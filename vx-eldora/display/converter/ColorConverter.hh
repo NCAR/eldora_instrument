@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1992/01/22  17:42:03  thor
+ * Removed all the old stuff.
+ *
  * Revision 1.10  1992/01/22  17:38:10  thor
  * Added new params to constructor to handle new conversion algorithm.
  *
@@ -85,6 +88,7 @@ class ColorConverter {
     int nbins;			// Number of colors in use.
     int numOfParams;		// Number of parameters in data array.
     int numOfValues;		// Number of parameters used.
+    int numGates;		// Number of pixels in display.
 
     int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
 						      // indexes into
@@ -102,7 +106,7 @@ class ColorConverter {
     ColorConverter(void) {}
 
     // For radial case.
-    void SetBeamSize(CELLSPACING &cs);
+    void SetBeamSize(CELLSPACING &cs, int pgates);
 
     // Horizontal case.
     void GetPoint(unsigned short *data, HorizPoint &dp, int index);

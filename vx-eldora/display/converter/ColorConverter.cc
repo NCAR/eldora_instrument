@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.22  1992/02/05  18:23:56  thor
+ * Added code to handle variable radii for Radials.
+ *
  * Revision 1.21  1992/01/28  19:01:11  thor
  * Changed firound to iround - 040 has no sp hardware!
  *
@@ -150,7 +153,9 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
-void ColorConverter::SetBeamSize(FAST CELLSPACING &cs)
+void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates)
+
+    numGates = pgates;
 
 void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 				 float realMax = -1.0)
@@ -195,12 +200,12 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		*fp++ = dist;
 
 		dist += width;
-    float inc = (float)maxDist / (float)DISPLAYED_GATES; // Meters/pixel.
+    float inc = (float)maxDist / (float)pgates; // Meters/pixel.
 
     FAST int dcells = pgates;
 
     FAST int *ptr = gateIndex;
-    FAST int dcells = DISPLAYED_GATES;
+
     bfill((char *)ptr,ngates * sizeof(int),0xff); // Mark all as not found.
 
     FAST int np = numOfParams;
@@ -225,8 +230,8 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		      ptr[pgates] = index + valueOffset[1];
 		      ptr[pgates * 2] = index + valueOffset[2];
 		      break;
-		      ptr[DISPLAYED_GATES] = index + valueOffset[1];
-		      ptr[DISPLAYED_GATES * 2] = index + valueOffset[2];
+		  }
+		else
 		  index++;
 	    }
 
@@ -238,8 +243,8 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		ptr[pgates] = index + valueOffset[1];
 		ptr[pgates * 2] = index + valueOffset[2];
 	    }
-		ptr[DISPLAYED_GATES] = index + valueOffset[1];
-		ptr[DISPLAYED_GATES * 2] = index + valueOffset[2];
+	  ptr++;
+      }
     free((char *)fptr);
 }
 
@@ -331,7 +336,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
     FAST unsigned char *lkup = convertTbl;
     FAST unsigned char *colors = &rad.colors[0];
-    FAST int j = DISPLAYED_GATES;
+
     for (FAST int i = 0; i < j; i++)
       {
 	  FAST unsigned short datum = *(data + *ptr++);
