@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/23  21:50:22  craig
+ * Added integrated vertical accel and vertical accel, removed body accelerations
+ *
  * Revision 1.2  1992/08/11  13:47:43  thor
  * Fixed incorrect declaration of msec_latitude & lateral_accel.
  *
@@ -36,6 +39,7 @@
 struct ins_data {
     char  ins_data_id[4];	/* Identifier = INSD. */
     long  ins_data_len;		/* Block size in bytes. */
+    short sec_latitude[5];      /* Second in which latitude was found */
     short msec_latitude[5];	/* Millesec. into current sec. */
     short status[5];		/* TBD status for each 5 Hz block. */
     float latitude[5];		/* Degrees. */
