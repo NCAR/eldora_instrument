@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.5  1993/10/22  19:34:32  thor
+ * Fixed overwrite problem.
+ *
  * Revision 2.4  1993/10/21  14:52:45  thor
  * Complete rewrite of SetBeam to correctly handle all cases.
  *
@@ -179,7 +182,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 }
 
 void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
-				 float mpp = -1.0)
+				 float mpp)
 {
     FAST int seg = cs.num_segments;
     FAST short *widths = &cs.spacing[0];
