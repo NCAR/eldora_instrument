@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:31  craig
+ * Initial revision
+ *
  * Revision 1.4  1993/09/22  15:27:34  reif
  * changed number of parameters to include send diags space etc.
  *
@@ -34,7 +37,7 @@ void parm_blk_init()
 {
 register int i,j;
 
-for(i=0; i<21; i++)
+for(i=0; i<(LAST_CIP_CMD+1); i++)
   {
       parmblk[i].cmd_id=0x00000000;
       parmblk[i].resvd=0x00;
