@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/10/22  19:34:32  thor
+ * Fixed overwrite problem.
+ *
  * Revision 2.2  1993/10/13  16:13:51  thor
  * Lowered size of conversion table since we are only using 8 bit values,
  * increased size of gateIndex to handle Dual display & changed hardcoded
@@ -99,7 +102,7 @@
 
 static const int MAX_DATA_PLANES = 3;
 static const int MAX_BINS = 31;
-static const int CONV_TBL_SIZE = 256; // 65536;
+static const int CONV_TBL_SIZE = 65536;
 static const int CONV_MAX_GATES = 1024;
 
 class ColorConverter {
