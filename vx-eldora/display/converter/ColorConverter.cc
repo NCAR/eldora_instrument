@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.7  1994/11/01  15:12:57  thor
+ * Cleaned up includes, switched to C++ I/O.
+ *
  * Revision 2.6  1994/08/12  18:13:51  thor
  * Fixed a nit.
  *
@@ -217,7 +220,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
     float dist = (float)cs.distToFirst;;
 
-    for (i = 0; i < seg; i++)	// Fill in actual distances.
+    for (FAST int i = 0; i < seg; i++)	// Fill in actual distances.
       {
 	  FAST int c = *nc++;
 	  float width = (float)*w++;
@@ -245,7 +248,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
     FAST int np = numOfParams;
 
-    for (i = 0; i < pgates; i++, ptr++)
+    for (FAST int i = 0; i < pgates; i++, ptr++)
       {
 	  float dist = inc * (float)i; // Target distance.
 
@@ -257,7 +260,9 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
 	  FAST int index = 0;
 
-	  for (int k = 0; k < ngates; k++)
+          FAST int k;
+          
+	  for (k = 0; k < ngates; k++)
 	    {
 		if (newDiff >=  0.0)
 		  {
@@ -355,7 +360,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
     if (count)
       {
 	  lkup += CONV_TBL_SIZE;
-	  for (i = 0; i < j; i++)
+	  for (FAST int i = 0; i < j; i++)
 	    {
 		FAST unsigned short datum = *(data + *ptr++);
 		
@@ -370,7 +375,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
     if (count)
       {
 	  lkup += CONV_TBL_SIZE;
-	  for (i = 0; i < j; i++)
+	  for (FAST int i = 0; i < j; i++)
 	    {
 		FAST unsigned short datum = *(data + *ptr++);
 		

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1994/09/12  18:36:40  thor
+ * Tightened clear() to make it run faster.
+ *
  * Revision 2.1  1993/07/01  16:20:03  thor
  * Brought code up to latest ANSI draft spec.
  *
@@ -56,8 +59,10 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
     FAST int j = 4;
     FAST int brs = WDW0_BRS;
 
-// Set up for a max of 4 8-bit windows. 
-    for (FAST int i = 0; i < j; i++, brs += 0x10, wptr++)
+// Set up for a max of 4 8-bit windows.
+    FAST int i;
+    
+    for (i = 0; i < j; i++, brs += 0x10, wptr++)
       {
 	  wptr->base = (long *)(addr + (TS_REG_OFFSET | brs));
 	  wptr->scrSize = wptr->base + 1;
@@ -282,7 +287,7 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
     FAST int *src = clrPtr;
     FAST int k = 4096;
     FAST char *dst = (char *)baseAddr;
-    
+
     for (i = 0; i < k; i++, dst += k)
       memcpy(dst,src,4096);
 }
