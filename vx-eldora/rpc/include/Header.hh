@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/01/02  20:40:35  thor
+ * Added method & C function to change TAPEHEADER of object.
+ *
  * Revision 1.6  1992/01/02  20:28:40  thor
  * Added method for = operator.
  *
@@ -78,6 +81,8 @@ class Header {
     void Waveform(WAVEFORM &w);
     WAVEFORM *Waveform(void);
 
+    void NavDesc(NAVDESC &n);
+    Header &operator=(Header &);
 
     INSITUDESC *Insitu(void);
 
