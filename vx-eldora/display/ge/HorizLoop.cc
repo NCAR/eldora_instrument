@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/11/15  16:57:06  thor
+ * Added new radar variable and removed test taskDelay.
+ *
+ * Revision 1.5  1991/11/06  21:44:24  thor
  * Removed bunch of test code.
  * Added real data handling & scaling.
  *
@@ -52,6 +56,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
     FAST HorizDisplay *display = NULL;
     Pipe dataPipe(sizeof(DataPoint),100);
     Pipe movePipe(sizeof(HorizMove),10);
+
+
 
 
     Pipe dataPipe(sizeof(HorizPoint),100);
@@ -98,6 +104,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case START:
 	      case RELOAD:
+	      case RESTART:
 	      case (RELOAD | NEW_DATA_FLAG):
 		horizFilter->Pipe(&dataPipe,&movePipe);
 	      case (RESTART | NEW_DATA_FLAG):
@@ -106,6 +113,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  pipe.Flush();
 		break;
 
+	      case FORWARD_HORIZ:
 	      case (FORWARD_HORIZ | NEW_DATA_FLAG):
 		horizFilter->Pipe(&dataPipe,&movePipe);
                 radar = whichRadar;
@@ -159,7 +167,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		// This is hard! 
 		horizFilter->Draw(*dataBeam);
 
-	  taskDelay(1);
+
 	  self.SetFlags(NEW_DATA_FLAG);
 		// Draw it.
 		while (dataPipe.Empty() == FALSE)
