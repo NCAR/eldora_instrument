@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1996/02/09  18:29:26  craig
+ * *** empty log message ***
+ *
  * Revision 1.9  1994/05/20  20:37:07  craig
  * *** empty log message ***
  *
@@ -32,11 +35,28 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void vmevme_isr()
 {
 
+
+
+/* Check to see if it is OK to let the other radar processor use the
+   mcpl bus */
+
+if(fore_vmehndshk->mcpl_hndshk == 0 && mcpl_xfer_processor == 0)
+  {
+    aft_vmehndshk -> mcpl_hndshk = 1;
+    mcpl_xfer_processor = 1;
+  }
+if(aft_vmehndshk->mcpl_hndshk == 0 && mcpl_xfer_processor == 1)
+  {
+    fore_vmehndshk -> mcpl_hndshk = 1;
+    mcpl_xfer_processor = 0;
+  }
+
 /* This services the the middle of beam interrupt caused by the fore radar
    processor but handles both processors, first clear the interrupts. */
 
 *fore_remote_command = 0x40; 
-*aft_remote_command = 0x40; 
+*aft_remote_command = 0x40;
+ 
 
 /* Now send a semifore to start the midbeam task */
 

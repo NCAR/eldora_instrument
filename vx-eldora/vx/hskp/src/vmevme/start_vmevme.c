@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1996/02/09  18:29:23  craig
+ * *** empty log message ***
+ *
  * Revision 1.9  1994/05/20  20:37:03  craig
  * *** empty log message ***
  *
@@ -110,12 +113,6 @@ for(i=0; i<NUM_RADAR_HNDSHK; i++)
   }
 
 
-/* Do things to handle recording of nav data */
-
-nav_flag = 0;
-nav_current_index = 0;
-nav_current_size = sizeof(struct nav_data);
-
 /* Put ASCII characters into both nav structures */
 
 current_nav_pntr = (struct nav_data *)(SEC_NAV_OFFSET + 
@@ -125,8 +122,7 @@ current_nav_pntr = (struct nav_data *)(FIRST_NAV_OFFSET +
                     STANDARD_BASE + FORE_STAND_START);
 fill_nav_info((int)1);
 
-i = (long)(MAX_NAV_SIZE / nav_current_size);
-fore_vmehndshk->nav_length = (short)(nav_current_size * i);
+fore_vmehndshk->nav_length = sizeof(struct nav_data);
 
 /* Clear the polled handshake words */
 fore_vmehndshk->polled = 0;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1994/05/20  20:37:05  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/03  20:26:34  craig
  * Initial revision
  *
@@ -30,9 +33,6 @@ void vmevme_menu()
 int cmd, i, number, index, kill;
 float position;
 long offset;
-
-/* First Initalize the cards */
-init_vmevme();
 
 /* Just sit in the menu until told to quit */
 
@@ -100,19 +100,22 @@ do{
 
 	case 7:	/* Display Test Pulse Information */
 	  printf("Test Pulse info                   FORE            AFT\n");
-	  printf("Flag:         %4x       %4x\n",fore_vmehndshk->tpulse_flg,
-		 aft_vmehndshk->tpulse_flg);
-	  printf("Level (dbm):  %4.1f       %4.1f\n",
-                  fore_vmehndshk->tpulse_level,aft_vmehndshk->tpulse_level);
-	  printf("Distance:     %4d       %4d\n",
+	  printf("Flag:                   %4d       %4d\n",
+		 fore_vmehndshk->tpulse_flg,aft_vmehndshk->tpulse_flg);
+	  printf("Velocity (scaled m/s):  %4.1f       %4.1f\n",
+                  fore_vmehndshk->tpulse_vel,aft_vmehndshk->tpulse_vel);
+	  printf("Level (scaled dbz):     %4.1f       %4.1f\n",
+                  fore_vmehndshk->tpulse_level_proc,
+		 aft_vmehndshk->tpulse_level_proc);
+	  printf("Distance (m):           %4d       %4d\n",
                   fore_vmehndshk->tpulse_dist,aft_vmehndshk->tpulse_dist);
-	  printf("Width:        %4d       %4d\n",
+	  printf("Width (m):              %4d       %4d\n",
                   fore_vmehndshk->tpulse_width,aft_vmehndshk->tpulse_width);
-	  printf("Frequency (GHz):  %4.1f       %4.1f\n",
+	  printf("Frequency (GHz):        %4.1f       %4.1f\n",
                   fore_vmehndshk->tpulse_freq,aft_vmehndshk->tpulse_freq);
-	  printf("Attenuation (db): %4d         %4d\n",
+	  printf("Attenuation (db):       %4d       %4d\n",
                   fore_vmehndshk->tpulse_atten,aft_vmehndshk->tpulse_atten);
-	  printf("Frequency Num:    %4d         %4d\n",
+	  printf("Frequency Num:          %4d       %4d\n",
                  fore_vmehndshk->tpulse_freq_num,
 		 aft_vmehndshk->tpulse_freq_num);
 	  break;

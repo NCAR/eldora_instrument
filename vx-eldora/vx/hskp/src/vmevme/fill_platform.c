@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/02/09  18:29:27  craig
+ * *** empty log message ***
+ *
  * Revision 1.4  1994/05/20  20:37:08  craig
  * *** empty log message ***
  *
@@ -76,8 +79,8 @@ while((msecs > (msecs_ray[next_index]-half_dwelltime_msec)) && (failsafe < 4))
 
       ray_pntr = (struct DATARAY *)(current_platform_offset + STANDARD_BASE
 				    + AFT_STAND_START);
-      ray_pntr->this_plat.longitude = last_gps_data.longitude;
-      ray_pntr->this_plat.latitude = last_gps_data.latitude;
+      ray_pntr->this_plat.longitude = last_iru_data.longitude;
+      ray_pntr->this_plat.latitude = last_iru_data.latitude;
       ray_pntr->this_plat.altitude_msl = last_iru_data.altitude;
       ray_pntr->this_plat.altitude_agl = last_gps_data.altitude;
       ray_pntr->this_plat.ew_velocity = last_iru_data.ew_velocity;

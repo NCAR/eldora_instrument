@@ -9,12 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1994/05/20  20:37:10  craig
+ * Revision 1.1  1996/02/09  18:29:29  craig
  * Initial revision
- *
- * Revision 1.1  1992/08/19  20:44:35  craig
- * Initial revision
- *
  *
  * description: This module performs all of the necessary functions 
  *              during the isr run by the interrupt caused by the fore
@@ -90,13 +86,14 @@ if(fake_angles)
       last_iru_data.roll = 15.0 * anglesin;
       last_iru_data.heading = 45.0 + 0.5 * anglesin;
       last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
-      last_iru_data.seconds = sec;
+      last_iru_data.sec_longitude = sec;
       last_iru_data.msec_longitude = msec;
       dumb_index++;
       if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
       fill_platform(msecs_ray[dumb_index]);
 
   }
+
 
 /* Clear the polled handshake words */
 
@@ -181,17 +178,24 @@ aft_ray_pntr->this_rayi.millisecond = (short)msec;
 msecs_ray[current_index] = msecs_today;
 
 /* Put the test pulse info into the correct spot in the current ray */
-fore_ray_pntr->this_fdata.test_pulse_level = fore_vmehndshk->tpulse_level;
+
+tp_dwell_count += 1;
+fore_ray_pntr->this_fdata.test_pulse_level = fore_testp_pwr;
 fore_ray_pntr->this_fdata.test_pulse_dist = fore_vmehndshk->tpulse_dist;
 fore_ray_pntr->this_fdata.test_pulse_width = fore_vmehndshk->tpulse_width;
+fore_ray_pntr->this_fdata.test_pulse_freq = fore_vmehndshk->tpulse_freq;
 fore_ray_pntr->this_fdata.test_pulse_atten = fore_vmehndshk->tpulse_atten;
 fore_ray_pntr->this_fdata.test_pulse_fnum = fore_vmehndshk->tpulse_freq_num;
 
-aft_ray_pntr->this_fdata.test_pulse_level = aft_vmehndshk->tpulse_level;
+aft_ray_pntr->this_fdata.test_pulse_level = aft_testp_pwr;
 aft_ray_pntr->this_fdata.test_pulse_dist = aft_vmehndshk->tpulse_dist;
 aft_ray_pntr->this_fdata.test_pulse_width = aft_vmehndshk->tpulse_width;
+aft_ray_pntr->this_fdata.test_pulse_freq = aft_vmehndshk->tpulse_freq;
 aft_ray_pntr->this_fdata.test_pulse_atten = aft_vmehndshk->tpulse_atten;
 aft_ray_pntr->this_fdata.test_pulse_fnum = aft_vmehndshk->tpulse_freq_num;
+
+if((tp_dwell_count > tp_sum_start) && (tp_dwell_count < tp_sum_end))
+  sum_testpulse();
 
 /* Calculate the rotational position of both radar beams and place them
    into the proper word in the data ray */
@@ -266,6 +270,8 @@ last_aft_angle = aft_angle;
 if(degrees_moved > 300.) aft_sweep_num++;
 aft_ray_pntr->this_rayi.sweep_num = aft_sweep_num;
 
+/* Handle the data from the IRU here */
+convert_iru();
 
 /* If necessary handle the waveguide switch here */
 
@@ -371,3 +377,4 @@ if (wg_sw_flag != 0)
 
 } /* Infinite for loop */
 }
+
