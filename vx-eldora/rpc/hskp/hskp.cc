@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/06  16:31:55  thor
+// Added reconnection method.
+//
 // Revision 1.1  1994/09/01  18:05:56  thor
 // Initial revision
 //
@@ -164,7 +167,7 @@ int messanger::sendCmd()
     cerr << cmd.second << endl;
 #endif    
 
-    if ((status = sendcommand_1(&cmd,client)) == NULL)
+    if ((status = sendhskpcommand_1(&cmd,client)) == NULL)
       return(-2);
 
     return(0);

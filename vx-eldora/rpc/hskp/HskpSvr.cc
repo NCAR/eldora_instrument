@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/09/01  18:05:25  thor
+ * Updated for use with TLIRPC. Removed unneeded count field.
+ *
  * Revision 1.2  1992/07/27  14:46:05  thor
  * Added extern "C" for HskpRpcInit.
  *
@@ -108,7 +111,7 @@ int HskpRpcInit(void)
 static void hskpcontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 {
     union {
-	struct HskpCommand sendcommand_1_arg;
+	struct HskpCommand sendhskpcommand_1_arg;
     } argument;
     char *result;
     xdrproc_t xdr_argument,xdr_result;
@@ -120,10 +123,10 @@ static void hskpcontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 	  (void)svc_sendreply(transp,(xdrproc_t) xdr_void,(char *)NULL);
 	  return;
 	  
-	case SendCommand:
+	case SendHskpCommand:
 	  xdr_argument = (xdrproc_t)xdr_HskpCommand;
 	  xdr_result = (xdrproc_t)xdr_HskpStatus;
-	  local = (char *(*)(char *,struct svc_req *))sendcommand_1_svc;
+	  local = (char *(*)(char *,struct svc_req *))sendhskpcommand_1_svc;
 	  break;
 	  
 	case GetHskpStatus:
@@ -156,7 +159,7 @@ static void hskpcontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 }
 
 #ifndef DEBUG_ONLY
-struct HskpStatus *sendcommand_1_svc(FAST struct HskpCommand *cmdBlk,
+struct HskpStatus *sendhskpcommand_1_svc(FAST struct HskpCommand *cmdBlk,
                                      struct svc_req *)
 {
     float position;
@@ -248,7 +251,7 @@ struct HskpStatus *gethskpstatus_1_svc(void *, struct svc_req *)
 
 static HskpStatus stat;
 
-struct HskpStatus *sendcommand_1_svc(FAST struct HskpCommand *cmdBlk,
+struct HskpStatus *sendhskpcommand_1_svc(FAST struct HskpCommand *cmdBlk,
                                      struct svc_req *)
 {
     printf("Received command %#x.\n",cmdBlk->cmd);

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/09/01  18:05:25  thor
+ * Updated for use with TLIRPC. Removed unneeded count field.
+ *
  * Revision 1.1  1992/07/13  20:18:55  thor
  * Initial revision
  *
@@ -25,15 +28,15 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 static struct timeval TIMEOUT = { 25, 0 };
 
-struct HskpStatus *sendcommand_1(FAST struct HskpCommand *argp,
+struct HskpStatus *sendhskpcommand_1(FAST struct HskpCommand *argp,
 				 FAST CLIENT *clnt)
 {
     static struct HskpStatus res;
     
     memset((char *)&res,0,sizeof(res));
-    if (clnt_call(clnt,SendCommand,(xdrproc_t)xdr_HskpCommand,(caddr_t)argp,
-                  (xdrproc_t)xdr_HskpStatus,(caddr_t)&res,TIMEOUT)
-        != RPC_SUCCESS)
+    if (clnt_call(clnt,SendHskpCommand,(xdrproc_t)xdr_HskpCommand,
+                  (caddr_t)argp,(xdrproc_t)xdr_HskpStatus,(caddr_t)&res,
+                  TIMEOUT) != RPC_SUCCESS)
       {
 	  return(NULL);
       }
