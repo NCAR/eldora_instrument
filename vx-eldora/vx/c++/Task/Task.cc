@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/24  15:58:25  thor
+ * Fixed constructor to allow for 0 length arg list and immediate start.
+ *
  * Revision 1.1  1991/10/02  14:23:10  thor
  * Initial revision
  *
@@ -52,6 +55,11 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
       }
     else
       {
+	flags = new Flags();
+	if (flags == NULL)
+	{
+	  logMsg("couldn't allocate flags for task %x\n", taskId);
+	}
 	  if (argsize)
 	    taskId = 
 	    taskSpawn("",pri,options,stacksize,entry,(int)this,args[0],
@@ -61,7 +69,6 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	    taskId = taskSpawn("",pri,options,stacksize,entry,(int)this);
       }
 
-    flags = NULL;		// No flags by default.
 }
 
 int Task::Priority(void)
@@ -129,7 +136,9 @@ int Task::Go(void)
 
 STATUS Task::FlagsInit(void)
 {
-    flags = new Flags();
+#ifdef DEBUG
+    logMsg("Task::FlagsInit called this = %x, flags = %x \n", this, flags);
+#endif
 
     if (flags == NULL)
       return(ERROR);
@@ -140,8 +149,14 @@ STATUS Task::FlagsInit(void)
 void Task::SetFlags(FAST unsigned int mask)
 {
     if (flags == NULL)		// Protect ourself from pointer error.
+    {
+      logMsg("Task::SetFlags called this = %x, with NIL flags\n", this);
       return;
+    }
 
+#ifdef DEBUG
+    logMsg("Task::SetFlags called\n");
+#endif
     flags->set(mask);
 }
 
