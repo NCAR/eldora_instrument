@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/28  21:53:32  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -51,6 +54,10 @@ static const int IMAG_R2            = 8;
 /* Radars */
 static const int FORWARD = 0;
 static const int AFT = 1;
+
+
+/* Size of radial display in displayed gates */
+static const int DISPLAYED_GATES = 500;
 
 #endif /* INCWdwGblsh */
 
