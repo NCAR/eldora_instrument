@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/28  13:04:33  thor
+ * Added dual display support.
+ *
  * Revision 2.1  1993/08/20  17:17:03  thor
  * Cleaned up reboot action & added code to 1st draw cursor in black,
  * then white.
@@ -197,12 +200,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case FORWARD_RADIAL:
 		      if (currTask != &RadialTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30); // We sleep for .5 s to allow
-			                   // other active display to
-			                   // completely destroy self.
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &RadialTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -210,10 +208,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case AFT_RADIAL:
 		      if (currTask != &RadialTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &RadialTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -221,10 +216,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case FORWARD_HORIZ:
 		      if (currTask != &HorizTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &HorizTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -232,10 +224,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case AFT_HORIZ:
 		      if (currTask != &HorizTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &HorizTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -243,10 +232,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case FORWARD_VERT:
 		      if (currTask != &VertTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &VertTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -254,10 +240,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case AFT_VERT:
 		      if (currTask != &VertTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &VertTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -265,10 +248,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case FORWARD_DUAL:
 		      if (currTask != &DualTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &DualTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
@@ -276,10 +256,7 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case AFT_DUAL:
 		      if (currTask != &DualTask)
-			{
-			    currTask->SetFlags(DESTROY_SELF);
-			    taskDelay(30);
-			}
+			currTask->SetFlags(DESTROY_SELF);
 		      currTask = &DualTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);

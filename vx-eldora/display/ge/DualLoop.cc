@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1993/09/28  13:19:09  thor
+// Initial revision
+//
  *
  *
  * description:
@@ -50,15 +53,7 @@ void DualLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case DESTROY_SELF:
 	      case (DESTROY_SELF | NEW_DATA_FLAG):
 		if (display != NULL)
-		  {
-		      delete(display);
-		      display = NULL;
-		  }
-		if (conv != NULL)
-		  {
-		      delete(conv);
-		      conv = NULL;
-		  }
+		  display->Undisplay();
 		continue;
 		break;
 
@@ -180,7 +175,7 @@ void DualLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		dualData.direction = direct;
 		dualData.altitude = dataBeam->air.altitude_msl * 1000.0;
 
-		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
+		dualData.data = (unsigned short *)(dataBeam + 1);
 
 		if (direct >= 0)
 		  {
@@ -197,9 +192,6 @@ void DualLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  }
 
 		lastAngle = dualData.angle;
-
-		// Color convert it - only on uniprocessor!
-		conv->GetBeam(data,&dualData.colors[0]);
 
 		// Draw it.
 		display->DrawBeam(dualData);
@@ -284,24 +276,22 @@ static Dual *makeDisplay(FAST Dual *old, FAST GraphicController *agc)
     // Again uniprocessor only!
     conv = new ColorConverter(31,max,min,scales,biases,offsets,np,nv);
 
-    CELLSPACING *cs = Hdr->CellSpacing();
-
-    conv->SetBeamSize(*cs,ptr->radius);
-
     agc->setMask(0);
 
     agc->clear();
 
-    FAST Dual *New = new Dual(agc,ptr->radius,0,0);
+    FAST Dual *New = new Dual(agc,0,0);
 
     FAST u_long *colors = &GeCommand->colorTable[0];
 
     if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
-    printf("Top = %f, bottom = %f\n",ptr->top, ptr->bottom);
-    New->SetBounds((float)ptr->top,(float)ptr->bottom,(float)cs->distToFirst);
+    CELLSPACING *cs = Hdr->CellSpacing();
 
+    New->Converter(conv);
+    New->SetBounds(*cs,(float)ptr->top,(float)ptr->bottom);
+    
     FAST int wdw = 0;
 
     param = ptr->param0;

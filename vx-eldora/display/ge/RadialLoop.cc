@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/28  13:06:50  thor
+ * Use inproved inlining & check corrected angle for <0 | >360.
+ *
  * Revision 2.1  1993/08/20  17:20:44  thor
  * Renamed RESTART RESTART_DISP.
  *
@@ -152,15 +155,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case DESTROY_SELF:
 	      case (DESTROY_SELF | NEW_DATA_FLAG):
 		if (display != NULL)
-		  {
-		      delete(display);
-		      display = NULL;
-		  }
-		if (conv != NULL)
-		  {
-		      delete(conv);
-		      conv = NULL;
-		  }
+		  display->Undisplay();
 		continue;
 		break;
 

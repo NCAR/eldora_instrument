@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/10/26  15:15:07  thor
+ * Added sysInt[En|Dis]able to keep interrupts out on stops.
+ *
  * Revision 1.9  1992/10/09  14:54:14  thor
  * Added LOAD_ONLY support. Modified actions on stop/start to work with new
  * Ddp code.
@@ -88,7 +91,7 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	    case DESTROY_SELF:
 	    case (DESTROY_SELF | NEW_DATA_FLAG):
 	      if (display)
-		delete(display);
+		display->Undisplay();
 	      continue;
 	      break;
 
@@ -113,10 +116,10 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	    case START:
 	    case RELOAD:
-	    case RESTART:
+	    case RESTART_DISP:
 	    case (RELOAD | NEW_DATA_FLAG):
 	    case (START | NEW_DATA_FLAG):
-	    case (RESTART | NEW_DATA_FLAG):
+	    case (RESTART_DISP | NEW_DATA_FLAG):
 	      if (radar == FORWARD_VERT)
 		DdpCtrl->Fore();
 	      else
