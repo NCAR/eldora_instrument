@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:14:30  thor
+ * Changed system to dispSystem due to name clash with VxWorks.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -55,6 +58,7 @@ extern "C" {
 #include "GeAlarm.hh"
 #include "Task.hh"
 #include "Mouse.hh"
+#include "Display.hh"
 #include "Ddp.hh"
 
 #define WINDOW_GBLS_SCOPE
@@ -71,7 +75,7 @@ GE_SCOPE DispCommand *GeCommand;
 GE_SCOPE Header *Hdr;
 GE_SCOPE GeAlarm *Alarm;
 GE_SCOPE int dispSystem;
-
+GE_SCOPE Display *display;
 GE_SCOPE Mouse *Rodent;
 
 GE_SCOPE Task *AlarmTask;
@@ -96,6 +100,7 @@ void GeStart(char *server, int system);
 extern void AlarmLoop(Task &self, char *server, int sys);
 extern void RpcLoop(Task &self);
 extern void DrawingLoop(Task &self);
+extern void FieldMouseEvents(Task &self, Mouse &rodent);
 };
 
 // Priorities.
