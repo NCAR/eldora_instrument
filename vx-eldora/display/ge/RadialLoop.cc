@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.30  1992/10/26  15:15:07  thor
  * Added sysInt[En|Dis]able to keep interrupts out on stops.
  *
@@ -203,10 +206,10 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case START:
 	      case RELOAD:
-	      case RESTART:
+	      case RESTART_DISP:
 	      case (RELOAD | NEW_DATA_FLAG):
 	      case (START | NEW_DATA_FLAG):
-	      case (RESTART | NEW_DATA_FLAG):
+	      case (RESTART_DISP | NEW_DATA_FLAG):
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
