@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:42:08  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.5  1992/08/24  18:16:50  thor
  * Added conditional around includes to avoid user dragging in obscure .h
  * files.
@@ -45,20 +48,28 @@
 #endif /* TP41LIB */
 
 /* Local extensions. */
+
+/* Dual porting. */
 extern STATUS dport(char *localAddr, void *vmeAddr, int numSegs);
 extern STATUS std_dport(char *localAddr, void *vmeAddr, int numSegs);
 extern STATUS myDualPort(char *localAddr, char *vmeAddr, int addrSpace,
 			 int mbox);
+
+/* mailboxes */
 extern STATUS createMailbox(void *localAddr, void *vmeAddr);
 extern STATUS createStdMailbox(void *localAddr, void *vmeAddr);
 extern STATUS connectMailbox(VOIDFUNCPTR function, int arg, int mailbox);
-extern void rcio(int, char *);
-extern void wcio(int, char *, unsigned char);
+
+/* CIO manipulation */
+extern int rcio(int, char *);
+extern STATUS wcio(int, char *, unsigned char);
+
+/* Diddle page bits. */
+extern STATUS setTp41VMEPage(int page);
+extern int getTp41VMEPage(void);
 
 #define VME_EXT 0
 #define VME_STD 1
-
-/* WRS functions not otherwise defined. */
 
 #endif /* INCtp41Libh */
 

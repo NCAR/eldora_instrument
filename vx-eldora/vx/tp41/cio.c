@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:42:08  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  1992/01/28  15:44:41  thor
  * Initial revision
  *
@@ -32,7 +35,7 @@ static const int A_OFF = 8;
 static const int B_OFF = 4;
 static const int C_OFF = 0;
 
-void rcio(FAST int select, FAST char *c)
+int rcio(FAST int select, FAST char *c)
 {
     FAST unsigned char *cio;
     FAST unsigned char t;
@@ -46,7 +49,7 @@ void rcio(FAST int select, FAST char *c)
     else if (select == 3)
       cio = CIO3;
     else
-      return;
+      return(-1);
 
     if (*c == 'A' || *c == 'a')
       cio += A_OFF;
@@ -57,12 +60,13 @@ void rcio(FAST int select, FAST char *c)
 
     t = *cio;
 
-    printf("0x%x = 0x%x.\n",cio,(int)t & 0xff);
+    return((int)t & 0xff);
 }
 
-void wcio(FAST int select, FAST char *c, FAST unsigned char n)
+STATUS wcio(FAST int select, FAST char *c, FAST unsigned char n)
 {
     FAST unsigned char *cio;
+    FAST unsigned char t;
 
     if (select == 0)
       cio = CIO0;
@@ -73,7 +77,7 @@ void wcio(FAST int select, FAST char *c, FAST unsigned char n)
     else if (select == 3)
       cio = CIO3;
     else
-      return;
+      return(ERROR);
 
     if (*c == 'A' || *c == 'a')
       cio += A_OFF;
@@ -82,7 +86,43 @@ void wcio(FAST int select, FAST char *c, FAST unsigned char n)
     else if (*c == 'C' || *c == 'c')
       cio += C_OFF;
 
+    t = *cio;
     *cio = n;
 
-    rcio(select,c);
+    return(OK);
+}
+
+STATUS setTp41VMEPage(FAST int page)
+{
+    FAST unsigned char r;
+    FAST unsigned char *cio = CIO0 + A_OFF;
+
+    if (page < 0 || page > 7)
+      return(ERROR);
+
+    page <<= 3;
+
+    page &= 0x3f;
+
+    r = *cio;
+
+    r |= (unsigned char)page;
+
+    *cio = r;
+
+    return(OK);
+}
+
+int getTp41VMEPage(void)
+{
+    FAST unsigned char r;
+    FAST unsigned char *cio = CIO0 + A_OFF;
+
+    r = *cio;
+
+    r >>= 3;
+
+    r &= 0x7;
+
+    return((int)r);
 }
