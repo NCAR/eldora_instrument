@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.15  1991/12/20  15:36:47  thor
+ * Changed to new HorizPoint form.
+ *
  * Revision 1.14  1991/12/18  20:33:36  thor
  * Fixed bad pointer incrementing in GetBeam.
  *
@@ -215,7 +218,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
     free(fptr);
 			      FAST unsigned char *colors,
 			      FAST int index)
-void ColorConverter::GetPoint(FAST unsigned short *data, FAST DataPoint &dp,
+void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
     FAST unsigned char bins = nbins;

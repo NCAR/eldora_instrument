@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/12/18  16:11:57  thor
+ * Added bounding code to prevent generation of negative counts.
+ *
  * Revision 1.7  1991/12/17  21:25:35  thor
  * Converted to unsigned shorts!
  *
@@ -96,7 +99,7 @@ class ColorConverter {
     void SetBeamSize(CELLSPACING &cs);
 
     // Horizontal case.
-    void GetPoint(unsigned short *data, DataPoint &dp, int index);
+    void GetPoint(unsigned short *data, HorizPoint &dp, int index);
 
     // Vertical case.
     void GetVertPoint(unsigned short *data, VertPoint &vp, int index);
