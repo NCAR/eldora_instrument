@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/17  16:50:00  thor
+ * Major revision - now actually loops correctly (even if only a test!).
+ *
+ * Revision 1.3  1991/10/16  20:07:30  thor
  * Fixed set references in makeDisplay.
  *
  * Revision 1.2  1991/10/14  20:33:44  thor
@@ -193,7 +197,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(B_SET,max[0],min[0],param);
-	  New->drawTitle(A_SET,whichRadar);
+	  New->drawTitle(B_SET,whichRadar);
 	  agc->setColorMap((long *)colors,256);
 
     param = ptr->param2;
@@ -201,7 +205,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(C_SET,max[0],min[0],param);
-	  New->drawTitle(A_SET,whichRadar);
+	  New->drawTitle(C_SET,whichRadar);
       {
       {
 	  param = ptr->param1;
