@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/01  16:20:03  thor
+ * Brought code up to latest ANSI draft spec.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -56,28 +59,30 @@ void Window::horText(Point start, FAST char *text, FAST unsigned char color)
     x -= xsize ? xsize * 7 : 4;
     y -= ysize ? ysize * 4 : 2;
 
-    FAST unsigned short yend = y + (ysize ? 14 * ysize : 7);
+    FAST int yend = (int)(y + (ysize ? 14 * ysize : 7));
 
     FAST unsigned char *vme = (unsigned char *)vmeLocation;
-
+    FAST unsigned short save = y;
     for (FAST int i = 0; *text; i++, text++)
       {
 	  FAST char *ptr = fontList + (*text << 4);
 
-	  for (FAST int j = y; j < yend; j++)
+	  for (; y < yend; y++)
 	    {
 		FAST int l = 128;
+		unsigned char *dot = vme + (y * 4096);
 		for (FAST int k = x + (i << 3) * (xsize ? xsize : 0.5); l; k++)
 		  {
 		      if (!(l & *ptr))
 			{
 			    if (backGroundColor != DONT_TOUCH)
-			      *(vme + k + (j * 4096)) = backGroundColor 
+			      *(dot + k) = backGroundColor 
 				& 0xff;
 			}
 		      else
-			*(vme + k + (j * 4096)) = color;
-		      
+			{
+			    *(dot + k) = color;
+			}
 		      if (!xsize)
 			l >>= 2;
 		      else if (k % xsize == xsize - 1)
@@ -86,9 +91,10 @@ void Window::horText(Point start, FAST char *text, FAST unsigned char color)
 
 		if (!ysize)
 		  ptr += 2;
-		else if (j % ysize == ysize - 1)
+		else if (y % ysize == ysize - 1)
 		  ptr++;
 	    }
+	  y = save;
       }
 }
 
@@ -112,7 +118,7 @@ void Window::vertText(Point start, FAST char *text, FAST unsigned char color)
     x -= xsize ? 4 * xsize : 2;
     y -= ysize ? 7 * ysize : 4;
 
-    FAST int yend = y + (ysize ? 14 * ysize : 7);
+    FAST int yend = (int)(y + (ysize ? 14 * ysize : 7));
     FAST unsigned char *vme = (unsigned char *)vmeLocation;
 
     for (FAST int i = 0; *text; i++, text++, yend += ysize ? 14 * ysize : 7)
@@ -122,7 +128,8 @@ void Window::vertText(Point start, FAST char *text, FAST unsigned char color)
 
 	  FAST char *ptr = fontList + (*text << 4);
 
-	  for (FAST int j = y + (i * (ysize ? 14 * ysize : 7)); j < yend; j++)
+	  for (FAST int j = (int)(y + (i * (ysize ? 14 * ysize : 7)));
+	       j < yend; j++)
 	    {
 		FAST int l = 128;
 
