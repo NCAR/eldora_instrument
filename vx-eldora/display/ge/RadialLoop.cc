@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Remove a bunch of test code. Added code to handle real data & data
+ * scaling.
+ *
  * Revision 1.10  1991/11/01  20:03:32  thor
  * Added support for updating time, reading from pipe and scaling max/min.
  *
@@ -51,13 +54,13 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 
 static Radial *makeDisplay(Radial *, GraphicController *);
-void RadialLoop(FAST Task &self, FAST GraphicController *agc)
+
 #include "ColorConverter.hh"
 static ColorConverter *conv = NULL;
 
-    Radial *display = NULL;
+static int whichRadar = FORWARD_RADIAL;
 
-    int args;
+    FAST int count = 9;
 
     FAST Radial *display = NULL;
 
@@ -94,6 +97,7 @@ static ColorConverter *conv = NULL;
 		else
 		  radar = AFT_RADIAL;
 
+		count = 9;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		DdpCtrl->Clear();
@@ -102,6 +106,7 @@ static ColorConverter *conv = NULL;
 		      pipe.Flush();
 		  }
 		break;
+		count = 9;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		if (radar == FORWARD_RADIAL)
@@ -110,6 +115,7 @@ static ColorConverter *conv = NULL;
 		  DdpCtrl->Aft();
 		display = makeDisplay(display,agc);
 		break;
+		count = 9;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		DdpCtrl->Fore();
@@ -125,10 +131,38 @@ static ColorConverter *conv = NULL;
 	      case (AFT_RADIAL | NEW_DATA_FLAG):
 		whichRadar = AFT_RADIAL;
 		radar = whichRadar;
-	  // Color convert it - only on uniprocessor!
-//	  conv->GetBeam(theData,radData);
-	  // Draw it.
-//	  display->drawBeam(radData);
+		display = makeDisplay(display,agc);
+		lastAngle = 360.0;
+		  pipe.Flush();
+		break;
+		printf("Got pipe data\n");
+
+		pipe.Flush();
+		printf("Pipe full\n");
+	    }
+
+		if (++count == 10)
+		  {
+		      display->UpdateClock(now->hour,now->minute,now->second);
+		      count = 0;
+		  }
+
+		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
+				sizeof(short) * 4);
+
+		bcopy((char *)now,(char *)LastTime,
+		      sizeof(Beam_Time));
+		  continue;
+		FAST short *data = (short *)(dataBeam + 1);
+
+		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
+		conv->GetBeam(data,radData);
+		  {
+		//	  display->drawBeam(radData);
+						      // next sweep.
+			display->UpdateClock(now->hour,now->minute,
+		  self.SetFlags(NEW_DATA_FLAG);
+		      if (lastAngle < radData.angle)
 
 	  printf("Looping\n");	// Strictly for testing!!!!!
 	  taskDelay(10);
@@ -182,6 +216,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     FAST RADARDESC *rd = Hdr->Radar(1);
 
     FAST int np = rd->num_parameter_des;
+		      max[0] = (max[0] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[0] = (min[0] - p->parameter_bias) / 
+			p->parameter_scale;
 
     FAST int param = ptr->param0;
 
@@ -202,6 +240,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[0] = p->parameter_bias;
 		      break;
 		  }
+		      max[1] = (max[1] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[1] = (min[1] - p->parameter_bias) / 
+			p->parameter_scale;
 
     param = ptr->param1;
 
@@ -222,6 +264,10 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[1] = p->parameter_bias;
 		      break;
 		  }
+		      max[2] = (max[2] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[2] = (min[2] - p->parameter_bias) / 
+			p->parameter_scale;
 
     param = ptr->param2;
 
