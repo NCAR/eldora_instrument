@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/09/09  22:52:19  eric
+ * *** empty log message ***
+ *
  * Revision 1.3  1994/09/06  16:14:10  thor
  * Many changes.
  *
@@ -40,6 +43,7 @@
 
 struct RadarCommand {
     u_long cmd;
+    double dist;
     int dc_points;
 #ifdef TASS
     TSACQ tass_info;
