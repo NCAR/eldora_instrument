@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/09/07  16:43:33  thor
+ * Updated to the new TLIRPC.
+ *
  * Revision 2.2  1994/03/22  16:00:14  thor
  * Changed LOG to LOGMSG, to avoid name conflicts.
  *
@@ -184,7 +187,7 @@ main(FAST int argc, FAST char **argv)
         _msgout("unable to create (Logger, LoggerVers) for netpath.");
         exit(1);
     }
-
+    svc_run();
     fprintf(stderr, "svc_run returned");
     exit(1);
 }
