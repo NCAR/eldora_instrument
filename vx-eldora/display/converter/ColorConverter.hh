@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:52:03  thor
+ * *** empty log message ***
+ *
  * Revision 1.14  1992/03/19  20:02:29  thor
  * Added additional parameter to SetBeamSize to allow for windows of a size
  * not matching the maximum beam length. Folded GetVertPoint into GetPoint &
@@ -79,12 +82,10 @@
 
 #define OK_RPC
 
-extern "C" {
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "memLib.h"
 #include "CellSpacing.h"
-};
 
 #include "DataPoint.h"
 
