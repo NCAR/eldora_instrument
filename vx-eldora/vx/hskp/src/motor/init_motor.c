@@ -10,9 +10,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/01  20:42:11  craig
- * Initial revision
- *
  * Revision 1.1  1992/08/14  21:34:28  reif
  * Initial revision
  *
@@ -63,6 +60,10 @@ pin_stat=(unsigned char *)STATUS_1100;
 rd2016=(unsigned char *)READ_2016;
 act_vel_lsb=(unsigned char *)ACTUAL_VELOCITY_LSB;
 act_vel_msb=(unsigned char *)ACTUAL_VELOCITY_MSB;
+
+/* Setup the parameters associated with the integrator */
+integrator_gain = INTEGRATOR_GAIN;
+delta_degpersec = DELTA_DEGPERSEC;
 
 *mot_ltch=0x06; /* Latch 1100 reset */
 taskDelay(1);

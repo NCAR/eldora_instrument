@@ -11,6 +11,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:56:22  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  20:47:20  craig
  * Initial revision
  *
@@ -49,7 +52,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "cntrlGbl.h"
 #include "cntrlFunc.h"
 
-void set_vel(float rpm)
+void set_vel(float cmrpm)
 {
 unsigned int vq,n,t;
 int i;
@@ -66,7 +69,7 @@ taskDelay(1);
 *mot_gain = 0.5 + (GAIN*((12.8*60)/(PERIOD*COUNTS))); /* FOR ROTODOME */
 taskDelay(1);
 
-cmnd.velocity = (COUNTS*rpm*PERIOD*0.01667)*16;
+cmnd.velocity = (COUNTS*cmrpm*PERIOD*0.01667)*16;
 
 *vel_msb=cmnd.vel[0];
 taskDelay(1);

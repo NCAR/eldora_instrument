@@ -71,6 +71,7 @@ extern HeaderPtr inHeader;
 #include "HskpStatus.h"
 #include "cntrlDef.h"
 #include "cntrlFunc.h"
+#include "cntrlGbl.h"
 #include "hskpDef.h"
 #include "hskpInt.h"
 #include "hskpGbl.h"
@@ -107,7 +108,6 @@ void hskp(short rotation_flag)
 
 /* Define some general purpose variables */
 long kill, i;
-float rpm;
 unsigned char B, nr;
 unsigned long T;
 double frequency, temp;
@@ -153,6 +153,9 @@ sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
 sysIntEnable(ARINC_IRQ);
 sysIntEnable(GPS_IRQ);
+sysIntEnable(ECB_CMPLT_IRQ);
+sysIntEnable(ECB_ERROR_IRQ);
+sysIntEnable(ECB_SPARE_IRQ);
 
 
 /********************************************************/
@@ -179,6 +182,7 @@ do{
     printf("Will wait now for the control processor to start me\n");
     do{
     taskDelay(60);
+    if(dc_remove_flag)dc_removal();
      }while(stop_flag);
     printf("Was started by the control processor\n");
 
@@ -210,7 +214,7 @@ do{
 
     /* Note that this programs the aft identical to the fore this code
        will have to change, if that no longer is desired */
-
+/*
     for(i=0; i<fraddes->num_freq_trans; i++)
       {
 	  ecbaddr = ECBIFFOR;
@@ -235,10 +239,10 @@ do{
 	  if(timeout >= 30000)
 	    printf("Failed to set aft IF filter IF #%d",unitnum);
       }
-
+*/
     /* Program the receiver/exciter chassis with the proper frequencies */
     /* Do the fore radar first */
-
+/*
     ecbaddr = ECBRFFOR;
     for(i=0; i<fraddes->num_freq_trans; i++)
       {
@@ -281,9 +285,9 @@ do{
 		   unitnum);
 
       }
-
+*/
     /* Now do the aft radar */
-
+/*
     ecbaddr = ECBRFAFT;
     for(i=0; i<araddes->num_freq_trans; i++)
       {
@@ -325,9 +329,9 @@ do{
 	    printf("Failed to set DDS frequency aft RX freq num: %d",
 		   unitnum);
       }
-
+*/
     /* Now start the automatic testpulse calibration scheme */
-     start_testpulse(); 
+  /*   start_testpulse(); */ 
 
     /* Start the interrupts from the ieee-488 board */
   /*  start_ieee(); */
@@ -379,13 +383,13 @@ do{
 	      gps_isr();
 	      onedone = 1;
 	  }
-
+/*
 	if((tp_dwell_count >= testpulse_max_count) && (onedone == 0))
 	  {
 	      update_testpulse();
 	      onedone = 1;
 	  }
-
+*/
        }while(!stop_flag && !reload_flag);
 
    }while(kill);
