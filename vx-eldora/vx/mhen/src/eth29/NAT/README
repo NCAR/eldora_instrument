@@ -43,8 +43,12 @@ many of the socket interfaces that we needed, such
 as P_Connect() and P_Send(). Note that the sample
 driver code from nif_drv.tgz, especially nifsock.c,
 is useful for adding scoket functions like P_Send, etc:
+N.B. - the second version of the NAT vxWorks code worked
+pretty much "as is", with minor modifications. It became the
+code base for the final code.
 
 eth29.tar - the NAT vxWorks limited functionality, but working, driver code.
+eth29_09-apr-03.tar - upgraded vxWorks code, with near complete wotking functionality
 
 3.) NAT provided some example code, which really illustrates
 socket programming, and a little bit about how to configure their 
