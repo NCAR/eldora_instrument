@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/10  20:40:43  eric
+ * *** empty log message ***
+ *
  * Revision 1.1  1991/12/04  19:06:43  eric
  * Initial revision
  *
@@ -28,5 +31,5 @@ timon()
    unsigned short *timon;
  
    timon = (unsigned short *)(TIMBASE + TIMON);
-   *timon = 0x0000;
+   *timon = 0x0001;  /* changed value to 0x01 to accomodate rev. B board */
 }
