@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  90/12/04  10:23:28  thor
  * Initial revision
  * 
@@ -68,15 +74,6 @@ static const int CROSSHAIR_XY_CHANGE = 0x6;
 static const int SEND_KBD_CMD = 0x7;
 static const int NO_KEY_EVENT = 0xffff0000;
 static const int KEY_BUF_SIZE = 16;
-
-/* ISR structure - needed to pass both semaphore and AGC board address. */
-struct mouseISRData {
-    SEM_ID sem;
-    unsigned char *clearMe;
-    int interruptReason;
-};
-
-typedef struct mouseISRData MouseISRData;
 
 #endif INCMousePh
 

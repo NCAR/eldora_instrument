@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/07/29  17:55:14  thor
+ * Upgraded to VxWorks 5.1 & removed BSDisms.
+ *
  * Revision 2.1  1993/07/01  16:20:03  thor
  * Brought code up to latest ANSI draft spec.
  *
@@ -44,16 +47,12 @@
 #define MOUSE_CLASS
 #include "Mouse.hh"
 
-extern "C" {
-#include "intLib.h"
-#include "stdioLib.h"
 #include "string.h"
 #include "tickLib.h"
-};
 
-static void mouseISR(MouseISRData *);
-
-Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
+Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits,
+	     int vector) : Isr((vector & 0xf0) + 8,1,
+			       (VOIDFUNCPTR)&Mouse::IsrFunction)
 {
     mouseBase = addr + MOUSE_OFFSET;
     cursorBase = addr + CURSOR_OFFSET;
@@ -72,28 +71,14 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
     
     curX = (unsigned short *)(addr + CURX_OFFSET);
     
-    isrData.clearMe = (unsigned char *)(addr + WHY_OFFSET);
+    clearIsr = (unsigned char *)(addr + WHY_OFFSET);
     
-// Download the cu1rsor pattern.
+// Download the cursor pattern.
     
     memcpy((char *)cursorImage,(char *)cursorBits,CURSOR_SIZE);
     
 // Now create the needed semaphores.
     accessSem = semBCreate(SEM_Q_FIFO,SEM_FULL);
-    
-    isrData.sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
-    
-// Now link ISR to vector.
-    vector &= 0xf0;		// First strip off AGC controlled bits.
-    vector += 8;		// Now add offset for MCU interrupt
-    
-    if (intConnect((VOIDFUNCPTR *)(vector*4),(VOIDFUNCPTR)mouseISR,
-		   (int)&isrData) == ERROR)
-      {
-	  fprintf(stderr,
-		  "Failed to connect to interrupt vector %d. Exiting.\n");
-	  exit(1);
-      }
     
 // Now initialize the MCU.
     FAST unsigned char *cinit = (unsigned char *)(mouseBase + MOUSE_INT_OFF);
@@ -166,7 +151,8 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
     taskDelay(10);
     
     
-    *isrData.clearMe = 0;	// Must be set to 0 for MCU to interrupt host.
+    *clearIsr = 0;		// Must be set to 0 for MCU to interrupt host.
+    lastTick = 0;
 }
 
 void Mouse::enableCursor(void)
@@ -303,9 +289,9 @@ Point Mouse::getXY(void)
 
 int Mouse::waitOnInterrupt(void)
 {
-    semTake(isrData.sem,WAIT_FOREVER);
+    IsrWait();
 
-    return(isrData.interruptReason);
+    return(interruptReason);
 }
 
 void Mouse::disableInterrupts(FAST int mask)
@@ -327,23 +313,20 @@ void Mouse::enableInterrupts(FAST int mask)
     semGive(sem);
 }
 
-static void mouseISR(FAST MouseISRData *isr)
+void Mouse::IsrFunction()
 {
-    FAST unsigned char *ptr = isr->clearMe;
+    FAST unsigned char *ptr = clearIsr;
 
 #ifdef NO_DEBOUNCE
-    isr->interruptReason = *ptr & 0xff;	// Get interrupt cause.
+    interruptReason = *ptr & 0xff;	// Get interrupt cause.
 
     *ptr = 0;			// Clear this to allow more MCU interrupts.
 
-    semGive(isr->sem);		// Signal user level code.
+    semGive(sem);		// Signal user level code.
 #else
-
-    static int lastTick = 0;	// Previous time.
-
     FAST int ctick = tickGet();	// Current time.
 
-    if (ctick - lastTick < 25)	// If not .25 sec, don't tell user.
+    if ((ctick - lastTick) < 25) // If not .25 sec, don't tell user.
       {
 	  *ptr = 0;
 	  return;
@@ -352,11 +335,11 @@ static void mouseISR(FAST MouseISRData *isr)
       {
 	  lastTick = ctick;
 	  
-	  isr->interruptReason = *ptr & 0xff;
+	  interruptReason = *ptr & 0xff;
 	  
 	  *ptr = 0;
 
-	  semGive(isr->sem);
+	  semGive(sem);
       }
 #endif
 }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/29  17:55:14  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -43,6 +46,8 @@
 
 #include "point.h"
 
+#include "Isr.hh"
+
 /* Private Mouse info. */
 #ifdef MOUSE_CLASS
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -76,7 +81,7 @@ struct keyEvent {
     unsigned char padding;	/* Padding to put us on a 2 byte border. */
 };
 
-class Mouse {
+class Mouse : private Isr {
   private:
     // Base addresses of functional parts.
     void *mouseBase;
@@ -88,19 +93,23 @@ class Mouse {
 
     unsigned char *interruptMCU; // Hit this to interrupt MCU;
     unsigned char *mcuCmd;	 // MCU command register.
-    unsigned char *buttonState;	    // Button state.
-    unsigned char *kbdHead;	    // Head of kbd queue.
-    unsigned char *kbdTail;	    // It's tail.
+    unsigned char *buttonState;	 // Button state.
+    unsigned char *kbdHead;	 // Head of kbd queue.
+    unsigned char *kbdTail;	 // It's tail.
 
     keyEvent *kbdQueue;
 
     unsigned short *curX;	// Current X postion.
 
-    SEM_ID accessSem;		// Controls access to methods.
-    
-    MouseISRData isrData;	// Needed to pass data to/from the ISR.
-    
+    unsigned char *clearIsr;	// What to hit to clear last interrupt.
 
+    int lastTick;		// When last button press noted.
+    int interruptReason;	// What caused interrupt.
+
+    SEM_ID accessSem;		// Controls access to methods.
+
+    void IsrFunction();
+    
   public:
     Mouse(void *addr, Point firstXY, long *cursorBits, int vector);
 
@@ -167,7 +176,7 @@ class Mouse {
     void enableInterrupts(int mask);
 
     ~Mouse(void) {
-	*isrData.clearMe = 0xff;
+	*clearIsr = 0xff;
     }
 };
     
