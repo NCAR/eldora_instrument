@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/06/29  17:31:19  thor
+ * Added global Ddp pointer. Increased pipe size.
+ *
  * Revision 1.11  1992/03/03  21:10:00  thor
  * Oops! Interrupt enable disable was a mistake.
  *
@@ -47,7 +50,7 @@
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -72,7 +75,7 @@ static void MouseCtrl(Task &self, Mouse &mouse);
 static void DdpLoop(Task &self, Pipe &pipe);
 
 void DrawingLoop(FAST Task &self)
-    Pipe AddrPipe(sizeof(long *),100);
+{
     self.FlagsInit();
 
     Pipe AddrPipe(sizeof(long *),500);
@@ -235,6 +238,8 @@ void DrawingLoop(FAST Task &self)
 		      currTask->SetFlags(flag);
 		      break;
 		      
+		    case TMO_CHANGE:
+		      if (currTask != &HorizTask)
 			break;
 		      currTask->SetFlags(flag);
 		      break;
