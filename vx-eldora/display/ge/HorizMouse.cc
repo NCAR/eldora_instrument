@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/28  19:37:39  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -28,7 +31,10 @@ void HorizMouse(FAST HorizDisplay *disp)
     FAST int buttonState = rodent->getButtonState();
 		
     if (buttonState == LBUTTON_DOWN)
-      disp->SwitchSets();
+      {
+	  disp->SwitchSets();
+	  return;
+      }
     else if (buttonState == MBUTTON_DOWN)
       {
 	  cursor = rodent->getXY();
@@ -41,10 +47,15 @@ void HorizMouse(FAST HorizDisplay *disp)
 	  cursor = rodent->getXY();
 		      
 	  if (cursor.x < 1024)
-	    disp->Center(cursor);
+	    disp->Pan(cursor);
       }
     else if (buttonState == RBUTTON_DOWN | MBUTTON_DOWN)
       disp->Home();
+
+    cursor.x = PLOT_WIDTH / 2;
+    cursor.y = PLOT_HEIGHT / 2;
+
+    rodent->setCursorXY(cursor);
 }
 
 
