@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  1991/10/14  19:19:29  thor
  * Eliminated unused methods & added new method for posting alarms.
  *
@@ -36,10 +39,6 @@ class GeAlarm {
     DispStatus status;
 
     CLIENT *client;
-
-    int socket;
-
-    int system;
 
   public:
     GeAlarm(char *server, int system);
