@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/10/29  23:02:03  eric
+ * Added motor control support for goto position.
+ *
  * Revision 1.3  1993/09/01  20:07:15  craig
  * *** empty log message ***
  *
@@ -40,6 +43,6 @@ float read_rpm(void);
 void init_motor(void);
 void go_motor(void);
 void stop_motor(void);
-void goto_pos(float,float,float,float,float);
+void goto_pos(float,float,float,float,int);
 
 #endif /* INC */
