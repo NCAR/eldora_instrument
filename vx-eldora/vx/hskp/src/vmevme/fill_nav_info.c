@@ -46,7 +46,7 @@ if(ascii)
   }
 
 /* Get the current time from the time of day board */
-get_time();
+get_time(&hour,&min,&sec,&msec,&jday,&mon,&day,&yr);
 
 current_nav_pntr->s_nav_info.julian_day = jday;
 current_nav_pntr->s_nav_info.hours = hour;
@@ -55,3 +55,4 @@ current_nav_pntr->s_nav_info.seconds = sec;
 
 return;
 }
+

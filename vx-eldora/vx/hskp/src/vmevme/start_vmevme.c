@@ -102,7 +102,7 @@ current_platform_offset = FIRST_RADAR_OFFSET +
 /* Get current milliseconds since midnite and place the value
    into all entries of msecs_ray */
 
-get_time();
+get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
 msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 
 radar_offset = FIRST_RADAR_OFFSET;
