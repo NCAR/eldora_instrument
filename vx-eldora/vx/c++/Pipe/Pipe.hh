@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/31  20:13:30  thor
+ * Added Full & Empty methods.
+ *
  * Revision 1.1  1991/10/31  18:59:58  thor
  * Initial revision
  *
@@ -22,10 +25,8 @@
 
 #include "Ring.hh"
 
-extern "C" {
 #include "semLib.h"
 #include "taskLib.h"
-};
 
 class Pipe : private Ring {
 
