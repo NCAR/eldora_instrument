@@ -43,6 +43,23 @@ int main(int argc, char** argv) {
 	return -1;
       }
 
+      unsigned int maxBufSize =33554432;
+
+      if (setsockopt(newFd, SOL_SOCKET, SO_RCVBUF, &maxBufSize, 
+		     sizeof(maxBufSize)) < 0) {
+	perror( "setsockopt - setting max. buf size" );
+	exit (1);
+
+      }
+      unsigned int actualBufSize =0;
+      socklen_t paramSize = sizeof(actualBufSize);
+
+      if (getsockopt(newFd, SOL_SOCKET, SO_RCVBUF, &actualBufSize, 
+		     &paramSize) < 0) {
+	perror( "getsockopt - getting max. buf size" );
+	exit (1);
+      }
+
       std::cout << "got a connection" << std::endl;
 
       int total = 0;
@@ -84,6 +101,23 @@ int main(int argc, char** argv) {
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     std::cout << "socket call returned " << fd << std::endl;
+
+    unsigned int maxBufSize = 33554432;
+
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &maxBufSize, 
+		   sizeof(maxBufSize)) < 0) {
+      perror( "setsockopt - setting max. buf size" );
+      exit (1);
+
+    }
+    unsigned int actualBufSize =0;
+    socklen_t paramSize = sizeof(actualBufSize);
+
+    if (getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &actualBufSize, 
+		   &paramSize) < 0) {
+      perror( "getsockopt - getting max. buf size" );
+      exit (1);
+    }
 
     sa.sin_family = AF_INET;
     sa.sin_port = htons(50000);
