@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/05/20  20:36:31  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  15:56:56  craig
  * Initial revision
  *
@@ -41,7 +44,7 @@ iru_isr_count++;
 received 300 ARINC words before detecting a latitude label) if error,
 give indication */
 
-if((iru_rpntr->num_interrupts % 2) == 0)   /* Even numbered Interrupt? */
+if((iru_rpntr->num_interrupts & 1) == 0)   /* Even numbered Interrupt? */
   {
       long_pntr = (long *)&iru_rpntr->buf1[0];
       num_words = iru_rpntr->words_buf1;
@@ -68,8 +71,7 @@ old_iru_interrupts = iru_rpntr->num_interrupts;
 where_data_goes = (ins_data *)(&current_nav_pntr->
                              s_ins_data.ins_data_id[0]);
 
-/* printf("In iru_isr calling convert iru, num words = %d source = %x sink = %x\n"
-       ,num_words,long_pntr,where_data_goes); */
+/*printf("In iru_isr calling convert iru, num words = %d source = %x sink = %x\n",num_words,long_pntr,where_data_goes);*/
 test = convert_iru(num_words,long_pntr,where_data_goes);
 
 /* If the INS data block is completely full, then go ahead and handle sending
@@ -77,67 +79,67 @@ test = convert_iru(num_words,long_pntr,where_data_goes);
 
 if(test)
   {
-      if(nav_flag & IRU_ON == 0)  /* Did we complete two buffers before
-                                          the GPS or MiniRIMS completed one? */
-	{
-	    /* Set the IRU bit in nav_flag */
+      if((nav_flag & IRU_ON) == 0)  /* Did we complete two buffers before
+                                     the GPS or MiniRIMS completed one? */
+          {
+              /* Set the IRU bit in nav_flag */
 
-	    nav_flag = nav_flag | IRU_ON;
+              nav_flag = nav_flag | IRU_ON;
 
-	    /* Check to see if all the bits are set (meaning a complete
-	       seconds worth of navigation data is ready to record) */
+              /* Check to see if all the bits are set (meaning a complete
+                 seconds worth of navigation data is ready to record) */
 
-	    if((nav_flag & nav_mask) == nav_mask)
-	      {
-		  currStatus->fore &= (char)(~IRU_SYNC);
-		  nav_current_size += sizeof(struct nav_data);
-		  nav_flag = 0;
+              if((nav_flag & nav_mask) == nav_mask)
+                  {
+                      currStatus->fore &= (char)(~IRU_SYNC);
+                      nav_current_size += sizeof(struct nav_data);
+                      nav_flag = 0;
 
-		  /* Check to see if current buffer is full */
+                      /* Check to see if current buffer is full */
 
-		  if(nav_current_size > MAX_NAV_SIZE)
-		    {
+                      if(nav_current_size > MAX_NAV_SIZE)
+                          {
 
-			/* Current buffer is full, send it to record */
+                              /* Current buffer is full, send it to record */
 
-			fore_vmehndshk->nav_hndshk[nav_current_index] = 1;
-			nav_current_size = sizeof(struct nav_data);
+                              fore_vmehndshk->nav_hndshk[nav_current_index] = 1;
+                              nav_current_size = sizeof(struct nav_data);
 
-			++nav_current_index;
-			if(nav_current_index > 1) /* Been filling area #1? */
-			  {
-			      /* Now fill area #0 */
-			      nav_current_index = 0;
-			      current_nav_pntr = (struct nav_data *)
-				(FIRST_NAV_OFFSET + STANDARD_BASE
-				 + FORE_STAND_START);
-			  }
-			else /* We just filled area #0 */
-			  current_nav_pntr = (struct nav_data *)
-			    (SEC_NAV_OFFSET + STANDARD_BASE
-			     + FORE_STAND_START);
+                              ++nav_current_index;
+                              if(nav_current_index > 1) /* Been filling area #1? */
+                                  {
+                                      /* Now fill area #0 */
+                                      nav_current_index = 0;
+                                      current_nav_pntr = (struct nav_data *)
+                                          (FIRST_NAV_OFFSET + STANDARD_BASE
+                                           + FORE_STAND_START);
+                                  }
+                              else /* We just filled area #0 */
+                                current_nav_pntr = (struct nav_data *)
+                                    (SEC_NAV_OFFSET + STANDARD_BASE
+                                     + FORE_STAND_START);
 
-			/* Check to see that the last buffer was recorded */
+                              /* Check to see that the last buffer was recorded */
 
-			if(fore_vmehndshk->nav_hndshk[nav_current_index] !=
-                          (short)0xAFFF) 
-			  currStatus->fore = currStatus->fore | (char)NAV_FULL;
-			else
-			  currStatus->fore = currStatus->fore &
-			    (char)(~NAV_FULL);
+                              if(fore_vmehndshk->nav_hndshk[nav_current_index] !=
+                                 (short)0xAFFF) 
+                                currStatus->fore = currStatus->fore | (char)NAV_FULL;
+                              else
+                                currStatus->fore = currStatus->fore &
+                                    (char)(~NAV_FULL);
 
-		    } /* If test on full navigation data buffer */
+                          } /* If test on full navigation data buffer */
 
-		  else  /* There is room in the present buffer for more
-			   nav data records */
-		    current_nav_pntr++;
-	      } /* If test on all bits set in nav_flag */
+                      else  /* There is room in the present buffer for more
+                               nav data records */
+                        current_nav_pntr++;
+                  } /* If test on all bits set in nav_flag */
 
-	} /* Check to see if the IRU bit was already set */
+          } /* Check to see if the IRU bit was already set */
 
-	    else /* We got two seconds worth of IRU data before getting
-		    one seconds worth of either GPS or MiniRIMS data */
-	      currStatus->fore = currStatus->fore | IRU_SYNC;
+      else /* We got two seconds worth of IRU data before getting
+              one seconds worth of either GPS or MiniRIMS data */
+        currStatus->fore = currStatus->fore | IRU_SYNC;
 
   } /* If test on variable test to see if IRU buffer is complete */
 return;
