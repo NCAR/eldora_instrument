@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1991/12/03  18:03:14  thor
+ * Changed hash circles to draw at 5 or 10 km depending on max distance.
+ *
  * Revision 1.10  1991/12/03  17:33:30  thor
  * Changed table drawing to use integer steps & less text.
  *
@@ -70,9 +73,10 @@ Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
     videoMemory[2] = videoMemory[0] + (PLOT_HEIGHT * 4096);
 
     // Set up the offsets to each center point.
-    videoBase[0] = videoMemory[0] + rad + (rad * 4096);
-    videoBase[1] = videoMemory[1] + rad + (rad * 4096);
-    videoBase[2] = videoMemory[2] + rad + (rad * 4096);
+    FAST int center = (PLOT_WIDTH / 2) - 1;
+    videoBase[0] = videoMemory[0] + center + (center * 4096);
+    videoBase[1] = videoMemory[1] + center + (center * 4096);
+    videoBase[2] = videoMemory[2] + center + (center * 4096);
 
     numOfParams = nparams;
     curZoom = ZOOM1;		// Start on 1x.
@@ -427,8 +431,10 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 
     FAST int rad = radius;
 
-    a.x = rad;
-    a.y = rad;
+    FAST int center = (PLOT_WIDTH / 2) - 1;
+
+    a.x = center;
+    a.y = center;
 
     // Draw hash circles.
     
@@ -463,17 +469,17 @@ void Radial::drawTitle(FAST int set, FAST int radar)
     Point b;
 
     // Draw cross hairs.
-    a.x = 0;
-    a.y = rad;
-    b.x = 2 * rad;
-    b.y = rad;
+    a.x = center - rad;;
+
+    b.x =  center + rad;
+    b.y = center;
 
     line(wdw,a,b,WHITE);
 
-    a.x = rad;
-    a.y = 0;
-    b.x = rad;
-    b.y = 2 * rad;
+    a.x = center;
+    a.y = center - rad;
+    b.x = center;
+    b.y = center + rad;
 
     line(wdw,a,b,WHITE);
 
