@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/01/02  20:41:16  thor
+ * Added method & C function to change TAPEHEADER of object.
+ *
+ * Revision 1.6  1992/01/02  20:28:02  thor
  * Added method for = operator & corresponding C function.
  *
  * Revision 1.5  1991/10/22  17:06:42  thor
@@ -344,6 +348,17 @@ int Header::Send(FAST char *target)
     return(0);
 }
 
+int Header::Send(FAST CLIENT *client)
+{
+    if (client == NULL)
+    bcopy((char *)in.th,(char *)ptr->th,sizeof(TAPEHEADER));
+
+// The following is kludge due to a bug in Sun's RPC that causes a bus
+// error at each call to sendheader_1. This allows a forked process to
+// exit without dumping core when the signal is caught.
+    FAST int f;
+
+
     return(0);
 }
 
@@ -467,6 +482,14 @@ NAVDESC *GetNavDesc(FAST HeaderPtr ptr)
     FAST Header *h = (Header *)ptr;
 
     return(h->NavDesc());
+}
+
+void SetInsitu(FAST HeaderPtr ptr, FAST INSITUDESC *id)
+{
+    FAST Header *h = (Header *)ptr;
+    FAST INSITUDESC &ref = *id;
+
+    h->Insitu(ref);
 }
 
 void GetRpcHeader(HeaderPtr ptr, TAPEHEADER *th)
