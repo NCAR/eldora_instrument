@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Removed taskDelay from testing days.
+ *
+ * Revision 1.14  1991/11/14  18:25:52  thor
+ * Fixed time code. Corrected parameter to get corrected angle. Fixed
  * converter creator to use correct number of COLOR bins.
  *
  * Revision 1.13  1991/11/12  20:16:01  thor
@@ -158,7 +162,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
 
 		radData.angle = dataBeam->air.rotation_angle - 
-		  dataBeam->air.tilt;;
+		  dataBeam->air.roll;
 		  }
 		radData.direction = (int)dataBeam->ray.true_scan_rate;
 		  continue;
@@ -166,16 +170,25 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 		FAST int direct = radData.direction;
 		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
-		if (lastAngle > radData.angle && direct > 0) //Crossed
-							     //to next sweep.
-		  display->UpdateClock(now->hour,now->minute,now->second);
-		else if (lastAngle < radData.angle)
-		  display->UpdateClock(now->hour,now->minute,now->second);
+				sizeof(short) * 4);
+
+		bcopy((char *)now,(char *)LastTime,
+		      sizeof(Beam_Time));
+
+		float ra = dataBeam->air.rotation_angle;
+		float roll = dataBeam->air.roll;
+
+		ra -= roll;
+
+		radData.angle = ra;
+
+		FAST int direct = fastround(dataBeam->ray.true_scan_rate);
 
 		radData.direction = direct;
 
 		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
 		conv->GetBeam(data,radData);
+		if (direct >= 0)
 		  {
 			  display->drawBeam(radData);
 						      // next sweep.
@@ -299,7 +312,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (nv > 2 && param != NO_PARAM)
       {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
-    conv = new ColorConverter(DISPLAYED_GATES,max,min,offsets,np,nv);
+    conv = new ColorConverter(31,max,min,offsets,np,nv);
 	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
