@@ -6,9 +6,9 @@ CFLAGS= -I/vx/h -I${INCLUDE} -c
 
 GETOBJS  = ecbGetTsami.o ecbGetTsamr.o
 INTOBJS  = ecbCmpltIsr.o ecbIntInit.o
-SETOBJS  = ecbSetIF.o ecbSetDDS.o ecbSetAtten.o
-SHOWOBJS = ecbShowLast.o ecbShowMstat.o ecbShowTempi.o ecbShowTempr.o
-UTILOBJS = ecbGiveSem.o fifotst1.o
+SETOBJS  = ecbSetIF.o ecbSetDDS.o ecbSetDDSfloat.o ecbSetAtten.o
+SHOWOBJS = ecbShowBim.o ecbShowLast.o ecbShowMstat.o ecbShowTempi.o ecbShowTempr.o
+UTILOBJS = ecbClrFifos.o ecbGiveSem.o fifotst1.o
 
 default: ecbGets.o ecbInts.o ecbSets.o ecbShows.o ecbUtils.o
 
@@ -34,19 +34,19 @@ ecbUtils.o: ${UTILOBJS}
 
 # modules in ecbGets.o:
 
-ecbGetTsami.o: ecbGetTsami.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
+ecbGetTsami.o: ecbGetTsami.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/ecbStat.h
 	g68 ${CFLAGS} ecbGetTsami.c 
 
-ecbGetTsamr.o: ecbGetTsamr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
+ecbGetTsamr.o: ecbGetTsamr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/ecbStat.h
 	g68 ${CFLAGS} ecbGetTsamr.c 
 
 
 #modules in ecbInts.o:
 
-ecbCmpltIsr.o: ecbCmpltIsr.c ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbStat.h ${INCLUDE}/hskpInt.h
+ecbCmpltIsr.o: ecbCmpltIsr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/hskpInt.h
 	g68 ${CFLAGS} ecbCmpltIsr.c 
 
-ecbIntInit.o: ecbIntInit.c ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbStat.h ${INCLUDE}/hskpInt.h
+ecbIntInit.o: ecbIntInit.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbSem.h ${INCLUDE}/hskpInt.h
 	g68 ${CFLAGS} ecbIntInit.c 
 
 
@@ -54,6 +54,9 @@ ecbIntInit.o: ecbIntInit.c ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}
 
 ecbSetDDS.o: ecbSetDDS.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
 	g68 ${CFLAGS} ecbSetDDS.c 
+
+ecbSetDDSfloat.o: ecbSetDDSfloat.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
+	g68 ${CFLAGS} ecbSetDDSfloat.c 
 
 ecbSetIF.o: ecbSetIF.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
 	g68 ${CFLAGS} ecbSetIF.c 
@@ -64,20 +67,26 @@ ecbSetAtten.o: ecbSetAtten.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLU
 
 # modules in ecbShows.o:
 
+ecbShowBim.o: ecbShowBim.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/hskpInt.h
+	g68 ${CFLAGS} ecbShowBim.c 
+
 ecbShowLast.o: ecbShowLast.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
 	g68 ${CFLAGS} ecbShowLast.c 
 
-ecbShowMstat.o: ecbShowMstat.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbAdr.h
+ecbShowMstat.o: ecbShowMstat.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h
 	g68 ${CFLAGS} ecbShowMstat.c 
 
-ecbShowTempi.o: ecbShowTempi.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbAdr.h
+ecbShowTempi.o: ecbShowTempi.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
 	g68 ${CFLAGS} ecbShowTempi.c 
 
-ecbShowTempr.o: ecbShowTempr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbAdr.h
+ecbShowTempr.o: ecbShowTempr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
 	g68 ${CFLAGS} ecbShowTempr.c 
 
 
 # modules in ecbUtils.o:
+
+ecbClrFifos.o: ecbClrFifos.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h
+	g68 ${CFLAGS} ecbClrFifos.c 
 
 ecbGiveSem.o: ecbGiveSem.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbSem.h
 	g68 ${CFLAGS} ecbGiveSem.c 
