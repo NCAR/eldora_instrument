@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/10/22  18:03:35  thor
+ * Added color table handling.
+ *
  * Revision 1.5  1991/10/22  17:19:47  thor
  * Finally updates correctly.
  *
@@ -39,8 +42,6 @@ static Radial *makeDisplay(Radial *, GraphicController *);
 void RadialLoop(FAST Task &self, FAST GraphicController *agc)
 #include "ColorConverter.hh"
 static ColorConverter *conv = NULL;
-
-//    FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
 
     Radial *display = NULL;
 
@@ -109,6 +110,9 @@ static ColorConverter *conv = NULL;
 		lastAngle = radData.angle;
 
 		// Color convert it - only on uniprocessor!
+		conv->GetBeam(data,&radData.colors[0]);
+
+		// Draw it.
 		display->drawBeam(radData);
 
 		if (pipe.Empty() == FALSE)
@@ -198,12 +202,32 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
 	  for (FAST int i = 0; i < np; i++)
     conv->SetBeamSize(*cs);
-			      
-    if (old != NULL)
-      delete(old);
+		PARAMETER *p = Hdr->Parameter(i);
+
+		if (!strncmp(ptr,p->parameter_name,len))
+		  {
+		      offsets[2] = i;
+		      scales[2] = p->parameter_scale;
+		      biases[2] = p->parameter_bias;
+		      break;
+		  }
+	    }
+      }
+
+    // Again uniprocessor only!
+    conv = new ColorConverter(31,max,min,scales,biases,offsets,np,nv);
+
+    CELLSPACING *cs = Hdr->CellSpacing();
+
+    conv->SetBeamSize(*cs,ptr->radius);
+
 
     FAST Radial *New = new Radial(agc,DISPLAYED_GATES,ptr->numParams,0,0);
       {
+          FAST int c = *ncells++;
+
+          FAST int width = *widths++;
+
     param = ptr->param0;
 
     if (param != NO_PARAM)
@@ -217,7 +241,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(B_SET,max[0],min[0],param);
-	  New->drawTitle(A_SET,whichRadar);
+    if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
     param = ptr->param2;
@@ -225,8 +249,14 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(C_SET,max[0],min[0],param);
-	  New->drawTitle(A_SET,whichRadar);
+    if (nv)
       {
+	  param = ptr->param0;
+	  New->drawTable(A_SET,max[0],min[0],param);
+	  New->drawTitle(A_SET,whichRadar);
+      }
+
+    if (nv > 1)
       {
 	  param = ptr->param1;
 	  New->drawTable(B_SET,max[1],min[1],param);
