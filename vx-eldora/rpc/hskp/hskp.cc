@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/07  15:36:05  thor
+// Added missing clnt_destroy().
+//
 // Revision 1.3  1994/09/06  19:36:21  thor
 // Changed name to sendhskpcommand_1.
 //
@@ -37,7 +40,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 class messanger {
   public:
-    messanger() {}
+    messanger() { client = NULL; }
 
     void getCmd();
 
@@ -144,7 +147,8 @@ int messanger::connect()
 
 int messanger::reconnect()
 {
-    clnt_destroy(client);
+    if (client != NULL)
+      clnt_destroy(client);
     
     if ((client = clnt_create(target,HskpControl,HskpCtrlVers,"udp")) == NULL)
       return(-1);
