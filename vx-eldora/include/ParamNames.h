@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/09/17  16:32:29  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -32,9 +35,9 @@ static const int IMAG_R2      = 0x100;
 #define INLINE
 #endif 
 
-static INLINE int NumToParam(int n)
+static INLINE int ParamToNum(register int p)
 {
-    switch(n) {
+    switch(p) {
       case REFLECT: return(0);
       case VELOCITY: return(1);
       case SNR: return(2);
@@ -48,9 +51,9 @@ static INLINE int NumToParam(int n)
     }
 }
 
-static INLINE int ParamToNum(int p)
+static INLINE int NumToParam(register int n)
 {
-    switch(p) {
+    switch(n) {
       case 0: return(REFLECT);
       case 1: return(VELOCITY);
       case 2: return(SNR);
