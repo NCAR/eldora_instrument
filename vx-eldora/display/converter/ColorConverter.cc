@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/10/18  19:25:21  thor
+ * Switched to malloc/free due to weird interaction with VxWorks by delete.
+ *
  * Revision 1.5  1991/10/14  19:16:33  thor
  * Fixed to use CELLSPACING structure from header.
  *
@@ -83,7 +86,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	  maxDist += (float)c * width;
 
 	  ngates += c;
-    FAST float *fptr = new float(ngates); // Allocate space for
+    FAST float *fptr = (float *)malloc(sizeof(float) * ngates);; // Allocate space for
 					  // temporary array to hold
 					  // actual distances.
       (float *)malloc(sizeof(float) * ngates);; // Allocate space for
@@ -137,7 +140,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	  if (*ptr < 0)		// Ran off end of beam.
 	    {
 
-    delete(fptr);
+    free(fptr);
 			      FAST unsigned char *colors,
 			      FAST int index)
 void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
