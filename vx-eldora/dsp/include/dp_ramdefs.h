@@ -10,7 +10,7 @@
 *		Date:	2/19/92
 *		
 *
-*	Collator board definitions of dual-port RAM locations
+*	Doppler Processor  board definitions of RAM locations
 *
 */
 #include "dspaddr.h"	/* for DSP_NR_PARAMS */
