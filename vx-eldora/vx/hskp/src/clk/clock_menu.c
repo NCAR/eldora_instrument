@@ -9,10 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  2003/09/23  22:58:15  kapoor
- * changed include to "hskpAll.h"
- *
- * Revision 1.1  2003/09/23  16:40:23  kapoor
+ * Revision 1.1  2003/09/24  20:48:44  kapoor
  * Initial revision
  *
  * Revision 2.0  2001/06/12 19:32:41  thor
@@ -89,9 +86,9 @@ void clock_menu(void)
 		{
 		    get_time();
 		    printf("The time (HH:MM:SS:MMM) is: %2d:%2d:%2d:%3d",
-			   hour, minute,second,millisecond);
+			   hr,min,sec,msec);
 		    printf(" on (YY/MM/DD): %2d/%2d/%2d  DOY = %3d\n",
-			   year,month,day,julian_day);
+			   yr,mon,day,jday);
 		    taskDelay(60);
 		}
 	      break;
