@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.6  1994/04/08  20:31:30  thor
+// Many changes!
+//
  * Revision 1.5  1993/10/21  16:38:57  thor
  * Temp save of latest work.
  *
@@ -190,9 +193,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
 
     converter->GetBeam((unsigned short *)(beam + 1),cvalues);
     
-    FAST unsigned char *colors1 = cvalues;
-    FAST unsigned char *colors2 = cvalues + 1024;
-    
     float ppm = pixelsPerMeter;
 
     alt = max - alt;
@@ -201,6 +201,9 @@ void Dual::drawBeam(FAST DataBeam *beam)
 
     FAST int fg = firstGate;
 
+    FAST unsigned char *colors1 = cvalues + fg;
+    FAST unsigned char *colors2 = cvalues + 1024;
+    
     FAST int c1 = (cos1 * fg);
     FAST int c2 = (cos2 * fg);
     FAST int s1 = (sin1 * fg);
