@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1994/04/08  20:34:56  thor
+// Initial revision
+//
  *
  *
  * description:
@@ -57,10 +60,11 @@ class Vert : public Display {
 
     // Local data members.
     double beamWidth;
-    double distance;
-    double altitude;
-    double maxDistance;
-    double degrees;
+    double distance;            // From aircraft to area of interest.
+    double altitude;            // Max alt.
+    double maxDistance;         // Furtherest gate.
+    double degrees;             
+    double bottom;              // Min Alt.
     double pixelsPerMeter;	// Scale for drawing.
     double oldLat;
     double oldLong;
