@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/09/20  17:35:51  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  16:48:23  craig
  * Initial revision
  *
@@ -25,6 +28,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void init_ptrs()
 {
+  /* initialize dma data arrays in Dual Ported Matrix CPU Memory */
+
+  testp_array = (unsigned char *)0x67FF00;
+  xmit_array = (unsigned char *)0x67FF80;
 
 /***************  GPIB REGISTER POINTERS  *********************************/
 
@@ -42,6 +49,7 @@ g2dido = (unsigned char *)(GPIBCHAN2 + DATA_IN_OUT_REG);
 /***************  INIT DMA REGISTER POINTERS **********************/
 
 d0csr = (unsigned char *)(DMACHAN0 + CHAN_STAT_REG);
+d0cer = (unsigned char *)(DMACHAN0 + CHAN_ERR_REG);
 d0dcr = (unsigned char *)(DMACHAN0 + DEV_CNTRL_REG);
 d0ocr = (unsigned char *)(DMACHAN0 + OP_CNTRL_REG);
 d0scr = (unsigned char *)(DMACHAN0 + SEQ_CNTRL_REG);
@@ -59,6 +67,7 @@ d0mfc = (unsigned char *)(DMACHAN0 + MEM_FUNC_CODE);
 d0bfc = (unsigned char *)(DMACHAN0 + BASE_FUNC_CODE);
 gcr = (unsigned char *)(DMACHAN0 + GEN_CNTRL_REG);
 d1csr = (unsigned char *)(DMACHAN1 + CHAN_STAT_REG);
+d1cer = (unsigned char *)(DMACHAN1 + CHAN_ERR_REG);
 d1dcr = (unsigned char *)(DMACHAN1 + DEV_CNTRL_REG);
 d1ocr = (unsigned char *)(DMACHAN1 + OP_CNTRL_REG);
 d1scr = (unsigned char *)(DMACHAN1 + SEQ_CNTRL_REG);
