@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/30  20:12:58  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  21:42:46  reif
  * Initial revision
  *
@@ -98,10 +101,11 @@ extern HeaderPtr inHeader;
 
 /**************************************************************/
 
-void tod_menu()
+void todMenu()
 {
 char hour, minute, second, aday, month, year, test;
-short  millisec, julday;
+int ihour, iminute, isecond, iaday, imonth, iyear, itest;
+short  millisec, julday, dummy;
 unsigned char choice;
 
 /* Initialize all of the global pointers */
@@ -114,8 +118,8 @@ do {
     puts("R)ead data from TOD board");
     puts("S)ynch TOD to IRIGB");
     puts("M)anually set clock");
-    puts("B)egin the clock ticking");
     puts("G)et time");
+    puts("V)iew time continuously");
     puts("Q)uit");
     choice = getchar();
     getchar();
@@ -127,25 +131,40 @@ do {
 	read_data();
 	break;
       case 's':
-	if(test = sync_irig())
+	if((test = sync_irig()) == 0)
 	  printf("IRIG-B syncing was unsuccessful\n");
 	break;
       case 'm':
 	printf("\nEnter the hour in 24 hour format: ");
-	scanf("%d",&hour);
+	scanf(" %d",&ihour);
 	printf("\nEnter the minutes: ");
-	scanf("%d",&minute);
+	scanf(" %d",&iminute);
+
 	printf("\nEnter the seconds: ");
-	scanf("%d",&second);
+	scanf(" %d",&isecond);
+
 	printf("\nEnter the day of month: ");
-	scanf("%d",&aday);
+	scanf(" %d",&iaday);
+
 	printf("\nEnter the month: ");
-	scanf("%d",&month);
+	scanf(" %d",&imonth);
+
 	printf("\nEnter the year: ");
-	scanf("%d",&year);
-	settime(hour,minute,second,month,aday,year);
-	printf("\nDepress any key to start the clock\n");
+	scanf(" %d",&iyear);
+
+	hour = (char)ihour;
+	minute = (char)iminute;
+	second = (char)isecond;
+	aday = (char)iaday;
+	month = (char)imonth;
+	year = (char)iyear;
+
+	printf("\nEnter any number then depress enter to start the clock\n");
+	printf("At the time of %2d:%2d:%2d  and date %2d/%2d/%2d\n",
+	        ihour,iminute,isecond,imonth,iaday,iyear);
+	scanf("%d",&dummy);
 	getchar();
+	set_time(hour,minute,second,month,aday,year);
 	start_clock();
 	break;
       case 'g':
@@ -155,6 +174,10 @@ do {
 	printf("THE DATE IS %02d/%02d/%02d\n",month,aday,year);
 	printf("JULIAN DAY IS %d\n",julday);
 	break;
+      case 'v':
+	for(;;)
+	  view_time();
+	      
       case 'q':
 	break;
       default:
@@ -163,4 +186,5 @@ do {
 	break;
     }
 }while(choice != 'q');
+return;
 }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/30  20:12:53  craig
+ * Initial revision
+ *
  * Revision 1.2  1992/08/25  20:45:23  craig
  * *** empty log message ***
  *
@@ -97,11 +100,12 @@ void get_time(char *hour,char *minute,char *second,short *millisec,short *jday,
               char *month,char *day0,char *year)
 {
 short i;
-char hund, vday, vmon;
+char hund, vday, vmon,dummy;
 
 /* Read the time from the tod board */
 
 hund = *hsec; /* Latch clock by first accessing hseconds register */
+
 *millisec = *msec / MS_DIVISOR;
 *hour = *hr;
 *minute = *min;
@@ -111,8 +115,7 @@ vmon = *mon;
 vday = *day;
 *day0 = vday;
 *year = *yr;
-
 /* Calculate julian day here */
 *jday = jday_calc[vmon-1] + vday - 1;
-
+dummy=*int_msk; /* Resets the 1 sec int flag */
 }

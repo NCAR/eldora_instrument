@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/30  20:12:57  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  21:42:52  reif
  * Initial revision
  *
@@ -105,9 +108,9 @@ short timeout;
 timeout = 0;
 do{
     timeout++;
-    taskdelay(2);
-    }while(((*strg & LDDAY2) != LDDAY2) && (timeout < 300));
-if(timeout >= 300) return((char)0);
+    taskDelay(2);
+    }while(((*strg & LDDAY2) != LDDAY2) && (timeout < 90));
+if(timeout >= 90) return((char)0);
 taskDelay(2);
 
 /************** LOAD CLOCK REGISTERS WITH IRIG DATA ****************/
@@ -129,13 +132,13 @@ timeout = 0;
 do{
       timeout++;
       taskDelay(2);
-  }while(((*strg & TMRKFND) != TMRKFND) && (timeout < 300));
+  }while(((*strg & TMRKFND) != TMRKFND) && (timeout < 90));
 
 
 /********* START CLOCK (Whether we were successful or not *******************/
 
 *tod_cmnd=0x1c; /* Normal Mode, Ints enabled, 12 hr mode, 32.768kHz crystal */
-if(timeout >= 300) return((char)0);
+if(timeout >= 90) return((char)0);
 
 return((char)1);
 }

@@ -1,4 +1,4 @@
-/*
+ /*
  *	$Id$
  *
  *	Module:	settime.c	 
@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/30  20:12:55  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  21:42:54  reif
  * Initial revision
  *
@@ -93,8 +96,6 @@ extern HeaderPtr inHeader;
 
 void set_time(char hour,char minute,char second,char month,char day0,char year)
 {
-char hsecond,stat;
-
 /***** Stop clock. Leave in 24 hr mode **********/
 
 *tod_cmnd=0x04; 
@@ -103,12 +104,13 @@ char hsecond,stat;
 
 *msec = 0x0000; /* Init milliseconds to zero */
 
-*sec = ((char)0x0F&second)+((second>>4)*16);
-*min = ((char)0x0F&minute)+((minute>>4)*16);
-*hr = ((char)0x0F&hour)+((hour>>4)*16);
-*mon = ((char)0x0F&month)+((month>>4)*16);
-*day = ((char)0x0F&day0)+((day0>>4)*16);
-*yr = ((char)0x0F&year)+((year>>4)*16);
+*hsec = 0x00;
+*sec = second;
+*min = minute;
+*hr = hour;
+*mon = month;
+*day = day0;
+*yr = year;
 
 return;
 }
