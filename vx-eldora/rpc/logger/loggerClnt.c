@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/03/22  16:00:14  thor
+ * Changed LOG to LOGMSG, to avoid name conflicts.
+ *
  * Revision 2.2  1993/09/30  17:54:54  thor
  * Changed sizeof(char) to sizeof(int).
  *
@@ -85,7 +88,8 @@ void logmessage_1(FAST struct LOGMSG *argp)
 
 	  memset(&res,0,sizeof(res));
         
-	  if (clnt_call(clnt,LogMessage,xdr_LOGMSG,argp,xdr_void,&res,tmo) != 
+	  if (clnt_call(clnt,LogMessage,(xdrproc_t)xdr_LOGMSG,(caddr_t)argp,
+                        (xdrproc_t)xdr_void,(caddr_t)&res,tmo) != 
 	      RPC_SUCCESS)
 	    {
 		LoggerError = ERROR;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/10  16:42:56  thor
+ * New improved version!
+ *
  * Revision 2.0  1992/11/02  20:48:31  thor
  * First offical ELDORA release!
  *
@@ -31,27 +34,22 @@
 
 #ifdef OK_RPC
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* cplusplus */
-
 #ifndef UNIX
 #include "vxWorks.h"
-#include "rpc/rpc.h"
 #else
-#include <rpc/rpc.h>
 #include <rpc/types.h>
 
 #endif /* UNIX */
 
-#ifdef __cplusplus
-};
-#endif /* cplusplus */
+#include <rpc/rpc.h>
 
 #ifndef FAST
 #define FAST register
 #endif /* FAST */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* cplusplus */
 #endif /* OK_RPC */
 
 enum LOGSOURCE {
@@ -63,10 +61,10 @@ enum LOGSOURCE {
 	HSKP_LOG = 5,
 };
 
-struct LOG {
+struct LOGMSG {
 	enum LOGSOURCE src;
 	char message[81];
-	int items[4];
+	int items[10];
 };
 
 #ifdef OK_RPC
@@ -74,15 +72,16 @@ struct LOG {
 typedef enum LOGSOURCE LOGSOURCE;
 bool_t xdr_LOGSOURCE(XDR *xdrs, LOGSOURCE *objp);
 
-typedef struct LOG LOG;
-bool_t xdr_LOG(XDR *xdrs, LOG *objp);
+typedef struct LOGMSG LOGMSG;
+bool_t xdr_LOGMSG(XDR *xdrs, LOGMSG *objp);
 
 #define Logger ((u_long)0x30002000)
 #define LoggerVers ((u_long)1)
 #define LogMessage ((u_long)1)
 
 #ifdef CLIENT_SIDE
-extern void logmessage_1(LOG *argp);
+
+extern void logmessage_1(LOGMSG *argp);
 extern void loggerEvent(char *message, int *ip, int num);
 extern int loggerInit(int src);
 
@@ -94,8 +93,12 @@ extern int loggerInit(int src);
 
 LOGGER_SCOPE STATUS LoggerError;
 
+#ifdef __cplusplus
+};
+#endif /* cplusplus */
+
 #else
-extern void *logmessage_1(LOG *argp, struct svc_req *);
+extern void *logmessage_1_svc(LOGMSG *argp, struct svc_req *);
 extern void logger_1(struct svc_req *rqstp, SVCXPRT *transp);
 
 #endif /* CLIENT_SIDE */
@@ -104,7 +107,7 @@ extern void logger_1(struct svc_req *rqstp, SVCXPRT *transp);
 
 program Logger {
     version LoggerVers {
-	void LogMessage(struct LOG) = 1;
+	void LogMessage(struct LOGMSG) = 1;
     } = 1;
 } = 0x30002000;
 
