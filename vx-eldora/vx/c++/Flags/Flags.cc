@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/03/28  08:46:50  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -19,33 +22,47 @@
  */
 static char rcsid[] = "$Id$";
 
-#include "Flags.h"
+#include "Flags.hh"
 
 // Wait loops on the local semaphore, checking the flags to see if the
 // last change met the required criteria.
 unsigned int Flags::wait(FAST unsigned int mask, FAST int type)
 {
+    FAST unsigned int flgs = flags;
+    FAST unsigned int result = mask & flgs;
+
+    if (type == FLAGS_OR || result)
+      {
+	  flags ^= mask;
+	  return(result);
+      }
+    else if (mask == result)
+      {
+	  flags ^= mask;
+	  return(result);
+      }
+	 
     FAST SEM_ID semaphore = flag_sem;
 
     for (;;)
       {
 	  semTake(semaphore);	// Wait for change to flags.
 
-	  FAST unsigned int flgs = flags;
-	  FAST unsigned int result = mask & flgs;
+	  flgs = flags;
+	  result = mask & flgs;
 
 	  if (type == FLAGS_OR)
 	    {
 		if (result)	// Will be true is ANY flag was set.
 		  {
-		      flags = 0; // Restore to useful mode for next call.
+		      flags ^= mask; // Restore to useful mode for next call.
 		      return(result);
 		  }
 		continue;
 	    }
 	  else if (result == mask) // All flags must be set.
 	    {
-		flags = 0;
+		flags ^= mask;
 		return(flgs);
 	    }
       }
