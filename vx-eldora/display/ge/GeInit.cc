@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.5  1994/11/01  17:58:09  thor
+ * Switched to C++ I/O, added name for RPC task.
+ *
  * Revision 2.4  1994/09/12  18:44:18  thor
  * Removed alarm stuff.
  *
@@ -67,46 +70,46 @@ static Beam_Time lasttime;
 
 void GeStart()
 {
-    // Put hardware initialization, etc. here.
+  // Put hardware initialization, etc. here.
 
-    sysIntEnable(1);		// Enable interrupts.
-    sysIntEnable(2);
-    sysIntEnable(3);
+  sysIntEnable(1);		// Enable interrupts.
+  sysIntEnable(2);
+  sysIntEnable(3);
 
-    dport((char *)0x40200000,(void *)0x10000000,4); // Set up dual
-						    // ported memory.
+  dport((char *)0x40200000,(void *)0x10000000,4); // Set up dual
+  // ported memory.
 
-    wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
+  wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
 
-    GeStatus = &ge_status;
-    GeCommand = &ge_command;
-    LastTime = &lasttime;
+  GeStatus = &ge_status;
+  GeCommand = &ge_command;
+  LastTime = &lasttime;
 
-    ge_status.status = LOADED;
+  ge_status.status = LOADED;
 
-    // Initialize all globally declared objects.
-    __do_global_ctors();
+  // Initialize all globally declared objects.
+  __do_global_ctors();
 
-    Hdr = NULL;
+  Hdr = NULL;
 
-    // Start graphics task.
-    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
+  // Start graphics task.
+  DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
 
-    // Now we start control loop.
-    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,60000,0,1,"RpcLoop");
+  // Now we start control loop.
+  CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,60000,0,1,"RpcLoop");
 }
 
 void RpcLoop(Task &self)
-{
-    if (rpcTaskInit() == ERROR)
-      {
-	  cout << "Failed to initialize Rpc." << endl;
-	  return;
-      }
+{ 
+  if (rpcTaskInit() == ERROR)
+    {
+      cout << "Failed to initialize Rpc." << endl;
+      return;
+    }
 
-    DispRpcInit();
+  DispRpcInit();
 
-    HeaderRpcInit();
+  HeaderRpcInit();
 
-    svc_run();
+  svc_run();
 }
