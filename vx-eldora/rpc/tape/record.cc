@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/06  18:50:58  thor
+// Changed name of sendcommand_1 due to name space clashes.
+//
 // Revision 1.2  1994/09/06  16:35:38  thor
 // Added reconnect method.
 //
@@ -137,6 +140,8 @@ int messanger::connect()
 
 int messanger::reconnect()
 {
+    clnt_destroy(client);
+    
     if ((client = clnt_create(target,TapeControl,TapeCtrlVers,"udp")) == NULL)
       return(-1);
     else
