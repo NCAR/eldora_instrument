@@ -9,16 +9,15 @@
  * revision history
  * ----------------
  * $Log$
+ * description: This module starts the radar processors over the
+ *              vme to vme interfaces.
+ *              
  */
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
 #define scope extern
- * Revision 1.1  1992/08/14  20:44:35  craig
- * Initial revision
- *
- *
 
 /* Include fifty million vx-works .h files */
 
@@ -27,7 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "intLib.h"
 #include "memLib.h"
-#define SCOPE extern
+#include "semLib.h"
 #include "taskLib.h"
 #include "tyLib.h"
 #include "ioLib.h"
@@ -125,11 +124,18 @@ iru_lag_offset = FIRST_RADAR_OFFSET + iru_lag_index * RADAR_SIZE_INCR;
 
 printf("MSECS in a dwell = %d   iru_lag_index = %d\n",dwelltime_msec,
        iru_lag_index);
+
+/* Setup the platform data index and offset values */
+
+iru_lags = 200/dwelltime_msec;  /* 200 because we get longitude at 5 hertz */
+
+current_platform_index = 2 - iru_lags;
 if(current_platform_index < 0) current_platform_index += 27;
 current_platform_offset = FIRST_RADAR_OFFSET +
+  current_platform_index * RADAR_SIZE_INCR;
+
 
 /* Get current milliseconds since midnite and place the value
-fill_nav_info();
    into all entries of msecs_ray */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/19  20:44:35  craig
+ * Initial revision
+ *
  *
  * description: This module answers the interrupt caused by the fore
  *              radar vme to vme interface.  This is the middle of beam
@@ -25,7 +28,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
-#define SCOPE extern
+#include "math.h"
 #include "stdioLib.h"
 #include "intLib.h"
 #include "memLib.h"
@@ -119,6 +122,9 @@ if(fake_angles)
       if(dumb_position > 360.0) dumb_position = 0;
       position = dumb_position;
   }
+
+
+/* Read the time from the time-of-day card */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
   printf("A%d",aft_vmehndshk->polled);
