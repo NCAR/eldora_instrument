@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:29:53  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -36,8 +39,6 @@ void Horiz::updateLocation(DataBeam *beam)
           updateTitle();
           return;
       }
-
-    double eighth = degrees / 8.0;
 
     int move = Horiz::NOUGHT;
     if (lat >= latitude[0])
@@ -80,8 +81,8 @@ void Horiz::shift(int direction)
     Point three;
 
     FAST int full = Horiz::DATA_WIDTH;
-    FAST int eighth = full / 8;
-    FAST int seven = eighth * 7;
+    FAST int eight = full / 8;
+    FAST int seven = eight * 7;
 
     FAST int nparams = numOfParams;
 
@@ -93,29 +94,29 @@ void Horiz::shift(int direction)
 	  one.x = 0;
 	  one.y = 0;
 
-	  two.x = eighth;
+	  two.x = eight;
 	  two.y = 0;
 
 	  wdw->shift(one,two,seven,full);
-	  wdw->frect(one,eighth,full,BLACK);
+	  wdw->frect(one,eight,full,BLACK);
 	  
 	  if (nparams > 1)
 	    {
 		wdw += 2;
 		wdw->shift(one,two,seven,full);
-		wdw->frect(one,eighth,full,BLACK);
+		wdw->frect(one,eight,full,BLACK);
 		
 		if (nparams > 2)
 		  {
 		      wdw += 2;
 		      wdw->shift(one,two,seven,full);
-		      wdw->frect(one,eighth,full,BLACK);
+		      wdw->frect(one,eight,full,BLACK);
 		  }
 	    }
 	  break;
 	  
 	case Horiz::RIGHT:
-	  one.x = eighth;
+	  one.x = eight;
 	  one.y = 0;
 
 	  two.x = 0;
@@ -125,26 +126,26 @@ void Horiz::shift(int direction)
 	  three.y = 0;
 
 	  wdw->shift(one,two,seven,full);
-	  wdw->frect(three,eighth,full,BLACK);
+	  wdw->frect(three,eight,full,BLACK);
 	  
 	  if (nparams > 1)
 	    {
 		wdw += 2;
 		wdw->shift(one,two,seven,full);
-		wdw->frect(three,eighth,full,BLACK);
+		wdw->frect(three,eight,full,BLACK);
 		
 		if (nparams > 2)
 		  {
 		      wdw += 2;
 		      wdw->shift(one,two,seven,full);
-		      wdw->frect(three,eighth,full,BLACK);
+		      wdw->frect(three,eight,full,BLACK);
 		  }
 	    }
 	  break;
 
 	case Horiz::UP:
 	  one.x = 0;
-	  one.y = eighth;
+	  one.y = eight;
 
 	  two.x = 0;
 	  two.y = 0;
@@ -153,19 +154,19 @@ void Horiz::shift(int direction)
 	  three.y = seven;
 
 	  wdw->shift(one,two,seven,full);
-	  wdw->frect(three,full,eighth,BLACK);
+	  wdw->frect(three,full,eight,BLACK);
 	  
 	  if (nparams > 1)
 	    {
 		wdw += 2;
 		wdw->shift(one,two,seven,full);
-		wdw->frect(three,full,eighth,BLACK);
+		wdw->frect(three,full,eight,BLACK);
 		
 		if (nparams > 2)
 		  {
 		      wdw += 2;
 		      wdw->shift(one,two,seven,full);
-		      wdw->frect(three,full,eighth,BLACK);
+		      wdw->frect(three,full,eight,BLACK);
 		  }
 	    }
 	  break;
@@ -175,22 +176,22 @@ void Horiz::shift(int direction)
 	  one.y = 0;
 
 	  two.x = 0;
-	  two.y = eighth;
+	  two.y = eight;
 
 	  wdw->shift(one,two,seven,full);
-	  wdw->frect(one,full,eighth,BLACK);
+	  wdw->frect(one,full,eight,BLACK);
 	  
 	  if (nparams > 1)
 	    {
 		wdw += 2;
 		wdw->shift(one,two,seven,full);
-		wdw->frect(one,full,eighth,BLACK);
+		wdw->frect(one,full,eight,BLACK);
 		
 		if (nparams > 2)
 		  {
 		      wdw += 2;
 		      wdw->shift(one,two,seven,full);
-		      wdw->frect(one,full,eighth,BLACK);
+		      wdw->frect(one,full,eight,BLACK);
 		  }
 	    }
 	  break;
