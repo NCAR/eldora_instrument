@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added .5 second delay after sending DESTROY_SELF flag to let destroy
+ * complete.
+ *
  * Revision 1.4  1991/10/23  20:37:38  thor
  * Added Mouse support.
  *
@@ -82,7 +85,7 @@ void DrawingLoop(FAST Task &self)
 						    LOAD_ONLY,
 						    FLAGS_OR);
 
-		taskDelay(10);
+	  if (flag == LOAD_ONLY) // This is all that`s needed, since
 				 // we don't want to start drawing yet.
 	    {
 		FAST int cmd = (int)GeCommand->cmd;
@@ -102,7 +105,12 @@ void DrawingLoop(FAST Task &self)
 		    case FORWARD_HORIZ:
 		    case AFT_HORIZ:
 		      currTask = &HorizTask;
-		  currTask->SetFlags(DESTROY_SELF);
+		      break;
+		  }
+	    }
+	  else
+	    {
+		switch(flag)
 		  {
 		GetsMouse = currTask;
 		      currTask->SetFlags(DESTROY_SELF);
@@ -110,7 +118,10 @@ void DrawingLoop(FAST Task &self)
 		      Task rb((FUNCPTR)Reboot,args,0);
 		      return;
 		      break;
-		  currTask->SetFlags(DESTROY_SELF);
+		      
+		    case STOP:
+		      currTask->SetFlags(flag);
+		      break;
 		      
 		GetsMouse = currTask;
 		      currTask->SetFlags(flag);
@@ -118,7 +129,10 @@ void DrawingLoop(FAST Task &self)
 		      
 		    case RELOAD:
 		    case RESTART:
-		  currTask->SetFlags(DESTROY_SELF);
+		      currTask->SetFlags(flag);
+		      break;
+		      
+		    case FORWARD_RADIAL:
 		      if (currTask != &RadialTask)
 		GetsMouse = currTask;
 			    currTask->SetFlags(DESTROY_SELF);
@@ -126,7 +140,10 @@ void DrawingLoop(FAST Task &self)
 			                   // other active display to
 			                   // completely destroy self.
 			}
-		  currTask->SetFlags(DESTROY_SELF);
+		      currTask = &RadialTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
 		      
 		GetsMouse = currTask;
 		      if (currTask != &RadialTask)
@@ -134,7 +151,10 @@ void DrawingLoop(FAST Task &self)
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30);
 			}
-		  currTask->SetFlags(DESTROY_SELF);
+		      currTask = &RadialTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
 		      
 		GetsMouse = currTask;
 		      if (currTask != &HorizTask)
@@ -142,7 +162,10 @@ void DrawingLoop(FAST Task &self)
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30);
 			}
-		  currTask->SetFlags(DESTROY_SELF);
+		      currTask = &HorizTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
 		      
 		GetsMouse = currTask;
 		      GetsFlags = currTask;
