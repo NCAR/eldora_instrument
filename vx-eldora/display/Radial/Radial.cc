@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1991/12/03  17:33:30  thor
+ * Changed table drawing to use integer steps & less text.
+ *
  * Revision 1.9  1991/11/14  18:20:22  thor
  * Fixed incorrect calculation of first gate index.
  *
@@ -435,7 +438,16 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 
     FAST int ppkm = (int)(((float)rad / max) + .5);
 
-    ppkm *= 10;
+    FAST char *label = "10 km/div";
+
+    if (max >= 20.0)		// If less then 20 km, draw hash marks
+				// at 5km, otherwise at 10 km.
+      ppkm *= 10;
+    else
+      {
+	  ppkm *= 5;
+	  label = "5 km/div";
+      }
 
     FAST int i = ppkm;
      
@@ -468,7 +480,7 @@ void Radial::drawTitle(FAST int set, FAST int radar)
     a.x = 10;
     a.y = 975;
 
-    horText(wdw,a,"10 km/div.",WHITE);
+    horText(wdw,a,label,WHITE);
 
     a.x = 770;
 
