@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/03/25  21:57:33  thor
+// Initial revision
+//
 //
 //
 //
@@ -52,8 +55,9 @@ class Raw: public Display {
   void drawLabels(RAW_DATA *header);
   
   int dataPoints;
-  int pixelsPerPoint;            // How far along the x axis.
+  double pixelsPerPoint;        // How far along the x axis.
   int bytesPerBeam;             // So we know how far to jump.
+  double constant;              // Converts values to pixels.
 
   RAW_DATA previous;
 

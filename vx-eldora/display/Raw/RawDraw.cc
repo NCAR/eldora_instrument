@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/03/25  21:57:32  thor
+// Initial revision
+//
 //
 //
 //
@@ -37,39 +40,59 @@ void Raw::drawBeam(FAST DataBeam *beam)
       drawLabels(rawHeader);
       memcpy((void *)&previous,(void *)rawHeader,sizeof(RAW_DATA));
       dataPoints = rawHeader->numPoints;
-      pixelsPerPoint = Raw::WIDTH / dataPoints;
+      pixelsPerPoint = (double)Raw::WIDTH / (double)dataPoints;
     }
+  static int drop = 0;
+
+  if (drop < 40)
+    {
+      drop++;
+      return;
+    }
+  drop = 0;
   // First clean out old data.
   Point a, b;
   a.x = 0;
   a.y = 0;
   Wdw[0].frect(a,Raw::WIDTH,Raw::HEIGHT,BLACK);
 
-  FAST unsigned short xinc = pixelsPerPoint;
+  double xinc = pixelsPerPoint;
   
   FAST int count = dataPoints;
 
   FAST unsigned short height = Raw::HEIGHT - 1;
 
-  FAST unsigned short x = 0;
+  double x = 0;
 
   rawHeader++;
   
   FAST float *data = (float *)rawHeader;
 
-  double vpp = 999.0;
-
+  double vpp = constant;
+  double offset = (double)previous.ymin;
+  
   FAST unsigned char color = dataColor;
 
   a.x = 0;
   a.y = 0;
-  
+
   for (FAST int i = 0; i < count; i++, x += xinc)
     {
-      double datum = *data++;
-      b.x = x;
-      b.y = height - (unsigned short)fastround(datum * vpp);
+      double datum = (double)*data++;
+      b.x = (unsigned short)fastround(x);
 
+      FAST unsigned short y = (unsigned short)fastround((datum - offset) *
+                                                        vpp);
+
+      if (y & 0x8000)
+        y = 0;
+      else if (y > height)
+        y = height;
+
+      y = height - y;
+
+      b.y = y;
+      
       Wdw[0].line(a,b,color);
       
       a = b;

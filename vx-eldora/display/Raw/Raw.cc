@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/03/25  21:57:30  thor
+// Initial revision
+//
 //
 //
 //
@@ -19,6 +22,11 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #pragma implementation
 
 #include "Raw.hh"
+#ifndef OK_RPC
+#define OK_RPC
+#endif
+#include "TimeSeries.h"
+#include "IndFreq.h"
 
 Raw::Raw(GraphicController *gbd) : Display(gbd)
 {
@@ -31,8 +39,6 @@ Raw::Raw(GraphicController *gbd) : Display(gbd)
 
   makeStr->precision(1);
   makeStr->setf(ios::fixed);
-
-  memset((void *)&previous,0,sizeof(RAW_DATA));
 }
 
 void Raw::reset(Header *hdr, DispCommand *cmd)
@@ -49,8 +55,33 @@ void Raw::reset(Header *hdr, DispCommand *cmd)
 
       ngates += c;
     }
+  FAST RADARDESC *rd = hdr->Radar(1);
 
-  bytesPerBeam = (ngates * sizeof(unsigned short)) + sizeof(DataBeam);
+  FAST int np = rd->num_parameter_des; // How are there total?
+
+  FAST int data_len = (ngates * np * sizeof(unsigned short)) +
+    sizeof(DataBeam);
+  FAST int indep_freq_len;
+  FAST int time_series_len;
+
+  FAST FIELDRADAR *fldrdr = hdr->FieldRadar();
+  
+  if(fldrdr->indepf_times_flg > 0)
+    indep_freq_len = (rd->num_freq_trans * 8 * rd->num_ipps_trans) +
+      sizeof(INDEP_FREQ);
+  else
+    indep_freq_len = 0;
+
+  if(fldrdr->indepf_times_flg == 3)
+    {
+      WAVEFORM *wvfm = hdr->Waveform();
+      time_series_len = (rd->num_freq_trans * 2 * 4 * wvfm->repeat_seq_dwel *
+                         wvfm->num_chips[0]) + sizeof(TIME_SERIES);
+    }
+  else
+    time_series_len = 0;
+  
+  bytesPerBeam =  data_len + indep_freq_len + time_series_len;
 
   if (cmd->cmd == AFT_RAW)
       dispType = Display::RAW_AFT;
@@ -80,6 +111,8 @@ void Raw::reset(Header *hdr, DispCommand *cmd)
   Wdw[0].setTextBackGround(BLACK);
   
   displaySet(0);
+
+  memset((void *)&previous,0,sizeof(RAW_DATA));
 }
 
 void Raw::drawTitle(int set, int radar)
@@ -136,6 +169,9 @@ void Raw::drawLabels(FAST RAW_DATA *header)
   char ylabel[9];
   strncpy(ylabel,&header->y_label[0],8);
 
+  xlabel[8] = 0;
+  ylabel[8] = 0;
+  
   Point a;
 
   a.x = Raw::WIDTH + 15;
@@ -162,6 +198,8 @@ void Raw::drawLabels(FAST RAW_DATA *header)
   *makeStr << header->xmin;
   a.x = 10;
   Wdw[0].horText(a,outputStr,WHITE1);
+
+  constant = (double)Raw::HEIGHT / (header->ymax - header->ymin);
 }
 
 void Raw::displaySet(int set)
