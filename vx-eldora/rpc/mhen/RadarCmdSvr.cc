@@ -10,6 +10,7 @@
 #else
 extern "C" {
 #include "stdioLib.h"
+#include "semLib.h"
 #include "rpc/pmap_clnt.h"
 };
 #endif // UNIX
@@ -97,12 +98,62 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
 
     if (cmd & INIT)
       count = 0;
+
     else if (count < cmdBlk->count)
       {
 	  printf("Received command 0x%x.\n",cmd);
 	  count++;
       }
+    if(cmd & LOAD)
+      load = 1;
 
+    if(cmd & START)
+      {
+/*	  cmd &= !STOP; */      /* clear out stop flag in case STOP was hit twice */
+	  semGive(exec_sem);
+	  semGive(real_sem);
+      }
+    if(cmd & STOP)
+      stop = 1;
+    if(cmd & REBOOT)
+      reboot = 1;
+    if(cmd & RELOAD)
+      {
+	  stop = 1;
+	  taskDelay(10); /* add short delay to allow coll_data_xfer to finish */
+	  semGive(exec_sem);
+	  semGive(real_sem);
+      }
+    if(cmd & DC_REMOVAL)
+      {    
+	  dc_removal = 1;
+	  currStatus->count++;
+	  currStatus->rp7 |= DC_BUSY;
+	  printf("current rp7 status = %X \n",currStatus->rp7);
+      }
+    if(cmd & DC_1)
+	  ad_freq = 1;
+    if(cmd & DC_2)
+	  ad_freq = 2;
+    if(cmd & DC_3)
+	  ad_freq = 3;
+    if(cmd & AD_CHAN_LO)
+      ad_chan = (char )1;
+    if(cmd & AD_CHAN_HI)
+      ad_chan = (char )0;
+    if(cmd & RESYNC)
+      {    
+	  resync = 1;
+      }
+    if(cmd & FFT)
+      fft_flag = 1;
+    if(cmd & FFT_1)
+      ts_freq = 1;
+    if(cmd & FFT_2)
+      ts_freq = 2;
+    if(cmd & FFT_3)
+      ts_freq = 3;
+    printf("ts_freq = %d \n",ts_freq);
     currStatus->count++;
 
     return(currStatus);
@@ -114,3 +165,17 @@ struct RadarStatus *getradarstatus_1(void *, struct svc_req *)
 
     return(currStatus);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
