@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  91/01/02  08:52:11  thor
+ * Made changes for VxWorks Version 5.0.
+ * 
  * Revision 1.1  90/12/04  10:22:55  thor
  * Initial revision
  * 
@@ -52,8 +55,10 @@ static const unsigned char MCU_VECTOR = 0x8;
 static const unsigned char FRAME_VECTOR = 0xb;
 
 /* Some predefined colors. */
-static const unsigned char WHITE = 0xff;
-static const unsigned char BLACK = 0x42;
+static const unsigned char WHITE = 0x80;
+static const unsigned char WHITE1 = 0x7f;
+static const unsigned char ALL_SET = 0xff;
+static const unsigned char BLACK = 0x7e;
 
 /* The AGCV window register layout */
 struct WindowControlRegs {
@@ -125,9 +130,7 @@ class GraphicController {
     void defaultColorMap(void);
 
     /* See GraphicShift.cc */
-    void shift(Point left, Point right, int shift, int direction = 
-	       SHIFT_RIGHT);
-
+    void shift(Point src, Point dst, int width, int height);
 
     /* See GraphicLines.cc */
     void drawLine(Point start, Point end, unsigned char color);
