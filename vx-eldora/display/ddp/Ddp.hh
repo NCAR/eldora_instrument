@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:21  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.7  1992/10/09  14:56:29  thor
  * Added comments.
  *
@@ -39,14 +42,15 @@
 #define INCDdphh
 
 #include "Pipe.hh"
+#include "Isr.hh"
 
-extern "C" {
 #include "string.h"
 #include "intLib.h"
-};
 
-class Ddp {
+class Ddp : private Isr {
   private:
+    SEM_ID ddpsem;		// Semaphore given by ISR.
+    
     Pipe &pipe;			// Where the data goes.
 
     long *repeat;		// Pointer to how many mailboxes.
@@ -62,7 +66,7 @@ class Ddp {
     int aftCurr;		// How many aft mailboxes were checked.
     int radar;			// Use fore or aft beams.
 
-    SEM_ID sem;			// Semaphore given by ISR.
+    void IsrFunction();
 
   public:
     Ddp(void *addr, int vector, Pipe &p);
