@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/03/16  21:30:06  thor
+ * Added aPan method to allow raw panning.
+ *
  * Revision 1.4  1991/12/02  18:00:06  thor
  * Fixed several bugs in pan method.
  *
@@ -334,6 +337,9 @@ void Window::aPan(FAST Point newOrigin)
 {
     FAST unsigned short x = newOrigin.x;
     FAST unsigned short y = newOrigin.y;
+
+    x += upperLeft.x;
+    y += upperLeft.y;
 
     FAST long l = x << 16;
 
