@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 
     while(1) {
 
-      unsigned char buf[2000];
+      unsigned char buf[20000];
 
       status = read(fd, buf, sizeof(buf));
       time_t this_time = time(NULL);
