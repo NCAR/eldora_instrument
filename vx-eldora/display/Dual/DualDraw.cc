@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.7  1994/04/11  17:52:43  thor
+// Fixed bug that had display gates starting before first gate!
+//
 // Revision 1.6  1994/04/08  20:31:30  thor
 // Many changes!
 //
@@ -43,7 +46,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
     double angle = (double)beam->air.rotation_angle;
     double roll = (double)beam->air.roll;
     
-    angle -= roll;
+    angle += roll;
     
     if (angle < 0.0)
       angle += 360.0;
