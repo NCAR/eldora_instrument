@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Remove testing code.
+ *
+ * Revision 1.11  1991/11/06  21:43:13  thor
  * Remove a bunch of test code. Added code to handle real data & data
  * scaling.
  *
@@ -98,8 +101,6 @@ static int whichRadar = FORWARD_RADIAL;
 		  radar = AFT_RADIAL;
 
 		count = 9;
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -107,8 +108,6 @@ static int whichRadar = FORWARD_RADIAL;
 		  }
 		break;
 		count = 9;
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
@@ -116,15 +115,9 @@ static int whichRadar = FORWARD_RADIAL;
 		display = makeDisplay(display,agc);
 		break;
 		count = 9;
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
-		RadialMouse(display);
-		continue;
-		break;
-
 		break;
 
 	      case AFT_RADIAL:
@@ -141,33 +134,38 @@ static int whichRadar = FORWARD_RADIAL;
 		printf("Pipe full\n");
 	    }
 
+	  if (pipe.QueryRead(&dataBeam))
+	    {
+		FAST int tmp = (int)dataBeam; // This done to correct for
+		tmp += 0x30200000;	      // address difference betweem
+		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
+
 		if (++count == 10)
 		  {
 		      display->UpdateClock(now->hour,now->minute,now->second);
 		      count = 0;
 		  }
 
-		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
-				sizeof(short) * 4);
-
-		bcopy((char *)now,(char *)LastTime,
-		      sizeof(Beam_Time));
+		radData.angle = dataBeam->air.rotation_angle - 
+		  dataBeam->air.tilt;;
+		radData.direction = (int)dataBeam->ray.true_scan_rate;
 		  continue;
 		FAST short *data = (short *)(dataBeam + 1);
 
 		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
 		conv->GetBeam(data,radData);
 		  {
-		//	  display->drawBeam(radData);
+			  display->drawBeam(radData);
 						      // next sweep.
 			display->UpdateClock(now->hour,now->minute,
-		  self.SetFlags(NEW_DATA_FLAG);
+					     now->second);
+		  }
+		else
+		  {
 		      if (lastAngle < radData.angle)
-
-	  printf("Looping\n");	// Strictly for testing!!!!!
-	  taskDelay(10);
-
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
+	  // By default, sleep for 1/60 sec and then loop.
+	  taskDelay(1);
+	  self.SetFlags(NEW_DATA_FLAG);
 			display->UpdateClock(now->hour,now->minute,
 					     now->second);
 		  }
@@ -184,6 +182,8 @@ static int whichRadar = FORWARD_RADIAL;
 		  {
 		      self.SetFlags(NEW_DATA_FLAG);
 		      continue;
+    float Max[3];
+    float Min[3];
       }
 }
 
@@ -193,6 +193,9 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
     if (old != NULL)
       delete(old);   
+    bcopy((char *)max,(char *)Max,sizeof(float) * 3);
+    bcopy((char *)min,(char *)Min,sizeof(float) * 3);
+
 
     // The following is only for uniprocessor systems!!!!!
     if (conv != NULL)
@@ -313,22 +316,21 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
           maxDist += (c * width);
       }
 
-
-	  New->drawTable(A_SET,max[0],min[0],param);
+	  New->drawTable(A_SET,Max[0],Min[0],param);
 
     agc->clear();
 
     FAST Radial *New = new Radial(agc,ptr->radius,nv,0,0);
 
     FAST u_long *colors = &GeCommand->colorTable[0];
-	  New->drawTable(B_SET,max[1],min[1],param);
+	  New->drawTable(B_SET,Max[1],Min[1],param);
     if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
     New->SetBounds((float)maxDist,(float)cs->distToFirst);
 
     FAST int wdw = 0;
-	  New->drawTable(C_SET,max[2],min[2],param);
+	  New->drawTable(C_SET,Max[2],Min[2],param);
     if (nv)
       {
 	  param = ptr->param0;
