@@ -9,23 +9,27 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/01  21:54:37  shawn
+ * Added vectors 252 and 251, for ecb-spare and ecb DPRAM-contention interrupts
+ *
  * Revision 1.1  1992/05/29  17:54:29  shawn
  * Initial revision
  *
- *
- *
+  *
  * description: Contains interrupt definitions for the hskp.
  *        
  */
 
-#define vme_vme_vec    255
-
-#define ecb_cmplt_vec  254
-#define ecb_error_vec  253
-#define ecb_spare_vec  252
-#define ecb_dpcntd_vec 251
-
-
-
+/* VECTOR AND REQUEST LEVEL DEFINITIONS */
+#define VME_VME_VEC    255    /* vme-to-vme interface interrupt vector */
+#define VME-VME_IRQ      1    /* vme-to-vme interface IRQ level */
+#define ECB_CMPLT_VEC  254    /* "ECB command complete" interrupt vector */
+#define ECB_CMPLT_IRQ    1    /* "ECB command complete" IRQ level */
+#define ECB_ERROR_VEC  253    /* "ECB command error" interrupt vector */
+#define ECB_ERROR_IRQ    2    /* "ECB command errot" IRQ level */
+#define ECB_SPARE_VEC  252    /* "Spare" ecb interrupt vector */
+#define ECB_SPARE_IRQ    1    /* "Spare" ecb IRQ level */
+#define ECB_DPCNTD_VEC 251    /* "ECB Master DPRAM contention interrupt */
+#define ECB_DPCNTD_IRQ   1    /* "ECB Master DPRAM contention interrupt */
 
 
