@@ -9,10 +9,16 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/14  19:20:00  thor
+ * Added task control calls.
  *
  * Revision 1.1  1991/10/01  16:15:11  thor
+ * Initial revision
  *
- *        
+ *
+ *
+ * description:
+ *        These functions are called by the underlying rpc code as
  * needed. Sendcommand_1 takes a command and invokes the appropriate
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  *
@@ -31,13 +37,13 @@ static u_long cmdCount = 0;
 
 struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 {
-    if (command == INIT)
+    FAST u_long command = cmd->cmd;
     FAST DispStatus *status = GeStatus;
-	  printf("IINIT recieved.\n");
-	  cmdCount = 0;
-	  status->status = IDLE;
+
+    if (command == INIT)	// UNIX side has (re)started.
+      {
 	  cmdCount = 0;		// Synch. counters.
-    else if (cmd->count <= cmdCount)
+	  status->count++;
 	  AlarmTask->SetFlags(ATASK_RESET); // (Re)start alarm loop.
       }
     else if (cmd->count <= cmdCount) // Invalid command.
@@ -46,56 +52,59 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 	    reboot(BOOT_NORMAL);
 	    
       {
-	    printf("Stopping\n");
+	  cmd->cmd -= LOAD_ONLY;
 	  memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
 	  DrawingTask->SetFlags(LOAD_ONLY);
 	  status->status = IDLE;
       }
-	    printf("Reloading\n");
+	    DrawingTask->SetFlags(STOP);
+	    DrawingTask->SetFlags(START);
 	    status->status = IDLE;
 	  switch(command)
 	    {
 	      case REBOOT:
-	    printf("Starting\n");
+	    DrawingTask->SetFlags(START);
 		DrawingTask->SetFlags(command);
 		status->status = IDLE;
 		break;
 		
-	    printf("Restarting\n");
+	    DrawingTask->SetFlags(STOP);
+	    DrawingTask->SetFlags(START);
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
-	    printf("Forward radial\n");
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case RESTART:
-	    printf("Forward horiz.\n");
+		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_RADIAL:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-	    printf("Forward vert.\n");
+		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_HORIZ:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-	    printf("Aft radial\n");
+		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_VERT:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-	    printf("Aft horiz.\n");
+		status->status = DRAWING;
 		break;
 		
 	      case AFT_RADIAL:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-	    printf("Aft vert.\n");
+		status->status = DRAWING;
 		break;
 		break;
 		
-    
+	      case AFT_VERT:
+    bcopy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
