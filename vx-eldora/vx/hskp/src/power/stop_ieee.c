@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1997/11/12  19:50:37  eric
+ * Initial revision
+ *
  * 
  *
  * description: The purpose of this module is to stop DMA and auxilliary clock
@@ -30,6 +33,7 @@ void stop_ieee()
   sysAuxClkDisable(); /* disable Auxilliary Clock Interrupt */
 #endif  
 
+taskSuspend(pgm); /* stop run-time power task */
 taskSuspend(xmit); /* stop run-time power task */
 taskSuspend(testp); /* stop run-time power task */
 
