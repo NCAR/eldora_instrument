@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1991/12/04  18:43:55  thor
+ *  Changed scaling computation per Eric.
+ *
+ * Revision 1.9  1991/12/03  19:27:12  thor
  * Fixed incorrect sizing, added code to get lat/long, removed unneeded
  * call to HashMarks.
  *
@@ -262,10 +266,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     FAST int param = ptr->param0;
 
-		      max[0] = (max[0] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[0] = (min[0] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[0] = (max[0] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[0] = (min[0] / p->parameter_scale) +
+			p->parameter_bias;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -286,10 +290,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param1;
 
-		      max[1] = (max[1] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[1] = (min[1] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[1] = (max[1] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[1] = (min[1] / p->parameter_scale) +
+			p->parameter_bias;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -310,10 +314,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param2;
 
-		      max[2] = (max[2] - p->parameter_bias) / 
-			p->parameter_scale;
-		      min[2] = (min[2] - p->parameter_bias) / 
-			p->parameter_scale;
+		      max[2] = (max[2] / p->parameter_scale) +
+			p->parameter_bias;
+		      min[2] = (min[2] / p->parameter_scale) +
+			p->parameter_bias;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
