@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/12/06  15:46:53  thor
+ * Added structure for vertical display.
+ *
  * Revision 1.7  1991/11/22  18:21:53  thor
  * Added time values to DataPoint.
  *
@@ -80,7 +83,8 @@ struct Data_Point {
 struct Vert_Point {
     Beam_Time time;
     Point ul;
-    unsigned short size;
+    unsigned short width;
+    unsigned short height;
     unsigned char colors[4];
 };
 
