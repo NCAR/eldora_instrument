@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/07/14  20:33:17  eric
+ * Simplified task interaction by doing End of Beam error
+ * detection in nu_arch_data_xfer.c
+ *
  *
  *
  * description: This module provides executive control of the "NEW" ELDORA 
@@ -34,7 +38,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define FREQ_4
 #define FREQ_5
 #define NEW_TM
-#define NO_NEW_DSP_CODE /* NEW DSP CODE is for Staggered PRT */
 #define GATES 512
 #define int_vec0 255
 #define int_vec1 254
@@ -68,6 +71,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "systime.h"
 #include "sysLib.h"
 
+#include "HeaderRpc.h"
 #include "Parameter.h"
 #include "RadarDesc.h"
 #include "Header.h"
@@ -91,6 +95,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define DMC_BASE 0xFF81 + SHORT_BASE    /* Base Address of DMC-300 Card */
 
+extern int Silent;
 short task_sync = 0;
 float rpm;
 int position, err_cnt, int_cnt, proc_stat;
@@ -134,7 +139,7 @@ volatile unsigned char   *bim_vr0, *bim_vr1, *bim_vr2, *led, *pio_acc,
 
 int            *samps, data_samps, buff_cnt, prf, gates, num1, gate_sp, shortcnt,
                first_gate, sem_status, sampl, load_stat, dp_stat[2], coll_stat,
-               chips[6], mcpl_stat, prt_flag, ppp_stat, dc_flag,
+               chips[6], mcpl_stat, prt_flag, ppp_stat, dc_flag, d_sampl,
                pick_gate, f_flag, taskid, dc_stat, temp_stat[5], pcpcnt[10];
 
 unsigned int   num_int1, num_int2, num_int3, num_int4, chip_avg1, chip_avg2,
@@ -142,6 +147,9 @@ unsigned int   num_int1, num_int2, num_int3, num_int4, chip_avg1, chip_avg2,
 float          duty_cycle, rpt_seq, frq1, frq2, frq3, fake_posit,scale_fac,
                dwell_time, proc_const, short_prt, pcp, repeat_seq, Pnoise,
                conv_gain, avg_scale;
+
+short          num_param;
+
 
 unsigned short          total_pcp;
 
@@ -218,7 +226,6 @@ for(;;)
 
      /* Initialize status block to good status */
 
-	    currStatus->count = 0;
 /*	    if(!dc_removal)  */
 	    currStatus->rp7 = 0;
 	    currStatus->mcpl = 0;
@@ -237,10 +244,24 @@ for(;;)
 
 	    chips[0] = wvfm -> num_chips[0];
 	    f1_flag = wvfm -> num_chips[0];
+	    prt_flag = 0;    /* default is single prt */
+	    if(f1_flag > 1)
+	      {
+		  f1_flag = 1;
+		  prt_flag = 1;
+	      }
 	    f2_flag = wvfm -> num_chips[1];
+	    if(f2_flag > 1)
+		  f2_flag = 1;
 	    f3_flag = wvfm -> num_chips[2];
+	    if(f3_flag > 1)
+		  f3_flag = 1;
 	    f4_flag = wvfm -> num_chips[3];
+	    if(f4_flag > 1)
+		  f4_flag = 1;
 	    f5_flag = wvfm -> num_chips[4];
+	    if(f5_flag > 1)
+		  f5_flag = 1;
 	    f_flag = f1_flag + f2_flag + f3_flag + f4_flag + f5_flag;
 	    n_frq = (double)f_flag;
 	    repeat_seq = wvfm -> repeat_seq;
@@ -268,22 +289,20 @@ for(;;)
 	      }
 	    short_prt = pcp * shortcnt;
 	    prf = 1.0 / short_prt;
-	    scale_fac = sqrt(n_frq);
-	    scale_fac *= 79.43;             /* 38dB * sqrt(n_freq) for now */
-	    printf("scale_fac = %f\n",scale_fac);
-	    prt_flag = 0;
-            sampl = wvfm -> repeat_seq_dwel * wvfm -> num_chips[0];
+            sampl = wvfm -> repeat_seq_dwel;
 	    if(!radar_fore_aft)
 	      rdsc = GetRadar(inHeader,1);
 	    if(radar_fore_aft)
 	      rdsc = GetRadar(inHeader,2);
-	    printf("rdsc = %X \n",rdsc);
+/*	    printf("rdsc = %X \n",rdsc); */
 	    frq1 = rdsc -> freq1;
 	    frq2 = rdsc -> freq2;
 	    frq3 = rdsc -> freq3;
-	    printf("frq1 = %f \n",frq1);
+/*	    printf("frq1 = %f \n",frq1);
 	    printf("frq2 = %f \n",frq2);
 	    printf("frq3 = %f \n",frq3);
+*/
+	    num_param = rdsc -> num_parameter_des;
 	    if(!radar_fore_aft)	      
 	      cs = GetCellSpacing(inHeader,1);
 	    else
@@ -301,7 +320,8 @@ for(;;)
 	    else
 	      fldrdr = GetFieldRadar(inHeader,2);
 	    pick_gate = fldrdr -> time_series_gate; /* must be divisible by 8 !!! */
-	    printf("pick_gate = %d \n",pick_gate);
+	    if(!Silent)
+	      printf("pick_gate = %d \n",pick_gate);
 
 	    coll_pick_gate = fldrdr -> indep_freq_gate;
 
@@ -309,14 +329,9 @@ for(;;)
 	    
 	    avg_scale = 0.0;
 	    Pnoise = rdsc -> noise_power;
-	    conv_gain = fldrdr -> conversion_gain;
-	    Pnoise += conv_gain;
+	    Pnoise -= rdsc -> radar_const;
 	    Pn = pow(10.0,((double)(Pnoise)/10.0));
-	    for(i=0; i<f_flag; i++)
-	      {
-		  avg_scale += fldrdr -> scale_factor[i]/(float)(f_flag);
-	      }
-	    Pnoise = Pn * avg_scale;
+            Pnoise = Pn;
 	    printf("Pnoise = %g \n",Pnoise);
 
 /* Calculate antenna r.p.m. based on values in header */
@@ -332,11 +347,6 @@ for(;;)
 #ifndef NEW_TM
 	    tst_pls = gate_sp * 10;   /* for old timing module */
 #endif
-/*
-	    printf("Samples = %d; PRF = %d; GATES = %d; GATE SPACING = %d; \n",sampl,prf,gates,gate_sp); 
-	    printf("First Gate = %d; Duty Cycle = %f; Test Pulse = %d \n",first_gate,duty_cycle,tst_pls);
-*/	
-	    printf("SAMPLES = %d; GATES = %d; FIRST_GATE = %d; GATE SPACING = %d; \n",sampl,gates,first_gate,gate_sp); 	    
 	    mdbm_int = (unsigned char*)(SHORT_BASE + VMEVME_BASE + CMD_REG);
 
 /*	    if(!dc_removal)
@@ -381,16 +391,16 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,4,0,0,"col1.dmp");
+		  load_stat = nu_lddsp(1,4,0,0,"dlprt_col.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif      
@@ -402,114 +412,114 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,3,1,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,3,2,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,3,3,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,3,0,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,3,1,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,3,2,"dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,3,3,"dp_d7.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,1,3,0,"dp1_m.dmp");
+		  load_stat = nu_lddsp(1,1,3,0,"dlprt_dp_m.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,1,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,3,1,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,2,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,3,2,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,3,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,3,3,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,0,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,3,0,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,1,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,3,1,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,2,"dp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,3,2,"dlprt_dp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,3,"dp1_d7.dmp");
+		  load_stat = nu_lddsp(1,2,3,3,"dlprt_dp_d7.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif      
@@ -523,58 +533,58 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,1,1,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,1,2,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,1,3,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,1,1,0,"ppp1_m.dmp");
+		  load_stat = nu_lddsp(1,1,1,0,"dlprt_ppp_m.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,1,1,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,1,2,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,1,2,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,1,3,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,1,1,3,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
@@ -588,58 +598,58 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,1,1,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,1,2,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,2,1,3,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,2,1,0,"ppp1_d0.dmp");
+		  load_stat = nu_lddsp(1,2,1,0,"dlprt_ppp_d0.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,1,1,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,1,2,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,1,2,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,1,3,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,2,1,3,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
@@ -652,58 +662,58 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,3,1,1,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,3,1,2,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,3,1,3,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,3,1,0,"ppp1_d0.dmp");
+		  load_stat = nu_lddsp(1,3,1,0,"dlprt_ppp_d0.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,3,1,1,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,3,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,3,1,2,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,3,1,2,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,3,1,3,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,3,1,3,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
@@ -717,58 +727,58 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,4,1,1,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,4,1,2,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,4,1,3,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,4,1,0,"ppp1_d0.dmp");
+		  load_stat = nu_lddsp(1,4,1,0,"dlprt_ppp_d0.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,4,1,1,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,4,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,4,1,2,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,4,1,2,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,4,1,3,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,4,1,3,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
@@ -782,58 +792,58 @@ for(;;)
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,5,1,1,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,5,1,2,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,5,1,3,"ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,5,1,0,"ppp1_d0.dmp");
+		  load_stat = nu_lddsp(1,5,1,0,"dlprt_ppp_d0.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,5,1,1,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,5,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,5,1,2,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,5,1,2,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,5,1,3,"ppp1_s.dmp");
+		  load_stat = nu_lddsp(1,5,1,3,"dlprt_ppp_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
 #endif
@@ -841,7 +851,7 @@ for(;;)
 	      }
 
 	    load = 0;     /* Reset load flag */
-	    printf("load = %d \n",load);
+/*	    printf("load = %d \n",load); */
 	    n_frq = (double)(fldrdr -> scale_factor[0]);
 	    scale_fac = n_frq/1.0;
 	    printf("scale_fac = %f\n",scale_fac);
@@ -879,7 +889,7 @@ for(;;)
 
 /* Place PPP "pick_gate" coincident with test pulse and enable operation */
 
-		  ppp_opflags(pick_gate,FREQ_ON,scale_fac,dc_flag,1,1);
+		  ppp_opflags(pick_gate,FREQ_ON,prt_flag,scale_fac,dc_flag,1,1);
 
            /* Turn on PPP LED */
                   led = (unsigned char *)(PPP_F1_BASE + DLEDON);
@@ -888,7 +898,7 @@ for(;;)
 	      }
 	    else
 	      {
-		  ppp_opflags(pick_gate,FREQ_OFF,scale_fac,dc_flag,1,1);
+		  ppp_opflags(pick_gate,FREQ_OFF,prt_flag,scale_fac,dc_flag,1,1);
            /* Turn off PPP LED */
                   led = (unsigned char *)(PPP_F1_BASE + DLEDOFF);
 		  *led = 0x0;
@@ -908,7 +918,7 @@ for(;;)
 /* Place PPP "pick_gate" coincident with test pulse and enable operation */
 
 		  scale_fac = fldrdr -> scale_factor[1];
-		  ppp_opflags(pick_gate,FREQ_ON,scale_fac,dc_flag,2,1);
+		  ppp_opflags(pick_gate,FREQ_ON,prt_flag,scale_fac,dc_flag,2,1);
 
            /* Turn on PPP LED */
                   led = (unsigned char *)(PPP_F2_BASE + DLEDON);
@@ -917,7 +927,7 @@ for(;;)
 	    else
 	      {
 		  scale_fac = fldrdr -> scale_factor[1];
-		  ppp_opflags(pick_gate,FREQ_OFF,scale_fac,dc_flag,2,1);
+		  ppp_opflags(pick_gate,FREQ_OFF,prt_flag,scale_fac,dc_flag,2,1);
 
            /* Turn off PPP LED */
                   led = (unsigned char *)(PPP_F2_BASE + DLEDOFF);
@@ -937,7 +947,7 @@ for(;;)
 /* Place PPP "pick_gate" coincident with test pulse and enable operation */
 
 		  scale_fac = fldrdr -> scale_factor[2];
-		  ppp_opflags(pick_gate,FREQ_ON,scale_fac,dc_flag,3,1);
+		  ppp_opflags(pick_gate,FREQ_ON,prt_flag,scale_fac,dc_flag,3,1);
 
            /* Turn on PPP LED */
                   led = (unsigned char *)(PPP_F3_BASE + DLEDON);
@@ -946,7 +956,7 @@ for(;;)
 	    else
 	      {
 		  scale_fac = fldrdr -> scale_factor[2];
-		  ppp_opflags(pick_gate,FREQ_OFF,scale_fac,dc_flag,3,1);
+		  ppp_opflags(pick_gate,FREQ_OFF,prt_flag,scale_fac,dc_flag,3,1);
 
            /* Turn off PPP LED */
                   led = (unsigned char *)(PPP_F3_BASE + DLEDOFF);
@@ -966,7 +976,7 @@ for(;;)
 /* Place PPP "pick_gate" coincident with test pulse and enable operation */
 
 		  scale_fac = fldrdr -> scale_factor[3];
-		  ppp_opflags(pick_gate,FREQ_ON,scale_fac,dc_flag,4,1);
+		  ppp_opflags(pick_gate,FREQ_ON,prt_flag,scale_fac,dc_flag,4,1);
 
            /* Turn on PPP LED */
                   led = (unsigned char *)(PPP_F4_BASE + DLEDON);
@@ -975,7 +985,7 @@ for(;;)
 	    else
 	      {
 		  scale_fac = fldrdr -> scale_factor[3];
-		  ppp_opflags(pick_gate,FREQ_OFF,scale_fac,dc_flag,4,1);
+		  ppp_opflags(pick_gate,FREQ_OFF,prt_flag,scale_fac,dc_flag,4,1);
 
          /* Turn off PPP LED */
                   led = (unsigned char *)(PPP_F4_BASE + DLEDOFF);
@@ -995,7 +1005,7 @@ for(;;)
 /* Place PPP "pick_gate" coincident with test pulse and enable operation */
 
 		  scale_fac = fldrdr -> scale_factor[4];
-		  ppp_opflags(pick_gate,FREQ_ON,scale_fac,dc_flag,5,1);
+		  ppp_opflags(pick_gate,FREQ_ON,prt_flag,scale_fac,dc_flag,5,1);
 
            /* Turn on PPP LED */
                   led = (unsigned char *)(PPP_F5_BASE + DLEDON);
@@ -1004,7 +1014,7 @@ for(;;)
 	    else
 	      {
 		  scale_fac = fldrdr -> scale_factor[4];
-		  ppp_opflags(pick_gate,FREQ_OFF,scale_fac,dc_flag,5,1);
+		  ppp_opflags(pick_gate,FREQ_OFF,prt_flag,scale_fac,dc_flag,5,1);
 
 	   /* Turn off PPP LED */
                   led = (unsigned char *)(PPP_F5_BASE + DLEDOFF);
@@ -1078,7 +1088,8 @@ for(;;)
 	    /* NOTE: must write to register in interrupt handler */
 	    /* to re-enable interrupt again                */
 	    stat = *bim_cr0;
-	    printf("BIM control register 0 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM control register 0 = %x \n",stat);
 	    
 	    bim_cr1 = (unsigned char *)(COL0BASE + BIMSEL + cntrl_reg1);
 	    *bim_cr1 = 0xdb;  /* set INT1* for interrupt level IRQ3* */
@@ -1086,7 +1097,8 @@ for(;;)
 	    /* NOTE: must write to register in interrupt handler */
 	    /*       to re-enable interrupt again                */
 	    stat = *bim_cr1;
-	    printf("BIM control register 1 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM control register 1 = %x \n",stat);
 	    
 	    bim_cr2 = (unsigned char *)(COL0BASE + BIMSEL + cntrl_reg2);
 	    *bim_cr2 = 0xda;  /* set INT2* for interrupt level IRQ2* */
@@ -1094,7 +1106,8 @@ for(;;)
 	    /* NOTE: must write to register in interrupt handler */
       /*       to re-enable interrupt again                */
 	    stat = *bim_cr2;
-	    printf("BIM control register 2 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM control register 2 = %x \n",stat);
 	    
 	    bim_cr3 = (unsigned char *)(COL0BASE + BIMSEL + cntrl_reg3);
 	    *bim_cr3 = 0xd9;  /* set INT3* for interrupt level IRQ1* */
@@ -1102,31 +1115,32 @@ for(;;)
 	    /* NOTE: must write to register in interrupt handler */
 	    /*       to re-enable interrupt again                */
 	    stat = *bim_cr3;
-	    printf("BIM control register 3 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM control register 3 = %x \n",stat);
 	    
 	    bim_vr0 = (unsigned char *)(COL0BASE + BIMSEL + vec_reg0);
 	    *bim_vr0 = int_vec0;
 	    stat = *bim_vr0;
-	    printf("BIM vector register 0 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM vector register 0 = %x \n",stat);
 	    
 	    bim_vr1 = (unsigned char *)(COL0BASE + BIMSEL + vec_reg1);
 	    *bim_vr1 = int_vec1;
 	    stat = *bim_vr1;
-	    printf("BIM vector register 1 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM vector register 1 = %x \n",stat);
 	    
 	    bim_vr2 = (unsigned char *)(COL0BASE + BIMSEL + vec_reg2);
 	    *bim_vr2 = int_vec2;
 	    stat = *bim_vr2;
-	    printf("BIM vector register 2 = %x \n",stat);
+	    if(!Silent)
+	      printf("BIM vector register 2 = %x \n",stat);
 
 	    bim_vr3 = (unsigned char *)(COL0BASE + BIMSEL + vec_reg3);
 	    *bim_vr3 = int_vec3;
 	    stat = *bim_vr3;
-	    printf("BIM vector register 3 = %x \n",stat);
-/*	    
-	    printf("Samples = %d; PRF = %d; GATES = %d; GATE SPACING = %d; \n",sampl,prf,gates,gate_sp); 
-	    printf("First Gate = %d; Duty Cycle = %f; Test Pulse = %d \n",gate_sp,duty_cycle);
-*/	
+	    if(!Silent)
+	      printf("BIM vector register 3 = %x \n",stat);
 
 /********************************************************************
  *  Program Timing Module Here                                      *
@@ -1151,10 +1165,10 @@ for(;;)
 	    digif_gates = (short *)(ATOD1BASE);
 	    *digif_gates = gates - 1;
 */
-
+	    d_sampl = sampl * wvfm -> num_chips[0];
 	    for(i=1;i<=f_flag;i++)
-	      prog_digif(i,gates,gate_sp,sampl); /* program new digif */
-	    taskDelay(1);                        /* delay */
+	      prog_digif(i,gates,gate_sp,d_sampl); /* program new digif */
+	    taskDelay(1);                          /* delay */
 /********************************************************************
  *  Start Collator and DSPQ DSP32C's HERE                           *
  ********************************************************************/
@@ -1256,7 +1270,7 @@ nal priority */
 	      {
       /* Wait 0.3 seconds maximum for MID-BEAM INTERRUPT */
 
-		  sem_status = semTake(bim_int1_sem, 200); /* wait 200 ticks for ISR to pass sem */
+		  sem_status = semTake(bim_int1_sem, 30); /* wait 30 ticks for ISR to pass sem */
 		  if (sem_status == OK)
 		    {
 
@@ -1328,7 +1342,7 @@ r->tpulse_width);
 		  /*  printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n"); */
 			int_cnt++;
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= MID_BEAM;
 			proc_stat |= MB;
 	            }
@@ -1343,7 +1357,7 @@ r->tpulse_width);
 /*			printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n"); */
 /*			int_cnt++;			*/
 			/* Update Status */
-/*			currStatus->count++;
+/*			
 			currStatus->rp7 |= END_OF_BEAM;
 			proc_stat |= EOB;
 		    }
@@ -1359,7 +1373,7 @@ r->tpulse_width);
 Determine which DP went out of sync by reading sync flag status back from all operating DP DSP32C's 
 */
 			/* Update Status */
-			currStatus->count++;
+			
 			currStatus->rp7 |= DP_SYNC;
 			proc_stat |= DP;
 			int_cnt++;
@@ -1374,7 +1388,7 @@ Determine which DP went out of sync by reading sync flag status back from all op
 		    {
 			*bim_cr3 = 0xd9;  /* re-enable interrupt INT3* */            
 			/* Update Status */
-			currStatus->count++;
+
 			currStatus->rp7 |= COLL_SYNC;
 			proc_stat |= COL;
 			int_cnt++;
