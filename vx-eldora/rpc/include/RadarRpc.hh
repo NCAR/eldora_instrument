@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/08/12  20:12:53  thor
+ * Added extern "C" around RadarGbls.h.
+ *
  * Revision 1.5  1992/08/06  19:44:02  thor
  * Moved structures to RadarGbls.h.
  *
@@ -35,7 +38,6 @@
 #ifdef OK_RPC
 
 #ifdef UNIX
-#include <rpc/rpc.h>
 #ifndef FAST
 #define FAST register
 #endif
@@ -45,12 +47,13 @@
 extern "C" {
 #endif // __cplusplus
 #include "vxWorks.h"
-#include "string.h"
-#include "rpc/rpc.h"
 #ifdef __cplusplus
 };
 #endif // __cplusplus
 #endif // UNIX
+
+#include <string.h>
+#include <rpc/rpc.h>
 
 #endif // OK_RPC
 
@@ -75,15 +78,13 @@ bool_t xdr_RadarStatus(XDR *, RadarStatus *);
 #define SendCommand ((u_long)1)
 #define GetRadarStatus ((u_long)2)
 
-#ifdef CLIENT_SIDE
 extern struct RadarStatus *sendcommand_1(struct RadarCommand *, CLIENT *);
 extern struct RadarStatus *getradarstatus_1(void *, CLIENT *);
-#else // CLIENT_SIDE
-extern struct RadarStatus *sendcommand_1(struct RadarCommand *,
+extern struct RadarStatus *sendcommand_1_svc(struct RadarCommand *,
 					 struct svc_req *);
-extern struct RadarStatus *getradarstatus_1(void *, struct svc_req *);
+extern struct RadarStatus *getradarstatus_1_svc(void *, struct svc_req *);
+extern int radarcontrol_1_freeresult(SVCXPRT *, xdrproc_t, caddr_t);
 extern int StartRadarCtrl(void);
-#endif // CLIENT_SIDE
 
 #else // OK_RPC
 program RadarControl {
