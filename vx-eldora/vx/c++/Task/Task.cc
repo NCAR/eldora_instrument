@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/10/02  13:23:35  vanandel
+ * added optional task name
+ *
  * Revision 1.4  1992/10/02  13:16:55  vanandel
  * made logMsg's conditionally compiled
  *
@@ -30,6 +33,8 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
+#include "vxWorks.h"
+#include "logLib.h"
 #include "Task.hh"
 
 Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
