@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/10/28  13:06:48  thor
+ * Fixed the scroll over the edge problem!
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -142,7 +145,8 @@ void Window::init(GraphicController *cntlr, int wdw, unsigned short x,
 
 void Window::setPriority(FAST unsigned short priority)
 {
-    controlSetting.viewPriority |= priority <<3; // Only set global priority.
+    controlSetting.viewPriority = (priority << 3) + 7; // Only set global
+						       // priority.
 
     if (displayState == DISPLAYED)
       gbd->priority(window,priority);
