@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:21:45  thor
+ * Brought up to lastest ANSI spec & commented out alarm stuff.
+ *
  * Revision 2.0  1992/11/03  12:53:21  thor
  * *** empty log message ***
  *
@@ -58,7 +61,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 static void ddpIsr(SEM_ID);
 
-Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
+Ddp::Ddp(FAST void *addr, int vector, Pipe &p) :
+Isr(vector,0,(VOIDFUNCPTR)&Ddp::IsrFunction),pipe(p)
 {
     mailBase = (unsigned short *)(addr + 8);
 
@@ -77,9 +81,7 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
     foreCurr = 0;
     aftCurr = 0;
 
-    sem = semCCreate(SEM_Q_FIFO,0);
-
-    intConnect((VOIDFUNCPTR *)(vector * 4),(VOIDFUNCPTR)ddpIsr,(int)sem);
+    ddpsem = semCCreate(SEM_Q_FIFO,0);
 }
 
 void Ddp::Next(void)
@@ -88,7 +90,7 @@ void Ddp::Next(void)
     FAST unsigned short status;
     FAST volatile unsigned short *fptr = fore;
     FAST volatile long *foreAddr = foreSavedAddr;
-    FAST SEM_ID semaphore = sem;
+    FAST SEM_ID semaphore = ddpsem;
 
     do				// Must fall through at least once!
       {
@@ -220,7 +222,7 @@ void Ddp::Clear(void)
     aft = mailBase + 1;
     foreSavedAddr = addrBase;
     aftSavedAddr = addrBase + 1;
-    sem->semCount = 0;
+    ddpsem->semCount = 0;
 
     FAST long *ptr = (long *)mailBase;
 
@@ -231,7 +233,7 @@ void Ddp::Clear(void)
     taskUnlock();
 }
 
-static void ddpIsr(FAST SEM_ID sem)
+void Ddp::IsrFunction()
 {
-    semGive(sem);
+    semGive(ddpsem);
 }
