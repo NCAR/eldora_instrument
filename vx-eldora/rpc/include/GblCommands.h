@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/10/09  19:48:44  eric
+ * added ALIGN command to list.
+ *
  * Revision 1.1  1996/10/09  19:43:42  thor
  * Initial revision
  *
@@ -25,6 +28,6 @@
 #define INIT    0x4
 #define REBOOT  0x8
 #define RELOAD  0x80000000
-#define ALIGN   0x10
+#define ALIGN_MINI   0x10
 
 #endif /* INCGblCommandsh */
