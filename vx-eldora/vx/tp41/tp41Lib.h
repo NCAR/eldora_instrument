@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/01/28  15:53:47  thor
+ * Added include of sysLib.h.
+ *
  * Revision 1.1  1992/01/28  15:44:44  thor
  * Initial revision
  *
@@ -30,6 +33,7 @@
 
 /* Local extensions. */
 extern STATUS dport(char *localAddr, void *vmeAddr, int numSegs);
+extern STATUS std_dport(char *localAddr, void *vmeAddr, int numSegs);
 extern void rcio(int, char *);
 extern void wcio(int, char *, unsigned char);
 
