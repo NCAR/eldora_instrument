@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.17  1991/12/04  18:43:27  thor
+ * Changed scaling computation per Eric.
+ *
  * Revision 1.16  1991/11/19  14:07:24  thor
  * Moved color table reset to after creation of new Radial.
  *
@@ -341,12 +344,12 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     conv->SetBeamSize(*cs,ptr->radius);
 
     FAST int seg = cs->num_segments;
+    FAST Radial *New = new Radial(agc,DISPLAYED_GATES,nv,0,0);
+    FAST short *ncells = &cs->num_cells[0];
 
     FAST int maxDist = cs->distToFirst;
-    if (*colors != -1)
-      agc->setColorMap((long *)colors,256);
 
-    FAST Radial *New = new Radial(agc,DISPLAYED_GATES,nv,0,0);
+    for (FAST int i = 0; i < seg; i++) // Calculate maximum distance & # gates.
       {
           FAST int c = *ncells++;
 
