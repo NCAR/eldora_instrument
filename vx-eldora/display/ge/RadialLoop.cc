@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.24  1992/02/06  21:09:37  thor
+ * Add flush of pipe on restart to avoid drawing outdated data.
+ *
+ * Revision 1.23  1992/02/06  20:44:55  thor
  * Added fast inline code to do float -> int.
  *
  * Revision 1.22  1992/02/05  18:22:27  thor
@@ -86,6 +90,28 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  *
  * description:
  *        
+ */
+static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+
+#include "GeGlobal.hh"
+#include "GeDraw.hh"
+
+static inline int fastround(double d);
+
+static inline int fastround(double d)
+{
+    register int i;
+    register int cm;
+    register int im;
+
+    asm volatile ("fmove%.l fpcr,%0" : "=dm" (cm) : );
+
+    im = cm & 0xff00;
+
+    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
+
+    asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
+
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
 
     return(i);
@@ -190,14 +216,21 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		tmp += 0x30200000;	      // address difference betweem
 		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
 
-		radData.angle = dataBeam->air.rotation_angle - 
-		  dataBeam->air.roll;
+		if (radar == AFT_RADIAL)
+		  {
+		      if (dataBeam->data.radar_name[0] != 'A')
+			continue;
 		  }
-		radData.direction = (int)dataBeam->ray.true_scan_rate;
+		else if (dataBeam->data.radar_name[0] != 'F')
 		  continue;
+// 		radData.angle = dataBeam->air.rotation_angle - 
+// 		  dataBeam->air.roll;
 
 
-		FAST int direct = radData.direction;
+		RadialData radData;
+
+		FAST Beam_Time *now = &radData.time;
+
 		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
 				sizeof(short) * 4);
 
