@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/10/27  16:04:16  thor
+ * Fixed code to allow clean switch between types on the fly.
+ *
  * Revision 2.2  1993/09/28  13:04:33  thor
  * Added dual display support.
  *
@@ -86,11 +89,7 @@ extern "C" {
 
 #include "boxed_cross.h"
 
-static Task *GetsFlags;
-
-static void MouseCtrl(Task &self, Mouse &mouse);
-
-static void DdpLoop(Task &self, Pipe &pipe);
+void DdpLoop(Task &self, Pipe &pipe, Task &GetsFlags);
 
 void DrawingLoop(FAST Task &self)
 {
@@ -117,30 +116,45 @@ void DrawingLoop(FAST Task &self)
 
     int args[2];
 
-    args[0] = (int)&AddrPipe;
-
-    Task ddpTask((FUNCPTR)DdpLoop,args,1,DDP_PRI);
-
     args[0] = (int)&mouse;
 
-    Task mouseTask((FUNCPTR)MouseCtrl,args,1,MOUSE_PRI);
+    Task mouseTask((FUNCPTR)FieldMouseEvents,args,1,MOUSE_PRI,7000);
 
-    args[0] = (int)&Agc;
-    args[1] = (int)&AddrPipe;
+    args[0] = (int)&AddrPipe;
 
-    Task RadialTask((FUNCPTR)RadialLoop,args,2,GRAPH_PRI,6000);
-    Task HorizTask((FUNCPTR)HorizLoop,args,2,GRAPH_PRI);
-    Task VertTask((FUNCPTR)VertLoop,args,2,GRAPH_PRI);
-    Task DualTask((FUNCPTR)DualLoop,args,2,GRAPH_PRI);
-    
-    FAST Task *currTask = &RadialTask;
+    Task DisplayTask((FUNCPTR)DisplayLoop,args,1,GRAPH_PRI,10000);
 
-    GetsFlags = currTask;
+    args[0] = (int)&AddrPipe;
+    args[1] = (int)&DisplayTask;
+
+    Task ddpTask((FUNCPTR)DdpLoop,args,2,DDP_PRI);
+
+    // Now create all the display objects.
+    Radial rad(&Agc);
+    Dual dual(&Agc);
+    Horiz horiz(&Agc);
+    Vert vert(&Agc);
+
+    // Now create the needed shared objects.
+    ColorConverter conv;
+
+    ParamNames namer;
+
+    rad.setColorConverter(conv);
+    rad.setParmNames(namer);
+
+    dual.setColorConverter(conv);
+    dual.setParmNames(namer);
+
+    horiz.setColorConverter(conv);
+    horiz.setParmNames(namer);
+
+    vert.setColorConverter(conv);
+    vert.setParmNames(namer);
 
     for (;;)
       {
-	  FAST unsigned int flag = self.WaitOnFlags(waitMask | REBOOT,
-						    FLAGS_OR);
+	  FAST unsigned int flag = self.WaitOnFlags(mainMask,FLAGS_OR);
 
 	  if ((flag & LOAD_ONLY)) // This is all that`s needed, since
 				 // we don't want to start drawing yet.
@@ -151,26 +165,26 @@ void DrawingLoop(FAST Task &self)
 		  {
 		    case FORWARD_RADIAL:
 		    case AFT_RADIAL:
-		      currTask = &RadialTask;
-		      break;
+                        display = &rad;
+                        break;
 
-		    case FORWARD_VERT:
-		    case AFT_VERT:
-		      currTask = &VertTask;
-		      break;
-
-		    case FORWARD_HORIZ:
-		    case AFT_HORIZ:
-		      currTask = &HorizTask;
-		      break;
+ 		    case FORWARD_VERT:
+ 		    case AFT_VERT:
+                        display = &vert;
+                        break;
+ 
+ 		    case FORWARD_HORIZ:
+ 		    case AFT_HORIZ:
+                        display = &horiz;
+                        break;
 
 		    case FORWARD_DUAL:
 		    case AFT_DUAL:
-		      currTask = &DualTask;
-		      break;
+                        display = &dual;
+                        break;
 		  }
 		// The following is to signal which display - fore or aft.
-		currTask->SetFlags(LOAD_ONLY);
+		DisplayTask.SetFlags(LOAD_ONLY);
 	    }
 	  else
 	    {
@@ -179,111 +193,108 @@ void DrawingLoop(FAST Task &self)
 		switch(flag)
 		  {
 		    case REBOOT:
-		      currTask->SetFlags(DESTROY_SELF);
+		      DisplayTask.SetFlags(UNDISPLAY);
 		      taskDelay(30);
 		      reboot(BOOT_NORMAL);
 		      return;
 		      break;
 		      
-		    case STOP:
-		      currTask->SetFlags(flag);
-		      break;
-		      
-		    case START:
-		      currTask->SetFlags(flag);
-		      break;
-		      
-		    case RELOAD:
-		    case RESTART_DISP:
-		      currTask->SetFlags(flag);
-		      break;
-		      
 		    case FORWARD_RADIAL:
-		      if (currTask != &RadialTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &RadialTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
+		      if (display != &rad)
+			{
+			    DisplayTask.SetFlags(UNDISPLAY);
+			    taskDelay(10);
+			    display = &rad;
+			}
+		      DisplayTask.SetFlags(SHOW_FORWARD);
 		      break;
 		      
 		    case AFT_RADIAL:
-		      if (currTask != &RadialTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &RadialTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
+		      if (display != &rad)
+			{
+			    DisplayTask.SetFlags(UNDISPLAY);
+			    taskDelay(10);
+			    display = &rad;
+			}
+		      DisplayTask.SetFlags(SHOW_AFT);
 		      break;
 		      
-		    case FORWARD_HORIZ:
-		      if (currTask != &HorizTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &HorizTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
-		      break;
-		      
-		    case AFT_HORIZ:
-		      if (currTask != &HorizTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &HorizTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
-		      break;
-		      
-		    case FORWARD_VERT:
-		      if (currTask != &VertTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &VertTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
-		      break;
-		      
-		    case AFT_VERT:
-		      if (currTask != &VertTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &VertTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
-		      break;
+ 		    case FORWARD_HORIZ:
+ 		      if (display != &horiz)
+ 			{
+ 			    DisplayTask.SetFlags(UNDISPLAY);
+ 			    taskDelay(10);
+ 			    display = &horiz;
+ 			}
+ 		      DisplayTask.SetFlags(SHOW_FORWARD);
+ 		      break;
+ 		      
+ 		    case AFT_HORIZ:
+ 		      if (display != &horiz)
+ 			{
+ 			    DisplayTask.SetFlags(UNDISPLAY);
+ 			    taskDelay(10);
+ 			    display = &horiz;
+ 			}
+ 		      DisplayTask.SetFlags(SHOW_AFT);
+ 		      break;
+ 		      
+ 		    case FORWARD_VERT:
+                        if (display != &vert)
+                          {
+                              DisplayTask.SetFlags(UNDISPLAY);
+                              taskDelay(10);
+                              display = &vert;
+                          }
+ 		      DisplayTask.SetFlags(SHOW_FORWARD);
+ 		      break;
+ 		      
+ 		    case AFT_VERT:
+                        if (display != &vert)
+                          {
+                              DisplayTask.SetFlags(UNDISPLAY);
+                              taskDelay(10);
+                              display = &vert;
+                          }
+ 		      DisplayTask.SetFlags(SHOW_AFT);
+ 		      break;
 		      
 		    case FORWARD_DUAL:
-		      if (currTask != &DualTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &DualTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
+		      if (display != &dual)
+			{
+			    DisplayTask.SetFlags(UNDISPLAY);
+			    taskDelay(10);
+			    display = &dual;
+			}
+		      DisplayTask.SetFlags(SHOW_FORWARD);
 		      break;
 		      
 		    case AFT_DUAL:
-		      if (currTask != &DualTask)
-			currTask->SetFlags(DESTROY_SELF);
-		      currTask = &DualTask;
-		      GetsFlags = currTask;
-		      currTask->SetFlags(flag);
+		      if (display != &dual)
+			{
+			    DisplayTask.SetFlags(UNDISPLAY);
+			    taskDelay(10);
+			    display = &dual;
+			}
+		      DisplayTask.SetFlags(SHOW_AFT);
 		      break;
 
-		    case TMO_CHANGE:
-		      if (currTask != &HorizTask)
-			break;
-		      currTask->SetFlags(flag);
+// 		    case TMO_CHANGE:
+// 		      if (display != &horiz)
+// 			break;
+// 		      DisplayTask.SetFlags(flag);
+// 		      break;
+
+		    case START:
+		    case STOP:
+		      DisplayTask.SetFlags(flag);
 		      break;
 		  }
 	    }
       }
 }
 
-static void MouseCtrl(Task &self, FAST Mouse &mouse)
-{
-    for (;;)
-      {
-         FAST int reason = mouse.waitOnInterrupt();
-
-	 if (reason == MOUSE_INT)
-	   GetsFlags->SetFlags(MOUSE_FLAG);
-      }
-}
-
-static void DdpLoop(Task &self, Pipe &pipe)
+void DdpLoop(Task &self, Pipe &pipe, FAST Task &GetsFlags)
 {
     Ddp ddp((void *)DDP_ADDR,DDP_VECTOR,pipe);
 
@@ -292,6 +303,6 @@ static void DdpLoop(Task &self, Pipe &pipe)
     for (;;)
       {
 	  ddp.Next();
-	  GetsFlags->SetFlags(NEW_DATA_FLAG);
+	  GetsFlags.SetFlags(NEW_DATA_FLAG);
       }
 }
