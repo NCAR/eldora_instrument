@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/06/21  18:48:55  thor
+ * Fixed raw data length calc.
+ *
  * Revision 1.3  1995/01/25  17:42:15  eric
  * Initialized global Header pointers from nu_archit_dac.c to avoid
  * conflicts.
@@ -51,6 +54,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Waveform.h"
 #include "raw_data.h"
 
+#define MAX_FFT_SIZE 1024
 long data_ray_length()
 {
 
@@ -99,11 +103,13 @@ else
    time_series_length = 0;
 
 /* Calculate the raw data length */
-if(number_of_cells > prm->num_samples)
-  raw_data_length = sizeof(RAW_DATA) + number_of_cells * sizeof(float);
-else
-  raw_data_length = sizeof(RAW_DATA) + prm->num_samples * sizeof(float);
 
+if(number_of_cells > prm->num_samples && number_of_cells > MAX_FFT_SIZE)
+  raw_data_length = sizeof(RAW_DATA) + number_of_cells * sizeof(float);
+else if(prm->num_samples > number_of_cells && prm->num_samples > MAX_FFT_SIZE)
+  raw_data_length = sizeof(RAW_DATA) + prm->num_samples * sizeof(float);
+else
+  raw_data_length = sizeof(RAW_DATA) + MAX_FFT_SIZE * sizeof(float);
 total_length = sizeof(ray_i) + sizeof(platform_i) + 
   sizeof(field_parameter_data) + number_of_cells *
   bytes_per_cell + indep_freq_length + time_series_length + raw_data_length;
