@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.17  1992/01/22  17:38:39  thor
+ * Major rewrite to make code use a new algorithm.
+ *
  * Revision 1.16  1992/01/17  20:26:26  thor
  * Added cast to call to free().
  *
@@ -74,17 +77,19 @@ extern "C" {
 #include "memLib.h"
 #include "string.h"
 #include "stdioLib.h"
-ColorConverter::ColorConverter(int bins, float *max, float *min, int *offsets,
+#include "taskLib.h"
+};
 
 ColorConverter::ColorConverter(int bins, float *max, float *min, float *scales,
     tbl[0] = NULL;		// Zero out pointers to be safe.
     tbl[1] = NULL;
     tbl[2] = NULL;
 
-    Reset(bins,max,min,offsets,nparams,nvalues);
+			       float *biases, int *offsets,
 			       int nparams, int nvalues)
 {
     Reset(bins,max,min,scales,biases,offsets,nparams,nvalues);
+}
 
 void ColorConverter::Reset(FAST int bins, float *max, float *min,
 			   float *scales, float *biases,
@@ -92,6 +97,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 {
     nbins = bins;
     FAST int *firsts = first;
+    numOfParams = nparams;
 
     for (FAST int i = 0; i < nvalues; i++, firsts++)
     float fb = 0.0;		// Color offset.
@@ -122,6 +128,29 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		  *ptr++ = (unsigned short)f; // Ignore roundoff err.
 	    }
 	  float mx = *max++;
+	  float mn = *min++;
+	  float slope = (float)(bins - 1) / (mx - mn);
+	  float b = (float)(bins - 1) - (slope * mx);
+	  
+	  j = 0xffff;
+
+
+	  valueOffset[i] = *offsets++;
+
+	  float bias = *biases++;
+	  for (FAST int k = 0; k < j; k++)
+	  float b = -(slope * mn);
+		float c = (slope * (((float)k - bias)/ scale)) + b;
+		  t = mn;
+
+		float c = (slope * t) + b;
+
+		if (c > maxColor)
+		  c = maxColor;
+		unsigned char color = (unsigned char)c;
+		c += fb;	// Add in offset.
+
+		unsigned char color = (unsigned char)iround(c);
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
@@ -224,32 +253,46 @@ void ColorConverter::GetPoint(FAST unsigned short *data,
 void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
-    FAST unsigned char bins = nbins;
-    FAST unsigned char tsize = bins - 1; // Loop count maximum.
-    FAST unsigned char inc = 0;		 // Offset into color table.
-    FAST int count = numOfValues;	 // How many to do.
-    FAST int off = numOfParams * index;	 // Offset to this gates' location.
+    FAST unsigned char *lkup = convertTbl;
+ 
     FAST int offset = *offsets++ + off; // Now add in offset to param.
     FAST unsigned char *colors = &dp.colors[0];
-    FAST unsigned short **tbls = tbl;
+    FAST unsigned char *lkup = convertTbl;
+ 
+    FAST int offset = *offsets++ + off; // Now add in offset to param.
 
-    for (FAST int i = 0; i < count; i++, inc += bins, tbls++)
+    FAST unsigned short datum = *(data + offset);
+
+    *colors++ = *(lkup + datum);
+
+    --count;
+
+    FAST unsigned char bins;
+
+    if (count)
       {
-	  FAST int offset = *offsets++ + off; // Now add in offset to param.
+	  bins = nbins;
+
+	  offset = *offsets++ + off;
 
 	  FAST unsigned short datum = *(data + offset);
 
-	  FAST unsigned short *lkup = *tbls;
+	  *colors++ = *(lkup + datum) + bins;
+      }
+    else
+      return;
 
-	  FAST unsigned char color = first[i]; // Get 1st color.
+    --count;
 
-	  do
-	    {
-		if (datum < *lkup++)
-		  break;
-	    } while (++color < tsize);
+    if (count)
+      {
+	  bins *= 2;
 
-	  *colors++ = color + inc;
+	  offset = *offsets + off;
+
+	  FAST unsigned short datum = *(data + offset);
+
+	  *colors = *(lkup + datum) + bins;
       }
 }
 
@@ -257,643 +300,92 @@ void ColorConverter::GetVertPoint(FAST unsigned short *data,
 				  FAST VertPoint &dp,
 				  FAST int index)
 {
-    FAST unsigned char bins = nbins;
-    FAST unsigned char tsize = bins - 1; // Loop count maximum.
-    FAST unsigned char inc = 0;		 // Offset into color table.
     FAST int count = numOfValues;
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
     FAST unsigned char *colors = &dp.colors[0];
-    FAST unsigned short **tbls = tbl;
-    --count;
-    for (FAST int i = 0; i < count; i++, inc += bins, tbls++)
-	  FAST unsigned short datum = *(data + offset);
-	  FAST int offset = *offsets++ + off; // Now add in offset to param.
 
+    FAST unsigned short datum = *(data + offset);
+
+    *colors++ = *(lkup + datum);
+
+    --count;
+
+    if (count)
+      {
+	  offset = *offsets++ + off;
+    FAST unsigned char bins;
+
+
+	  FAST unsigned short datum = *(data + offset);
+	  bins = nbins;
+
+
+	  *colors++ = *(lkup + datum);
       }
     else
-	  FAST unsigned short *lkup = *tbls;
+	  *colors++ = *(lkup + datum) + bins;
 
-	  FAST unsigned char color = first[i]; // Get 1st color.
+    --count;
+
+    if (count)
+      {
+	  offset = *offsets + off;
+
+	  FAST unsigned short datum = *(data + offset);
+	  bins *= 2;
+
+
 	  *colors = *(lkup + datum);
-	  do
-	    {
-		if (datum < *lkup++)
-		  break;
-	    } while (++color < tsize);
+      }
 }
-	  *colors++ = color + inc;
+	  *colors = *(lkup + datum) + bins;
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
 void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
-    int count = numOfValues;	// How many.
+    FAST unsigned char *lkup = convertTbl;
     FAST unsigned char *colors = &rad.colors[0];
-    FAST unsigned short **tbls = tbl;
     FAST int j = DISPLAYED_GATES;
     for (FAST int i = 0; i < j; i++)
-    FAST unsigned short *table = *tbls;
+      {
 	  FAST unsigned short datum = *(data + *ptr++);
-    for (FAST int k = 0; k < j; k++)
+
 	  *colors++ = *(lkup + datum);
-	  FAST unsigned short datum = *(data + *ptr++);	// Get data.
+      }
 
-	  FAST unsigned short *lkup = table; // Point to start of table.
-
-	  FAST unsigned char color = first[0]; // Get 1st color.
-
-	  switch(color)		// Go!
-	    {
-	      case 0:
-		if (datum < *lkup++)
-		  break;
-	      case 1:
-		if (datum < *lkup++)
-		  {
-		      color = 1;
-		      break;
-		  }
-	      case 2:
-		if (datum < *lkup++)
-		  {
-		      color = 2;
-		      break;
-		  }
-	      case 3:
-		if (datum < *lkup++)
-		  {
-		      color = 3;
-		      break;
-		  }
-	      case 4:
-		if (datum < *lkup++)
-		  {
-		      color = 4;
-		      break;
-		  }
-	      case 5:
-		if (datum < *lkup++)
-		  {
-		      color = 5;
-		      break;
-		  }
-	      case 6:
-		if (datum < *lkup++)
-		  {
-		      color = 6;
-		      break;
-		  }
-	      case 7:
-		if (datum < *lkup++)
-		  {
-		      color = 7;
-		      break;
-		  }
-	      case 8:
-		if (datum < *lkup++)
-		  {
-		      color = 8;
-		      break;
-		  }
-	      case 9:
-		if (datum < *lkup++)
-		  {
-		      color = 9;
-		      break;
-		  }
-	      case 10:
-		if (datum < *lkup++)
-		  {
-		      color = 10;
-		      break;
-		  }
-	      case 11:
-		if (datum < *lkup++)
-		  {
-		      color = 11;
-		      break;
-		  }
-	      case 12:
-		if (datum < *lkup++)
-		  {
-		      color = 12;
-		      break;
-		  }
-	      case 13:
-		if (datum < *lkup++)
-		  {
-		      color = 13;
-		      break;
-		  }
-	      case 14:
-		if (datum < *lkup++)
-		  {
-		      color = 14;
-		      break;
-		  }
-	      case 15:
-		if (datum < *lkup++)
-		  {
-		      color = 15;
-		      break;
-		  }
-	      case 16:
-		if (datum < *lkup++)
-		  {
-		      color = 16;
-		      break;
-		  }
-	      case 17:
-		if (datum < *lkup++)
-		  {
-		      color = 17;
-		      break;
-		  }
-	      case 18:
-		if (datum < *lkup++)
-		  {
-		      color = 18;
-		      break;
-		  }
-	      case 19:
-		if (datum < *lkup++)
-		  {
-		      color = 19;
-		      break;
-		  }
-	      case 20:
-		if (datum < *lkup++)
-		  {
-		      color = 20;
-		      break;
-		  }
-	      case 21:
-		if (datum < *lkup++)
-		  {
-		      color = 21;
-		      break;
-		  }
-	      case 22:
-		if (datum < *lkup++)
-		  {
-		      color = 22;
-		      break;
-		  }
-	      case 23:
-		if (datum < *lkup++)
-		  {
-		      color = 23;
-		      break;
-		  }
-	      case 24:
-		if (datum < *lkup++)
-		  {
-		      color = 24;
-		      break;
-		  }
-	      case 25:
-		if (datum < *lkup++)
-		  {
-		      color = 25;
-		      break;
-		  }
-	      case 26:
-		if (datum < *lkup++)
-		  {
-		      color = 26;
-		      break;
-		  }
-	      case 27:
-		if (datum < *lkup++)
-		  {
-		      color = 27;
-		      break;
-		  }
-	      case 28:
-		if (datum < *lkup++)
-		  {
-		      color = 28;
-		      break;
-		  }
-	      case 29:
-		if (datum < *lkup)
-		  {
-		      color = 29;
-		      break;
-		  }
-	      case 30:
-	      default:
-		color = 30;
-		break;
-	    }
-
-	  *colors++ = color;	// Note that these are the first bins
-				// colors in the color table.
+    --count;
 
     if (count)
-    if (!(--count))
-      return;
+      {
 	  lkup += 0x10000;
-    tbls++;
-    table = *tbls++;
-    FAST unsigned char inc = nbins;	// Offset into color table.
+    FAST unsigned char bins;
 
-    for (k = 0; k < j; k++)
+	  for (i = 0; i < j; i++)
 	    {
-	  FAST unsigned short datum = *(data + *ptr++);
+	  bins = nbins;
 
-	  FAST unsigned short *lkup = table;
-
-	  FAST unsigned char color = first[1];
 		
-	  switch(color)
-	    {
-	      case 0:
-		if (datum < *lkup++)
-		  break;
-	      case 1:
-		if (datum < *lkup++)
-		  {
-		      color = 1;
-		      break;
-		  }
-	      case 2:
-		if (datum < *lkup++)
-		  {
-		      color = 2;
-		      break;
-		  }
-	      case 3:
-		if (datum < *lkup++)
-		  {
-		      color = 3;
-		      break;
-		  }
-	      case 4:
-		if (datum < *lkup++)
-		  {
-		      color = 4;
-		      break;
-		  }
-	      case 5:
-		if (datum < *lkup++)
-		  {
-		      color = 5;
-		      break;
-		  }
-	      case 6:
-		if (datum < *lkup++)
-		  {
-		      color = 6;
-		      break;
-		  }
-	      case 7:
-		if (datum < *lkup++)
-		  {
-		      color = 7;
-		      break;
-		  }
-	      case 8:
-		if (datum < *lkup++)
-		  {
-		      color = 8;
-		      break;
-		  }
-	      case 9:
-		if (datum < *lkup++)
-		  {
-		      color = 9;
-		      break;
-		  }
-	      case 10:
-		if (datum < *lkup++)
-		  {
-		      color = 10;
-		      break;
-		  }
-	      case 11:
-		if (datum < *lkup++)
-		  {
-		      color = 11;
-		      break;
-		  }
-	      case 12:
-		if (datum < *lkup++)
-		  {
-		      color = 12;
-		      break;
-		  }
-	      case 13:
-		if (datum < *lkup++)
-		  {
-		      color = 13;
-		      break;
-		  }
-	      case 14:
-		if (datum < *lkup++)
-		  {
-		      color = 14;
-		      break;
-		  }
-	      case 15:
-		if (datum < *lkup++)
-		  {
-		      color = 15;
-		      break;
-		  }
-	      case 16:
-		if (datum < *lkup++)
-		  {
-		      color = 16;
-		      break;
-		  }
-	      case 17:
-		if (datum < *lkup++)
-		  {
-		      color = 17;
-		      break;
-		  }
-	      case 18:
-		if (datum < *lkup++)
-		  {
-		      color = 18;
-		      break;
-		  }
-	      case 19:
-		if (datum < *lkup++)
-		  {
-		      color = 19;
-		      break;
-		  }
-	      case 20:
-		if (datum < *lkup++)
-		  {
-		      color = 20;
-		      break;
-		  }
-	      case 21:
-		if (datum < *lkup++)
-		  {
-		      color = 21;
-		      break;
-		  }
-	      case 22:
-		if (datum < *lkup++)
-		  {
-		      color = 22;
-		      break;
-		  }
-	      case 23:
-		if (datum < *lkup++)
-		  {
-		      color = 23;
-		      break;
-		  }
-	      case 24:
-		if (datum < *lkup++)
-		  {
-		      color = 24;
-		      break;
-		  }
-	      case 25:
-		if (datum < *lkup++)
-		  {
-		      color = 25;
-		      break;
-		  }
-	      case 26:
-		if (datum < *lkup++)
-		  {
-		      color = 26;
-		      break;
-		  }
-	      case 27:
-		if (datum < *lkup++)
-		  {
-		      color = 27;
-		      break;
-		  }
-	      case 28:
-		if (datum < *lkup++)
-		  {
-		      color = 28;
-		      break;
-		  }
-	      case 29:
-		if (datum < *lkup)
-		  {
-		      color = 29;
-		      break;
-		  }
-	      case 30:
-	      default:
-		color = 30;
-		break;
+		*colors++ = *(lkup + datum);
+	    }
+
+		*colors++ = *(lkup + datum) + bins;
       return;
-
-	  *colors++ = color + inc; // Correct to proper color.
+    
+    --count;
     
 
-    if (!(--count))
-    
+      {
 
-    table = *tbls;
-    inc *= 2;
-
-
-    for (k = 0; k < j; k++)
+	  for (i = 0; i < j; i++)
 	    {
-	  FAST unsigned short datum = *(data + *ptr++);
+	  bins *= 2;
 
-	  FAST unsigned short *lkup = table;
-
-	  FAST unsigned char color = first[2];
 		
-	  switch(color)
-	    {
-	      case 0:
-		if (datum < *lkup++)
-		  break;
-	      case 1:
-		if (datum < *lkup++)
-		  {
-		      color = 1;
-		      break;
-		  }
-	      case 2:
-		if (datum < *lkup++)
-		  {
-		      color = 2;
-		      break;
-		  }
-	      case 3:
-		if (datum < *lkup++)
-		  {
-		      color = 3;
-		      break;
-		  }
-	      case 4:
-		if (datum < *lkup++)
-		  {
-		      color = 4;
-		      break;
-		  }
-	      case 5:
-		if (datum < *lkup++)
-		  {
-		      color = 5;
-		      break;
-		  }
-	      case 6:
-		if (datum < *lkup++)
-		  {
-		      color = 6;
-		      break;
-		  }
-	      case 7:
-		if (datum < *lkup++)
-		  {
-		      color = 7;
-		      break;
-		  }
-	      case 8:
-		if (datum < *lkup++)
-		  {
-		      color = 8;
-		      break;
-		  }
-	      case 9:
-		if (datum < *lkup++)
-		  {
-		      color = 9;
-		      break;
-		  }
-	      case 10:
-		if (datum < *lkup++)
-		  {
-		      color = 10;
-		      break;
-		  }
-	      case 11:
-		if (datum < *lkup++)
-		  {
-		      color = 11;
-		      break;
-		  }
-	      case 12:
-		if (datum < *lkup++)
-		  {
-		      color = 12;
-		      break;
-		  }
-	      case 13:
-		if (datum < *lkup++)
-		  {
-		      color = 13;
-		      break;
-		  }
-	      case 14:
-		if (datum < *lkup++)
-		  {
-		      color = 14;
-		      break;
-		  }
-	      case 15:
-		if (datum < *lkup++)
-		  {
-		      color = 15;
-		      break;
-		  }
-	      case 16:
-		if (datum < *lkup++)
-		  {
-		      color = 16;
-		      break;
-		  }
-	      case 17:
-		if (datum < *lkup++)
-		  {
-		      color = 17;
-		      break;
-		  }
-	      case 18:
-		if (datum < *lkup++)
-		  {
-		      color = 18;
-		      break;
-		  }
-	      case 19:
-		if (datum < *lkup++)
-		  {
-		      color = 19;
-		      break;
-		  }
-	      case 20:
-		if (datum < *lkup++)
-		  {
-		      color = 20;
-		      break;
-		  }
-	      case 21:
-		if (datum < *lkup++)
-		  {
-		      color = 21;
-		      break;
-		  }
-	      case 22:
-		if (datum < *lkup++)
-		  {
-		      color = 22;
-		      break;
-		  }
-	      case 23:
-		if (datum < *lkup++)
-		  {
-		      color = 23;
-		      break;
-		  }
-	      case 24:
-		if (datum < *lkup++)
-		  {
-		      color = 24;
-		      break;
-		  }
-	      case 25:
-		if (datum < *lkup++)
-		  {
-		      color = 25;
-		      break;
-		  }
-	      case 26:
-		if (datum < *lkup++)
-		  {
-		      color = 26;
-		      break;
-		  }
-	      case 27:
-		if (datum < *lkup++)
-		  {
-		      color = 27;
-		      break;
-		  }
-	      case 28:
-		if (datum < *lkup++)
-		  {
-		      color = 28;
-		      break;
-		  }
-	      case 29:
-		if (datum < *lkup)
-		  {
-		      color = 29;
-		      break;
-		  }
-	      case 30:
-	      default:
-		color = 30;
-		break;
+		*colors++ = *(lkup + datum);
+	    }
 
-	  *colors = color + inc;
-d272 1
+		*colors++ = *(lkup + datum) + bins;
+
     
