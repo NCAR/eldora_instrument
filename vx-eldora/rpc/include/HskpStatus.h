@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/13  20:19:02  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -62,11 +65,11 @@ typedef struct HskpStatus HskpStatus;
 
 #define ECB_MASTER_BAD 0x1
 
-#define SLAVE_1_ALIVE 0x2
-#define SLAVE_2_ALIVE 0x4
-#define SLAVE_3_ALIVE 0x8
-#define SLAVE_4_ALIVE 0x10
-#define SLAVE_5_ALIVE 0x20
+#define SLAVE_1_DEAD 0x2
+#define SLAVE_2_DEAD 0x4
+#define SLAVE_3_DEAD 0x8
+#define SLAVE_4_DEAD 0x10
+#define SLAVE_5_DEAD 0x20
 
 #define MASTER_TEMP_BAD  0x1
 #define SLAVE_1_TEMP_BAD 0x2
