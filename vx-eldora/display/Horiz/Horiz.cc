@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:29:50  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -28,7 +31,7 @@ Horiz::Horiz(GraphicController *gbd) : Display(gbd)
     // The color tables are located directly after the third parameter
     // data area.
     FAST unsigned short tbl_x = Horiz::DATA_WIDTH;
-    FAST unsigned short tbl_y = Horiz::TITLE_HEIGHT + Horiz::DATA_HEIGHT;
+    FAST unsigned short tbl_y = 0;
 
     FAST unsigned short title_x = 0;
     FAST unsigned short title_y = 0;
@@ -40,8 +43,8 @@ Horiz::Horiz(GraphicController *gbd) : Display(gbd)
     Wdw[6].init(gbd,2,Horiz::DATA_WIDTH,0,Horiz::TBL_WIDTH,Horiz::TBL_HEIGHT,
 		tbl_x,tbl_y);
 
-    xoff += Horiz::DATA_WIDTH;
-    title_x += Horiz::TITLE_WIDTH;
+    yoff += Horiz::DATA_HEIGHT + (2 * Horiz::TITLE_HEIGHT);
+    title_y += Horiz::DATA_HEIGHT + Horiz::TITLE_HEIGHT;
     tbl_x += Horiz::TBL_WIDTH;
 
     Wdw[2].init(gbd,0,0,Horiz::TITLE_HEIGHT,Horiz::DATA_WIDTH,
@@ -51,10 +54,8 @@ Horiz::Horiz(GraphicController *gbd) : Display(gbd)
     Wdw[7].init(gbd,2,Horiz::DATA_WIDTH,0,Horiz::TBL_WIDTH,Horiz::TBL_HEIGHT,
 		tbl_x,tbl_y);
 
-    xoff = 0;
-    yoff += Horiz::DATA_HEIGHT + (2 * Horiz::TITLE_HEIGHT);
-    title_x = 0;
-    title_y += Horiz::DATA_HEIGHT + Horiz::TITLE_HEIGHT;
+    xoff += Horiz::DATA_WIDTH;
+    title_x += Horiz::TITLE_WIDTH;
     tbl_x += Horiz::TBL_WIDTH;
 
     Wdw[4].init(gbd,0,0,Horiz::TITLE_HEIGHT,Horiz::DATA_WIDTH,
@@ -214,10 +215,8 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
 
     agc->clear();
 
-    FAST u_long *colors = &cmd->colorTable[0];
-
-    if (*colors != 0xffffffff)
-          agc->setColorMap((long *)colors,256);
+    if (cmd->userColors)
+          setColors();
 
     numOfParams = nv;
 
@@ -227,9 +226,9 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
       dispType = Display::HORIZ_FORE;
     
     numOfWdws = nv * 3;
-    altitude = cmd->distance * 1000.00;
-    cout << "Horiz displaying for altitude = " << altitude << endl;
-    pixelsPerMeter = (double)Horiz::DATA_WIDTH / (cmd->size * 1000.0);
+    altitude = cmd->distance;
+    
+    pixelsPerMeter = (double)Horiz::DATA_WIDTH / cmd->size;
 
     // This next bit is gross, but efficient. We really want the
     // tangent of the angle to divide by the distance, but
@@ -254,6 +253,15 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
             }
       }
 
+    refreshClock();
+
+    Point cpt;
+
+    cpt.x = Display::FULL_WIDTH + Display::TBL_WIDTH - Clock::WIDTH;
+    cpt.y = Display::FULL_HEIGHT - Clock::HEIGHT;
+
+    moveClock(cpt);
+    
     agc->setMask(0x80);
 
     setPriority(1);
@@ -381,9 +389,9 @@ void Horiz::drawTitle(int set, int radar)
 
     if (meters >= 500000.0)
       metersText = "100 km/div";
-    else if (meters >= 20000.0)
+    else if (meters >= 100000.0)
       metersText = "20 km/div";
-    else
+    else if (meters < 20000.0)
       metersText = "5 km/div";
 
     a.x = 500;
