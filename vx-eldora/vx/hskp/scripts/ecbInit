@@ -1,0 +1,6 @@
+stop11
+dpclr
+ldsrec "mstrvme4.sre"
+ecbIntInit(1000000)
+hskpIntInit
+go11
