@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * to use user supplied memory.
+ *
+ * Revision 1.3  1991/10/14  19:14:54  thor
+ * Fixed radar descriptor functions to handle 2 descriptors & added error
  * reporting for parameter functions.
  *
  * Revision 1.2  1991/09/11  16:26:15  thor
@@ -112,14 +116,14 @@ Header::Header(void *v)
     th->Volume.number_sensor_des = 2; // Until we get ADS, etc defined.
 
     memcpy(&th->Insitu,t,size);
-void Header::Parameter(FAST PARAMETER &param, FAST int paramNum)
+}
 
     FAST PARAMETER *p = params;
 {
     FAST PARAMETER *p = &th->Fore.Params[0];
 
     if (paramNum <= MAX_PARAM)	// Still room.
-      return;
+      p += paramNum;
     else
     bcopy((char *)&param,(char *)p,sizeof(PARAMETER));
 
@@ -135,6 +139,7 @@ void Header::Parameter(FAST PARAMETER &param, FAST int paramNum)
 	  th->Fore.Radar.num_parameter_des = paramNum;
 	  th->Aft.Radar.num_parameter_des = paramNum;
 	  th->Fore.Radar.total_num_des = paramNum + 1;
+	  th->Aft.Radar.total_num_des = paramNum + 1;
       }
     return(0);
 }
@@ -166,21 +171,35 @@ void Header::CellSpacing(CELLSPACING &cs)
 CELLSPACING *Header::CellSpacing(void)
 {
     return(&th->Fore.CellSpacing);
-void Header::Radar(FAST RADARDESC &r)
+}
 
 int Header::Radar(FAST RADARDESC &r, FAST int descNum)
-    FAST RADARDESC *ptr = &th->Fore.Radar;
 {
-    bcopy((char *)&r,(char *)ptr,i);
+    FAST int i = sizeof(RADARDESC);
 
-    ptr = &th->Aft.Radar;
+    FAST RADARDESC *ptr;
 
-    bcopy((char *)&r,(char *)ptr,i);
+    if (descNum == 1)
+	  bcopy((char *)&r,(char *)ptr,i);
+	  ptr = &th->Fore.Radar;
+	  memcpy(ptr,&r,i);
+	  return(0);
+      }
+    else if (descNum == 2)
+	  bcopy((char *)&r,(char *)ptr,i);
+	  ptr = &th->Aft.Radar;
+	  memcpy(ptr,&r,i);
+	  return(0);
       }
     return(-1);
-RADARDESC *Header::Radar(void)
+}
 
-    return(&th->Fore.Radar);
+RADARDESC *Header::Radar(FAST int descNum)
+{
+    if (descNum == 1)
+      return(&th->Fore.Radar);
+    else if (descNum == 2)
+      return(&th->Aft.Radar);
     else
       return(NULL);
 }
@@ -229,29 +248,9 @@ WAVEFORM *Header::Waveform(void)
 int Header::GetRealHeader(void **header)
 
 int Header::GetRealHeader(void *header)
-    FAST int size = sizeof(VOLUME) + ( 2 * (sizeof(RADARDESC)
-					    + sizeof(FIELDRADAR)
-					    + sizeof(CELLSPACING)));
+{
+      (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING)));
     
-    // We need to remove the structures used by RPC.
-    FAST int wavesize = sizeof(WAVEFORM) - (5 * (sizeof(u_int) + 
-						 sizeof(short *)));
-    size += wavesize;
-
-    FAST WAVEFORM *wv = &th->Wave;
-
-    // Now we get the variable part of the waveform structure's size.
-    FAST short *gates = &wv->num_gates[0];
-    FAST int j = 5;
-    FAST short wsize = wavesize;
-
-    for (FAST int i = 0; i < j; i++, gates++)
-      {
-	  size += sizeof(short) * *gates;
-	  wsize += *gates;
-      }
-
-    wv->waveform_des_length = wsize;
       (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING))) +
 	sizeof(NAVDESC) + sizeof(INSITUDESC);
 
@@ -271,48 +270,7 @@ int Header::GetRealHeader(void *header)
 
     bcopy((char *)&th->Wave,(char *)work,sizeof(WAVEFORM));
 
-    work += wavesize;
-
-    // Now get the waveform structures variable length arrays.
-    gates = &wv->num_gates[0];
-
-    FAST short *counts = wv->gate_dist1.gate_dist1_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates++;
-
-    counts = wv->gate_dist1.gate_dist1_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates++;
-
-    counts = wv->gate_dist2.gate_dist2_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates++;
-
-    counts = wv->gate_dist3.gate_dist3_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates++;
-
-    counts = wv->gate_dist4.gate_dist4_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates++;
-
-    counts = wv->gate_dist5.gate_dist5_val;
-
-    bcopy((char *)counts,(char *)work,*gates);
-
-    work += *gates;
-
-    // Whew!
+    memcpy(work,&th->Wave,sizeof(WAVEFORM));
 
     work += sizeof(WAVEFORM);
     bcopy((char *)&th->Fore.Radar,(char *)work,sizeof(RADARDESC));
@@ -327,7 +285,7 @@ int Header::GetRealHeader(void *header)
 
     memcpy(work,&th->Fore.CellSpacing,sizeof(CELLSPACING));
 
-    for (i = 0; i < np; i++)	// Do once for each parameter block.
+    work += sizeof(CELLSPACING);
 
 	  bcopy((char *)Parameter(i),(char *)work,sizeof(PARAMETER));
       {
@@ -364,73 +322,7 @@ int Header::GetRealHeader(void *header)
     FAST CLIENT *client = clnt_create(target,HeaderRPC,HeaderVers,"tcp");
 
     if (client == NULL)
-    FAST WAVEFORM *wave = &th->Wave;
-    FAST short *ptrs[5];
-    
-    // Save the user's arrays;
-    ptrs[0] = &wave->gate_dist1.gate_dist1_val[0];
-    ptrs[1] = &wave->gate_dist2.gate_dist2_val[0];
-    ptrs[2] = &wave->gate_dist3.gate_dist3_val[0];
-    ptrs[3] = &wave->gate_dist4.gate_dist4_val[0];
-    ptrs[4] = &wave->gate_dist5.gate_dist5_val[0];
-
-    // Zero them for RPC purposes.
-    wave->gate_dist1.gate_dist1_val = NULL;
-    wave->gate_dist2.gate_dist2_val = NULL;
-    wave->gate_dist3.gate_dist3_val = NULL;
-    wave->gate_dist4.gate_dist4_val = NULL;
-    wave->gate_dist5.gate_dist5_val = NULL;
-
-    wave->gate_dist1.gate_dist1_len = 0;
-    wave->gate_dist2.gate_dist2_len = 0;
-    wave->gate_dist3.gate_dist3_len = 0;
-    wave->gate_dist4.gate_dist4_len = 0;
-    wave->gate_dist5.gate_dist5_len = 0;
-
-    FAST short *gates = &wave->num_gates[0];
-
-    FAST int j = 5;
-
-    FAST void *v;
-
-    for (FAST int i = 0; i < j; i++, gates++)
-      {
-	  FAST int c = *gates;
-	  FAST int offset = 0;
-	  FAST int size;
-	  WAVECOUNTS wc;
-
-	  wc.index = i;
-
-	  while (c > 0)
-	    {
-		if (c > 512)	// Why 512? 1024 seemed to break things!
-		  {
-		      size = 512 * sizeof(short);
-		      wc.count = size;
-		      wc.offset = offset;
-		      bcopy((char *)&ptrs[i][offset],&wc.counts,size);
-		      offset += 512;
-		      c -= 512;
-		  }
-		else 
-		  {
-		      size = c * sizeof(short);
-		      wc.count = size;
-		      bcopy((char *)&ptrs[i][offset],&wc.counts,size);
-		      wc.offset = offset;
-		      c = 0;
-		  }
-
-		if ((v = sendcounts_1(&wc,client)) == NULL)
-		  {
-		      clnt_perror(client,"Header method Send failed. (wc)");
-		      return(-1);
-		  }
-	    }
-      }
-
-    if ((v = sendheader_1(th,client)) == NULL)
+    if (sendheader_1(th,client) == NULL)
       {
 	  clnt_perror(client,"Header method Send failed. (th)");
 	  return(-1);
@@ -464,12 +356,12 @@ Header &Header::operator=(FAST TAPEHEADER *th)
     FAST Header *ptr = this;
 
     memcpy(ptr->th,th,sizeof(TAPEHEADER));
-void SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum)
+
     numParams = th->Fore.Radar.num_parameter_des;
 
     return(*this);
 }    
-    h->Parameter(ref,paramNum);
+
 
 Header::~Header(void)
 {
@@ -494,19 +386,19 @@ HeaderPtr CreateHeader(FAST TAPEHEADER *t, FAST void *v)
 }
 
 int SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum)
-void SetRadar(HeaderPtr ptr, RADARDESC *cs)
+{
     Header *h = (Header *)ptr;
     PARAMETER &ref = *param;
 
     return(h->Parameter(ref,paramNum));
-    h->Radar(ref);
+}
 
 PARAMETER *GetParameter(HeaderPtr ptr, int paramNum)
-RADARDESC *GetRadar(HeaderPtr ptr)
+{
     Header *h = (Header *)ptr;
 
     return(h->Parameter(paramNum));
-    return(h->Radar());
+}
 
 void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs)
 {

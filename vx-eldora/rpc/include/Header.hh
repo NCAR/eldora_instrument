@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Changed GetRealHeader to use user supplied memory.
+ *
+ * Revision 1.3  1991/10/14  19:14:37  thor
  * Fixed radar descriptor functions to handle 2 descriptors & added error
  * reporting for parameter functions.
  *
@@ -49,14 +52,14 @@ class Header {
   private:
     TAPEHEADER *th;		// Working copy of tape header.
 
-    void Parameter(PARAMETER &param, int paramNum);
+    int numParams;		// How many parameters in use.
 
   public:
     Header(void);		// Virgin copy.
 
     Header(TAPEHEADER *t);	// Exisiting header.
-    void Radar(RADARDESC &r);
-    RADARDESC *Radar(void);
+
+    Header(void *t);		// Make one from a real tape header.
 
     int Parameter(PARAMETER &param, int paramNum);
     PARAMETER *Parameter(int paramNum);
