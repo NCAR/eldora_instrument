@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added fast inline code to do float -> int.
+ *
+ * Revision 1.22  1992/02/05  18:22:27  thor
  * Added new variable required for ColorConverter and code to handle
  * variable radii.
  *
@@ -330,7 +333,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
-    conv->SetBeamSize(*cs);
+	    {
 		PARAMETER *p = Hdr->Parameter(i);
 
 		if (!strncmp(ptr,p->parameter_name,len))
@@ -351,7 +354,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     conv->SetBeamSize(*cs,ptr->radius);
 
     FAST int seg = cs->num_segments;
-    FAST Radial *New = new Radial(agc,DISPLAYED_GATES,nv,0,0);
+    FAST short *widths = &cs->spacing[0];
     FAST short *ncells = &cs->num_cells[0];
 
     FAST int maxDist = cs->distToFirst;
