@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/11/01  15:31:35  thor
+// Added dual PRT support.
+//
 // Revision 1.2  1994/09/23  19:56:21  thor
 // Changed formatted string output to use strstreams.
 // Added new variable bottom.
@@ -113,7 +116,9 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
                       scales[0] = p->parameter_scale;
                       biases[0] = p->parameter_bias;
 
-                      if (param == ParamNames::VELOCITY)
+                      if ((param == ParamNames::VELOCITY) ||
+                          (param == ParamNames::VEL_LONG) ||
+                          (param == ParamNames::VEL_SHORT))
                         {
                             if (max[0] == 0.0 && min[0] == 0.0)
                               {
@@ -157,7 +162,9 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
                       scales[1] = p->parameter_scale;
                       biases[1] = p->parameter_bias;
 
-                      if (param == ParamNames::VELOCITY)
+                      if ((param == ParamNames::VELOCITY) ||
+                          (param == ParamNames::VEL_LONG) ||
+                          (param == ParamNames::VEL_SHORT))
                         {
                             if (max[1] == 0.0 && min[1] == 0.0)
                               {
@@ -201,7 +208,9 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
                       scales[2] = p->parameter_scale;
                       biases[2] = p->parameter_bias;
 
-                      if (param == ParamNames::VELOCITY)
+                      if ((param == ParamNames::VELOCITY) ||
+                          (param == ParamNames::VEL_LONG) ||
+                          (param == ParamNames::VEL_SHORT))
                         {
                             if (max[2] == 0.0 && min[2] == 0.0)
                               {
