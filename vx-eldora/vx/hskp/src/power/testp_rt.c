@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1997/11/12  19:51:43  eric
+ * Initial revision
+ *
  *
  * Initial revision
  *
@@ -60,15 +63,48 @@ void testp_rt()
 		  aft_tp_level = aft_testp_pwr;
 		  New_tp = 0;
 		  tp_cnt = 0;
-		}
-	      tp_cnt++;
+		}	      tp_cnt++;
 	      taskDelay(1);
 	    }
 	  testp_isr_done=0;
 	  *d1ccr = 0x48;  /* re-enable DMA */
 	}
       else
-	printf("NO TESTP DATA INTERUPT\n");
+	{
+	  if(autocal)
+	    {
+	      printf("NO TESTP DATA INTERUPT\n");
+	      fore_tp_level = -999.0;
+	      aft_tp_level = -999.0;
+	  /* try re-starting interface */
+
+	      *d1ccr = 0x10; /* Abort channel 2 DMA operation */
+	      taskDelay(1);
+	      *d1csr = 0xff; /* Clear DMA status register */
+	      
+	  /* try clearing GPIB Interface */
+	      
+	      *g2acr = 0x00; /* CLEAR SOFTWARE RESET */
+	      *g2acr = 0x8f; /* SEND INTERFACE CLEAR (sic)*/
+	      taskDelay(1);  /* SET DELAY */
+	      *g2acr = 0x0f; /* CLEAR sic */          
+ 	  
+	  /* handle any pending interrupts */
+	  
+	      sem_status = semTake(testp_data_sem,NO_WAIT);
+	      sem_status = semTake(testp_err_sem,NO_WAIT);
+	      init_gpib(2); /* try this here to re-establish comms */
+	      taskDelay(1);
+	      strncpy(string_array,"UPDC\0",5); /* Select update continuously mode */ 
+	      send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
+	      init_dma(2,24);
+	      taskDelay(2);
+	      listener(2);
+	      *d1csr = 0xff;  /* clear status register */
+	      taskDelay(1);
+	      *d1ccr = 0xC8;  /* start DMA */
+	    }
+	}
       sem_status = semTake(testp_err_sem,NO_WAIT);
       if(sem_status == OK)
 	{
