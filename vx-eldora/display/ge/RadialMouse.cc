@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/12/02  18:05:56  thor
+ * Added code to recenter cursor for zoom & pan.
+ *
  * Revision 1.1  1991/10/23  20:39:56  thor
  * Initial revision
  *

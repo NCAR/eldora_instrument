@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:52:00  thor
+ * First offical ELDORA release!
+ *
+ * Revision 1.23  1992/03/19  20:03:49  thor
+ * Added code to SetBeamSize to handle a window that is not the maximum
  * beam length. Removed GetVertPoint and folded into GetPoint. Conversion
  * methods not take an unsigned char * for flexibilty.
  *

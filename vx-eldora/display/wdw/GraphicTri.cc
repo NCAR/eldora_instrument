@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:20:57  thor
+ * Initial revision
+ * 
  *
  *
  * description:

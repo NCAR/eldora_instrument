@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/09  15:38:25  thor
+ * Removed unused wavecount stuff.
+ *
  * Revision 1.1  1991/10/01  16:15:13  thor
  * Initial revision
  *

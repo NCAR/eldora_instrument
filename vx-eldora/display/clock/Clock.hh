@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/05/06  15:18:50  thor
+ * Changed from 8x16 cells to 12x24 cells. Moved size constants to public
+ * view.
+ *
  * Revision 1.2  1991/05/03  18:06:58  thor
  * Added commnets, inlined simpler methods.
  *

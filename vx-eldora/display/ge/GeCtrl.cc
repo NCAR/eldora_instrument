@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/10/21  14:33:06  thor
+ * Fixed LOAD_ONLY cose to propigate command.
+ *
  * Revision 1.7  1992/10/02  20:42:24  thor
  * Added LOAD_ONLY support.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.17  1992/06/05  13:41:09  thor
+ * Changed method of generating number labels to make it smoother.
+ *
  * Revision 1.16  1992/06/05  13:08:40  thor
  * Fixed centering of number labels.
  *

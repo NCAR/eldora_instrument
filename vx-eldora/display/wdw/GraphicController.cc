@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/21  17:31:53  thor
+ * Added clear method.
+ *
  * Revision 1.3  91/01/02  08:47:49  thor
  * Made changes for VxWorks Version 5.0.
  * 

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/05/06  15:17:03  thor
+ * Changed from 8x16 characters to 12x24 characters. Some minor
+ * optimization.
+ *
  * Revision 1.2  1991/05/03  18:05:57  thor
  * Added comments, fixed incorrect call to copyBlock.
  *

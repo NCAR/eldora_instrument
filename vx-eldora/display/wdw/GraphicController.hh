@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/21  17:32:14  thor
+ * Added clear method.
+ *
  * Revision 1.4  1991/03/01  21:07:40  thor
  * Cleaned up unused consts. Moved colors to WdwGbls.h.
  *

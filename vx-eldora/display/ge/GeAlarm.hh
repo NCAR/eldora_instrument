@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/14  19:19:29  thor
+ * Eliminated unused methods & added new method for posting alarms.
+ *
  * Revision 1.1  1991/10/01  16:15:16  thor
  * Initial revision
  *

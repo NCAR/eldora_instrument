@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/03/12  21:29:27  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,8 +22,8 @@
 
 #include "Window.hh"
 
-static const int DATE_WIDTH = 136;
-static const int DATE_HEIGHT = 32;
+static const int DATE_WIDTH = 146;
+static const int DATE_HEIGHT = 40;
 
 
 class Date : private Window {

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/05/06  15:19:46  thor
+ * Changed from 8x16 cells to 12x24 cells. Moved size constants to public
+ * view.
+ *
  * Revision 1.2  1991/05/03  18:07:23  thor
  * Added comments.
  *
@@ -123,5 +127,5 @@ static unsigned short ColonMap[] = {
 0x0, 0x0, 0x0, 0x0,
 };
 
-#endif /* INCClockPhh */
+#endif 
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/09/01  17:54:07  thor
+ * Moved DisplayRpc.h out of extern block.
+ *
  * Revision 1.7  1992/06/29  17:32:19  thor
  * Added global Ddp pointer. Increased priority of control loop task.
  *

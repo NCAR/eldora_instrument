@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/10/09  14:55:25  thor
+ * Added LOAD_ONLY support.
+ *
  * Revision 1.9  1992/10/02  20:45:41  thor
  * Added base address of MCPL.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.15  1992/10/21  14:33:40  thor
+ * Cleaned up wait flags & corrected LOAD_ONLY test.
+ *
  * Revision 1.14  1992/10/09  14:47:33  thor
  * Added Setting of LOAD_ONLY task for current task.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/03/16  21:29:45  thor
+ * Added aPan method to allow raw panning.
+ *
  * Revision 1.3  1991/02/27  16:56:44  thor
  * Added shift, copyBlock and rootXY methods.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/03/17  20:17:02  thor
+ * Fixed aPan to add in base offset of window memory.
+ *
  * Revision 1.5  1992/03/16  21:30:06  thor
  * Added aPan method to allow raw panning.
  *

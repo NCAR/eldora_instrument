@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/10/21  14:30:44  thor
+ * This time I think the fat beam stuff is right.
+ *
  * Revision 1.11  1992/10/16  14:12:33  thor
  * Added fat beam code to 1 & 3 parameter methods.
  *

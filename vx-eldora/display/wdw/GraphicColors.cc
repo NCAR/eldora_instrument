@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  90/12/11  13:22:58  thor
+ * Changed default color map method to use fully specified
+ * color table.
+ * 
  * Revision 1.1  90/12/04  10:20:36  thor
  * Initial revision
  * 

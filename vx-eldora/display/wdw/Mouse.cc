@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/12/02  17:59:14  thor
+ * Changed ISR to wait .25 second between events.
+ *
  * Revision 1.2  1991/01/02  08:50:48  thor
  * Made changes for VxWorks Version 5.0.
  *

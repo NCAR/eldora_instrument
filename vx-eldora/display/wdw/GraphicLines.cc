@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/02/27  16:55:33  thor
+ * Fixed issuing of command to qpdm.
+ *
  * Revision 1.2  91/01/02  08:48:32  thor
  * Made changes for VxWorks Version 5.0.
  * 

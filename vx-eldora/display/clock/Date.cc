@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/03/12  21:29:27  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -77,7 +80,7 @@ void Date::Draw(void)
 
     char tmp[3];
 
-    sprintf(tmp,"%.2d",day);
+    sprintf(tmp,"%02d",day);
 
     tmp[3] = 0;
 
@@ -88,55 +91,55 @@ void Date::Draw(void)
     switch(month)
       {
 	case 1:
-	  strcat(date,"Jan");
+	  strcat(date," Jan ");
 	  break;
 
 	case 2:
-	  strcat(date,"Feb");
+	  strcat(date," Feb ");
 	  break;
 
 	case 3:
-	  strcat(date,"Mar");
+	  strcat(date," Mar ");
 	  break;
 
 	case 4:
-	  strcat(date,"Apr");
+	  strcat(date," Apr ");
 	  break;
 
 	case 5:
-	  strcat(date,"May");
+	  strcat(date," May ");
 	  break;
 
 	case 6:
-	  strcat(date,"Jun");
+	  strcat(date," Jun ");
 	  break;
 
 	case 7:
-	  strcat(date,"Jul");
+	  strcat(date," Jul ");
 	  break;
 
 	case 8:
-	  strcat(date,"Aug");
+	  strcat(date," Aug ");
 	  break;
 
 	case 9:
-	  strcat(date,"Sep");
+	  strcat(date," Sep ");
 	  break;
 
 	case 10:
-	  strcat(date,"Oct");
+	  strcat(date," Oct ");
 	  break;
 
 	case 11:
-	  strcat(date,"Nov");
+	  strcat(date," Nov ");
 	  break;
 
 	case 12:
-	  strcat(date,"Dec");
+	  strcat(date," Dec ");
 	  break;
       }
 
-    sprintf(tmp,"%.2d",year);
+    sprintf(tmp,"%02d",year);
 
     tmp[3] = 0;
 
@@ -149,10 +152,10 @@ void Date::Draw(void)
 
     frect(a,DATE_WIDTH,DATE_HEIGHT,BLACK);
 
-    a.x = 5;
+    a.x = 15;
 
     a.y = 20;
-
+printf("date is %s\n",date);
     horText(a,date,WHITE1);
 }
 
@@ -186,6 +189,7 @@ void Date::NextDay(void)
 	  if (day > 31)
 	    {
 		day = 1;
+		month = 1;
 		year++;
 
 		if (year == 100)

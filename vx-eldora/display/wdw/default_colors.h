@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/11/19  14:43:19  thor
+ * Changed to NCAR standard color map.
+ *
  * Revision 1.3  1991/02/28  14:44:32  thor
  * Added pseudo-entry for 3rd color set, fixed black/white mapping.
  *

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/10/24  13:48:03  thor
+ * Switched order of window actions in C_SET part of switchSets so
+ * A_SET is displayed.
+ *
  * Revision 1.6  1991/10/23  14:42:43  thor
  * Added some needed includes.
  *

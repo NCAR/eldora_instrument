@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/10/09  14:56:29  thor
+ * Added comments.
+ *
  * Revision 1.6  1992/10/02  20:30:38  thor
  * Many changes to use a more correct method of following mcpl input.
  *

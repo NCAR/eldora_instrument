@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/02/27  16:58:31  thor
+ * Added shift, copyBlock and rootXY methods.
+ *
  * Revision 1.1  90/12/04  10:21:51  thor
  * Initial revision
  * 

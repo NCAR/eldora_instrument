@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/12/02  19:27:25  thor
+ * Added code to center cursor for zoom & pan.
+ *
  * Revision 1.1  1991/10/28  19:37:39  thor
  * Initial revision
  *

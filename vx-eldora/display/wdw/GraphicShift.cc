@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/02/27  16:56:05  thor
+ * Fixed shift routine to use qpdms.
+ *
  * Revision 1.1  90/12/04  10:19:53  thor
  * Initial revision
  * 

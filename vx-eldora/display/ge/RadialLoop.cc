@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.30  1992/10/26  15:15:07  thor
+ * Added sysInt[En|Dis]able to keep interrupts out on stops.
+ *
  * Revision 1.29  1992/10/09  14:54:14  thor
  * Added LOAD_ONLY support. Modified actions on stop/start to work with new
  * Ddp code.

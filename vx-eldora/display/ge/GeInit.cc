@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/10/02  20:43:24  thor
+ * Changed stack sizes of tasks.
+ *
  * Revision 1.5  1992/01/28  16:00:46  thor
  * Added tp41 specific hardware initialization.
  *
