@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/06/24  20:48:14  shawn
+ * periodic safety revision.  Current as of 6/24/92
+ *
  * Revision 1.3  1992/06/18  19:55:32  shawn
  * added IRQ levels to each vector.
  *
@@ -24,14 +27,18 @@
 
 /* VECTOR AND REQUEST LEVEL DEFINITIONS */
 #define VME_VME_VEC    255    /* vme-to-vme interface interrupt vector */
-#define VME-VME_IRQ      1    /* vme-to-vme interface IRQ level */
+#define VME_VME_IRQ      5    /* vme-to-vme interface IRQ level */
 #define ECB_CMPLT_VEC  254    /* "ECB command complete" interrupt vector */
-#define ECB_CMPLT_IRQ    1    /* "ECB command complete" IRQ level */
+#define ECB_CMPLT_IRQ    4    /* "ECB command complete" IRQ level */
 #define ECB_ERROR_VEC  253    /* "ECB command error" interrupt vector */
-#define ECB_ERROR_IRQ    2    /* "ECB command errot" IRQ level */
+#define ECB_ERROR_IRQ    5    /* "ECB command errot" IRQ level */
 #define ECB_SPARE_VEC  252    /* "Spare" ecb interrupt vector */
-#define ECB_SPARE_IRQ    1    /* "Spare" ecb IRQ level */
+#define ECB_SPARE_IRQ    4    /* "Spare" ecb IRQ level */
 #define ECB_DPCNTD_VEC 251    /* "ECB Master DPRAM contention interrupt */
-#define ECB_DPCNTD_IRQ   1    /* "ECB Master DPRAM contention interrupt */
-
+#define ECB_DPCNTD_IRQ   4    /* "ECB Master DPRAM contention interrupt */
+#define IEEE_IRQ         4    /*  IEEE-488 interface IRQ level */
+#define ARINC_IRQ        4    /*   ARINC 429 interface IRQ level */
+#define GPS_IRQ          4    /*  GPS mailbox interrupt level */
+#define MINI_IRQ         6    /*  Interrupt level from clock BIM to
+                                   read the MiniRIMS */
 
