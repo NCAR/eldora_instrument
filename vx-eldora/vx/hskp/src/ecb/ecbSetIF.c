@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/05/29  19:24:07  shawn
+ * Revision 1.1  1992/06/16  22:22:43  shawn
  * Initial revision
  *
  *
@@ -26,21 +26,23 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /*                  semaphore taken.                                         */
 /*              1 - previous command still pending; no action taken.         */
 /*              2 - "command-not-pending" semaphore has been given, but IN   */
-/*                  FIFO is not empty;  no action taken.                     */
+/*                  FIFO is not empty;  no action taken, semaphore re-given. */
 /*              3 - "command-not-pending" semaphore has been given, but OUT  */
-/*                  FIFO is not empty;  no action taken.                     */
+/*                  FIFO is not empty;  no action taken, semaphore re-given. */
+/*              4 - error when re-Give-ing ecb_cmd_not_pending semaphore,    */
+/*                  things are probably pretty messed up.                    */
+/*              5 - ecbadr passed is not for an IF processor; no action      */
+/*                  taken.                                                   */
 /*****************************************************************************/
 
 #include <vxWorks.h>
 #include <stdioLib.h>
 #include "semLib.h"
-#include "intLib.h"
-#include "taskLib.h"
 
+#include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
-#include "ecbStat.h"     /* global structures for ecb status */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
-#include "hskpInt.h"     /* interrupt vector definitions for hskp */
+#include "ecbAdr.h"      /* Slave addresses on ECB bus */
 
 unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char filtnum)
 {
@@ -52,10 +54,55 @@ unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char 
 	  printf("ecbSetIF: command still pending... returning without issuing command.\n");
 	  return(1);
       }
-    
+
+    if (ecbadr!=ECBIFFOR && ecbadr!=ECBIFAFT)
+      {
+	  printf("ecbSetIF: ecbadr passed (%d) is not the ECB bus address\n",ecbadr);
+	  printf("ecbSetIF: for an IF Processor slave...returning without issuing command.\n");
+	  printf("ecbSetIF: Re-Giving ecb_cmd_not_pending Semaphore.\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
+		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		return(4);
+	    }
+	  return(5);
+      }
+
     vmestat = (unsigned char *)(MASTERBASE + MASTERSTAT);
     infifo  = (unsigned char *)(MASTERBASE + MASTERIN);
     outfifo  = (unsigned char *)(MASTERBASE + MASTEROUT);
+
+    if ( (*vmestat & 0x01) )
+      {
+	  printf("ecbSetIF: command not pending, but IN FIFO is not empty.\n");
+	  printf("ecbSetIF: returning without issuing command, re-Giving\n");
+	  printf("ecbSetIF: ecb_cmd_not_pending semaphore...\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
+		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		return(4);
+	    }
+	  return(2);
+      }
+
+    if ( (*vmestat & 0x04) )
+      {
+	  printf("ecbSetIF: command not pending, but OUTFIFO is not empty.\n");
+	  printf("ecbSetIF: returning without issuing command, re-Giving\n");
+	  printf("ecbSetIF: ecb_cmd_not_pending semaphore...\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetIF:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
+		printf("ecbSetIF:  indicating an invalid semaphore ID.\n");
+		printf("ecbSetIF:  Returning without Give-ing the semaphore.\n");
+		return(4);
+	    }
+	  return(3);
+      }
 
     *infifo = ecbadr;  /* write ecb address into master's IN FIFO */
     *infifo = (unsigned char) 3;  /* write numbytes into IN FIFO */
@@ -66,8 +113,3 @@ unsigned char ecbSetIF(unsigned char ecbadr,unsigned char unitnum,unsigned char 
 
     return(0);
 }
-
-
-
-
-
