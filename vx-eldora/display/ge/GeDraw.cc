@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1992/10/02  20:45:23  thor
+ * Added LOAD_ONLY support.
+ *
  * Revision 1.12  1992/06/29  17:31:19  thor
  * Added global Ddp pointer. Increased pipe size.
  *
@@ -145,6 +148,8 @@ void DrawingLoop(FAST Task &self)
 		      currTask = &HorizTask;
 		      break;
 		  }
+		// The following it to signal which display - fore or aft.
+		currTask->SetFlags(LOAD_ONLY);
 	    }
 	  else
 	    {
