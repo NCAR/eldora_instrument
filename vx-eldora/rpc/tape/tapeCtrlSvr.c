@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/09/06  16:09:39  thor
+ * Changed RPC registration routine name, removed rpc initialization
+ * & entering of service loop.
+ *
  * Revision 1.1  1991/08/28  19:48:18  thor
  * Initial revision
  *
@@ -85,6 +89,7 @@ static void tapecontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 	  svcerr_decode(transp);
 	  return;
       }
+
     result = (*local)(&argument, rqstp);
 
     if (result != NULL && !svc_sendreply(transp, xdr_result, result)) 
