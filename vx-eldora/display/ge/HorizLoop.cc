@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Fixed incorrect sizing, added code to get lat/long, removed unneeded
+ * call to HashMarks.
+ *
  * Revision 1.8  1991/11/19  17:54:32  thor
  * Added code to select forward/aft beams only.
  *
@@ -64,6 +67,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
     Pipe movePipe(sizeof(HorizMove),10);
 
 
+    FAST int count = 9;
 
 
     Pipe dataPipe(sizeof(HorizPoint),100);
@@ -105,6 +109,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		break;
 		horizFilter->Pipe(&dataPipe,&movePipe);
 	      case STOP:
+	      case (STOP | NEW_DATA_FLAG):
 		continue;
 		break;
 
@@ -114,6 +119,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (RELOAD | NEW_DATA_FLAG):
 		horizFilter->Pipe(&dataPipe,&movePipe);
 	      case (RESTART | NEW_DATA_FLAG):
+		if (radar == FORWARD_RADIAL)
 		reset = 1;
                 if (!pipe.Empty())
 		  pipe.Flush();
@@ -123,6 +129,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (FORWARD_HORIZ | NEW_DATA_FLAG):
 		horizFilter->Pipe(&dataPipe,&movePipe);
                 radar = whichRadar;
+		display = makeDisplay(display,agc);
 		break;
 
 	      case AFT_HORIZ:
@@ -144,6 +151,22 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	  // Get next DDP data item.
 	  if (pipe.QueryRead(&dataBeam))
+	    {
+		FAST int tmp = (int)dataBeam; // This done to correct for
+		tmp += 0x30200000;	      // address difference betweem
+		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
+
+		if (radar == AFT_RADIAL)
+		  {
+		      if (dataBeam->data.radar_name[0] != 'A')
+                        continue;
+                  }
+                else if (dataBeam->data.radar_name[0] != 'F')
+                  continue;
+
+		if (reset)	// Done only for first beam in a display.
+		  {
+		      reset = 0;
 
 		      horizFilter->ResetCoord(dataBeam->air.latitude,
 					  dataBeam->air.longitude);
@@ -298,8 +321,8 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 	  for (FAST int i = 0; i < np; i++)
 	    {
     conv = new ColorConverter(DISPLAYED_GATES,max,min,offsets,np,nv);
-    horizFilter = new Horiz(0.0,0.0,ptr->distance,MAX_RECT,DATA_WIDTH,*conv,
-			    EldoraBeam);
+		  {
+		      offsets[2] = i;
                       scales[2] = p->parameter_scale;
                       biases[2] = p->parameter_bias;
 		      break;
@@ -329,7 +352,7 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
           FAST int width = *widths++;
 
           maxDist += (c * width);
-    New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,MAX_RECT);
+      }
 
     agc->setMask(0);
 
@@ -344,8 +367,6 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,ptr->size*1000.0);
       New->DrawTable(C_SET,Max[2],Min[2],param);
-
-    New->HashMarks();
     param = ptr->param0;
 
     New->DrawTable(A_SET,max[0],min[0],param);
