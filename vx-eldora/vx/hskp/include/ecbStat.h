@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/24  20:47:00  shawn
+ * A version for safety's sake, current as of 6/24/92.
+ *
  * Revision 1.1  1992/05/29  17:55:11  shawn
  * Initial revision
  *
@@ -16,20 +19,17 @@
  *        
  */
 
-struct ecbflags      /* GENERAL BUS STATUS BIT FLAGS */
-{
-    unsigned char ecbgen;      /* 8 bits of general purpose ECB status flags */
-    unsigned char slvalive;    /* 8 bits of alive/dead flags for ECB slaves */
-    unsigned char onBoverT;    /* 8 bits of "on-board overtemp" flags */
-    unsigned char offBoverT;   /* 8 bits of "off-board overtemp" flags */
-    unsigned char forDDSool;   /* 8 bits of "forward DDS out-of-lock" flags */
-    unsigned char aftDDSool;   /* 8 bits of "aft DDS out-of-lock" flags */
-};
-
 struct ecblastcmd    /* ID OF LAST COMMAND COMPLETED */
 {
     unsigned char ecbadr;      /* ECB address of slave last command sent to */
     unsigned char comID;       /* Command ID of last command completed */
+};
+
+struct ecbool        /* DDS OUT-OF-LOCK DATA */
+{
+    unsigned char ecbadr;      /* ECB address of slave ool data is from */
+    unsigned char newdata;     /* newdata flag: 1 = new data, 0 = old data */
+    unsigned char oolbits;     /* byte of out-of-lock flags */
 };
 
 struct ecbtempi      /* TEMPERATURE DATA, SCALED INTEGER */
@@ -63,14 +63,14 @@ struct ecbslvstat           /* ECB SLAVE BUS STATUS */
 };
 
 #ifdef MAINPROG
-struct ecbflags ecbFlags = {0x00,0x00,0x00,0x00,0x00,0x00};
 struct ecblastcmd ecbLastCmd = {0,0};
+struct ecbool ecbOol = {0,0,0};
 struct ecbtempi ecbTempi = {0,0,0,0};
 struct ecbtempr ecbTempr = {0,0,0,0};
 struct ecbslvstat ecbSlvStat = {0,0,0,0,0,0,0,0,0};
 #else
-extern struct ecbflags ecbFlags;
 extern struct ecblastcmd ecbLastCmd;
+extern struct ecbool ecbOol;
 extern struct ecbtempi ecbTempi;
 extern struct ecbtempr ecbTempr;
 extern struct ecbslvstat ecbSlvStat;

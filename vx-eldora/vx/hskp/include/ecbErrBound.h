@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/18  20:39:16  shawn
+ * Revision 1.1  1992/09/23  22:08:07  shawn
  * Initial revision
  *
  * description: Contains various ECB error bounds.
