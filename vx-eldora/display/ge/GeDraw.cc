@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1992/03/03  21:10:00  thor
+ * Oops! Interrupt enable disable was a mistake.
+ *
  * Revision 1.10  1992/03/02  20:26:54  thor
  * Fixed mistyped include name.
  *
@@ -73,9 +76,6 @@ void DrawingLoop(FAST Task &self)
     self.FlagsInit();
 
     Pipe AddrPipe(sizeof(long *),500);
-    wcio(1,"a",0xff);		// Must ensure that there are no
-				// spurious interrupts!
-
 
     // Create agc here!
 
@@ -89,8 +89,6 @@ void DrawingLoop(FAST Task &self)
     a.x = AGC_WIDTH / 2;
     a.y = AGC_HEIGHT / 2;
 
-
-    wcio(1,"a",0xf7);		// Enable level 3 VME interrupts.
     Mouse mouse((void *)AGC_ADDR,a,(long *)&boxed_cross,AGC_VECTOR);
 
     Rodent = &mouse;
