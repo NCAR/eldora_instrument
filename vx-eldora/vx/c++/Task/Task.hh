@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/28  20:25:55  thor
+ * Add destructor.
+ *
  * Revision 1.1  1991/10/02  14:23:14  thor
  * Initial revision
  *
@@ -122,8 +125,6 @@ class Task {
 			     int tmo = WAIT_FOREVER);
 
     unsigned int QueryFlags(void);
-
-    ~Task(void) { (void)Delete(); }
 };
 
 #endif // INCTaskhh
