@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.25  1992/02/10  16:28:22  thor
+ * Added tests for empty pipe prior to flush.
+ *
  * Revision 1.24  1992/02/06  21:09:37  thor
  * Add flush of pipe on restart to avoid drawing outdated data.
  *
@@ -165,6 +168,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  radar = AFT_RADIAL;
 
 		whichRadar = radar;
+		pipe.Flush();
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -173,6 +177,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		continue;
 		break;
 
+		pipe.Flush();
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
@@ -181,6 +186,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		lastAngle = 360.0;
 		break;
 
+		pipe.Flush();
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
@@ -223,9 +229,6 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  }
 		else if (dataBeam->data.radar_name[0] != 'F')
 		  continue;
-// 		radData.angle = dataBeam->air.rotation_angle - 
-// 		  dataBeam->air.roll;
-
 
 		RadialData radData;
 
@@ -252,7 +255,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		conv->GetBeam(data,radData);
 		if (direct >= 0)
 		  {
-			  display->drawBeam(radData);
+		      if (lastAngle >= radData.angle) // Crossed to
 						      // next sweep.
 			display->UpdateClock(now->hour,now->minute,
 					     now->second);

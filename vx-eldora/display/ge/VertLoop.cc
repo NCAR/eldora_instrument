@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/02/06  21:10:29  thor
+ * Add flush of pipe on restart to avoid drawing outdated data.
+ *
  * Revision 1.5  1992/02/05  18:21:45  thor
  * Added new variable required for ColorConverter.
  *
@@ -91,6 +94,7 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		{
 		    pipe.Flush();
 		}
+	      pipe.Flush();
 	    case RESTART:
 	    case (RELOAD | NEW_DATA_FLAG):
 	    case (START | NEW_DATA_FLAG):
@@ -104,6 +108,7 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 #ifdef UNIPRO
 	      display = NewDisplay(agc,filter,converter,radar);
 #else
+	      pipe.Flush();
 
 	    case FORWARD_VERT:
 	    case (FORWARD_VERT | NEW_DATA_FLAG):
@@ -117,6 +122,7 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 #endif // UNIPRO
 	      DdpCtrl->Fore();
 	      if (!pipe.Empty())
+	      pipe.Flush();
 	      radar = AFT_VERT;
 	      if (display)
 		delete(display);
