@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/09/02  18:21:48  thor
+ * major rewrite.
+ *
  * Revision 1.3  1992/05/07  16:32:13  thor
  * Added commands for parallel recording on/off.
  *
@@ -33,6 +36,7 @@
 #define REC_OFF   0x80
 #define REWIND    0x100
 #define EJECT     0x200
+#define LOAD_TAPE 0x400
 
 
 #endif /* INCtapeCommandsh */
