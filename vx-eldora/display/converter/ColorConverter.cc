@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * beam length. Removed GetVertPoint and folded into GetPoint. Conversion
+ * methods not take an unsigned char * for flexibilty.
+ *
  * Revision 1.22  1992/02/05  18:23:56  thor
  * Added code to handle variable radii for Radials.
  *
@@ -153,9 +156,8 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
-void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates)
-
-    numGates = pgates;
+      }
+}
 
 void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 				 float realMax = -1.0)
@@ -200,7 +202,21 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		*fp++ = dist;
 
 		dist += width;
-    float inc = (float)maxDist / (float)pgates; // Meters/pixel.
+	    }
+      }
+
+    float inc;
+    FAST int stopper = pgates;
+
+    if (realMax < 0.0)
+      inc = (float)maxDist / (float)pgates; // Meters/pixel.
+    else
+      inc = realMax / (float)pgates;
+
+    numGates = stopper;
+
+    float oldDiff = 0.0;
+    float newDiff = 0.0;
 
     FAST int dcells = pgates;
 
@@ -215,6 +231,9 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	  if (i == stopper)
 	    break;
 
+	  float dist = inc * (float)i; // Target distance.
+
+	  fp = fptr;
 
 	  FAST int index = 0;
 
@@ -251,54 +270,13 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 void ColorConverter::GetPoint(FAST unsigned short *data,
 			      FAST unsigned char *colors,
 			      FAST int index)
-void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
-    FAST int off = numOfParams * index;	// Offset to this gates' location.
-    FAST int *offsets = valueOffset;
-    FAST unsigned char *lkup = convertTbl;
- 
-    FAST int offset = *offsets++ + off; // Now add in offset to param.
-    FAST unsigned char *colors = &dp.colors[0];
-    FAST unsigned char *lkup = convertTbl;
- 
-    FAST int offset = *offsets++ + off; // Now add in offset to param.
-
-    FAST unsigned short datum = *(data + offset);
-
-    *colors++ = *(lkup + datum);
-
-    --count;
-
-    if (count)
-      {
-	  offset = *offsets++ + off;
-
-	  FAST unsigned short datum = *(data + offset);
-
-	  *colors++ = *(lkup + datum);
-      }
-    else
-      return;
-
-    --count;
-
-    if (count)
-      {
-	  offset = *offsets + off;
-
-	  FAST unsigned short datum = *(data + offset);
-
-	  *colors = *(lkup + datum);
-      }
-}
-
-void ColorConverter::GetVertPoint(FAST unsigned short *data,
-				  FAST VertPoint &dp,
-				  FAST int index)
 {
     FAST int count = numOfValues;
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
-    FAST unsigned char *colors = &dp.colors[0];
+    FAST unsigned char *lkup = convertTbl;
+ 
+    FAST int offset = *offsets++ + off; // Now add in offset to param.
 
     FAST unsigned short datum = *(data + offset);
 
@@ -332,10 +310,10 @@ void ColorConverter::GetVertPoint(FAST unsigned short *data,
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
-void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
+    FAST int count = numOfValues; // How many.
+    FAST int j = numGates;
     FAST int *ptr = gateIndex;
     FAST unsigned char *lkup = convertTbl;
-    FAST unsigned char *colors = &rad.colors[0];
 
     for (FAST int i = 0; i < j; i++)
       {
@@ -355,22 +333,22 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
 		
 		*colors++ = *(lkup + datum);
 	    }
-
+      }
     else
       return;
     
     --count;
     
-
+    if (count)
       {
-
+	  lkup += 0x10000;
 	  for (i = 0; i < j; i++)
 	    {
 		FAST unsigned short datum = *(data + *ptr++);
 		
 		*colors++ = *(lkup + datum);
 	    }
-
+      }
 }
 
     
