@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1992/02/11  19:55:16  thor
+ * Added Raw method to do single point conversions.
+ *
  * Revision 1.12  1992/02/05  18:24:25  thor
  * Added code to handle variable radii for Radials.
  *
@@ -109,16 +112,13 @@ class ColorConverter {
     ColorConverter(void) {}
 
     // For radial case.
-    void SetBeamSize(CELLSPACING &cs, int pgates);
+    void SetBeamSize(CELLSPACING &cs, int pgates, float realMax = -1.00);
 
-    // Horizontal case.
-    void GetPoint(unsigned short *data, HorizPoint &dp, int index);
-
-    // Vertical case.
-    void GetVertPoint(unsigned short *data, VertPoint &vp, int index);
+    // Horizontal & Vertical case.
+    void GetPoint(unsigned short *data, unsigned char *colors, int index);
 
     // Radial again.
-    void GetBeam(unsigned short *data, RadialData &rad);
+    void GetBeam(unsigned short *data, unsigned char *colors);
 
     // Fast inline call.
     unsigned char Raw(FAST unsigned short datum, FAST int param)
