@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/01/28  16:01:33  thor
+ * Fixed typo.
+ *
  * Revision 1.3  1992/01/27  18:35:54  thor
  * Added code to correct data addresses for VME/local offset.
  *
@@ -126,9 +129,9 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      break;
 	  
 
-		FAST int tmp = (int)dataBeam; // This done to correct for
-		tmp += 0x30200000;	      // address difference betweem
-		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
+	    case MOUSE_FLAG:
+	    case (MOUSE_FLAG | NEW_DATA_FLAG):
+	      VertMouse(display);
 	      break;
 	  }
 
