@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1995/03/31  22:52:00  craig
+ * Initial revision
+ *
  * Revision 1.1  1994/01/06  21:31:33  craig
  * Initial revision
  *
@@ -131,6 +134,36 @@ lcnt.achar[1] = log_page.vendor_unique.pvalue_midh;
 lcnt.achar[2] = log_page.vendor_unique.pvalue_midl;
 lcnt.achar[3] = log_page.vendor_unique.pvalue_lsb;
 printf("VENDOR UNIQUE COUNT: %d\n",lcnt.along);
+
+taskDelay(200);
+return;
+}
+
+/**********************************************************/
+/*  Routine to print out the supported log pages **********/
+/**********************************************************/
+
+void print_log_pgs()
+{
+
+union {
+    short ashort;
+    char achar[4];
+}scnt;
+
+int tbytes_top;
+
+printf("PAGE CODE: %2x SHOULD BE: 0x00\n",suprt_pgs.page_code);
+
+scnt.achar[0] = suprt_pgs.length_msb;
+scnt.achar[1] = suprt_pgs.length_lsb;
+printf("PAGE LENGTH: %3d SHOULD BE: 5\n",scnt.ashort);
+
+printf("PAGE ONE: %2x  SHOULD BE 0x00\n",suprt_pgs.page1);
+printf("PAGE TWO: %2x  SHOULD BE 0x02\n",suprt_pgs.page2);
+printf("PAGE THREE: %2x  SHOULD BE 0x03\n",suprt_pgs.page3);
+printf("PAGE FOUR: %2x  SHOULD BE 0x07\n",suprt_pgs.page4);
+printf("PAGE FIVE: %2x  SHOULD BE 0x32\n",suprt_pgs.page5);
 
 taskDelay(200);
 return;

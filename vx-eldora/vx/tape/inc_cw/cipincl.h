@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:58:19  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1994/01/06  21:39:13  craig
  * Initial revision
  *
@@ -63,6 +66,7 @@
 #include "exbfuncs.h"
 #include "tapeControl.h"
 #include "tapeGlobals.h"
+#include "tapediag.h"
 #include "math.h"
 #include "logger.h"
 

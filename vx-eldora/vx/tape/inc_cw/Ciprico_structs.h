@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:58:18  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1994/01/06  21:39:12  craig
  * Initial revision
  *
@@ -41,21 +44,25 @@ scope unsigned int ads_xfer_addr[8];
 
 /*********** GLOBAL TAPE HEADER ARRAY **************/
 
-scope unsigned int tapeHdr[2048];
+scope unsigned int tapeHdr[4000];
 
 /************* PARAMETER BLOCK STRUCTURE ***********/
 
-scope struct param_block parmblk[23]; /* ARRAY OF PARAMETER BLOCKS */
+scope struct param_block parmblk[LAST_CIP_CMD + 1]; 
+/* ARRAY OF PARAMETER BLOCKS */
 
-scope struct mode_select mod_sel; 
+scope struct mode_struct mod_sel; 
 
-scope struct mode_sense  mod_sen;
+scope struct mode_struct  mod_sen;
 
 scope struct request_sense  rqst_sen;
 
-scope struct rad_scatter_gather rad_sg[MAX_RAD_DSCR_BLK + 2];
-scope struct nav_scatter_gather nav_sg[MAX_NAV_DSCR_BLK + 2];
-scope struct ads_scatter_gather ads_sg[MAX_ADS_DSCR_BLK + 2];
+scope struct scatter_gather rad_sg[MAX_RAD_DSCR_BLK + 2];
+scope struct scatter_gather nav_sg[MAX_NAV_DSCR_BLK + 2];
+scope struct scatter_gather ads_sg[MAX_ADS_DSCR_BLK + 2];
+
+scope struct log_pg log_page;
+scope struct supported_pgs suprt_pgs;
 
 /*********** GLOBAL STATUS FLAGS **********/
 

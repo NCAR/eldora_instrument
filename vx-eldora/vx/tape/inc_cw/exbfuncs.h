@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:22:30  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1994/11/14  17:58:21  craig
  * *** empty log message ***
  *
@@ -80,5 +83,8 @@ void cal_sum(void);
 void record_on(int);
 void record_off(int);
 int reduce_data(short,unsigned int *);
+void print_log_sns(void);
+void print_log_pgs(void);
+void reduce_init(void);
 
 #endif /* INC */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:22:35  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1994/11/14  17:58:23  craig
  * *** empty log message ***
  *
@@ -42,6 +45,8 @@ TAPE_CTRL_SCOPE int UNLOAD_FLAG; /* UNLOAD DRIVE? 1 = yes. */
 TAPE_CTRL_SCOPE int RUN_FLAG;
 TAPE_CTRL_SCOPE int REC_FLAG;
 TAPE_CTRL_SCOPE int REWIND_FLAG;
+TAPE_CTRL_SCOPE int LOAD_FLAG;
+
 
 TAPE_CTRL_SCOPE int WRITE_TAPE_STATUS;
 TAPE_CTRL_SCOPE struct TapeStatus *tapeStatus; /* Global status block. */
@@ -55,8 +60,10 @@ TAPE_CTRL_SCOPE int record_sys[2][3]; /*Descrip. of two recording systems */
 TAPE_CTRL_SCOPE int current_unit;     /* Recording system unit number in use*/
 TAPE_CTRL_SCOPE int next_unit;        /* Next recording system unit number
 					 to use*/
-TAPE_CTRL_SCOPE int starting_amnt[2]; /* Starting amount of tape on each
-					 recording system */
+TAPE_CTRL_SCOPE long max_blk_sz;        /* maximum size of data records 
+					   to write to tape */
+TAPE_CTRL_SCOPE float amount_written[2]; /* Amount of data written to tape on
+					  each recording system */
 TAPE_CTRL_SCOPE int min_to_record;    /* minimum number of bytes to record on
 				       each ray of data */
 TAPE_CTRL_SCOPE VOLUME *vol;          /* Pointer to complete volume header */
@@ -72,7 +79,15 @@ TAPE_CTRL_SCOPE int log_ints[10];     /* Array to hold integer values to be
 					 values are hour, minute, second */
 TAPE_CTRL_SCOPE int calibrate;        /* Flag to switch over to the
 					 calibrate mode */
+TAPE_CTRL_SCOPE int reduce_gate[361]; /* number of gates to record given data
+					 reduction */
+TAPE_CTRL_SCOPE float alt_fact[361]; /* Altitude scale factor */
 
 #endif /* INCtapeCtrlGblh */
+
+
+
+
+
 
 
