@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/09/12  18:44:18  thor
+ * Changed name to senddispcommand_1_svc.
+ *
  * Revision 2.3  1994/09/07  17:10:48  thor
  * Moved to new version of RPC.
  *
@@ -66,87 +69,99 @@ static u_long cmdCount = 0;
 struct DispStatus *senddispcommand_1_svc(FAST DispCommand *cmd,
                                          struct svc_req *req)
 {
-    FAST u_long command = cmd->cmd;
-    FAST DispStatus *status = GeStatus;
+  FAST u_long command = cmd->cmd;
+  FAST DispStatus *status = GeStatus;
 
-    if (command & LOAD_ONLY)
-      {
-	  command &= ~LOAD_ONLY;
-	  memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
-	  GeCommand->cmd = command; // It seems we cannot alter cmd.
-	  DrawingTask->SetFlags(LOAD_ONLY);
-	  status->status = IDLE;
-      }
-    else
-      {
-	  switch(command)
-	    {
-	      case REBOOT:
-	      case STOP:
-                  DrawingTask->SetFlags(command);
-                  status->status = IDLE;
-                  break;
+  if (command & LOAD_ONLY)
+    {
+      command &= ~LOAD_ONLY;
+      memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
+      GeCommand->cmd = command; // It seems we cannot alter cmd.
+      DrawingTask->SetFlags(LOAD_ONLY);
+      status->status = IDLE;
+    }
+  else
+    {
+      switch(command)
+        {
+          case REBOOT:
+          case STOP:
+            DrawingTask->SetFlags(command);
+            status->status = IDLE;
+            break;
 		
-	      case START:
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case START:
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case FORWARD_RADIAL:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case FORWARD_RADIAL:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case FORWARD_HORIZ:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case FORWARD_HORIZ:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case FORWARD_VERT:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case FORWARD_VERT:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case AFT_RADIAL:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case AFT_RADIAL:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case AFT_HORIZ:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case AFT_HORIZ:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 		
-	      case AFT_VERT:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case AFT_VERT:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 
-	      case FORWARD_DUAL:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case FORWARD_DUAL:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 
-	      case AFT_DUAL:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  status->status = DRAWING;
-                  break;
+          case AFT_DUAL:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
 
-	      case TMO_CHANGE:
-                  memcpy(GeCommand,cmd,sizeof(DispCommand));
-                  DrawingTask->SetFlags(command);
-                  break;
-	    }
-      }
-    return(status);
+          case FORWARD_RAW:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
+
+          case AFT_RAW:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            status->status = DRAWING;
+            break;
+
+          case TMO_CHANGE:
+            memcpy(GeCommand,cmd,sizeof(DispCommand));
+            DrawingTask->SetFlags(command);
+            break;
+        }
+    }
+  return(status);
 }
 
 DispStatus *getstatus_1_svc(void *nought, struct svc_req *req)
