@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  2000/05/15  18:31:55  eric
+ * Added sync semaphore support to synchronize the programming of the
+ * xmit power meter.
+ *
  * Revision 1.6  1999/09/27  15:43:23  eric
  * modified to fix slow cal.
  *
@@ -36,6 +40,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define scope extern
 #include "hskpAll.h"
+int Verbose;
 void update_testpulse()
 {
 /* Define some general purpose variables */
@@ -55,10 +60,17 @@ if(!Firstime)
   {
 /* Check to see if the previous testpulse was within the proper error band */
 
+    if(Verbose)
+      {
+	printf("Fore tpulse_atten=%d,tp_atten=%d\n",fore_vmehndshk->tpulse_atten,tp_atten);
+	printf("Aft tpulse_atten=%d,tp_atten=%d\n",aft_vmehndshk->tpulse_atten,tp_atten);
+      }
 dbz = (((fore_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
-log_power = dbz + fore_lna_radar_const - log_testpulse_range2;
+/* log_power = dbz + fore_lna_radar_const - log_testpulse_range2; */ 
+ log_power = dbz + fraddes->radar_const - log_testpulse_range2;  /* Fixed in IHOP 2002 */
 received_lna_pwr = log_power;
-injected_lna_pwr = fore_tp_level - fore_vmehndshk->tpulse_atten + ffrad->test_pulse_offset + 0.3;
+/* injected_lna_pwr = fore_tp_level - fore_vmehndshk->tpulse_atten + ffrad->test_pulse_offset + 0.3; */
+injected_lna_pwr = fore_tp_level - fore_vmehndshk->tpulse_atten + ffrad->test_pulse_offset; /* Fixed in IHOP 2002 */ 
 
 tdiff = diff = received_lna_pwr - injected_lna_pwr;
 /* printf("TD %2.2f",tdiff); */
@@ -67,8 +79,11 @@ if(diff > MAX_TP_PWR_DIFF)
   {
     printf("ATF = %d\n",fore_vmehndshk->tpulse_atten);
     printf("FP%d: %2.2f\n",tp_freq_count+1,tdiff);
-/*    printf("Dbz = %f; logP = %f\n",dbz,received_lna_pwr); */
-/*    printf("Pwr = %f\n",injected_lna_pwr); */
+    if(Verbose)
+      {
+	printf("Dbz = %f; logP = %f\n",dbz,received_lna_pwr);
+	printf("Pwr = %f\n",injected_lna_pwr);
+      }
   }
 received_vel = ((fore_vel_sum / tp_sum_count) - 8191.0) / f_vscale;
 diff = received_vel - fore_tp_velocity[tp_freq_offset_count];
@@ -77,31 +92,28 @@ if(diff < 0) diff *= -1;
 if(diff > MAX_TP_VEL_DIFF) printf("FV%d %1.2f",tp_freq_count+1,diff); 
 
 dbz = (((aft_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
-log_power = dbz + aft_lna_radar_const - log_testpulse_range2;
+/* log_power = dbz + aft_lna_radar_const - log_testpulse_range2; */
+log_power = dbz + araddes->radar_const - log_testpulse_range2;  /* Fixed in IHOP 2002 */
 received_lna_pwr = log_power;
-injected_lna_pwr = aft_tp_level - aft_vmehndshk->tpulse_atten + afrad->test_pulse_offset + 0.4;
+/* injected_lna_pwr = aft_tp_level - aft_vmehndshk->tpulse_atten + afrad->test_pulse_offset + 0.4; */
+injected_lna_pwr = aft_tp_level - aft_vmehndshk->tpulse_atten + afrad->test_pulse_offset; /* Fixed in IHOP 2002 */
 tdiff = diff = received_lna_pwr - injected_lna_pwr;
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_PWR_DIFF) 
    {
      printf("ATA = %d\n",aft_vmehndshk->tpulse_atten);
      printf("AP%d: %2.2f\n",tp_freq_count+1,tdiff); 
-/*	printf("Dbz = %f; logP = %f\n",dbz,received_lna_pwr); */
-/*	printf("Pwr = %f\n",injected_lna_pwr); */
+     if(Verbose)
+       {
+	 printf("Dbz = %f; logP = %f\n",dbz,received_lna_pwr);
+	 printf("Pwr = %f\n",injected_lna_pwr); 
+       }
    }
 received_vel = ((aft_vel_sum / tp_sum_count) - 8191.0) / a_vscale;
 /* printf("Vel = %f\n",received_vel); */
 diff = received_vel - aft_tp_velocity[tp_freq_offset_count];
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_VEL_DIFF) printf("AV%d  %1.2f",tp_freq_count+1,diff); 
-
-tp_sum_count = 0;
-fore_dbz_sum = 0;
-fore_tp_level = 0;
-aft_dbz_sum = 0;
-aft_tp_level = 0;
-fore_vel_sum = 0;
-aft_vel_sum = 0;
 
 
 /* Update the counters for next time */
@@ -116,7 +128,7 @@ if((tp_freq_count + 1) > fraddes->num_freq_trans)
     tp_atten_start += 1;
     if(tp_atten_start >= TP_ATTEN_STEP)
     tp_atten_start = 0;
-    tp_atten = tp_atten_start;
+    tp_atten = TP_ATTEN_ST + tp_atten_start;
 
     tp_freq_offset_count += 1;
     if(tp_freq_offset_count > 6)
@@ -126,6 +138,16 @@ if((tp_freq_count + 1) > fraddes->num_freq_trans)
 }
 
   }
+/* Zero sums */
+
+tp_sum_count = 0;
+fore_dbz_sum = 0;
+fore_tp_level = 0;
+aft_dbz_sum = 0;
+aft_tp_level = 0;
+fore_vel_sum = 0;
+aft_vel_sum = 0;
+
 /* Now re-program the fore testpulse with a new value */
 
 fore_vmehndshk->tpulse.freq_num[0] = tp_freq_count + 1;
@@ -134,7 +156,7 @@ frequency = fore_freqs[tp_freq_count] +
 /* printf("Fore frequency: %lf\n",frequency); */
 attenuation = tp_atten;
 fore_vmehndshk->tpulse_freq = fore_freq_offset[tp_freq_offset_count]; /* use offset */
-fore_vmehndshk->tpulse_atten = tp_atten;
+fore_vmehndshk->tpulse_atten = tp_atten; 
 fore_vmehndshk->tpulse_flg = 1;
 
 /* Set the fore test pulse frequency */
@@ -166,7 +188,6 @@ do
   }while((test = ecbSetAtten(ecbaddr, foraft, attenuation) != 0) &&
 	  timeout < 30);  
 
-
 /* Now re-program the aft testpulse with a new value */
 
 aft_vmehndshk->tpulse.freq_num[0] = tp_freq_count + 1;
@@ -174,6 +195,7 @@ frequency = aft_freqs[tp_freq_count] +
 (double)aft_freq_offset[tp_freq_offset_count];
 /* printf("Aft frequency: %lf\n",frequency); */
 attenuation = tp_atten;
+
 aft_vmehndshk->tpulse_atten = tp_atten;
 aft_vmehndshk->tpulse_freq = aft_freq_offset[tp_freq_offset_count]; /* use offset */
 aft_vmehndshk->tpulse_flg = 1;
