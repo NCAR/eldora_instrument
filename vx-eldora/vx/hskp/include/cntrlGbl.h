@@ -10,32 +10,28 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/01  20:50:16  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:36:36  reif
  * Initial revision
  *
  *
- * description: These are the global variables associated withthe motor controller.
- *             
- *             
- *              
- *              
- *             
- *             
- *             
+ * description: These are the global variables associated with
+ *              the motor controller.             
  */
 
-scope unsigned char *timer;
+scope unsigned char *mot_timer;
 scope unsigned char *vel_lsb;
 scope unsigned char *vel_msb;
-scope unsigned char *prog_cntr;
-scope unsigned char *status;
-scope unsigned char *flag;
-scope unsigned char *gain;
-scope unsigned char *cmnd;
-scope unsigned char *reset
+scope unsigned char *mot_prog_cntr;
+scope unsigned char *mot_status;
+scope unsigned char *mot_flag;
+scope unsigned char *mot_gain;
+scope unsigned char *mot_cmnd;
+scope unsigned char *mot_reset;
 scope unsigned char *pin_stat;
-scope unsigned char *status;
-scope unsigned char *ltch;
+scope unsigned char *mot_ltch;
 scope unsigned char *rd2016;
 scope unsigned char *act_vel_lsb;
 scope unsigned char *act_vel_msb;

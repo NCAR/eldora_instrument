@@ -1,7 +1,7 @@
 /*
  *	$Id$
  *
- *	Module: gpsInit.c		 
+ *	Module: gps_menu.c		 
  *	Original Author: Craig Walther 
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/01  15:56:57  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/19  17:23:56  craig
  * Initial revision
  *
@@ -20,7 +23,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
-#define SCOPE extern
+#define scope
 
 /* Include fifty million vx-works .h files */
 
@@ -38,6 +41,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "sysLib.h"
 
 /* include fifty million .h files to deal with the header formats */
+
 #include "Volume.h"
 #include "Waveform.h"
 #include "RadarDesc.h"
@@ -96,15 +100,22 @@ extern HeaderPtr inHeader;
 void gps_menu()
 {
 
-int buf_num, cmd;
-struct gps_data *pntr;
+int buf_num, cmd, i;
+struct gps_data copy_space;
+char *cp_pntr, *vme_pntr;
+union
+  {
+      short words[2];
+      long add;
+  }address;
 
+cp_pntr = (char *)&copy_space.gps_data_id[0];  /* Pointer to the copy space */
 init_gps((short)0);
 
 /* Just sit in the menu until told to quit */
 
 do{
-    printf("GPS MENU CHOICES:\n\n");
+    printf("\nGPS MENU CHOICES:\n\n");
     printf("0) End GPS menu\n");
     printf("1) Start GPS interface\n");
     printf("2) Stop GPS interface\n");
@@ -119,15 +130,21 @@ do{
     printf("11) Display Header Information\n");
     printf("12) Display Handshake Information\n");
     printf("13) Display Control Status Information\n");
+    printf("14) Clear the Handshake word\n");
     scanf("%d",&cmd);
+    getchar();
     if((cmd > 4) && (cmd < 12))
       {
 	  printf("From which buffer? (0,1)\n");
 	  scanf("%d",&buf_num);
+	  getchar();
 	  if(buf_num = 0)
-	    pntr = (struct gps_data *)(STANDARD_BASE + GPS_BASE + 0x10020);
+	    vme_pntr = (char *)(STANDARD_BASE + GPS_BASE + 0x10020);
 	  else
-	    pntr = (struct gps_data *)(STANDARD_BASE + GPS_BASE + 0x10100);
+	    vme_pntr = (char *)(STANDARD_BASE + GPS_BASE + 0x10100);
+	  for(i=0; i<sizeof(struct gps_data); i++)
+	    *cp_pntr++ = *vme_pntr++;
+	  cp_pntr = (char *)&copy_space.gps_data_id[0];
       }
 
     switch(cmd)
@@ -141,7 +158,7 @@ do{
 	  break;
 
 	case 3:	/* Turn on interrupts */
-	  init_gps((char)1);
+	  init_gps((short)1);
 	  break;
 
     case 4:	/* Initialize the GPS receiver */
@@ -149,56 +166,58 @@ do{
 	  break;
 
     case 5:	/* Display Time Information */
-	  printf("Milli Seconds last fix = %d\n",pntr->msec_fix);
-	  printf("Week Number =            %d\n",pntr->week_number);
-	  printf("Seconds of Week =        %ld\n",pntr->secs_of_week);
-	  printf("UTC offset =             %ld\n",pntr->utc_offset);
+	  printf("Milli Seconds last fix = %d\n",copy_space.msec_fix);
+	  printf("Week Number =            %d\n",copy_space.week_number);
+	  printf("Seconds of Week =        %ld\n",copy_space.secs_of_week);
+	  printf("UTC offset =             %ld\n",copy_space.utc_offset);
 	  break;
 
     case 6:	/* Display Satellite Information */
-	  printf("Mode as Defined By Trimbal = %lx\n",pntr->gps_mode);
-	  printf("Satellite number 1 =         %d\n",pntr->satellite[0]);
-	  printf("Satellite number 2 =         %d\n",pntr->satellite[1]);
-	  printf("Satellite number 3 =         %d\n",pntr->satellite[2]);
-	  printf("Satellite number 4 =         %d\n",pntr->satellite[3]);
-	  printf("PDOP =                       %f\n",pntr->pdop);
-	  printf("HDOP =                       %f\n",pntr->hdop);
-	  printf("VDOP =                       %f\n",pntr->vdop);
-	  printf("TDOP =                       %f\n",pntr->tdop);
+	  printf("Mode as Defined By Trimbal = %lx\n",copy_space.gps_mode);
+	  printf("Satellite number 1 =         %d\n",copy_space.satellite[0]);
+	  printf("Satellite number 2 =         %d\n",copy_space.satellite[1]);
+	  printf("Satellite number 3 =         %d\n",copy_space.satellite[2]);
+	  printf("Satellite number 4 =         %d\n",copy_space.satellite[3]);
+	  printf("PDOP =                       %f\n",copy_space.pdop);
+	  printf("HDOP =                       %f\n",copy_space.hdop);
+	  printf("VDOP =                       %f\n",copy_space.vdop);
+	  printf("TDOP =                       %f\n",copy_space.tdop);
 	  break;
 
     case 7:	/* Display Software Information */
-	  printf("Software version = %d\n",pntr->software_version);
-	  printf("Month =            %d\n",pntr->month);
-	  printf("Day =              %d\n",pntr->day);
-	  printf("Year =             %d\n",pntr->year);
+	  printf("Software version = %d\n",copy_space.software_version);
+	  printf("Month =            %d\n",copy_space.month);
+	  printf("Day =              %d\n",copy_space.day);
+	  printf("Year =             %d\n",copy_space.year);
 	  break;
 
     case 8:	/* Display Health Information */
-	  printf("Health as defined by Trimbal =     %x\n",pntr->health);
-	  printf("Machine ID as defined by Trimbal = %x\n",pntr->machine_id);
+	  printf("Health as defined by Trimbal =     %x\n",copy_space.health);
+	  printf("Machine ID as defined by Trimbal = %x\n",copy_space.machine_id);
 	  break;
 
     case 9:	/* Display Position Information */
-	  printf("Latitude (deg) =  %f\n",pntr->latitude);
-	  printf("Longitude (deg) = %f\n",pntr->longitude);
-	  printf("altitude (m) =    %f\n",pntr->altitude);
+	  printf("Latitude (deg) =  %f\n",copy_space.latitude);
+	  printf("Longitude (deg) = %f\n",copy_space.longitude);
+	  printf("altitude (m) =    %f\n",copy_space.altitude);
 	  break;
 
     case 10:	/* Display Status Information */
-	  printf("Clock Bias =  %f\n",pntr->clock_bias);
-	  printf("Time of Fix = %f\n",pntr->time_of_fix);
+	  printf("Clock Bias =  %f\n",copy_space.clock_bias);
+	  printf("Time of Fix = %f\n",copy_space.time_of_fix);
 	  break;
 
     case 11:	/* Display Header Information */
-	  printf("GPS data ID = %c%c%c%c\n",pntr->gps_data_id[0],
-               pntr->gps_data_id[1],pntr->gps_data_id[2],pntr->gps_data_id[3]);
-	  printf("Size of data area (bytes) = %d\n",pntr->gps_data_len);
+	  printf("GPS data ID = %c%c%c%c\n",copy_space.gps_data_id[0],
+               copy_space.gps_data_id[1],copy_space.gps_data_id[2],copy_space.gps_data_id[3]);
+	  printf("Size of data area (bytes) = %d\n",copy_space.gps_data_len);
 	  break;
 
     case 12:	/* Display Handshake Information */
 	  printf("CPU-105 GPS status:        %x\n",*gps_status);
-	  printf("CPU-105 GPS Data Location: %lx\n",*gps_data_loc);
+	  address.words[0] = *gps_d_loc_h;
+	  address.words[1] = *gps_d_loc_l;
+	  printf("CPU-105 GPS Data Location: %lx\n",address.add);
 	  printf("CPU-105 GPS command:       %x\n",*gps_command);
 	  printf("CPU-105 GPS mailbox flag:  %x\n",*gps_mbox);
 	  printf("CPU-105 GPS handshake:     %x\n",*gps_hndshk);

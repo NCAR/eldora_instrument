@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/01  15:56:56  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/19  17:23:56  craig
  * Initial revision
  *
@@ -22,7 +25,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
-#define SCOPE extern
+#define scope extern
 
 /* Include fifty million vx-works .h files */
 
@@ -102,6 +105,11 @@ void gps_isr(void)
 {
 char *where_data_is, *where_data_goes;
 long i, data_size;
+union
+  {
+    short words[2];
+    long add;
+  }address;
 
 /* Perform the necessary tasks to clear the interrupt */
 
@@ -125,7 +133,11 @@ else  /* We have a good data buffer ready */
   {
       currStatus->gps = (char)0;
       *gps_hndshk = (short)0;
-      where_data_is = (char *)(*gps_data_loc + STANDARD_BASE + GPS_BASE);
+
+      address.words[0] = *gps_d_loc_h;
+      address.words[1] = *gps_d_loc_l;
+
+      where_data_is = (char *)(address.add + STANDARD_BASE + GPS_BASE);
       data_size = sizeof(struct gps_data);
 
       /* See if GPS data has already been inserted in this second's data

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/01  15:56:50  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  17:23:56  craig
  * Initial revision
  *
@@ -20,7 +23,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
-#define SCOPE extern
+#define scope extern
 
 /* Include fifty million vx-works .h files */
 
@@ -97,11 +100,12 @@ void init_gps(short mbox)
 {
 /* Set the pointers to the gps data areas */
 
-gps_status = (char *)GPS_STATUS + STANDARD_BASE + GPS_BASE;
-gps_command = (short *)GPS_COMMAND + STANDARD_BASE + GPS_BASE;
-gps_mbox = (short *)GPS_MBOX + STANDARD_BASE + GPS_BASE;
-gps_hndshk = (short *)GPS_HNDSHK + STANDARD_BASE + GPS_BASE;
-gps_data_loc = (long *)GPS_DATA_LOC + STANDARD_BASE + GPS_BASE;
+gps_status = (char *)(GPS_STATUS + STANDARD_BASE + GPS_BASE);
+gps_command = (short *)(GPS_COMMAND + STANDARD_BASE + GPS_BASE);
+gps_mbox = (short *)(GPS_MBOX + STANDARD_BASE + GPS_BASE);
+gps_hndshk = (short *)(GPS_HNDSHK + STANDARD_BASE + GPS_BASE);
+gps_d_loc_h = (short *)(GPS_D_LOC_H + STANDARD_BASE + GPS_BASE);
+gps_d_loc_l = (short *)(GPS_D_LOC_L + STANDARD_BASE + GPS_BASE);
 
 /* Command interface to use the mailbox interrupt (mbox!=0) or not (mbox==0) */
 
@@ -119,7 +123,7 @@ wcio(0,"a",0xc6);  /* Writes correct register on the TP41V to allow
 /* Dual port the top 2 MBytes of DRAM to VME addresses 0x200000 thru
    0x3FFFFF, also creates mailbox interrupts in top 16 KBytes */
 
-creatStdMailbox((long)0x40200000,(long)0x200000);
+createStdMailbox((long)0x40200000,(long)0x200000);
 
 /* Connect the interrupt handler to the first mailbox interrupt */
 
