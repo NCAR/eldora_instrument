@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1996/02/21  17:21:15  craig
+ * *** empty log message ***
+ *
  * Revision 1.7  1993/09/01  20:07:25  craig
  * *** empty log message ***
  *
@@ -70,14 +73,31 @@ scope short reload_flag;
 
 /* Parameters to handle the test pulse */
 
-scope short tp_freq_count;
-scope short tp_freq_offset_count;
-scope short tp_atten;
-scope short tp_atten_start;
-scope short tp_dwell_count;
-scope short testpulse_max_count;
-scope float aft_half_nyquist[5][2];
-scope float fore_half_nyquist[5][2];
+scope short tp_freq_count;         /* Counter to step through each frequency */
+scope short tp_freq_offset_count;  /* Cntr to step thru each freq offset */
+scope short tp_atten;              /* The current attenuator setting */
+scope short tp_atten_start;        /* The starting value of attenuation */
+scope short tp_dwell_count;        /* Dwell counter for changing the testpls */
+scope short testpulse_max_count;   /* Maximum number of dwells each testpls */
+scope long aft_freq_offset[8];     /* Aft Frequency offsets from transmitted */
+scope long fore_freq_offset[8];    /* Fore freq. offsets from transmitted */
+scope double fore_freqs[5];        /* the Fore transmitted frequencies */
+scope double aft_freqs[5];         /* The aft transmitted frequencies */
+scope int autocal;                 /* on/off switch for debugging stuff */
+scope float fore_lna_radar_const;  /* radar consant modified for the @ LNA */
+scope float aft_lna_radar_const;   /* radar consant modified for the @ LNA */
+scope float log_testpulse_range2;  /* lOG10 of testpulse range squared */
+scope int tp_sum_start, tp_sum_end; /* Starting and ending dwell
+				       counts for sum */
+scope int tp_sum_count;             /* Summation counter */
+scope float fore_dbz_sum, aft_dbz_sum;  /* Sums of the dbz values */
+scope float fore_tp_level_sum, aft_tp_level_sum; /* sums of the
+						    testpulse power */
+scope float fore_vel_sum, aft_vel_sum;  /* Sums of the velocities */
+scope float f_vscale, a_vscale;       /* fore and aft velocity scale factors */
+scope float fore_tp_velocity[8], aft_tp_velocity[8];  /* what the velocities
+							 should be */
+
 
 /* Parameters to hold the sine and cosine of the tilt angles */
 scope float sin_ftilt;
@@ -91,8 +111,8 @@ scope int mcpl_error[3];
 
 /* global parameters to handle the waveguide switch */
 
-scope unsigned short *wg_sw_pntr;
-scope unsigned short wg_sw_current_set;
+scope unsigned char *wg_sw_pntr;
+scope unsigned char wg_sw_current_set;
 scope float wg_sw_big_angle;
 scope float wg_sw_small_angle;
 scope int wg_sw_counter;
