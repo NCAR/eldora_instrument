@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/10/02  20:42:24  thor
+ * Added LOAD_ONLY support.
+ *
  * Revision 1.6  1992/01/08  16:19:29  thor
  * Added code for timeout change.
  *
@@ -39,6 +42,9 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "GeGlobal.hh"
+extern "C" {
+#include "string.h"
+};
 
 static u_long cmdCount = 0;
 
@@ -57,8 +63,9 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
       return(status);
     else if (command & LOAD_ONLY)
       {
-	  cmd->cmd -= LOAD_ONLY;
+	  command &= ~LOAD_ONLY;
 	  memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
+	  GeCommand->cmd = command; // It seems we cannot alter cmd.
 	  DrawingTask->SetFlags(LOAD_ONLY);
 	  status->status = IDLE;
       }
