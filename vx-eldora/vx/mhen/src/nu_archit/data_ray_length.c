@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/25  17:42:15  eric
+ * Initialized global Header pointers from nu_archit_dac.c to avoid
+ * conflicts.
+ *
  * Revision 1.2  1994/11/14  17:27:23  eric
  * Added include files to keep compatible with new
  * Control Processor code.
@@ -45,7 +49,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Platform.h"
 #include "FieldParam.h"
 #include "Waveform.h"
-
+#include "raw_data.h"
 
 long data_ray_length()
 {
@@ -53,11 +57,12 @@ long data_ray_length()
 /* define some general purpose variables */
 
 int i;
-long indep_freq_length, time_series_length;
+long indep_freq_length, time_series_length, raw_data_length;
 long bytes_per_cell, number_of_cells, total_length;
 
 indep_freq_length = 0;
 time_series_length = 0;
+raw_data_length = 0;
 
 /****************************************************************/
 /* First job is to calculate the number of bytes in a data cell */
@@ -93,9 +98,15 @@ if(fldrdr->indepf_times_flg == 3)
 else
    time_series_length = 0;
 
+/* Calculate the raw data length */
+if(number_of_cells > prm->num_samples)
+  raw_data_length = sizeof(RAW_DATA) + number_of_cells * sizeof(float);
+else
+  raw_data_length = sizeof(RAW_DATA) + prm->num_samples * sizeof(float);
+
 total_length = sizeof(ray_i) + sizeof(platform_i) + 
-                 sizeof(field_parameter_data) + number_of_cells *
-                 bytes_per_cell + indep_freq_length + time_series_length;
+  sizeof(field_parameter_data) + number_of_cells *
+  bytes_per_cell + indep_freq_length + time_series_length + raw_data_length;
 
 return(total_length);
 }
