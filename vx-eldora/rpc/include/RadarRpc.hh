@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/25  17:39:04  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -42,6 +45,7 @@ extern "C" {
 struct RadarCommand {
     u_long cmd;
     u_long count;
+    int dc_points;
 };
 
 struct RadarStatus {

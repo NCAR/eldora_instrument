@@ -9,12 +9,15 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/26  18:55:31  thor
+ * Added DC offset points variable.
  *
  * Revision 1.1  1992/06/25  17:38:58  thor
+ * Initial revision
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -25,6 +28,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 bool_t xdr_RadarCommand(XDR *xdrs, FAST RadarCommand *objp)
 {
     if (!xdr_u_long(xdrs,&objp->cmd))
+      {
+	  return (FALSE);
+      }
+    if (!xdr_u_long(xdrs,&objp->count))
       {
 	  return (FALSE);
       }
