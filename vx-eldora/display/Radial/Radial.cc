@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/10/21  18:08:37  thor
+ * Fixed to draw text on black background, divide max distance by 1000.
+ *
  * Revision 1.5  1991/10/09  18:03:03  thor
  * Fixed name for reflectivity code.
  *
@@ -314,7 +317,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 	  break;
 
 	case SNR:
-	  title = "Signal/Noise Ratio";
+	  title = "SNR";
 	  units = 0;
 	  break;
 
@@ -345,6 +348,11 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 
 	case IMAG_R2:
 	  title = "Imaginary R(2)";
+	  units = 0;
+	  break;
+
+	case NCP:
+	  title = "NCP";
 	  units = 0;
 	  break;
       }
