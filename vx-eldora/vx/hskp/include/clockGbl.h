@@ -13,6 +13,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/09/24  20:14:30  kapoor
+ * Initial revision
+ *
  * Revision 2.0  2001/06/12 19:33:57  thor
  * *** empty log message ***
  *
@@ -54,3 +57,13 @@ scope int day_mon_calc[13];
 
 
 
+/* global time holding variables (necessary for convert_iru.c) */
+
+scope unsigned short msec;
+scope unsigned short jday;
+scope unsigned char sec;
+scope unsigned char min;
+scope unsigned char hr;
+scope unsigned char day;
+scope unsigned char mon;
+scope unsigned char yr;
