@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.15  2003/09/24  16:08:01  kapoor
+ * Changed init_clock call, change to Bancomm clock card
+ *
  * Revision 1.14  2000/05/15  18:30:25  eric
  * Revised power meter stop routine and added firstime flag so
  * that stop_ieee is not called upon powerup.
@@ -88,6 +91,9 @@ stop_flag = 1;
 reload_flag = 0;
 in_vmevme_isr = 0;
 in_gps_isr = 0;
+
+use_IRIGB = 1;
+modulate_IRIGB = 0;
 
 /* Initialize all of the various houskeeping interfaces */
 
