@@ -8,8 +8,10 @@
 #define OK 0
 #define ERROR 1
 #else
+extern "C" {
 #include "stdioLib.h"
 #include "rpc/pmap_clnt.h"
+};
 #endif // UNIX
 
 static void radarcontrol_1(struct svc_req *,SVCXPRT *);
@@ -97,29 +99,10 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
       count = 0;
     else if (count < cmdBlk->count)
       {
-	  count = cmdBlk->count;
-
-	  switch(cmd)
-	    {
-	      case START:
-		break;
-		
-	      case STOP:
-		break;
-
-	      case REBOOT:
-		break;
-
-	      case RELOAD:
-		break;
-
-	      case DC_REMOVAL:
-		break;
-
-	      case FFT:
-		break;
-	    }
+	  printf("Received command 0x%x.\n",cmd);
+	  count++;
       }
+
     currStatus->count++;
 
     return(currStatus);
