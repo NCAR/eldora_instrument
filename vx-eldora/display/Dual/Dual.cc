@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/06  20:20:20  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -17,11 +20,9 @@
  */
 #include "Dual.hh"
 
-extern "C" {
 #include "string.h"
-#include "stdioLib.h"
-#include "memLib.h"
-};
+#include "stdio.h"
+#include "stdlib.h"
 
 Dual::Dual(GraphicController *gbd, int rad,
 	   unsigned short xoff, unsigned short yoff) :
@@ -39,7 +40,8 @@ Dual::Dual(GraphicController *gbd, int rad,
     clk.Display();
 
     // Set the base video memory addresses.
-    videoMemory[0] = gbd->videoBufferAddr() + xoff + (yoff * 4096);
+    videoMemory[0] = (unsigned char *)gbd->videoBufferAddr() + xoff +
+      (yoff * 4096);
     videoMemory[1] = videoMemory[0] + PLOT_WIDTH;
 
     curZoom = ZOOM1;		// Start on 1x.
@@ -334,8 +336,17 @@ void Dual::NextZoom(Point cursor)
 	  break;
 
 	case ZOOM4:
+#ifdef BROKEN_ZOOM
 	  zoom = ZOOM1;
 	  break;
+#else
+	  zoom = ZOOM8;
+	  break;
+
+	case ZOOM8:
+	  zoom = ZOOM1;
+	  break;
+#endif	  
       }
 
     TopData.setZoom(zoom);

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/06  20:20:23  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,32 +22,6 @@
  */
 #include "Dual.hh"
 
-#ifdef NO_DISPLAY
-extern "C" {
-#include "taskLib.h"
-};
-#endif // NO_DISPLAY
-
-static inline int fastround(double d);
-
-static inline int fastround(double d)
-{
-    register int i;
-    register int cm;
-    register int im;
-
-    asm volatile ("fmove%.l fpcr,%0" : "=dm" (cm) : );
-
-    im = cm & 0xff00;
-
-    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
-
-    asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
-
-    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
-
-    return(i);
-}
 
 void Dual::DrawBeam(FAST DualData &data)
 {
@@ -62,21 +39,19 @@ void Dual::DrawBeam(FAST DualData &data)
 
     FAST int direction = data.direction;
 
-    if (alt >= max && (index <= 180 || index >= 540))
-      {
-	  if (direction > 0)
-	    index += 2;
-	  else
-	    index -=2;
-
-	  lastIndex = index;
-
-#ifdef NO_DISPLAY
-	  printf("Over max\n"); taskDelay(60);
-#endif // NO_DISPLAY
-
-	  return;
-      }
+//     if (alt >= max && (index <= 180 || index >= 540))
+//       {
+// 	  if (direction > 0)
+// 	    index += 2;
+// 	  else
+// 	    index -=2;
+// 
+// 	  lastIndex = index;
+// 
+// 	  printf("Over max\n");
+// 
+// 	  return;
+//       }
 
     float min = minAlt;
 
@@ -88,9 +63,8 @@ void Dual::DrawBeam(FAST DualData &data)
 	    index -=2;
 
 	  lastIndex = index;
-#ifdef NO_DISPLAY
-	  printf("Under min\n"); taskDelay(60);
-#endif // NO_DISPLAY
+
+	  printf("Under min\n");
 
 	  return;
       }
@@ -102,12 +76,9 @@ void Dual::DrawBeam(FAST DualData &data)
 	  if (j == 1000)
 	    j = index - 2;
 
-          FAST int q = index - j;
+          FAST int q = index - j + 720;
 
-          if (q < -20)
-            q = -q;
-
-          if (q > 20)
+          if (q < 700)
             {
                 printf("Angle to big, %d %d\n",index,j);
                 lastIndex = index;
@@ -134,10 +105,9 @@ void Dual::DrawBeam(FAST DualData &data)
 
 	  FAST int q = index - j;
 
-          if (q < -20)
-            q = -q;
+	  q = 720 - q;
 
-          if (q > 20)
+          if (q < 700)
             {
                 printf("Angle to big, %d %d\n",index,j);
                 lastIndex = index;
@@ -181,18 +151,10 @@ void Dual::DrawBeam(FAST DualData &data)
     FAST unsigned char *colors2 = colors1 + j;
     
     float ppm = pixelsPerMeter;
-    float diff = (max - alt) * ppm;
 
-    FAST int yoff;
-
-    if (diff < 0.0)
-      yoff = fastround(diff);
-    else
-      yoff = PLOT_HEIGHT - 1 - fastround(diff);
-
-#ifdef NO_DISPLAY
-    printf("%f %f %f %d.\n",max,alt,data.angle,yoff); taskDelay(60);
-#endif // NO_DISPLAY
+    alt = max - alt;
+    
+    FAST int yoff = fastround(alt * ppm);
 
     FAST int fg = firstGate;
 
@@ -200,7 +162,7 @@ void Dual::DrawBeam(FAST DualData &data)
     FAST int c2 = (cos2 * fg);
     FAST int s1 = (sin1 * fg);
     FAST int s2 = (sin2 * fg);
-    
+
     FAST unsigned char *ptr1 = video1;
     FAST unsigned char *ptr2 = video2;
 
@@ -208,14 +170,14 @@ void Dual::DrawBeam(FAST DualData &data)
       {
 	  FAST int D = ay - (ax >> 1);
 	  
-	  for (FAST int i = 0; i < j; i++, colors1++, colors2++,
+	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
 	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
 	    {
 		FAST int x1 = (c1 >> 16) + (PLOT_WIDTH / 2);
 		FAST int x2 = (c2 >> 16) + (PLOT_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
-		
+
 		FAST int d = D;
 		FAST int x = x1;
 		FAST int xend = x2;
@@ -276,13 +238,13 @@ void Dual::DrawBeam(FAST DualData &data)
 	  
 	  FAST int D = ax - (ay >> 1);
 	  
-	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++,
+	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
 	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
 	    {
-		FAST int x1 = c1 >> 16;
-		FAST int x2 = c2 >> 16;
-		FAST int y1 = s1 >> 16;
-		FAST int y2 = s2 >> 16;
+		FAST int x1 = (c1 >> 16) + (PLOT_WIDTH / 2);
+		FAST int x2 = (c2 >> 16) + (PLOT_WIDTH / 2);
+		FAST int y1 = (s1 >> 16) + yoff;
+		FAST int y2 = (s2 >> 16) + yoff;
 		
 		FAST int d = D;
 		FAST int y = y1;

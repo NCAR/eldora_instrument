@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/06  20:20:24  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -27,15 +30,16 @@ class Dual;
 #define OK_RPC
 #define WRS_SIDE
 
-extern "C" {
+
 #include "vxWorks.h"
 #include "math.h"
 #include "DisplayRpc.h"
-};
 
+#include "mathVar.h"
 #include "ParamNames.h"
 #include "CellSpacing.h"
 #include "point.h"
+#include "fastMath.h"
 
 // This structure is used to hold the fixed point sines/cosines. The
 // format is (fp value) << 16.
@@ -85,9 +89,6 @@ class Dual {
     {
 	if ((x < 0) || (x >= PLOT_WIDTH) || (y < 0) || (y >= PLOT_HEIGHT))
 	  {
-#ifdef NO_DISPLAY
-	      printf("Clipped at %d, %d!\n",x,y);
-#endif // NO_DISPLAY
 	      return(0);
 	  }
 	return(1);
@@ -96,13 +97,9 @@ class Dual {
     void plot(FAST unsigned char *v, FAST int x, FAST int y,
 	     FAST unsigned char c)
     {
-#ifdef NO_DISPLAY
-	printf("%d, %d %d\n",x,y,c);
-#else
 	v += x + (y * 4096);
 
 	*v = c;
-#endif // NO_DISPLAY
     }
 
   public:
