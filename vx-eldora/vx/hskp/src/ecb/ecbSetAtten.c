@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/09/20  20:25:20  shawn
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/06/23  19:44:45  shawn
  * Initial revision
  *
@@ -54,9 +57,9 @@ unsigned char ecbSetAtten(unsigned char ecbadr,unsigned char foraft,unsigned cha
     /* Check for pending command */
     if (semTake(ecb_cmd_not_pending,1) == ERROR)
       {
-	  printf("ecbSetAtten: command still pending...");
+/*	  printf("ecbSetAtten: command still pending...");
 	  printf("Returning without issuing command.\n");
-	  return(1);
+*/	  return(1);
       }
     
     /* Check for valid ecbadr */

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/24  01:20:00  shawn
+ * added unsigned char nr as a parmeter to make parametric the selection of
+ * noise reduction
+ *
  * Revision 1.1  1992/06/19  01:05:00  shawn
  * Initial revision
  *
@@ -56,9 +60,9 @@ unsigned char ecbSetDDS(unsigned char ecbadr,unsigned char unitnum,unsigned char
     /* Check for pending command */
     if (semTake(ecb_cmd_not_pending,1) == ERROR)
       {
-	  printf("ecbSetDDS: command still pending...");
+/*	  printf("ecbSetDDS: command still pending...");
 	  printf("Returning without issuing command.\n");
-	  return(1);
+*/	  return(1);
       }
 
     /* Check for valid address */
@@ -110,6 +114,7 @@ unsigned char ecbSetDDS(unsigned char ecbadr,unsigned char unitnum,unsigned char
       {
 	  printf("ecbSetDDS: frequency passed [%lf] is out ",actfreq);
 	  printf("of range.\n");
+	  printf("B = %d    T   = %ld\n",B,T);
 	  printf("ecbSetDDS: Returning without issuing command.\n");
 	  printf("ecbSetDDS: Re-Giving ecb_cmd_not_pending Semaphore.\n");
 	  if(semGive(ecb_cmd_not_pending) == ERROR)
@@ -197,3 +202,34 @@ unsigned char ecbSetDDS(unsigned char ecbadr,unsigned char unitnum,unsigned char
     return(0);
 }
 
+void atest(void)
+{
+  double frequency;
+  
+  double actfreq,temp;
+  unsigned char B;
+  unsigned long T;
+
+
+
+    do{
+      printf("Enter the frequency in hertz: ");
+      scanf(" %lf",&frequency);
+
+
+      B = (unsigned char)(361 - (int)(frequency / 30.0e6));
+      temp = 15445.3333333333333 - (frequency / 703125.0);
+      temp = (16777216.0 / (B+1)) * temp;
+      T = (unsigned long)(temp + 0.5);
+  
+      printf("B = %d     T = %d\n",B,T);
+      printf("freq = %lf\n",frequency);
+
+
+      temp = T * (double) (B+1) / 1431655765.333333333333;
+      actfreq = 6.0e7 * (181.0 - temp);
+
+      printf("actfreq = %lf\n",actfreq);
+
+    }while(frequency != 777.0);
+}
