@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.7  2003/04/10 22:45:57  ericloew
+* --------- changed intLock etc. to sysIntDisable etc., and changed test program ip addrs to the 192 network
+* ---------
 * --------- Revision 1.6  2003/04/09 18:56:51  martinc
 * --------- bug fixes, testEth29 now working
 * ---------
@@ -692,10 +695,7 @@ void testEth29(int count) {
       return status; 
     }
   }
-
-
 }
-
 
 /*---------------------------------------------------------------------------*
 Function:	initialize eth29
@@ -821,6 +821,29 @@ int eth29Init(char* interfaceIPaddress, int intVector, int intLevel)
   strcpy(if_name, ifr.ifr_name);
   ip_addr = ((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr;
   printd("  read back if '%s' IP address %lu.%lu.%lu.%lu / 0x%lx\n",
+	 if_name,
+	 (ip_addr >> 24) & 0xff,
+	 (ip_addr >> 16) & 0xff,
+	 (ip_addr >> 8) & 0xff,
+	 ip_addr & 0xff,
+	 ip_addr);
+
+  /* issue ioctl to set the interface broadcast address */
+  memset(&ifr, 0x00, sizeof(struct ifreq));
+  strcpy(ifr.ifr_name, if_name);
+  ((struct sockaddr_in *) &ifr.ifr_addr)->sin_family = AF_INET;
+  ((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr = (ip_addr & 0xffffff00) | 0xff;
+  status = P_Ioctl(sock_a[0], SIOCSIFBRDADDR, (caddr_t)&ifr);
+  logMsg("eth29Init: SIOCIFBRDADDR returned %d\n", status);
+
+  /* issue ioctl to read back IP broadcast address */
+  memset(&ifr, 0x00, sizeof(struct ifreq));
+  strcpy(ifr.ifr_name, if_name);
+  status = P_Ioctl(sock_a[0], SIOCGIFBRDADDR, (caddr_t)&ifr);
+
+  strcpy(if_name, ifr.ifr_name);
+  ip_addr = ((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr;
+  printd("  read back broadcast if '%s' IP address %lu.%lu.%lu.%lu / 0x%lx\n",
 	 if_name,
 	 (ip_addr >> 24) & 0xff,
 	 (ip_addr >> 16) & 0xff,
