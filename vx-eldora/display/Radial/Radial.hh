@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/05/06  15:11:45  thor
+ * Added embedded Clock class for time display.
+ *
  * Revision 1.2  1991/04/29  18:46:53  thor
  * Changed calling of drawing routines to use new RadialData format.
  *
@@ -34,9 +37,15 @@
 #include "Window.hh"
 #include "DataPoint.h"
 
+// These defines are needed for rpc header.
+#define OK_RPC
+#define CLIENT_SIDE
+
 extern "C" {
 #include "vxWorks.h"
 #include "math.h"
+#include "rpc/rpc.h"
+#include "DisplayRpc.h"
 };
 
 #include "point.h"
@@ -73,6 +82,9 @@ class Radial {
     int displayedSet;
     int lastIndex;
     int radius;
+    int firstGate;
+
+    float maxDistance;
 
     TrigData *trigData;
 
@@ -101,8 +113,10 @@ class Radial {
     void drawTable(int set, float max, float min, int param,
 		   int tblsize = 31);
     
-    void drawTitle(int set, int param, float distance);
+    void drawTitle(int set, int radar);
     
+    void SetBounds(float max, float first);
+
     void expose(int wdw);
     
     void hide(int wdw);
