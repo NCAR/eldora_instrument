@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.6  1994/09/23  19:59:17  thor
+ * Added missing setClock() for vert.
+ *
  * Revision 2.5  1994/09/23  15:03:57  thor
  * Added clock code & reduced taskDelay time.
  *
@@ -97,6 +100,9 @@ extern "C" {
 
 void DdpLoop(Task &self, Pipe &pipe, Task &GetsFlags);
 
+// Now that this uses 16 bit values, it's too big for the stack.
+static ColorConverter conv;
+
 void DrawingLoop(FAST Task &self)
 {
     self.FlagsInit();
@@ -142,7 +148,6 @@ void DrawingLoop(FAST Task &self)
     Vert vert(&Agc);
 
     // Now create the needed shared objects.
-    ColorConverter conv;
     Clock clock(&Agc,3,0,0,1872,1024);
     clock.display();
     ParamNames namer;
