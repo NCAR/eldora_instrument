@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/17  17:15:45  thor
+ * Removed actual reboot from this code. Cleaned up cases.
+ *
+ * Revision 1.4  1991/10/17  16:46:28  thor
  * Fixed cases for RESTART & RELOAD. Corrected to only copy DispCommand if
  * a new comes in.
  *
@@ -30,12 +34,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
-extern "C" {
-#include "rebootLib.h"
-#include "sysLib.h"
-#include "stdioLib.h"
-};
-
 
 #include "GeGlobal.hh"
 
@@ -55,25 +53,23 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
     else if (cmd->count <= cmdCount) // Invalid command.
       return(status);
     else if (command & LOAD_ONLY)
-	    reboot(BOOT_NORMAL);
-	    
       {
 	  cmd->cmd -= LOAD_ONLY;
 	  memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
 	  DrawingTask->SetFlags(LOAD_ONLY);
 	  status->status = IDLE;
       }
-	    DrawingTask->SetFlags(RELOAD);
-	    status->status = IDLE;
+    else
+      {
 	  switch(command)
 	    {
 	      case REBOOT:
-	    DrawingTask->SetFlags(START);
+	      case STOP:
 		DrawingTask->SetFlags(command);
 		status->status = IDLE;
 		break;
 		
-	    DrawingTask->SetFlags(RESTART);
+	      case RELOAD:
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
