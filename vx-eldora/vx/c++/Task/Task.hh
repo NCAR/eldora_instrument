@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/12/07  17:32:12  vanandel
+ * on task destruction, correctly delete the flags to allow
+ * the task destruction to complete
+ *
  * Revision 1.6  1992/11/24  18:51:43  vanandel
  * added destructor - delete allocated flags
  *
@@ -75,6 +79,7 @@ class Task {
     int priority;		// Guess.
     int stack;			// Stack size.
     int opts;			// Task options.
+    char *name;			// Task Name
     
   public:
     Task(FUNCPTR entry, int *args, int argsize, int pri = 100,
