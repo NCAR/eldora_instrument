@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:20  craig
+ * Initial revision
+ *
  *
  * description: Initializes the scatter - gather command blocks
  *        
@@ -25,8 +28,9 @@ void sg_init(int sg_buff)
 {
 register int i, j;
 
-sg_blk_cnt = 0;
-sg_add_cnt = 0;
+sg_blk_cnt[sg_buff] = 0;
+sg_add_cnt[sg_buff] = 0;
+
 
 for(i=0; i<MAX_SG_BLK; i++)
   {

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:28  craig
+ * Initial revision
+ *
  *
  *
  * description:  Fills the scattter gather blocks with addresses and lengths
@@ -27,25 +30,26 @@ int i;
 
 /* fill current position in the scatter gather structure */
 
-sg[sg_buff][sg_blk_cnt]->len_add[sg_add_cnt].am_and_length = 
+sg[sg_buff][sg_blk_cnt[sg_buff]]->len_add[sg_add_cnt[sg_buff]].am_and_length = 
   AM * 0x01000000 + length;
 
-sg[sg_buff][sg_blk_cnt]->len_add[sg_add_cnt].address = (unsigned int)data_add;
+sg[sg_buff][sg_blk_cnt[sg_buff]]->len_add[sg_add_cnt[sg_buff]].address =
+  (unsigned int)data_add;
 
 /* See if current block is full */
 
-sg_add_cnt += 1;
-if(sg_add_cnt >= 8)
+sg_add_cnt[sg_buff] += 1;
+if(sg_add_cnt[sg_buff] >= 8)
   {
 
-      sg_add_cnt = 0;
+      sg_add_cnt[sg_buff] = 0;
       
       /* See if number of blocks has reached maximum */
       
-      sg_blk_cnt += 1;
-      if(sg_blk_cnt < MAX_SG_BLK)
-	    sg[sg_buff][sg_blk_cnt - 1]->next_sg_blk_add = 
-	      (unsigned int)sg[sg_buff][sg_blk_cnt];
+      sg_blk_cnt[sg_buff] += 1;
+      if(sg_blk_cnt[sg_buff] < MAX_SG_BLK)
+	    sg[sg_buff][sg_blk_cnt[sg_buff] - 1]->next_sg_blk_add = 
+	      (unsigned int)sg[sg_buff][sg_blk_cnt[sg_buff]];
       else
 	return(1);
   }
