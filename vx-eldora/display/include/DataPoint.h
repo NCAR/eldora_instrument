@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/11/22  18:21:53  thor
+ * Added time values to DataPoint.
+ *
  * Revision 1.6  1991/11/01  19:39:58  thor
  * Added new Beam_time structure.
  *
@@ -74,6 +77,13 @@ struct Data_Point {
     unsigned char colors[4];
 };
 
+struct Vert_Point {
+    Beam_Time time;
+    Point ul;
+    unsigned short size;
+    unsigned char colors[4];
+};
+
 struct Radial_Data {
     Beam_Time time;
     float angle;
@@ -98,6 +108,6 @@ static const int INITIAL_LAT_LONG = 8; /* This means update only the */
 typedef struct Data_Point DataPoint;
 typedef struct Horiz_Move HorizMove;
 typedef struct Radial_Data RadialData;
-
+typedef struct Vert_Point VertPoint;
 #endif INCDataPointh
 
