@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/09/30  14:58:11  thor
+ * Added no parameter value.
+ *
  * Revision 1.2  1991/09/18  15:26:38  thor
  * Fixed backwards naming of inlines.
  *
@@ -24,6 +27,11 @@
 #ifndef INCParamNamesh
 #define INCParamNamesh
 
+static char *ParamTapeNames[] = {
+"DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
+"IMAG_R2", "NCP",
+0};
+
 static const int REFLECT      = 0x1;
 static const int VELOCITY     = 0x2;
 static const int SNR          = 0x4;
@@ -33,6 +41,7 @@ static const int REAL_R1      = 0x20;
 static const int REAL_R2      = 0x40;
 static const int IMAG_R1      = 0x80;
 static const int IMAG_R2      = 0x100;
+static const int NCP          = 0x200;
 static const int NO_PARAM     = -1;
 
 #ifndef _GNUC_
@@ -51,7 +60,8 @@ static INLINE int ParamToNum(register int p)
       case REAL_R2: return(6);
       case IMAG_R1: return(7);
       case IMAG_R2: return(8);
-      case NO_PARAM: return(9);
+      case NCP: return(9)
+      case NO_PARAM: return(10);
       default: return(-1);
     }
 }
@@ -68,6 +78,7 @@ static INLINE int NumToParam(register int n)
       case 6: return(REAL_R2);
       case 7: return(IMAG_R1);
       case 8: return(IMAG_R2);
+      case 9: return(NCP);
       default: return(-1);
     }
 }
