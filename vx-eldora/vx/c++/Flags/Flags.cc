@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  90/12/07  13:48:46  thor
+ * Fixed bug in test for already set flags.
+ * 
  * Revision 1.2  90/11/15  11:51:11  thor
  * Added proper code to test if flags are already set. Changed code to clear
  * effected flags on success. Changed header to .hh.
@@ -30,19 +33,20 @@ static char rcsid[] = "$Id$";
 
 // Wait loops on the local semaphore, checking the flags to see if the
 // last change met the required criteria.
-unsigned int Flags::wait(FAST unsigned int mask, FAST int type)
+unsigned int Flags::wait(FAST unsigned int mask, FAST int type,
+			 FAST int timeout)
 {
     FAST unsigned int flgs = flags;
     FAST unsigned int result = mask & flgs;
 
     if ((type == FLAGS_OR) && result)
       {
-	  flags ^= mask;
+	  flags ^= result;
 	  return(result);
       }
     else if (mask == result)
       {
-	  flags ^= mask;
+	  flags ^= result;
 	  return(result);
       }
 	 
@@ -50,7 +54,9 @@ unsigned int Flags::wait(FAST unsigned int mask, FAST int type)
 
     for (;;)
       {
-	  semTake(semaphore);	// Wait for change to flags.
+	  if (semTake(semaphore,timeout) == ERROR) // If we timeout,
+						   // no flags were set.
+	    return(0);
 
 	  flgs = flags;
 	  result = mask & flgs;
@@ -59,14 +65,14 @@ unsigned int Flags::wait(FAST unsigned int mask, FAST int type)
 	    {
 		if (result)	// Will be true is ANY flag was set.
 		  {
-		      flags ^= mask; // Restore to useful mode for next call.
+		      flags ^= result; // Restore to useful mode for next call.
 		      return(result);
 		  }
 		continue;
 	    }
 	  else if (result == mask) // All flags must be set.
 	    {
-		flags ^= mask;
+		flags ^= result;
 		return(flgs);
 	    }
       }
