@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:34  craig
+ * Initial revision
+ *
  *
  * description:  Read a record from the specified tape drive
  *        
@@ -57,7 +60,7 @@ op5=0x00;
 
 parmblk[cmnd_ident]->cmd_id = cmnd_ident;
 parmblk[cmnd_ident]->resvd = 0x00;
-parmblk[cmnd_ident]->flags = sgflg; /* Set for scatter/gather or single block */
+parmblk[cmnd_ident]->flags = sgflg; /*Set for scatter/gather or single block*/
 parmblk[cmnd_ident]->addr_mod = 0x0D;
 parmblk[cmnd_ident]->targ_id = drv_num;
 parmblk[cmnd_ident]->vme_addr = (unsigned int)data_addr;
@@ -74,6 +77,7 @@ parmblk[cmnd_ident]->scsi_blk[5]=op5;
 i = (int)parmblk[cmnd_ident];
 i += tape_vme_offset;
 addr.pb = (PARMBLK *)i;
+
 *addr_buff=CB_AM; /* Control Byte and Address Modifier */
 *addr_buff=addr.pb_addr[0]; /* MSW OF paramblk addr */
 *addr_buff=addr.pb_addr[1]; /* LSW of paramblk addr */ 
@@ -98,12 +102,12 @@ i=0;
 while((parmblk[cmnd_ident]->stat_flags&0x80)!=0x80)  /* Watch for command complete */
   {                                       /* flag showing command was   */
       i++;                                /* successfully completed     */
-      if(i>=50000000)                       /* If not drop out and show   */
+      if(i>=5000)                       /* If not drop out and show   */
 	{ 
-	    puts("TIME EXCEEDED");    /* error status.              */
+	    puts("TIME EXCEEDED FOR READ");    /* error status.              */
 	    break;
 	}
-     for(j=0; j<10; j++); /* Give us a little delay */
+     taskDelay(2);                      /* Give us a little delay */
   }
 switch(parmblk[cmnd_ident]->stat_flags&0xFE)
   {

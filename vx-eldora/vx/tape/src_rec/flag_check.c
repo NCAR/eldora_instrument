@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24  22:59:09  craig
+ * Initial revision
+ *
 
  * * description:  This routine is the main executive routine of the recording
  *                 processor.  The routine beings by performing all
@@ -213,14 +216,15 @@ tapeStatus->drives1[1] = record_sys[1][1];
 /* Print current recording system definitions */
 printf(" Recording system    drive 0    drive 1    number of drives\n");
 for(i=0; i<2; i++)
-printf("      %1d              %1d      %1d             %1d\n",
+printf("      %1d              %1d         %1d          %1d\n",
 i,record_sys[i][0],record_sys[i][1],record_sys[i][2]); 
 
 
 /* Get the size of the area to malloc for the tape control structures,
    malloc the space and initialize all of the control structures */
 
-cntrl_size = tape_cntr_len(SCATTER_GATHER);
+tape_vme_offset = 0;
+cntrl_size = tape_cntrl_len(SCATTER_GATHER);
 cntrl_addr = malloc(cntrl_size);
 initialize_tape((int)cntrl_addr,SCATTER_GATHER);
 
@@ -248,7 +252,7 @@ for(i=0; i<2; i++)
 			printf("ERROR: DRIVE INITIALIZATION, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
 		  /* EJECT THE TAPE */
 		  printf("Unloading tape drive: %2d\n",physical_unit[i][j]);
-		  exb_cmds(UNLOAD,unschar);
+		  dlt_cmds(UNLOAD,unschar);
 	      }
 	}
   }
@@ -273,7 +277,7 @@ for(i=0; i<2; i++)
 		  unschar = physical_unit[i][j];
 		  printf("LOADING TAPE ON SCSI DRIVE: %2d\n",
 			       physical_unit[i][j]);
-		  exb_cmds(LOAD,unschar);
+		  dlt_cmds(LOAD,unschar);
 	      }
 	}
   }
@@ -340,7 +344,7 @@ for(;;)
 		for(i=0; i<number_of_drives; i++)
 		  {
 		      unschar = drives_to_use[i];
-		      exb_cmds(UNLOAD,unschar);
+		      dlt_cmds(UNLOAD,unschar);
 		  }
 	      }
 
@@ -351,7 +355,7 @@ for(;;)
 		for(i=0; i<number_of_drives; i++)
 		  {
 		      unschar = drives_to_use[i];
-		      exb_cmds(REWND,unschar);
+		      dlt_cmds(REWND,unschar);
 		  }
 	      }
 
@@ -386,7 +390,7 @@ for(;;)
 	    /********* INIT RECORDING LOG FILE **********/
 	    if(logger_initialized == 0)
 	      {
-		  loggerInit(RECORD_LOG);
+		/*	  loggerInit(RECORD_LOG);  */
 		  logger_initialized = 1;
 	      }
 
@@ -435,7 +439,7 @@ head->year,head->data_set_hour,head->data_set_minute,head->data_set_second);
 		    log_chars[i+14] = head->proj_name[i];
 		  for(i=0; i<7; i++)
 		    log_chars[i+72] = head->flight_num[i];
-		  loggerEvent(log_chars,log_ints,0);
+		  /*	  loggerEvent(log_chars,log_ints,0); */
 		  printf("%s",log_chars);
 
 		  /* Second line */
@@ -445,7 +449,7 @@ head->year,head->data_set_hour,head->data_set_minute,head->data_set_second);
 		  sprintf(log_chars,"Pulsing_scheme:                  Dwell: %4.1fms RSpeed %4.1fRPM Chipwidth %3.1fus\n",dwelltime,rpm,width);
 		  for(i=0; i<16; i++)
 		    log_chars[i+16] = wave->ps_file_name[i];
-		  loggerEvent(log_chars,log_ints,0);
+		  /*		  loggerEvent(log_chars,log_ints,0); */
 		  printf("%s",log_chars);
 
 		  /* Third Line */
@@ -454,7 +458,7 @@ head->year,head->data_set_hour,head->data_set_minute,head->data_set_second);
 		    cells += cs->num_cells[i];
 		  sprintf(log_chars,"#IPPs: %2d #Gates: %4d #Parameters: %2d #cells: %4d #Frequencies: %2d\n",rad_dscr->num_ipps_trans, wave->num_gates[0],
 rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
-		  loggerEvent(log_chars,log_ints,0);
+		  /* loggerEvent(log_chars,log_ints,0); */
 		  printf("%s",log_chars);
 
 		  /* Write out the needed headers */
@@ -485,7 +489,8 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 
 			/* Reset all of the error counters in the tape drive
 			   to zero */
-              /*  exb_cmds(LOG_SELECT,unschar); */
+
+			dlt_cmds(LOG_SELECT,unschar);
 
 
 			vol->volume_num=vol_num;
@@ -504,7 +509,7 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			      /* Log this error in the log file */
 			      log_ints[3] = drives_to_use[i];
 			      log_ints[4] = stat;
-			      loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Standard data wrt\n",log_ints,5);
+			      /* loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Standard data wrt\n",log_ints,5); */
 			  }
 		    }
 	      } /* if(number_of_drives > 0) */

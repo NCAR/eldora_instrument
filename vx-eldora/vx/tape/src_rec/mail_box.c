@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24  22:59:43  craig
+ * Initial revision
+ *
  *
  *
  * description: This routine writes all data out to tape.  It begins by
@@ -294,7 +297,7 @@ do
 		    {
 
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
+			drv_sel((unsigned int *)&sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -317,7 +320,7 @@ do
 		  if(full)
 		    {
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
+			drv_sel((unsigned int *)&sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -350,7 +353,7 @@ do
 		    {
 
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[nav_buff_num][0],nav_blk_sz,
+			drv_sel((unsigned int *)&sg[nav_buff_num][0],nav_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -373,7 +376,7 @@ do
 		  if(full)
 		    {
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[nav_buff_num][0],nav_blk_sz,
+			drv_sel((unsigned int *)&sg[nav_buff_num][0],nav_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -405,7 +408,7 @@ do
 		    {
 
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[ads_buff_num][0],ads_blk_sz,
+			drv_sel((unsigned int *)&sg[ads_buff_num][0],ads_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -428,7 +431,7 @@ do
 		  if(full)
 		    {
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[ads_buff_num][0],ads_blk_sz,
+			drv_sel((unsigned int *)&sg[ads_buff_num][0],ads_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -609,7 +612,7 @@ do
 		    {
 
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
+			drv_sel((unsigned int *)&sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -632,7 +635,7 @@ do
 		  if(full)
 		    {
 			/* Write data out to tape */
-			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
+			drv_sel((unsigned int *)&sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
 			WRITE_TAPE_STATUS=0;
 
@@ -687,7 +690,7 @@ do
 for(i=0; i<number_of_drives; i++)
   {
       unschar = drives_to_use[i];
-      stat = write_tape((unsigned int *)tapeHdr,hdrsz,HEADER,unschar);
+      stat = write_tape((unsigned int *)tapeHdr,hdrsz,BLOCKED,unschar);
       if(stat != 0)
 	{
 	    printf("WRITE ERROR ON DRIVE %d\n",drives_to_use[i]);
@@ -699,7 +702,7 @@ for(i=0; i<number_of_drives; i++)
 	    loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Ending header wrt\n",log_ints,5);
 	      }
       printf("WROTE ENDING HEADER TO %d\n",drives_to_use[i]);
-      exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
+      dlt_cmds(WRITE_FILEMARK,unschar);
       printf("WROTE ENDING FILEMARK TO %d\n",drives_to_use[i]);
   }
 /* Log end of volume in the log file */

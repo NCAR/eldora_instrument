@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:07:56  craig
+ * Initial revision
+ *
  *
  *
  * description:  Returns the percent of tape remaining to be recorded.
@@ -34,9 +37,6 @@ union
   }tp;
 
 dlt_cmds(REQUEST_SENSE,drv_id);
-tp.tape[1] = rqst_sen->rem_tape_msb;
-tp.tape[2] = rqst_sen->rem_tape_mid;
-tp.tape[3] = rqst_sen->rem_tape_lsb;
 
 index = -1;
 for(i=0; i<4; i++)

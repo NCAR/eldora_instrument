@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:02:19  craig
+ * Initial revision
+ *
  *
  * description:  This modules sends commands that are specific to the
  *               Ciprico board itself
@@ -27,7 +30,7 @@ void cip_cmds(unsigned int cmnd_ident,unsigned char op_cd,unsigned char drv_num)
 unsigned short *addr_buff;
 volatile unsigned short *status;
 unsigned short new_stat,old_stat;
-unsigned char resvd,flags,addr_mod,targ_id,vme_addr,xfer_count;
+unsigned char resvd,flags,addr_mod,targ_id,vme_addr,xfer_count,test;
 int i,stat;
 union 
   {
@@ -93,34 +96,42 @@ chan_attn(0); /* Issue channel attention 0 for sending single commands */
 
 /********** IS CIPRICO READY FOR ANOTHER COMMAND?? ****************/
 
+stat = 0;
 i=0; /* INIT LOOP COUNTER */
 while(old_stat==new_stat) /* Watch for ENT bit to toggle */
   {                       /* to show if board is ready for */
       new_stat=*status;   /* another command. */             
       i++;                     
-      if(i==50000)
+      if(i==5000)
 	{
-	    puts("CHAN ATTN TIMEOUT");
+	    puts("CIP_CMDS: CHAN ATTN TIMEOUT");
 	    printf("STATUS = %X\n",*status);
+	    stat = 1;
 	    break;
 	}
   }
+
 /******************* IS COMMAND COMPLETE?? ************************/
+/* Watch for command complete bit, if set drop out, if it doesn't
+   happen for awhile then timeout */
+
 i=0;
-while(parmblk[cmnd_ident]->stat_flags!=0x80) /* Watch for command complete */
-  {                                       /* flag showing command was   */
-      i++;                                /* successfully completed     */
-      if(i==50000)                        /* If not drop out and show   */
-	{                                 /* error status.              */
+test = 0;
+while(test != 0x80)
+  {
+    test = parmblk[cmnd_ident]->stat_flags & 0x80;
+    i++;
+    if(i >= 50000)
+      {
 	    stat=1;                       
-	    printf("COMAND TIMEOUT\n");
-	    print_stat(stat,cmnd_ident);
+	    printf("CIP_CMDS: COMAND TIMEOUT\n");
 	    break;
 	}
       taskDelay(1);
   }
-stat=0;
-/*print_stat(stat,cmnd_ident);*/
+
+if(stat == 1) print_stat(stat,cmnd_ident);
+
 parmblk[cmnd_ident]->stat_flags=0x00; /* Clear status flag */
 return;
 }

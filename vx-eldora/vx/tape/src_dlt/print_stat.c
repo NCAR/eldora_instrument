@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:17  craig
+ * Initial revision
+ *
  *
  * description: Prints out the status of the requested command
  *        
@@ -23,6 +26,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void print_stat(int stat,unsigned int cmnd_ident)
 {
+unsigned short *status_reg;
+
+status_reg = (unsigned short *)(CIP_BASE + SHORT_BASE + CIP_BD_STAT);
 
 if(stat!=0)
  {
@@ -32,6 +38,8 @@ else
   {
       puts("COMMAND TRANSFER COMPLETE");
   }
+printf("Parameter block number of command: %2d\n",cmnd_ident);
+printf("Ciprico Board Status: 0x%4x\n",*status_reg);
 printf("CMD ID = %d\n",parmblk[cmnd_ident]->status_cmd_id);
 printf("SCSI STAT = %x\n",parmblk[cmnd_ident]->scsi_status);
 printf("ERROR = %x\n",parmblk[cmnd_ident]->error);

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:01  craig
+ * Initial revision
+ *
  *
  * description: Initializes the mode select parameter block
  *        
@@ -57,7 +60,7 @@ mod_sel->buff_size_msb = 0;       /* leave zero for noe */
 mod_sel->buff_size_mid = 0;
 mod_sel->buff_size_lsb = 0;
 mod_sel->data_compress = 0;       /* disable data compression for now */
-mod_sel->res3 = 0;
+mod_sel->res4 = 0;
 
 }
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24  22:59:57  craig
+ * Initial revision
+ *
  *
  * description:  Calls the routines that actually write the data
  *        
@@ -86,7 +89,7 @@ if(file_size >= MAX_FILE_SIZE)
 					   active drives */
 	{
 	    drive_id = drives_to_use[i];
-	    stat = write_tape((unsigned int *)tapeHdr,hdrsz,HEADER,drive_id);
+	    stat = write_tape((unsigned int *)tapeHdr,hdrsz,BLOCKED,drive_id);
 	    if(stat != 0)
 	      {
 		  tapeStatus->status[current_unit] &= ~RECORDING;
@@ -99,7 +102,7 @@ if(file_size >= MAX_FILE_SIZE)
 		  loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Max File End Header Wrt\n",log_ints,5);
 	      }
 
-	    exb_cmds(WRITE_FILEMARK,drive_id);
+	    dlt_cmds(WRITE_FILEMARK,drive_id);
 	}
 
       /* Log end of volume in the log file */
@@ -113,7 +116,7 @@ if(file_size >= MAX_FILE_SIZE)
       for(i=0; i<number_of_drives; i++)
 	{
 	    drive_id = drives_to_use[i];
-	    stat = write_tape((unsigned int *)tapeHdr,hdrsz,HEADER,drive_id);
+	    stat = write_tape((unsigned int *)tapeHdr,hdrsz,BLOCKED,drive_id);
 	    if(stat != 0)
 	      {
 		  tapeStatus->status[current_unit] &= ~RECORDING;
@@ -139,11 +142,11 @@ if(WRITE_TAPE_STATUS==1)
       drive_id = drives_to_use[0];
       tapeStatus->attempts[current_unit] = write_attempts;
 
-/*      exb_cmds(LOG_SENSE,drive_id); */
-      err.achar[0] = log_page->total_errors_cor.pvalue_msb;
-      err.achar[0] = log_page->total_errors_cor.pvalue_midh;
-      err.achar[0] = log_page->total_errors_cor.pvalue_midl;
-      err.achar[0] = log_page->total_errors_cor.pvalue_lsb;
+      dlt_cmds(LOG_SENSE,drive_id);
+      err.achar[0] = log_page->total_errors_cor.pvalue_msb & 0x7F;
+      err.achar[1] = log_page->total_errors_cor.pvalue_midh;
+      err.achar[2] = log_page->total_errors_cor.pvalue_midl;
+      err.achar[3] = log_page->total_errors_cor.pvalue_lsb;
 
 
       percent = (TOTAL_TAPE_SIZE - amount_written[current_unit]) /
@@ -167,7 +170,7 @@ if(WRITE_TAPE_STATUS==1)
 
 		  drive_id = drives_to_use[i];
 		  stat = write_tape((unsigned int *)tapeHdr,hdrsz,
-				    HEADER,drive_id);
+				    BLOCKED,drive_id);
 		  if(stat != 0)
 		    {
 			tapeStatus->status[current_unit] &= ~RECORDING;
@@ -188,8 +191,8 @@ if(WRITE_TAPE_STATUS==1)
 
 		  /* Write a filemark and then unload each active drive */
 
-		  exb_cmds(WRITE_FILEMARK,drive_id);
-		  exb_cmds(UNLOAD,drive_id);
+		  dlt_cmds(WRITE_FILEMARK,drive_id);
+		  dlt_cmds(UNLOAD,drive_id);
 	      }
 
 	    tapeStatus->status[current_unit] |= EJECTING;
@@ -234,7 +237,7 @@ if(WRITE_TAPE_STATUS==1)
 			for(i=0; i<number_of_drives; i++)
 			  {
 			      drive_id = drives_to_use[i];
-			      sgflg=HEADER;
+			      sgflg=BLOCKED;
 			      vol->volume_num = vol_num;
 			      stat = write_tape((unsigned int *)tapeHdr,hdrsz,
 					 sgflg,drive_id);
