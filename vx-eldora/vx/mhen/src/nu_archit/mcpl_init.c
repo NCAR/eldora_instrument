@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:32:58  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:27  eric
  * Initial revision
  *
@@ -236,7 +239,6 @@ do
 	{
 	    printf("Init TPB transfer unsuccessful mailbox: %x status: %x\n",
 		   *mailbox,status);
-	    currStatus->count++;
 	    currStatus->mcpl |= INIT_MCPL;
 	    currStatus->mailbox = *mailbox;
 	    currStatus->status = status;
