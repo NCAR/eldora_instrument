@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1994/08/12  17:35:28  thor
+ * Added const's that were missing.
+ *
  * Revision 2.1  1993/07/29  17:55:14  thor
  * Upgraded to VxWorks 5.1.
  *
@@ -158,7 +161,7 @@ class Window {
 
     void setTextScale(int x, int y);
 
-    void setFont(char *font);
+    void setFont(const char *font);
 
     void setTextBackGround(int color);
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/08/12  17:35:28  thor
+ * Added const's that were missing.
+ *
  * Revision 2.2  1993/07/09  15:53:29  thor
  * Fixed a strange problem with optimizing away y position calc in HorText.
  *
@@ -41,7 +44,7 @@ void Window::setTextScale(FAST int x, FAST int y)
     textScaleY = y;
 }
 
-void Window::setFont(char *font)
+void Window::setFont(const char *font)
 {
     fontList = font;
 }
