@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/09/06  16:34:06  thor
+ * Fixed (UN)PACKSTATUS to use ulong.
+ *
  * Revision 1.2  1991/09/06  16:08:53  thor
  * Changed RPC registration routine name.
  *
@@ -44,9 +47,15 @@
 #endif /* OK_RPC */
 
 struct TapeCommand {
-    u_long cmd;
-    u_long count;
-    int unit;
+    u_long cmd;			/* Command */
+    u_long count;		/* Running count. */
+    int unit;			/* Effected unit. */
+    int parameter;		/* Parameter for thresholding. */
+    float top;			/* Max altitude for clipping. */
+    float bottom;		/* Min altitude for clipping. */
+    float start;		/* First angle for pie slice. */
+    float stop;			/* Last angle for pie slice. */
+    float threshold;		/* Threshold value. */
 };
 
 struct TapeError {
