@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/11/01  20:02:49  thor
+ * Added support for reading from pipe and setting time.
+ *
  * Revision 1.2  1991/10/30  17:56:38  thor
  * First working version.
  *
@@ -30,13 +33,13 @@ static HorizDisplay *makeDisplay(HorizDisplay *, GraphicController *);
 #include "ColorConverter.hh"
 static ColorConverter *conv = NULL;
 static Horiz *horizFilter = NULL;
-void HorizLoop(FAST Task &self, FAST GraphicController *agc)
+
 static int whichRadar = FORWARD_HORIZ;
 
 void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
-    HorizDisplay *display = NULL;
+{
     self.FlagsInit();
-    int args;
+
     FAST HorizDisplay *display = NULL;
 
     Pipe dataPipe(sizeof(HorizPoint),100);
@@ -76,6 +79,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = radar;
 		continue;
 		break;
+	      case STOP:
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		continue;
@@ -84,6 +88,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case START:
 	      case RELOAD:
 	      case (RELOAD | NEW_DATA_FLAG):
+	      case (RESTART | NEW_DATA_FLAG):
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		reset = 1;
@@ -92,6 +97,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		break;
 
 	      case (FORWARD_HORIZ | NEW_DATA_FLAG):
+                radar = whichRadar;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		break;
@@ -105,12 +111,31 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = AFT_HORIZ;
                 radar = whichRadar;
 		break;
+
+	      case TMO_FLAG:
+	      case (TMO_FLAG | NEW_DATA_FLAG):
 		{
+		    FAST DispCommand *ptr = GeCommand;
+		    FAST int tmo = ptr->tmo;
+
+		      horizFilter->ResetCoord(dataBeam->air.latitude,
+					  dataBeam->air.longitude);
+
+		      HorizMove m;
+
+		      m.direction = INITIAL_LAT_LONG;
 		      m.latitude = dataBeam->air.latitude;
-	  // Color convert it - only on uniprocessor!
+		      m.longitude = dataBeam->air.longitude;
+
 		      display->Shift(&m);
-	  // Draw it.
-//	  display->drawBeam(radData);
+		  }
+
+		
+		  {
+		//	  display->drawBeam(radData);
+		// This is hard! 
+		horizFilter->Draw(*dataBeam);
+
 
 	  printf("Looping\n");	// Strictly for testing!!!!!
 	  taskDelay(10);
