@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/23  19:44:11  thor
+// Changed formatted string output to use strstreams.
+//
 // Revision 1.2  1994/09/19  15:51:54  thor
 // Added setColors() & refreshClock().
 //
@@ -105,8 +108,9 @@ class Display {
     enum sizes { FULL_WIDTH = 1024, FULL_HEIGHT = 1024, TBL_WIDTH = 256 };
     enum sets { A_SET, B_SET, C_SET };
     enum displays { RADIAL_FORE = 0x10, DUAL_FORE = 0x1000, VERT_FORE= 0x40,
-                    HORIZ_FORE = 0x20, RADIAL_AFT = 0x80, DUAL_AFT = 0x2000,
-                    VERT_AFT = 0x200, HORIZ_AFT = 0x100};
+                    HORIZ_FORE = 0x20, RAW_FORE = 0x4000,
+                    RADIAL_AFT = 0x80, DUAL_AFT = 0x2000,
+                    VERT_AFT = 0x200, HORIZ_AFT = 0x100, RAW_AFT = 0x8000};
 
     Display(GraphicController *gbd);
 
