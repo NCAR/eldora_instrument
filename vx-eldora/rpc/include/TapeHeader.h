@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/09/11  16:30:22  thor
+ * Added items to handle wave_counts.
+ *
  * Revision 1.1  1991/08/30  18:39:44  thor
  * Initial revision
  *
@@ -77,11 +80,9 @@ bool_t xdr_tapeHeader(XDR *, TAPEHEADER *);
 
 #ifdef CLIENT_SIDE
 extern void *sendheader_1(TAPEHEADER *, CLIENT *);
-extern void *sendcounts_1(WAVECOUNTS *, CLIENT *);
 #else
 extern void startHeader(void);
 extern void *sendheader_1(TAPEHEADER *, struct svc_req *);
-extern void *sendcounts_1(WAVECOUNTS *, struct svc_req *);
 extern void headerrpc_1(struct svc_req *, register SVCXPRT *);
 #endif /* CLIENT_SIDE */
 
@@ -90,7 +91,6 @@ extern void headerrpc_1(struct svc_req *, register SVCXPRT *);
 program HeaderRPC {
     version HeaderVers {
 	void SendHeader(struct tapeHeader) = 1;
-	void SendCounts(struct wave_counts) = 2;
     } = 1;
 } = 0x30000100;
 
