@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  2003/05/08  21:26:10  ericloew
+ * modified code to use eth29 more reliably.
+ *
  * Revision 1.11  2003/04/18  01:47:59  martinc
  * fixed IP addresses for initialization, and changed the NAT interrupt level to 5.
  *
@@ -127,6 +130,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "rp7.h"
 #include "../eth29/eth29.h"
 
+#if defined(USE_INT_HNDSHK)
+#define scope extern
+#include "getInt.h"
+static short hbox;
+#endif
+
 #define DMC_BASE 0xFF81 + SHORT_BASE    /* Base Address of DMC-300 Card */
 #define SUNNY 0x1
 #define CLOUDY 0x2
@@ -205,7 +214,7 @@ dac()
 
   double         n_frq, Pn;
 
- struct DATA_RAY *beam;
+  struct DATA_RAY *beam;
 
   void galil();
   void bim_int0_isr();
@@ -215,6 +224,10 @@ dac()
   int posit();
 
   vme2_pntr = (struct vmevmehndshk *)(VMEMEM_BASE + STD_BASE);
+
+#if defined(USE_INT_HNDSHK)
+  setupVMEIsr();
+#endif
 
   /* Initialize Ascope Defaults */
 
@@ -1410,7 +1423,7 @@ dac()
 	  j = 0;
 	  /*          taskid = taskIdSelf(); */
 	  /*          if(taskPrioritySet(taskid,175)!= OK) */ /* lower task's priority so
-		      that tight loop doesn't impede other tasks */
+								 that tight loop doesn't impede other tasks */
 	  /*          printf("invalid task id \n"); */
 	  vme2_pntr -> start_hndshk = 1;  /* handshake w/ housekeeper for synchronized start */
 
@@ -1420,7 +1433,7 @@ dac()
 	    }
 
 	  /*                if(taskPrioritySet(taskid,100)!= OK) *//* return task to origi
-			    nal priority */
+								      nal priority */
 	  /*                  printf("invalid task id \n"); */
 
 
@@ -1489,223 +1502,270 @@ dac()
                         
                   /* Send data across mcpl at mid-beam */
 
-		  if(vme2_pntr->mcpl_hndshk == 1)
-		    {
-		      /* check for valid NAV data */
+		  /* 		  if(vme2_pntr->mcpl_hndshk == 1) */
+		  /* 		    { */
+		  /* 		      /* check for valid NAV data */
 
-		      if(send_nav)
-			{
-			  send_nav = 0;
-			  broadcast_data(curr_nav_add,curr_nav_mailbox_add,vme2_pntr->nav_length);
-			}
+		  /* 		      if(send_nav) */
+		  /* 			{ */
+		  /* 			  send_nav = 0; */
+		  /* 			  broadcast_data(curr_nav_add,curr_nav_mailbox_add,vme2_pntr->nav_length); */
+		  /* 			} */
                                     
-		      /* check for valid ADS data */
+		  /* check for valid ADS data */
                               
-		      else if(send_ads)
+		  /* 		      else if(send_ads) */
+		  /* 			{ */
+		  /* 			  send_ads = 0; */
+		  /* 			  broadcast_data(curr_ads_add,curr_ads_mailbox_add,vme2_pntr->ads_length); */
+		  /* 			} */
+		  /* 		      else */
+		  /* 			{ */
+
+		  /* While there is something in the queue, try to catch up. */
+		  while (msgQReceive(VMEQue,(char *)&hbox,2,0) != ERROR)
+		    {
+		      curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (hbox * DATA_RAY_OFFSET));
+		      beam = (struct DATA_RAY *)curr_ray_add[p][r];
+
+		      /* send header out eth29, periodically */
+		      if(Beamcount == 800)
 			{
-			  send_ads = 0;
-			  broadcast_data(curr_ads_add,curr_ads_mailbox_add,vme2_pntr->ads_length);
+#if defined(FAST_ETH29)
+			  eth29FastDgram((unsigned char *)HdrBuf,hdrsz);
+#else
+			  eth29SendDgram(dataSendToIP,3102,
+					 (unsigned char *)HdrBuf,hdrsz);
+#endif
+			  Beamcount = 0;
 			}
 		      else
-			{
-			  /*  if(vme2_pntr -> radar_hndshk[l] == 1) 
-			    {
-			        for(i=0;i<3;i++) */
+			Beamcount += 1;
 
-			  for(i=0;i<26;i++)
-			    {
-			      if(vme2_pntr -> radar_hndshk[l] == 1)
-				{
-				  curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
-				  curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
-				  beam = (struct DATA_RAY *)curr_ray_add[p][r];
-				  if(Firstbeam)
-				    {
-					Firstbeam = 0;
-					break;
-				    }
-#ifdef ETH29
-				  if(Eth29)
-				    {
-				      if(Beamcount == 800)
-					{
-					  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send header out eth29, periodically */
-					  Beamcount = 0;
-					}
-				      else
-					Beamcount += 1;
-				      eth29SendDgram(dataSendToIP, 3102,(unsigned char *)curr_ray_add[p][r],logical_length); /* send data out eth29 */
-				      vme2_pntr -> radar_hndshk[l] = 0xAFFF;
-
-				      num_dropped = beam->fielddata.ray_count - prev_count;
-
-				      if(num_dropped != 1)
-					printf("Dropped %d beams\n",num_dropped);
-
-				      prev_count = beam->fielddata.ray_count;
-				    }
+		      /* send data out eth29 */
+#if defined(FAST_ETH29)
+		      eth29FastDgram((unsigned char *)curr_ray_add[p][r],
+				     logical_length);
+#else
+		      eth29SendDgram(dataSendToIP, 3102,
+				     (unsigned char *)curr_ray_add[p][r],
+				     logical_length);
 #endif
-#ifndef ETH29				      
-				  broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
-#endif
-				  
+
+		      vme2_pntr -> radar_hndshk[hbox] = 0xAFFF;
+
+		      num_dropped = beam->fielddata.ray_count - prev_count;
+
+		      if(num_dropped != 1)
+			printf("Dropped %d beams\n",num_dropped);
+
+		      prev_count = beam->fielddata.ray_count;
+
 #ifdef PIO_CARD
-				  /* Toggle bit 7 of PIO port A */
+		      /* Toggle bit 7 of PIO port A */
 				  
-				  *pio_acc = 0x80; 
-				  *pio_acc = 0x0;
+		      *pio_acc = 0x80; 
+		      *pio_acc = 0x0;
 #endif
-
-				  /*						ray->fielddata.ray_count = l + (q * 27); */
-
-				}
-			     else if(!Firstbeam)
-				break;
-			      /*			      p = p<2?p+1:0; */
-			      l = l<26?l+1:0;
-
-			      /*			      else
-							      i = 3;  *//* exit loop if fail any test */
-			    }
-			  /*  r = r<1?r+1:0; */
-			  /*			    } */
-
-			}
-
-		      vme2_pntr->mcpl_hndshk = 0;
 		    }
 		}
+	      /* 			{ */
+	      /* 			  /*  if(vme2_pntr -> radar_hndshk[l] == 1)  */
+	      /* 			    { */
+	      /* 			  for(i=0;i<26;i++) */
+	      /* 			    { */
+	      /* 			      if(vme2_pntr -> radar_hndshk[l] == 1) */
+	      /* 				{ */
+	      /* 				  curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET)); */
+	      /* 				  curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]);  */
+	      /* 				  beam = (struct DATA_RAY *)curr_ray_add[p][r]; */
+	      /* 				  if(Firstbeam) */
+	      /* 				    { */
+	      /* 					Firstbeam = 0; */
+	      /* 					break; */
+	      /* 				    } */
+	      /* #ifdef ETH29 */
+	      /* 				  if(Eth29) */
+	      /* 				    { */
+	      /* 				      if(Beamcount == 800) */
+	      /* 					{ */
+	      /* 					  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send header out eth29, periodically */
+	      /* 					  Beamcount = 0; */
+	      /* 					} */
+	      /* 				      else */
+	      /* 					Beamcount += 1; */
+	      /* 				      eth29SendDgram(dataSendToIP, 3102,(unsigned char *)curr_ray_add[p][r],logical_length); /* send data out eth29 */
+	      /* 				      vme2_pntr -> radar_hndshk[l] = 0xAFFF; */
 
-	      else
-		{
+	      /* 				      num_dropped = beam->fielddata.ray_count - prev_count; */
+
+	      /* 				      if(num_dropped != 1) */
+	      /* 					printf("Dropped %d beams\n",num_dropped); */
+
+	      /* 				      prev_count = beam->fielddata.ray_count; */
+	      /* 				    } */
+	      /* #endif */
+	      /* #ifndef ETH29				       */
+	      /* 				  broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length); */
+	      /* #endif */
+				  
+	      /* #ifdef PIO_CARD */
+	      /* 				  /* Toggle bit 7 of PIO port A */
+				  
+	      /* 				  *pio_acc = 0x80;  */
+	      /* 				  *pio_acc = 0x0; */
+	      /* #endif */
+
+	      /* 				  /*						ray->fielddata.ray_count = l + (q * 27); */ 
+
+	      /* 				} */
+	      /* 			     else if(!Firstbeam) */
+	      /* 				break; */
+	      /* 			      /*			      p = p<2?p+1:0; */
+	      /* 			      l = l<26?l+1:0; */
+
+	      /* 			      /*			      else */
+	      /* 							      i = 3;  *//* exit loop if fail any test */
+		  /* 			    } */
+		  /* 			  /*  r = r<1?r+1:0; */
+		  /* 			  /*			    } */
+
+		  /* 			} */
+
+		  /* 		      vme2_pntr->mcpl_hndshk = 0; */
+		  /* 		    } */
+		  /* 		  } */
 		  
-		  /*  printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n"); */
-		  int_cnt++;
-		  /* Update Status */
+		  else
+		    {
+		  
+		      /*  printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n"); */
+		      int_cnt++;
+		      /* Update Status */
 			
-		  currStatus->rp7 |= MID_BEAM;
-		  proc_stat |= MB;
-		}
+		      currStatus->rp7 |= MID_BEAM;
+		      proc_stat |= MB;
+		    }
 		    
 	      /* Wait 0.3 seconds for End of Beam Interrupt */
 
 	      /*		  sem_status = semTake(exec_int0_sem, 30); *//* wait 30 ticks for ISR to pass sem */
-	      /*
-		if (sem_status != OK)
-		{
-	      */
-	      /*			printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n"); */
-	      /*			int_cnt++;			*/
-	      /* Update Status */
-	      /*			
-					currStatus->rp7 |= END_OF_BEAM;
-					proc_stat |= EOB;
-					}
-	      */
-	      /* Test for DP Out of Sync Interrupt */
-
-	      sem_status = semTake(bim_int2_sem, NO_WAIT); /* don't wait for ISR to pass sem */
-
-	      if (sem_status == OK)
-		{
-
-		  /* 
-		     Determine which DP went out of sync by reading sync flag status back from all operating DP DSP32C's 
-		  */
-		  /* Update Status */
-			
-		  currStatus->rp7 |= DP_SYNC;
-		  proc_stat |= DP;
-		  int_cnt++;
-		  /*			printf("Doppler Processor Out of Sync Error \n");  */
-		  taskDelay(2);     /* delay until all DP's have interrupted */
-		  *bim_cr2 = 0xda;  /* re-enable interrupt INT2* */            	
-		}
-	      /* Test for Collator Out of Sync Interrupt */
-
-	      sem_status = semTake(bim_int3_sem, NO_WAIT); /* don't wait ISR to pass sem */
-	      if (sem_status == OK)
-		{
-		  *bim_cr3 = 0xd9;  /* re-enable interrupt INT3* */            
-		  /* Update Status */
-
-		  currStatus->rp7 |= COLL_SYNC;
-		  proc_stat |= COL;
-		  int_cnt++;
-		  /*			printf("Collator Out of Sync Error \n"); */
-		}
-	      if(int_cnt >= 1 && int_cnt <= 4 && !stop)
-		{		    
-		  int_cnt = 5;
-		  switch(proc_stat)
+		  /*
+		    if (sem_status != OK)
 		    {
-		    case 1:
-		      printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n");
-		      printf("CHECK FREQ1 DIGIF. \n");
-		      break;
-		    case 2:
-		    case 3:
-		    case 4:
-		    case 5:
-		    case 6:
-		    case 7:
-		    case 8:
-		    case 9:
-		    case 10:
-		    case 11:
-		    case 12:
-		    case 13:
-		    case 14:
-		      if(proc_stat & MB)
-			printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n");
-		      if(proc_stat & EOB)
-			printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n");
-		      if(proc_stat & DP)
-			printf("ERROR:  DOPPLER PROCESSOR OUT OF SYNC \n");
-		      if(proc_stat & COL)
-			printf("ERROR:  COLLATOR OUT OF SYNC \n");
-		      for(i=1;i<=f_flag;i++)
+		  */
+		  /*			printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n"); */
+		  /*			int_cnt++;			*/
+		  /* Update Status */
+		  /*			
+				currStatus->rp7 |= END_OF_BEAM;
+				proc_stat |= EOB;
+				}
+		  */
+		  /* Test for DP Out of Sync Interrupt */
+
+		  sem_status = semTake(bim_int2_sem, NO_WAIT); /* don't wait for ISR to pass sem */
+
+		  if (sem_status == OK)
+		    {
+
+		      /* 
+			 Determine which DP went out of sync by reading sync flag status back from all operating DP DSP32C's 
+		      */
+		      /* Update Status */
+			
+		      currStatus->rp7 |= DP_SYNC;
+		      proc_stat |= DP;
+		      int_cnt++;
+		      /*			printf("Doppler Processor Out of Sync Error \n");  */
+		      taskDelay(2);     /* delay until all DP's have interrupted */
+		      *bim_cr2 = 0xda;  /* re-enable interrupt INT2* */            	
+		    }
+		  /* Test for Collator Out of Sync Interrupt */
+
+		  sem_status = semTake(bim_int3_sem, NO_WAIT); /* don't wait ISR to pass sem */
+		  if (sem_status == OK)
+		    {
+		      *bim_cr3 = 0xd9;  /* re-enable interrupt INT3* */            
+		      /* Update Status */
+
+		      currStatus->rp7 |= COLL_SYNC;
+		      proc_stat |= COL;
+		      int_cnt++;
+		      /*			printf("Collator Out of Sync Error \n"); */
+		    }
+		  if(int_cnt >= 1 && int_cnt <= 4 && !stop)
+		    {		    
+		      int_cnt = 5;
+		      switch(proc_stat)
 			{
-			  temp_stat[i-1] = ppp_sync(i,1);
-			  ppp_stat |= temp_stat[i-1];
-			}
-		      dp_stat[0] = dp_sync(1,3);
-		      dp_stat[1] = dp_sync(2,3);
-		      coll_stat = col_sync();
-		      if(coll_stat && !ppp_stat && !dp_stat[0] && !dp_stat[1])
-			printf("CHECK COLLATOR. \n");
-		      if(!ppp_stat && dp_stat[0])
-			printf("CHECK DOPPLER PROCESSOR #1. \n");
-		      if(!ppp_stat && dp_stat[1])
-			printf("CHECK DOPPLER PROCESSOR #2. \n");
-		      if(ppp_stat)
-			{
+			case 1:
+			  printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n");
+			  printf("CHECK FREQ1 DIGIF. \n");
+			  break;
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			  if(proc_stat & MB)
+			    printf("ERROR:  NO MID-BEAM INTERRUPT RECEIVED \n");
+			  if(proc_stat & EOB)
+			    printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n");
+			  if(proc_stat & DP)
+			    printf("ERROR:  DOPPLER PROCESSOR OUT OF SYNC \n");
+			  if(proc_stat & COL)
+			    printf("ERROR:  COLLATOR OUT OF SYNC \n");
 			  for(i=1;i<=f_flag;i++)
 			    {
-			      if(temp_stat[i-1])
-				printf("CHECK FREQ %d PULSE PAIR PROCESSOR \n",i);
+			      temp_stat[i-1] = ppp_sync(i,1);
+			      ppp_stat |= temp_stat[i-1];
 			    }
-			}
-		      if(proc_stat & MB)
-			{
-			  printf("CHECK FREQ 1 DIGIF. \n");
-			  if(proc_stat & EOB)
+			  dp_stat[0] = dp_sync(1,3);
+			  dp_stat[1] = dp_sync(2,3);
+			  coll_stat = col_sync();
+			  if(coll_stat && !ppp_stat && !dp_stat[0] && !dp_stat[1])
+			    printf("CHECK COLLATOR. \n");
+			  if(!ppp_stat && dp_stat[0])
+			    printf("CHECK DOPPLER PROCESSOR #1. \n");
+			  if(!ppp_stat && dp_stat[1])
+			    printf("CHECK DOPPLER PROCESSOR #2. \n");
+			  if(ppp_stat)
 			    {
-			      printf("CHECK 60MHz. \n");
-			      printf("CHECK COLLATOR BIM. \n");
-			      printf("CHECK TIMING MODULE. \n");
+			      for(i=1;i<=f_flag;i++)
+				{
+				  if(temp_stat[i-1])
+				    printf("CHECK FREQ %d PULSE PAIR PROCESSOR \n",i);
+				}
 			    }
-			}
-		      break;
-		    case 15:
-		      printf("PUNT. \n");
-		      break;
+			  if(proc_stat & MB)
+			    {
+			      printf("CHECK FREQ 1 DIGIF. \n");
+			      if(proc_stat & EOB)
+				{
+				  printf("CHECK 60MHz. \n");
+				  printf("CHECK COLLATOR BIM. \n");
+				  printf("CHECK TIMING MODULE. \n");
+				}
+			    }
+			  break;
+			case 15:
+			  printf("PUNT. \n");
+			  break;
 
-		    }	
-		  e_time = tickGet()/3600;
-		  printf("SYSTEM FAILED AFTER %d MINUTES \n",e_time);
+			}	
+		      e_time = tickGet()/3600;
+		      printf("SYSTEM FAILED AFTER %d MINUTES \n",e_time);
 
-		}
+		    }
 
 	    }
      
