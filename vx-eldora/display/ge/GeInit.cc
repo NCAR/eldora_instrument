@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/08/20  17:17:03  thor
+ * Renamed system to dispsystem. Commented out alarm code.
+ *
  * Revision 2.1  1993/07/01  17:21:58  thor
  * Fixed incorrect cast.
  *
@@ -43,12 +46,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define GE_SCOPE
 #include "GeGlobal.hh"
 
-extern "C" {
-#include "stdioLib.h"
-#include "rpcLib.h"
+#include <stdio.h>
+#include <rpcLib.h>
 #include "tp41Lib.h"
-#include "sysLib.h"
-};
+#include <sysLib.h>
+
+extern "C" { void __do_global_ctors(void); };
 
 static DispStatus ge_status;
 static DispCommand ge_command;
@@ -78,8 +81,13 @@ void GeStart(char *server, int sys)
     ge_status.status = LOADED;
     ge_status.count = 0;
 
+    // Initialize all globally declared objects.
+    __do_global_ctors();
+
+    Hdr = NULL;
+
     // Start graphics task.
-    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,18000);
+    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
 
     // Start alarm task.
 
@@ -91,7 +99,7 @@ void GeStart(char *server, int sys)
 //     AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI,18000); 
 
     // Now we start control loop.
-    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,18000);
+    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,30000);
 }
 
 void RpcLoop(Task &self)
