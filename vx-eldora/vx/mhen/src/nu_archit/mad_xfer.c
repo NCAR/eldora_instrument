@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1995/01/25  17:40:54  eric
+ * Initialized global Header pointers from nu_archit_dac.c to eliminate
+ * conflicts.
+ *
  * Revision 1.3  1995/01/20  14:54:32  eric
  * Fixed bug that caused Time Series name field to be
  * overwritten.
@@ -67,6 +71,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "IndFreq.h"
 #include "TimeSeries.h"
 #include "RDPGlobals.h"
+#include "raw_data.h"
 #include "mcpl_def.h"
 #include "mcpl_gbl.h"
 #include "LclCommands.h"
@@ -88,7 +93,7 @@ mad_xfer()
 {
 
 long           i, j, data_length, data_len, bytes_per_cell, num_cells,
-               indep_freq_len, time_series_len;
+               indep_freq_len, time_series_len, ts_len;
 /* The following parameters need to be defined for the mcpl code to work */
 
 /* Define needed tape structures */
@@ -148,7 +153,7 @@ for(j=0;j<27;j++)
 /* Setup necessary info for 'tape header' */
       /* Ray Info Block */
 
-      ray = (struct RAY *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (j * DATA_RAY_OFFSET));
+      ray = (struct DATA_RAY *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (j * DATA_RAY_OFFSET));
       ray->rayinfo.ray_info[0] = 'R';
       ray->rayinfo.ray_info[1] = 'Y';
       ray->rayinfo.ray_info[2] = 'I';
@@ -214,7 +219,22 @@ for(j=0;j<27;j++)
       t_s -> time_series_id[2] = 'M';
       t_s -> time_series_id[3] = 'E';
       t_s -> time_series_len = time_series_len;
+
+      /* Raw Data Block */
+
+      if((fldrdr -> indepf_times_flg == 3))
+	ts_len = time_series_len;
+      else
+	ts_len = sizeof(TIME_SERIES);
+      raw_d = (struct RAW_D*)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (j * DATA_RAY_OFFSET) + data_len + indep_freq_len + sizeof(ray_i) + sizeof(platform_i) + sizeof(field_parameter_data) + ts_len);
+
+      raw_d -> rd.raw_des[0] = 'R';
+      raw_d -> rd.raw_des[1] = 'A';
+      raw_d -> rd.raw_des[2] = 'W';
+      raw_d -> rd.raw_des[3] = 'D';
+      raw_d -> rd.numPoints = prm->num_samples; /* Samples as default */
   }
+
 
 /* The tpb_to_proc TPB sends the receive_gmad_tpb to a processor's dispatch
    table entry one.  All of the general purpose parmeters in the TPB will be
@@ -318,7 +338,8 @@ for (proc=0; proc<4; proc++)
       madinfo[proc][mad][NUM_AREAS] = 
 	(madinfo[proc][mad][MAX_MEM] - STARTOF_MAD_DATA) /
 	  madinfo[proc][mad][SIZE_AREAS];
-
+          if(madinfo[proc][mad][NUM_AREAS] % 2 != 0)
+            madinfo[proc][mad][NUM_AREAS] -= 1;
      if(madinfo[proc][mad][NUM_AREAS] > 3000)
 	madinfo[proc][mad][NUM_AREAS] = 3000;
       printf("\nlogical length = %d\n",logical_length);
