@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.7  1994/09/23  19:48:06  thor
+// Changed formatted string output to use strstreams.
+//
 // Revision 2.6  1994/09/19  16:02:03  thor
 // Added new color setting & clock stuff.
 //
@@ -279,7 +282,6 @@ void Radial::reset(FAST Header *hdr, FAST DispCommand *cmd)
 
     firstGate = maxDist;
     
-    cout << "First gate at " << firstGate << endl;
     for (FAST int i = 0; i < seg; i++) // Calculate maximum distance & # gates.
       {
           FAST int c = *ncells++;
