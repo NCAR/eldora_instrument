@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/08/30  15:21:34  thor
+// Initial revision
+//
 //
 // description:
 //        
@@ -95,6 +98,4 @@ void HeaderRpcInit()
           cerr << "Unable to register (HeaderRpc, HeaderRpcVers)." << endl;
           return;
       }
-    
-    svc_run();
 }
