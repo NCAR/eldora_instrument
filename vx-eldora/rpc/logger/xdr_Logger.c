@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/14  19:18:19  thor
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -33,7 +36,7 @@ bool_t xdr_LOG(FAST XDR *xdrs, FAST LOG *objp)
       {
 	  return(FALSE);
       }
-    if (!xdr_vector(xdrs,(char *)objp->message,256,sizeof(char),xdr_char))
+    if (!xdr_vector(xdrs,(char *)objp->message,81,sizeof(char),xdr_char))
       {
 	  return(FALSE);
       }
