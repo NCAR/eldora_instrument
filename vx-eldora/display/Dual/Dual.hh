@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.6  1994/04/08  20:31:52  thor
+// Many changes!
+//
 // Revision 1.5  1993/10/21  16:38:57  thor
 // Temp save of latest work.
 //
@@ -64,11 +67,15 @@ class Dual : public Display {
 
     int clip(FAST int x , FAST int y)
     {
-	if ((x < 0) || (x >= Display::FULL_WIDTH) || (y < 0) ||
-	    (y >= (Display::FULL_HEIGHT/ 2)))
-	  {
-	      return(0);
-	  }
+        // Yes, this produces better code from gcc then a single if.
+        if (x < 0)
+          return(0);
+        else if (y < 0)
+          return(0);
+        else if (x >= Display::FULL_WIDTH)
+          return(0);
+        else if (y >= Display::FULL_HEIGHT/2)
+          return(0);
 	return(1);
     }
 
