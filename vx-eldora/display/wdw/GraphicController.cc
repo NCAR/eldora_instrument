@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  91/01/02  08:47:49  thor
+ * Made changes for VxWorks Version 5.0.
+ * 
  * Revision 1.2  90/12/11  13:21:44  thor
  * Changed code to handle correct initialization to black.
  * 
@@ -256,13 +259,19 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 
 // Forcably clear video memory. I don't know why, but if this isn't
 // done the displayed image has strange speckles in it!
-    FAST long *ptr = addr;
+    clear();
+}
+
+void GraphicController::clear(void)
+{
+    FAST long *ptr = baseAddr;
 
     FAST int k = 4096;
     FAST int m = 4096 / sizeof(long);
+
     FAST long color = (BLACK << 24) | (BLACK << 16) | (BLACK << 8) | BLACK;
 
-    for (i = 0; i < k; i++)
+    for (FAST i = 0; i < k; i++)
       {
 	  for (FAST int l = 0; l < m; l++)
 	    *ptr++ = color;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/03/01  21:07:40  thor
+ * Cleaned up unused consts. Moved colors to WdwGbls.h.
+ *
  * Revision 1.3  1991/02/28  14:44:02  thor
  * Updated default colors.
  *
@@ -91,6 +94,8 @@ class GraphicController {
     GraphicController(void *addr, unsigned short screenWidth, unsigned short
 		      screenHeight, unsigned short memWidth, unsigned char
 		      vector);
+
+    void clear(void);
 
     /* This method is in GraphicWindow.cc */
     int setGraphicOp(int op);
