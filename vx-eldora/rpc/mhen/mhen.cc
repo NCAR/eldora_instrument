@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/09/06  16:08:08  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -29,7 +32,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 class messanger {
   public:
-    messanger() {}
+    messanger() { client1 = NULL; client2 = NULL; }
 
     void getCmd();
 
@@ -93,8 +96,10 @@ void messanger::connect()
 
 void messanger::reset()
 {
-    clnt_destroy(client1);
-    clnt_destroy(client2);
+    if (client1 != NULL)
+      clnt_destroy(client1);
+    if (client2 != NULL)
+      clnt_destroy(client2);
 
     getClients();
 }
