@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/01/31  18:19:47  eric
+ * changed type of repeat_seq to float from short.
+ *
  * Revision 1.1  1993/07/22  17:31:28  eric
  * Initial revision
  *
@@ -85,8 +88,10 @@ void ld_timmod(int site,int module)
     unsigned short *timgate0,*timgate1,*timgate2,*timgate3,*timgate4;
     unsigned short gateindex,gatevalue;
     char           blank_chip[256];
-    int            sampl,gates,gate_sp,first_gate,rpt_seq;
+    int            sampl,gates,gate_sp,first_gate,rpt_seq,j,shortcnt;
+    int            pcpcnt[10];
     float          duty_cycle, prf, repeat_seq, dwell_time, gate_tm; 
+    float          pcp, short_prt;
 
 if(!module) /* module = 0 if New timing module; module = 1 if old timing module */
   {
@@ -119,7 +124,6 @@ else
     
     repeat_seq = wvfm -> repeat_seq;
     total_pcp = (unsigned short)(wvfm -> total_pcp);
-    printf("total_pcp = %d \n", total_pcp);
 
     /* Compute PRF, Duty Cycle, etc. from Header and PRINT it */
 
@@ -134,27 +138,37 @@ ound */
     first_gate = (first_gate * 2.5) + 0.5; /* convert 60 mhz counts to m and r
 ound */
 
-    dwell_time = wvfm -> repeat_seq;
-    dwell_time *= wvfm -> repeat_seq_dwel;
-    prf = wvfm -> total_pcp;
-    prf /= wvfm -> ur_pcp;
-    prf /= wvfm -> repeat_seq;
-    prf *= 1000.0;
-    sampl = (dwell_time * prf /1000.0) + 0.5;
-    if(!site) /* site = 0 for ELDORA; 1 for TASS */ 
+    /* Compute dwell time in milliseconds */
+    dwell_time = wvfm -> repeat_seq * wvfm -> repeat_seq_dwel;
+    /* Compute the duty cycle in percent */
+    duty_cycle = 100.0 * wvfm -> num_chips[5] * wvfm -> chip_width[5] *
+      16.666667e-9 / (wvfm -> repeat_seq * 1.0e-3);
+    /* Compute the number of samples for frequency #1 */
+    sampl = wvfm -> num_chips[0] * wvfm -> repeat_seq_dwel;
+    /* Compute the shortest PRT for freqeuncy #1 in seconds */
+    pcp = repeat_seq * 1.0E-3 / total_pcp;
+    j = 0;
+    pcpcnt[j] = 0;
+    for(i=0; i<total_pcp; i++)
       {
-	  duty_cycle = wvfm -> chip_width[0]; 
-	  duty_cycle += wvfm -> chip_width[1];
-	  duty_cycle += wvfm -> chip_width[2];
-	  duty_cycle += wvfm -> chip_width[3];
-	  duty_cycle += wvfm -> chip_width[4];
-	  duty_cycle = duty_cycle * prf/60e06 * 100; /* duty cycle in % */
+	  if((wvfm -> blank_chip[i] & 0x01) == 0x01)
+	    {
+		j++;
+		if(j > 9 ) j = 9;
+		pcpcnt[j] = 1;
+	    }
+	  else
+	    pcpcnt[j]++;
       }
-    else
+    pcpcnt[j] = pcpcnt[j] + pcpcnt[0];
+    shortcnt = pcpcnt[1];
+    if(j >= 2)
       {
-	  duty_cycle = wvfm -> chip_width[2];
-  	  duty_cycle = duty_cycle * prf/60e06 * 100; /* duty cycle in % */
+	  for(i=2; i<(j+1); i++)
+	    if(pcpcnt[i] < shortcnt) shortcnt = pcpcnt[i];
       }
+    short_prt = pcp * shortcnt;
+    prf = 1.0 / short_prt;
 
   /* check for duty cycle > 1% */
   if (duty_cycle > 1.0)
@@ -171,7 +185,6 @@ ound */
     /* load N for desired PCP */
     pcpn = (repeat_seq * 15000.0 / total_pcp) + 0.5;
     pcpn = pcpn - 1;
-    printf("pcpn = %d \n", pcpn);
     *nloc = pcpn;
 
     /* DO CHIPS FOR 5 FREQUENCIES & PREKNOCK */
@@ -260,7 +273,7 @@ printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
 	  if (blank_chip[0] & 0x0020)
 	    blankingvalue=blankingvalue|0x0C00; /*shift pk*/
 	  *blankloc = blankingvalue;
-	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc);
+/*	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); */
 
 	  blankloc++;
       }
@@ -273,7 +286,7 @@ printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
 		if (wvfm -> blank_chip[i] & 0x0020)
 		  blankingvalue=blankingvalue|0x0C00; /*shift pk*/
 		*blankloc = blankingvalue;
-		printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); 
+/*		printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); */ 
 
 		blankloc++;
 	    }
@@ -282,7 +295,7 @@ printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
 	  if (blank_chip[i] & 0x0020)
 	    blankingvalue=blankingvalue|0xC00;    /* shift PK bit */
 	  *blankloc = blankingvalue;
-	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc);
+/*	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); */
 
       }
 
@@ -321,37 +334,37 @@ else
 
     /* check for too many gates in a PRT */
 
-    gate_tm = num_gates[0]*gate_dist1[1]/60000000.0;
+    gate_tm = num_gates[0]*gate_dist1[1]/60000000.0+gate_dist1[0]/60000000.0;
     printf("freq1 gate_tm = %f \n",gate_tm);
-    if(gate_tm  > 0.98/prf)
+    if(gate_tm  > 0.98 * short_prt)
       {
 	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
-    gate_tm = num_gates[1]*gate_dist2[1]/60000000.0;
+    gate_tm = num_gates[1]*gate_dist2[1]/60000000.0+gate_dist2[0]/60000000.0;
     printf("freq2 gate_tm = %f \n",gate_tm);
-    if(gate_tm  > 0.98/prf)
+    if(gate_tm  > 0.98 * short_prt)
       {
 	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
-    gate_tm = num_gates[2]*gate_dist3[1]/60000000.0;
+    gate_tm = num_gates[2]*gate_dist3[1]/60000000.0+gate_dist3[0]/60000000.0;
     printf("freq3 gate_tm = %f \n",gate_tm);
-    if(gate_tm  > 0.98/prf)
+    if(gate_tm  > 0.98 * short_prt)
       {
 	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
-    gate_tm = num_gates[3]*gate_dist4[1]/60000000.0;
+    gate_tm = num_gates[3]*gate_dist4[1]/60000000.0+gate_dist4[0]/60000000.0;
     printf("freq4 gate_tm = %f \n",gate_tm);
-    if(gate_tm  > 0.98/prf)
+    if(gate_tm  > 0.98 * short_prt)
       {
 	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
-    gate_tm = num_gates[4]*gate_dist5[1]/60000000.0;
+    gate_tm = num_gates[4]*gate_dist5[1]/60000000.0+gate_dist5[0]/60000000.0;
     printf("freq5 gate_tm = %f \n",gate_tm);
-    if(gate_tm  > 0.98/prf)
+    if(gate_tm  > 0.98 * short_prt)
       {
 	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
