@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:52:47  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.17  1992/06/05  13:41:09  thor
  * Changed method of generating number labels to make it smoother.
  *
@@ -88,7 +91,8 @@ Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
     clk.Display();
 
     // Set the base video memory addresses.
-    videoMemory[0] = gbd->videoBufferAddr() + xoff + (yoff * 4096);
+    videoMemory[0] = (unsigned char *)gbd->videoBufferAddr() + xoff +
+      (yoff * 4096);
     videoMemory[1] = videoMemory[0] + PLOT_WIDTH;
     videoMemory[2] = videoMemory[0] + (PLOT_HEIGHT * 4096);
 
