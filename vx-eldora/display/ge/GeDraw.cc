@@ -9,8 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/17  16:47:46  thor
+ * Increased stack sizes, added test to remove extraneous displays.
  *
  * Revision 1.1  1991/10/14  19:22:02  thor
+ * Initial revision
  *
  *
  *
@@ -31,7 +34,7 @@ void DrawingLoop(FAST Task &self)
     Rodent = &mouse;
 
 
-    Task RadialTask((FUNCPTR)RadialLoop,args,1,GRAPH_PRI);
+    Task RadialTask((FUNCPTR)RadialLoop,args,1,GRAPH_PRI,6000);
     Task HorizTask((FUNCPTR)HorizLoop,args,1,GRAPH_PRI);
     Task VertTask((FUNCPTR)VertLoop,args,1,GRAPH_PRI);
     Task RadialTask((FUNCPTR)RadialLoop,args,2,GRAPH_PRI,6000);
@@ -57,31 +60,43 @@ void DrawingLoop(FAST Task &self)
 
 		    case FORWARD_HORIZ:
 		    case AFT_HORIZ:
+		      currTask = &HorizTask;
+		  currTask->SetFlags(DESTROY_SELF);
 		  {
 		      currTask->SetFlags(DESTROY_SELF);
 		      taskDelay(30);
 		      Task rb((FUNCPTR)Reboot,args,0);
 		      return;
+		      break;
+		  currTask->SetFlags(DESTROY_SELF);
 		      
 		      currTask->SetFlags(flag);
 		      break;
 		      
 		    case RELOAD:
+		    case RESTART:
+		  currTask->SetFlags(DESTROY_SELF);
 		      if (currTask != &RadialTask)
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30); // We sleep for .5 s to allow
 			                   // other active display to
 			                   // completely destroy self.
+			}
+		  currTask->SetFlags(DESTROY_SELF);
 		      
 		      if (currTask != &RadialTask)
 			{
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30);
+			}
+		  currTask->SetFlags(DESTROY_SELF);
 		      
 		      if (currTask != &HorizTask)
 			{
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30);
+			}
+		  currTask->SetFlags(DESTROY_SELF);
 		      
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
