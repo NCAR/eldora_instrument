@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/08/30  16:52:48  thor
+ * Added define of startHeader for backwards compatibility.
+ *
  * Revision 1.1  1994/08/30  15:16:33  thor
  * Initial revision
  *
@@ -27,7 +30,9 @@
 
 #ifdef WRS
 #include <vxWorks.h>
-
+#ifndef VXWORKS
+#define VXWORKS
+#endif
 #ifndef HEADERRPC_SCOPE
 #define HEADERRPC_SCOPE extern
 #endif
