@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Switched to faster iround function from (int)float_value. Moved another
+ * constant out of loop.
+ *
  * Revision 1.6  1992/01/22  14:43:52  thor
  * Moved invariant code out of main loop & moved main loop inward.
  *
@@ -32,6 +35,12 @@
     asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
     FAST int index = (int)(data.angle * 2.0);
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
+
+    return(i);
+}
+
+void Radial::Draw1(FAST RadialData &data)
+{
     FAST int j = lastIndex;
     FAST int index = fastround(data.angle * 2.0);
 
@@ -207,6 +216,12 @@
 
     FAST int index = (int)(data.angle * 2.0);
 			    ptr1 += 4096;
+			    d += ax;
+			}
+		  }
+		else
+		  {
+		      for (;;) 
 			{
 			    *ptr1 = *colors1;
 
@@ -401,6 +416,12 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int yend = y2;
 
     FAST int index = (int)(data.angle * 2.0);
+		  {
+		      for (;;) 
+			{
+			    *ptr1 = *colors1;
+			    *ptr2 = *colors2;
+
 			    if (y == yend)
 			      break;
 			    
