@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/09/02  18:22:04  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -36,6 +39,8 @@ class messanger {
   private:
     int connect();
 
+    int reconnect();
+
     int sendCmd();
 
     int getStatus();
@@ -46,11 +51,13 @@ class messanger {
 
     CLIENT *client;
 
+    char target[50];
+    
     static char *commands[];
 };
 
 char *messanger::commands[] = {
-        "Init", "Exit", "Change", "Status"
+        "Init", "Reset", "Exit", "Change", "Status"
     };
 
 void messanger::getCmd()
@@ -69,6 +76,8 @@ void messanger::getCmd()
 
     if (!strcmp(buffer,*ptr++))
       result = connect();
+    else if (!strcmp(buffer,*ptr++))
+      result = reconnect();
     else if (!strcmp(buffer,*ptr++))
         {
             cout << "OK" << endl;
@@ -119,10 +128,12 @@ void messanger::getCmd()
 
 int messanger::connect()
 {
-    char target[50];
-
     cin >> target;
+    return(reconnect());
+}
 
+int messanger::reconnect()
+{
     if ((client = clnt_create(target,TapeControl,TapeCtrlVers,"udp")) == NULL)
       return(-1);
     else
