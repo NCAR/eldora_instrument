@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1992/10/21  14:02:25  thor
+ * A little tighter.
+ *
  * Revision 1.8  1992/10/09  14:56:29  thor
  * Tightened code.
  *

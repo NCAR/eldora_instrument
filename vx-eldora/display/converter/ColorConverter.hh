@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1992/03/19  20:02:29  thor
+ * Added additional parameter to SetBeamSize to allow for windows of a size
+ * not matching the maximum beam length. Folded GetVertPoint into GetPoint &
+ * changed conversion routines to use a unsigned char *.
+ *
  * Revision 1.13  1992/02/11  19:55:16  thor
  * Added Raw method to do single point conversions.
  *
