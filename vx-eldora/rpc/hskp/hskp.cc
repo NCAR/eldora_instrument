@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/06  19:36:21  thor
+// Changed name to sendhskpcommand_1.
+//
 // Revision 1.2  1994/09/06  16:31:55  thor
 // Added reconnection method.
 //
@@ -141,6 +144,8 @@ int messanger::connect()
 
 int messanger::reconnect()
 {
+    clnt_destroy(client);
+    
     if ((client = clnt_create(target,HskpControl,HskpCtrlVers,"udp")) == NULL)
       return(-1);
     else
