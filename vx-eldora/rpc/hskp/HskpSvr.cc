@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/13  20:18:57  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -21,6 +24,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Hskp.hh"
 
 extern "C" {
+int HskpRpcInit(void);
 #include "stdioLib.h"
 #include "rpc/pmap_clnt.h"
 };
