@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/06/29  17:30:06  thor
+ * Added code to test for current radar type before doing pipe write.
+ *
  * Revision 1.5  1992/06/29  14:54:09  thor
  * Optimized Next loop.
  *
@@ -27,7 +30,7 @@
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -119,7 +122,17 @@ void Ddp::Next(void)
 		if (fcount == foreEnd)
 		  {
 		      foreAddr = addrBase;
-	  pipe.Write(aBase);
+		      fptr = mailBase;
+		      fcount = 0;
+		  }
+		else
+		  {
+		      fptr += 2;
+		      foreAddr += 2;
+		  }
+
+		foreSavedAddr = foreAddr;
+		fore = fptr;
 		foreCurr = fcount;		
 	    }
 	  else
