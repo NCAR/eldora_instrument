@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.8  2003/04/12 19:41:02  martinc
+* --------- call ioctl to set the interface broadcast address during initialization. Not really sure that this is required, since I found that if I read back the broadcast address without setting it, the lower octect is set to 255 anyway.
+* ---------
 * --------- Revision 1.7  2003/04/10 22:45:57  ericloew
 * --------- changed intLock etc. to sysIntDisable etc., and changed test program ip addrs to the 192 network
 * ---------
@@ -190,7 +193,7 @@ GENERAL NOTES
 #include "socket.h"
 #include "neterr.h"
 #include "fifo.h"
-
+#include "piraq_udp.h"
 
 
 /*****************************************************************************/
