@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/09/24  20:47:28  kapoor
+ * Initial revision
+ *
  * Revision 1.2  2003/09/23  22:58:15  kapoor
  * changed include to "hskpAll.h"
  *
@@ -52,6 +55,6 @@ void get_year()
     ones = *clk_fifo & 0x00FF;
     dumb = *clk_fifo;
 
-    year = (tens - 0x30) * 10 + (ones - 0x30);
+    yr = (tens - 0x30) * 10 + (ones - 0x30);
 
 }
