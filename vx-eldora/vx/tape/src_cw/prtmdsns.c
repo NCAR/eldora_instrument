@@ -9,13 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.3  1992/10/25  17:08:06  reif
- * *** empty log message ***
- *
- * Revision 1.2  1992/10/17  21:32:47  reif
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/14  17:50:15  reif
+ * Revision 1.1  1994/01/06  21:31:32  craig
  * Initial revision
  *
  *
@@ -28,23 +22,33 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void print_md_sns()
 {
-printf("MODE DATA LEN = %X\n",mod_sen.sense_data_len);
-printf("MEDIUM TYPE = %X\n",mod_sen.medium);
-printf("WRT PROT AND BUFF MODE = %X\n",mod_sen.WP_buf_mode);
+printf("BUFFERED MODE AND SPEED = %X\n",mod_sen.buf_mode_spd);
 printf("BLOCK DESC LEN = %X\n",mod_sen.blk_desc_len);
+
 printf("DENSITY = %X\n",mod_sen.density);
 printf("NUMBLKS MSB = %X\n",mod_sen.num_blks_msb);
 printf("NUMBLKS MMID = %X\n",mod_sen.num_blks_mid);
 printf("NUMBLKS LSB =%X\n",mod_sen.num_blks_lsb);
-printf("RESV3 = %X\n",mod_sen.res3);
+printf("RESVERVED = %X\n",mod_sen.res3);
 printf("BLK LEN MSB = %X\n",mod_sen.blk_len_msb);
 printf("BLK LEN MID = %X\n",mod_sen.blk_len_mid);
 printf("BLK LEN LSB = %X\n",mod_sen.blk_len_lsb);
-printf("VEND PARMS = %X\n",mod_sen.vend_parms);
-printf("RESV4 = %X\n",mod_sen.res4);
-printf("MOTION THR = %X\n",mod_sen.motion_thr);
-printf("RECON THR = %X\n",mod_sen.recon_thr);
-printf("GAP THR = %X\n",mod_sen.gap_thr);
+
+printf("PAGE CODE = %X\n",mod_sen.page_code);
+printf("PAGE LENGTH = %X\n",mod_sen.page_len);
+printf("CAP CAF ACTIVE FORMAT = %X\n",mod_sen.CAP_CAF_fmt);
+printf("ACTIVE PARTITION = %X\n",mod_sen.active_par);
+printf("WRITE BUFFER FULL RATIO = %X\n",mod_sen.write_full_ratio);
+printf("READ BUFFER FULL RATIO = %X\n",mod_sen.read_full_ratio);
+printf("WRITE DELAY TIME MSB = %X\n",mod_sen.write_dly_msb);
+printf("WRITE DELAY TIME LSB = %X\n",mod_sen.write_dly_lsb);
+printf("DBR BIS RSmk AVC SOCF RBO REW = %X\n",mod_sen.DBR_other_stuff);
+printf("GAP SIZE = %X\n",mod_sen.gap_size);
+printf("EOD DEFINED EEG SEW RES = %X\n",mod_sen.EOD_EGG_SEW);
+printf("BUFFER SIZE AT EARLY WARNING MSB = %X\n",mod_sen.buff_size_msb);
+printf("BUFFER SIZE AT EARLY WARNING MID = %X\n",mod_sen.buff_size_mid);
+printf("BUFFER SIZE AT EARLY WARNING LSB = %X\n",mod_sen.buff_size_lsb);
+printf("DATA COMPRESSION = %X\n",mod_sen.data_compress);
 taskDelay(200);
 return;
 }
