@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/10  16:42:56  thor
+ * New improved version!
+ *
  * Revision 2.0  1992/11/02  20:48:31  thor
  * First offical ELDORA release!
  *
@@ -94,7 +97,7 @@ void loggerEvent(FAST char *message, FAST int *ip , int num)
     strncpy(&log.message[0],message,80);
 
     if (ip != NULL && num > 0)
-      memcpy(&log.items[0],ip,num*sizeof(char));
+      memcpy(&log.items[0],ip,num*sizeof(int));
 
     if (taskSpawn("logEvent",LOGGER_PRI,0,4000,(FUNCPTR)logmessage_1,
 		  (int)&log,0,0,0,0,0,0,0,0,0) == ERROR)
