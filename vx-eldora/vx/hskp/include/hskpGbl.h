@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1997/08/26  21:25:21  craig
+ * *** empty log message ***
+ *
  * Revision 1.9  1996/10/11  23:27:29  craig
  * *** empty log message ***
  *
@@ -76,6 +79,8 @@ scope short reload_flag;
 
 /* Parameters to handle the test pulse */
 
+scope int Firstime;                /* Variable to keep track of first call */
+                                   /* to update_testpulse */
 scope short tp_freq_count;         /* Counter to step through each frequency */
 scope short tp_freq_offset_count;  /* Cntr to step thru each freq offset */
 scope short tp_atten;              /* The current attenuator setting */
@@ -94,7 +99,7 @@ scope int tp_sum_start, tp_sum_end; /* Starting and ending dwell
 				       counts for sum */
 scope int tp_sum_count;             /* Summation counter */
 scope float fore_dbz_sum, aft_dbz_sum;  /* Sums of the dbz values */
-scope float fore_tp_level_sum, aft_tp_level_sum; /* sums of the
+scope float fore_tp_level, aft_tp_level; /* sums of the
 						    testpulse power */
 scope float fore_vel_sum, aft_vel_sum;  /* Sums of the velocities */
 scope float f_vscale, a_vscale;       /* fore and aft velocity scale factors */
