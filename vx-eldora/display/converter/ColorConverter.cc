@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.6  1994/08/12  18:13:51  thor
+ * Fixed a nit.
+ *
  * Revision 2.5  1993/10/22  19:34:32  thor
  * Fixed overwrite problem.
  *
@@ -113,13 +116,11 @@
  */
 #include "ColorConverter.hh"
 
-extern "C" {
-#include "math.h"
-#include "memLib.h"
-#include "string.h"
-#include "stdioLib.h"
-#include "taskLib.h"
-};
+#include <math.h>
+#include <memLib.h>
+#include <string.h>
+#include <taskLib.h>
+#include <iostream.h>
 
 ColorConverter::ColorConverter(int bins, float *max, float *min, float *scales,
 			       float *biases, int *offsets,
@@ -141,7 +142,6 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 
     float fbins = (float)bins;	// How many colors.
     float fb = 0.0;		// Color offset.
-
 
     for (FAST int i = 0; i < nvalues; i++)
       {
@@ -210,7 +210,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
     FAST float *fp = fptr;
 
     if (fptr == NULL)
-      printf("What the hell? %d gates?\n",ngates);
+      cout << "What the hell? " << ngates << "gates?" << endl;
     
     nc = ncells;
     w = widths;
@@ -276,7 +276,6 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		      *ptr = work_index + valueOffset[0];
 		      ptr[pgates] = work_index + valueOffset[1];
 		      ptr[pgates * 2] = work_index + valueOffset[2];
-//		      printf("%d %d.\n",*ptr,ptr[pgates]);
 		      break;
 		  }
 		oldDiff = newDiff;
