@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/10/13  16:13:51  thor
+ * Add an error message for debugging.
+ *
  * Revision 2.2  1993/08/20  17:07:52  thor
  * Fixed bad count on lut generation, cleaned up code that generates
  * gateIndex and converted hardcoded table sizes to const.
@@ -172,7 +175,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 }
 
 void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
-				 float realMax = -1.0)
+				 float mpp = -1.0)
 {
     FAST int seg = cs.num_segments;
     FAST short *widths = &cs.spacing[0];
@@ -222,65 +225,67 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
     float inc;
 
-    if (realMax < 0.0)
+    if (mpp < 0.0)
       inc = (float)maxDist / (float)pgates; // Meters/pixel.
     else
-      inc = realMax / (float)pgates;
+      inc = mpp;
 
     numGates = pgates;
 
-    float oldDiff = 0.0;
-    float newDiff = 0.0;
-
-    FAST int dcells = pgates - 1;
-
     FAST int *ptr = gateIndex;
 
-    bfill((char *)ptr,ngates * sizeof(int),0xff); // Mark all as not found.
+    memset((char *)ptr,0xff,sizeof(gateIndex)); // Mark all as not found. 
 
     FAST int np = numOfParams;
 
-    for (i = 0; i < dcells; i++)
+    for (i = 0; i < pgates; i++, ptr++)
       {
 	  float dist = inc * (float)i; // Target distance.
 
 	  fp = fptr;
+	  
+	  float newDiff = *fp++ - dist;
+
+	  float oldDiff = 1.0;
 
 	  FAST int index = 0;
 
-	  for (FAST int k = 0; k < ngates; k++)
+	  for (int k = 0; k < ngates; k++)
 	    {
-		newDiff = *fp++ - dist;
-
-		if (newDiff >= oldDiff)	// If difference increased
-					// this is our gate.
+		if (newDiff >=  0.0)
 		  {
-		      index *= np; // Correct for number of parameters.
-		      *ptr = index + valueOffset[0];
-		      ptr[pgates] = index + valueOffset[1];
-		      ptr[pgates * 2] = index + valueOffset[2];
+		      newDiff = newDiff > 0.0 ? newDiff : -newDiff;
+
+		      FAST int work_index = index;
+		
+		      if (oldDiff < newDiff)
+			work_index--;
+		      
+		      if (work_index < 0)
+			work_index = 0;
+
+		      work_index *= np; // Correct for number of
+					// parameters.
+		      *ptr = work_index + valueOffset[0];
+		      ptr[pgates] = work_index + valueOffset[1];
+		      ptr[pgates * 2] = work_index + valueOffset[2];
+
 		      break;
 		  }
-		else
-		  index++;
+		oldDiff = newDiff;
+		newDiff = *fp++ - dist;
+		index++;
 	    }
-
-	  if (*ptr < 0)		// Ran off end of beam.
+	  if (k == ngates)	// Hit end of real beam!
 	    {
-		index = ngates - 1;
-		index *= np;
-		*ptr = index + valueOffset[0];
-		ptr[pgates] = index + valueOffset[1];
-		ptr[pgates * 2] = index + valueOffset[2];
+		--k;
+		k *= np;
+		*ptr = k + valueOffset[0];
+		ptr[pgates] = k + valueOffset[1];
+		ptr[pgates * 2] = k + valueOffset[2];
 	    }
-	  ptr++;
       }
-// The last displayed pixel = last real gate.
-    i = ngates - 1;
-    i *= np;
-    *ptr = i + valueOffset[0];
-    ptr[pgates] = i + valueOffset[1];
-    ptr[pgates * 2] = i + valueOffset[2];
+	  
     free((char *)fptr);
 }
 
@@ -331,8 +336,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
     FAST int j = numGates;
     FAST int *ptr = gateIndex;
     FAST unsigned char *lkup = convertTbl;
-    FAST unsigned short top = (unsigned short)(lkup + (DISPLAYED_GATES *
-						       MAX_DATA_PLANES));
+    
     for (FAST int i = 0; i < j; i++)
       {
 	  FAST unsigned short datum = *(data + *ptr++);
