@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/03/23  21:40:39  eric
+ * fixed bug with preknock in blanking ram.
+ *
  * Revision 1.3  1994/02/01  15:19:51  craig
  * Change calculation of duty cycle, PRF, etc and some error checking
  *
@@ -133,18 +136,17 @@ else
                                      frequencies */
     gate_sp = wvfm -> gate_dist1[1]; /* Assumes uniform gate spacing for all 
                                         frequencies */
-    gate_sp = (gate_sp * 2.5) + 0.5; /* convert 60 mhz counts to m and r
+    gate_sp = (float)(gate_sp) * 2.5 + 0.5; /* convert 60 mhz counts to m and r
 ound */
     first_gate = wvfm -> gate_dist1[0]; /* Assumes first gate spacing for 
                                            all frequencies */
-    first_gate = (first_gate * 2.5) + 0.5; /* convert 60 mhz counts to m and r
+    first_gate = (float)(first_gate) * 2.5 + 0.5; /* convert 60 mhz counts to m and r
 ound */
 
     /* Compute dwell time in milliseconds */
     dwell_time = wvfm -> repeat_seq * wvfm -> repeat_seq_dwel;
     /* Compute the duty cycle in percent */
-    duty_cycle = 100.0 * wvfm -> num_chips[5] * wvfm -> chip_width[5] *
-      16.666667e-9 / (wvfm -> repeat_seq * 1.0e-3);
+    duty_cycle = 100.0 * wvfm -> num_chips[5] * wvfm -> chip_width[5] / (wvfm -> repeat_seq * 1.0e-3 * 60.0e6);
     /* Compute the number of samples for frequency #1 */
     sampl = wvfm -> num_chips[0] * wvfm -> repeat_seq_dwel;
     /* Compute the shortest PRT for freqeuncy #1 in seconds */
@@ -185,7 +187,7 @@ ound */
     printf("First Gate = %d; Duty Cycle = %f; \n",first_gate,duty_cycle);
 
     /* load N for desired PCP */
-    pcpn = (repeat_seq * 15000.0 / total_pcp) + 0.5;
+    pcpn = (repeat_seq * 15000.0 / (float)(total_pcp)) + 0.5;
     pcpn = pcpn - 1;
     *nloc = pcpn;
 
