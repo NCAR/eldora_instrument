@@ -40,7 +40,13 @@
 
 #include "Header.h"
 #include "HeaderRpc.h"
+
+#ifndef inHeader
 #define inHeader Hdr
+
+extern HeaderPtr inHeader;
+
+#endif
 
 /* include the .h files that are housekeeper code specific */
 #include "cntrlDef.h"
