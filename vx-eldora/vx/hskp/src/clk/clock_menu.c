@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2003/09/25  22:15:24  kapoor
+ * Needed to define OK_RPC
+ *
  * Revision 1.2  2003/09/25  17:26:38  kapoor
  * change of variable names
  *
@@ -68,6 +71,7 @@ void clock_menu(void)
 	printf("5) Use modulated IRIGB As The Time Source\n");
 	printf("6) Use DC level shift IRIGB As The Time Source\n");
 	printf("7) Use Real Time Clock as The Time Source\n");
+	printf("8) Set Year\n");
 
 	/* read and process the command */
 
@@ -77,7 +81,7 @@ void clock_menu(void)
 	switch(cmd)
 	  {
 	    case 1:	/* Initialize the clock pointers */
-	      init_clock();
+	      init_clock(0);
 	      break;
 
 	    case 2:	/* Change the repeat count */
@@ -88,7 +92,7 @@ void clock_menu(void)
 	    case 3:	/* Display the Current time */
 	      for(i=0; i<count; i++)
 		{
-		    get_time();
+		    get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
 		    printf("The time (HH:MM:SS:MMM) is: %2d:%2d:%2d:%3d",
 			   hr,min,sec,msec);
 		    printf(" on (YY/MM/DD): %2d/%2d/%2d  DOY = %3d\n",
@@ -111,13 +115,12 @@ void clock_menu(void)
 	      printf("\nEnter the second: ");
 	      scanf(" %d",&nsecond);
 	      set_time(nhour, nminute, nsecond, nmonth, nday,
-		       nyear, string);
+		       nyear);
 	      printf("\nDepress enter when: %2d:%2d:%2d is reached\n",
 		     nhour,nminute,nsecond);
 	      getchar();
 	      getchar();
-	      start_clock(string);
-	      break;
+       	      break;
 
 	    case 5:	/* Use modulated IRIG-B as the time source */
 	      send_packet("A0");
@@ -137,7 +140,15 @@ void clock_menu(void)
 	      printf("\nThe real time clock is new time source\n");
 	      break;
 	      
+	    case 8:     /* Set year */
+	      printf("\nEnter the year (YY): ");
+	      scanf(" %d",&nyear);
+	      yr = nyear;
+	      nyear += 2000;
+	      printf("\nThe year has been set to: d%\n",nyear);
 
+	      break;
+	      
 	    default:
 	      break;
 	  }
@@ -145,3 +156,9 @@ void clock_menu(void)
 
     return;
 }
+
+
+
+
+
+
