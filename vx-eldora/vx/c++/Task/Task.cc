@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/12/07  17:27:51  vanandel
+ * move create of flags so it occurs, whether or not the task is created
+ * immediately
+ *
  * Revision 1.6  1992/10/02  13:26:43  vanandel
  * added include to declare type of logMsg()
  *
@@ -39,17 +43,18 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "logLib.h"
 #include "Task.hh"
+#include "stdioLib.h"
 
 Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	   int stacksize = 3000, int options = VX_FP_TASK | VX_STDIO,
-	   int go = 1, char *name = "")
+	   int go = 1, char *theName = "")
 {
    
     flags = new Flags();
     if (flags == NULL)
-    {
-      logMsg("couldn't allocate flags for task %x\n", taskId);
-    }
+      {
+	  logMsg("couldn't allocate flags for task %x\n", taskId,0,0,0,0,0);
+      }
     if (!go)
       {
 	  start = entry;
@@ -58,6 +63,7 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 
 	  FAST int *in = args;
 	  FAST int *out = argv;
+
 
 	  *out++ = (int)this;	// We must know who we are!
 
@@ -70,17 +76,19 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	  
 	  opts = options;
 
-	  taskId = -1;		// Make sure things fail.
-      }
-    else
+	  name = theName;
+
+	  taskId = ERROR;		// Make sure things fail.
+      }    else
       {
 	  if (argsize)
 	    taskId = 
-	    taskSpawn(name,pri,options,stacksize,entry,(int)this,args[0],
+	    taskSpawn(theName,pri,options,stacksize,entry,(int)this,args[0],
 		      args[1],args[2],args[3],args[4],args[5],args[6],
 		      args[7],args[8]);
 	  else
-	    taskId = taskSpawn(name,pri,options,stacksize,entry,(int)this);
+	    taskId = taskSpawn(theName,pri,options,stacksize,entry,(int)this,
+			       0,0,0,0,0,0,0,0,0);
       }
 
 }
@@ -143,7 +151,7 @@ int Task::Status(void)
 
 int Task::Go(void)
 {
-    return(taskId = taskSpawn("",priority,opts,stack,start,argv[0],argv[1],
+    return(taskId = taskSpawn(name,priority,opts,stack,start,argv[0],argv[1],
 			      argv[2],argv[3],argv[4],argv[5],argv[6],argv[7],
 			      argv[8],argv[9]));
 }

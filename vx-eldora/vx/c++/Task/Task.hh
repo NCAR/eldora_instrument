@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/12/14  23:12:22  vanandel
+ * added name field for deferred creation
+ *
  * Revision 1.7  1992/12/07  17:32:12  vanandel
  * on task destruction, correctly delete the flags to allow
  * the task destruction to complete
@@ -57,12 +60,10 @@
 #ifndef INCTaskhh
 #define INCTaskhh
 
-extern "C" {
 #include "taskLib.h"
 #include "sigLib.h"
 #include "memLib.h"
 #include "string.h"
-};
 
 #include "Flags.hh"
 
@@ -74,7 +75,7 @@ class Task {
 
     // These are used to stored needed variables if spawning is delayed.
     FUNCPTR start;		// Entry point.
-    int *argv;			// Arguement vector.
+    int argv[10];			// Argument vector.
     int numArgs;		// Vector size.
     int priority;		// Guess.
     int stack;			// Stack size.
@@ -91,8 +92,6 @@ class Task {
     STATUS Delete(void) { return(taskDelete(taskId)); }
 
     STATUS DeleteForce(void) { return(taskDeleteForce(taskId)); }
-
-    STATUS Terminate(void) { return(taskTerminate(taskId)); }
 
     STATUS Suspend(void) { return(taskSuspend(taskId)); }
 
@@ -129,10 +128,7 @@ class Task {
 
     int Go(void);
 
-    STATUS SigRaise(int signal, int code = 0) 
-      { return(sigRaise(taskId,signal,code)); }
-
-    STATUS Kill(int signal) { return(SigRaise(signal)); }
+    int Kill(int signal) { return(kill(taskId,signal)); }
 
     STATUS FlagsInit(void);
 
