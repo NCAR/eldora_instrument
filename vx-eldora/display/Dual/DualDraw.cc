@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.10  1994/10/27  16:54:04  thor
+// Fixed incorrect offset for 2nd set of colors.
+//
 // Revision 1.9  1994/09/27  17:24:19  thor
 // Changed some floating point calculations to integer.
 //
@@ -45,7 +48,6 @@
  *
  */
 #include "Dual.hh"
-
 
 void Dual::drawBeam(FAST DataBeam *beam)
 {
@@ -191,9 +193,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
     FAST int sx = dx < 0 ? -1 : 1;
     FAST int sy = dy < 0 ? -1 : 1;
     
-    FAST unsigned char *video1 = videoMemory[0];
-    FAST unsigned char *video2 = videoMemory[1];
-
     unsigned char cvalues[2048];
 
     converter->GetBeam((unsigned short *)(beam + 1),cvalues);
@@ -214,8 +213,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
     FAST int s1 = (sin1 * fg);
     FAST int s2 = (sin2 * fg);
 
-    FAST unsigned char *ptr1 = video1;
-    FAST unsigned char *ptr2 = video2;
+    FAST unsigned char *video1 = videoMemory[0];
+    FAST unsigned char *video2 = videoMemory[1];
 
     if (ax > ay)
       {
@@ -232,21 +231,23 @@ void Dual::drawBeam(FAST DataBeam *beam)
 
 		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
 		  continue;			  // drawing area!
-		
+
 		FAST int d = D;
 		FAST int x = x1;
 		FAST int xend = x2;
 		FAST int Sx = sx;
 		FAST int Ax = ax;
 		FAST int Ay = ay;
-		
+                FAST unsigned char *ptr1 = video1 + x + (y1 * 4096);
+                FAST unsigned char *ptr2 = video2 + x + (y1 * 4096);
+                
 		if (sy == 1)
 		  {
 		      for (;;)
 			{
 			    if (!clip(x,y1)) break;
-			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2);
+                            *ptr1 = *colors1;
+			    *ptr2 = *colors2;
 			    
 			    if (x == xend)
 			      break;
@@ -255,11 +256,15 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			      {
 				  y1++;
 				  if (!clip(x,y1)) break;
-				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2);
+                                  ptr1 += 4096;
+                                  ptr2 += 4096;
+                                  *ptr1 = *colors1;
+                                  *ptr2 = *colors2;
 				  d -= Ax;
 			      }
 			    x += Sx;
+                            ptr1 += Sx;
+                            ptr2 += Sx;
 			    d += Ay;
 			}
 		  }
@@ -268,8 +273,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		      for (;;)
 			{
 			    if (!clip(x,y1)) break;
-			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2);
+                            *ptr1 = *colors1;
+                            *ptr2 = *colors2;
 			    
 			    if (x == xend)
 			      break;
@@ -278,11 +283,15 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			      {
 				  y1--;
 				  if (!clip(x,y1)) break;
-				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2);
+                                  ptr1 -= 4096;
+                                  ptr2 -= 4096;
+				  *ptr1 = *colors1;
+                                  *ptr2 = *colors2;
 				  d -= Ax;
 			      }
 			    x += Sx;
+                            ptr1 += Sx;
+                            ptr2 += Sx;
 			    d += Ay;
 			}
 		  }
@@ -308,14 +317,16 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		FAST int d = D;
 		FAST int y = y1;
 		FAST int yend = y2;
+                FAST unsigned char *ptr1 = video1 + x1 + (y * 4096);
+                FAST unsigned char *ptr2 = video2 + x1 + (y * 4096);
 		
 		if (sy == 1)
 		  {
 		      for (;;) 
 			{
 			    if (!clip(x1,y)) break;
-			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2);
+                            *ptr1 = *colors1;
+                            *ptr2 = *colors2;
 			    
 			    if (y == yend)
 			      break;
@@ -324,11 +335,15 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			      {
 				  x1 += sx;
 				  if (!clip(x1,y)) break;
-				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2);
+                                  ptr1 += sx;
+                                  ptr2 += sx;
+                                  *ptr1 = *colors1;
+                                  *ptr2 = *colors2;
 				  d -= ay;
 			      }   
 			    y++;
+                            ptr1 += 4096;
+                            ptr2 += 4096;
 			    d += ax;
 			}
 		  }
@@ -337,8 +352,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		      for (;;) 
 			{
 			    if (!clip(x1,y)) break;
-			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2);
+                            *ptr1 = *colors1;
+                            *ptr2 = *colors2;
     
 			    if (y == yend)
 			      break;
@@ -346,12 +361,16 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  x1 += sx;
+                                  ptr1 += sx;
+                                  ptr2 += sx;
 				  if (!clip(x1,y)) break;
-				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2);
+                                  *ptr1 = *colors1;
+                                  *ptr2 = *colors2;
 				  d -= ay;
 			      }
 			    y--;
+                            ptr1 -= 4096;
+                            ptr2 -= 4096;
 			    d += ax;
 			}
 		  }
