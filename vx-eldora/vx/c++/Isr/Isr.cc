@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/11/30  17:33:31  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,7 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Isr.hh"
 #include <iv.h>
 
-Isr::Isr(FAST int vector, FAST int useSem)
+Isr::Isr(FAST int vector, FAST int useSem, VOIDFUNCPTR isr)
 {
     if (useSem)
       sem = semBCreate(SEM_Q_PRIORITY,SEM_FULL);
@@ -28,26 +31,29 @@ Isr::Isr(FAST int vector, FAST int useSem)
     
     VOIDFUNCPTR *vec = (VOIDFUNCPTR *)INUM_TO_IVEC(vector);
 
-    intConnect(vec,(VOIDFUNCPTR)Isr::callback,(int)this);
+    if (isr == NULL)
+      isr = (VOIDFUNCPTR)&Isr::IsrFunction;
+    
+    intConnect(vec,isr,(int)this);
 }
 
-Isr::Isr(void *vector, int useSem)
+Isr::Isr(void *vector, int useSem, VOIDFUNCPTR isr)
 {
     if (useSem)
       sem = semBCreate(SEM_Q_PRIORITY,SEM_FULL);
     else
       sem = NULL;
 
-    intConnect((VOIDFUNCPTR *)vector,(VOIDFUNCPTR)Isr::callback,(int)this);
+    if (isr == NULL)
+      isr = (VOIDFUNCPTR)&Isr::IsrFunction;
+
+    intConnect((VOIDFUNCPTR *)vector,isr,(int)this);
 }
 
 void Isr::IsrFunction()
 {
+    // This is the tricky part!
+
     if (sem)
       semGive(sem);
-}
-
-void Isr::callback(Isr *callme)
-{
-    callme->IsrFunction();
 }
