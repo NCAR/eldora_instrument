@@ -3,7 +3,7 @@
  *
  *	Module: ELDRP7		 
  *	Original Author: Shawn Copeland/Craig Walther 
- *      Copywrited by the National Center for Atmospheric Research
+ *      Copyright National Center for Atmospheric Research
  *	Date:   	 $Date$
  *
  * revision history
@@ -13,6 +13,9 @@
  *   08/21/91  Added DSPQ and Collator definitions
  *
  * $Log$
+ * Revision 1.1  1991/12/09  17:37:39  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -25,14 +28,50 @@
 /* General purpose constants */
 #define MAXRADARS  5  /* Maximum number of "radars" currently implemented */
 #define MAXPCP   255  /* Maximum number of PCP's in a repetition interval */
-#define MAXGATES 4094 /* Maximum number of gates possible */
+#define MAXGATES 4096 /* Maximum number of gates possible */
+
+#ifdef TADPL
+/* Tadpole 68040 Virtual Memory Map Definitions */
+
+#define EXTD_BASE   (0x80000000)
+#define STD_BASE    (0x30000000)
+#define SHORT_BASE  (0x20000000)
+#define DRAM_BASE  (0x40200000)
+#define STAT_REG   (0x6000000)
+
+#endif
+#ifndef TADPL
+/* MV133 definitions */
+#define EXTD_BASE   (0x0)
+#define STD_BASE    (0x0)
+#define SHORT_BASE  (0x0)
+#define DRAM_BASE  (0x0)
+#endif
+
+/* VME to VME interface definitions */
+
+#define VMEVME_BASE (0xC000)
+#define CMD_REG     (0x1)
 
 /* Base address of cards */
 
-#define TIMBASE    (0x100000)
-#define ATOD0BASE  (0x600000)
-#define DSP0BASE   (0x400000)
-#define COL0BASE   (0x300000)
+#define TIMBASE    (0x400000 + EXTD_BASE) /* note timing module is mapped in */
+                                          /* standard vme space */
+#define TIMBASE2   (0x500000 + EXTD_BASE) /* second timing module, for debug */
+                                          /* of two-board sync only */
+#define ATOD1BASE  (0x1400000 + EXTD_BASE)
+#define ATOD2BASE  (0x2400000 + EXTD_BASE)
+#define ATOD3BASE  (0x3400000 + EXTD_BASE)
+#define PPP1_F1_BASE   (0x1100000 + EXTD_BASE)
+#define PPP2_F1_BASE   (0x1200000 + EXTD_BASE)
+#define PPP1_F2_BASE   (0x2100000 + EXTD_BASE)
+#define PPP2_F2_BASE   (0x2200000 + EXTD_BASE)
+#define PPP1_F3_BASE   (0x3100000 + EXTD_BASE)
+#define PPP2_F3_BASE   (0x3200000 + EXTD_BASE)
+#define DP_F1_BASE (0x1300000 + EXTD_BASE)    
+#define DP_F2_BASE (0x2300000 + EXTD_BASE)    
+#define DP_F3_BASE (0x3300000 + EXTD_BASE)    
+#define COL0BASE   (0x4000000 + EXTD_BASE)
 
 /* Timing Module Address offsets */
 
@@ -51,6 +90,14 @@
 #define TIMCHIP    (0x18000)
 #define TIMON      (0x1a000)
 #define TIMOFF     (0x1c000)
+#define TIMONOFFB  (0x1a000)
+#define TIMFTPMUX  (0x1e000)
+#define TIMFTPDIST (0x1e400)
+#define TIMFTPWIDT (0x1e800)
+#define TIMATPMUX  (0x1f000)
+#define TIMATPDIST (0x1f400)
+#define TIMATPWIDT (0x1f800)
+
 
 /* A to D Board Address offsets */
 
@@ -67,6 +114,15 @@
 #define ATOD_QHSDB (0x39800)
 #define ATOD_ZHSDB (0x3a000)
 
+/************************************************************************
+ * A/D BOARD CALIBRATION DEFINITIONS                                    *
+ ***********************************************************************/
+#define    EVERYHIT      0
+#define    FIRSTOFDWELL  1
+#define    IQANDZ        0
+#define    IANDQONLY     1
+#define    LOWm          0.012589254
+#define    HIGHm         1.0
 /*************************************************************************
  *                                                                       *
  *           DSPQ and Collator Boards common Address offsets             *
