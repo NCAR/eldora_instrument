@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.20  1992/01/22  17:55:16  thor
+ * Changed to new form of ColorConverter.
+ *
  * Revision 1.19  1991/12/18  20:34:57  thor
  * Changed to unsigned short data. Removed old test code.
  *
@@ -179,7 +182,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  }
 		radData.direction = (int)dataBeam->ray.true_scan_rate;
 		  continue;
-		FAST short *data = (short *)(dataBeam + 1);
+
 
 		FAST int direct = radData.direction;
 		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
@@ -211,9 +214,6 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		else
 		  {
 		      if (lastAngle < radData.angle)
-	  // By default, sleep for 1/60 sec and then loop.
-//	  taskDelay(1);
-	  self.SetFlags(NEW_DATA_FLAG);
 			display->UpdateClock(now->hour,now->minute,
 					     now->second);
 		  }
