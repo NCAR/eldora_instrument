@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/01/14  15:21:54  thor
+ * Added code for data reduction.
+ *
  * Revision 1.3  1991/09/06  16:34:06  thor
  * Fixed (UN)PACKSTATUS to use ulong.
  *
@@ -118,11 +121,17 @@ program TapeControl {
 } = 0x30000300;
 #endif
 
-#ifdef __GNUC__
+#ifdef __STDC__
 static u_long UNPACKSTATUS(FAST u_long status, FAST int unit);
 static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit);
 
-inline static u_long UNPACKSTATUS(FAST u_long status, FAST int unit)
+#ifdef __cplusplus
+#define INLINE inline
+#else
+#define INLINE 
+#endif
+
+INLINE static u_long UNPACKSTATUS(FAST u_long status, FAST int unit)
 {
     if (unit == 0)
       return(status & 0xffff);
@@ -130,7 +139,7 @@ inline static u_long UNPACKSTATUS(FAST u_long status, FAST int unit)
       return(status >> 16);
 }
 
-inline static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit)
+INLINE static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit)
 {
     FAST u_long i = *blk;
 
