@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:56:16  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  20:42:14  craig
  * Initial revision
  *
@@ -49,6 +52,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 float get_pos()
 {
 float count;
+long temp;
 short i;
 union
   {
@@ -65,7 +69,9 @@ position.degr[1]=*rd2016;          /* Read low byte */
 
 *mot_ltch=0x0E;                   /* Release 2016OE* */
 
-count=(((float)position.degrees)/COUNTS)*360; /* Convert to degrees */
+temp = position.degrees;
+temp = temp & 0x0000FFFF;
+count= (float)temp/cntrlCounts*360.0;      /* Convert to degrees */
 
 return(count);
 }

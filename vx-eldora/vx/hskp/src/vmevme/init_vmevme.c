@@ -71,5 +71,8 @@ if(intConnect((VOIDFUNCPTR *)(VME_VME_VEC * 4),
       fprintf(stderr,"failed to connect interrupt vector %d\n",VME_VME_VEC);
       exit(1);
   }
-
+/* Create the semaphore. */
+vmeSem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
+/* Now spawn the attached task. */
+taskSpawn("midbeam",50,VX_FP_TASK,10000,(FUNCPTR)midbeam,0,0,0,0,0,0,0,0,0,0);
 }

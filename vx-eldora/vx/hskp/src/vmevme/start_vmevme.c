@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1994/05/20  20:37:03  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/25  20:43:04  craig
  * Initial revision
  *
@@ -28,8 +31,6 @@ void start_vmevme()
 /* Define some general purpose variables */
 long i, iru_lags, msecs_today;
 long radar_offset;
-char hr,min,sec,mon,day,yr;
-short msec,jday;
 struct DATARAY *ray_pntr;
 
 /* Set each of the handshake areas to the "good data broadcast" status word
@@ -56,7 +57,7 @@ ads_current_offset = FIRST_ADS_OFFSET;
    radar processors send it out over the mcpl.   
 Begin by calculating the number of lags the iru data will lag behind */
 
-iru_lags = 200/dwelltime_msec + 2;  /* +2 because this should lag
+iru_lags = 200/dwelltime_msec + 4;  /* +4 because this should lag
 				       at a safe distance */
 
 iru_lag_index = current_index - iru_lags;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1994/05/20  20:37:20  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  17:27:16  craig
  * Initial revision
  *
@@ -39,18 +42,20 @@ void hskp()
 #define DEGS_TO_RADS 0.0174533
 long kill, i;
 unsigned char B, nr;
-unsigned long T;
+unsigned long T, aint;
 double frequency, temp;
 unsigned char ecbaddr, unitnum, filternum, test;
 int timeout;
 char ecbname[20];
 float anglesin;
-static float dumb_rads, dumb_stepr, dumb_stepp;
-static int dumb_start = 0, dumb_index = 25;
+float dumb_rads, dumb_stepr, dumb_stepp;
+int dumb_start, dumb_index;
 
 
 /* initialize general purpose variables */
 kill = 1;
+dumb_start = 0;
+dumb_index = 25;
 
 /* Initialize the global control variables */
 
@@ -63,22 +68,24 @@ in_gps_isr = 0;
 
 printf("Initializing the ELDORA Control Bus (ecb)\n");
 
+/*
 strcpy(ecbname,"mstrvme8.sre");
 stop11();
 dpclr();
 ldsrec(ecbname);
 ecbIntInit(1000000);
 go11();
+*/
 
 /* Enable 68040 Interrupts */
 sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
 sysIntEnable(ARINC_IRQ);
 sysIntEnable(GPS_IRQ);
-sysIntEnable(ECB_CMPLT_IRQ);
+/*sysIntEnable(ECB_CMPLT_IRQ);
 sysIntEnable(ECB_ERROR_IRQ);
 sysIntEnable(ECB_SPARE_IRQ);
-
+*/
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
@@ -100,6 +107,9 @@ init_iru((short)0);     /* Initializes the ARINC 429 card to interrupt on
 printf("Initializing the GPS interface\n");
 init_gps((short)0);/* Sets up the the GPS mailbox interrupt, proper pointers */
 
+/* Initialize parameters to deal with the waveguide switch */
+wg_sw_flag = 0;
+wg_sw_pntr = (unsigned short *)(MIN_BASE + MIN_COMMAND);
 
 /********************************************************/
 /**********  The code below is run once on a   **********/
@@ -141,6 +151,11 @@ do{
     navdes = GetNavDesc(inHeader);
     insitdes = GetInsitu(inHeader);
 
+    /* Set mcpl error variable to no error condition */
+    mcpl_error[0] = 1;
+    mcpl_error[1] = 1;
+    mcpl_error[2] = 0;
+
     /* Calculate the number of milliseconds in a dwell time */
 
     dwelltime_msec = wave->repeat_seq * wave->repeat_seq_dwel;
@@ -168,23 +183,28 @@ do{
 	  switch(i)
 	    {
 		case 0:
-		frequency = fraddes->freq1 * 1e9;
+		aint = (double)fraddes->freq1 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 1:
-		frequency = fraddes->freq2 * 1e9;
+		aint = (double)fraddes->freq2 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 2:
-		frequency = fraddes->freq3 * 1e9;
+		aint = (double)fraddes->freq3  * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 3:
-		frequency = fraddes->freq4 * 1e9;
+		aint = (double)fraddes->freq4 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 4:
-		frequency = fraddes->freq5 * 1e9;
+		aint = (double)fraddes->freq5 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 	    }
 	  B = (unsigned char)(361 - (int)(frequency / 30.0e6));
@@ -202,6 +222,9 @@ do{
 	  if(timeout >= 30000)
 	    printf("Failed to set DDS frequency fore RX, freq num: %d",
 		   unitnum);
+	  else
+	    printf("Fore radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
+	  taskDelay(60);
 
       }
 */
@@ -213,23 +236,28 @@ do{
 	  switch(i)
 	    {
 		case 0:
-		frequency = araddes->freq1 * 1e9;
+		aint = (double)araddes->freq1 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 1:
-		frequency = araddes->freq2 * 1e9;
+		aint = (double)araddes->freq2 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 2:
-		frequency = araddes->freq3 * 1e9;
+		aint = (double)araddes->freq3 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 3:
-		frequency = araddes->freq4 * 1e9;
+		aint = (double)araddes->freq4 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 
 		case 4:
-		frequency = araddes->freq5 * 1e9;
+		aint = (double)araddes->freq5 * (double)1000000;
+		frequency = (double)aint * (double)1000.0;
 		break;
 	    }
 	  B = (unsigned char)(361 - (int)(frequency / 30.0e6));
@@ -247,6 +275,9 @@ do{
 	  if(timeout >= 30000)
 	    printf("Failed to set DDS frequency aft RX freq num: %d",
 		   unitnum);
+	  else
+	    printf("Aft radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
+	  taskDelay(60);
       }
 */
     /* Now start the automatic testpulse calibration scheme */
@@ -278,11 +309,39 @@ do{
 /**************************************************************/
 
     do{
+	/* Report MCPL errors (or radar processor handshake errors)
+	   that were discovered in the vmevme ISR but can not be
+           reported until here */
+
+	if(mcpl_error[0] != 1)
+	  /* Fore radar handshake not set, or occured more than once between
+	   interrupts */
+	  {
+	      printf("F%1d",mcpl_error[0]);
+	      mcpl_error[0] = 1;
+	  }
+	if(mcpl_error[1] != 1 && mcpl_error[1] != 0)
+	  /* aft radar handshake occured more than once between interrupts*/
+	  {
+	      printf("A%1d",mcpl_error[1]);
+	      mcpl_error[1] = 1;
+	  }
+
+	if(mcpl_error[2] != 0)
+	  /* Radar processors have no data available */
+	  {
+	      printf("N");
+	      mcpl_error[2] = 0;
+	  }
 
 	/* Is there new IRU data to handle? */
 
        if(old_iru_interrupts != iru_rpntr->num_interrupts)
-              iru_isr();
+	 {
+	     if(iru_rpntr->num_interrupts - old_iru_interrupts > 1)
+	       printf("M");
+	     iru_isr();
+	 }
 
 	/* Check on the status of the miniRIMS */
 
@@ -297,41 +356,6 @@ do{
 /*	if(tp_dwell_count >= testpulse_max_count)
 	      update_testpulse();
 */
-       /* If fake_angles is true, we need to fake up some iru data */
-
-/* Put in a fake parameters if global variable fake_angles is true */
-
-       if(fake_angles)
-	 {
-	     if(dumb_start == 0)
-	       {
-		   dumb_start = 1;
-		   dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
-		   /* 2 pi radians per second */
-		   dumb_stepp = 0.000757 / (float)dwelltime_msec;
-		   /* Is about 120 m/s if lat step = long step */ 
-		   dumb_rads = 0;
-		   last_iru_data.longitude = -105.;
-		   last_iru_data.latitude = 40.;
-	       }
-
-	     /* Dummy up the INS parameters */
-	     dumb_rads += dumb_stepr;
-	     if(dumb_rads > 6.28318) dumb_rads = 0;
-	     anglesin = sin(dumb_rads);
-	     last_iru_data.longitude += dumb_stepp;
-	     last_iru_data.latitude += dumb_stepp;
-	     last_iru_data.pitch = 2.0 * anglesin;
-	     last_iru_data.roll = 15.0 * anglesin;
-	     last_iru_data.heading = 45.0 + 0.5 * anglesin;
-	     last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
-	     last_iru_data.seconds = sec;
-	     last_iru_data.msec_longitude = msec;
-	     dumb_index++;
-	     if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
-	     fill_platform(msecs_ray[dumb_index]);
-
-	 }
 
        }while(!stop_flag && !reload_flag);
 

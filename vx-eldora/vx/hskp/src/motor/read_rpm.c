@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:56:19  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  20:45:19  craig
  * Initial revision
  *
@@ -61,7 +64,7 @@ taskDelay(1);
 actual.vel[1] = *act_vel_lsb;      /* Read the least significant byte */
 taskDelay(1);
 
-rpm = actual.velocity / (PERIOD * COUNTS * 0.01667);
+rpm = actual.velocity / (cntrlPeriod * cntrlCounts * 0.01667);
 
 return(rpm);
 }

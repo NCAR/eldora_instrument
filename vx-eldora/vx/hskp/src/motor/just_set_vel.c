@@ -11,6 +11,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/08/10  19:58:32  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  20:47:20  craig
  * Initial revision
  *
@@ -56,7 +59,7 @@ union
       unsigned char vel[2];
   }cmnd;
 
-cmnd.velocity = (COUNTS*cmrpm*PERIOD*0.01667)*16;
+cmnd.velocity = (cntrlCounts*cmrpm*cntrlPeriod*0.01667)*16;
 
 *vel_msb=cmnd.vel[0];
 

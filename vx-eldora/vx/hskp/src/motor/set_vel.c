@@ -11,6 +11,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/08/10  19:58:40  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/03  15:56:22  craig
  * *** empty log message ***
  *
@@ -63,13 +66,13 @@ union
       unsigned char vel[2];
   }cmnd;
 
-*mot_timer = ((2000000 * PERIOD) -1) / 16;
+*mot_timer = ((2000000 * cntrlPeriod) -1) / 16;
 taskDelay(1);
 
-*mot_gain = 0.5 + (GAIN*((12.8*60)/(PERIOD*COUNTS))); /* FOR ROTODOME */
+*mot_gain = 0.5 + (cntrlGain*((12.8*60)/(cntrlPeriod*cntrlCounts))); /* FOR ROTODOME */
 taskDelay(1);
 
-cmnd.velocity = (COUNTS*cmrpm*PERIOD*0.01667)*16;
+cmnd.velocity = (cntrlCounts*cmrpm*cntrlPeriod*0.01667)*16;
 
 *vel_msb=cmnd.vel[0];
 taskDelay(1);

@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/08/10  19:58:25  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:34:28  reif
  * Initial revision
  *
@@ -46,6 +49,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void init_motor()
 {
+cntrlCounts = COUNTS;
+cntrlGain = GAIN;
+cntrlPeriod = PERIOD;
 mot_gain=(unsigned char *)GAIN_K;
 mot_flag=(unsigned char *)FLAG_REGISTER;
 mot_status=(unsigned char *)STATUS_REGISTER;

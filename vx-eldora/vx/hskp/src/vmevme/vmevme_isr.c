@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1994/05/20  20:37:07  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  20:44:35  craig
  * Initial revision
  *
@@ -35,10 +38,8 @@ void vmevme_isr()
 *fore_remote_command = 0x40; 
 *aft_remote_command = 0x40; 
 
-/* Now call the subroutine that does everything else, need to use
-   a subroutine since it does a lot of floating point */
+/* Now send a semifore to start the midbeam task */
 
-isr_func();
-
+semGive(vmeSem);
 
 }

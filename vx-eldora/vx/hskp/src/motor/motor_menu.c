@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/03  20:04:00  reif
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/03  15:56:15  craig
  * *** empty log message ***
  *
@@ -58,8 +61,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void motor_menu()
 {
 unsigned char choice, volt_char;
-float position, volts;
-float rpm;
+float position, volts, dd;
+float rpm = 0.0;
 long i, number;
 
 init_motor();
@@ -75,11 +78,14 @@ do
       puts("p) to read position");
       puts("s) to set velocity");
       puts("g)o motor");
-      puts("h)ault motor");
+      puts("h)alt motor");
       puts("w)rite to a register");
       puts("r)ead contents of a register");
       puts("f) to clear flags");
       puts("v) to read velocity in rpm");
+      puts("G) to set gain");
+      puts("C) to set counts");
+      puts("P) to set period");
       puts("Q)uit");
       choice=getchar();
       getchar();
@@ -184,6 +190,30 @@ do
 	      }
 	    break;
 
+          case 'P':
+            printf("Enter value for period: ");
+            scanf("%f",&dd);
+            getchar();
+            cntrlPeriod = dd;
+            set_vel(rpm);
+            break;
+
+          case 'G':
+            printf("Enter value for gain: ");
+            scanf("%f",&dd);
+            getchar();
+            cntrlGain = dd;
+            set_vel(rpm);
+            break;
+
+          case 'C':
+            printf("Enter value for counts: ");
+            scanf("%f",&dd);
+            getchar();
+            cntrlCounts = dd;
+            set_vel(rpm);
+            break;
+            
 	  case 'q':
 	    break;
 

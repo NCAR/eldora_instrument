@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1994/05/20  20:37:22  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  17:27:19  craig
  * Initial revision
  *
@@ -28,7 +31,8 @@ extern "C"{
 #include "taskLib.h"
 #include "semLib.h"
 #include "rpcLib.h"
-
+#include "HeaderRpc.h"
+    
 #include "HskpCmd.h"
 #include "HskpStatus.h"
 
@@ -63,7 +67,7 @@ static void startRpc(void)
 
     if(rpcTaskInit() == ERROR)
       exit(1);
-    startHeader();
+    HeaderRpcInit();
 
 /* Start Control Rpc */
 

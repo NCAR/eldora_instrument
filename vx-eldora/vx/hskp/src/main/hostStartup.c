@@ -48,7 +48,7 @@ void hostStartup(void)
     taskSpawn("startup",100,0,5000,(FUNCPTR)startup,0,0,
 	      0,0,0,0,0,0,0,0);
     
-    taskSpawn("hskp",100,0,5000,(FUNCPTR)hskp,0,0,
+    taskSpawn("hskp",100,0,15000,(FUNCPTR)hskp,0,0,
 	      0,0,0,0,0,0,0,0);
 }
 
