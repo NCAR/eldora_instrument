@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/03  17:10:25  thor
+ * Fixed consts to avoid clashing with others.
+ *
  * Revision 1.2  1993/08/31  16:39:41  thor
  * The first really working version.
  *
@@ -53,7 +56,10 @@ struct trigdata {
 };
 
 typedef struct trigdata TrigData;
+
+#define _TRIGDATA
 #endif
+
 // Constants.
 
 // Window sizes.
