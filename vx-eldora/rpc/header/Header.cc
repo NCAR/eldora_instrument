@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1992/09/29  19:10:10  thor
+ * Removed some now extraneous init code. Changed >> & << to use Sherrie's
+ * new file format.
+ *
  * Revision 1.10  1992/09/24  13:32:10  thor
  * Added stream I/O, new Send method.
  *
@@ -74,6 +78,7 @@ extern "C" {
 #include <signal.h>
 #include <sys/unistd.h>
 #include <string.h>
+#include <stdio.h>
 };
 
 static void Die(int);
@@ -394,7 +399,7 @@ int Header::Send(FAST char *target)
 
     if ((f = fork()) == 0)
       {
-	  signal(SIGBUS,(SIG_PF)Die);
+	  signal(SIGBUS,Die);
 
 	  if (sendheader_1(th,client) == NULL)
 	    {
@@ -420,7 +425,7 @@ int Header::Send(FAST CLIENT *client)
 
     if ((f = fork()) == 0)
       {
-        signal(SIGBUS,(SIG_PF)Die);
+        signal(SIGBUS,Die);
 
         if (sendheader_1(th,client) == NULL)
           {
