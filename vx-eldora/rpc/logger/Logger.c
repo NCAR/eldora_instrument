@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/16  19:40:11  thor
+ * Initial revision
+ *
  *
  * description:
  *        This program opens a single event log file & seperate error
@@ -30,16 +33,20 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 static FILE *eventFp;		/* Event log file. */
 static char *directory = ".";	/* Default directory path. */
-static char *hosts[] =		/* Know targets. */
-{ "frey", "tyr", "ull", "njord", "jord", "sif", "baldr", "hel", NULL };
-static FILE *errorFps[8];	/* Their error logs. */
+static char *hosts[] =		/* Known targets. */
+{ "frey", "tyr", "ull", "njord", "jord", "sif", "baldr", "hel", "aegir", 
+    NULL };
+
+#define KNOWN_HOSTS 9
+
+static FILE *errorFps[KNOWN_HOSTS];	/* Their error logs. */
 
 main(FAST int argc, FAST char **argv)
 {
     FAST SVCXPRT *transp;
     FAST FILE **fps;
     FAST int i;
-    FAST int j = 8;
+    FAST int j = KNOWN_HOSTS;
     char buffer[256];
 
     if (argc > 1)
