@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/24  14:55:58  thor
+ * Fixed to use new structure.
+ *
  * Revision 1.2  1992/07/20  20:56:10  thor
  * Changed shorts to chars.
  *
@@ -28,10 +31,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 bool_t xdr_HskpCommand(FAST XDR *xdrs, FAST HskpCommand *objp)
 {
     if (!xdr_u_long(xdrs,&objp->cmd))
-      {
-	  return(FALSE);
-      }
-    if (!xdr_u_long(xdrs,&objp->count))
       {
 	  return(FALSE);
       }
@@ -64,10 +63,6 @@ bool_t xdr_HskpCommand(FAST XDR *xdrs, FAST HskpCommand *objp)
 
 bool_t xdr_HskpStatus(FAST XDR *xdrs, FAST HskpStatus *objp)
 {
-    if (!xdr_u_long(xdrs,&objp->count))
-      {
-	  return(FALSE);
-      }
     if (!xdr_u_char(xdrs,&objp->fore))
       {
 	  return(FALSE);
