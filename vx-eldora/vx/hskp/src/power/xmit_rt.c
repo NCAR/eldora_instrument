@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/09/27  16:45:07  eric
+ * split task into a program task (pgm_rt.c) and a data task. this is the
+ * data task now.
+ *
  * Revision 1.2  1999/07/13  16:49:51  thor
  * *** empty log message ***
  *
@@ -37,11 +41,10 @@ void xmit_rt()
 {
   unsigned char string_array[15];
   unsigned char number_array[11];
-  unsigned char *g1serp, status;
+  unsigned char status;
   int i,prev;
   int sem_status;
   
-  g1serp = (unsigned char *)(GPIBCHAN1 + SER_POLL_REG);
 while(1)
   {
     sem_status = semTake(xmit_data_sem,1000);
@@ -64,11 +67,6 @@ while(1)
 	    fore_xmit_pwr = -999.0;
 	    aft_vmehndshk->tpulse.freq_num[1] = freq_count;
 	  }
-	status = *g1serp;
-/*
-	if(Debug)
-	  printf("Status = %8X\n",status); 
-*/
 	xmit_isr_done=0;
       }
     else
