@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:27  craig
+ * Initial revision
+ *
  * Revision 1.10  1993/09/22  17:12:46  reif
  * *** empty log message ***
  *
@@ -27,7 +30,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void mail_box()
 {
-extern HeaderPtr inHeader;
+
 unsigned int *sync_word;
 static unsigned int *num_recs;
 static unsigned int *fore_addr;
@@ -58,17 +61,20 @@ static int nav_xfer_index = 0;
 static int ads_xfer_index = 0;
 int done;
 static int fore_raycnt=0;
+static int fore_raycnt_errcnt=0;
 static int aft_raycnt=0;
+static int aft_raycnt_errcnt=0;
 short type;
-unsigned int keep;
+int keep;
 static long last_mailbox;
 unsigned short test_mb;
+char stat;
 
 sync_word=(unsigned int *)MAD_BASE; /* Tells us if data path is functional */
 
 if(*sync_word != 0x55555555)
   {
-      /* Write error to logfile and return to flag_check */
+      /* Notify Operator of error and return to flag_check */
       printf("DATA PATH SHOWS BAD SYNC WORD!!!\r");
       return;
   }
@@ -76,6 +82,8 @@ if(*sync_word != 0x55555555)
 /* Sync word now indicates good path status */
 
 *sync_word=0; /* Clear sync word so that next time we will wait on it */
+fore_raycnt_errcnt=0;
+aft_raycnt_errcnt=0;
 rad_dscr_blk_cnt = 0;
 nav_dscr_blk_cnt = 0;
 ads_dscr_blk_cnt = 0;
@@ -98,7 +106,7 @@ full_rec_length=rad_rec_length; /*save full record size for future use*/
 
 printf("RADAR RECORD LENGTH = %d BYTES\n",rad_rec_length);
 printf("HEADER SIZE = %d BYTES\n",hdrsz);
-printf("BEGINNING AMOUNT OF TAPE= %d\n",starting_amnt[UNIT_NUM]);
+printf(" Will Flush the mailboxes now\n");
 
 /* Flush out all mail boxes with zeros */
 
@@ -112,7 +120,6 @@ for(mb_count=0; mb_count<last_mailbox; mb_count++)
 	    break;
 	}
   }
-printf("FINISHED FLUSHING\n");
 
 /* Look for first occurence of good fore_mb */
 i = 0;
@@ -124,13 +131,13 @@ while(*fore_mb!=0xBFFF)
 	{
 	    fore_mb = (unsigned short *)MAIL_BOX;
 	    fore_addr = (unsigned int *)DATA_RECS;
-	    if(i++ > 2) break;
+	    if(i++ > 2000) break;
 	} 
   }
-printf("FORE_MB= %X FORE_ADDR= %X\n",*fore_mb,*fore_addr);
 
 /* Look for first occurence of good aft_mb */
-i++;
+
+i = 0;
 while(*aft_mb!=0xBFFF)
   {
       aft_mb+=2;
@@ -139,10 +146,9 @@ while(*aft_mb!=0xBFFF)
 	{
 	    aft_mb = (unsigned short *)MAIL_BOX+1;
 	    aft_addr = (unsigned int *)DATA_RECS+1;
-	    if(i++ > 2) break;
+	    if(i++ > 2000) break;
 	} 
   }
-printf("AFT_MB= %X AFT_ADDR= %X\n",*aft_mb,*aft_addr);
 
 /*************************************************************/
 /****   initialization is complete, begin to record data *****/
@@ -166,34 +172,60 @@ do
 
 	    if(!strncmp("RYIB",ray->ray_info,4))
 	      {
-		  hr=ray->hour;
-		  min=ray->minute;
-		  sec=ray->second;
+		  log_ints[0]=ray->hour;
+		  log_ints[1]=ray->minute;
+		  log_ints[2]=ray->second;
+
 		  (unsigned int)fpd=*fore_addr+sizeof(RAY)+sizeof(PLATFORM);
-		  if(fpd->ray_count==0)
+
+		  if(fpd->ray_count < 5)  /* first few records have bad data */
 		    {
 			fore_mb+=2;
 			fore_addr+=2;
+			if((int)fore_mb > last_mailbox)
+			  {
+			      fore_mb = (unsigned short *)MAIL_BOX;
+			      fore_addr = (unsigned int *)DATA_RECS;
+			  }
+
 			continue;
 		    }
 		  if(fore_raycnt!=fpd->ray_count)
 		    {
-			printf("FORE IS %d SHOULD BE %d\n",fpd->ray_count,
-			       fore_raycnt);
+			fore_raycnt_errcnt++;
+			if(fore_raycnt_errcnt >2) /*First few are not errors */
+			  {
+			      tapeStatus->status[current_unit] |=
+				RAY_COUNT_PROBLEMS;
+			      printf("FORE IS %d SHOULD BE %d\n",
+				     fpd->ray_count,fore_raycnt);
 			fore_raycnt=fpd->ray_count;
 			/* Log and report bad fore radar ray count */
+			  }
 		    }
 		  type=rad_dscr->data_reduction;
+
 		  keep=reduce_data(type,fore_addr);
 		  if(keep==0)
 		    {
 			fore_mb+=2;
 			fore_addr+=2;
 			fore_raycnt++;
+			if((int)fore_mb > last_mailbox)
+			  {
+			      fore_mb = (unsigned short *)MAIL_BOX;
+			      fore_addr = (unsigned int *)DATA_RECS;
+			  }
+
 			continue;
 		    }
-		  else if(keep>1)
+		  else if((keep != 1) && (keep != 0))
 		    {
+			if(keep < min_to_record || keep > full_rec_length)
+			  {
+			      printf("Data reduction error keep = %d\n",keep);
+			      keep = full_rec_length;
+			  }
 			rad_rec_length=keep;
 		    }		
 		  else
@@ -528,7 +560,7 @@ do
 	{
 	    /* Write what test_mb equals to log file */
 
-	    tapeStatus->status[UNIT_NUM] |= MCPL_PROBLEMS;
+	    tapeStatus->status[current_unit] |= MCPL_PROBLEMS;
 	    printf("FORE MB in error = %X\n",fore_mb); 
 	    test_mb=0; /* Clear test_mb */
 	    *fore_mb=0; /* Clear fore mailbox */
@@ -550,22 +582,36 @@ do
 	    test_mb=0;
 
 	    (unsigned int)ray=*aft_addr; /* Make radar data pointer */
-	    hr=ray->hour;
-	    min=ray->minute;
-	    sec=ray->second;
+	    log_ints[0]=ray->hour;
+	    log_ints[1]=ray->minute;
+	    log_ints[2]=ray->second;
+
 	    (unsigned int)fpd=*aft_addr+sizeof(RAY)+sizeof(PLATFORM);
-	    if(fpd->ray_count==0)
+
+	    if(fpd->ray_count < 5) /* First few rays contain bad data */
 	      {
 		  aft_mb+=2;
 		  aft_addr+=2;
+		  if((int)aft_mb > last_mailbox)
+		    {
+			aft_mb = (unsigned short *)MAIL_BOX + 1;
+			aft_addr = (unsigned int *)DATA_RECS +1;
+		    }
+
 		  continue;
 	      }
+
 	    if(aft_raycnt!=fpd->ray_count)
 	      {
-		  tapeStatus->status[UNIT_NUM] |= RAY_COUNT_PROBLEMS;
-		  printf("AFT IS %d SHOULD BE %d\n",fpd->ray_count,aft_raycnt);
+		  aft_raycnt_errcnt++;
+		  if(aft_raycnt_errcnt > 2) /* First few are not errors */
+		    {
+			tapeStatus->status[current_unit] |= RAY_COUNT_PROBLEMS;
+			printf("AFT IS %d SHOULD BE %d\n",
+			       fpd->ray_count,aft_raycnt);
 			aft_raycnt=fpd->ray_count;
-		  /* Log a bad aft ray-count event */
+			/* Log a bad aft ray-count event */
+		    }
 	      }
 
 	    /* Perform required data reduction algorithm (or non at all) */
@@ -577,10 +623,21 @@ do
 		  aft_mb+=2;
 		  aft_addr+=2;
 		  aft_raycnt++;
+		  if((int)aft_mb > last_mailbox)
+		    {
+			aft_mb = (unsigned short *)MAIL_BOX + 1;
+			aft_addr = (unsigned int *)DATA_RECS +1;
+		    }
+
 		  continue;
 	      }
-	    else if(keep>1)
+	    else if((keep != 1) && (keep != 0))
 	      {
+		  if(keep < min_to_record || keep > full_rec_length)
+		    {
+			printf("Data reduction error keep = %d\n",keep);
+			keep = full_rec_length;
+		    }
 		  rad_rec_length=keep;
 	      }
 	    else
@@ -704,7 +761,7 @@ do
       if(test_mb!=0)
 	{
 	    /* Write to log file what test_mb equals */
-	    tapeStatus->status[UNIT_NUM] |= MCPL_PROBLEMS;
+	    tapeStatus->status[current_unit] |= MCPL_PROBLEMS;
 	    printf("AFT MB in error = %X\n",test_mb);
 	    test_mb=0; /* Clear test */
 	    *aft_mb=0; /*Clear mailbox */
@@ -718,28 +775,34 @@ do
 	      }
 	} /* Move on to next mail box */
 
-}while(RUN_FLAG != 0 && REC_FLAG != 0);
+}while(RUN_FLAG != 0);
 
-/* If run flag has been turned off, write headers and EOFs
-   to all active drives */
+/* Write headers and EOFs to all active drives */
 
-if(RUN_FLAG == 0 && REC_FLAG != 0)
+for(i=0; i<number_of_drives; i++)
   {
-      for(i=0; i<number_of_drives; i++)
+      unschar = drives_to_use[i];
+      stat = write_tape((unsigned int *)tapeHdr,hdrsz,HEADER,unschar);
+      if(stat != 0)
 	{
-	    unschar = drives_to_use[i];
-	    write_tape((unsigned int *)tapeHdr,hdrsz,HEADER,unschar);
-	    printf("WROTE ENDING HEADER TO %d\n",drives_to_use[i]);
-	    exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
-	    printf("WROTE ENDING FILEMARK TO %d\n",drives_to_use[i]);
-	}
-      printf("ev#%d_tp#%d_%d:%d:%d\n",vol_num,tape_num,hr,min,sec);
-      loggerEvent("EV_%d/",&hr,1);
-      loggerEvent("%d/",&min,1);
-      loggerEvent("%d_",&sec,1);
-      loggerEvent("%d_",&vol_num,1);
-      loggerEvent("%d\n",&tape_num,1);
+	    printf("WRITE ERROR ON DRIVE %d\n",drives_to_use[i]);
+	    printf("WRITE STATUS = %X\n",stat);
+
+	    /* Log this error in the log file */
+	    log_ints[3] = drives_to_use[i];
+	    log_ints[4] = stat;
+	    loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error ending header write\n",log_ints,5);
+	      }
+      printf("WROTE ENDING HEADER TO %d\n",drives_to_use[i]);
+      exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
+      printf("WROTE ENDING FILEMARK TO %d\n",drives_to_use[i]);
   }
+/* Log end of volume in the log file */
+log_ints[3] = vol_num;
+log_ints[4] = tape_num;
+loggerEvent("Volume_End Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d Operator stopped system, or turned off recording\n",log_ints,5);
+new_volume = 1;
+
 return; 
 }
 
