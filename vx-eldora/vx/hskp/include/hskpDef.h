@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1997/08/20 20:05:30  eric
+ * set new limits on test pulse power and velocity based on
+ * statistics from fastex.
+ *
  * Revision 1.7  1996/10/29  23:28:18  craig
  * *** empty log message ***
  *
@@ -47,10 +51,19 @@ struct DATARAY
 /* Definitions to handle the test pulse */
 #define TP_ATTEN_STEP  10
 #define TP_ATTEN_MAX   40
-#define MAX_TP_VEL_DIFF 0.05              /* In m/s */
-#define MAX_TP_PWR_DIFF 0.2               /* In dbm */
+#define MAX_TP_VEL_DIFF 0.25               /* In m/s */
+#define MAX_TP_PWR_DIFF 1.25               /* In dbm */
 
 /*Definitions of the pattern that point the waveguide switch at each antenna*/
-#define WG_SW_FORE 0x04
-#define WG_SW_AFT  0x00
+#define WG_SW_FORE 0x00
+#define WG_SW_AFT  0xFF
 #define WG_SW_BASE 0xA000
+
+
+
+
+
+
+
+
+
