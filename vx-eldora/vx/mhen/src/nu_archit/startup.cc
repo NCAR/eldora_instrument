@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:32:52  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:24  eric
  * Initial revision
  *
@@ -24,6 +27,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define OK_RPC
 #include "Header.hh"
 #include "RadarRpc.hh"
+#include "HeaderRpc.h"
 
 extern "C"{
 #include "vxWorks.h"
