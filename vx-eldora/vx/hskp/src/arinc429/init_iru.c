@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/05/20  20:36:27  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  15:40:59  craig
  * Initial revision
  *
@@ -49,6 +52,26 @@ if(interrupt)
       char_pntr = (unsigned char *)(IRU_BASE + STANDARD_BASE + IRU_BIM
                    + BIMVR0);
       *char_pntr = ARINC_VEC;
+
+      /*  Initialize all index variables to 0. */
+      msec_longitude_indx = 0;
+      status_indx = 0;
+      latitude_indx = 0;
+      longitude_indx = 0;
+      wind_speed_indx = 0;
+      wind_direction_indx = 0;
+      ns_velocity_indx = 0;
+      ew_velocity_indx = 0;
+      heading_indx = 0;
+      drift_indx = 0;
+      altitude_indx = 0;
+      inertial_vspeed_indx = 0;
+      pitch_indx = 0;
+      roll_indx = 0;
+      integ_vert_acc_indx = 0;
+      vert_acc_indx = 0;
+      track_rate_indx = 0;
+      pitch_rate_indx = 0;
 
       /* Will have to attached iru_isr to the interrupt here before
          actually using the interrupt feature */
