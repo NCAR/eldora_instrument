@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/09  15:22:49  thor
+ * Removed unneeded wave cunt items.
+ *
  * Revision 1.2  1991/09/11  16:30:22  thor
  * Added items to handle wave_counts.
  *
@@ -44,14 +47,7 @@ struct sensorDesc {
     radar_d        Radar;
     field_radar_i  FieldInfo;
     cell_spacing_d CellSpacing;
-#ifndef OK_RPC
-    parameter_d    Params<>;
-#else
-    struct {
-	u_int Params_len;
-	PARAMETER *Params_val;
-    } Params;
-#endif /* OK_RPC */
+    parameter_d Params[10];
 };
 
 struct tapeHeader {
