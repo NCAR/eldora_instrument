@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1995/03/31  22:51:57  craig
+ * Initial revision
+ *
  * Revision 1.4  1992/10/25  17:08:13  reif
  * *** empty log message ***
  *
@@ -89,6 +92,8 @@ do
       puts("14) LOAD TAPE");
       puts("15) LOG SENCE");
       puts("16) PRINT STATUS");
+      puts("17) PRINT DATA REDUCTION ARRAYS");
+      puts("18) LIST OF SUPPORTED LOG PAGES");
 
       scanf(" %d",&choice);
       switch(choice)
@@ -361,7 +366,18 @@ do
 			cip_cmds(UNIT_OPS,UOPS,scsi_id[i]);
 			printf("Testing Unit Ready SCSI Drive: %2d\n",
 			       scsi_id[i]);
-			tst_unt_rdy(scsi_id[i]);
+			drv_stat = 0;
+			while(drv_stat!=0x80)
+			  {
+			      drv_stat=tst_unt_rdy(scsi_id[i]);
+			      printf("SCSI STATUS= %X\n",
+				     parmblk[TEST_UNIT_READY].scsi_status);
+			      printf("SCSI FLAGS= %X\n",drv_stat);
+			      printf("CIPRICO ERROR STATUS= %X\n",
+				     parmblk[TEST_UNIT_READY].error);
+			      printf("CIPRICO BD STATUS= %X\n",*status);
+			      taskDelay(100);
+			  }
 			printf("Selecting Mode for SCSI Drive: %2d\n",
 			       scsi_id[i]);
 			exb_cmds(MODE_SELECT,MD_SEL,scsi_id[i]);
@@ -451,6 +467,25 @@ do
 	      print_stat(0,i);
 	    break;
 
+
+	  case 17:
+	    for(i=0; i<360; i++)
+	      printf("%3d  %4d   %8.2f\n",i,reduce_gate[i],alt_fact[i]);
+	    break;
+
+	  case 18:
+	    for(i=0; i<4; i++)
+	      {
+		  printf("PRINT LIST OF SUPPORTED LOG PAGES, SCSI Drive: %2d?"
+			 ,scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			exb_cmds(LOG_SENSE_SPGS,LOG_SEN,scsi_id[i]);
+			print_log_pgs();
+		    }
+	      }
+	    break;
 
 
 	  default:
