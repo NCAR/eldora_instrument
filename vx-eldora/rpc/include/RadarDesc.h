@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/15  17:56:24  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.1  1991/08/30  18:39:36  thor
  * Initial revision
  *
@@ -67,7 +70,7 @@ struct radar_d {
     short  total_num_des;	/* Total number of additional */
 				/* descriptor block for this radar. */
     short data_reduction;	/* Data Reduction algorithm in use. */
-    short data_red_algor;	/* Data reduction algorithm. */
+    short data_compress;	/* Data reduction algorithm. */
     float data_red_parm0;	/* Data reduction algorithm specific */
 				/* parameter #0. */
     float data_red_parm1;	/* Data reduction algorithm specific */
