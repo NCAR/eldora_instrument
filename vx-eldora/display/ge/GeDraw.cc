@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added code around GraphicController constructor to prevent responding to
+ * nonexistant interrupts.
+ *
  * Revision 1.8  1992/02/06  19:45:26  thor
  * Adde call to draw cursor in white.
  *
@@ -46,6 +49,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeDraw.hh"
 #include "Ddp.hh"
 
+#include "tp41.h"
 #include "sysLib.h"
 #include "rebootLib.h"
 #include "tp41Lib.h"
@@ -64,6 +68,10 @@ void DrawingLoop(FAST Task &self)
     Pipe AddrPipe(sizeof(long *),100);
     self.FlagsInit();
 
+    Pipe AddrPipe(sizeof(long *),500);
+    wcio(1,"a",0xff);		// Must ensure that there are no
+				// spurious interrupts!
+
 
     // Create agc here!
 
@@ -77,6 +85,8 @@ void DrawingLoop(FAST Task &self)
     a.x = AGC_WIDTH / 2;
     a.y = AGC_HEIGHT / 2;
 
+
+    wcio(1,"a",0xf7);		// Enable level 3 VME interrupts.
     Mouse mouse((void *)AGC_ADDR,a,(long *)&boxed_cross,AGC_VECTOR);
 
     Rodent = &mouse;
