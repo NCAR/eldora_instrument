@@ -10,6 +10,10 @@
  * ----------------
  * $Log$
  *
+ * Revision 1.5  1992/09/17  21:07:58  shawn
+ * safety check-in;  debugged;  this copy prior to adding writes
+ * to global hskp rpc status.
+ *
  * Revision 1.4  1992/06/29  23:00:20  shawn
  * Checks for correct numbytes for status-producing commands, doesn't
  * stuff ecbLastCmd if numbytes is wrong.
@@ -93,6 +97,7 @@ logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID)
 
     /* load global status structure to be rpc'd back to control processor */
     /* (Reset appropriate slave-dead bit) */
+    currStatus->slvdead = currStatus->slvdead & ~(0x01<<ecbadr); /* Reset appropriate bit */
 
     /* load any returned status bytes into status buffer */
     for (bcount = 0; bcount<numbytes; bcount++)
@@ -117,21 +122,12 @@ logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID)
     switch(ecbadr)
       {
 	  /* RCVR/XCTRS: */
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from RCVR/XCTR slave\ncomID=0x01 (Send Temp Sample, scaled int)\n");
-#endif
 	case ECBRFFOR:
 	case ECBRFAFT:
 	  switch(ecbcomID)
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from RCVR/XCTR slave\ncomID=0x02 (Send Temp Sample, raw counts)\n");
-#endif
 	    {
 	      case 0x01:
 		procTsami(ecbadr,numbytes);  /* process Temp sample status */
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from RCVR/XCTR slave\ncomID=0x05 (Send Bus Status)\n");
-#endif
 		break;
 	      case 0x02:
 		procTsamr(ecbadr,numbytes);  /* process Temp sample status */
@@ -140,9 +136,6 @@ logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID)
 		procBstat(ecbadr,numbytes);  /* process Bus status info */
 		break;
 	      case 0x06:
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from RCVR/XCTR slave\ncomID=0x10 (Set generated frequency for a DDS Unit)\n");
-#endif
 		procDDSool(ecbadr,numbytes); /* process out-of-lock status */
 		break;
 	      case 0x10:
@@ -156,27 +149,15 @@ logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID)
 	  /* IF PROCESSORS: */
 	case ECBIFFOR:
 	case ECBIFAFT:
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from IF PROCESSOR slave\ncomID=0x01 (Send Temp Sample, scaled int)\n");
-#endif
 	  switch(ecbcomID)
 	    {
 	      case 0x01:
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from IF PROCESSOR slave\ncomID=0x02 (Send Temp Sample, raw counts)\n");
-#endif
 		procTsami(ecbadr,numbytes);  /* process Temp sample status */
 		break;
 	      case 0x02:
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from IF PROCESSOR slave\ncomID=0x05 (Send Bus Status)\n");
-#endif
 		procTsamr(ecbadr,numbytes);  /* process Temp sample status */
 		break;
-	      case 0x10:
-#ifdef ECBDEBUG
-		logMsg("\nProcessing returned status from IF PROCESSOR slave\ncomID=0x10 (Set filter number for an IF processor unit)\n");
-#endif
+	      case 0x05:
 		procBstat(ecbadr,numbytes);  /* process Bus status info */
 		break;
 	      case 0x10:                     /* Set IF Filter command */
@@ -192,7 +173,7 @@ logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID)
 	  switch(ecbcomID)
 	    {
 	      case 0x01:
-		procTsami(ecbadr,numbytes);  /* process Temp sample status */	
+		procTsami(ecbadr,numbytes);  /* process Temp sample status */
 		break;
 	      case 0x02:
 		procTsamr(ecbadr,numbytes);  /* process Temp sample status */
