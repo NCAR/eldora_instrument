@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:50:16  craig
+ * Modified for new control processor software
+ *
  * Revision 1.1  1994/01/06  21:31:46  craig
  * Initial revision
 
@@ -246,6 +249,7 @@ for(i=0; i<2; i++)
 		  if(timeout == 10)
 			printf("ERROR: DRIVE INITIALIZATION, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
 		  /* EJECT THE TAPE */
+		  printf("Unloading tape drive: %2d\n",physical_unit[i][j]);
 		  exb_cmds(UNLOAD,ULD,unschar);
 	      }
 	}
@@ -261,8 +265,7 @@ for(i=0; i<2; i++)
 				    to come ready,THEN WRITE an EOF */
 	      {
 		  unschar = physical_unit[i][j];
-		  printf("WAITING FOR SCSI DRIVE %2d TO COME READY\n",
-			 physical_unit[i][j]);
+		  drive_init(unschar);
 		  drv_stat=tst_unt_rdy(unschar);
 		  while(drv_stat!=0x80 && timeout < 20)
 		    {
@@ -347,9 +350,10 @@ for(;;)
 /*  We have been told to go, but we must first check to see if the record
     flag is set, if not this is an error */
 
+      if(REC_FLAG == 0) printf("ERROR: RECORD FLAG NOT ON\n");
+
       while(REC_FLAG == 0 && RUN_FLAG != 0)
 	{
-	    printf("ERROR: RECORD FLAG NOT ON\r");
 	    tapeStatus->status[current_unit] &= ~RECORDING;
 	    taskDelay(60);
 	}
@@ -468,8 +472,9 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 	} /* if(REC_FLAG != 0 && !header_written) */
 
       if(REC_FLAG != 0 && header_written)
-	mail_box();
-
+	{
+	    mail_box();
+	}
   }/* Infinite for loop for(;;) */ 
 }/* End of flag_check */
 
