@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/07/27  14:45:29  thor
+ * Added extern for init routine.
+ *
  * Revision 1.2  1992/07/14  14:10:13  thor
  * Changed ALIVE to DEAD.
  *
@@ -51,6 +54,9 @@ typedef struct HskpStatus HskpStatus;
 #define RAYS_FULL     0x2
 #define ADS_FULL      0x4
 #define NAV_FULL      0x8
+#define GPS_SYNC      0x10
+#define IRU_SYNC      0x20
+#define MINI_SYNC     0x40
 
 #define MOTOR_STOPPED 0x1
 #define BAD_CORR_VEL  0x2
