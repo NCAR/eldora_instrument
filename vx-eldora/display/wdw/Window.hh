@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  91/01/02  08:52:23  thor
+ * Made changes for VxWorks Version 5.0.
+ * 
  * Revision 1.1  90/12/04  10:23:17  thor
  * Initial revision
  * 
@@ -152,6 +155,12 @@ class Window {
 
     void vertText(Point start, char *text, unsigned char color);
     void vertCenteredText(Point start, char *text, unsigned char color);
+
+    void shift(Point src, Point dst, int width, int height);
+
+    void copyBlock(Point src, Point dst, int width, int height);
+
+    Point rootXY(Point pt);
 };    
 
 #endif INCWindowhh

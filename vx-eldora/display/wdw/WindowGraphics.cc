@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:21:51  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -163,4 +166,31 @@ void Window::text(Point start, char *text, unsigned char color,
 void Window::clear(void)
 {
     frect(upperLeft,bottomRight,BLACK);
+}
+
+void Window::shift(Point src, Point dst, FAST int width, FAST int height)
+{
+    FAST unsigned short x = upperLeft.x;
+    FAST unsigned short y = upperLeft.y;
+
+    src.x += x;
+    src.y += y;
+    dst.x += x;
+    dst.y += y;
+
+    gbd->shift(src,dst,width,height);
+}
+
+void Window::copyBlock(Point src, Point dst, FAST int width, FAST int height)
+{
+    gbd->shift(src,dst,width,height); // Uses raw x,y values - good
+				      // for moving blocks between windows.
+}
+
+Point Window::rootXY(Point pt)
+{
+    pt.x += upperLeft.x;
+    pt.y += upperLeft.y;
+
+    return(pt);
 }
