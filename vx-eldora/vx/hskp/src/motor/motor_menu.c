@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:56:15  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  20:42:13  craig
  * Initial revision
  *
@@ -125,7 +128,7 @@ do
 	    for(i=0; i<number; i++)
 	      {
 		  position = get_pos();
-		  printf("Position that was read = %f\n");
+		  printf("Position that was read = %f\n",position);
 		  taskDelay(20);
 	      }
 	    break;
