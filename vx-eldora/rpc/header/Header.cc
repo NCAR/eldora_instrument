@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Added method for = operator & corresponding C function.
+ *
+ * Revision 1.5  1991/10/22  17:06:42  thor
+ * Removed all the pointer crap and now use the in place parameter structs
  * in the header. Added fork code to make Send work.
  *
  * Revision 1.4  1991/10/16  14:35:14  thor
@@ -46,6 +50,17 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define FAST register
 #endif // FAST
 
+#ifndef UNIX
+extern "C" {
+#include "stdioLib.h"
+};
+#else
+static void Die(void);
+#include <signal.h>
+static void Die(void)
+#include <string.h>
+};
+
 static void Die(int);
 
 static void Die(int)
@@ -56,16 +71,7 @@ static void Die(int)
 
 Header::Header(void)
 {
-    if ((params = (PARAMETER *)malloc(sizeof(PARAMETER) * 10)) ==
-	NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
-
     if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
-    th->Fore.Params.Params_val = params;
-    th->Aft.Params.Params_val = params;
       {
 	  fprintf(stderr,"Cannot allocate space for header!\n");
 	  exit(1);
@@ -78,22 +84,9 @@ Header::Header(FAST TAPEHEADER *t)
 {
     if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
       {
-    if ((params = (PARAMETER *)malloc(sizeof(PARAMETER) * 10)) ==
-	NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
-
     bcopy((char *)t,(char *)th,sizeof(TAPEHEADER));
 	  exit(1);
-    bcopy((char *)th->Fore.Params.Params_val,(char *)params,
-	  sizeof(PARAMETER) * th->Fore.Params.Params_len);
-
-    numParams = th->Fore.Params.Params_len;
-
-    th->Fore.Params.Params_val = params;
-    th->Aft.Params.Params_val = params;
+      }
 
     memcpy(th,t,sizeof(TAPEHEADER));
 
@@ -106,13 +99,6 @@ Header::Header(void *v)
       {
 	  fprintf(stderr,"Cannot allocate space for header!\n");
 	  exit(1);
-    if ((params = (PARAMETER *)malloc(sizeof(PARAMETER) * 10)) ==
-	NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
-
       }
     
     FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) + sizeof(RADARDESC) +
@@ -138,7 +124,7 @@ Header::Header(void *v)
     memcpy(&th->Insitu,t,size);
 }
 
-    FAST PARAMETER *p = params;
+int Header::Parameter(FAST PARAMETER &param, FAST int paramNum)
 {
     FAST PARAMETER *p = &th->Fore.Params[0];
 
@@ -152,8 +138,6 @@ Header::Header(void *v)
     paramNum++;			// To get correct count.
 
     if (paramNum > numParams)	// Need to update parameter values.
-	  th->Fore.Params.Params_len = paramNum;
-	  th->Aft.Params.Params_len = paramNum;
       {
 	  numParams = paramNum;
 	  th->Fore.Radar.num_parameter_des = paramNum;
@@ -164,7 +148,7 @@ Header::Header(void *v)
     return(0);
 }
 
-    FAST PARAMETER *p = params;
+PARAMETER *Header::Parameter(FAST int paramNum)
 {
     FAST PARAMETER *p = &th->Fore.Params[0];
 
@@ -332,16 +316,28 @@ int Header::GetRealHeader(void *header)
 
 // This only applies to the client side.
 #ifdef CLIENT_SIDE
-    FAST CLIENT *client = clnt_create(target,HeaderRPC,HeaderVers,"udp");
+int Header::Send(FAST char *target)
 {
     FAST CLIENT *client = clnt_create(target,HeaderRPC,HeaderVers,"tcp");
 
     if (client == NULL)
-    if (sendheader_1(th,client) == NULL)
+      return(-1);
+
+// The following is kludge due to a bug in Sun's RPC that causes a bus
+// error at each call to sendheader_1. This allows a forked process to
+// exit without dumping core when the signal is caught.
+    FAST int f;
+
+	  signal(SIGBUS,Die);
       {
-	  clnt_perror(client,"Header method Send failed. (th)");
-	  return(-1);
+	  signal(SIGBUS,(SIG_PF)Die);
+
+	  if (sendheader_1(th,client) == NULL)
+	    {
+		clnt_perror(client,"Header method Send failed. (th)");
+		exit(1);
 	    }
+	  exit(0);
       }
     clnt_destroy(client);
 
@@ -351,8 +347,6 @@ int Header::GetRealHeader(void *header)
     return(0);
 }
 
-    if (params != NULL)
-      free((char *)params);
 #endif // UNIX
 
 Header &Header::operator=(FAST Header &in)
