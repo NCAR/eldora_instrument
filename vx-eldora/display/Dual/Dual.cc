@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1993/10/21  16:38:57  thor
+ * Temp save of latest work.
+ *
  * Revision 1.3  1993/09/03  17:10:25  thor
  * Fixed consts to avoid clashing with others.
  *
@@ -266,19 +269,32 @@ void Dual::DrawTitle()
 
     wdw3->horText(a,div,WHITE);
 
-    FAST short limit = DUAL_PLOT_WIDTH - 1;
-
-    a.x = ppkm;
+    // Draw the grid lines. The vertical lines are centered on the
+    // aircraft's postion.
+    a.x = DUAL_PLOT_WIDTH / 2;
     a.y = 0;
-    b.x = ppkm;
+    b.x = DUAL_PLOT_WIDTH / 2;
     b.y = DUAL_PLOT_HEIGHT - 1;
 
+    FAST short limit = DUAL_PLOT_WIDTH - 1;
+    
     while (a.x < limit)
       {
 	  wdw1->line(a,b,WHITE);
 	  wdw2->line(a,b,WHITE);
 	  a.x += ppkm;
 	  b.x += ppkm;
+      }
+
+    a.x = (DUAL_PLOT_WIDTH / 2) - ppkm;
+    b.x = (DUAL_PLOT_WIDTH / 2) - ppkm;
+
+    while (a.x < 0x7fff)	// God, I wish I'd used sign shorts!
+      {
+	  wdw1->line(a,b,WHITE);
+	  wdw2->line(a,b,WHITE);
+	  a.x -= ppkm;
+	  b.x -= ppkm;
       }
 
     limit = DUAL_PLOT_HEIGHT - 1;
@@ -391,6 +407,5 @@ Dual::~Dual(void)
     Clear();
     Undisplay();
 
-    clk.clear();
-    clk.undisplay();
+    clk.Undisplay();
 }
