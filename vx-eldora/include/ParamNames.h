@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/14  19:50:46  thor
+ * Fixed typo.
+ *
  * Revision 1.4  1991/10/14  19:40:36  thor
  * Added char strings for variables and NCP.
  *
@@ -32,7 +35,8 @@
 
 static char *ParamTapeNames[] = {
 "DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
-"IMAG_R2", "NCP",
+"IMAG_R2", "NCP", "DBZ1", "DBZ2", "DBZ3", "VR1", "VR2", "VR3", "SW1", "SW2",
+"SW3",
 0};
 
 static const int REFLECT      = 0x1;
@@ -45,6 +49,15 @@ static const int REAL_R2      = 0x40;
 static const int IMAG_R1      = 0x80;
 static const int IMAG_R2      = 0x100;
 static const int NCP          = 0x200;
+static const int REFLECT1     = 0x400;
+static const int REFLECT2     = 0x800;
+static const int REFLECT3     = 0x1000;
+static const int VELOCITY1    = 0x2000;
+static const int VELOCITY2    = 0x4000;
+static const int VELOCITY3    = 0x8000;
+static const int SPEC_WIDTH1  = 0x10000;
+static const int SPEC_WIDTH2  = 0x20000;
+static const int SPEC_WIDTH3  = 0x40000;
 static const int NO_PARAM     = -1;
 
 #ifndef _GNUC_
@@ -64,7 +77,16 @@ static INLINE int ParamToNum(register int p)
       case IMAG_R1: return(7);
       case IMAG_R2: return(8);
       case NCP: return(9);
-      case NO_PARAM: return(10);
+      case REFLECT1: return(10);
+      case REFLECT2: return(11);
+      case REFLECT3: return(12);
+      case VELOCITY1: return(13);
+      case VELOCITY2: return(14);
+      case VELOCITY3: return(15);
+      case SPEC_WIDTH1: return(16);
+      case SPEC_WIDTH2: return(17);
+      case SPEC_WIDTH3: return(18);
+      case NO_PARAM: return(19);
       default: return(-1);
     }
 }
@@ -82,6 +104,15 @@ static INLINE int NumToParam(register int n)
       case 7: return(IMAG_R1);
       case 8: return(IMAG_R2);
       case 9: return(NCP);
+      case 10: return(REFLECT1);
+      case 11: return(REFLECT2);
+      case 12: return(REFLECT3);
+      case 13: return(VELOCITY1);
+      case 14: return(VELOCITY2);
+      case 15: return(VELOCITY3);
+      case 16: return(SPEC_WIDTH1);
+      case 17: return(SPEC_WIDTH2);
+      case 18: return(SPEC_WIDTH3);
       default: return(-1);
     }
 }
