@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:39:10  craig
+ * Initial revision
+ *
  * Revision 1.6  1993/09/22  14:56:31  reif
  * *** empty log message ***
  *
@@ -129,7 +132,7 @@
 #define HEADER 0x68
 #define DEG_TO_RAD 0.01745
 #define MAX_FILE_SIZE 95000000
-#define ENDING_PERCENT 10.0
+#define ENDING_PERCENT 5.0
 #define MAX_RAD_DSCR_BLK 29
 #define MAX_NAV_DSCR_BLK 4
 #define MAX_ADS_DSCR_BLK 4

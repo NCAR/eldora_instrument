@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:39:12  craig
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -60,10 +63,6 @@ scope unsigned long write_attempts;
 scope short vol_num;
 scope short tape_num;
 scope unsigned int hdrsz;
-scope int hr;
-scope int min;
-scope int sec;
-scope long jday;
 
 #endif /*INC*/
 

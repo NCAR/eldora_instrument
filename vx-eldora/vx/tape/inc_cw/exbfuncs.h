@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:39:14  craig
+ * Initial revision
+ *
  * Revision 1.6  1993/09/22  16:59:51  reif
  * added more functions.  Still need to add a few more.
  *
@@ -37,7 +40,7 @@
 
 /************** FUNCTION PROTOTYPES *******************/
 void flag_check(char,char,char,char);
-int drive_init(char);
+void drive_init(unsigned char);
 void cip_init(void);
 char write_tape(unsigned int *,unsigned int,unsigned char,unsigned char);
 int read_tape(unsigned int *,unsigned int,unsigned char,unsigned char);
@@ -69,16 +72,9 @@ void nav_sctr_gthr(int,int);
 void ads_sctr_gthr(int,int);
 unsigned int tape_header(void);
 void drv_sel(unsigned int *,unsigned int,unsigned char);
-int start_amnt(char);
+int tape_remain(int);
 void record_on(int);
 void record_off(int);
-unsigned int reduce_data(short,unsigned int *);
+int reduce_data(short,unsigned int *);
 
 #endif /* INC */
-
-
-
-
-
-
-
