@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/05/05  21:09:14  eric
+ * Initial revision
+ *
  * Revision 1.1  1991/12/04  19:01:58  eric
  * Initial revision
  *
@@ -219,7 +222,7 @@ void timing3(prf,numgates,gatespace,duty,tp_pos)
 
   /* ======================DO GATES======================= */
   /* Load first gate count-up value */
-  gatevalue = 0x1003 - gatecounts;
+  gatevalue = 0x1003 - (2*gatecounts);
   *timgate0 = gatevalue;
   *timgate1 = gatevalue;
   *timgate2 = gatevalue;

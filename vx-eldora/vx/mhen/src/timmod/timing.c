@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/07/30  22:05:03  eric
+ * updated with new collator DPRAM locations.
+ *
  * Revision 1.1  1991/12/04  19:01:58  eric
  * Initial revision
  *
@@ -201,7 +204,7 @@ void timing(prf,numgates,gatespace,duty,tp_pos)
 
   /* ======================DO GATES======================= */
   /* Load first gate count-up value */
-  gatevalue = 0x1003 - gatecounts;
+  gatevalue = 0x1003 - (2*gatecounts);
   *timgate0 = gatevalue;
   timgate0++;
   /* Load the rest of the gate count-up values */
