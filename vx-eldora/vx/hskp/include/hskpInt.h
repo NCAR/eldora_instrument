@@ -9,13 +9,15 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/06/18  19:55:32  shawn
+ * added IRQ levels to each vector.
+ *
  * Revision 1.2  1992/06/01  21:54:37  shawn
  * Added vectors 252 and 251, for ecb-spare and ecb DPRAM-contention interrupts
  *
  * Revision 1.1  1992/05/29  17:54:29  shawn
  * Initial revision
  *
-  *
  * description: Contains interrupt definitions for the hskp.
  *        
  */
