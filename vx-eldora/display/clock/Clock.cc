@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:12  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1991/05/06  15:17:03  thor
  * Changed from 8x16 characters to 12x24 characters. Some minor
  * optimization.
@@ -22,20 +25,22 @@
  *
  *
  * description:
- *        This contains the methods for the Clcok class.
+ *        This contains the methods for the Clock class.
  *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+#pragma implementation
 
 #include "Clock.hh"
 #include "ClockP.hh"
 
 Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 	     short y, unsigned short xoff, unsigned short yoff) : 
-	     Window(cntlr, window, x, y, 136, 32, xoff, yoff)
+	     Window(cntlr, window, x, y, Clock::WIDTH, Clock::HEIGHT,
+		    xoff, yoff)
 {
-    foreground = WHITE1;	// Default colors are white on black.
-    background = BLACK;
+    fore = WHITE1;		// Default colors are white on black.
+    back = BLACK;
 
     lastHour = -1;		// Force redraw on first update.
     lastMin = -1;
@@ -44,7 +49,7 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
     FAST Point *ptr = location;
 
     FAST int j = 8;
-    FAST unsigned short k = 4 + CLKWIDTH;
+    FAST unsigned short k = 4 + Clock::CHAR_WIDTH;
     FAST unsigned short lx = 4;	// 4 pixel wide boarders.
     FAST unsigned short ly = 4;
 
@@ -57,53 +62,53 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
     j = 11;
 
     lx = 0;
-    ly = CLKHEIGHT + 8;		// Start data storage directly below
-				// displayed area.
+    ly = Clock::CHAR_HEIGHT + 8; // Start data storage directly below
+				 // displayed area.
 
     ptr = patterns;
 
-    for (i = 0; i < j; i++, ptr++, lx += CLKWIDTH)
+    for (i = 0; i < j; i++, ptr++, lx += Clock::CHAR_WIDTH)
       {
 	  ptr->x = lx;
 	  ptr->y = ly;
       }
 
-    SetDefPatterns();
+    setDefPatterns();
 
     setPriority(MAXWDWPRI);
 }
 
-void Clock::SetDefPatterns(void)
+void Clock::setDefPatterns(void)
 {
     FAST Point *ptr = patterns;
 
-    Pattern(ptr++,ZeroMap);
-    Pattern(ptr++,OneMap);
-    Pattern(ptr++,TwoMap);
-    Pattern(ptr++,ThreeMap);
-    Pattern(ptr++,FourMap);
-    Pattern(ptr++,FiveMap);
-    Pattern(ptr++,SixMap);
-    Pattern(ptr++,SevenMap);
-    Pattern(ptr++,EightMap);
-    Pattern(ptr++,NineMap);
-    Pattern(ptr,ColonMap);
+    pattern(ptr++,ZeroMap);
+    pattern(ptr++,OneMap);
+    pattern(ptr++,TwoMap);
+    pattern(ptr++,ThreeMap);
+    pattern(ptr++,FourMap);
+    pattern(ptr++,FiveMap);
+    pattern(ptr++,SixMap);
+    pattern(ptr++,SevenMap);
+    pattern(ptr++,EightMap);
+    pattern(ptr++,NineMap);
+    pattern(ptr,ColonMap);
 
     // Clear displayed area and draw colons.
     Point a;
     a.x = 0;
     a.y = 0;
-    frect(a,CLKWIDTH,CLKHEIGHT,BLACK);
-    shift(patterns[10],location[2],CLKWIDTH,CLKHEIGHT);
-    shift(patterns[10],location[5],CLKWIDTH,CLKHEIGHT);
+    frect(a,Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+    shift(patterns[10],location[2],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
+    shift(patterns[10],location[5],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
 }
 
-void Clock::Pattern(FAST Point *ptr, FAST unsigned short *pattern)
+void Clock::pattern(FAST Point *ptr, FAST unsigned short *pattern)
 {
     Point pt = *ptr;		// Where is data space to draw character.
 
-    FAST int j = CLKHEIGHT;
-    FAST int l = CLKWIDTH;
+    FAST int j = Clock::CHAR_HEIGHT;
+    FAST int l = Clock::CHAR_WIDTH;
 
     // Loop drawing each line.
     for (FAST int i = 0; i < j; i++, pattern++)
@@ -115,9 +120,9 @@ void Clock::Pattern(FAST Point *ptr, FAST unsigned short *pattern)
 	  for (FAST int k = 0; k < l; k++)
 	    {
 		if ((p & 0x8000))	// Set bit means draw foreground color.
-		  point(pt,foreground);
+		  point(pt,fore);
 		else
-		  point(pt,background);
+		  point(pt,back);
 
 		p <<= 1;
 
@@ -128,7 +133,7 @@ void Clock::Pattern(FAST Point *ptr, FAST unsigned short *pattern)
       }
 }
 
-void Clock::Update(FAST short hour, FAST short minute, FAST short second)
+void Clock::update(FAST short hour, FAST short minute, FAST short second)
 {
     if (second != lastSec)	// Only perform as needed.
       {
@@ -145,11 +150,12 @@ void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 	  else
 	    i = 0;
 	  
-	  frect(location[6],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[i],location[6],CLKWIDTH,CLKHEIGHT);
+	  frect(location[6],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[i],location[6],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
 	  
-	  frect(location[7],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[second],location[7],CLKWIDTH,CLKHEIGHT);
+	  frect(location[7],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[second],location[7],Clock::CHAR_WIDTH,
+		Clock::CHAR_HEIGHT);
       }
 
     if (minute != lastMin)
@@ -166,11 +172,12 @@ void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 	  else
 	    i = 0;
 
-	  frect(location[3],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[i],location[3],CLKWIDTH,CLKHEIGHT);
+	  frect(location[3],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[i],location[3],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
 
-	  frect(location[4],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[minute],location[4],CLKWIDTH,CLKHEIGHT);
+	  frect(location[4],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[minute],location[4],Clock::CHAR_WIDTH,
+		Clock::CHAR_HEIGHT);
       }
 
     if (hour != lastHour)
@@ -195,10 +202,12 @@ void Clock::Update(FAST short hour, FAST short minute, FAST short second)
 	  else
 	    i = 0;
 
-	  frect(location[0],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[i],location[0],CLKWIDTH,CLKHEIGHT);
+	  frect(location[0],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[i],location[0],Clock::CHAR_WIDTH,
+		Clock::CHAR_HEIGHT);
 
-	  frect(location[1],CLKWIDTH,CLKHEIGHT,BLACK);
-	  shift(patterns[hour],location[1],CLKWIDTH,CLKHEIGHT);
+	  frect(location[1],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
+	  shift(patterns[hour],location[1],Clock::CHAR_WIDTH,
+		Clock::CHAR_HEIGHT);
       }
 }

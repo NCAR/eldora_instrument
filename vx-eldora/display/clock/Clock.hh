@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:12  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1991/05/06  15:18:50  thor
  * Changed from 8x16 cells to 12x24 cells. Moved size constants to public
  * view.
@@ -31,7 +34,7 @@
  * background color. Encoding is 14 bits per line, so you must pass a
  * pointer to a 24 short array. The top 4 bits of the short are unused.
  *
- * The memory organization is important and is currently very AGV
+ * The memory organization is important and is currently very AGC
  * dependent. The displayed window takes up 136x32 pixels. The video
  * memory space for the characters takes 96x24 pixels. This is because
  * we leave a 4 pixel boarder and 4 pixels between cells. The data
@@ -49,36 +52,36 @@
  * window at screen location x,y, using video memory at xoff,yoff. Use
  * window set window.
  *
- * void Update(short hour, short minute, short second) - Update the
+ * void update(short hour, short minute, short second) - Update the
  * displayed time as required.
  *
- * void Foreground(unsigned char fg) - 
- * void Background(unsigned char fg) - Change the colors used. Only
+ * void foreground(unsigned char fg) - 
+ * void background(unsigned char fg) - Change the colors used. Only
  * takes effect when followed by calls to (re)set patterns.
  *
- * unsigned char Foreground() - 
- * unsigned char Background() - Return the current value.
+ * unsigned char foreground() - 
+ * unsigned char background() - Return the current value.
  *
- * void Display(void) - Show display window.
+ * void display(void) - Show display window.
  *
- * void Undisplay(void) - Hide window.
+ * void undisplay(void) - Hide window.
  *
- * void Move(Point newPt) - Move window to new screen location.
+ * void move(Point newPt) - Move window to new screen location.
  *
- * void SetDefPatterns(void) - Move default characters into pattern
+ * void setDefPatterns(void) - Move default characters into pattern
  * memory.
  *
- * void Pattern(Point *ptr, unsigned char *pattern) - Put the pattern
+ * void pattern(Point *ptr, unsigned char *pattern) - Put the pattern
  * indicated at the location specified.
  *
  */
 #ifndef INCClockhh
 #define INCClockhh
+#pragma interface
 
 #include "Window.hh"
-
-static const int CLKWIDTH = 12;
-static const int CLKHEIGHT = 24;
+#define OK_RPC
+#include "DataBeam.hh"
 
 class Clock : private Window {
   private:
@@ -86,35 +89,44 @@ class Clock : private Window {
     short lastMin;
     short lastSec;
 
-    unsigned char foreground;
-    unsigned char background;
+    unsigned char fore;         // Colors.
+    unsigned char back;
 
     Point patterns[11];
     Point location[8];
 
   public:
+
+    enum sizes { CHAR_WIDTH = 12, CHAR_HEIGHT = 24, WIDTH = 136,
+		 HEIGHT = 32 };
+    
     Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 	  short y, unsigned short xoff, unsigned short yoff);
 
-    void Update(short hour, short minute, short second);
+    void update(short hour, short minute, short second);
 
-    void Foreground(unsigned char fg) { foreground = fg; }
+    void update(DataBeam *beam)
+      {
+          update(beam->ray.hour,beam->ray.minute,beam->ray.second);
+      }
+    
+    void foreground(unsigned char fg) { fore = fg; }
 
-    unsigned char Foreground(void) { return(foreground); }
+    unsigned char foreground(void) { return(fore); }
 
-    void Background(unsigned char bg) { background = bg; }
+    void background(unsigned char bg) { back = bg; }
 
-    unsigned char Background(void) { return(background); }
+    unsigned char background(void) { return(back); }
 
-    void Display(void) { display(); }
+    void display(void) { Window::display(); }
 
-    void Undisplay(void) { undisplay(); }
+    void undisplay(void) { Window::undisplay(); }
 
-    void Move(Point newPt) { move(newPt); }
+    void move(Point newPt) { Window::move(newPt); }
 
-    void SetDefPatterns(void);
+    void setDefPatterns(void);
 
-    void Pattern(Point *ptr, unsigned short *pattern);
+    void pattern(Point *ptr, unsigned short *pattern);
 
     ~Clock(void) { clear(); }
 };
