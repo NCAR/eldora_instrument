@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/17  17:16:55  thor
+ * Added code to reboot system.
+ *
  * Revision 1.2  1991/10/17  16:47:46  thor
  * Increased stack sizes, added test to remove extraneous displays.
  *
@@ -22,6 +25,13 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeGlobal.hh"
+#include "GeDraw.hh"
+#include "Ddp.hh"
+
+#include "sysLib.h"
+#include "rebootLib.h"
+
+static Task *GetsFlags;
 
 static void DdpLoop(Task &self, Pipe &pipe);
 
@@ -42,10 +52,18 @@ void DrawingLoop(FAST Task &self)
     Task VertTask((FUNCPTR)VertLoop,args,2,GRAPH_PRI);
 
     GetsFlags = currTask;
-	  FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
+
+    for (;;)
       {
 	  FAST unsigned int flag = self.WaitOnFlags(waitMask | REBOOT |
 						    LOAD_ONLY,
+						    FLAGS_OR);
+
+		taskDelay(10);
+				 // we don't want to start drawing yet.
+	    {
+		FAST int cmd = (int)GeCommand->cmd;
+
 		switch(cmd)
 		  {
 		    case FORWARD_RADIAL:
@@ -102,6 +120,12 @@ void DrawingLoop(FAST Task &self)
 		      currTask->SetFlags(flag);
 		      break;
 		      
+		    case FORWARD_VERT:
+		      if (currTask != &VertTask)
+			{
+			    currTask->SetFlags(DESTROY_SELF);
+			    taskDelay(30);
+			}
 }
 
 static void Reboot(void)
