@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/01/08  16:20:04  thor
+ * Added code for timeout change.
+ *
  * Revision 1.6  1991/12/18  16:51:09  thor
  * Added more flags to the list.
  *
@@ -50,6 +53,7 @@ static const int MCPL_ADDR                = 0x20000000;
 static const unsigned short AGC_WIDTH     = 1280;
 static const unsigned short AGC_HEIGHT    = 1024;
 static const unsigned short AGC_MEM_WIDTH = 2048;
+static const unsigned short AGC_VECTOR    = 250;
 
 static const unsigned int NEW_DATA_FLAG = 0x1000;
 static const unsigned int DESTROY_SELF  = 0x2000;

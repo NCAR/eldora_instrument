@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/01/08  16:20:17  thor
+ * Added code for timeout change.
+ *
  * Revision 1.11  1991/12/05  17:59:05  thor
  * Really fixed scaling?
  *
@@ -47,9 +50,6 @@
  *
  *
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
-
-// Uniprocessor conditional.
-#define UNIPRO
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -70,17 +70,15 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
     self.FlagsInit();
 
     FAST HorizDisplay *display = NULL;
-    Pipe dataPipe(sizeof(DataPoint),100);
-    Pipe movePipe(sizeof(HorizMove),10);
-
 
     FAST int count = 9;
 
+    FAST int radar;
+    FAST int reset = 1;
 
     Pipe dataPipe(sizeof(HorizPoint),100);
 
-	  FAST unsigned int flag = self.WaitOnFlags(waitMask | NEW_DATA_FLAG |
-						    DESTROY_SELF | MOUSE_FLAG,
+    for (;;)
       {
 
 	  FAST unsigned int flag = self.WaitOnFlags(waitMask | TMO_FLAG,
@@ -114,7 +112,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = radar;
 		continue;
 		break;
-		horizFilter->Pipe(&dataPipe,&movePipe);
+
 	      case STOP:
 	      case (STOP | NEW_DATA_FLAG):
 		continue;
@@ -124,7 +122,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case RELOAD:
 	      case RESTART:
 	      case (RELOAD | NEW_DATA_FLAG):
-		horizFilter->Pipe(&dataPipe,&movePipe);
+	      case (START | NEW_DATA_FLAG):
 	      case (RESTART | NEW_DATA_FLAG):
 		if (radar == FORWARD_RADIAL)
 		reset = 1;
@@ -134,7 +132,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case FORWARD_HORIZ:
 	      case (FORWARD_HORIZ | NEW_DATA_FLAG):
-		horizFilter->Pipe(&dataPipe,&movePipe);
+		whichRadar = FORWARD_HORIZ;
                 radar = whichRadar;
 		display = makeDisplay(display,agc);
 		break;
@@ -143,6 +141,18 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (AFT_HORIZ | NEW_DATA_FLAG):
 		whichRadar = AFT_HORIZ;
                 radar = whichRadar;
+		display = makeDisplay(display,agc);
+		horizFilter->Pipe(&dataPipe);
+		count = 9;
+		reset = 1;
+                DdpCtrl->Aft();
+                if (!pipe.Empty())
+		  pipe.Flush();
+		break;
+
+	      case MOUSE_FLAG:
+	      case (MOUSE_FLAG | NEW_DATA_FLAG):
+		HorizMouse(display);
 		break;
 
 	      case TMO_FLAG:
@@ -189,19 +199,11 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 		FAST Beam_Time *now = (Beam_Time *)&(dataBeam->ray.hour);
 
-		// Check for moves.
-		while (movePipe.Empty() == FALSE)
-		  {
-		      HorizMove m;
-		      
-		      movePipe.Read(&m);
 		if (++count == 10)
-		      display->Shift(&m);
-		  }
 		  {
 		      display->UpdateClock(now->hour,now->minute,now->second);
 		      count = 0;
-		      DataPoint dp;
+		  }
 
 		bcopy((char *)now,(char *)LastTime,
 		      sizeof(Beam_Time));
@@ -211,8 +213,6 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		// This is hard! 
 		horizFilter->Draw(*dataBeam);
 
-
-	  self.SetFlags(NEW_DATA_FLAG);
 		// Draw it.
 		while (dataPipe.Empty() == FALSE)
 		  {
@@ -378,6 +378,9 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     New->DrawTable(A_SET,max[0],min[0],param);
 
+    param = ptr->param1;
+
+    if (nv > 1)
       New->DrawTable(B_SET,max[1],min[1],param);
 
     param = ptr->param2;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/01/08  16:19:29  thor
+ * Added code for timeout change.
+ *
  * Revision 1.5  1991/10/17  17:15:45  thor
  * Removed actual reboot from this code. Cleaned up cases.
  *
@@ -30,7 +33,7 @@
  * description:
  *        These functions are called by the underlying rpc code as
  * needed. Sendcommand_1 takes a command and invokes the appropriate
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * action. Getstatus_1 simply returns the latest status.
  *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -107,6 +110,11 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
+		
+	      case AFT_HORIZ:
+		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
+		status->status = DRAWING;
 		break;
 		
 	      case AFT_VERT:

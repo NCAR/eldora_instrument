@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/01/08  16:19:54  thor
+ * Added code for timeout change.
+ *
+ * Revision 1.6  1991/11/01  20:00:08  thor
  * Added code to set up pipe from ddp to drawing routines. Changed name of
  * GetsMouse to GetsFlags.
  *
@@ -182,6 +186,12 @@ void DrawingLoop(FAST Task &self)
 		      break;
 		      
 		    case AFT_HORIZ:
+		      if (currTask != &HorizTask)
+			{
+			    currTask->SetFlags(DESTROY_SELF);
+			    taskDelay(30);
+			}
+		      currTask = &HorizTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
 		      break;
