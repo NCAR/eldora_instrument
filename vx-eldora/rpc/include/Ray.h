@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.2  1991/10/15  17:56:43  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -49,6 +52,7 @@ struct ray_i {
     float peak_power;		/* Last measured peak transmitted */
 				/* power in kw. */
     float true_scan_rate;	/* Actual scan rate in degrees/second. */
+    long  ray_status;		/* 0 = normal, 1 = transition, 2 = bad. */
 }; /* End of Structure */
 
 
