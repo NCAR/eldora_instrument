@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1999/09/27  16:47:35  eric
+ * switched power meter triggers from aft to fore
+ *
  * Revision 1.4  1999/07/13  16:51:27  thor
  * *** empty log message ***
  *
@@ -404,7 +407,7 @@ do
 	  break;
       case 5:
 	printf("ENTER A COMMAND STRING\n");
-	gets(string_array); /* GET COMMAND STRING FROM KEYBOARD */
+	scanf(" %s",string_array); /* GET COMMAND STRING FROM KEYBOARD */
 	printf("SELECT POWER METER TO COMMAND\n");
 	printf("1) FOR XMIT POWER METER\n");
 	printf("2) FOR TESTP POWER METER\n");
