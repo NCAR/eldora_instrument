@@ -9,9 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  1992/09/03  15:25:34  craig
- * *** empty log message ***
- *
  * Revision 1.1  1992/09/01  15:56:57  craig
  * Initial revision
  *
@@ -125,12 +122,11 @@ do{
     printf("7) Display Software Information\n");
     printf("8) Display Health Information\n");
     printf("9) Display Position Information\n");
-    printf("10) Display Status Information\n");
-    printf("11) Display Header Information\n");
-    printf("12) Display Handshake Information\n");
-    printf("13) Display Control Status Information\n");
-    printf("14) Clear the Handshake word\n");
-    printf("15) Count GPS interrupts\n");
+    printf("10) Display Header Information\n");
+    printf("11) Display Handshake Information\n");
+    printf("12) Display Control Status Information\n");
+    printf("13) Clear the Handshake word\n");
+    printf("14) Count GPS interrupts\n");
     scanf("%d",&cmd);
     getchar();
     if((cmd > 4) && (cmd < 12))
@@ -200,20 +196,17 @@ do{
 	  printf("Latitude (deg) =  %f\n",copy_space.latitude);
 	  printf("Longitude (deg) = %f\n",copy_space.longitude);
 	  printf("altitude (m) =    %f\n",copy_space.altitude);
-	  break;
-
-    case 10:	/* Display Status Information */
 	  printf("Clock Bias =  %f\n",copy_space.clock_bias);
 	  printf("Time of Fix = %f\n",copy_space.time_of_fix);
 	  break;
 
-    case 11:	/* Display Header Information */
+    case 10:	/* Display Header Information */
 	  printf("GPS data ID = %c%c%c%c\n",copy_space.gps_data_id[0],
                copy_space.gps_data_id[1],copy_space.gps_data_id[2],copy_space.gps_data_id[3]);
 	  printf("Size of data area (bytes) = %d\n",copy_space.gps_data_len);
 	  break;
 
-    case 12:	/* Display Handshake Information */
+    case 11:	/* Display Handshake Information */
 	  printf("CPU-105 GPS status:        %x\n",*gps_status);
 	  address.words[0] = *gps_d_loc_h;
 	  address.words[1] = *gps_d_loc_l;
@@ -223,19 +216,19 @@ do{
 	  printf("CPU-105 GPS handshake:     %x\n",*gps_hndshk);
 	  break;
 
-    case 13:	/* Display Control Status Information */
+    case 12:	/* Display Control Status Information */
 	  printf("Fore Radar processor status %x\n",currStatus->fore);
 	  printf("Aft Radar processor status %x\n",  currStatus->aft);
 	  printf("GPS status word %x           \n",currStatus->gps);
 	  printf("Interrupt Detected Flag %d   \n",in_gps_isr);
 	  break;
 
-    case 14:	/* Clear the handshake word */
+    case 13:	/* Clear the handshake word */
 	  printf("Clearing handshake word\n");
 	  *gps_hndshk = (short)0;
 	  break;
 
-    case 15:	/* Count GPS Interrupts */
+    case 14:	/* Count GPS Interrupts */
 	  printf("Enter number to count\n");
 	  scanf("%d",&number);
 	  getchar();

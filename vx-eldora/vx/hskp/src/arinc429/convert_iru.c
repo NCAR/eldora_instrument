@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/11/03  22:51:12  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/28  23:03:55  craig
  * Initial revision
  *
@@ -82,6 +85,13 @@ extern HeaderPtr inHeader;
 
 int convert_iru(long num_words, long *where_data_is, struct ins_data *goes)
 {
+/* Define the iru latency in milliseconds, remember that the latency (called
+   transport lag by Honeywell) varies from parameter to parameter, since the
+   most rapidly changing parameters that affect the radar data the most, are
+   the attitude angles (i.e. pitch, roll and heading), the IRU latency is
+   define such that these parameter will be aligned in time the most precisly
+*/
+#define IRU_LATENCY 50
 
 /* Define conversion factors from IRU units to meteorological units, note
    that these factors will also include the scale factors given by
@@ -103,18 +113,13 @@ long i, data, label, msecs_today, msecs_this_data;
 char hr,min,sec,today,mon,yr;
 short msec,jday,test;
 
-/* Templates to two functions that are closely associated with this function */
-
-float shift_scale(long,int,float);
-short test_over(short,int);
-
 /* Read the time from the time of day clock */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&today,&yr);
 goes->msec_longitude[msec_longitude_indx] = msec;
 goes->sec_longitude[msec_longitude_indx] = sec;
 msec_longitude_indx++;
-msec_longitude_indx = test_over(msec_longitude_indx,5);
+if(msec_longitude_indx >= 5) msec_longitude_indx = 0;
 last_iru_data.seconds = sec;
 last_iru_data.msec_longitude = msec;
 msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
@@ -130,110 +135,135 @@ for(i=0; i<num_words; i++)
   {
       data = *where_data_is++;
       label = data & 0x000000FF;
+
+/* Now take the ARINC 429 word and shift it to the right the right number
+   of places then multiply the result by the proper scale factor.
+   Remember that the >> operator will sign extend a signed
+   integer, the most significant bit of these words is the sign by virtue of
+   how the word is passed by the ARINC 429 interface. */
+
+      if(data & (long)0x600 != 0x600) currStatus->iru |= ARINC_ERRORS;
+
 /*      printf("converting word %d data= %x, label = %x\n",i,data,label); */
+
       switch(label)
 	{
 	    case LATITUDE_LAB:
 	    last_iru_data.latitude =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
 	    goes->latitude[latitude_indx] = last_iru_data.latitude;
-	    latitude_indx = test_over(latitude_indx,5);
+	    latitude_indx++;
+	    if(latitude_indx >= 5) latitude_indx = 0;
 	    break;
 
 	    case LONGITUDE_LAB:
 	    last_iru_data.longitude =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
 	    goes->longitude[longitude_indx] = last_iru_data.longitude;
-	    longitude_indx = test_over(longitude_indx,5);
+	    longitude_indx++;
+	    if(longitude_indx >= 5) longitude_indx = 0;
 	    break;
 
 	    case WIND_SPEED_LAB:
 	    last_iru_data.wind_speed =
-	      shift_scale(data,11,(float)WKNOTS_TO_MPERSEC);
+	      (float)(data>>11)*(float)WKNOTS_TO_MPERSEC;
 	    goes->wind_speed[wind_speed_indx] = last_iru_data.wind_speed;
-	    wind_speed_indx = test_over(wind_speed_indx,10);
+	    wind_speed_indx++;
+	    if(wind_speed_indx >= 10) wind_speed_indx = 0;
 	    break;
 
 	    case WIND_DIRECTION_LAB:
 	    last_iru_data.wind_direction =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
+	    if(last_iru_data.wind_direction < 0)
+	      last_iru_data.wind_direction += 360.0;
 	    goes->wind_direction[wind_direction_indx] = 
 	      last_iru_data.wind_direction;
-	    wind_direction_indx = test_over(wind_direction_indx,10);
+	    wind_direction_indx++;
+	    if(wind_direction_indx >= 10) wind_direction_indx = 0;
 	    break;
 
 	    case NS_VELOCITY_LAB:
 	    last_iru_data.ns_velocity =
-	      shift_scale(data,11,(float)VKNOTS_TO_MPERSEC);
+	      (float)(data>>11)*(float)VKNOTS_TO_MPERSEC;
 	    goes->ns_velocity[ns_velocity_indx] = last_iru_data.ns_velocity;
-	    ns_velocity_indx = test_over(ns_velocity_indx,10);
+	    ns_velocity_indx++;
+	    if(ns_velocity_indx >= 10) ns_velocity_indx = 0;
 	    break;
 
 	    case EW_VELOCITY_LAB:
 	    last_iru_data.ew_velocity =
-	      shift_scale(data,11,(float)VKNOTS_TO_MPERSEC);
+	      (float)(data>>11)*(float)VKNOTS_TO_MPERSEC;
 	    goes->ew_velocity[ew_velocity_indx] = last_iru_data.ew_velocity;
-	    ew_velocity_indx = test_over(ew_velocity_indx,10);
+	    ew_velocity_indx++;
+	    if(ew_velocity_indx >= 10) ew_velocity_indx = 0;
 	    break;
 
 	    case HEADING_LAB:
 	    last_iru_data.heading =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG) + HEAD_CORR;
+	      (float)(data>>11)*(float)PIRAD_TO_DEG + HEAD_CORR;
 	    if(last_iru_data.heading < 0)
 	      last_iru_data.heading += 360.0;
 	    if(last_iru_data.heading > 360.0)
 	      last_iru_data.heading -= 360.0;
 	    goes->heading[heading_indx] = last_iru_data.heading;
-	    heading_indx = test_over(heading_indx,25);
+	    heading_indx++;
+	    if(heading_indx >= 25) heading_indx = 0;
 	    break;
 
 	    case DRIFT_LAB:
 	    last_iru_data.drift =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
 	    goes->drift[drift_indx] = last_iru_data.drift;
-	    drift_indx = test_over(drift_indx,25);
+	    drift_indx++;
+	    if(drift_indx >= 25) drift_indx = 0;
 	    break;
 
 	    case ALTITUDE_LAB:
 	    last_iru_data.altitude =
-	      shift_scale(data,11,(float)FEET_TO_KM);
+	      (float)(data>>11)*(float)FEET_TO_KM;
 	    goes->altitude[altitude_indx] = last_iru_data.altitude;
-	    altitude_indx = test_over(altitude_indx,25);
+	    altitude_indx++;
+	    if(altitude_indx >= 25) altitude_indx = 0;
 	    break;
 
 	    case INERTIAL_VSPEED_LAB:
 	    last_iru_data.inertial_vspeed =
-	      shift_scale(data,11,(float)FTPERMIN_TO_MPERSEC);
+	      (float)(data>>11)*(float)FTPERMIN_TO_MPERSEC;
 	    goes->inertial_vspeed[inertial_vspeed_indx]
 	      = last_iru_data.inertial_vspeed;
-	    inertial_vspeed_indx = test_over(inertial_vspeed_indx,25);
+	    inertial_vspeed_indx++;
+	    if(inertial_vspeed_indx >= 25) inertial_vspeed_indx = 0;
 	    break;
 
 	    case PITCH_LAB:
 	    last_iru_data.pitch =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
 	    goes->pitch[pitch_indx] = last_iru_data.pitch;
-	    pitch_indx = test_over(pitch_indx,50);
+	    pitch_indx++;
+	    if(pitch_indx >= 50) pitch_indx = 0;
 	    break;
 
 	    case ROLL_LAB:
 	    last_iru_data.roll =
-	      shift_scale(data,11,(float)PIRAD_TO_DEG);
+	      (float)(data>>11)*(float)PIRAD_TO_DEG;
 	    goes->roll[roll_indx] = last_iru_data.roll;
-	    roll_indx = test_over(roll_indx,50);
+	    roll_indx++;
+	    if(roll_indx >= 50) roll_indx = 0;
 	    break;
 
 	    case INTEG_VERT_ACC_LAB:
 	    last_iru_data.integ_vert_acc =
-	      shift_scale(data,11,(float)FTPERSEC_TO_MPERSEC);
+	      (float)(data>>11)*(float)FTPERSEC_TO_MPERSEC;
 	    goes->integ_vert_acc[integ_vert_acc_indx]
 	      = last_iru_data.integ_vert_acc;
-	    integ_vert_acc_indx = test_over(integ_vert_acc_indx,50);
+	    integ_vert_acc_indx++;
+	    if(integ_vert_acc_indx >= 50) integ_vert_acc_indx = 0;
 	    break;
 
 	    case VERT_ACC_LAB:
 	    last_iru_data.vert_acc =
-	      shift_scale(data,11,(float)GS_TO_MPERSEC2);
+	      (float)(data>>11)*(float)GS_TO_MPERSEC2;
 	    goes->vert_acc[vert_acc_indx] = last_iru_data.vert_acc;
 
 	    /* Vertical acceleration is the last 50 Hertz data value, that is
@@ -243,31 +273,34 @@ for(i=0; i<num_words; i++)
 	       20 miliseconds times the number of 50 hertz places back from
 	       our current time.  For example, if this is the third vertical
 	       acceleration label found this interrupt (i.e. vert_acc_indx =
-	       2, 7, 12, 17 etc.) then the time of the current data is:
-	       msecs_today -(5-((vert_acc_indx + 1) modulo 5)) * 20.
+	       2, 12, 22, 32 or 42) then the time of the current data is:
+	       msecs_today -(9-(vert_acc_indx modulo 10)) * 20.
 
 	       We need to calculate the time of the current data and then
 	       place that data into the correct platform info block */
 
-	    msecs_this_data = msecs_today - (5 - ((vert_acc_indx + 1) % 5))
-	      * 20;
+	    msecs_this_data = msecs_today - (9 - (vert_acc_indx % 10))
+	      * 20 - IRU_LATENCY;
 	    fill_platform(msecs_this_data);
 
-	    vert_acc_indx = test_over(vert_acc_indx,50);
+	    vert_acc_indx++;
+	    if(vert_acc_indx >= 50) vert_acc_indx = 0;
 	    break;
 
 	    case TRACK_RATE_LAB:
 	    last_iru_data.track_rate =
-	      shift_scale(data,11,(float)TRATE_SCALE);
+	      (float)(data>>11)*(float)TRATE_SCALE;
 	    goes->track_rate[track_rate_indx] = last_iru_data.track_rate;
-	    track_rate_indx = test_over(track_rate_indx,50);
+	    track_rate_indx++;
+	    if(track_rate_indx >= 50) track_rate_indx = 0;
 	    break;
 
 	    case PITCH_RATE_LAB:
 	    last_iru_data.pitch_rate =
-	      shift_scale(data,11,(float)PRATE_SCALE);
+	      (float)(data>>11)*(float)PRATE_SCALE;
 	    goes->pitch_rate[pitch_rate_indx] = last_iru_data.pitch_rate;
-	    pitch_rate_indx = test_over(pitch_rate_indx,50);
+	    pitch_rate_indx++;
+	    if(pitch_rate_indx >= 50) pitch_rate_indx = 0;
 	    break;
 
 	  default:
@@ -302,32 +335,4 @@ if(msec_longitude_indx == 0)
   return(1);
 else
   return(0);
-}
-
-/* Function test_over increments the index sent to it by one then checks
-   if it is greater (or equal to) the maximum sent to it and sets it
-   to zero if it is */
-
-short test_over(short index, int max)
-{
-    short temp;
-
-    temp = index++;
-    if(temp >= max) temp = 0;
-    return(temp);
-}
-
-/* Function shift_scale takes the ARINC 429 word passed to it and shifts it
-   to the right num_places it then multiplies the result by scale and returns
-   that value.  Remember that the >> operator will sign extend a signed
-   integer, the most significant bit of these words is the sign by virtue of
-   how the word is passed by the ARINC 429 interface. */
-
-float shift_scale(long data,int num_places,float scale)
-{
-    float temp;
-
-    temp = (float)(data >> num_places) * scale;
-    if(data & (long)0x600 != 0x600) currStatus->iru |= ARINC_ERRORS;
-    return(temp);
 }
