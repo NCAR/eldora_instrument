@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/09/12  18:44:18  thor
+ * Removed alarm stuff.
+ *
  * Revision 2.3  1994/04/08  20:55:28  thor
  * Added iostream support, increased stack sizes.
  *
@@ -51,7 +54,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeGlobal.hh"
 #include "HeaderRpc.h"
 
-#include <stdio.h>
+#include <iostream.h>
 #include <rpcLib.h>
 #include "tp41Lib.h"
 #include <sysLib.h>
@@ -90,14 +93,14 @@ void GeStart()
     DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
 
     // Now we start control loop.
-    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,30000);
+    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,60000,0,1,"RpcLoop");
 }
 
 void RpcLoop(Task &self)
 {
     if (rpcTaskInit() == ERROR)
       {
-	  fprintf(stderr,"Failed to initialize Rpc.");
+	  cout << "Failed to initialize Rpc." << endl;
 	  return;
       }
 
