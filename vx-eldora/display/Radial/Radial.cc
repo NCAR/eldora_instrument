@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.5  1994/07/06  14:09:32  thor
+// The latest & greatest - too many changes to list.
+//
 // Revision 2.4  1993/11/22  16:58:30  thor
 // Added code to support resetting.
 //
@@ -292,10 +295,8 @@ void Radial::reset(FAST Header *hdr, FAST DispCommand *cmd)
 
     agc->clear();
 
-    FAST u_long *colors = &cmd->colorTable[0];
-
-    if (*colors != 0xffffffff)
-          agc->setColorMap((long *)colors,256);
+    if (cmd->userColors)
+          setColors();
 
     numOfParams = nv;
     radius = cmd->radius;
@@ -324,6 +325,15 @@ void Radial::reset(FAST Header *hdr, FAST DispCommand *cmd)
 	    }
       }
 
+    refreshClock();
+
+    Point cpt;
+
+    cpt.x = Display::FULL_WIDTH + Display::TBL_WIDTH - Clock::WIDTH;
+    cpt.y = Display::FULL_HEIGHT - Clock::HEIGHT;
+
+    moveClock(cpt);
+    
     agc->setMask(0x80);
 
     setPriority(1);
