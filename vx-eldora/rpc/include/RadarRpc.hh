@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/08/06  19:44:02  thor
+ * Moved structures to RadarGbls.h.
+ *
  * Revision 1.4  1992/07/01  14:59:09  thor
  * Added more C++ protection.
  *
@@ -51,7 +54,13 @@ extern "C" {
 
 #endif // OK_RPC
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 #include "RadarGbls.h"
+#ifdef __cplusplus
+};
+#endif // __cplusplus
 
 #ifdef OK_RPC
 
