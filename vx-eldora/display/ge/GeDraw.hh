@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1992/10/02  20:45:41  thor
+ * Added base address of MCPL.
+ *
  * Revision 1.8  1992/01/27  18:33:51  thor
  * Changed addresses for AGC & DDP.
  *
@@ -72,7 +75,7 @@ static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 				      FORWARD_HORIZ | FORWARD_VERT |
 				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
 				      RESTART| NEW_DATA_FLAG | DESTROY_SELF | 
-				      MOUSE_FLAG);
+				      MOUSE_FLAG | LOAD_ONLY);
 
 static const float MAX_RECT = 30000.0;
 
