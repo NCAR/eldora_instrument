@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/02/06  19:45:26  thor
+ * Adde call to draw cursor in white.
+ *
  * Revision 1.7  1992/01/08  16:19:54  thor
  * Added code for timeout change.
  *
@@ -63,6 +66,8 @@ void DrawingLoop(FAST Task &self)
 
 
     // Create agc here!
+
+    GraphicController Agc((void *)AGC_ADDR,AGC_WIDTH,AGC_HEIGHT,AGC_MEM_WIDTH,
 			  AGC_VECTOR);
 
     Agc.setOverlayColorMap(0xffffff00);
