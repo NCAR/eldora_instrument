@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/22  17:07:48  thor
+ * Changed to use 10 fixed PARAMETERs.
+ *
+ * Revision 1.4  1991/10/22  17:07:48  thor
+ * Changed to use 10 fixed PARAMETERs.
+ *
  * Revision 1.3  1991/10/09  15:22:49  thor
  * Removed unneeded wave cunt items.
  *
@@ -40,6 +46,8 @@
 #include "RadarDesc.h"
 #include "Volume.h"
 #include "Waveform.h"
+#include "InSitu.h"
+#include "NavDesc.h"
 
 #endif /* OK_RPC */
 
@@ -55,6 +63,8 @@ struct tapeHeader {
     waveform_d Wave;
     struct sensorDesc Fore;
     struct sensorDesc Aft;
+    struct nav_descript Nav;
+    struct insitu_descript Insitu;
 };
 
 
