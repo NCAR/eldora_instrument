@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/04/08  20:59:28  thor
+ * Redid flags & wait masks. Dropped multiple loop tasks for 1 task.
+ *
  * Revision 2.2  1993/09/28  13:02:48  thor
  * Changed flag values to avoid conflicts with others, added dual display supt.
  *
@@ -58,7 +61,6 @@
 #define INCGeDrawhh
 
 #include "Radial.hh"
-#include "HorizDisplay.hh"
 #include "Vert.hh"
 #include "Dual.hh"
 

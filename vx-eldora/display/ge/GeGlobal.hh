@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/09/12  18:43:56  thor
+ * Removed alarm stuff.
+ *
  * Revision 2.2  1994/04/08  21:00:24  thor
  * Added items needed for new design.
  *
@@ -62,9 +65,6 @@ extern "C" {
 #include "Mouse.hh"
 #include "Display.hh"
 #include "Ddp.hh"
-
-#include "GblRadial.hh"
-
 
 #ifndef GE_SCOPE
 #define GE_SCOPE extern
