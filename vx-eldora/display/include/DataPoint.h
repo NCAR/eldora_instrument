@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/04/29  18:45:38  thor
+ * Added direction member to RadialData & constants for direction.
+ *
  * Revision 1.4  1991/04/08  20:37:01  thor
  * Added angle member to RadialData.
  *
@@ -58,7 +61,17 @@ struct Horiz_Move {
     int direction;
 };
 
+struct Beam_Time {
+    short hour;
+    short minute;
+    short second;
+    short millisecond;
+};
+
+typedef struct Beam_Time Beam_Time;
+
 struct Radial_Data {
+    Beam_Time time;
     float angle;
     int direction;
     unsigned char colors[DISPLAYED_GATES * 3];
