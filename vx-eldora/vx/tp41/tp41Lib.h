@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/28  15:44:44  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -23,12 +26,14 @@
 #include "memLib.h"
 #include "vme.h"
 #include "tp41.h"
+#include "sysLib.h"
 
+/* Local extensions. */
 extern STATUS dport(char *localAddr, void *vmeAddr, int numSegs);
 extern void rcio(int, char *);
 extern void wcio(int, char *, unsigned char);
 
-extern char *sysMemTop(void);
+/* WRS functions not otherwise defined. */
 
 #endif /* INCtp41Libh */
 
