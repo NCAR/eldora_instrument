@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/10  16:42:56  thor
+ * New improved version!
+ *
  * Revision 2.0  1992/11/02  20:48:31  thor
  * First offical ELDORA release!
  *
@@ -37,7 +40,7 @@ bool_t xdr_LOGSOURCE(FAST XDR *xdrs, FAST LOGSOURCE *objp)
     return(TRUE);
 }
 
-bool_t xdr_LOG(FAST XDR *xdrs, FAST LOG *objp)
+bool_t xdr_LOGMSG(FAST XDR *xdrs, FAST LOGMSG *objp)
 {
     if (!xdr_LOGSOURCE(xdrs,&objp->src)) 
       {
@@ -47,7 +50,7 @@ bool_t xdr_LOG(FAST XDR *xdrs, FAST LOG *objp)
       {
 	  return(FALSE);
       }
-    if (!xdr_vector(xdrs, (char *)objp->items, 4, sizeof(int), xdr_int))
+    if (!xdr_vector(xdrs, (char *)objp->items, 10, sizeof(int), xdr_int))
       {
 	  return (FALSE);
       }

@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:48:31  thor
+ * First offical ELDORA release!
+ *
+ * Revision 2.0  1992/11/02  20:48:31  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  1992/09/14  16:32:30  thor
  * Added stdio.h.
  *
@@ -32,7 +38,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void logger_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 {
     union {
-	struct LOG logmessage_1_arg;
+	struct LOGMSG logmessage_1_arg;
     } argument;
     char *result;
     bool_t (*xdr_argument)(), (*xdr_result)();
@@ -45,7 +51,7 @@ void logger_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
 	  return;
 	  
         case LogMessage:
-	  xdr_argument = xdr_LOG;
+	  xdr_argument = xdr_LOGMSG;
 	  xdr_result = xdr_void;
 	  local = (char *(*)()) logmessage_1;
 	  break;

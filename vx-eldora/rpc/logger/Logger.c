@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/10  16:42:56  thor
+ * New improved version!
+ *
  * Revision 2.0  1992/11/02  20:48:31  thor
  * First offical ELDORA release!
  *
@@ -96,14 +99,15 @@ main(FAST int argc, FAST char **argv)
     exit(1);
 }
 
-void *logmessage_1(FAST LOG *argp, FAST struct svc_req *req)
+void *logmessage_1(FAST LOGMSG *argp, FAST struct svc_req *req)
 {
     FAST int len = strlen(&argp->message[0]);
 
     FAST FILE *fp = eventFps[argp->src];
 
     fprintf(fp,argp->message,argp->items[0],argp->items[1],
-	    argp->items[2],argp->items[3]);
+	    argp->items[2],argp->items[3],argp->items[4],argp->items[5],
+	    argp->items[6],argp->items[7],argp->items[8],argp->items[9]);
 
     fflush(fp);			/* Force output to be written now. */
 

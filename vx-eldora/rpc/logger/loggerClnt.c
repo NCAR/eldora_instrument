@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/30  17:54:54  thor
+ * Changed sizeof(char) to sizeof(int).
+ *
  * Revision 2.1  1993/09/10  16:42:56  thor
  * New improved version!
  *
@@ -48,10 +51,11 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "semLib.h"
 
 static u_long hostnum;		/* Our address. */
-static LOG log;			/* Outgoing packet. */
-static SEM_ID sem;		/* Control semaphore. */
+static LOGMSG log;              /* Outgoing packet. */
+static SEM_ID sendSem;		/* Send Control semaphore. */
+static SEM_ID workSem;		/* Work Control semaphore. */
 
-void logmessage_1(FAST struct LOG *argp)
+void logmessage_1(FAST struct LOGMSG *argp)
 {
     char res;
     FAST CLIENT *clnt;
@@ -70,39 +74,43 @@ void logmessage_1(FAST struct LOG *argp)
     if (clnt == NULL)
       {
 	  clnt_pcreateerror("Client failed: ");
-	  semGive(sem);
-	  return;
-      }
-
-    memset(&res,0,sizeof(res));
-        
-    if (clnt_call(clnt,LogMessage,xdr_LOG,argp,xdr_void,&res,tmo) != 
-	RPC_SUCCESS)
-      {
+	  semGive(sendSem);
 	  LoggerError = ERROR;
-	  clnt_perror(clnt,"Failed: ");
-	  semGive(sem);
 	  return;
       }
-    LoggerError = OK;
 
-    clnt_destroy(clnt);
-    semGive(sem);
+    for (;;)
+      {
+	  semTake(workSem,WAIT_FOREVER);
+
+	  memset(&res,0,sizeof(res));
+        
+	  if (clnt_call(clnt,LogMessage,xdr_LOGMSG,argp,xdr_void,&res,tmo) != 
+	      RPC_SUCCESS)
+	    {
+		LoggerError = ERROR;
+		clnt_perror(clnt,"Failed: ");
+	    }
+	  else
+	    LoggerError = OK;
+
+	  semGive(sendSem);
+      }
 }
 
 void loggerEvent(FAST char *message, FAST int *ip , int num)
 {
-    semTake(sem,WAIT_FOREVER);
+    semTake(sendSem,WAIT_FOREVER);
 
     strncpy(&log.message[0],message,80);
 
+    if (num > 10)
+      num = 10;
+    
     if (ip != NULL && num > 0)
       memcpy(&log.items[0],ip,num*sizeof(int));
 
-    if (taskSpawn("logEvent",LOGGER_PRI,0,4000,(FUNCPTR)logmessage_1,
-		  (int)&log,0,0,0,0,0,0,0,0,0) == ERROR)
-
-      LoggerError = ERROR;
+    semGive(workSem);
 }
 
 int loggerInit(FAST int src)
@@ -112,8 +120,18 @@ int loggerInit(FAST int src)
     if ((hostnum = (u_long)hostGetByName("odin")) == ERROR)
       return(ERROR);
 
-    if ((sem = semBCreate(SEM_Q_FIFO,SEM_FULL)) == NULL)
+    if ((sendSem = semBCreate(SEM_Q_FIFO,SEM_FULL)) == NULL)
       return(ERROR);
+
+    if ((workSem = semBCreate(SEM_Q_FIFO,SEM_FULL)) == NULL)
+      return(ERROR);
+
+    if (taskSpawn("logEvent",LOGGER_PRI,0,4000,(FUNCPTR)logmessage_1,
+		  (int)&log,0,0,0,0,0,0,0,0,0) == ERROR)
+      {
+	  LoggerError = ERROR;
+	  return(ERROR);
+      }
 
     return(OK);
 }
