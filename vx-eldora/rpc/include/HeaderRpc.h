@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/08/30  15:16:33  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -61,6 +64,7 @@ extern  int * headerrpcfunc_1_svc(struct headername *, struct svc_req *);
 extern int headerrpc_1_freeresult(SVCXPRT *, xdrproc_t, caddr_t);
 #ifdef VXWORKS
 extern void HeaderRpcInit(void);
+#define startHeader HeaderRpcInit
 #endif
 #else /* K&R C */
 #define	HeaderRpcFunc ((unsigned long)(1))
@@ -69,6 +73,7 @@ extern  int * headerrpcfunc_1_svc();
 extern int headerrpc_1_freeresult();
 #ifdef VXWORKS
 extern void HeaderRpcInit();
+#define startHeader HeaderRpcInit
 #endif
 #endif /* K&R C */
 
