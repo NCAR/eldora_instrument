@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1991/12/20  14:14:02  thor
+ * Changed old DataPoint into HorizPoint with some changes as well.
+ *
  * Revision 1.9  1991/12/12  20:50:34  thor
  * Added new height & width variables to VertPoint struct.
  *
@@ -103,6 +106,13 @@ struct Radial_Data {
     unsigned char colors[DISPLAYED_GATES * 3];
 };
 
+struct Dual_Data {
+    Beam_Time time;
+    float angle;
+    float altitude;
+    unsigned char colors[DISPLAYED_GATES];
+};
+
 static const int POSITIVE = 1;
 static const int NEGATIVE = 0;
 
@@ -121,12 +131,14 @@ static const int INITIAL_LAT_LONG = 8; /* This means update only the */
 typedef struct Horiz_Point HorizPoint;
 typedef struct Radial_Data RadialData;
 typedef struct Vert_Point VertPoint;
+typedef struct Dual_Data DualData;
 
 static int HorizMoveSize  = sizeof(HorizMove);
 static int HorizPointSize = sizeof(HorizPoint);
 static int BeamTimeSize   = sizeof(Beam_Time);
 static int VertPointSize  = sizeof(VertPoint);
 static int RadialDataSize = sizeof(RadialData);
+static int DualDataSize   = sizeof(DualData);
 
 #endif INCDataPointh
 
