@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/07  15:43:12  thor
+// Added missing clnt_destroy().
+//
 // Revision 1.3  1994/09/06  18:50:58  thor
 // Changed name of sendcommand_1 due to name space clashes.
 //
@@ -38,7 +41,7 @@ extern "C" {
 
 class messanger {
   public:
-    messanger() {}
+    messanger() { client = NULL; }
 
     void getCmd();
 
@@ -140,7 +143,8 @@ int messanger::connect()
 
 int messanger::reconnect()
 {
-    clnt_destroy(client);
+    if (client != NULL)
+      clnt_destroy(client);
     
     if ((client = clnt_create(target,TapeControl,TapeCtrlVers,"udp")) == NULL)
       return(-1);
