@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/10/02  20:30:38  thor
+ * Many changes to use a more correct method of following mcpl input.
+ *
  * Revision 1.5  1992/06/29  17:29:39  thor
  * Added Fore & Aft methods.
  *
@@ -41,7 +44,7 @@ extern "C" {
 
 class Ddp {
   private:
-    Pipe &pipe;
+    Pipe &pipe;			// Where the data goes.
 
     long *repeat;		// Pointer to how many mailboxes.
     unsigned short *mailBase;	// Their base address.
