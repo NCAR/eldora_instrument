@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1996/12/09  22:58:34  eric
+ * Added support for Minirims interface.
+ *
  * Revision 1.11  1996/12/09  22:43:13  craig
  * new iru interface
  *
@@ -100,7 +103,7 @@ sysIntEnable(ECB_SPARE_IRQ);
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
-init_mini();     /* Initializes and connects mailbox interrupt */ 
+/* init_mini(); */    /* Initializes and connects mailbox interrupt */ 
 
 printf("Initializing the VME to VME interfaces\n");
 init_vmevme();  /* Intializes the VME to VME interface handshake area */
@@ -108,7 +111,7 @@ init_vmevme();  /* Intializes the VME to VME interface handshake area */
 printf("Initializing the motor controller\n");
 init_motor();   /* Sets gains, sample interval etc. on motor controller card */
 
-/* init_ieee(); */    /* Initalizes the power meters to begin sending data */
+init_ieee(); /* Initalizes the power meters to begin sending data */
 
 printf("Initializing the ARINC 429 interface\n");
 init_iru();     /* Initializes the ARINC 429 card to sort on labels */
@@ -135,9 +138,13 @@ do{
     stop_motor();
     printf("Stopping the GPS interface\n");
     command_gps((char)3);
-    command_mini((short)3);   /* disable Mailbox interrupt */
+    /*    command_mini((short)3);  */ /* disable Mailbox interrupt */
 
-/*    stop_ieee(); */
+    /* Added the following two lines to try to improve power meter reliability */
+    autocal = 0;
+    taskDelay(20);
+   
+    stop_ieee(); 
 
 
     /* Wait here to be (re)started by the control processor */
@@ -293,7 +300,9 @@ do{
       }
 
     /* Now start the automatic testpulse calibration scheme */
-  start_testpulse();
+   
+    autocal = 1;
+    start_testpulse();
 
   /* Initialize the mcpl handshake */
     fore_vmehndshk -> mcpl_hndshk = 1;
@@ -301,19 +310,19 @@ do{
     mcpl_xfer_processor = 0;
 
 
-    /* Start the interrupts from the ieee-488 board */
-  /*  start_ieee(); */
-
     /* Tell the gps and iru interfaces to begin looking for data again */
     in_gps_isr = 0;
     printf("Starting the GPS interface\n");
     *tp41_mbox_0 = (char)0;
     command_gps((char)1);
-    command_mini((short)1);  /* enable Mailbox interrupt */
+    /*    command_mini((short)1); */ /* enable Mailbox interrupt */
 
     printf("Starting the IRU Interface\n");
     start_iru();
  
+    /* Start the interrupts from the ieee-488 board */
+    start_ieee(); 
+
     /* Start the radar proccessors over the vme to vme interfaces */
     /* Note: the radar processors should always be the very last things
        to be started */
@@ -360,8 +369,8 @@ do{
 
 	if(tp_dwell_count >= testpulse_max_count && autocal)
 	      update_testpulse();
-
-
+	
+	taskDelay(1);  /* added for test - Eric 7/16/99 */ 
        }while(!stop_flag && !reload_flag);
 
    }while(kill);
