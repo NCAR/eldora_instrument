@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1994/06/30  14:10:43  craig
+ * Changed defines to static floats. Time variable name changes.
+ * Moved index out of bounds tests to protect against bad initial values.
+ *
  * Revision 1.4  1994/05/20  20:36:33  craig
  * *** empty log message ***
  *
@@ -59,19 +63,17 @@ int convert_iru(long num_words, long *where_data_is, struct ins_data *goes)
 #define IRU_LATENCY 50
 
 long i, data, label, msecs_today, msecs_this_data;
-char hour,minute,second,today,month,year;
-short millisec,julday,test;
+short julday,test;
 
 /* Read the time from the time of day clock */
 
-get_time(&hour,&minute,&second,&millisec,&julday,&month,&today,&year);
-goes->msec_longitude[msec_longitude_indx] = millisec;
-goes->sec_longitude[msec_longitude_indx] = second;
+goes->msec_longitude[msec_longitude_indx] = msec;
+goes->sec_longitude[msec_longitude_indx] = sec;
 msec_longitude_indx++;
 if(msec_longitude_indx >= 5) msec_longitude_indx = 0;
-last_iru_data.seconds = second;
-last_iru_data.msec_longitude = millisec;
-msecs_today = millisec + 1000 * (second + 60 * (minute + 60 * hour));
+last_iru_data.seconds = sec;
+last_iru_data.msec_longitude = msec;
+msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 
 
 /* Clear the ARINC errors bit from the status word */
@@ -280,7 +282,6 @@ if(test != pitch_indx) currStatus->iru |= IRU_WORDS_BAD;
 else currStatus->iru &= (char)(~IRU_WORDS_BAD);
 
 /* If a buffer is complete, msec_longitude_indx will be zero */
-
 if(msec_longitude_indx == 0)
   return(1);
 else
