@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/07/01  14:59:09  thor
+ * Added more C++ protection.
+ *
  * Revision 1.3  1992/06/30  14:48:14  thor
  * Fixed typos.
  *
@@ -48,43 +51,12 @@ extern "C" {
 
 #endif // OK_RPC
 
-struct RadarCommand {
-    u_long cmd;
-    u_long count;
-    int dc_points;
-};
-
-struct RadarStatus {
-    u_long count;
-    u_long mcpl;
-    u_long dsp;
-    u_long coll;
-    u_long other;
-};
+#include "RadarGbls.h"
 
 #ifdef OK_RPC
 
 #include "GblCommands.h"
 #include "LclCommands.h"
-
-#ifndef UNIX
-
-#ifndef SCOPE
-#define SCOPE
-#endif // SCOPE
-
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-#include "RadarGbls.h"
-#ifdef __cplusplus
-};
-#endif // __cplusplus
-
-#endif // UNIX
-
-typedef struct RadarCommand RadarCommand;
-typedef struct RadarStatus RadarStatus;
 
 bool_t xdr_RadarCommand(XDR *, RadarCommand *);
 bool_t xdr_RadarStatus(XDR *, RadarStatus *);
