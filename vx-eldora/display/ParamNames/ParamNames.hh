@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/08/12  17:24:29  thor
+// Added const to methods declarations.
+//
 // Revision 1.2  1993/12/14  17:21:05  thor
 // Fixed things to use static data member.
 //
@@ -50,6 +53,9 @@ class ParamNames {
 	SPEC_WIDTH1  = 0x10000,
 	SPEC_WIDTH2  = 0x20000,
 	SPEC_WIDTH3  = 0x40000,
+        VEL_LONG     = 0x80000,
+        VEL_SHORT    = 0x100000,
+        VEL_UNFOLDED = 0x200000,
 	NO_PARAM     = -1
     };
     
@@ -78,7 +84,7 @@ class ParamNames {
 char *ParamNames::names[] = {
 "DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
 "IMAG_R2", "NCP", "DBZ1", "DBZ2", "DBZ3", "VR1", "VR2", "VR3", "SW1", "SW2",
-"SW3",
+"SW3", "VL", "VS", "VU",
 0};
 #endif // PARAMNAMES_SCOPE
 

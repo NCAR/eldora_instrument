@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/08/12  17:24:29  thor
+// Added const to methods declarations.
+//
 // Revision 1.2  1993/12/14  17:21:05  thor
 // Fixed things to use static data member.
 //
@@ -49,7 +52,10 @@ int ParamNames::paramToNum(register int p) const
       case ParamNames::SPEC_WIDTH1: return(16);
       case ParamNames::SPEC_WIDTH2: return(17);
       case ParamNames::SPEC_WIDTH3: return(18);
-      case ParamNames::NO_PARAM: return(19);
+      case ParamNames::VEL_LONG: return(19);
+      case ParamNames::VEL_SHORT: return(20);
+      case ParamNames::VEL_UNFOLDED: return(21);
+      case ParamNames::NO_PARAM: return(22);
       default: return(-1);
     }
 }
@@ -76,6 +82,9 @@ int ParamNames::numToParam(register int n) const
       case 16: return(ParamNames::SPEC_WIDTH1);
       case 17: return(ParamNames::SPEC_WIDTH2);
       case 18: return(ParamNames::SPEC_WIDTH3);
+      case 19: return(ParamNames::VEL_LONG);
+      case 20: return(ParamNames::VEL_SHORT);
+      case 21: return(ParamNames::VEL_UNFOLDED);
       default: return(ParamNames::NO_PARAM);
     }
 }
@@ -114,7 +123,7 @@ int ParamNames::nameToNum(register const char *c) const
  
 const char *ParamNames::numToName(register int num) const
 {
-    if (num < 0 || num > paramToNum(ParamNames::SPEC_WIDTH3))
+    if (num < 0 || num > paramToNum(ParamNames::VEL_UNFOLDED))
       return(NULL);
     
     return(names[num]);
