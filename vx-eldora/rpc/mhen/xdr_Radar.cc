@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/23  14:53:37  eric
+ * no changes.
+ *
  * Revision 1.2  1992/06/26  18:55:31  thor
  * Added DC offset points variable.
  *
@@ -48,19 +51,19 @@ bool_t xdr_RadarStatus(XDR *xdrs, FAST RadarStatus *objp)
       {
 	  return (FALSE);
       }
-    if (!xdr_u_long(xdrs,&objp->rp7))
+    if (!xdr_char(xdrs,&objp->rp7))
       {
 	  return (FALSE);
       }
-    if (!xdr_u_long(xdrs,&objp->mcpl))
+    if (!xdr_char(xdrs,&objp->mcpl))
       {
 	  return (FALSE);
       }
-    if (!xdr_u_long(xdrs,&objp->status))
+    if (!xdr_short(xdrs,&objp->status))
       {
 	  return (FALSE);
       }
-    if (!xdr_u_long(xdrs,&objp->mailbox))
+    if (!xdr_short(xdrs,&objp->mailbox))
       {
 	  return (FALSE);
       }
