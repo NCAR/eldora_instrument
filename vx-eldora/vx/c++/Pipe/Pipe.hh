@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  18:59:58  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -45,6 +48,10 @@ class Pipe : private Ring {
     int QueryRead(void *ptr, int item_count = 1);
 
     int QueryWrite(void *ptr, int item_count = 1);
+
+    int Full(void) { return(Ring::Full()); }
+
+    int Empty(void) { return(Ring::Empty()); }
 
     void Flush();
 
