@@ -1,29 +1,16 @@
 /*
  *	$Id$
  *
- *	Module:		 
- *	Original Author: 
+ *	Module:          tst_unt_rdy		 
+ *	Original Author: Reif Heck
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
  *
  * revision history
  * ----------------
  * $Log$
- * Revision 1.6  1993/09/22  15:27:17  reif
- * changed error checking
- *
- * Revision 1.5  1992/10/30  23:54:37  reif
- * *** empty log message ***
- *
- * Revision 1.4  1992/10/25  17:07:56  reif
- * *** empty log message ***
- *
- * Revision 1.3  1992/10/17  21:32:03  reif
- * *** empty log message ***
- *
- * Revision 1.2  1992/10/15  17:52:33  reif
- * *** empty log message ***
- *
+ * Revision 1.1  1994/01/06  21:31:26  craig
+ * Initial revision
  *
  * description:
  *        
@@ -46,7 +33,7 @@ union
      PARMBLK *pb;
      unsigned short pb_addr[2];
   }addr;
- 
+
 addr_buff=(unsigned short *)(CIP_BASE+CIP_ADDR_BUFF);
 status=(unsigned short *)(CIP_BASE+CIP_BD_STAT);
 old_stat=*status;
