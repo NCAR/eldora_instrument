@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/12/03  19:26:29  thor
+ * Changed priorities so header download works.
+ *
  * Revision 1.5  1991/11/01  20:02:01  thor
  * Added new static for time keeping.
  *
@@ -43,6 +46,7 @@ extern "C" {
 #include "GeAlarm.hh"
 #include "Task.hh"
 #include "Mouse.hh"
+#include "Ddp.hh"
 
 #define WINDOW_GBLS_SCOPE
 #include "GblRadial.hh"
@@ -67,6 +71,8 @@ GE_SCOPE Task *DrawingTask;
 
 GE_SCOPE Beam_Time *LastTime;
 
+GE_SCOPE Ddp *DdpCtrl;
+
 // Flag masks.
 static const unsigned int TASK_STOP   = 0x1;
 static const unsigned int TASK_START  = 0x2;
@@ -84,7 +90,7 @@ extern void DrawingLoop(Task &self);
 };
 
 // Priorities.
-static const int DRAWING_PRI = 55;
+static const int DRAWING_PRI = 15;
 static const int CTRL_PRI = 10;
 static const int ALARM_PRI = 5;
 static const int GRAPH_PRI = 105;
