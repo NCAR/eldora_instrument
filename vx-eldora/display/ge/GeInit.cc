@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/11/01  20:02:24  thor
+ * Added new static for time keeping.
+ *
  * Revision 1.3  1991/10/17  16:48:44  thor
  * Increased stack size.
  *
@@ -31,6 +34,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 extern "C" {
 #include "stdioLib.h"
 #include "rpcLib.h"
+#include "tp41Lib.h"
 };
 
 static DispStatus ge_status;
@@ -40,6 +44,15 @@ static Beam_Time lasttime;
 void GeStart(char *server, int sys)
 {
     // Put hardware initialization, etc. here.
+
+    sysIntEnable(1);		// Enable interrupts.
+    sysIntEnable(2);
+    sysIntEnable(3);
+
+    dport((void *)0x40200000,(void *)0x10000000,4); // Set up dual
+						    // ported memory.
+
+    wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
 
     system = sys;
 
