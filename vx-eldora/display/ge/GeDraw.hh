@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/28  13:02:48  thor
+ * Changed flag values to avoid conflicts with others, added dual display supt.
+ *
  * Revision 2.1  1993/08/20  17:14:30  thor
  * Changed AGC address to work under MMU.
  *
@@ -56,7 +59,7 @@
 
 #include "Radial.hh"
 #include "HorizDisplay.hh"
-#include "Vertical.hh"
+#include "Vert.hh"
 #include "Dual.hh"
 
 // Uniprocessor.
@@ -77,16 +80,20 @@ static const unsigned short AGC_MEM_WIDTH = 2048;
 static const unsigned short AGC_VECTOR    = 250;
 
 static const unsigned int NEW_DATA_FLAG = 0x10000000;
-static const unsigned int DESTROY_SELF  = 0x20000000;
-static const unsigned int MOUSE_FLAG    = 0x40000000;
+static const unsigned int UNDISPLAY     = 0x20000000;
+static const unsigned int SHOW_FORWARD  = 0x00100000;
+static const unsigned int SHOW_AFT      = 0x00200000;
 static const unsigned int TMO_FLAG      = 0x08000000;
 
-static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
+static const unsigned int mainMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 				      FORWARD_HORIZ | FORWARD_VERT |
 				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
 				      FORWARD_DUAL | AFT_DUAL |
-				      RESTART| NEW_DATA_FLAG | DESTROY_SELF | 
-				      MOUSE_FLAG | LOAD_ONLY);
+				      RESTART | NEW_DATA_FLAG | UNDISPLAY | 
+				      LOAD_ONLY | REBOOT);
+
+static const unsigned int waitMask = (STOP | START | LOAD_ONLY | SHOW_FORWARD |
+				      SHOW_AFT | NEW_DATA_FLAG | UNDISPLAY);
 
 static const float MAX_RECT = 30000.0;
 
@@ -102,14 +109,7 @@ static const int DDP_ADDR = 0x02000000;
 static const int DDP_ADDR = 0x40200000;
 #endif // MVME133
 
-extern void RadialLoop(Task &self, GraphicController *agc, Pipe &pipe);
-extern void HorizLoop(Task &self, GraphicController *agc, Pipe &pipe);
-extern void VertLoop(Task &self, GraphicController *agc, Pipe &pipe);
-extern void DualLoop(Task &self, GraphicController *agc, Pipe &pipe);
-
-extern void RadialMouse(Radial *);
-extern void HorizMouse(HorizDisplay *);
-extern void VertMouse(Vertical *);
-extern void DualMouse(Dual *);
+// This the drawing task.
+extern void DisplayLoop(Task &self, Pipe &pipe);
 
 #endif // INCGeDrawhh
