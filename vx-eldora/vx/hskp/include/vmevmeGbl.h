@@ -48,6 +48,3 @@ scope long ads_current_index;
 scope short in_vmevme_isr;
 
 /* Global "use fake angles flag" */
-
-/* Global "I have answered an interrupt" variable */
-scope short in_vmevme_isr;

@@ -24,7 +24,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
-#define scope extern
+#define SCOPE extern
 
 /* Include fifty million vx-works .h files */
 

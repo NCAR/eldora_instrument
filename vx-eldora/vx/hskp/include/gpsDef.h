@@ -18,8 +18,7 @@
  *
  * description: These are the definitions used to handle the Global Positioning
  *              System (GPS) interface.  This interface consists of a Matrix
- *              CPU-100 Board running software in an EPROM that can handle the
- *              Trimble TANS II GPS receiver.
+ *              CPU-100 Board running software in an EPROM that can handle the  *              Trimble TANS II GPS receiver.
  */
 
 #ifndef INCgpsDefh
@@ -29,8 +28,7 @@
 
 #define GPS_BASE     0x600000   /* BASE ADDRESS OF CPU100 Dual port Ram */
 #define GPS_STATUS   0x10000    /* Offset to the status word */
-#define GPS_D_LOC_H  0x10004    /* Offset to the data location high word */
-#define GPS_D_LOC_L  0x10006    /* Offset to the data location high word */
+#define GPS_DATA_LOC 0x10004    /* Offset to the data location long word */
 #define GPS_COMMAND  0x10008    /* Offset to the GPS command Word */
 #define GPS_MBOX     0x1000A    /* Offset to the GPS mailbox Command */
 #define GPS_HNDSHK   0x10010    /* Offset to the GPS handshake area */

@@ -15,6 +15,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
 #define scope extern
+ * Revision 1.1  1992/08/14  20:44:35  craig
+ * Initial revision
+ *
+ *
 
 /* Include fifty million vx-works .h files */
 
@@ -23,7 +27,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "intLib.h"
 #include "memLib.h"
-#define scope extern
+#define SCOPE extern
 #include "taskLib.h"
 #include "tyLib.h"
 #include "ioLib.h"
@@ -121,18 +125,11 @@ iru_lag_offset = FIRST_RADAR_OFFSET + iru_lag_index * RADAR_SIZE_INCR;
 
 printf("MSECS in a dwell = %d   iru_lag_index = %d\n",dwelltime_msec,
        iru_lag_index);
-
-/* Put ASCII characters into both nav structures */
-
-current_nav_pntr = (struct nav_data *)(SEC_NAV_OFFSET + 
-                    STANDARD_BASE + FORE_STAND_START);
-fill_nav_info((int)1);
 if(current_platform_index < 0) current_platform_index += 27;
 current_platform_offset = FIRST_RADAR_OFFSET +
-fill_nav_info((int)1);
-
 
 /* Get current milliseconds since midnite and place the value
+fill_nav_info();
    into all entries of msecs_ray */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);

@@ -25,7 +25,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
-#define scope extern
+#define SCOPE extern
 #include "stdioLib.h"
 #include "intLib.h"
 #include "memLib.h"
@@ -120,9 +120,6 @@ if(fake_angles)
       position = dumb_position;
   }
 
-
-/* Set global vme to vme interrupt answered flag */
-in_vmevme_isr = 1;
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
   printf("A%d",aft_vmehndshk->polled);
 fore_vmehndshk->polled = 0;

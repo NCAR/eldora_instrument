@@ -55,10 +55,6 @@ scope short reload_flag;
 
 scope short tp_freq_count;
 scope short tp_freq_offset_count;
-
-/* Global header pointer */
-/* scope HeaderPtr inHeader; */
-
 scope short tp_atten;
 scope short tp_atten_start;
 scope short tp_dwell_count;
