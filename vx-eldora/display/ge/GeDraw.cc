@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/03/02  20:26:54  thor
+ * Fixed mistyped include name.
+ *
+ * Revision 1.9  1992/03/02  20:23:03  thor
  * Added code around GraphicController constructor to prevent responding to
  * nonexistant interrupts.
  *
@@ -49,7 +53,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeDraw.hh"
 #include "Ddp.hh"
 
-#include "tp41.h"
+extern "C" {
 #include "sysLib.h"
 #include "rebootLib.h"
 #include "tp41Lib.h"
