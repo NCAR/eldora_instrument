@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.2  1994/11/14  17:49:43  craig
+// mModified for new control processor software
+//
  * Revision 1.1  1994/01/06  21:31:44  craig
  * Initial revision
  *
@@ -85,6 +88,14 @@ TapeStatus *sendcommand_1_svc(FAST TapeCommand *command, struct svc_req *req)
 		REWIND_FLAG=1;
 #ifdef PRNT
 		cout << "REWIND COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & LOAD_TAPE)
+	    {
+		cmd &= ~LOAD_TAPE;
+		LOAD_FLAG=1;
+#ifdef PRNT
+		cout << "LOAD TAPE COMMAND RECEIVED" << endl;
 #endif
 	    }
 	  else if (cmd & EJECT)
