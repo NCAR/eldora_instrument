@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1993/09/03  17:18:15  thor
+ * Forgot the !##$$# define line.
+ *
+ * Revision 1.4  1993/09/03  17:18:15  thor
+ * Forgot the !##$$# define line.
+ *
  * Revision 1.3  1993/09/03  17:10:25  thor
  * Fixed consts to avoid clashing with others.
  *
@@ -29,6 +35,7 @@
 class Dual;
 
 #include "Clock.hh"
+#include "ColorConverter.hh"
 #include "Window.hh"
 #include "DataPoint.h"
 
@@ -77,19 +84,23 @@ class Dual {
     Window TopData;
     Window BottomData;
     Window Tbl;
-
+    ColorConverter *conv;
+    
     unsigned char *videoMemory[2];
 
     int curZoom;
     int lastIndex;
-    int radius;
     int firstGate;
 
     float maxAlt;
     float minAlt;
     float pixelsPerMeter;
+    int radius;
 
     int direction;
+
+    int offset1;
+    int offset2;
 
     TrigData *trigData;
     
@@ -106,15 +117,16 @@ class Dual {
     }
 
     void plot(FAST unsigned char *v, FAST int x, FAST int y,
-	     FAST unsigned char c)
+	     FAST unsigned char c, FAST int p = 0)
     {
 	v += x + (y * 4096);
 
+//	*v = conv->Raw(c,p);
 	*v = c;
     }
 
   public:
-    Dual(GraphicController *gbd, int rad, unsigned short xoff,
+    Dual(GraphicController *gbd, unsigned short xoff,
 	 unsigned short yoff);
 
     void DrawBeam(FAST DualData &data);
@@ -124,7 +136,12 @@ class Dual {
     
     void DrawTitle();
     
-    void SetBounds(float max, float min, float first);
+    void SetBounds(CELLSPACING &cs, float max, float min);
+
+    void SetOffsets(int off1, int off2)
+    { offset1 = off1; offset2 = off2; }
+
+    void Converter(ColorConverter *cv) { conv = cv; }
 
     void Center(Point center)
       {

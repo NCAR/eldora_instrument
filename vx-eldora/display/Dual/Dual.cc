@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/03  17:10:25  thor
+ * Fixed consts to avoid clashing with others.
+ *
+ * Revision 1.3  1993/09/03  17:10:25  thor
+ * Fixed consts to avoid clashing with others.
+ *
  * Revision 1.2  1993/08/31  16:39:41  thor
  * The first really working version.
  *
@@ -27,8 +33,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-Dual::Dual(GraphicController *gbd, int rad,
-	   unsigned short xoff, unsigned short yoff) :
+Dual::Dual(GraphicController *gbd,  unsigned short xoff, unsigned short yoff) :
 	   TopData(gbd,0,0,0,DUAL_PLOT_WIDTH,DUAL_PLOT_HEIGHT,xoff,yoff),
 	   BottomData(gbd,1,0,DUAL_PLOT_HEIGHT,DUAL_PLOT_WIDTH,
 		      DUAL_PLOT_HEIGHT,xoff + DUAL_PLOT_WIDTH,yoff),
@@ -74,8 +79,6 @@ Dual::Dual(GraphicController *gbd, int rad,
 	  ptr->cos = (int)(cos(angle) * 65536.0);
 	  ptr->sin = (int)(sin(angle) * 65536.0);
       }
-
-    radius = rad;
 }
 
 unsigned short Dual::GetZoom(void)
@@ -363,7 +366,7 @@ void Dual::NextZoom(Point cursor)
     curZoom = zoom;
 }
 
-void Dual::SetBounds(float max, float min, float first)
+void Dual::SetBounds(CELLSPACING &cs, float max, float min)
 {
     maxAlt = max;
     minAlt = min;
@@ -372,9 +375,13 @@ void Dual::SetBounds(float max, float min, float first)
 
     pixelsPerMeter = ppm;
 
-    FAST int fg = (int)(ppm * first);
+    float f = ppm * cs.distToFirst;
 
-    firstGate = fg;
+    firstGate = fastround(f);
+
+    radius = 2 * DUAL_PLOT_HEIGHT;
+
+    conv->SetBeamSize(cs,radius,(1.0/ppm));
 }
 
 Dual::~Dual(void)

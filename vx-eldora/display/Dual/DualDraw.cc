@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1993/09/28  13:12:27  thor
+ * Uncommented over case.
+ *
  * Revision 1.3  1993/09/03  17:10:25  thor
  * Fixed consts to avoid clashing with others.
  *
@@ -148,9 +151,13 @@ void Dual::DrawBeam(FAST DualData &data)
     
     FAST unsigned char *video1 = videoMemory[0];
     FAST unsigned char *video2 = videoMemory[1];
+
+    unsigned char cvalues[2048];
+
+    conv->GetBeam(data.data,cvalues);
     
-    FAST unsigned char *colors1 = (unsigned char *)&data.colors[0];
-    FAST unsigned char *colors2 = colors1 + j;
+    FAST unsigned char *colors1 = cvalues;
+    FAST unsigned char *colors2 = cvalues + 1024;
     
     float ppm = pixelsPerMeter;
 
@@ -172,14 +179,18 @@ void Dual::DrawBeam(FAST DualData &data)
       {
 	  FAST int D = ay - (ax >> 1);
 	  
-	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
-	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
+	  for (FAST int i = fg; i < j; i++, colors1++,
+	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
+	       s2 += sin2)
 	    {
 		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 
+		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
+		  continue;			  // drawing area!
+		
 		FAST int d = D;
 		FAST int x = x1;
 		FAST int xend = x2;
@@ -193,7 +204,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x,y1)) break;
 			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2);
+			    plot(ptr2,x,y1,*colors2,1);
 			    
 			    if (x == xend)
 			      break;
@@ -203,7 +214,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  y1++;
 				  if (!clip(x,y1)) break;
 				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2);
+				  plot(ptr2,x,y1,*colors2,1);
 				  d -= Ax;
 			      }
 			    x += Sx;
@@ -216,7 +227,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x,y1)) break;
 			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2);
+			    plot(ptr2,x,y1,*colors2,1);
 			    
 			    if (x == xend)
 			      break;
@@ -226,7 +237,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  y1--;
 				  if (!clip(x,y1)) break;
 				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2);
+				  plot(ptr2,x,y1,*colors2,1);
 				  d -= Ax;
 			      }
 			    x += Sx;
@@ -240,13 +251,17 @@ void Dual::DrawBeam(FAST DualData &data)
 	  
 	  FAST int D = ax - (ay >> 1);
 	  
-	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
-	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
+	  for (FAST int i = fg; i < j; i++, colors1++,
+	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
+	       s2 += sin2)
 	    {
 		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
+		
+		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
+		  continue;			  // drawing area!
 		
 		FAST int d = D;
 		FAST int y = y1;
@@ -258,7 +273,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x1,y)) break;
 			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2);
+			    plot(ptr2,x1,y,*colors2,1);
 			    
 			    if (y == yend)
 			      break;
@@ -268,10 +283,9 @@ void Dual::DrawBeam(FAST DualData &data)
 				  x1 += sx;
 				  if (!clip(x1,y)) break;
 				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2);
+				  plot(ptr2,x1,y,*colors2,1);
 				  d -= ay;
-			      }
-			    
+			      }   
 			    y++;
 			    d += ax;
 			}
@@ -282,7 +296,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x1,y)) break;
 			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2);
+			    plot(ptr2,x1,y,*colors2,1);
     
 			    if (y == yend)
 			      break;
@@ -292,10 +306,9 @@ void Dual::DrawBeam(FAST DualData &data)
 				  x1 += sx;
 				  if (!clip(x1,y)) break;
 				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2);
+				  plot(ptr2,x1,y,*colors2,1);
 				  d -= ay;
 			      }
-			    
 			    y--;
 			    d += ax;
 			}
