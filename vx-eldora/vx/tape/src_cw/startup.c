@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:41  craig
+ * Initial revision
+ *
  * Revision 1.3  1992/10/25  17:08:20  reif
  * *** empty log message ***
  *
@@ -41,14 +44,9 @@ void startup(void)
     /* Set global flags to default state. */
     REC_FLAG = 0;
     REWIND_FLAG = 0;
-    PP_FLAG=0;
     RUN_FLAG=0;
     UNLOAD_FLAG=0;
-    PARALLEL_REC=1;
     bzero((char *)&stat,sizeof(stat)); /* Set initial status. */
-
-    PACKSTATUS(0,&stat.status,0);
-    PACKSTATUS(0,&stat.status,1);
 
     tapeStatus = &stat;		/* Set up global pointers. */
 

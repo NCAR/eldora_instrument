@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1994/01/06  21:31:45  craig
+// Initial revision
+//
  * Revision 1.3  1992/10/25  17:08:22  reif
  * *** empty log message ***
  *
@@ -22,16 +25,15 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#define GBL_SCOPE
-#include "global.hh"		// Where we define globals for RPC use only!
-
 #include "Task.hh"
+
+#include "stdioLib.h"
+#include "rpcLib.h"
+#include "HeaderRpc.h"
 
 extern "C" {
 #include "tapeGlobals.h"
 #include "tapeControl.h"
-#include "stdioLib.h"
-#include "rpcLib.h"
 void startRpc(void);		// So C code can call us.
 };
 
@@ -57,7 +59,7 @@ void RpcLoop(Task &self)
       }
 
     startControl();
-    startHeader();
+    HeaderRpcInit();
 
     svc_run();
 }

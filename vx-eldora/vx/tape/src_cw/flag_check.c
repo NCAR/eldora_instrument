@@ -2,16 +2,16 @@
  *	$Id$
  *
  *	Module:		 
- *	Original Author: 
+ *	Original Author: Reif heck
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
  *
  * revision history
  * ----------------
  * $Log$
- * Revision 1.9  1993/09/22  16:21:08  reif
- * changing to accept command line arguments and new flag checking
- *
+ * Revision 1.1  1994/01/06  21:31:46  craig
+ * Initial revision
+
  * * description:  This routine is the main executive routine of the recording
  *                 processor.  The routine beings by performing all
  *                 necessary initialization, then it enters an infinite run
@@ -27,13 +27,17 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define scope
 #define TAPE_CTRL_SCOPE
+#define HEADERRPC_SCOPE
 #include <cipincl.h>
+extern int file_size;
 
 void flag_check(char drv0,char drv1,char drv2,char drv3)
 {
 
-int i, j, first_found, second_found, header_written, current_unit;
-unsigned char sgflg, unschar, drv_stat;
+int i, j, first_found, second_found, header_written, cells;
+int timeout, logger_initialized;
+float dwelltime, rpm, width;
+unsigned char sgflg, unschar, drv_stat, stat;
 
 union{
     int sqr[2][2];
@@ -41,10 +45,6 @@ union{
 }health;
 
 vol=(VOLUME *)tapeHdr;
-
-/********* INIT RECORDING LOG FILE **********/
-
-loggerInit(RECORD_LOG);
 
 /* INITIALIZE GOOD DRIVE ARRAY FROM COMMAND LINE */
 
@@ -55,16 +55,16 @@ health.lin[3]=drv3;
 
 /* INITIALIZE THE PHYSICAL SCSI BUS UNIT NUMBER OF EACH DRIVE */
 
-physical_unit[0][0] = 0;
-physical_unit[0][1] = 1;
-physical_unit[1][0] = 2;
-physical_unit[1][1] = 3;
+physical_unit[0][0] = 1;
+physical_unit[0][1] = 2;
+physical_unit[1][0] = 3;
+physical_unit[1][1] = 4;
 
 /* INITIALIZE THE TAPE CONTROL FLAGS */
 
-UNIT_NUM=0;
-PARALLEL_REC=1;
-PP_FLAG=1;
+logger_initialized = 0;
+current_unit=0;
+next_unit = 1;
 RUN_FLAG=0;
 REC_FLAG=0;
 REWIND_FLAG=0;
@@ -73,6 +73,11 @@ WRITE_TAPE_STATUS=0;
 vol_num=-1;
 tape_num=1;
 header_written = 0;
+
+/*  Set default status words to indicate current conditions */
+
+tapeStatus->eot_warning = 100;
+tapeStatus->unit = 0;
 
 /* Setup the array record_sys, based on the healthy drives */
 
@@ -99,8 +104,6 @@ for(i=0; i<2; i++)
 switch(number_of_drives)
   {
     case 1:   /* Only one healthy drive available use it always */
-      PARALLEL_REC=0;
-      PP_FLAG=0;
       record_sys[0][2] = 1;
       record_sys[1][2] = 0;
       for(i=0; i<4; i++)
@@ -114,7 +117,6 @@ switch(number_of_drives)
 
     case 2:  /* Two healthy drives, no parallel recording, ping pong between
                 them */
-      PARALLEL_REC=0;
       record_sys[0][2] = 1;
       record_sys[1][2] = 1;
       first_found = 0;
@@ -174,24 +176,38 @@ switch(number_of_drives)
 for(i=0; i<2; i++)
   {
       tapeStatus->status[i] = 0;
-      tapeStatus->drives_in_use[i][0] = record_sys[i][0];
-      tapeStatus->drives_in_use[i][1] = record_sys[i][1];
       tapeStatus->number_of_drives[i] = record_sys[i][2];
-      tapeStatus->terr[i].error = 0;
-      tapeStatus->serr[i].error = 0;
       tapeStatus->status[i] |= INITIALIZING;
-      tapeStatus->status[i] |= PING_PONG_ON;
-      if(!PP_FLAG) tapeStatus->status[i] &= ~PING_PONG_ON;
-      tapeStatus->status[i] |= PARALLEL_ON;
-      if(!PARALLEL_REC) tapeStatus->status[i] &= ~PARALLEL_ON;
+      tapeStatus->failures[i] = 0;
+      tapeStatus->attempts[i] = 0;
   }
 
-/*  Set other status words to indicate current conditions */
+/* If opposite system has at least one drive we can ping-pong to it */
 
-tapeStatus->failures = 0;
-tapeStatus->attempts = 0;
-tapeStatus->eot_warning = 0;
-tapeStatus->unit = 0;
+if(record_sys[current_unit][2] > 0)
+  tapeStatus->status[next_unit] |= PING_PONG_ON;
+if(record_sys[next_unit][2] > 0)
+  tapeStatus->status[current_unit] |= PING_PONG_ON;
+
+/* if same system has more than one drive we can parallel record */
+
+if(record_sys[current_unit][2] > 1)
+  tapeStatus->status[current_unit] |= PARALLEL_ON;
+if(record_sys[next_unit][2] > 1)
+  tapeStatus->status[next_unit] |= PARALLEL_ON;
+
+tapeStatus->drives0[0] = record_sys[0][0];
+tapeStatus->drives0[1] = record_sys[0][1];
+tapeStatus->drives1[0] = record_sys[1][0];
+tapeStatus->drives1[1] = record_sys[1][1];
+
+
+/* Print current recording system definitions */
+printf(" Recording system    drive 0    drive 1    number of drives\n");
+for(i=0; i<2; i++)
+printf("      %1d              %1d      %1d             %1d\n",
+i,record_sys[i][0],record_sys[i][1],record_sys[i][2]); 
+
 
 /* INITIALIZE STRUCTURES */
 
@@ -207,30 +223,61 @@ unschar = physical_unit[0][0];
 cip_cmds(GEN_OPS,GOPS,unschar);  /* INITIALIZE CIPRICO GENERAL OPTIONS */    
 cip_cmds(UNIT_OPS,UOPS,unschar); /* INITIALIZE CIPRICO UNIT OPTIONS */
 
-/* Initialize all healthy drives and write EOF's on all of them */
+/* Initialize all healthy drives then eject all of them */
 
 for(i=0; i<2; i++)
   {
       for(j=0; j<2; j++)
 	{
 	    if(health.sqr[i][j]) /* IF DRIVE IS HEALTHY, INITIALIZE IT,
-				    THEN WRITE EOF */
+				    THEN EJECT THE TAPE */
 	      {
 		  unschar = physical_unit[i][j];
-		  starting_amnt[i]=drive_init(unschar);
-		  printf("PHYSICAL DRIVE %d HAS BEEN INITIALIZED\n",
+		  printf("INITIALIZING SCSI DRIVE %2d\n",
 			 physical_unit[i][j]);
+		  drive_init(unschar);
 		  drv_stat=tst_unt_rdy(unschar);
-		  while(drv_stat!=0x80)
+		  while(drv_stat!=0x80 && timeout < 10)
 		    {
 			drv_stat=tst_unt_rdy(unschar);
-			loggerEvent("%d ERROR= %X\n",physical_unit[i][j],
-				    &drv_stat,2);
+			timeout++;
 			taskDelay(200);
 		    }
-		  exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
-		  printf("WROTE BEGINNING FILEMARK TO %d\n",
+		  if(timeout == 10)
+			printf("ERROR: DRIVE INITIALIZATION, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
+		  /* EJECT THE TAPE */
+		  exb_cmds(UNLOAD,ULD,unschar);
+	      }
+	}
+  }
+
+/* Wait for the drives to come ready and then write EOF's on all of them */
+
+for(i=0; i<2; i++)
+  {
+      for(j=0; j<2; j++)
+	{
+	    if(health.sqr[i][j]) /* IF DRIVE IS HEALTHY, wait for it
+				    to come ready,THEN WRITE an EOF */
+	      {
+		  unschar = physical_unit[i][j];
+		  printf("WAITING FOR SCSI DRIVE %2d TO COME READY\n",
 			 physical_unit[i][j]);
+		  drv_stat=tst_unt_rdy(unschar);
+		  while(drv_stat!=0x80 && timeout < 20)
+		    {
+			drv_stat=tst_unt_rdy(unschar);
+			timeout++;
+			taskDelay(200);
+		    }
+		  if(timeout == 20)
+			printf("ERROR: DRIVE NOT READY, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
+		  else
+		    {
+		      printf("WRITING BEGINNING FILEMARK TO SCSI DRIVE: %2d\n",
+			       physical_unit[i][j]);
+		      exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
+		    }
 	      }
 	}
   }
@@ -246,6 +293,11 @@ number_of_drives = record_sys[0][2];
 drives_to_use[0] = record_sys[0][0];
 drives_to_use[1] = record_sys[0][1];
 
+/* Get the starting amount of tape for the first drive of each recording
+   system */
+if(record_sys[0][2] > 0) starting_amnt[0] = tape_remain(record_sys[0][0]);
+if(record_sys[1][2] > 0) starting_amnt[1] = tape_remain(record_sys[1][0]);
+
 /********************************************************************/
 /**********   Start of infinite run time loop         ***************/
 /********************************************************************/
@@ -254,10 +306,11 @@ for(;;)
   {
       /* While we are stopped we should check rewind and unload flags */
 
-      current_unit = UNIT_NUM;
+      if(RUN_FLAG == 0)
+	printf("Will wait here for the Control Processor to start me\n");
+
       while(RUN_FLAG == 0)
 	{
-	    printf("WAITING FOR SYSTEM TO START\r");
 	    header_written = 0;
 
 	    if(UNLOAD_FLAG==1)
@@ -281,6 +334,13 @@ for(;;)
 		      exb_cmds(REWND,RWND,unschar);
 		  }
 	      }
+
+	    if(REC_FLAG != 0)
+		  tapeStatus->status[current_unit] != RECORDING;
+	    else
+		  tapeStatus->status[current_unit] &= ~RECORDING;
+
+
 	    taskDelay(60);
 	}
 
@@ -290,8 +350,7 @@ for(;;)
       while(REC_FLAG == 0 && RUN_FLAG != 0)
 	{
 	    printf("ERROR: RECORD FLAG NOT ON\r");
-	    tapeStatus->status[0] &= ~RECORDING;
-	    tapeStatus->status[1] &= ~RECORDING;
+	    tapeStatus->status[current_unit] &= ~RECORDING;
 	    taskDelay(60);
 	}
 
@@ -302,65 +361,110 @@ for(;;)
 
       if(REC_FLAG != 0 && !header_written)
 	{
-	    number_of_drives = record_sys[UNIT_NUM][2];
-	    tapeStatus->status[UNIT_NUM] = 0;
+
+	    /********* INIT RECORDING LOG FILE **********/
+	    if(logger_initialized == 0)
+	      {
+		  loggerInit(RECORD_LOG);
+		  logger_initialized = 1;
+	      }
+
+	    file_size = 0;
+	    number_of_drives = record_sys[current_unit][2];
+	    tapeStatus->status[current_unit] = 0;
 
 	    /* If we have drive(s) to record on great
 	       else flag error and quit */
 
 	    if(number_of_drives > 0)
 	      {
-		  if(PARALLEL_REC != 0 && number_of_drives == 2)
-		    tapeStatus->status[UNIT_NUM] |= PARALLEL_ON;
-		  else if(PARALLEL_REC == 0 || number_of_drives == 1)
-		    {
-			number_of_drives == 1;
-			tapeStatus->status[UNIT_NUM] &= ~PARALLEL_ON;
-		    }
+		  if(number_of_drives == 2)
+		    tapeStatus->status[current_unit] |= PARALLEL_ON;
 
-		  drives_to_use[0] = record_sys[UNIT_NUM][0];
-		  drives_to_use[1] = record_sys[UNIT_NUM][1];
+		  drives_to_use[0] = record_sys[current_unit][0];
+		  drives_to_use[1] = record_sys[current_unit][1];
 
-		  tapeStatus->status[UNIT_NUM] |= RECORDING;
+		  tapeStatus->status[current_unit] |= RECORDING;
 
-		  if(PP_FLAG != 0)
-		    tapeStatus->status[UNIT_NUM] |= PING_PONG_ON;
-		  else if(PP_FLAG == 0)
-		    tapeStatus->status[UNIT_NUM] &= ~PING_PONG_ON;
+		  if(record_sys[next_unit] > 0)
+		    tapeStatus->status[current_unit] |= PING_PONG_ON;
 
-		  tapeStatus->failures = 0;
-		  tapeStatus->attempts = 0;
-		  tapeStatus->eot_warning = 0;
-		  tapeStatus->unit = UNIT_NUM;
-		  tapeStatus->terr[UNIT_NUM].error = 0;
-		  tapeStatus->serr[UNIT_NUM].error = 0;
+		  tapeStatus->unit = current_unit;
 
 		  vol_num++;
-		  tape_header();
-		  rad_dscr = GetRadar(inHeader,1);
-		  cs = GetCellSpacing(inHeader);
-		  header_written = 1;
 
+		  /* Get pointers to various data structures in the header
+		     then use these pointers to write the current setup
+		     records in the logfile */
+
+		  tape_header();
+
+		  head = GetVolume(Hdr);
+		  wave = GetWaveform(Hdr);
+		  rad_dscr = GetRadar(Hdr,1);
+		  cs = GetCellSpacing(Hdr,1);
+
+		  /* First line */
+		  sprintf(log_chars,"Project_name:                     Date: %2d/%2d/%2d Time: %2d:%2d:%2d Flight:        \\n",head->month,head->day,
+head->year,head->data_set_hour,head->data_set_minute,head->data_set_second);
+		  for(i=0; i<19; i++)
+		    log_chars[i+14] = head->proj_name[i];
+		  for(i=0; i<7; i++)
+		    log_chars[i+72] = head->flight_num[i];
+		  loggerEvent(log_chars,log_ints,0);
+		  printf("%s\n",log_chars);
+
+		  /* Second line */
+		  dwelltime = wave->repeat_seq_dwel * wave->repeat_seq;
+		  rpm = rad_dscr->req_rotat_vel*60.0/360.0;
+		  width = wave->chip_width[0] * 16.6666667*1.e-3;
+		  sprintf(log_chars,"Pulsing_scheme:                  Dwell: %4.1fms RSpeed %4.1fRPM Chipwidth %3.1fus\\n",dwelltime,rpm,width);
+		  for(i=0; i<16; i++)
+		    log_chars[i+16] = wave->ps_file_name[i];
+		  loggerEvent(log_chars,log_ints,0);
+		  printf("%s\n",log_chars);
+
+		  /* Third Line */
+		  cells = 0;
+		  for(i=0; i<cs->num_segments; i++)
+		    cells += cs->num_cells[i];
+		  sprintf(log_chars,"#IPPs: %2d #Gates: %4d #Parameters: %2d #cells: %4d #Frequencies: %2d\\n",rad_dscr->num_ipps_trans, wave->num_gates[0],
+rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
+		  loggerEvent(log_chars,log_ints,0);
+		  printf("%s\n",log_chars);
+
+		  /* Write out the needed headers */
+		  header_written = 1;
+		  new_volume = 1;
 		  for(i=0; i<number_of_drives; i++)
 		    {
 			unschar = drives_to_use[i];
 			sgflg=HEADER;
 			vol->volume_num=vol_num;
-			write_tape((unsigned int *)tapeHdr,hdrsz,
-				   sgflg,unschar);
-			printf("WROTE BEGINNING HEADER TO %d\n",
+			printf("WRITING HEADER TO SCSI DRIVE%2d\n",
 			       drives_to_use[i]);
-			printf("sv#%d_tp#%d_%d:%d:%d\n",vol_num,
-			       tape_num,hr,min,sec);
-			loggerEvent("SV_%d/",&hr,1);
-			loggerEvent("%d/",&min,1);
-			loggerEvent("%d_",&sec,1);
-			loggerEvent("%d_",&vol_num,1);
-			loggerEvent("%d\n",&tape_num,1);
+
+			stat = write_tape((unsigned int *)tapeHdr,hdrsz,
+				   sgflg,unschar);
+			if(stat != 0)
+			  {
+			      tapeStatus->status[current_unit] &= ~RECORDING;
+			      printf("WRITE ERROR ON DRIVE %d\n",
+				     drives_to_use[i]);
+			      printf("WRITE STATUS = %X\n",stat);
+
+			      /* Log this error in the log file */
+			      log_ints[3] = drives_to_use[i];
+			      log_ints[4] = stat;
+			      loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on standard data write\n",log_ints,5);
+			  }
 		    }
 	      } /* if(number_of_drives > 0) */
 	    else
-	      REC_FLAG = 0;
+	      {
+		  REC_FLAG = 0;
+		  tapeStatus->status[current_unit] &= ~RECORDING;
+	      }
 	} /* if(REC_FLAG != 0 && !header_written) */
 
       if(REC_FLAG != 0 && header_written)
@@ -368,3 +472,4 @@ for(;;)
 
   }/* Infinite for loop for(;;) */ 
 }/* End of flag_check */
+
