@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/15  17:55:06  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.1  1991/08/30  18:39:23  thor
  * Initial revision
  *
@@ -68,10 +71,9 @@ struct field_radar_i {
     short dly_antenna_dircplr;	/* Time delay from energy entering */
 				/* antenna and it reaching the test */
 				/* pulse directional coupler in ns. */
-    short dly_dircplr_ad[5];	/* Time delay from the test pulse. */
+    short dly_dircplr_ad[6];	/* Time delay from the test pulse. */
 				/* directional coupler to the A/D */
 				/* converters in ns. */
-    short padding1;
     short dly_timmod_testpulse; /* Time delay from timeing Module test */
 				/* pulse edge and test pulse being */
 				/* injected into directional coupler in ns. */
