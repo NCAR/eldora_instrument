@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  2003/04/18  00:48:17  ericloew
+ * added support for eth29 ethernet.
+ *
  * Revision 1.9  1996/12/05  22:56:42  eric
  * Improved mcpl transfer synchronization between Fore and
  * Aft radar processors.
@@ -465,7 +468,7 @@ dac()
 	    {
 	      if(radar_fore_aft)  /* try using enet on aft processor */
 		{
-		  dataIFIP = "192:168:10:2";
+		  dataIFIP = "192.168.10.2";
 		  eth_stat = eth29Init(dataIFIP,0xb0,0x5); /* initialize eth29 */
 		  hdrsz = GetRealHeader(inHeader,HdrBuf);
 		  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send data out eth29 */
@@ -473,7 +476,7 @@ dac()
 		}
 	      else             /* fore processor */
 		{
-		  dataIFIP = "192:168:10:1";
+		  dataIFIP = "192.168.10.1";
 		  eth_stat = eth29Init(dataIFIP,0xb0,0x5); /* initialize eth29 */
 		  hdrsz = GetRealHeader(inHeader,HdrBuf);
 		  eth29SendDgram(dataSendToIP, 3102,(unsigned char *)HdrBuf,hdrsz); /* send data out eth29 */
