@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/08/24  18:10:00  thor
+ * Added support to myDualPort to allow mailboxes.
+ *
  * Revision 1.3  1992/03/04  17:10:43  thor
  * Added new code to dual port in standard i/o space.
  *
@@ -71,12 +74,19 @@ STATUS myDualPort (FAST char *localAdrs, FAST char *busAdrs,
     FAST int accessMode = VME_READ_WRITE; /* access mode */
     FAST int lutEntryOff;	/* offset to the LUT */
     FAST UINT8 space = VME_ASSIGN_EXT;
-    FAST UINT32 *lutEntryAdr;	/* entry address in the LUT */
+    FAST UINT32 *lutEntryAdr;	/* Entry address in the LUT. Note that */
+				/* it is a long because the TP$1 */
+				/* decodes data bits 31:24 for the */
+				/* SRAM. */
     FAST UINT8 *cio1Ctl = TP41_CIO_1_CNTRL_ADRS;
+    FAST UINT8 *cio0Ctl = TP41_CIO_0_CNTRL_ADRS;
     FAST UINT8 temp; 
     FAST UINT8 segId;		/* segment ID */
     
-    /* check for valid DRAM address */
+    /* Check for valid DRAM address. You may have to change this to */
+    /* suit your configuration. We lie to VxWorks and tell about only */
+    /* the first 2 Mb of memory so we can use the other 2Mb for */
+    /* private allocation. */
     
     if ((int)localAdrs > ((int)sysMemTop() + (4 * SEGMENT_SIZE)))
       {
@@ -103,47 +113,54 @@ STATUS myDualPort (FAST char *localAdrs, FAST char *busAdrs,
 	  break;
       }
 
-    /* segment ID 0 is assigned to the top segment of DRAM */
+    /* Segment ID 7 is assigned to the top segment of DRAM. */
     
-    segId = ((UINT)localAdrs - 0x40000000) >> 19;	 /* XXX */
+    segId = ((UINT)localAdrs - 0x40000000) >> 19;
     
+    *cio1Ctl = ZCIO_PCD;
+    temp = *cio1Ctl;
     
-    *TP41_CIO_1_CNTRL_ADRS = ZCIO_PCD;
-    temp = *TP41_CIO_1_CNTRL_ADRS;
-    
-    *TP41_CIO_1_CNTRL_ADRS = ZCIO_PCD;
-    *TP41_CIO_1_CNTRL_ADRS = temp | CIO1_C_VME_LUT_DISABLE;
+    *cio1Ctl = ZCIO_PCD;
+    *cio1Ctl = temp | CIO1_C_VME_LUT_DISABLE;
     
     /* set address source to CPU */
     
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
-    temp = *TP41_CIO_0_CNTRL_ADRS;
+    *cio0Ctl = ZCIO_PAD;
+    temp = *cio0Ctl;
     
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
-    *TP41_CIO_0_CNTRL_ADRS = temp & (~CIO0_A_ADDR_NONCPU_SRC);
-    
-    /* XXX should be possible to support both STD & EXT simultaneously */
+    *cio0Ctl = ZCIO_PAD;
+    *cio0Ctl = temp & (~CIO0_A_ADDR_NONCPU_SRC);
     
     if (adrSpace == VME_STD)
       space = VME_ASSIGN_STD;
 
     lutEntryOff = (UINT) busAdrs >> 19;
+
     lutEntryAdr = (UINT32 *) ((int)VMELUT_BASE_ADRS + 
 			      lutEntryOff * sizeof(UINT32));
-	  
-    /* set the look up table */
-	  
-    *lutEntryAdr = (accessMode | /* access mode */
-		    space | /* assign to ext */
-		    (UINT8)segId) << 24; /* set segment id */
 
-	  
+    /* For std space one must fill in all 256 possible entries */
+    /* corresponding to the upper 8 address bits, since they could be */
+    /* floating at nay value. */
+    if (adrSpace == VME_STD)
+      {
+	  FAST int i;
+	  FAST int j = 256;
+	  FAST char entry = accessMode | space | (unsigned char)segId;
+
+	  /* 8192 / 256 = 32. */
+	  for (i = 0; i < j; i++, lutEntryAdr += 32)
+	    *lutEntryAdr = entry << 24;
+      }
+    else
+      *lutEntryAdr =  accessMode | space | (unsigned char)segId;
+
     /* set address source to VME bus */
 	  
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
-    temp = *TP41_CIO_0_CNTRL_ADRS;
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
-    *TP41_CIO_0_CNTRL_ADRS = temp | CIO0_A_ADDR_NONCPU_SRC;
+    *cio0Ctl = ZCIO_PAD;
+    temp = *cio0Ctl;
+    *cio0Ctl = ZCIO_PAD;
+    *cio0Ctl = temp | CIO0_A_ADDR_NONCPU_SRC;
 	  
     /* enable LUT output */
 	  
@@ -151,14 +168,14 @@ STATUS myDualPort (FAST char *localAdrs, FAST char *busAdrs,
     *cio1Ctl = CIO1_C_CLEAR_PERR |      /* clear parity error */
       CIO1_C_NO_WATCHDOG_RESET; /* no watch dog reset */
 	  
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
-    temp = *TP41_CIO_0_CNTRL_ADRS;
-    *TP41_CIO_0_CNTRL_ADRS = ZCIO_PAD;
+    *cio0Ctl = ZCIO_PAD;
+    temp = *cio0Ctl;
+    *cio0Ctl = ZCIO_PAD;
 
     if (adrSpace == VME_EXT)
       /* dual port on to extended space */
-      *TP41_CIO_0_CNTRL_ADRS = temp & (~CIO0_A_DETTACH_VME_EXT);
+      *cio0Ctl = temp & (~CIO0_A_DETTACH_VME_EXT);
     else
-      *TP41_CIO_0_CNTRL_ADRS = temp & (~CIO0_A_DETTACH_VME_STD);
+      *cio0Ctl = temp & (~CIO0_A_DETTACH_VME_STD);
     return (OK);
 }
