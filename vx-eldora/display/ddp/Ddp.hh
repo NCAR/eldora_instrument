@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  19:50:07  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -28,11 +31,10 @@ class Ddp {
   private:
     Pipe &pipe;
 
-    long *base;
+    long *repeat;
     unsigned short *mailBase;
     long *addrBase;
 
-    long repeat;
     long current;
 
     SEM_ID sem;

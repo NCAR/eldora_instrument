@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/11/11  15:35:10  thor
+ * Removed constructor wait code, added repeat count read to Next.
+ *
+ * Revision 1.2  1991/11/06  14:43:22  thor
  * Fixed incorrect aBase initialization, changed to do loop & added
  * loop to fix nonzero mailbox.
  *
@@ -32,20 +36,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #endif // GE
 
 static void ddpIsr(SEM_ID);
-    base = addr;
-
 
 Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
 {
     mailBase = addr + 8;
-    FAST volatile long *ptr = base;
+
     fore = mailBase;
-    while (*ptr != 0x55555555);
-
-    ptr++;
-
-    repeat = *ptr;
-
     aft = mailBase + 1;
     addrBase = addr + 0x800;
 
@@ -56,7 +52,6 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
     repeat = addr + 4;
 
     Count = 0;
-    FAST long end = repeat;
     foreCurr = 0;
     FAST volatile unsigned short *mb = mailBase + count;
     FAST long *aBase = addrBase + count;
@@ -65,6 +60,9 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
 
 void Ddp::Next(void)
 {
+    FAST long fcount = foreCurr;
+	  FAST long end = *repeat; // Wait till here to make certain
+				   // we have a valid repeat count!
 	  FAST int foreEnd = Count;
 
 	  while (!foreEnd)
