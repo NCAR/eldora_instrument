@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/09  18:03:03  thor
+ * Fixed name for reflectivity code.
+ *
  * Revision 1.4  1991/06/13  17:52:26  thor
  * Added SetBounds method.
  * Rewrote drawTitle method to use radar type.
@@ -293,6 +296,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
     a.y = 20;
 
     setTextScale(wdw,2,2);
+    setTextBackGround(wdw,BLACK);
     
     FAST char *title = "Unknown Parameter";
     FAST char *units = "Scale is Unknown";
@@ -311,6 +315,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 
 	case SNR:
 	  title = "Signal/Noise Ratio";
+	  units = 0;
 	  break;
 
 	case SPEC_WIDTH:
@@ -372,7 +377,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
       }
     sprintf(label,"%6.1f",min);
 
-    horText(wdw,a,label,WHITE);
+    horText(wdw,a,label,WHITE1);
     frect(wdw,b,20,20,offset);
 
     if (units != NULL)
@@ -465,6 +470,7 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 
     // Draw cross hairs.
     a.x = 0;
+    a.y = rad;
     b.x = 2 * rad;
     b.y = rad;
 
@@ -482,6 +488,8 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 						     // perpendicular.
 
     hashDist /= 5.0;		// Proper increments.
+
+    hashDist /= 1000.0;		// Now make into km.
 
     a.x = 0;
     a.y = 975;
@@ -551,7 +559,5 @@ void Radial::SetBounds(float max, float first)
 {
     maxDistance = max;
 
-    float step = max / (float)radius;
-
-    firstGate = (int)((first / step) + .5);
+    firstGate = (int)first;
 }
