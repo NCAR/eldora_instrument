@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1999/07/13  16:51:27  thor
+ * *** empty log message ***
+ *
  * Revision 1.3  1997/11/12 19:45:49  eric
  * modified to support Graph Mode for xmit pulse.
  * Also added semaphores and restructured code.
@@ -52,6 +55,7 @@ void pwr_menu()
   unsigned int choice, choice_1;
 
 taskSuspend(testp); /* suspend run-time power task */
+taskSuspend(pgm); /* suspend run-time power task */
 taskSuspend(xmit); /* suspend run-time power task */
 
 /************ INITIALIZE STRING AND NUMBER ARRAYS *************/
@@ -165,8 +169,8 @@ do
 
 	  ecbaddr = ECBATTEN;
 	  xmit_tp = 1; /* select xmit mux */
-	  muxval = 5;  /* select fore preknock as trigger */
 	  muxval = 13;  /* select aft preknock as trigger */
+	  muxval = 5;  /* select fore preknock as trigger */
 	  timeout = 0;
 	  do
 	    {
@@ -238,8 +242,8 @@ do
 
 	  ecbaddr = ECBATTEN;
 	  xmit_tp = 0; /* select test pulse mux */
-	  muxval = 6;  /* select fore testpulse as trigger */
 	  muxval = 14;  /* select aft testpulse as trigger */
+	  muxval = 6;  /* select fore testpulse as trigger */
 	  timeout = 0;
 	  do
 	    {
@@ -630,6 +634,7 @@ do
 #ifdef Init
   sysIntDisable(3); /* disable IRQ3 */
 #endif
+  taskRestart(pgm); /* re-start run-time power task */
   taskRestart(xmit); /* re-start run-time power task */
   taskRestart(testp); /* re-start run-time power task */
 }
