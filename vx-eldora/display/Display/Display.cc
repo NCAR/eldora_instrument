@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:25:56  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -217,7 +220,7 @@ void Display::vertCenteredText(FAST int wdw, Point start, const char *text,
 }
 
 void Display::drawTable(int set, float max, float min, FAST int param, 
-			FAST int tblsize = 31)
+			FAST int tblsize)
 {
     FAST int wdw;
     FAST int offset;
