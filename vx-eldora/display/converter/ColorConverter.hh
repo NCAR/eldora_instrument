@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/29  18:14:03  thor
+ * *** empty log message ***
+ *
  * Revision 2.0  1992/11/03  12:52:03  thor
  * *** empty log message ***
  *
@@ -91,7 +94,7 @@
 
 static const int MAX_DATA_PLANES = 3;
 static const int MAX_BINS = 31;
-static const int CONV_TBL_SIZE = 65536;
+static const int CONV_TBL_SIZE = 256; // 65536;
 
 class ColorConverter {
   protected:
@@ -102,7 +105,7 @@ class ColorConverter {
     int numOfValues;		// Number of parameters used.
     int numGates;		// Number of pixels in display.
 
-    int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
+    int gateIndex[2 * DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
 						      // indexes into
 						      // data array.
 
@@ -132,9 +135,9 @@ class ColorConverter {
 	  FAST unsigned char *lkup = convertTbl + datum;
 
 	  if (param == 1)
-	    lkup += 0x10000;
-	  else
-	    lkup += 0x20000;
+	    lkup += CONV_TBL_SIZE;
+	  else if (param == 2)
+	    lkup += CONV_TBL_SIZE * 2;
 
 	  return(*lkup);
       }
