@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added fast inline version of iround.
+ *
+ * Revision 1.7  1992/02/03  20:23:28  thor
  * Switched to faster iround function from (int)float_value. Moved another
  * constant out of loop.
  *
@@ -87,28 +90,28 @@ void Radial::Draw1(FAST RadialData &data)
 	  if (j == 1000)
 	    j = index + 2;
 
+	  FAST int q = index - j;
+
+	  if (q < -20)
+	    q = -q;
+
+	  if (q > 20)
+	    {
+		printf("Angle to big, %d %d\n",index,j);
+		lastIndex = index;
 		return;
 	    }
 
 	  index -= 2;
-    for (FAST int i = firstGate; i < j; i++, colors1++)
+	  if (index < 0)
 	    index += 720;
-	  FAST int x1 = (i * cos1) >> 16;
-	  FAST int x2 = (i * cos2) >> 16;
-	  FAST int y1 = (i * sin1) >> 16;
-	  FAST int y2 = (i * sin2) >> 16;
-	  
-	  FAST int dx = x2 - x1;
-	  FAST int dy = y2 - y1;
-
-	  FAST int ax = (dx < 0 ? -dx : dx) << 1;
-	  FAST int ay = (dy < 0 ? -dy : dy) << 1;
+	  for (FAST int i = firstGate; i < j; i++, colors1++)
+    lastIndex = index;
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
     FAST int sin2 = trigData[index].sin;    
-	  FAST int sx = dx < 0 ? -1 : 1;
-	  FAST int sy = dy < 0 ? -1 : 1;
-	  
-	  if (ax > ay)
-	    {
 
     j = radius;
 
@@ -158,8 +161,16 @@ void Radial::Draw1(FAST RadialData &data)
 			    
 			    if (x == xend)
 			      break;
-	  else
+			    
+			    if (d >= 0)
+			      {
+	  for (FAST int i = firstGate; i < j; i++, colors1++)
 				  d -= Ax;
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
+			}
 		  }
 		else
 		  {
@@ -268,30 +279,30 @@ void Radial::Draw2(FAST RadialData &data)
 	    q = -q;
 
 	  if (q > 20)
+	    {
+		printf("Angle to big, %d %d\n",index,j);
+		lastIndex = index;
+		return;
+	    }
+
+	  index += 2;
+
+	  if (j == index)
 	    j -= 4;
 
 	  if (j < 0)
 	    j += 720;
 
 	  if (index >= 720)
-    for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
+	    j = index + 2;
 
-	  FAST int x1 = (i * cos1) >> 16;
-	  FAST int x2 = (i * cos2) >> 16;
-	  FAST int y1 = (i * sin1) >> 16;
-	  FAST int y2 = (i * sin2) >> 16;
+	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
+
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
 	  
-	  FAST int dx = x2 - x1;
-	  FAST int dy = y2 - y1;
-
-	  FAST int ax = (dx < 0 ? -dx : dx) << 1;
-	  FAST int ay = (dy < 0 ? -dy : dy) << 1;
-
-	  FAST int sx = dx < 0 ? -1 : 1;
-	  FAST int sy = dy < 0 ? -1 : 1;
-	  
-	  if (ax > ay)
-	    {
 		FAST int d = ay - (ax >> 1);
 
 	  index -= 2;
@@ -350,8 +361,17 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int y2 = s2 >> 16;
 
 		FAST int d = D;
-	  else
+		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
+		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
+		FAST int x = x1;
+	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
 		if (sy == 1)
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
+	  
+			    *ptr2 = *colors2;
 		FAST int d = ax - (ay >> 1);
 			    if (x == xend)
 			      break;
@@ -469,6 +489,15 @@ void Radial::Draw2(FAST RadialData &data)
       }
 }		
 
+void Radial::Draw3(FAST RadialData &data)
+{
+    FAST int j = lastIndex;
+    FAST int index = fastround(data.angle * 2.0);
+
+    if (index < 0 || index > 720)
+      {
+	  printf("Angle %g out of bounds.\n",data.angle);
+	  return;
       }
 
     if (data.direction > 0)
@@ -476,25 +505,17 @@ void Radial::Draw2(FAST RadialData &data)
 	  // This is positive rotation.
 
 	  if (j == 1000)
-
-    for (FAST int i = firstGate; i < j; i++, colors1++, colors2++, colors3++)
-		printf("Angle to big, %d %d\n",index,j);
-	  FAST int x1 = (i * cos1) >> 16;
-	  FAST int x2 = (i * cos2) >> 16;
-	  FAST int y1 = (i * sin1) >> 16;
-	  FAST int y2 = (i * sin2) >> 16;
 	  
-	  FAST int dx = x2 - x1;
-	  FAST int dy = y2 - y1;
-	    j -= 4;
-	  FAST int ax = (dx < 0 ? -dx : dx) << 1;
-	  FAST int ay = (dy < 0 ? -dy : dy) << 1;
-
-	  FAST int sx = dx < 0 ? -1 : 1;
-	  FAST int sy = dy < 0 ? -1 : 1;
-	  
-	  if (ax > ay)
 	    {
+		printf("Angle to big, %d %d\n",index,j);
+		lastIndex = index;
+	       colors3++)
+	    }
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
+	    j -= 4;
 
 	  if (j < 0)
 	    j += 720;
@@ -562,8 +583,17 @@ void Radial::Draw2(FAST RadialData &data)
     FAST int fg = firstGate;
 
     FAST int c1 = cos1 * fg;
-	  else
+    FAST int c2 = cos2 * fg;
+    FAST int s1 = sin1 * fg;
+    FAST int s2 = sin2 * fg;
+
+	       colors3++)
       {
+		FAST int x1 = (i * cos1) >> 16;
+		FAST int x2 = (i * cos2) >> 16;
+		FAST int y1 = (i * sin1) >> 16;
+		FAST int y2 = (i * sin2) >> 16;
+		FAST int x2 = c2 >> 16;
 		FAST int y1 = s1 >> 16;
 		FAST int y2 = s2 >> 16;
 
