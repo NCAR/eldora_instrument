@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/11  13:47:43  thor
+ * Fixed incorrect declaration of msec_latitude & lateral_accel.
+ *
  * Revision 1.1  1992/07/28  17:23:46  thor
  * Initial revision
  *
@@ -47,10 +50,8 @@ struct ins_data {
     float inertial_vspeed[25];	/* Inertial vertical speed, m/s. */
     float pitch[50];		/* Degrees. */
     float roll[50];		/* Ditto. */
-    float long_accel[50];	/* Longitudinal acceleration, positive */
-				/* forward, m/s/s. */
-    float lateral_accel[50];	/* Right is positive. */
-    float normal_accel[50];	/* Up is positive. */
+    float integ_vert_acc[50];	/* Integrated vertical Acceleration (m/s) */
+    float vert_acc[50];	        /* Veritcal Acceleration (m/s/s) */
     float track_rate[50];	/* Change rate of track angle, */
 				/* clockwise positive, degrees/s. */
     float pitch_rate[50];	/* Change rate of pitch angle, */
