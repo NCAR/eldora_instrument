@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/03/01  21:09:00  thor
+ * Added some default colors.
+ *
  * Revision 1.2  1991/03/01  20:29:20  thor
  * Added DISPLAYED_GATES for radial displays.
  *
@@ -43,24 +46,12 @@ static const int WDW_SEVEN   = 6;
 static const int WDW_EIGHT   = 7;
 static const int WDW_NINE    = 8;
 
-/* The currently available display parameters. */
-static const int NULL_PARAMETER     = 0;
-static const int REFLECTIVITY       = 1;
-static const int VELOCITY           = 2;
-static const int SPEC_WIDTH         = 3;
-static const int LINEAR_POWER       = 4;
-static const int REAL_R1            = 5;
-static const int IMAG_R1            = 6;
-static const int REAL_R2            = 7;
-static const int IMAG_R2            = 8;
-
 /* Radars */
 static const int FORWARD = 0;
 static const int AFT = 1;
 
-
 /* Size of radial display in displayed gates */
-static const int DISPLAYED_GATES = 500;
+static const int DISPLAYED_GATES = 511;
 
 /* Some predefined colors. */
 static const unsigned char WHITE = 0x80;
