@@ -1,0 +1,50 @@
+.TH Flags l "04 April 1990" "Eldora Addition"
+.SH NAME
+Flags - C++ locla flags class
+.SH SYNOPSIS
+.nf
+Flags Flag_obj;	//Constructor.
+
+(void) Flag_obj.set(unsigned int mask);
+(unsigned int) Flag_obj.wait(unsigned int mask, int type);
+(unsigned int) Flag_obj.query(void);
+
+.fi
+.SH DESCRIPTION
+The Flags class implements local event flags. Each Flags object
+contains 32 flags that may be set, pended on and examined. All Flags
+are cleared when a new object is created. To pend on a flag or set of
+flags the
+.I wait
+call specifies the desired flags with set bits in 
+.I mask.
+Two types of pending are permitted - FLAGS_OR and FLAGS_AND. The
+former pends on the OR of the mask, so that any single set flag in the
+mask will cause the task to unblock. The latter will not unblock until
+all flags in the mask are set. Before returning to the caller
+.I wait
+clears all flags, so the next 
+.I wait 
+can use the same mask. 
+.I Wait
+returns the flag settings that caused it to unblock. The 
+.I set
+call simply sets the flags specified in
+.I mask.
+The 
+.I query
+call returns the present setting of the flags.
+.SH COMMENTS AND REQUIREMENTS
+You must have loaded or linked in your own builtin_new and
+builtin_delete routines if your C++ compiler does not have them.
+.SH CURRENT REVISION
+$Revision$
+.SH FLAMES AND PRAISE
+Send them to:
+.nf
+Richard Neitzel
+National Center for Atmospheric Research
+Box 3000
+Boulder, CO 80307
+thor@thor.atd.ucar.edu
+
