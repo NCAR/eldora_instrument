@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/10/22  17:17:37  thor
+ * Do beam size calculations in ints.
+ *
  * Revision 1.6  1991/10/18  19:25:21  thor
  * Switched to malloc/free due to weird interaction with VxWorks by delete.
  *
@@ -39,6 +42,7 @@
  *
  */
 
+#include "math.h"
 #include "string.h"
 #include "stdioLib.h"
 ColorConverter::ColorConverter(FAST int bins, float *max, float *min,
@@ -70,20 +74,19 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs)
 void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 				 float realMax = -1.0)
 {
-
     FAST int seg = cs.num_segments;
-    float maxDist = 0.0;
     FAST short *widths = &cs.spacing[0];
     FAST short *ncells = &cs.num_cells[0];
     FAST int ngates = 0;
+
     FAST short *w = widths;
     FAST short *nc = ncells;
     FAST int maxDist = cs.distToFirst;;
 
-	  float width = (float)*w++;
+    for (FAST int i = 0; i < seg; i++) // Calculate maximum distance & # gates.
       {
 	  FAST int c = *nc++;
-	  maxDist += (float)c * width;
+	  FAST int  width = *w++;
 
 	  ngates += c;
     FAST float *fptr = (float *)malloc(sizeof(float) * ngates);; // Allocate space for
@@ -110,7 +113,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		*fp++ = dist;
 
 		dist += width;
-    float inc = maxDist / (float)DISPLAYED_GATES; // Meters/pixel.
+    float inc = (float)maxDist / (float)DISPLAYED_GATES; // Meters/pixel.
 
     FAST int index = 0;
 
