@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:15  craig
+ * Initial revision
+ *
  * Revision 1.5  1993/09/22  15:26:47  reif
  * changed error checking
  *
@@ -51,7 +54,7 @@ new_stat=*status;
 
 /************ LOAD CIPRICO PARAMETER BLOCK *****************/
 
-if(cmnd_ident<0 || cmnd_ident>22)
+if(cmnd_ident<0 || cmnd_ident>LAST_CIP_CMD)
   {
       printf("WE'Re FUCKED!!\n");
       return;

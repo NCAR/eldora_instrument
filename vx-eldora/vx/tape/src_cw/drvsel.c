@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:19:20  craig
+ * Fixed problem with volume numbers counting incorrectly
+ *
  * Revision 1.2  1994/11/14  17:50:23  craig
  * Modified prints to the log file
  *
@@ -33,11 +36,10 @@ unsigned char drive_id;
 char stat;
 float percent;
 
-union
-  {
-      unsigned long sense_data;
-      unsigned char tape[4];
-  }tp;
+union {
+    unsigned long along;
+    unsigned char achar[4];
+}err;
 
 /*******************************************/
 /* Log start of new volume in the log file */
@@ -85,6 +87,7 @@ for(i=0; i<number_of_drives; i++)
 file_size+=data_sz;
 if(file_size >= MAX_FILE_SIZE) 
   {
+      amount_written[current_unit] += (float)file_size / 1.0e6;
       printf("95\n");
       file_size=0;
       for(i=0; i<number_of_drives; i++) /* write header and eof on all
@@ -143,22 +146,25 @@ if(WRITE_TAPE_STATUS==1)
   {
       drive_id = drives_to_use[0];
       tapeStatus->attempts[current_unit] = write_attempts;
-      exb_cmds(REQUEST_SENSE,RQST_SNS,drive_id);
-      tp.tape[1] = rqst_sen.rem_tape_msb;
-      tp.tape[2] = rqst_sen.rem_tape_mid;
-      tp.tape[3] = rqst_sen.rem_tape_lsb;
-      percent = (((float)tp.sense_data/
-		  (float)starting_amnt[current_unit])*100);
+
+      exb_cmds(LOG_SENSE,LOG_SEN,drive_id);
+      err.achar[0] = log_page.total_errors_cor.pvalue_msb;
+      err.achar[0] = log_page.total_errors_cor.pvalue_midh;
+      err.achar[0] = log_page.total_errors_cor.pvalue_midl;
+      err.achar[0] = log_page.total_errors_cor.pvalue_lsb;
+
+
+      percent = (TOTAL_TAPE_SIZE - amount_written[current_unit]) /
+	TOTAL_TAPE_SIZE * 100.0;
+
       tapeStatus->eot_warning = (int)percent;
-      tp.tape[1] = rqst_sen.err_ctr_msb;
-      tp.tape[2] = rqst_sen.err_ctr_mid;
-      tp.tape[3] = rqst_sen.err_ctr_lsb;
-      tapeStatus->failures[current_unit] = tp.sense_data;
+      tapeStatus->failures[current_unit] = err.along;
 
       /* Has the logical end of tape been encountered, or is there less than
          ENDING_PERCENT of the tape remaining, if so end this tape */
 
-      if((rqst_sen.sense_key & LEOT) || percent < ENDING_PERCENT) 
+      if(((rqst_sen.sense_key & LEOT) == LEOT) || 
+	 (int)percent < ENDING_PERCENT) 
 	{
 	    file_size = 0;
 	    for(i=0; i<number_of_drives; i++) /* Write header, eof and unload
@@ -213,6 +219,7 @@ if(WRITE_TAPE_STATUS==1)
 		  tapeStatus->attempts[current_unit] = 0;
 		  tapeStatus->eot_warning = 100;
 		  tapeStatus->unit = current_unit;
+	          amount_written[current_unit] = 0;
 
 	    /* If we have drive(s) to record on great
 	       else flag error and quit */
