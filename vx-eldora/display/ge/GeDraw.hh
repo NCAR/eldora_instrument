@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/01/27  18:33:51  thor
+ * Changed addresses for AGC & DDP.
+ *
  * Revision 1.7  1992/01/08  16:20:04  thor
  * Added code for timeout change.
  *
@@ -44,7 +47,12 @@
 #include "Vertical.hh"
 
 // Uniprocessor.
+#include "Horiz.hh"
 #include "Pipe.hh"
+
+#ifdef MVME133
+static const int AGC_ADDR                 = 0xf0000000;
+#else
 static const int AGC_ADDR                 = 0xa0000000;
 #endif // MVME133
 
@@ -69,7 +77,11 @@ static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 static const float MAX_RECT = 30000.0;
 
 static const float EldoraBeam = 2.0; // In degrees.
+
 static const int DDP_VECTOR = 243;
+
+static const int DDP_PRI = 50;
+
 #ifdef MVME133
 static const int DDP_ADDR = 0x02000000;
 #else
