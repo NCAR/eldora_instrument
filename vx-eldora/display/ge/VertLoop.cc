@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/06/29  17:43:33  thor
+ * Added code to flush pipe and reset Ddp.
+ *
  * Revision 1.7  1992/02/10  16:28:53  thor
  * Added tests for empty pipe prior to flush.
  *
@@ -32,7 +35,7 @@
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -98,7 +101,10 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		    pipe.Flush();
 		}
 	      continue;
-		pipe.Flush();
+	      break;
+
+	    case START:
+	    case RELOAD:
 	    case RESTART:
 	    case (RELOAD | NEW_DATA_FLAG):
 	    case (START | NEW_DATA_FLAG):
@@ -112,8 +118,12 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 #ifdef UNIPRO
 	      display = NewDisplay(agc,filter,converter,radar);
 #else
+	      display = NewDisplay(agc,radar);
 #endif // UNIPRO
+	      if (!pipe.Empty())
 		pipe.Flush();
+	      continue;
+	      break;
 
 	    case FORWARD_VERT:
 	    case (FORWARD_VERT | NEW_DATA_FLAG):
@@ -127,8 +137,12 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 #endif // UNIPRO
 	      DdpCtrl->Fore();
 	      if (!pipe.Empty())
-	      continue;
 		pipe.Flush();
+	      continue;
+	      break;
+
+	    case AFT_VERT:
+	    case (AFT_VERT | NEW_DATA_FLAG):
 	      radar = AFT_VERT;
 	      if (display)
 		delete(display);

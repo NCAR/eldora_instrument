@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.17  1992/06/29  17:43:33  thor
+ * Added code to flush pipe and reset Ddp.
+ *
  * Revision 1.16  1992/02/10  16:29:04  thor
  * Added tests for empty pipe prior to flush.
  *
@@ -61,7 +64,7 @@
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -127,8 +130,11 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case STOP:
 	      case (STOP | NEW_DATA_FLAG):
+		DdpCtrl->Clear();
 		if (!pipe.Empty())
-		  pipe.Flush();
+		  {
+		      pipe.Flush();
+		  }
 		continue;
 		break;
 
@@ -139,8 +145,12 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (START | NEW_DATA_FLAG):
 	      case (RESTART | NEW_DATA_FLAG):
 		if (radar == FORWARD_RADIAL)
-		if (!pipe.Empty())
-		  pipe.Flush();
+		  DdpCtrl->Fore();
+		else
+		  DdpCtrl->Aft();
+		display = makeDisplay(display,agc);
+		horizFilter->Pipe(&dataPipe);
+		count = 9;
 		reset = 1;
                 if (!pipe.Empty())
 		  pipe.Flush();
@@ -151,7 +161,11 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = FORWARD_HORIZ;
                 radar = whichRadar;
 		display = makeDisplay(display,agc);
-		if (!pipe.Empty())
+		horizFilter->Pipe(&dataPipe);
+		count = 9;
+		reset = 1;
+                DdpCtrl->Fore();
+                if (!pipe.Empty())
 		  pipe.Flush();
 		break;
 
