@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/28  15:44:43  thor
+ * Initial revision
+ *
  *
  * description:
  *        These functions allow better dual porting then the WRS
@@ -52,8 +55,7 @@ static STATUS myDualPort (FAST char *localAdrs, FAST char *busAdrs)
     
     /* check for valid DRAM address */
     
-    if ((int)localAdrs < (int)sysMemTop() ||
-	(int)localAdrs > ((int)sysMemTop() + (4 * SEGMENT_SIZE)))
+    if ((int)localAdrs > ((int)sysMemTop() + (4 * SEGMENT_SIZE)))
       {
 	  return (ERROR);
       }
