@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  90/11/15  11:51:11  thor
+ * Added proper code to test if flags are already set. Changed code to clear
+ * effected flags on success. Changed header to .hh.
+ * 
  * Revision 1.1  90/03/28  08:46:50  thor
  * Initial revision
  * 
@@ -31,7 +35,7 @@ unsigned int Flags::wait(FAST unsigned int mask, FAST int type)
     FAST unsigned int flgs = flags;
     FAST unsigned int result = mask & flgs;
 
-    if (type == FLAGS_OR || result)
+    if ((type == FLAGS_OR) && result)
       {
 	  flags ^= mask;
 	  return(result);
