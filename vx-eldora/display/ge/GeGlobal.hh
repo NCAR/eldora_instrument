@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/11/01  20:02:01  thor
+ * Added new static for time keeping.
+ *
  * Revision 1.4  1991/10/23  20:38:35  thor
  * Added Mouse support.
  *
@@ -81,10 +84,10 @@ extern void DrawingLoop(Task &self);
 };
 
 // Priorities.
-static const int DRAWING_PRI = 50;
-static const int CTRL_PRI = 3;
-static const int ALARM_PRI = 2;
-static const int GRAPH_PRI = 51;
-static const int MOUSE_PRI = 49;
+static const int DRAWING_PRI = 55;
+static const int CTRL_PRI = 10;
+static const int ALARM_PRI = 5;
+static const int GRAPH_PRI = 105;
+static const int MOUSE_PRI = 40;
 
 #endif // INCGeGlobalhh 
