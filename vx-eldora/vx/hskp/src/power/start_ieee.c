@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1999/09/27  16:36:56  eric
+ * widened testpulse; used fore as trigger.
+ *
  * Revision 1.3  1999/07/13  16:49:51  thor
  * *** empty log message ***
  *
@@ -31,14 +34,16 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define scope extern
+#define NEW_START
+#define NUM_AVG 5
 #include "hskpAll.h"
 #include "taskLib.h"
 
 void start_ieee()
 {
   unsigned char string_array[15], muxval, ecbaddr;
-  unsigned char number_array[11], xmit_tp, test;
-  int i,timeout;
+  unsigned char number_array[11], xmit_tp, test, status;
+  int i,timeout, cmnd_stat;
 
   /* Initialize some global flags and counters */
 
@@ -58,8 +63,16 @@ void start_ieee()
 	string_array[i]=0;
     }
 
+#ifdef NEW_START
+/******************* INITIALIZE GPIB AND DMA **********************/
+
   init_gpib(1);
   init_gpib(2);
+  init_dma(1,15); /* 15 bytes for xmit power meter */
+  init_dma(2,24); /* 24 bytes for testpulse power meter */
+
+#endif
+
   xmit_csr_delay = (0.5 * (float)wave->chip_width[0] + (float)wave->chip_offset[0]) / 60.0; /* xmit pulsewidth in microseconds */
   /*  testp_csr_delay = 1.5 * ((float)wave->gate_dist1[1] / 60.0); *//* test pulse width is 3 times gate spacing in microseconds */
 
@@ -67,38 +80,271 @@ void start_ieee()
 
 /**************  SEND COMMAND STRINGS TO 8502A PPM  **********************/
 
+#ifdef NEW_START
+
+  strncpy(string_array,"PKAB\0",5); /* Select peak dual channel mode */  
+  cmnd_stat = send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+  strncpy(string_array,"GRFA\0",5); /* Select graph mode */  
+  cmnd_stat = send_cmnd_string(XMIT,string_array); /* on Xmit meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array, "UNDD\0",5); /* Disable SRQ for underscale */  
+  cmnd_stat = send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+ 
+  strncpy(string_array,"UNDD\0",5); /* Disable SRQ for underscale */  
+  cmnd_stat = send_cmnd_string(XMIT,string_array); /* on Xmit meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"UPDC\0",5); /* Select update continuously mode */ 
+  cmnd_stat = send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"FREQ\0",5); /* Select frequency */
+  sprintf(number_array,"%7.2f",9.5); /* Use 9.5 GHz as nominal */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"DATN\0",5); /* Select data normal mode of operation */
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array); /* for both power meters */
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+ 
+  strncpy(string_array,"WATT\0",5); /* Select linear power output mode for */ 
+  cmnd_stat = send_cmnd_string(XMIT,string_array); /* the fore and aft xmit power meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"TRGE\0",5); /* Select external trigger for both */ 
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array); /* power meters */
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+
+  strncpy(string_array,"WDLA\0",5);  /* Select Window size */
+  sprintf(number_array,"%7.2f",10.0); /* fore xmit power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+  
+  strncpy(string_array,"PRFA\0",5);  /* Select Power Reference */
+  sprintf(number_array,"%7.2f",76.7); /* fore xmit power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"WDLB\0",5);  /* Select Window size */
+  sprintf(number_array,"%7.2f",10.0); /* aft xmit power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+  
+  strncpy(string_array,"PRFB\0",5);  /* Select Power Reference */
+  sprintf(number_array,"%7.2f",76.0); /* fore xmit power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"DBMW\0",5); /* Select dbm output mode for the fore */ 
+  cmnd_stat = send_cmnd_string(TESTP,string_array); /* and aft testpulse power meter */
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"OFFA\0",5); /* Input system losses as offset for */
+  sprintf(number_array,"%7.2f",0.0); /* fore testp power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"OFFB\0",5); /* Input system losses as offset for */
+  sprintf(number_array,"%7.2f",0.0); /* aft testp power meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  strncpy(string_array,"RDLA\0",5); /* Set reference delay for fore xmit and tp meter */  
+  sprintf(number_array,"%9.2f",0.0);  
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+
+  strncpy(string_array,"RDLB\0",5); /* Set reference delay for aft xmit and tp meter */
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+
+  strncpy(string_array,"SDLA\0",5); /* Set start delay for fore xmit and tp meters*/  
+  sprintf(number_array,"%9.2f",0.0);  
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+
+  strncpy(string_array,"SDLB\0",5); /* Set start delay for aft xmit and tp meters*/  
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT_AND_TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      printf("Command: %s Not Received!\n",string_array);
+    }
+
+  Avg = NUM_AVG;
+  sprintf(number_array,"%d",Avg);   /* was 500 */  
+  strncpy(string_array,"AVPK\0",5); /* Set # points to avg for xmit meter*/  
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+  sprintf(number_array,"%d",100);  /* was 999 ; 100 worked */
+  strncpy(string_array,"AVPK\0",5); /* Set # points to avg for tp meter*/  
+  strncat(string_array,number_array,strlen(number_array));
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
+
+#endif
+
   strncpy(string_array,"FREQ\0",5); /* Select frequency */
   sprintf(number_array,"%7.2f",fraddes->freq1); /* Use freq 1 as nominal */
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(XMIT,string_array);
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   strncpy(string_array,"OFFA\0",5); /* Input system losses as offset for */
   sprintf(number_array,"%7.2f",ffrad->peak_power_offset); /* fore xmit power meter */
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(XMIT,string_array);
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   strncpy(string_array,"OFFB\0",5); /* Input system losses as offset for */
   sprintf(number_array,"%7.2f",afrad->peak_power_offset); /* aft xmit power meter */
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(XMIT,string_array);
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   strncpy(string_array,"CDLA\0",5); /*Set cursor delay for fore xmit meter */  
   sprintf(number_array,"%9.2f",xmit_csr_delay);
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(XMIT,string_array);
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   strncpy(string_array,"CDLB\0",5); /*Set cursor delay for fore xmit meter */  
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(XMIT,string_array);
+  cmnd_stat = send_cmnd_string(XMIT,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(1);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
  
   strncpy(string_array,"CDLA\0",5); /* Set cursor delay for fore tp meter */  
   sprintf(number_array,"%9.2f",testp_csr_delay);  
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(TESTP,string_array);
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   strncpy(string_array,"CDLB\0",5); /* Set cursor delay for aft tp meter */  
   strncat(string_array,number_array,strlen(number_array));
-  send_cmnd_string(TESTP,string_array);
+  cmnd_stat = send_cmnd_string(TESTP,string_array);
+  if(cmnd_stat == -1)
+    {
+      status = ReadStatusByte(2);
+      printf("SRQ: %2X; Command: %s\n",status,string_array);
+    }
 
   /************* PROGRAM Trigger MUX via ECB ****************/
 
@@ -153,9 +399,10 @@ void start_ieee()
 
 /*********** TURN PPM INTO TALKER, MZ7500 INTO LISTENER ************/
 
-init_dma(1,15);
-init_dma(2,24);
-
+  /*
+    init_dma(1,15);
+    init_dma(2,24);
+  */
 listener(1);
 listener(2);
 
