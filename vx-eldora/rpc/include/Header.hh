@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/01/02  20:28:40  thor
+ * Added method for = operator.
+ *
  * Revision 1.5  1991/10/22  17:03:16  thor
  * Removed now unneeded params pointer.
  *
@@ -44,8 +47,6 @@
 extern "C" {
 #include "Header.h"
 #include "TapeHeader.h"
-
-    PARAMETER *params;		// Working copy of parameters.
 };
 
 #ifdef UNIX
