@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/27  15:43:59  thor
+// Added code to precalc inverted sines/tangents.
+//
 // Revision 1.3  1994/09/23  19:50:36  thor
 // Changed formatted string output to use strstreams.
 //
@@ -150,8 +153,21 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
                         {
                             if (max[0] == 0.0 && min[0] == 0.0)
                               {
-                                  max[0] = rd->eff_unamb_vel;
-                                  min[0] = -(rd->eff_unamb_vel);
+                                  if (rd->num_ipps_trans == 2)
+                                    {
+                                        float range = 75.0 /
+                                            (rd->freq1 *
+                                             (rd->interpulse_per2
+                                              - rd->interpulse_per1));
+
+                                        max[0] = range;
+                                        min[0] = -range;
+                                    }
+                                  else
+                                    {
+                                        max[0] = rd->eff_unamb_vel;
+                                        min[0] = -(rd->eff_unamb_vel);
+                                    }
                               }
                         }
                       break;
@@ -181,8 +197,21 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
                         {
                             if (max[1] == 0.0 && min[1] == 0.0)
                               {
-                                  max[1] = rd->eff_unamb_vel;
-                                  min[1] = -(rd->eff_unamb_vel);
+                                  if (rd->num_ipps_trans == 2)
+                                    {
+                                        float range = 75.0 /
+                                            (rd->freq1 *
+                                             (rd->interpulse_per2
+                                              - rd->interpulse_per1));
+
+                                        max[1] = range;
+                                        min[1] = -range;
+                                    }
+                                  else
+                                    {
+                                        max[1] = rd->eff_unamb_vel;
+                                        min[1] = -(rd->eff_unamb_vel);
+                                    }
                               }
                         }
                       break;
@@ -212,8 +241,21 @@ void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
                         {
                             if (max[2] == 0.0 && min[2] == 0.0)
                               {
-                                  max[2] = rd->eff_unamb_vel;
-                                  min[2] = -(rd->eff_unamb_vel);
+                                  if (rd->num_ipps_trans == 2)
+                                    {
+                                        float range = 75.0 /
+                                            (rd->freq1 *
+                                             (rd->interpulse_per2
+                                              - rd->interpulse_per1));
+
+                                        max[2] = range;
+                                        min[2] = -range;
+                                    }
+                                  else
+                                    {
+                                        max[2] = rd->eff_unamb_vel;
+                                        min[2] = -(rd->eff_unamb_vel);
+                                    }
                               }
                         }
                       break;
