@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1993/08/17  15:07:32  thor
+ * More 5.1 stuff.
+ *
  * Revision 1.12  1993/07/21  21:45:20  vanandel
  * compat changes for compile with gcc
  *
@@ -71,15 +74,15 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #endif // FAST
 
 #ifndef UNIX
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #else
-extern "C" {
 #include <signal.h>
-#include <sys/unistd.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-};
 
 static void Die(int);
 
@@ -194,21 +197,26 @@ PARAMETER *Header::Parameter(FAST int paramNum)
     return(p);
 }
 
-void Header::CellSpacing(CELLSPACING &cs)
+void Header::CellSpacing(CELLSPACING &cs, FAST int descNum)
 {
-    FAST CELLSPACING *c = &th->Fore.CellSpacing;
     FAST int i = sizeof(CELLSPACING);
 
-    memcpy(c,&cs,i);
+    FAST CELLSPACING *c;
 
-    c = &th->Aft.CellSpacing;
+    if (descNum == 1)
+      c = &th->Fore.CellSpacing;
+    else
+      c = &th->Aft.CellSpacing;
 
     memcpy(c,&cs,i);
 }
 
-CELLSPACING *Header::CellSpacing(void)
+CELLSPACING *Header::CellSpacing(FAST int descNum)
 {
-    return(&th->Fore.CellSpacing);
+    if (descNum == 1)
+      return(&th->Fore.CellSpacing);
+    else
+      return(&th->Aft.CellSpacing);
 }
 
 int Header::Radar(FAST RADARDESC &r, FAST int descNum)
@@ -242,21 +250,25 @@ RADARDESC *Header::Radar(FAST int descNum)
       return(NULL);
 }
 
-void Header::FieldRadar(FIELDRADAR &f)
+void Header::FieldRadar(FAST FIELDRADAR &f, FAST int descNum)
 {
     FAST int i = sizeof(FIELDRADAR);
-    FAST FIELDRADAR *ptr = &th->Fore.FieldInfo;
+    FAST FIELDRADAR *ptr;
 
-    memcpy(ptr,&f,i);
-
-    ptr = &th->Aft.FieldInfo;
+    if (descNum == 1)
+      ptr = &th->Fore.FieldInfo;
+    else
+      ptr = &th->Aft.FieldInfo;
 
     memcpy(ptr,&f,i);
 }
 
-FIELDRADAR *Header::FieldRadar(void)
+FIELDRADAR *Header::FieldRadar(FAST int descNum)
 {
-    return(&th->Fore.FieldInfo);
+    if (descNum == 1)
+      return(&th->Fore.FieldInfo);
+    else
+      return(&th->Aft.FieldInfo);
 }
 
 void Header::Volume(FAST VOLUME &r)
@@ -383,64 +395,6 @@ int Header::GetRealHeader(void *header)
     return(size);
 }
 
-// This only applies to the client side.
-#ifdef CLIENT_SIDE
-int Header::Send(FAST char *target)
-{
-    FAST CLIENT *client = clnt_create(target,HeaderRPC,HeaderVers,"tcp");
-
-    if (client == NULL)
-      return(-1);
-
-// The following is kludge due to a bug in Sun's RPC that causes a bus
-// error at each call to sendheader_1. This allows a forked process to
-// exit without dumping core when the signal is caught.
-    FAST int f;
-
-    if ((f = fork()) == 0)
-      {
-	  signal(SIGBUS,(SIG_PF)Die);
-
-	  if (sendheader_1(th,client) == NULL)
-	    {
-		clnt_perror(client,"Header method Send failed. (th)");
-		exit(1);
-	    }
-	  exit(0);
-      }
-    clnt_destroy(client);
-
-    return(0);
-}
-
-int Header::Send(FAST CLIENT *client)
-{
-    if (client == NULL)
-      return(-1);
-
-// The following is kludge due to a bug in Sun's RPC that causes a bus
-// error at each call to sendheader_1. This allows a forked process to
-// exit without dumping core when the signal is caught.
-    FAST int f;
-
-    if ((f = fork()) == 0)
-      {
-        signal(SIGBUS,(SIG_PF)Die);
-
-        if (sendheader_1(th,client) == NULL)
-          {
-              clnt_perror(client,"Header method Send failed. (th)");
-              exit(1);
-          }
-        exit(0);
-      }
-    clnt_destroy(client);
-
-    return(0);
-}
-
-#endif // UNIX
-
 Header &Header::operator=(FAST Header &in)
 {
     FAST Header *ptr = this;
@@ -501,19 +455,19 @@ PARAMETER *GetParameter(HeaderPtr ptr, int paramNum)
     return(h->Parameter(paramNum));
 }
 
-void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs)
+void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs, int descNum)
 {
     Header *h = (Header *)ptr;
     CELLSPACING &ref = *cs;
 
-    h->CellSpacing(ref);
+    h->CellSpacing(ref,descNum);
 }
 
-CELLSPACING *GetCellSpacing(HeaderPtr ptr)
+CELLSPACING *GetCellSpacing(HeaderPtr ptr, int descNum)
 {
     Header *h = (Header *)ptr;
 
-    return(h->CellSpacing());
+    return(h->CellSpacing(descNum));
 }
 
 int SetRadar(HeaderPtr ptr, RADARDESC *cs, int descNum)
@@ -531,19 +485,19 @@ RADARDESC *GetRadar(HeaderPtr ptr, int descNum)
     return(h->Radar(descNum));
 }
 
-void SetFieldRadar(HeaderPtr ptr, FIELDRADAR *cs)
+void SetFieldRadar(HeaderPtr ptr, FIELDRADAR *cs, int descNum)
 {
     Header *h = (Header *)ptr;
     FIELDRADAR &ref = *cs;
 
-    h->FieldRadar(ref);
+    h->FieldRadar(ref,descNum);
 }
 
-FIELDRADAR *GetFieldRadar(HeaderPtr ptr)
+FIELDRADAR *GetFieldRadar(HeaderPtr ptr, int descNum)
 {
     Header *h = (Header *)ptr;
 
-    return(h->FieldRadar());
+    return(h->FieldRadar(descNum));
 }
 
 void SetVolume(HeaderPtr ptr, VOLUME *cs)
@@ -643,7 +597,6 @@ void DestroyHeader(HeaderPtr ptr)
     delete(h);
 }
 
-#ifdef UNIX
 ostream& operator<<(ostream &os, Header &hdr)
 {
     TAPEHEADER *th = hdr.GetRpcHeader();
@@ -674,8 +627,11 @@ istream& operator>>(istream &is, Header &hdr)
 
     is.read((unsigned char *)&th.Aft,size);
 
+    is.read((unsigned char *)&th.Nav,sizeof(struct nav_descript));
+
+    is.read((unsigned char *)&th.Insitu,sizeof(struct insitu_descript));
+
     hdr = &th;
 
     return(is);
 }
-#endif // UNIX

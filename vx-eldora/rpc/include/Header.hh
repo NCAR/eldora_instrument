@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1992/09/24  13:32:10  thor
+ * Added stream I/O, new Send method.
+ *
  * Revision 1.8  1992/07/28  17:23:46  thor
  * *** empty log message ***
  *
@@ -51,16 +54,16 @@
 #ifndef INCHeaderhh
 #define INCHeaderhh
 
+#ifndef OK_RPC
 #define OK_RPC
+#endif
 
 extern "C" {
 #include "Header.h"
 #include "TapeHeader.h"
 };
 
-#ifdef UNIX
-#include <stream.h>
-#endif // UNIX
+#include <iostream.h>
 
 class Header {
   private:
@@ -78,14 +81,14 @@ class Header {
     int Parameter(PARAMETER &param, int paramNum);
     PARAMETER *Parameter(int paramNum);
 
-    void CellSpacing(CELLSPACING &cs);
-    CELLSPACING *CellSpacing(void);
+    void CellSpacing(CELLSPACING &cs, int descNum = 1);
+    CELLSPACING *CellSpacing(int descNum = 1);
 
     int Radar(RADARDESC &r, int descNum);
     RADARDESC *Radar(int descNum);
 
-    void FieldRadar(FIELDRADAR &f);
-    FIELDRADAR *FieldRadar(void);
+    void FieldRadar(FIELDRADAR &f, int descNum = 1);
+    FIELDRADAR *FieldRadar(int descNum = 1);
 
     void Volume(VOLUME &v);
     VOLUME *Volume(void);
@@ -106,13 +109,9 @@ class Header {
     Header &operator=(Header &in);
 
     Header &operator=(TAPEHEADER *th);
-#ifdef UNIX
-    int Send(char *target);
-    int Send(CLIENT *client);
 
     friend ostream& operator<<(ostream &os, Header &hdr);
     friend istream& operator>>(istream &is, Header &hdr);
-#endif // UNIX
 
     ~Header(void);
 };
