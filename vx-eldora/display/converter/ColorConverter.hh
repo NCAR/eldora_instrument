@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1991/12/20  15:37:08  thor
+ * Changed to new HorizPoint form.
+ *
  * Revision 1.8  1991/12/18  16:11:57  thor
  * Added bounding code to prevent generation of negative counts.
  *
@@ -70,6 +73,7 @@ extern "C" {
 
 static const int MAX_DATA_PLANES = 3;
 static const int MAX_BINS = 31;
+static const int CONV_TBL_SIZE = 65536;
 
 class ColorConverter {
   protected:
@@ -86,12 +90,14 @@ class ColorConverter {
 						      // indexes into
 						      // data array.
 
-  public:
-    ColorConverter(int bins, float *max, float *min, int *offsets, int nparams,
-		int nvalues);
+    unsigned char convertTbl[CONV_TBL_SIZE * MAX_DATA_PLANES];
 
-    void Reset(int bins, float *max, float *min, int *offsets, int nparams,
-	       int nvalues);
+  public:
+    ColorConverter(int bins, float *max, float *min, float *scales,
+		   float *biases, int *offsets, int nparams, int nvalues);
+
+    void Reset(int bins, float *max, float *min, float *scales, float *biases,
+	       int *offsets, int nparams, int nvalues);
 
     ColorConverter(void) {}
 
