@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.15  1992/10/21  14:33:40  thor
  * Cleaned up wait flags & corrected LOAD_ONLY test.
  *
@@ -76,7 +79,6 @@ extern "C" {
 
 #include "boxed_cross.h"
 
-static void Reboot(void);
 static Task *GetsFlags;
 
 static void MouseCtrl(Task &self, Mouse &mouse);
@@ -94,7 +96,8 @@ void DrawingLoop(FAST Task &self)
     GraphicController Agc((void *)AGC_ADDR,AGC_WIDTH,AGC_HEIGHT,AGC_MEM_WIDTH,
 			  AGC_VECTOR);
 
-    Agc.setOverlayColorMap(0xffffff00);
+    Agc.setOverlayColorMap(0);	// Draw a black cursor, so we can tell
+				// if it's working!
 
     Point a;
 
@@ -153,17 +156,19 @@ void DrawingLoop(FAST Task &self)
 		      currTask = &HorizTask;
 		      break;
 		  }
-		// The following it to signal which display - fore or aft.
+		// The following is to signal which display - fore or aft.
 		currTask->SetFlags(LOAD_ONLY);
 	    }
 	  else
 	    {
+		Agc.setOverlayColorMap(0xffffff00); // Now safe to
+						    // draw a white cursor.
 		switch(flag)
 		  {
 		    case REBOOT:
 		      currTask->SetFlags(DESTROY_SELF);
 		      taskDelay(30);
-		      Task rb((FUNCPTR)Reboot,args,0);
+		      reboot(BOOT_NORMAL);
 		      return;
 		      break;
 		      
@@ -176,7 +181,7 @@ void DrawingLoop(FAST Task &self)
 		      break;
 		      
 		    case RELOAD:
-		    case RESTART:
+		    case RESTART_DISP:
 		      currTask->SetFlags(flag);
 		      break;
 		      
@@ -256,12 +261,6 @@ void DrawingLoop(FAST Task &self)
 		  }
 	    }
       }
-}
-
-static void Reboot(void)
-{
-    taskDelay(10);
-    reboot(BOOT_NORMAL);
 }
 
 static void MouseCtrl(Task &self, FAST Mouse &mouse)
