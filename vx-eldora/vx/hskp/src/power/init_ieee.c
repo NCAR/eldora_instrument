@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12  19:51:01  eric
+ * modified code to be compatible with existing housekeeper
+ * software structure.
+ *
  * Revision 1.1  1997/08/26  15:54:42  craig
  * Initial revision
  *
@@ -37,7 +41,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
   unsigned char number_array[11];
   unsigned char muxval,ecbaddr,test,xmit_tp;
   int i,timeout;
-
+void pgm_rt(void);
 xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 
 /************ INITIALIZE STRING AND NUMBER ARRAYS *************/
@@ -55,7 +59,7 @@ xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 
   init_ptrs();
   init_isr_vecs();
-  Debug = 1;
+  Debug = 0;
 
 /******************* INITIALIZE GPIB AND DMA **********************/
 
@@ -71,6 +75,13 @@ xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
  
   strncpy(string_array,"GRFA\0",5); /* Select graph mode */  
   send_cmnd_string(XMIT,string_array); /* on Xmit meter */
+
+  strncpy(string_array, "UNDD\0",5); /* Disable SRQ for underscale */  
+  send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
+ 
+  strncpy(string_array,"UNDD\0",5); /* Disable SRQ for underscale */  
+  send_cmnd_string(XMIT,string_array); /* on Xmit meter */
+
 
   strncpy(string_array,"UPDC\0",5); /* Select update continuously mode */ 
   send_cmnd_string(TESTP,string_array); /* on Test Pulse meter */
@@ -156,11 +167,14 @@ xmit_pwr_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 xmit = taskSpawn("xmit",90,VX_FP_TASK,10000,(FUNCPTR)xmit_rt,0,0,0,0,0,0,0,0,0,0);
 if(xmit == ERROR)
   printf("Failed to Spawn run-time XMIT task!\n");
-
+pgm = taskSpawn("pgm",85,VX_FP_TASK,10000,(FUNCPTR)pgm_rt,0,0,0,0,0,0,0,0,0,0);
+if(pgm == ERROR)
+  printf("Failed to Spawn run-time PGM task!\n");
 testp = taskSpawn("testp",80,VX_FP_TASK,10000,(FUNCPTR)testp_rt,0,0,0,0,0,0,0,0,0,0);
 if(testp == ERROR)
   printf("Failed to Spawn run-time TESTP task!\n");
 taskSuspend(xmit);
+taskSuspend(pgm);
 taskSuspend(testp);
 #ifdef CLOCK_ISR
 
@@ -172,3 +186,13 @@ taskSuspend(testp);
   exit(2);
 #endif
 }
+
+
+
+
+
+
+
+
+
+
