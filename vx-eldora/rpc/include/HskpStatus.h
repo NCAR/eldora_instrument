@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/07/14  14:10:13  thor
+ * Changed ALIVE to DEAD.
+ *
  * Revision 1.1  1992/07/13  20:19:02  thor
  * Initial revision
  *
@@ -113,7 +116,15 @@ typedef struct HskpStatus HskpStatus;
 #define HSKP_RPC_SCOPE extern
 #endif
 
-HSKP_RPC_SCOPE HskpStatus *currStatus;
+HSKP_RPC_SCOPE HskpStatus *currStatus; /* Our current status. */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern int HskpRpcInit(void);	/* Initialize RPC. */
+#ifdef __cplusplus
+};
+#endif
 
 #endif /* OK_RPC */
 
