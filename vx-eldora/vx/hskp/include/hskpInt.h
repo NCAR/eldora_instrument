@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/11/03  22:53:51  craig
+ * *** empty log message ***
+ *
  * Revision 1.5  1992/09/04  18:42:54  craig
  * Added levels for all other interfaces
  *
@@ -39,7 +42,7 @@
 #define ECB_SPARE_IRQ    4    /* "Spare" ecb IRQ level */
 #define ECB_DPCNTD_VEC 251    /* "ECB Master DPRAM contention interrupt */
 #define ECB_DPCNTD_IRQ   4    /* "ECB Master DPRAM contention interrupt */
-#define IEEE_IRQ         4    /*  IEEE-488 interface IRQ level */
+#define IEEE_IRQ         3    /*  IEEE-488 interface IRQ level */
 #define ARINC_IRQ        4    /*   ARINC 429 interface IRQ level */
 #define ARINC_VEC      249    /*   ARINC 429 interface vector number */
 #define GPS_IRQ          4    /*  GPS mailbox interrupt level */
