@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.3  1992/11/03  22:51:49  craig
+// *** empty log message ***
+//
 // Revision 1.2  1992/08/25  20:43:46  craig
 // *** empty log message ***
 //
@@ -36,7 +39,7 @@ extern "C"{
 #include "HskpStatus.h"
 
 int rpcTaskInit(void);
-void startup(void);
+#include "hskpFunc.h"
 };
 
 Header *Hdr;
@@ -51,7 +54,8 @@ static void startRpc(void);
 void startup(void)
 {
     Hdr = NULL;
-    if(taskSpawn("RpcLoop",9,0,12000,(FUNCPTR)startRpc) == ERROR)
+    if(taskSpawn("RpcLoop",9,0,12000,(FUNCPTR)startRpc,0,0,0,0,0,0,0,0,0,0)
+       == ERROR)
       fprintf(stderr,"Failed to start Rpc loop!!!\n");
 }
 
@@ -79,6 +83,3 @@ static void startRpc(void)
     svc_run();
     fprintf(stderr,"svc_run returned");  /* this had better never happen! */
 }
-
-
-

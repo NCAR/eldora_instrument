@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1993/08/10  20:01:17  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  17:27:16  craig
  * Initial revision
  *
@@ -102,8 +105,12 @@ extern HeaderPtr inHeader;
 #include "iruDef.h"
 #include "iruFunc.h"
 #include "iruGbl.h"
+extern void stop11(void);
+extern void dpclr(void);
+extern void go11(void);
+extern short ldsrec(char*);
 
-void hskp(short rotation_flag)
+void hskp()
 {
 
 /* Define some general purpose variables */
@@ -113,9 +120,9 @@ unsigned long T;
 double frequency, temp;
 unsigned char ecbaddr, unitnum, filternum, test;
 int onedone, timeout;
+char ecbname[20];
 
 /* initialize general purpose variables */
-fake_angles = rotation_flag;
 kill = 1;
 
 /* Initialize the global control variables */
@@ -126,6 +133,15 @@ in_vmevme_isr = 0;
 in_gps_isr = 0;
 
 /* Initialize all of the various houskeeping interfaces */
+
+printf("Initializing the ELDORA Control Bus (ecb)\n");
+
+strcpy(ecbname,"mstrvme8.sre");
+stop11();
+dpclr();
+ldsrec(ecbname);
+ecbIntInit(1000000);
+go11();
 
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
@@ -201,6 +217,7 @@ do{
     /* Calculate the number of milliseconds in a dwell time */
 
     dwelltime_msec = wave->repeat_seq * wave->repeat_seq_dwel;
+    half_dwelltime_msec = dwelltime_msec / 2;
 
     /* Set motor to new RPM's and start spinning */
 
@@ -342,7 +359,7 @@ do{
     *tp41_mbox_0 = (char)0;
     command_gps((char)1);
 
-    printf("Starting the IRU Interface");
+    printf("Starting the IRU Interface\n");
     start_iru();
  
     /* Start the radar proccessors over the vme to vme interfaces */
