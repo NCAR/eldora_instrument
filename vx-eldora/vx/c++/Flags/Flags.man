@@ -1,11 +1,12 @@
 .TH Flags l "04 April 1990" "Eldora Addition"
 .SH NAME
-Flags - C++ locla flags class
+Flags \- C++ local flags class
 .SH SYNOPSIS
 .nf
 Flags Flag_obj;	//Constructor.
 
 (void) Flag_obj.set(unsigned int mask);
+(void) Flag_obj.clear(void);
 (unsigned int) Flag_obj.wait(unsigned int mask, int type);
 (unsigned int) Flag_obj.query(void);
 
@@ -23,15 +24,16 @@ former pends on the OR of the mask, so that any single set flag in the
 mask will cause the task to unblock. The latter will not unblock until
 all flags in the mask are set. Before returning to the caller
 .I wait
-clears all flags, so the next 
+clears the set flags in the mask, so the next 
 .I wait 
 can use the same mask. 
 .I Wait
 returns the flag settings that caused it to unblock. The 
 .I set
 call simply sets the flags specified in
-.I mask.
-The 
+.I mask. The
+.I clear
+method clears all flags. The 
 .I query
 call returns the present setting of the flags.
 .SH COMMENTS AND REQUIREMENTS
