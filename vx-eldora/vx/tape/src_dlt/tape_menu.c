@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:46  craig
+ * Initial revision
+ *
  *
  * description: Provides a diagnostic menu for the DLT tape drives
  *        
@@ -20,7 +23,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <tapeDef.h>
 #include <tapeGbl.h>
 
-#define FREE_MEM_START 0x20000000
+#define FREE_MEM_START 0x2000000
 
 /******************* SELECT AN OPERATION ****************/
 
@@ -28,23 +31,18 @@ void tape_menu()
 {
 volatile unsigned short *status;
 int choice, sg_length, sg_buff;
-int i,j,k,n;
-int stat;
-int recflag;
-int original, found;
-int hdrsz;
-char sgflg,drv_num;
-int stat0,stat1;
-unsigned int *tape_data;
-unsigned int count;
-int max_read, length, address;
-int total_fmks;
-char response;
+int i,j,k,n,m;
+int length, address, bytes_to_print;
+int cntrl_size, secs, tot_bytes;
+char response, statr, statw;
 long number, *long_pntr;
-char test;
-unsigned char drv_stat;
-short list_length;
-char mem_dump;
+unsigned char drv_stat, read_id, write_id;
+char *cntrl_addr;
+union{
+  int  aint;
+  char array[4];
+}sch;
+float rate;
 
 /* Set the SCSI ID's of each of the drives */
 
@@ -54,12 +52,15 @@ scsi_id[2] = 3;
 scsi_id[3] = 4;
 
 status=(unsigned short *)(CIP_BASE+SHORT_BASE+CIP_BD_STAT);
-total_fmks=0;
-max_read=32768;
 tape_vme_offset = 0;
-/* tape_data= (unsigned int *)0x2001000; */
 
-initialize_tape(FREE_MEM_START,SCATTER_GATHER);
+/* Get the size of the area to malloc for the tape control structures,
+   malloc the space and initialize all of the control structures */
+
+/* cntrl_size = tape_cntrl_len(SCATTER_GATHER);
+cntrl_addr = malloc(cntrl_size);
+initialize_tape((int)cntrl_addr,SCATTER_GATHER);
+*/
 
 do
   {
@@ -69,18 +70,22 @@ do
       puts("1) TEST UNIT READY");
       puts("2) REWIND");
       puts("3) UNLOAD");
-      puts("4) SEND DIAGNOSTIC");
-      puts("5) MODE SENSE");
-      puts("6) REQUEST SENSE");
-      puts("7) WRITE FILEMARK");
-      puts("8) READ POSITION");
-      puts("9) RESET CIPRICO AND TAPE DRIVES");
-      puts("10) ERASE TAPE");
-      puts("11) COPY TAPE TO TAPE");
-      puts("12) INITIALIZE TAPE DRIVES");
-      puts("13) SPACE TAPE");
-      puts("14) WRITE TAPE BUFFERED");
-      puts("15) WRITE TAPE SCATTERED_GATHERED");
+      puts("4) LOAD");
+      puts("5) READ TAPE");
+      puts("6) MODE SENSE");
+      puts("7) REQUEST SENSE");
+      puts("8) WRITE FILEMARK");
+      puts("9) TIMED WRITE TEST");
+      puts("10) RESET CIPRICO AND TAPE DRIVES");
+      puts("11) ERASE TAPE");
+      puts("12) COPY TAPE TO TAPE");
+      puts("13) INITIALIZE TAPE DRIVES");
+      puts("14) SPACE TAPE");
+      puts("15) WRITE TAPE BUFFERED");
+      puts("16) WRITE TAPE SCATTERED_GATHERED");
+      puts("17) LOG SENCE");
+      puts("18) LOG PAGES");
+      puts("19) LOG SELECT");
 
       scanf(" %d",&choice);
       switch(choice)
@@ -143,124 +148,82 @@ do
 
 
 	  case 4:
-	    printf("ENTER THE NUMBER OF THE DRIVE TO TEST(0-3)");
-	    scanf(" %d",&choice);
-	    found = 0;
 	    for(i=0; i<4; i++)
-	      if(choice == scsi_id[i]) found = 1;
-	    if(found != 1) 
 	      {
-		  printf("DRV%d DOES NOT EXIST ON THIS SYSTEM\n",choice);
-		  puts("EXITING");
-		  break;
-	      }
-	    drv_num=choice;
-	    puts("SELECT A TEST TO RUN");
-	    puts("0) MEMORY DUMP");
-	    puts("1) POWER ON TESTS WITHOUT TAPE");
-	    puts("2) POWER ON WRT/RD & LOAD TEST WITHOUT TAPE");
-	    puts("3) POWER ON TESTS WITH TAPE");
-	    puts("4) POWER ON WRT/RD & LOAD TEST WITH TAPE");
-	    scanf(" %d",&choice);
-	    switch(choice)
-	      {
-		case 0:
-		  puts("NOT IMPLEMENTED YET!!");
-		  break;
-		case 1:
-		  printf("DO NOT INSERT A DATA CARTRIDGE IN DRV%d FOR THIS TEST\n",drv_num);
-		  tst_unt_rdy(drv_num);
-		  dlt_cmds(REQUEST_SENSE,drv_num);
-		  if((rqst_sen->sense_key&0x02)==0x02)
-		    {
-			test=0x04;
-			list_length=0;
-			mem_dump=0x00;
-			send_diags(test,list_length,mem_dump,drv_num);
-			printf("RCV RESULTS FROM DRV%d?\n",drv_num);
-			scanf(" %c",&response);
-			if(response=='y')
-			  {
-			      dlt_cmds(RCV_DIAGNOSTICS,drv_num);
-			      print_results();
-			      taskDelay(100);
-			  }
-			break;
-		    }
-		  printf("DRV%d HAS CARTRIDGE IN IT! REMOVE AND TRY AGAIN\n",drv_num);
-		  break;
-		case 2:
-		  printf("INSERT A DATA CARTRIDGE IN DRV%d AFTER DOOR OPENS\n",drv_num);
-		  tst_unt_rdy(drv_num);
-		  dlt_cmds(REQUEST_SENSE,drv_num);
-		  if((rqst_sen->sense_key&0x02)==0x02)
-		    {
-			test=0x05;
-			list_length=0;
-			mem_dump=0x00;
-			send_diags(test,list_length,mem_dump,drv_num);
-			printf("RCV RESULTS FROM DRV%d?\n",drv_num);
-			scanf(" %c",&response);
-			if(response=='y')
-			  {
-			      dlt_cmds(RCV_DIAGNOSTICS,drv_num);
-			      print_results();
-			      taskDelay(100);
-			  }
-			break;
-		    }
-		  printf("DRV%d HAS A CARTRIDGE IN IT! REMOVE AND TRY AGAIN\n",drv_num);
-		  break;
-		case 3:
-		  printf("INSERT A DATA CARTRIDGE IN DRV%d FOR THIS TEST\n",drv_num);
-		  tst_unt_rdy(drv_num);
-		  dlt_cmds(REQUEST_SENSE,drv_num);
-		  if((rqst_sen->sense_key&0x02)==0x02)
-		    {
-			printf("DRV%d NEEDS A CARTRIDGE! INSERT AND TRY AGAIN\n",drv_num);
-			break;
-		    }
-		  test=0x06;
-		  list_length=0;
-		  mem_dump=0x00;
-		  send_diags(test,list_length,mem_dump,drv_num);
-		  printf("RCV RESULTS FROM DRV%d?\n",drv_num);
+		  printf("LOAD SCSI Drive: %2d?",scsi_id[i]);
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(RCV_DIAGNOSTICS,drv_num);
-			print_results();
-			taskDelay(100);
+			dlt_cmds(LOAD,scsi_id[i]);
 		    }
-		  break;
-		case 4:
-		  printf("INSERT A DATA CARTRIDGE IN DRV%d FOR THIS TEST\n",drv_num);
-		  tst_unt_rdy(drv_num);
-		  dlt_cmds(REQUEST_SENSE,drv_num);
-		  if((rqst_sen->sense_key&0x02)==0x02)
-		    {
-			printf("DRV%d NEEDS A CARTRIDGE! INSERT AND TRY AGAIN\n",drv_num);
-			break;
-		    }
-		  test=0x07;
-		  list_length=0;
-		  mem_dump=0x00;
-		  send_diags(test,list_length,mem_dump,drv_num);
-		  printf("RCV RESULTS FROM DRV%d?\n",drv_num);
-		  scanf(" %c",&response);
-		  if(response=='y')
-		    {
-			dlt_cmds(RCV_DIAGNOSTICS,drv_num);
-			print_results();
-			taskDelay(100);
-		    }
-		  break;
 	      }
 	    break;
 
 
+	  case 5:    /* Read tape */
+	    for(i=0; i<4; i++)
+	      {
+		  printf("\nRead from SCSI Drive %2d? ",scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			printf("\nEnter number of records to read: ");
+			scanf(" %d",&number);
+			printf("\nEnter length of each record: ");
+			scanf(" %d",&length);
+			printf("\nEnter the number of bytes to print: ");
+			scanf(" %d",&bytes_to_print);
+			printf("\nEnter address (in hex) of records");
+			printf(" Global memory starts at 0x2000000: ");
+			scanf(" %x",&address);
+			for(j=0; j<number; j++)
+			  {
+			      read_tape((unsigned int *)address,
+					 (unsigned int)length,
+					 (unsigned char)BLOCKED,
+					 scsi_id[i]);
+			      printf("\n\nReading record record %d",j);
 
-	  case 5:
+			      for(k=0; k < bytes_to_print/20; k++)
+				{
+				  long_pntr = (long *)(address + k*20); 
+				  printf("\n%5d ",k*20);
+				  for(m=0; m<5; m++)
+				    printf("%08x ",*(long_pntr + m));
+				  for(m=0; m<5; m++)
+				    {
+				      sch.aint = *(long_pntr + m);
+				      if(0x7E >= sch.array[0] &&  
+					 sch.array[0] >= 0x20)
+					printf("%c",sch.array[0]);
+				      else
+					printf(".");
+				      if(0x7E >= sch.array[1] &&
+					 sch.array[1] >= 0x20)
+					printf("%c",sch.array[1]);
+				      else
+					printf(".");
+				      if(0x7E >= sch.array[2] &&
+					 sch.array[2] >= 0x20)
+					printf("%c",sch.array[2]);
+				      else
+					printf(".");
+				      if(0x7E >= sch.array[3] &&
+					 sch.array[3] >= 0x20)
+					printf("%c",sch.array[3]);
+				      else
+					printf(".");
+				    } /* for m=0 */
+				}     /* for k=0 */
+			  }           /* for j=0 */
+		    }                 /* if(response */
+	      }                       /* for i=0 */
+
+	    break;
+
+
+
+	  case 6:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("PRINT MODE SENSE SCSI Drive: %2d?",scsi_id[i]);
@@ -274,7 +237,7 @@ do
 	    break;
 
 
-	  case 6:
+	  case 7:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("PRINT REQUEST SENSE SCSI Drive: %2d?",scsi_id[i]);
@@ -289,36 +252,63 @@ do
 
 
 
-	  case 7:
+	  case 8:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("WRITE FILEMARK TO SCSI Drive: %2d?",scsi_id[i]);
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			timex(dlt_cmds,WRITE_FILEMARK,scsi_id[i]);
-			total_fmks++;
+			dlt_cmds(WRITE_FILEMARK,scsi_id[i]);
 			printf("WROTE FILEMARK TO SCSI Drive: %2d\n",
 			       scsi_id[i]);
-			printf("TOTAL FILEMARKS WRITTEN= %d\n",
-			       total_fmks);
 		    }
 	      }
 	    break;
 
 
 
-	  case 8:
-	    printf("Sorry!! not implemented\n\n\n");
-	    break;
-
-
-	  case 9:
-	    cip_init();
+	  case 9: /* Timed write test */ 
+	    for(i=0; i<4; i++)
+	      {
+		  printf("\nTimed Write to SCSI Drive %2d? ",scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			printf("\nEnter number of records to record: ");
+			scanf(" %d",&number);
+			printf("\nEnter length of each record: ");
+			scanf(" %d",&length);
+			printf("\nEnter address (in hex) of records");
+			printf(" Global memory starts at 0x2000000: ");
+			scanf(" %x",&address);
+			long_pntr = (long *)address;
+			n = tickGet();
+			for(j=0; j<number; j++)
+			  {
+			      *long_pntr = j;
+			      write_tape((unsigned int *)address,
+					 (unsigned int)length,
+					 (unsigned char)BLOCKED,
+					 scsi_id[i]);
+			  }
+			m = tickGet();
+			k = sysClkRateGet();
+			secs = (m-n)/k;
+			tot_bytes = number * length;
+			rate = tot_bytes / secs;
+			printf("\n%d bytes written in %d seconds rate: %f bytes/sec\n",tot_bytes,secs,rate);
+		    }
+	      }
 	    break;
 
 
 	  case 10:
+	    cip_init();
+	    break;
+
+
+	  case 11:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("ERASE SCSI Drive: %2d?",scsi_id[i]);
@@ -332,13 +322,35 @@ do
 
 
 
-	  case 11:
-	    tp_cpy(tape_data,max_read);
+	  case 12:
+	    printf("\n Enter the scsi ID to read from: ");
+	    scanf(" %d",&read_id);
+	    printf("\n Enter the scsi ID to write to: ");
+	    scanf(" %d",&write_id);
+	    printf("\nEnter address (in hex) where to store records");
+	    printf(" Global memory starts at 0x2000000: ");
+	    scanf(" %x",&address);
+	    length = 32768;
+	    number = 0;
+	    do{
+	      statr = read_tape((unsigned int *)address,
+			(unsigned int)length,
+			(unsigned char)BLOCKED,
+			read_id);
+	      statw = write_tape((unsigned int *)address,
+			 (unsigned int)length,
+			 (unsigned char)BLOCKED,
+			 write_id);
+	      number += 1;
+	    }while(statr == 0 && statw == 0);
+	    printf("\n%d records copied from drive %d  to drive %d\n\n",
+		   number,read_id,write_id);
+
 	    break;
 
 
 
-	  case 12:
+	  case 13:
 
 	    for(i=0; i<4; i++)
 	      {
@@ -352,11 +364,11 @@ do
 	    break;
 
 
-	  case 13:
-	    puts("SELECT SPACE BY:");
-	    puts("1) N number of EOFS");
-	    puts("2) N number of variable length blocks");
-	    puts("3) EOD");
+	  case 14:
+	    puts("\n\nSELECT SPACE BY:\n");
+	    puts("1) N number of EOFS\n");
+	    puts("2) N number of variable length blocks\n");
+	    puts("3) EOD\n");
 	    scanf(" %d",&choice);
 	    switch(choice)
 	      {
@@ -401,7 +413,7 @@ do
 	    break;
 
 		  
-	  case 14:
+	  case 15:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("\nWrite blocked to SCSI Drive %2d? ",scsi_id[i]);
@@ -413,6 +425,7 @@ do
 			printf("\nEnter length of each record: ");
 			scanf(" %d",&length);
 			printf("\nEnter address (in hex) of records: ");
+			printf(" Global memory starts at 0x2000000: ");
 			scanf(" %x",&address);
 			for(j=0; j<number; j++)
 			  {
@@ -429,7 +442,7 @@ do
 	      }
 	    break;
 		  
-	  case 15:
+	  case 16:
 	    for(i=0; i<4; i++)
 	      {
 		  printf("\nWrite scatter gather to SCSI Drive %2d? ",
@@ -442,6 +455,7 @@ do
 			printf("\nEnter length of each record: ");
 			scanf(" %d",&length);
 			printf("\nEnter address (in hex) of records: ");
+			printf(" Global memory starts at 0x2000000: ");
 			scanf(" %x",&address);
 			sg_length = length / 19;
 			sg_length = (int)(sg_length / 4) * 4;
@@ -471,12 +485,52 @@ do
 					 (unsigned char)SCATTER_GATHER,
 					 scsi_id[i]);
 			      sg_buff += 1;
-			      if(sg_buff > 1) sg_buff = 0;
+			      if(sg_buff >= NUM_SG_STRUCTS) sg_buff = 0;
 			      sg_init(sg_buff);
 			  }
 		    }
 	      }
 	    break;
+
+	  case 17:
+	    for(i=0; i<4; i++)
+	      {
+		  printf("PRINT LOG SENSE SCSI Drive: %2d?",scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			dlt_cmds(LOG_SENSE,scsi_id[i]);
+			print_log_sns();
+		    }
+	      }
+	    break;
+
+	  case 18:
+	    for(i=0; i<4; i++)
+	      {
+		  printf("PRINT LOG SENSE (SPECIAL PAGES) SCSI Drive: %2d?",
+			 scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			dlt_cmds(LOG_SENSE_SPGS,scsi_id[i]);
+			print_log_pgs();
+		    }
+	      }
+	    break;
+
+	  case 19:
+	    for(i=0; i<4; i++)
+	      {
+		  printf("LOG SELECT SCSI Drive: %2d?",scsi_id[i]);
+		  scanf(" %c",&response);
+		  if(response=='y')
+		    {
+			dlt_cmds(LOG_SELECT,scsi_id[i]);
+		    }
+	      }
+	    break;
+
 
 	  default:
 	    puts("NOT A CHOICE. TRY AGAIN");
