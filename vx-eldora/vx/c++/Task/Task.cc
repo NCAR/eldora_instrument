@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/10/02  13:16:55  vanandel
+ * made logMsg's conditionally compiled
+ *
  * Revision 1.3  1992/10/01  00:16:34  vanandel
  * always use flags, add some debug messages
  *
@@ -31,7 +34,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	   int stacksize = 3000, int options = VX_FP_TASK | VX_STDIO,
-	   int go = 1)
+	   int go = 1, char *name = "")
 {
    
     if (!go)
@@ -65,11 +68,11 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
 	}
 	  if (argsize)
 	    taskId = 
-	    taskSpawn("",pri,options,stacksize,entry,(int)this,args[0],
+	    taskSpawn(name,pri,options,stacksize,entry,(int)this,args[0],
 		      args[1],args[2],args[3],args[4],args[5],args[6],
 		      args[7],args[8]);
 	  else
-	    taskId = taskSpawn("",pri,options,stacksize,entry,(int)this);
+	    taskId = taskSpawn(name,pri,options,stacksize,entry,(int)this);
       }
 
 }

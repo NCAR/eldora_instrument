@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/30  15:23:43  thor
+ * Undid destructor.
+ *
  * Revision 1.2  1991/10/28  20:25:55  thor
  * Add destructor.
  *
@@ -67,7 +70,7 @@ class Task {
   public:
     Task(FUNCPTR entry, int *args, int argsize, int pri = 100,
 	 int stacksize = 3000, int options = VX_FP_TASK | VX_STDIO,
-	 int go = 1);
+	 int go = 1, char *name = "");
 
     STATUS Delete(void) { return(taskDelete(taskId)); }
 
