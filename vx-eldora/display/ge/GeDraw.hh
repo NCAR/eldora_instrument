@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.10  1992/10/09  14:55:25  thor
  * Added LOAD_ONLY support.
  *
@@ -59,7 +62,7 @@
 #ifdef MVME133
 static const int AGC_ADDR                 = 0xf0000000;
 #else
-static const int AGC_ADDR                 = 0xa0000000;
+static const int AGC_ADDR                 = 0x80000000;
 #endif // MVME133
 
 static const int MCPL_ADDR                = 0x20000000;
@@ -103,4 +106,3 @@ extern void HorizMouse(HorizDisplay *);
 extern void VertMouse(Vertical *);
 
 #endif // INCGeDrawhh
-
