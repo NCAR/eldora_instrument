@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.9  1994/09/27  17:24:19  thor
+// Changed some floating point calculations to integer.
+//
 // Revision 1.8  1994/07/06  13:57:41  thor
 // Fixed roll direction.
 //
@@ -204,7 +207,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
     FAST int fg = firstGate;
 
     FAST unsigned char *colors1 = cvalues + fg;
-    FAST unsigned char *colors2 = cvalues + 1024;
+    FAST unsigned char *colors2 = colors1 + 1024;
     
     FAST int c1 = (cos1 * fg);
     FAST int c2 = (cos2 * fg);
