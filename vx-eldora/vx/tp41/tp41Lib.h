@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/23  16:05:21  thor
+ * Changed w/rcio(), added set/getTp41VMEPage().
+ *
  * Revision 2.0  1992/11/02  20:42:08  thor
  * First offical ELDORA release!
  *
@@ -49,6 +52,10 @@
 
 /* Local extensions. */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Dual porting. */
 extern STATUS dport(char *localAddr, void *vmeAddr, int numSegs);
 extern STATUS std_dport(char *localAddr, void *vmeAddr, int numSegs);
@@ -67,6 +74,10 @@ extern STATUS wcio(int, char *, unsigned char);
 /* Diddle page bits. */
 extern STATUS setTp41VMEPage(int page);
 extern int getTp41VMEPage(void);
+
+#ifdef __cplusplus
+};
+#endif
 
 #define VME_EXT 0
 #define VME_STD 1
