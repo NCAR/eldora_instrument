@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+/* Global variables for using the Vme to Vme interfaces */
+
+scope struct vmevmehndshk *fore_vmehndshk;
 scope struct vmevmehndshk *aft_vmehndshk;
 scope char *fore_local_status;
 scope char *fore_local_command;
@@ -45,3 +48,6 @@ scope long ads_current_index;
 scope short in_vmevme_isr;
 
 /* Global "use fake angles flag" */
+
+/* Global "I have answered an interrupt" variable */
+scope short in_vmevme_isr;
