@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/12/17  21:25:35  thor
+ * Converted to unsigned shorts!
+ *
  * Revision 1.6  1991/12/06  16:37:18  thor
  * Added method for vertical displays.
  *
@@ -40,10 +43,12 @@
  * This is used to map the nearest real gate onto the displayed gate.
  * All conversion methods use the same basic algorithm - we set up an
  * array that contains discrete levels in the constructor. When we
- * want the converted value we walk up the array. If the value is <=
+ * want the converted value we walk up the array. If the value is <
  * the array value the index equals the color (plus any offset into
  * the color table). If we reach the end of the array with no match
- * the color defaults to the maximum color value.
+ * the color defaults to the maximum color value. Note that the values
+ * are off by one - at 0 index the value is for step 1, etc. This is
+ * done so that the colors fall into the correct bins.
  * 
  */
 #ifndef INCColorConverterhh
@@ -72,7 +77,11 @@ class ColorConverter {
     int numOfParams;		// Number of parameters in data array.
     int numOfValues;		// Number of parameters used.
 
-    int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of indexes into data array.
+    int first[3];		// First real color available.
+
+    int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
+						      // indexes into
+						      // data array.
 
   public:
     ColorConverter(int bins, float *max, float *min, int *offsets, int nparams,
