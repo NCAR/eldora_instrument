@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/10/24  15:46:42  thor
+ * Changed nextZoom to eliminate extraneous cursor location diddling.
+ *
  * Revision 1.7  1991/10/22  18:10:08  thor
  * Fixed signal/noise ratio text to fit screen. Added NCP (normalized
  * coherent poer).
@@ -567,5 +570,10 @@ void Radial::SetBounds(float max, float first)
 {
     maxDistance = max;
 
-    firstGate = (int)first;
+    float rad = radius;
+
+    float step = max / rad;
+
+    
+    firstGate = (int)(first / step);
 }
