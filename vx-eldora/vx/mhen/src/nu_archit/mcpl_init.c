@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/25  17:44:00  eric
+ * removed explicit declarations of global Header pointers.
+ *
  * Revision 1.2  1994/11/14  17:25:16  eric
  * Removed status block variable "count".
  *
@@ -144,7 +147,7 @@ gmad_to_proc =   (struct TPB *)(VMEMEM_BASE + STD_BASE + GMAD_TO_PROC_OFFSET);
 bcast_tpb =     (struct TPB *)(VMEMEM_BASE + STD_BASE + BCAST_TPB_OFFSET);
 gmad =     (struct MAD *)(VMEMEM_BASE + STD_BASE + GMAD_OFFSET);
 mailbox =   (short *)(VMEMEM_BASE + STD_BASE + MAILBOX_OFFSET);
-ray =   (struct RAY *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE);
+ray =   (struct DATA_RAY *)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE);
 
 printf("init address = %x \n",init);
 printf("tpb_to_proc address = %x \n",tpb_to_proc);
