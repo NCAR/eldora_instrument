@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/02/27  19:37:21  thor
+ * Added missing Task.hh include.
+ *
  * Revision 1.2  1991/11/11  15:34:22  thor
  * Removed constructor wait code, added repeat count read to Next.
  *
@@ -51,6 +54,8 @@ class Ddp {
     void PostAlarm(void);
 
     void Next(void);
+    
+    void Clear(void) { taskLock(); sem->semCount = 0; taskUnlock(); }
 };
 
 #endif // INCDdphh
