@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:37:28  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:59  eric
  * Initial revision
  *
@@ -26,6 +29,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "math.h"
 #include "stdioLib.h"
 
+#include "HeaderRpc.h"
+#include "RDPGlobals.h"
 #include "Parameter.h"
 #include "RadarDesc.h"
 #include "FieldRadar.h"
@@ -44,7 +49,7 @@ extern CELLSPACING *cs;
 extern RADARDESC *rdsc;
 extern FIELDRADAR *fldrdr;
 extern PARAMETER *prm;
-extern HeaderPtr *inHeader;
+
 
 /* define some general purpose variables */
 
