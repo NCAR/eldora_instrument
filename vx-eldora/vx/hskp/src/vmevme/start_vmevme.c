@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1997/08/27  16:49:58  craig
+ * *** empty log message ***
+ *
  * Revision 1.10  1996/02/09  18:29:23  craig
  * *** empty log message ***
  *
@@ -47,8 +50,16 @@ for(i=0; i<31; i++)
 
 /* The Radar processors will be 4 dwell times behind so set each of the
  indecies to two (2) (starts at 0, increments once before it is used) */
-
+/*
 current_index = 2;
+*/
+
+/* Attempt Fix of ground tilt by changing pipeline delay to 2 from 4 above */
+/* Test Measurements support 2 delays */
+/* The Radar processors will be 2 dwell times behind so set each of the
+ indecies to 1 (0) (starts at 0, increments once before it is used) */
+
+current_index = 0;
 ads_current_index = 0;
 
 /* Setup the offsets for all of the data types */
