@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1993/09/01  20:07:25  craig
+ * *** empty log message ***
+ *
  * Revision 1.6  1992/11/03  22:53:48  craig
  * *** empty log message ***
  *
@@ -23,7 +26,8 @@ scope VOLUME *vol;
 scope WAVEFORM *wave;
 scope RADARDESC *fraddes;
 scope RADARDESC *araddes;
-scope FIELDRADAR *frad;
+scope FIELDRADAR *ffrad;
+scope FIELDRADAR *afrad;
 scope CELLSPACING *cs;
 scope PARAMETER *param;
 scope NAVDESC *navdes;
@@ -63,7 +67,6 @@ scope float half_dwelltime_msec;
 /* Global Control flags */
 scope short stop_flag;
 scope short reload_flag;
-scope short dc_remove_flag;
 
 /* Parameters to handle the test pulse */
 
@@ -75,3 +78,22 @@ scope short tp_dwell_count;
 scope short testpulse_max_count;
 scope float aft_half_nyquist[5][2];
 scope float fore_half_nyquist[5][2];
+
+/* Parameters to hold the sine and cosine of the tilt angles */
+scope float sin_ftilt;
+scope float sin_atilt;
+scope float cos_ftilt;
+scope float cos_atilt;
+
+/* array to hold mcpl errors discovered in the isr, but need to be reported
+   out of it */
+scope int mcpl_error[3];
+
+/* global parameters to handle the waveguide switch */
+
+scope unsigned short *wg_sw_pntr;
+scope unsigned short wg_sw_current_set;
+scope float wg_sw_big_angle;
+scope float wg_sw_small_angle;
+scope int wg_sw_counter;
+scope int wg_sw_flag;

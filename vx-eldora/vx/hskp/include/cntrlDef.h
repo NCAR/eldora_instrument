@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/09/01  20:07:10  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:36:36  reif
  * Initial revision
  *
@@ -65,10 +68,10 @@
 #define READ_2016               (0X100 + MOTOR_BASE)
 #define SELECT_ABSOLUTE_UPPER   (0X140 + MOTOR_BASE)
 #define SELECT_ABSOLUTE_LOWER   (0X180 + MOTOR_BASE)
-#define COUNTS                  65536
+#define COUNTS                  65536.0
 #define MAX_SAMPLE              0xCB
 #define PERIOD                  0.001000 /* In seconds */
-#define GAIN                    2.1 /* In v/rpm */
+#define GAIN                    10.0 /* In v/rpm */
 
 #define INTEGRATOR_GAIN         0.01   /* Gain of motion control integrator */
 #define DELTA_DEGPERSEC        1.0   /* Integrator allowable error */

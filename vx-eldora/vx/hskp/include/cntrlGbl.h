@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1993/09/01  20:07:28  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:36:36  reif
  * Initial revision
  *
@@ -37,14 +40,9 @@ scope unsigned char *act_vel_msb;
 scope float rpm;
 scope float delta_degpersec;
 scope float integrator_gain;
+scope int problems;
 
-
-
-
-
-
-
-
-
-
-
+/* Globals for input to controller. */
+scope float cntrlGain;
+scope float cntrlPeriod;
+scope float cntrlCounts;

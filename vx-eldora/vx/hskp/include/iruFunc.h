@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/11/03  22:54:05  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/04  19:49:13  craig
  * Initial revision
  *
@@ -25,7 +28,6 @@
 
 void init_iru(short);        /* Initalize all of the IRU Pointers */
 void start_iru();           /* Starts the IRU interface */
-void stop_iru();            /* Stops the IRU interface */
 void iru_isr();             /* IRU interrupt service routine */
 int convert_iru(long,long *,ins_data *);  /* Function to actually read iru
                                            data and convert to proper units */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1993/09/20  16:39:19  craig
+ * *** empty log message ***
+ *
  * Revision 1.6  1992/11/03  22:53:59  craig
  * *** empty log message ***
  *
@@ -30,6 +33,7 @@ scope char *aft_local_status;
 scope char *aft_local_command;
 scope char *aft_remote_status;
 scope char *aft_remote_command;
+scope SEM_ID vmeSem;
 
 /* Global variables to keep track of position in the radar handshake areas */
 

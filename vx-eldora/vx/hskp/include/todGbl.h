@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/01  16:51:08  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/08/21 21:39:48  craig
  * Initial revision
  *
@@ -32,13 +35,13 @@ extern short jday_calc[12];
 
 /* All of the pointers to the various clock locations on the TOD board */
 
-scope unsigned char *hsec;
-scope unsigned char *sec;
-scope unsigned char *min;
-scope unsigned char *hr;
-scope unsigned char *day;
-scope unsigned char *mon;
-scope unsigned char *yr;
+scope unsigned char *hsec_reg;
+scope unsigned char *sec_reg;
+scope unsigned char *min_reg;
+scope unsigned char *hr_reg;
+scope unsigned char *day_reg;
+scope unsigned char *mon_reg;
+scope unsigned char *yr_reg;
 scope unsigned char *tod_cmnd;
 scope unsigned char *int_msk;
 
@@ -56,7 +59,7 @@ scope unsigned char *id2;
 
 scope short *sel_525;
 scope short *reset_525;
-scope unsigned short *msec;
+scope unsigned short *msec_reg;
 
 /* Pointer to the BIM registers */
 
@@ -69,3 +72,13 @@ scope unsigned char *tod_bim_vr1;
 scope unsigned char *tod_bim_vr2;
 scope unsigned char *tod_bim_vr3;
 
+/* global time holding variables */
+
+scope unsigned short msec;
+scope unsigned short jday;
+scope unsigned char sec;
+scope unsigned char min;
+scope unsigned char hr;
+scope unsigned char day;
+scope unsigned char mon;
+scope unsigned char yr;

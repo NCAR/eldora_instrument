@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/01  20:07:41  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/10  19:35:36  craig
  * Initial revision
  *
@@ -24,9 +27,9 @@ char salute[8];             /* Will contain the characters "HI RADAR" when
 short start_hndshk;         /* Handshake when radar processors are ready */
 short dc_remove_hndshk;     /* handshake to keep dc removal in sync */
 short tpulse_flg;           /* Test pulse handshaking flag */
-float tpulse_level;         /* Test pulse measured (by power meter)
-			       level in dbm */
-float tpulse_level_proc;    /* Test pulse level in db (from radar
+long tpulse_vel;            /* Test pulse velocity measured by radar processor
+			       level in scaled m/s */
+long tpulse_level_proc;    /* Test pulse level in scaled dbZ (from radar
 			       processors) */
 long tpulse_dist;           /* Distance to Test pulse in meters */
 long tpulse_width;          /* Width of Test pulse in meters */

@@ -39,13 +39,13 @@
 #include "InSituData.h"
 
 #include "Header.h"
-extern HeaderPtr inHeader;
+#include "HeaderRpc.h"
+#define inHeader Hdr
 
 /* include the .h files that are housekeeper code specific */
 #include "cntrlDef.h"
 #include "cntrlFunc.h"
 #include "cntrlGbl.h"
-#include "cntrlIncl.h"
 #include "ecbAdr.h"
 #include "ecbErrBound.h"
 #include "ecbFunc.h"
@@ -75,3 +75,5 @@ extern HeaderPtr inHeader;
 #include "vmevmeDef.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
+#include "HskpCmd.h"
+#include "HskpStatus.h"

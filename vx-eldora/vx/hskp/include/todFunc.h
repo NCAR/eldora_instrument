@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/01  17:25:25  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:39:58  reif
  * Initial revision
  *
@@ -30,7 +33,8 @@ scope void view_time(void);
 scope char sync_irig(void);
 scope void start_clock(void);
 scope void set_time(char,char,char,char,char,char);
-scope void get_time(char *,char *,char *,short *,short *,char *,char *,char *);
+scope void get_time(char *,char *,char *,short *,short *,char *,char *,
+                    char *);
 
 #endif /* INC */
 
