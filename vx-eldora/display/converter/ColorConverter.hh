@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/06/28  19:06:55  thor
+ * Changed SetBeamSize routine to use new precalcuated parameters.
+ *
  * Revision 1.3  1991/06/25  14:06:08  thor
  * Rewrote beam sizing routine to handle variable gate sizes.
  *
@@ -40,10 +43,13 @@
 #ifndef INCColorConverterhh
 #define INCColorConverterhh
 
+#define OK_RPC
+
 extern "C" {
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "memLib.h"
+#include "CellSpacing.h"
 };
 
 #include "DataPoint.h"
@@ -67,12 +73,13 @@ class ColorConverter {
 
     ColorConverter(void) {}
 
-    int SetBeamSize(int ngates, int nchanges, short *cPts, int *sizes,
-		    float maxRange);
+    // For radial case.
+    void SetBeamSize(CELLSPACING &cs);
 
     // Horizontal & vertical case.
     void GetPoint(short *data, DataPoint &dp, int index);
 
+    // Radial again.
     void GetBeam(FAST short *data, FAST RadialData &rad);
 
     ~ColorConverter(void)

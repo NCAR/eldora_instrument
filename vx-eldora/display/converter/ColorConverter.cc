@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/14  19:16:33  thor
+ * Fixed to use CELLSPACING structure from header.
+ *
+ * Revision 1.4  1991/06/28  19:05:57  thor
  * Changed SetBeamSize routine to use new precalcuated parameters.
  * Changed while to do loops.
  *
@@ -58,49 +62,71 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
-int ColorConverter::SetBeamSize(FAST int ngates, FAST int nchanges,
-				FAST short *cPts, FAST int *sizes,
-				float maxRange)
+void ColorConverter::SetBeamSize(FAST CELLSPACING &cs)
 
-    FAST float *fptr = (float *)malloc(ngates * sizeof(float));
+void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
+				 float realMax = -1.0)
+{
+
+    FAST int seg = cs.num_segments;
+    float maxDist = 0.0;
+    FAST short *widths = &cs.spacing[0];
+    FAST short *ncells = &cs.num_cells[0];
+    FAST int ngates = 0;
+    FAST short *w = widths;
+    FAST short *nc = ncells;
+    FAST int maxDist = cs.distToFirst;;
+
+	  float width = (float)*w++;
       {
-    if (fptr == NULL)
-      return(ERROR);
+	  FAST int c = *nc++;
+	  maxDist += (float)c * width;
+
+	  ngates += c;
+    FAST float *fptr = new float(ngates); // Allocate space for
+					  // temporary array to hold
+					  // actual distances.
       (float *)malloc(sizeof(float) * ngates);; // Allocate space for
-    FAST short *cpts = cPts;
-    FAST int *sz = sizes;
 						// temporary array to hold
 						// actual distances.
-    for (FAST int i = 0; i < nchanges; i++) // For each increment,
-					    // compute gate ranges.
+
+    FAST float *fp = fptr;
+
+    nc = ncells;
+    w = widths;
+
     float dist = (float)cs.distToFirst;;
+
+    for (i = 0; i < seg; i++)	// Fill in actual distances.
       {
-	  FAST int gates = *cpts++;
-	  float size = (float)*sz++;
+	  FAST int c = *nc++;
+	  float width = (float)*w++;
+
 	  for (FAST int j = 0; j < c; j++)
-	  for (FAST int k = 1; k <= gates; k++)
-	    *fp++ = size * k;
+	    {
+		*fp++ = dist;
 
 		dist += width;
-
-    float inc = maxRange / (float)(DISPLAYED_GATES);
+    float inc = maxDist / (float)DISPLAYED_GATES; // Meters/pixel.
 
     FAST int index = 0;
+
     FAST int dcells = pgates;
 
     FAST int *ptr = gateIndex;
-    FAST int j = DISPLAYED_GATES;
+    FAST int dcells = DISPLAYED_GATES;
+    bfill((char *)ptr,ngates * sizeof(int),0xff); // Mark all as not found.
 
     FAST int np = numOfParams;
-    for (i = 0; i < j; i++)	// For each displayed gate.
+	    break;
 
-	  float dist = inc * i;	// Target distance.
+
 	  FAST int index = 0;
 
-	  
-	  for (FAST int k = 0; k < ngates; k++)	// Find closest real gate.
+	  for (FAST int k = 0; k < ngates; k++)
+
 		if (newDiff >= oldDiff)	// If difference increased
-		newDiff = (float)(*fp++ - dist);
+					// this is our gate.
 		  {
 		if (newDiff >= oldDiff)
 		      ptr[pgates] = index + valueOffset[1];
@@ -111,9 +137,7 @@ int ColorConverter::SetBeamSize(FAST int ngates, FAST int nchanges,
 	  if (*ptr < 0)		// Ran off end of beam.
 	    {
 
-    free((char *)fptr);
-
-    return(OK);
+    delete(fptr);
 			      FAST unsigned char *colors,
 			      FAST int index)
 void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
@@ -157,6 +181,7 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
     FAST unsigned char tsize = bins - 1; // Loop count maximum.
     FAST unsigned char inc = 0;		 // Offset into color table.
     FAST int count = numOfValues;
+    FAST int np = numOfParams;
     FAST unsigned char *colors = &rad.colors[0];
     FAST int *offs = valueOffset;
 
@@ -168,8 +193,9 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
 
 	  for (FAST int k = 0; k < j; k++)
 	    {
-		FAST int off = offset + *ptr++;	// Offset to param +
-						// index to correct gate.
+		FAST int off = offset + (*ptr++ * np);	// Offset to param +
+							// index to correct 
+							// gate.
 
 		FAST short datum = *(data + off);
 
