@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1996/06/28  21:35:16  eric
+ * Added code to fill raw data structure with appropriate data.
+ *
  * Revision 1.7  1996/02/23  18:03:27  eric
  * modified code to support test pulse (slow cal).
  *
@@ -418,7 +421,7 @@ n bytes */
 			
 			/* Do Raw Data Processing if Req'd */
 
-			ts_data_loc = (float *)(data_loc_base + ts_off + (TS_freq -1) * sampl * 2 * sizeof(float));
+			ts_data_loc = (float *)(data_loc_base + ts_off + (TS_freq - 1) * (prt_flag + 1) * sampl * 2 * sizeof(float));
 			switch(ASCOPE_mode)
 			  {
 			  case 0: /* Time Series */
