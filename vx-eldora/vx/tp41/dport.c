@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/08/27  13:31:21  thor
+ * Major changes. Fixed code to correctly set up STD addressing in LUT.
+ * Added support for mailboxes.
+ *
  * Revision 1.4  1992/08/24  18:10:00  thor
  * Added support to myDualPort to allow mailboxes.
  *
@@ -153,7 +157,7 @@ STATUS myDualPort (FAST char *localAdrs, FAST char *busAdrs,
 	    *lutEntryAdr = entry << 24;
       }
     else
-      *lutEntryAdr =  accessMode | space | (unsigned char)segId;
+      *lutEntryAdr =  (accessMode | space | (unsigned char)segId) << 24;
 
     /* set address source to VME bus */
 	  
