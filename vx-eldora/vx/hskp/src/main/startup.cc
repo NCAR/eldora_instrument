@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  2003/09/25  17:30:51  kapoor
+ * updated for bancomm clock use - change of get_time, julian day, sync_ir
+ * and start_clock
+ *
  * Revision 1.8  1999/09/27  15:53:59  thor
  * Switched over to new mode of handling commands.
  *
@@ -146,7 +150,8 @@ static void startCmd(void)
 	  if(cmd & START_CLOCK)  /* Has Control processor told us to
 				    start clock? */
 	    {
-	      /*  start_clock(); */
+	      clkstart = 1;
+	      start_clock(); 
 	      currStatus->clock = 0;
 	    }
 	  if(cmd & START)  /* Has control Processor told us to start? */
@@ -172,13 +177,13 @@ static void startCmd(void)
 				  the time of day card to the ADS's
 				  IRIG-B signal? */
 	    {
-	      /********** No Synching for Bancomm Clock Card *****/
-	      /*   currStatus->clock = IRIGB_SYNCING;
+	      
+	      currStatus->clock = IRIGB_SYNCING;
 	      char test = sync_irig();
-	      if(test)             Were we successful? */
+	      if(test)          /* Were we successful? */
 		currStatus->clock = 0;
-	      /* else
-		 currStatus->clock = IRIGB_SYNC_FAILED; */
+	      else
+		 currStatus->clock = IRIGB_SYNC_FAILED; 
 	    }
 	  if(cmd & SET_TIME)  /* Has the Control Processor told us to set
 				 the time? */
@@ -189,11 +194,10 @@ static void startCmd(void)
 	      char hour = cmdBlk.hour;
 	      char minute = cmdBlk.minute;
 	      char second = cmdBlk.second;
-	      set_time(hour,minute,second,month,date,year,string); 
-	      start_clock(string); /* modified - added string var for clock*/
+	      set_time(hour,minute,second,month,date,year); 
 
-	      /******** Commented out TOD card jday calculation **********
-	      * Check for leap year, update the jday_calc array if it is *
+      	      /******* This is for TOD card *******/
+	      /* Check for leap year, update the jday_calc array if it is *
 	      if((((int)(year/4))*4 == year) && (jday_calc[2] == 60))
 		{
 		  for(int i = 2; i < 12; i++)
@@ -201,7 +205,10 @@ static void startCmd(void)
 		}
 	      */
 
-	      get_time();  /* will set the correct julian day */
+	      /* Checks for leap year, updates the day of the mon array */
+	      if(((int)(year/4))*4 == year)
+		day_mon_calc[1] = 29; 
+
 
 	      currStatus->clock = TIME_SET_READY;
 	    }
