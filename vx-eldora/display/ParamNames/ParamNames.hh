@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1993/12/09  20:19:26  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -47,11 +50,11 @@ class ParamNames {
 	NO_PARAM     = -1
     };
     
-    ParamNames(char **n = 0);
+    ParamNames() {}
 
-    char *numToName(int i);
+    const char *numToName(int i);
 
-    char *paramToName(int p);
+    const char *paramToName(int p);
 
     int numToParam(int i);
 
@@ -61,15 +64,15 @@ class ParamNames {
 
     int nameToParam(char *n);
 
-    ~ParamNames();
+    ~ParamNames() {}
 
   private:
-    char **names;
+    static char *names[];
 
 };
 
 #ifdef PARAMNAMES_SCOPE
-static char *ParamTapeNames[] = {
+char *ParamNames::names[] = {
 "DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
 "IMAG_R2", "NCP", "DBZ1", "DBZ2", "DBZ3", "VR1", "VR2", "VR3", "SW1", "SW2",
 "SW3",

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1993/12/09  20:19:24  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -20,23 +23,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ParamNames.hh"
 
 #include <string.h>
-
-ParamNames::ParamNames(register char **n)
-{
-    if (n != 0)
-      n = ParamTapeNames;
-
-    register char **p = names;
-    
-    while (*n != 0)
-      {
-	  register int l = strlen(*n);
-	  *p = new char[l + 1];
-	  strcpy(*n,*p);
-	  p++;
-	  n++;
-      }
-}
 
 int ParamNames::paramToNum(register int p)
 {
@@ -123,7 +109,7 @@ int ParamNames::nameToNum(register char *c)
     return(-1);
 }
  
-char *ParamNames::numToName(register int num)
+const char *ParamNames::numToName(register int num)
 {
     if (num < 0 || num > paramToNum(ParamNames::SPEC_WIDTH3))
       return(NULL);
@@ -131,7 +117,7 @@ char *ParamNames::numToName(register int num)
     return(names[num]);
 }
 
-char *ParamNames::paramToName(register int num)
+const char *ParamNames::paramToName(register int num)
 {
     if (paramToNum(num) == -1)
       return(NULL);
