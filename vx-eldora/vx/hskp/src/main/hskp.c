@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1996/10/29  22:53:21  craig
+ * *** empty log message ***
+ *
  * Revision 1.9  1996/07/23  20:18:44  root
  * Saving Craig's latest work.
  *
@@ -86,7 +89,6 @@ go11();
 
 sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
-sysIntEnable(ARINC_IRQ);
 sysIntEnable(GPS_IRQ);
 sysIntEnable(ECB_CMPLT_IRQ);
 sysIntEnable(ECB_ERROR_IRQ);
@@ -107,8 +109,7 @@ init_motor();   /* Sets gains, sample interval etc. on motor controller card */
 /* init_ieee(); */    /* Initalizes the power meters to begin sending data */
 
 printf("Initializing the ARINC 429 interface\n");
-init_iru((short)0);     /* Initializes the ARINC 429 card to interrupt on
-			   300 words or the latitude label */
+init_iru();     /* Initializes the ARINC 429 card to sort on labels */
 
 printf("Initializing the GPS interface\n");
 init_gps((short)0);/* Sets up the the GPS mailbox interrupt, proper pointers */
@@ -291,6 +292,12 @@ do{
     /* Now start the automatic testpulse calibration scheme */
   start_testpulse();
 
+  /* Initialize the mcpl handshake */
+    fore_vmehndshk -> mcpl_hndshk = 1;
+    aft_vmehndshk -> mcpl_hndshk = 0;
+    mcpl_xfer_processor = 0;
+
+
     /* Start the interrupts from the ieee-488 board */
   /*  start_ieee(); */
 
@@ -341,15 +348,6 @@ do{
 	      printf("N");
 	      mcpl_error[2] = 0;
 	  }
-
-	/* Is there new IRU data to handle? */
-
-       if(old_iru_interrupts != iru_rpntr->num_interrupts)
-	 {
-	   /*	     if(iru_rpntr->num_interrupts - old_iru_interrupts > 1)
-	       printf("M"); */
-	     iru_isr();
-	 }
 
 	/* Check on the status of the miniRIMS */
 
