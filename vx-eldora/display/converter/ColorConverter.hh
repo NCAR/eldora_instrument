@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/01/22  17:38:10  thor
+ * Added new params to constructor to handle new conversion algorithm.
+ *
  * Revision 1.9  1991/12/20  15:37:08  thor
  * Changed to new HorizPoint form.
  *
@@ -78,13 +81,10 @@ static const int CONV_TBL_SIZE = 65536;
 class ColorConverter {
   protected:
     int valueOffset[MAX_DATA_PLANES]; // Offsets into the data array.
-    unsigned short *tbl[MAX_DATA_PLANES]; // The lookup tables.
 
     int nbins;			// Number of colors in use.
     int numOfParams;		// Number of parameters in data array.
     int numOfValues;		// Number of parameters used.
-
-    int first[3];		// First real color available.
 
     int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of
 						      // indexes into
@@ -112,18 +112,6 @@ class ColorConverter {
 
     // Radial again.
     void GetBeam(unsigned short *data, RadialData &rad);
-
-    ~ColorConverter(void)
-      {
-	  FAST int j = numOfValues;
-
-	  for (FAST int i = 0; i < j; i++)
-	    {
-		FAST unsigned short *ptr = tbl[i];
-
-		free((char *)ptr);
-	    }
-      }
 };
 
 

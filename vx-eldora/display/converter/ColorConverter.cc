@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.18  1992/01/22  17:41:45  thor
+ * Removed all the old stuff.
+ *
  * Revision 1.17  1992/01/22  17:38:39  thor
  * Major rewrite to make code use a new algorithm.
  *
@@ -81,10 +84,6 @@ extern "C" {
 };
 
 ColorConverter::ColorConverter(int bins, float *max, float *min, float *scales,
-    tbl[0] = NULL;		// Zero out pointers to be safe.
-    tbl[1] = NULL;
-    tbl[2] = NULL;
-
 			       float *biases, int *offsets,
 			       int nparams, int nvalues)
 {
@@ -96,43 +95,18 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 			   FAST int *offsets, int nparams, FAST int nvalues)
 {
     nbins = bins;
-    FAST int *firsts = first;
     numOfParams = nparams;
+    numOfValues = nvalues;
 
-    for (FAST int i = 0; i < nvalues; i++, firsts++)
+    float fbins = (float)bins;	// How many colors.
     float fb = 0.0;		// Color offset.
 
     for (FAST int i = 0; i < nvalues; i++)
       {
-	  if (tbl[i] != NULL)	// If already in use.
-	    free((char *)tbl[i]);
-
-	  FAST unsigned short *ptr = // Get new space.
-	    (unsigned short *)malloc(sizeof(unsigned short) * bins);
-
-	  tbl[i] = ptr;
-
-	  float step = (mx - mn) / (float)(bins - 1);
-
-	  *firsts = 0;
-	  
-	  // Note that the color array values start at the 1st real
-	  // color, so the whole array may not get filled.
-	  for (FAST int j = 1; j < bins; j++)
-	    {
-		float f = mn + ((float)j * step);
-
-		if (f < 0.0)	// Negative counts cannot exist!
-		  (*firsts)++;
-		else
-		  *ptr++ = (unsigned short)f; // Ignore roundoff err.
-	    }
 	  float mx = *max++;
 	  float mn = *min++;
 	  float slope = (float)(bins - 1) / (mx - mn);
 	  float b = (float)(bins - 1) - (slope * mx);
-	  
-	  j = 0xffff;
 
 
 	  valueOffset[i] = *offsets++;
