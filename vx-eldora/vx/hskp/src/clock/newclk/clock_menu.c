@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/09/23  16:40:23  kapoor
+ * Initial revision
+ *
  * Revision 2.0  2001/06/12 19:32:41  thor
  * *** empty log message ***
  *
@@ -40,7 +43,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define scope extern
-#include "sablIncs.h"
+#include "hskpAll.h"
 
 void clock_menu(void)
 {
