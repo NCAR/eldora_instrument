@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/09/20  17:35:54  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  16:48:23  craig
  * Initial revision
  *
@@ -17,12 +20,13 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#include <vxWorks.h>
-#include <stdioLib.h>
-#include <math.h>
-#include <string.h>
-#include <pwrDef.h>
-#include <pwrFunc.h>
+#include "vxWorks.h"
+#include "stdioLib.h"
+#include "math.h"
+#include "string.h"
+#include "pwrDef.h"
+#include "pwrFunc.h"
+#include "semLib.h"
 
 void init_isr_vecs()
 {
@@ -48,4 +52,8 @@ void init_isr_vecs()
 	printf("FAILED TO CONNECT. EXITING\n");
 	exit(1);
     }
+xmit_data_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
+xmit_err_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
+testp_data_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
+testp_err_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 }
