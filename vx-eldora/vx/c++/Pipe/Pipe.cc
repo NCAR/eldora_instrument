@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/25  20:45:38  thor
+ * Removed unneeded semTakes, added task(un)Lock.
+ *
  * Revision 1.1  1991/10/31  18:59:55  thor
  * Initial revision
  *
@@ -24,7 +27,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 int Pipe::Read(FAST void *ptr, FAST int item_count, FAST int timeout)
 {
     FAST int bytes = 0;
-    FAST char *buff = ptr;
+    FAST char *buff = (char *)ptr;
     FAST int inc = addr_inc;
     FAST SEM_ID rs = read_sem;
     FAST SEM_ID ws = write_sem;
@@ -49,7 +52,7 @@ int Pipe::Read(FAST void *ptr, FAST int item_count, FAST int timeout)
 int Pipe::Write(FAST void *ptr, FAST int item_count, FAST int timeout)
 {
     FAST int bytes = 0;
-    FAST char *buff = ptr;
+    FAST char *buff = (char *)ptr;
     FAST int inc = addr_inc;
     FAST SEM_ID rs = read_sem;
     FAST SEM_ID ws = write_sem;
@@ -116,7 +119,7 @@ int Pipe::QueryRead(FAST void *ptr, FAST int item_count)
       }
 
     FAST int bytes = 0;
-    FAST char *buff = ptr;
+    FAST char *buff = (char *)ptr;
     FAST int inc = addr_inc;
     FAST SEM_ID ws = write_sem;
 
@@ -159,7 +162,7 @@ int Pipe::QueryWrite(FAST void *ptr, FAST int item_count)
 	}
 	
     FAST int bytes = 0;
-    FAST char *buff = ptr;
+    FAST char *buff = (char *)ptr;
     FAST int inc = addr_inc;
     FAST SEM_ID rs = read_sem;
     
