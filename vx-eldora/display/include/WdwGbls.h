@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/09  18:02:18  thor
+ * Added more nested includes and global variables.
+ *
  * Revision 1.4  1991/06/13  14:12:46  thor
  * Removed parameter constants as these are now in rpc header.
  * Changed radial display size to 511 gates.
@@ -62,24 +65,6 @@ static const unsigned char WHITE = 0x80;
 static const unsigned char WHITE1 = 0x7f;
 static const unsigned char ALL_SET = 0xff;
 static const unsigned char BLACK = 0x7e;
-
-/* Globally allocated variables. */
-#include "Radial.hh"
-#include "Mouse.hh"
-
-#ifndef WINDOW_GBLS_SCOPE
-#define WINDOW_GBLS_SCOPE extern
-#endif WINDOW_GBLS_SCOPE
-
-WINDOW_GBLS_SCOPE Radial *RadWdw;
-WINDOW_GBLS_SCOPE Mouse *Rodent;
-
-/* Now include global definitions of commands, status, parammeters, etc. */
-#define OK_RPC
-#define WRS_SIDE
-
-#include "DisplayRpc.h"
-#include "ParamNames.h"
 
 #endif /* INCWdwGblsh */
 
