@@ -89,12 +89,11 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "dspaddr.h"
 #include "rp7.h"
 
-
 #define DMC_BASE 0xFF81 + SHORT_BASE    /* Base Address of DMC-300 Card */
 
 short task_sync = 0;
 float rpm;
-int position, err_cnt;
+int position, err_cnt, int_cnt, proc_stat;
 CELLSPACING *cs;
 RADARDESC *rdsc;
 WAVEFORM *wvfm;
@@ -111,7 +110,7 @@ volatile static unsigned char  *collint, *dspint0, *dspint1, *dspint2, *dspint3,
                       *dspint9,*dspint10,*dspint11,*dspint12,*dspint13,
                       *dspint14,*dspint15,*dspint16,*dspint17,*dspint18,
                       *dspint19,*dspq0_dsp0_pcr, *coll0_dsp0_pcr, clr_pif,
-                      clr_pdf;
+                      clr_pdf, *mdbm_int;
 
 volatile static    char   *data = (char *)(DMC_BASE + DATAX);
 volatile static    char   *gal_status = (char *)(DMC_BASE + STATUSX);
@@ -121,6 +120,7 @@ static    unsigned char table[]={0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,
                                  0x0,0xA,0xB,0xC,0xD,0xE,0xF};
 
 volatile static int  f1_flag, f2_flag, f3_flag, f4_flag, f5_flag;
+static char *mb_clr;
 
 dac()
 {
@@ -130,16 +130,16 @@ long           h, i, j, k, l, q, p, r, num_coll_int, num_dspq_int, tst_pls, tp_w
 
 
 volatile unsigned char   *bim_vr0, *bim_vr1, *bim_vr2, *led, *pio_acc,
-               *bim_vr3, stat, *coll_sync, *mdbm_int;
+               *bim_vr3, stat, *coll_sync;
 
 int            *samps, data_samps, buff_cnt, prf, gates, num1, gate_sp, shortcnt,
                first_gate, sem_status, sampl, load_stat, dp_stat[2], coll_stat,
-               chips[6], mcpl_stat, prt_flag, int_cnt, ppp_stat, proc_stat, dc_flag,
+               chips[6], mcpl_stat, prt_flag, ppp_stat, dc_flag,
                pick_gate, f_flag, taskid, dc_stat, temp_stat[5], pcpcnt[10];
 
 unsigned int   num_int1, num_int2, num_int3, num_int4, chip_avg1, chip_avg2,
                chip_avg3, chip_avg4, coll_pick_gate;
-float          duty_cycle, rpt_seq, fake_posit,scale_fac,
+float          duty_cycle, rpt_seq, frq1, frq2, frq3, fake_posit,scale_fac,
                dwell_time, proc_const, short_prt, pcp, repeat_seq, Pnoise,
                conv_gain, avg_scale;
 
@@ -151,7 +151,6 @@ volatile short ray_hndshk_stat, *digif_gates;
 
 double         n_frq, Pn;
 
-char *mb_clr;
 
 void galil();
 void bim_int0_isr();
@@ -161,6 +160,7 @@ void bim_int3_isr();
 int posit();
 
 vme2_pntr = (struct vmevmehndshk *)(VMEMEM_BASE + STD_BASE);
+
 #ifdef PIO_CARD
 
 pio_acc = (unsigned char *)(PIO_BASE + IO_CONTROL);
@@ -277,6 +277,13 @@ for(;;)
 	      rdsc = GetRadar(inHeader,1);
 	    if(radar_fore_aft)
 	      rdsc = GetRadar(inHeader,2);
+	    printf("rdsc = %X \n",rdsc);
+	    frq1 = rdsc -> freq1;
+	    frq2 = rdsc -> freq2;
+	    frq3 = rdsc -> freq3;
+	    printf("frq1 = %f \n",frq1);
+	    printf("frq2 = %f \n",frq2);
+	    printf("frq3 = %f \n",frq3);
 	    if(!radar_fore_aft)	      
 	      cs = GetCellSpacing(inHeader,1);
 	    else
@@ -309,7 +316,7 @@ for(;;)
 	      {
 		  avg_scale += fldrdr -> scale_factor[i]/(float)(f_flag);
 	      }
-	    Pnoise = Pn * avg_scale * sampl * f_flag;
+	    Pnoise = Pn * avg_scale;
 	    printf("Pnoise = %g \n",Pnoise);
 
 /* Calculate antenna r.p.m. based on values in header */
@@ -1152,7 +1159,7 @@ for(;;)
  *  Start Collator and DSPQ DSP32C's HERE                           *
  ********************************************************************/
 
-	    sysIntEnable(4);
+/*	    sysIntEnable(4);  try moving to different location */
 	    dspgo(1,4,0,0);
 	    dspgo(1,2,3,3);
 	    dspgo(1,2,3,2);
@@ -1165,40 +1172,36 @@ for(;;)
 
 	    taskDelay(1);
 
-                  dspgo(1,5,1,3);
-                  dspgo(1,5,1,2);
-		  dspgo(1,5,1,1);
-		  dspgo(1,5,1,0);
+	    dspgo(1,5,1,3);
+	    dspgo(1,5,1,2);
+	    dspgo(1,5,1,1);
+	    dspgo(1,5,1,0);
+	    
+	    dspgo(1,4,1,3);
+	    dspgo(1,4,1,2);
+	    dspgo(1,4,1,1);
+	    dspgo(1,4,1,0);
+	    
+	    dspgo(1,3,1,3);
+	    dspgo(1,3,1,2);
+	    dspgo(1,3,1,1);
+	    dspgo(1,3,1,0);
 
-                  dspgo(1,4,1,3);
-                  dspgo(1,4,1,2);
-		  dspgo(1,4,1,1);
-		  dspgo(1,4,1,0);
-
-                  dspgo(1,3,1,3);
-                  dspgo(1,3,1,2);
-		  dspgo(1,3,1,1);
-		  dspgo(1,3,1,0);
-
-		  dspgo(1,2,1,3);
-		  dspgo(1,2,1,2);
-		  dspgo(1,2,1,1);
-		  dspgo(1,2,1,0);
-
-		  dspgo(1,1,1,3);
-		  dspgo(1,1,1,2);
-		  dspgo(1,1,1,1);
-		  dspgo(1,1,1,0);
+	    dspgo(1,2,1,3);
+	    dspgo(1,2,1,2);
+	    dspgo(1,2,1,1);
+	    dspgo(1,2,1,0);
+	    
+	    dspgo(1,1,1,3);
+	    dspgo(1,1,1,2);
+	    dspgo(1,1,1,1);
+	    dspgo(1,1,1,0);
 
 
 /********************************************************************
  * Start azimuth scan                                               *
  ********************************************************************/
 
-/* Enable 68040 Interrupts */
-	    sysIntEnable(1);
-	    sysIntEnable(2);
-	    sysIntEnable(3);
 #ifdef LAB      
 	    if(!radar_fore_aft)      
 	      slow(rpm);
@@ -1219,15 +1222,13 @@ for(;;)
             j = 0;
 /*          taskid = taskIdSelf(); */
 /*          if(taskPrioritySet(taskid,175)!= OK) */ /* lower task's priority so
-                                                          that tight loop doesn'
-t impede other tasks */
+                                                          that tight loop doesn't impede other tasks */
 /*          printf("invalid task id \n"); */
-            vme2_pntr -> start_hndshk = 1;  /* handshake w/ housekeeper for sync
-hronized start */
+            vme2_pntr -> start_hndshk = 1;  /* handshake w/ housekeeper for synchronized start */
 
             while(strncmp(vme2_pntr -> salute,"HI RADAR",8)!= 0)
                     {
-                        j++;                
+                        j++; 
                     }
 
 /*                if(taskPrioritySet(taskid,100)!= OK) *//* return task to origi
@@ -1241,6 +1242,16 @@ nal priority */
 #ifndef NEW_TM
 	    timon();
 #endif
+
+	    semGive(exec_int0_sem);
+
+/* Enable 68040 Interrupts */
+
+	    sysIntEnable(4);
+	    sysIntEnable(1);
+	    sysIntEnable(2);
+	    sysIntEnable(3);
+
 	    while(!(stop || reboot))
 	      {
       /* Wait 0.3 seconds maximum for MID-BEAM INTERRUPT */
@@ -1248,17 +1259,6 @@ nal priority */
 		  sem_status = semTake(bim_int1_sem, 200); /* wait 200 ticks for ISR to pass sem */
 		  if (sem_status == OK)
 		    {
-		  /* Write to Freq 1 DIGIF to clear Mid-Beam interrupt */
-
-			mb_clr = (char *)(DIGIF1_BASE + MDBM_CLR);
-			*mb_clr = 0;
-
-			*bim_cr1 = 0xdb;  /* re-enable interrupt INT1* */
-
-                        /* Interrupt House Keeping Processor via */
-                        /* VME to VME interface   */
-
-/*                            *mdbm_int = 0x40;  */
 
                   /* Update Testpulse Parameters -- if required */
                   /* Uncomment when HSKPR Test Pulse Works */
@@ -1290,15 +1290,16 @@ r->tpulse_width);
 			  }
 			else
 			  {
-			      if(send_ray[p][r] == 1)
+
+			      if(vme2_pntr -> radar_hndshk[l] == 1)
 				{
 				    for(i=0;i<3;i++)
 				      {
-					  if(send_ray[p][r] == 1)
+					  if(vme2_pntr -> radar_hndshk[l] == 1)
 					    {
-						send_ray[p][r] = 0;
+						curr_ray_add[p][r] = (long)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (l * DATA_RAY_OFFSET));
+						curr_mailbox_add[p][r] = (long)(&vme2_pntr -> radar_hndshk[l]); 
 						broadcast_data(curr_ray_add[p][r],curr_mailbox_add[p][r],logical_length);
-
 #ifdef PIO_CARD
                                                /* Toggle bit 7 of PIO port A */
 						
@@ -1307,17 +1308,16 @@ r->tpulse_width);
 #endif
                                                  
 /*						ray->fielddata.ray_count = l + (q * 27); */
- 						p = p<2?p+1:0;
+						p = p<2?p+1:0;
 						l = l<26?l+1:0;
-						if(l==0)
-						  q++;
 					    }
 					  else
 					    i = 3; /* exit loop if fail any test */
 				      }
-				    r = r<1?r+1:0;
+
+				    /*  r = r<1?r+1:0; */
 				}
-			      
+
 			  }
 
 		    }
@@ -1335,18 +1335,19 @@ r->tpulse_width);
 		    
       /* Wait 0.3 seconds for End of Beam Interrupt */
 
-		  sem_status = semTake(exec_int0_sem, 30); /* wait 30 ticks for ISR to pass sem */
-
+/*		  sem_status = semTake(exec_int0_sem, 30); *//* wait 30 ticks for ISR to pass sem */
+/*
 		  if (sem_status != OK)
 		    {
-
+*/
 /*			printf("ERROR:  NO END OF BEAM INTERRUPT RECEIVED \n"); */
-			int_cnt++;			
+/*			int_cnt++;			*/
 			/* Update Status */
-			currStatus->count++;
+/*			currStatus->count++;
 			currStatus->rp7 |= END_OF_BEAM;
 			proc_stat |= EOB;
 		    }
+*/
       /* Test for DP Out of Sync Interrupt */
 
 		  sem_status = semTake(bim_int2_sem, NO_WAIT); /* don't wait for ISR to pass sem */
@@ -1500,7 +1501,7 @@ Determine which DP went out of sync by reading sync flag status back from all op
     were given prior to Stop command and not taken
 */
 
-	    sem_status = semTake(exec_int0_sem,NO_WAIT);
+/*	    sem_status = semTake(exec_int0_sem,NO_WAIT); */
 	    sem_status = semTake(bim_int1_sem,30);
 	    if(sem_status == OK)
 	      /* Write to Freq 1 DIGIF to clear Mid-Beam interrupt */
@@ -1543,19 +1544,33 @@ void bim_int0_isr()
 
       clr_pif = *collint;
       semGive(bim_int0_sem);
-      semGive(exec_int0_sem);
+/*      semGive(exec_int0_sem); */
   }
 void bim_int1_isr()
   {
-     semGive(bim_int1_sem);
+
+/* Write to Freq 1 DIGIF to clear Mid-Beam interrupt */
+
+      mb_clr = (char *)(DIGIF1_BASE + MDBM_CLR);
+      *mb_clr = 0;
+      
+      *bim_cr1 = 0xdb;  /* re-enable interrupt INT1* */
+
      /* Interrupt House Keeping Processor via polled interrupts */
-     vme2_pntr -> polled++; /* for polled interrupts */      
+      vme2_pntr -> polled++; /* for polled interrupts */      
+
+      /* Interrupt House Keeping Processor via */
+      /* VME to VME interface if FORE Processor  */
+      if(!radar_fore_aft)
+	*mdbm_int = 0x20;  
+
+      semGive(bim_int1_sem);
 
   }
 void bim_int2_isr()
   {
       unsigned char  clr_pif;
-
+      
       clr_pif = *dspint11;
       clr_pif = *dspint10;
       clr_pif = *dspint9;
