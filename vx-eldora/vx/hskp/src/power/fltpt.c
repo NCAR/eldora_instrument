@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/09/20  17:35:40  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  16:48:23  craig
  * Initial revision
  *
@@ -17,81 +20,118 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#include <vxWorks.h>
-#include <stdioLib.h>
-#include <math.h>
-#include <pwrDef.h>
-#include <pwrFunc.h>
+#include "vxWorks.h"
+#include "stdioLib.h"
+#include "math.h"
+#include "pwrDef.h"
+#include "pwrFunc.h"
+#include "tp41vAdr.h"
 
-void flt_pt()
+void flt_pt(int mode)
 {
     double exp;
-
+    volatile unsigned char *xmit_data, *testp_data;
     if(xmit_isr_done==1)
       {
 	  
 /*************  CONVERT DATA TO FLOATING POINT AND DISPLAY  *************/
 	  
-	  fore_xmit_pwr=(xmit_array[4]-'0');
-	  if(xmit_array[5]=='.')
+	  xmit_data = xmit_array + STANDARD_BASE;
+	  fore_xmit_pwr=(xmit_data[4]-'0');
+	  if(xmit_data[5]=='.')
 	    {
-		fore_xmit_pwr+=((xmit_array[6]-'0')*0.1)+((xmit_array[7]-'0')*0.01)+((xmit_array[8]-'0')*0.001);
+		fore_xmit_pwr+=((xmit_data[6]-'0')*0.1)+((xmit_data[7]-'0')*0.01)+((xmit_data[8]-'0')*0.001);
 	    }
-	  else if(xmit_array[6]=='.')
+	  else if(xmit_data[6]=='.')
 	    {
 		fore_xmit_pwr*=10;
-		fore_xmit_pwr+=(xmit_array[5]-'0')+((xmit_array[7]-'0')*0.1)+((xmit_array[8]-'0')*0.01);
+		fore_xmit_pwr+=(xmit_data[5]-'0')+((xmit_data[7]-'0')*0.1)+((xmit_data[8]-'0')*0.01);
 	    }
-	  else if(xmit_array[7]=='.')
+	  else if(xmit_data[7]=='.')
 	    {
 		fore_xmit_pwr*=100;
-		fore_xmit_pwr+=((xmit_array[5]-'0')*10)+(xmit_array[6]-'0')+((xmit_array[8]-'0')*0.1);
+		fore_xmit_pwr+=((xmit_data[5]-'0')*10)+(xmit_data[6]-'0')+((xmit_data[8]-'0')*0.1);
 	    }
-  	  if(xmit_array[10]=='-')
+  	  if(xmit_data[10]=='-')
 	    {
-		exp=xmit_array[12]-'0';
+		exp=xmit_data[12]-'0';
 		fore_xmit_pwr*=pow((double)10.0,-exp);
 	    }
 	  else
 	    {
-		exp=xmit_array[12]-'0';
+		exp=xmit_data[12]-'0';
 		fore_xmit_pwr*=pow((double)10.0,exp);
 	    }
-	  aft_xmit_pwr=(xmit_array[18]-'0');
-	  if(xmit_array[19]=='.')
+
+	  if(mode == 0) /* Continuous Update */
 	    {
-		aft_xmit_pwr+=((xmit_array[20]-'0')*0.1)+((xmit_array[21]-'0')*0.01)+((xmit_array[22]-'0')*0.001);
+	      aft_xmit_pwr=(xmit_data[18]-'0');
+	      if(xmit_data[19]=='.')
+		{
+		  aft_xmit_pwr+=((xmit_data[20]-'0')*0.1)+((xmit_data[21]-'0')*0.01)+((xmit_data[22]-'0')*0.001);
+		}
+	      else if(xmit_data[20]=='.')
+		{
+		  aft_xmit_pwr*=10;
+		  aft_xmit_pwr+=(xmit_data[19]-'0')+((xmit_data[21]-'0')*0.1)+((xmit_data[22]-'0')*0.01);
+		}
+	      else if(xmit_data[21]=='.')
+		{
+		  aft_xmit_pwr*=100;
+		  aft_xmit_pwr+=((xmit_data[19]-'0')*10)+(xmit_data[20]-'0')+((xmit_data[22]-'0')*0.1);
+		}
+	      if(xmit_data[24]=='-')
+		{
+		  exp=(xmit_data[26]-'0');
+		  aft_xmit_pwr*=pow((double)10.0,-exp);
+		}
+	      else
+		{
+		  exp=xmit_data[26]-'0';
+		  aft_xmit_pwr*=pow((double)10.0,exp);
+		}
 	    }
-	  else if(xmit_array[20]=='.')
+
+	  if(mode == 1) /* Update Now */
 	    {
-		aft_xmit_pwr*=10;
-		aft_xmit_pwr+=(xmit_array[19]-'0')+((xmit_array[21]-'0')*0.1)+((xmit_array[22]-'0')*0.01);
+	      aft_xmit_pwr=(xmit_data[19]-'0');
+	      if(xmit_data[20]=='.')
+		{
+		  aft_xmit_pwr+=((xmit_data[21]-'0')*0.1)+((xmit_data[22]-'0')*0.01)+((xmit_data[23]-'0')*0.001);
+		}
+	      else if(xmit_data[21]=='.')
+		{
+		  aft_xmit_pwr*=10;
+		  aft_xmit_pwr+=(xmit_data[20]-'0')+((xmit_data[22]-'0')*0.1)+((xmit_data[23]-'0')*0.01);
+		}
+	      else if(xmit_data[22]=='.')
+		{
+		  aft_xmit_pwr*=100;
+		  aft_xmit_pwr+=((xmit_data[20]-'0')*10)+(xmit_data[21]-'0')+((xmit_data[23]-'0')*0.1);
+		}
+	      if(xmit_data[25]=='-')
+		{
+		  exp=(xmit_data[27]-'0');
+		  aft_xmit_pwr*=pow((double)10.0,-exp);
+		}
+	      else
+		{
+		  exp=xmit_data[27]-'0';
+		  aft_xmit_pwr*=pow((double)10.0,exp);
+		}
 	    }
-	  else if(xmit_array[21]=='.')
-	    {
-		aft_xmit_pwr*=100;
-		aft_xmit_pwr+=((xmit_array[19]-'0')*10)+(xmit_array[20]-'0')+((xmit_array[22]-'0')*0.1);
-	    }
-	  if(xmit_array[24]=='-')
-	    {
-		exp=(xmit_array[26]-'0');
-		aft_xmit_pwr*=pow((double)10.0,-exp);
-	    }
-	  else
-	    {
-		exp=xmit_array[26]-'0';
-		aft_xmit_pwr*=pow((double)10.0,exp);
-	    }
+
       }
     if(testp_isr_done==1)
       {
 /************  CONVERT DATA TO FLOATING POINT AND DISPLAY  *************/
 
-	  fore_testp_pwr=((testp_array[5]-'0')*100)+((testp_array[6]-'0')*10)+(testp_array[7]-'0')+((testp_array[9]-'0')*0.1)+((testp_array[10]-'0')*0.01);
-	  if(testp_array[4]=='-')
+	  testp_data = testp_array + STANDARD_BASE;
+	  fore_testp_pwr=((testp_data[5]-'0')*100)+((testp_data[6]-'0')*10)+(testp_data[7]-'0')+((testp_data[9]-'0')*0.1)+((testp_data[10]-'0')*0.01);
+	  if(testp_data[4]=='-')
 	    fore_testp_pwr*=-1;
-	  aft_testp_pwr=((testp_array[17]-'0')*100)+((testp_array[18]-'0')*10)+(testp_array[19]-'0')+((testp_array[21]-'0')*0.1)+((testp_array[22]-'0')*0.01);
-	  if(testp_array[16]=='-')
+	  aft_testp_pwr=((testp_data[17]-'0')*100)+((testp_data[18]-'0')*10)+(testp_data[19]-'0')+((testp_data[21]-'0')*0.1)+((testp_data[22]-'0')*0.01);
+	  if(testp_data[16]=='-')
 	    aft_testp_pwr*=-1;
       } 
 }
