@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1995/01/20  14:52:02  eric
+ * Put in patch to fix bug in PPP scale_fac in aft processor.
+ *
  * Revision 1.3  1994/11/14  17:25:55  eric
  * Updated code to run Staggered PRT mode.
  *
@@ -103,11 +106,7 @@ int Param = 10;
 short task_sync = 0;
 float rpm;
 int position, err_cnt, int_cnt, proc_stat;
-CELLSPACING *cs;
-RADARDESC *rdsc;
-WAVEFORM *wvfm;
-PARAMETER *prm;
-FIELDRADAR *fldrdr;
+
 extern long max_time;
 
 /* make the following variables available throughout this
@@ -230,15 +229,33 @@ for(;;)
 
      /* Initialize status block to good status */
 
-/*	    if(!dc_removal)  */
 	    currStatus->rp7 = 0;
 	    currStatus->mcpl = 0;
 	    currStatus->status = 0;
 	    currStatus->mailbox = 0;
 
+      /* Initialize Global Header Pointers */
+
+            wvfm = GetWaveform(inHeader);
+	    if(!radar_fore_aft)
+                {
+                    rdsc = GetRadar(inHeader,1);
+                    cs = GetCellSpacing(inHeader,1);
+                    fldrdr = GetFieldRadar(inHeader,1);
+                }
+	    if(radar_fore_aft)
+                {
+                    rdsc = GetRadar(inHeader,2);
+                    cs = GetCellSpacing(inHeader,2);
+                    fldrdr = GetFieldRadar(inHeader,2);
+                }
+       
+      /* Send Start Semaphore to Data Transfer Task */
+
+            semGive(real_sem);
+            
       /* Parse Header for required system parameters */
 
-	    wvfm = GetWaveform(inHeader);
 	    gates = wvfm -> num_gates[0];
 	    num1 = gates - 3;
 	    gate_sp = wvfm -> gate_dist1[1];
@@ -294,23 +311,13 @@ for(;;)
 	    short_prt = pcp * shortcnt;
 	    prf = 1.0 / short_prt;
             sampl = wvfm -> repeat_seq_dwel;
-	    if(!radar_fore_aft)
-	      rdsc = GetRadar(inHeader,1);
-	    if(radar_fore_aft)
-	      rdsc = GetRadar(inHeader,2);
-/*	    printf("rdsc = %X \n",rdsc); */
+
 	    frq1 = rdsc -> freq1;
 	    frq2 = rdsc -> freq2;
 	    frq3 = rdsc -> freq3;
-/*	    printf("frq1 = %f \n",frq1);
-	    printf("frq2 = %f \n",frq2);
-	    printf("frq3 = %f \n",frq3);
-*/
+
 	    num_param = rdsc -> num_parameter_des;
-	    if(!radar_fore_aft)	      
-	      cs = GetCellSpacing(inHeader,1);
-	    else
-	      cs = GetCellSpacing(inHeader,2);
+
             num_int1 = cs -> num_cells[0];
             num_int2 = cs -> num_cells[1];
             num_int3 = cs -> num_cells[2];
@@ -319,10 +326,6 @@ for(;;)
 	    chip_avg2 = (float)(cs -> spacing[1])/(float)(gate_sp) + 0.5;
 	    chip_avg3 = (float)(cs -> spacing[2])/(float)(gate_sp) + 0.5;
 	    chip_avg4 = (float)(cs -> spacing[3])/(float)(gate_sp) + 0.5;
-	    if(!radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,1);
-            if(radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,2);
 	    pick_gate = fldrdr -> time_series_gate; /* must be divisible by 8 !!! */
 	    if(!Silent)
 	      printf("pick_gate = %d \n",pick_gate);
@@ -859,10 +862,6 @@ for(;;)
 
 	    load = 0;     /* Reset load flag */
 /*	    printf("load = %d \n",load); */
-	    if(!radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,1);
-            if(radar_fore_aft)
-	      fldrdr = GetFieldRadar(inHeader,2);
 	    n_frq = (double)(fldrdr -> scale_factor[0]);
 	    scale_fac = n_frq/1.0;
 	    printf("scale_fac = %f\n",scale_fac);
