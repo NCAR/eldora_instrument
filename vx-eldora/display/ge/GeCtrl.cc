@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Fixed cases for RESTART & RELOAD. Corrected to only copy DispCommand if
+ * a new comes in.
+ *
  * Revision 1.3  1991/10/15  15:38:00  thor
  * Fixed reversed order of bcopy.
  *
@@ -60,8 +63,7 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 	  DrawingTask->SetFlags(LOAD_ONLY);
 	  status->status = IDLE;
       }
-	    DrawingTask->SetFlags(STOP);
-	    DrawingTask->SetFlags(START);
+	    DrawingTask->SetFlags(RELOAD);
 	    status->status = IDLE;
 	  switch(command)
 	    {
@@ -71,43 +73,47 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 		status->status = IDLE;
 		break;
 		
-	    DrawingTask->SetFlags(STOP);
-	    DrawingTask->SetFlags(START);
+	    DrawingTask->SetFlags(RESTART);
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
+	      case START:
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case RESTART:
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_RADIAL:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_HORIZ:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case FORWARD_VERT:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		
 	      case AFT_RADIAL:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
 		break;
 		
 	      case AFT_VERT:
-    bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
