@@ -1,0 +1,4 @@
+listener is a simple little program to
+open either a stream or datagram socket, 
+read from it, and display a bandwidth 
+measurement.

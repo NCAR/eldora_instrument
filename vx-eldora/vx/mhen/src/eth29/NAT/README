@@ -51,3 +51,4 @@ a library which translated the standard calls to their names.
 ifconfig.tar - how to configure the eth29 as a standard network interface
 netprint.c 
 setdebug.c - how to set the debugging level on the eth29.
+socksend.tar
