@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/14  19:21:29  thor
+ * Changed to use Task class & added new tasks to spawn.
+ *
  * Revision 1.1  1991/10/01  16:15:09  thor
  * Initial revision
  *
@@ -57,7 +60,7 @@ void GeStart(char *server, int sys)
     AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI); 
 
     // Now we start control loop.
-    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI);
+    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,6000);
 }
 
 void RpcLoop(Task &self)
