@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1991/12/17  21:25:17  thor
+ * Converted to unsigned shorts!
+ *
  * Revision 1.11  1991/12/06  16:37:01  thor
  * Added method for vertical displays.
  *
@@ -59,7 +62,17 @@ extern "C" {
 #include "memLib.h"
 #include "string.h"
 #include "stdioLib.h"
-ColorConverter::ColorConverter(FAST int bins, float *max, float *min,
+ColorConverter::ColorConverter(int bins, float *max, float *min, int *offsets,
+
+ColorConverter::ColorConverter(int bins, float *max, float *min, float *scales,
+    tbl[0] = NULL;		// Zero out pointers to be safe.
+    tbl[1] = NULL;
+    tbl[2] = NULL;
+
+    Reset(bins,max,min,offsets,nparams,nvalues);
+			       int nparams, int nvalues)
+{
+    Reset(bins,max,min,scales,biases,offsets,nparams,nvalues);
 
 void ColorConverter::Reset(FAST int bins, float *max, float *min,
 			   float *scales, float *biases,
@@ -71,13 +84,17 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 
     for (FAST int i = 0; i < nvalues; i++)
       {
-	  FAST short *ptr = (short *)malloc(sizeof(short) * bins);
+	  if (tbl[i] != NULL)
+	    free((char *)tbl[i]);
+
+	  FAST unsigned short *ptr =
+	    (unsigned short *)malloc(sizeof(unsigned short) * bins);
 	  tbl[i] = ptr;
 
 	  float step = (mx - mn) / (float)(bins - 1);
 
 	  for (FAST int j = 0; j < bins; j++)
-	    *ptr++ = (short)(mn + ((float)j * step)); // Ignore roundoff err.
+	    *ptr++ = (unsigned short)(mn + ((float)j * step)); // Ignore roundoff err.
 
 	  float mx = *max++;
 		*lkup++ = color;
@@ -139,6 +156,8 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
     FAST int np = numOfParams;
     bfill((char *)ptr,ngates * sizeof(int),0xff);
     for (i = 0; i < dcells; i++)
+      {
+	  if (i == stopper)
 	    break;
 
 
@@ -153,7 +172,10 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		  {
 		if (newDiff >= oldDiff)
 		      ptr[pgates] = index + valueOffset[1];
-		      *ptr = index;
+		      index *= np;
+		      break;
+		      ptr[DISPLAYED_GATES] = index + valueOffset[1];
+		      ptr[DISPLAYED_GATES * 2] = index + valueOffset[2];
 		  index++;
 	    }
 
@@ -161,14 +183,20 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	    {
 		--index;
 	  if (*ptr < 0)
-	    *ptr = --index;
+		*ptr = index + valueOffset[0];
+		ptr[pgates] = index + valueOffset[1];
+		ptr[pgates * 2] = index + valueOffset[2];
+	    }
+		ptr[DISPLAYED_GATES] = index + valueOffset[1];
+		ptr[DISPLAYED_GATES * 2] = index + valueOffset[2];
+    free((char *)fptr);
 }
 
     free(fptr);
 			      FAST unsigned char *colors,
 			      FAST int index)
-void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
-			    FAST int index)
+void ColorConverter::GetPoint(FAST unsigned short *data, FAST DataPoint &dp,
+    FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
     FAST unsigned char bins = nbins;
     FAST unsigned char tsize = bins - 1; // Loop count maximum.
@@ -177,15 +205,15 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int offset = *offsets++ + off; // Now add in offset to param.
     FAST unsigned char *colors = &dp.colors[0];
-    FAST short **tbls = tbl;
+    FAST unsigned short **tbls = tbl;
 
     for (FAST int i = 0; i < count; i++, inc += bins, tbls++)
       {
 	  FAST int offset = *offsets++ + off; // Now add in offset to param.
 
-	  FAST short datum = *(data + offset);
+	  FAST unsigned short datum = *(data + offset);
 
-	  FAST short *lkup = *tbls;
+	  FAST unsigned short *lkup = *tbls;
 	  
 	  FAST unsigned char color = 0; 
 
@@ -199,7 +227,8 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
       }
 }
 
-void ColorConverter::GetVertPoint(FAST short *data, FAST VertPoint &dp,
+void ColorConverter::GetVertPoint(FAST unsigned short *data,
+				  FAST VertPoint &dp,
 				  FAST int index)
 {
     FAST unsigned char bins = nbins;
@@ -209,15 +238,15 @@ void ColorConverter::GetVertPoint(FAST short *data, FAST VertPoint &dp,
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
     FAST unsigned char *colors = &dp.colors[0];
-    FAST short **tbls = tbl;
+    FAST unsigned short **tbls = tbl;
     --count;
     for (FAST int i = 0; i < count; i++, inc += bins, tbls++)
 	  FAST unsigned short datum = *(data + offset);
 	  FAST int offset = *offsets++ + off; // Now add in offset to param.
 
-	  FAST short datum = *(data + offset);
+      }
     else
-	  FAST short *lkup = *tbls;
+	  FAST unsigned short *lkup = *tbls;
 	  
 	  FAST unsigned char color = 0; 
 	  *colors = *(lkup + datum);
@@ -231,40 +260,248 @@ void ColorConverter::GetVertPoint(FAST short *data, FAST VertPoint &dp,
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
-void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
+void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
     FAST unsigned char bins = nbins;
-    FAST unsigned char tsize = bins - 1; // Loop count maximum.
     FAST unsigned char inc = 0;	   // Offset into color table.
     int count = numOfValues;
-    FAST int np = numOfParams;
     FAST unsigned char *colors = &rad.colors[0];
-    FAST int *offs = valueOffset;
-    FAST short **tbls = tbl;
+    FAST unsigned short **tbls = tbl;
+    FAST int j = DISPLAYED_GATES;
+    for (FAST int i = 0; i < j; i++)
+    FAST unsigned short *table = *tbls;
+	  FAST unsigned short datum = *(data + *ptr++);
+    for (FAST int k = 0; k < j; k++)
+	  *colors++ = *(lkup + datum);
+	  FAST unsigned short datum = *(data + *ptr++);
 
-    for (int i = 0; i < count; i++, inc += bins, tbls++)
-	    {
-	  FAST int j = DISPLAYED_GATES;
-	  FAST int *ptr = gateIndex;
-	  FAST int offset = *offs++;
+	  FAST unsigned short *lkup = table;
 
-	  for (FAST int k = 0; k < j; k++)
-	    {
-		FAST int off = offset + (*ptr++ * np);	// Offset to param +
-							// index to correct 
-							// gate.
-		FAST short datum = *(data + off);
-
-		FAST short *lkup = *tbls;
-
-		FAST unsigned char color = 0;
+	  FAST unsigned char color = 0;
 		
-		do
-		  {
-		      if (datum <= *lkup++)
-			break;
-		  } while (++color < tsize);
+	  if (datum <= *lkup++)
+	    ;
+	  else if (datum <= *lkup++)
+	    color = 1;
+	  else if (datum <= *lkup++)
+	    color = 2;
+	  else if (datum <= *lkup++)
+	    color = 3;
+	  else if (datum <= *lkup++)
+	    color = 4;
+	  else if (datum <= *lkup++)
+	    color = 5;
+	  else if (datum <= *lkup++)
+	    color = 6;
+	  else if (datum <= *lkup++)
+	    color = 7;
+	  else if (datum <= *lkup++)
+	    color = 8;
+	  else if (datum <= *lkup++)
+	    color = 9;
+	  else if (datum <= *lkup++)
+	    color = 10;
+	  else if (datum <= *lkup++)
+	    color = 11;
+	  else if (datum <= *lkup++)
+	    color = 12;
+	  else if (datum <= *lkup++)
+	    color = 13;
+	  else if (datum <= *lkup++)
+	    color = 14;
+	  else if (datum <= *lkup++)
+	    color = 15;
+	  else if (datum <= *lkup++)
+	    color = 16;
+	  else if (datum <= *lkup++)
+	    color = 17;
+	  else if (datum <= *lkup++)
+	    color = 18;
+	  else if (datum <= *lkup++)
+	    color = 19;
+	  else if (datum <= *lkup++)
+	    color = 20;
+	  else if (datum <= *lkup++)
+	    color = 21;
+	  else if (datum <= *lkup++)
+	    color = 22;
+	  else if (datum <= *lkup++)
+	    color = 23;
+	  else if (datum <= *lkup++)
+	    color = 24;
+	  else if (datum <= *lkup++)
+	    color = 25;
+	  else if (datum <= *lkup++)
+	    color = 26;
+	  else if (datum <= *lkup++)
+	    color = 27;
+	  else if (datum <= *lkup++)
+	    color = 28;
+	  else if (datum <= *lkup)
+	    color = 29;
+	  else 
+	    color = 30;
+
+	  *colors++ = color + inc;
+
+    if (count)
+    if (!(--count))
+      return;
+	  lkup += 0x10000;
+    table = *tbls++;
+    inc += bins;
+
+    for (k = 0; k < j; k++)
+	    {
+	  FAST unsigned short datum = *(data + *ptr++);
+
+	  FAST unsigned short *lkup = table;
+
+	  FAST unsigned char color = 0;
+		
+	  if (datum <= *lkup++)
+	    ;
+	  else if (datum <= *lkup++)
+	    color = 1;
+	  else if (datum <= *lkup++)
+	    color = 2;
+	  else if (datum <= *lkup++)
+	    color = 3;
+	  else if (datum <= *lkup++)
+	    color = 4;
+	  else if (datum <= *lkup++)
+	    color = 5;
+	  else if (datum <= *lkup++)
+	    color = 6;
+	  else if (datum <= *lkup++)
+	    color = 7;
+	  else if (datum <= *lkup++)
+	    color = 8;
+	  else if (datum <= *lkup++)
+	    color = 9;
+	  else if (datum <= *lkup++)
+	    color = 10;
+	  else if (datum <= *lkup++)
+	    color = 11;
+	  else if (datum <= *lkup++)
+	    color = 12;
+	  else if (datum <= *lkup++)
+	    color = 13;
+	  else if (datum <= *lkup++)
+	    color = 14;
+	  else if (datum <= *lkup++)
+	    color = 15;
+	  else if (datum <= *lkup++)
+	    color = 16;
+	  else if (datum <= *lkup++)
+	    color = 17;
+	  else if (datum <= *lkup++)
+	    color = 18;
+	  else if (datum <= *lkup++)
+	    color = 19;
+	  else if (datum <= *lkup++)
+	    color = 20;
+	  else if (datum <= *lkup++)
+	    color = 21;
+	  else if (datum <= *lkup++)
+	    color = 22;
+	  else if (datum <= *lkup++)
+	    color = 23;
+	  else if (datum <= *lkup++)
+	    color = 24;
+	  else if (datum <= *lkup++)
+	    color = 25;
+	  else if (datum <= *lkup++)
+	    color = 26;
+	  else if (datum <= *lkup++)
+	    color = 27;
+	  else if (datum <= *lkup++)
+	    color = 28;
+	  else if (datum <= *lkup)
+	    color = 29;
+	  else 
+	    color = 30;
+
+	  *colors++ = color + inc;
+    
+
+    if (!(--count))
+    
+
+    table = *tbls++;
+    inc += bins;
+
+
+    for (k = 0; k < j; k++)
+	    {
+	  FAST unsigned short datum = *(data + *ptr++);
+
+	  FAST unsigned short *lkup = table;
+
+	  FAST unsigned char color = 0;
+		
+	  if (datum <= *lkup++)
+	    ;
+	  else if (datum <= *lkup++)
+	    color = 1;
+	  else if (datum <= *lkup++)
+	    color = 2;
+	  else if (datum <= *lkup++)
+	    color = 3;
+	  else if (datum <= *lkup++)
+	    color = 4;
+	  else if (datum <= *lkup++)
+	    color = 5;
+	  else if (datum <= *lkup++)
+	    color = 6;
+	  else if (datum <= *lkup++)
+	    color = 7;
+	  else if (datum <= *lkup++)
+	    color = 8;
+	  else if (datum <= *lkup++)
+	    color = 9;
+	  else if (datum <= *lkup++)
+	    color = 10;
+	  else if (datum <= *lkup++)
+	    color = 11;
+	  else if (datum <= *lkup++)
+	    color = 12;
+	  else if (datum <= *lkup++)
+	    color = 13;
+	  else if (datum <= *lkup++)
+	    color = 14;
+	  else if (datum <= *lkup++)
+	    color = 15;
+	  else if (datum <= *lkup++)
+	    color = 16;
+	  else if (datum <= *lkup++)
+	    color = 17;
+	  else if (datum <= *lkup++)
+	    color = 18;
+	  else if (datum <= *lkup++)
+	    color = 19;
+	  else if (datum <= *lkup++)
+	    color = 20;
+	  else if (datum <= *lkup++)
+	    color = 21;
+	  else if (datum <= *lkup++)
+	    color = 22;
+	  else if (datum <= *lkup++)
+	    color = 23;
+	  else if (datum <= *lkup++)
+	    color = 24;
+	  else if (datum <= *lkup++)
+	    color = 25;
+	  else if (datum <= *lkup++)
+	    color = 26;
+	  else if (datum <= *lkup++)
+	    color = 27;
+	  else if (datum <= *lkup++)
+	    color = 28;
+	  else if (datum <= *lkup)
+	    color = 29;
+	  else 
+	    color = 30;
 	  *colors = color + inc;
-		*colors++ = color + inc;
-	    }
+d272 1
     

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/12/06  16:37:18  thor
+ * Added method for vertical displays.
+ *
  * Revision 1.5  1991/10/14  19:16:08  thor
  * Fixed to use CELLSPACING structure from header.
  *
@@ -58,21 +61,25 @@ extern "C" {
 #include "DataPoint.h"
 
 static const int MAX_DATA_PLANES = 3;
+static const int MAX_BINS = 31;
 
 class ColorConverter {
   protected:
     int valueOffset[MAX_DATA_PLANES]; // Offsets into the data array.
-    short *tbl[MAX_DATA_PLANES];      // The lookup tables.
+    unsigned short *tbl[MAX_DATA_PLANES]; // The lookup tables.
 
     int nbins;			// Number of colors in use.
     int numOfParams;		// Number of parameters in data array.
     int numOfValues;		// Number of parameters used.
 
-    int gateIndex[DISPLAYED_GATES]; // List of indexes into data array.
+    int gateIndex[DISPLAYED_GATES * MAX_DATA_PLANES]; // List of indexes into data array.
 
   public:
     ColorConverter(int bins, float *max, float *min, int *offsets, int nparams,
 		int nvalues);
+
+    void Reset(int bins, float *max, float *min, int *offsets, int nparams,
+	       int nvalues);
 
     ColorConverter(void) {}
 
@@ -80,13 +87,13 @@ class ColorConverter {
     void SetBeamSize(CELLSPACING &cs);
 
     // Horizontal case.
-    void GetPoint(short *data, DataPoint &dp, int index);
+    void GetPoint(unsigned short *data, DataPoint &dp, int index);
 
     // Vertical case.
-    void GetVertPoint(short *data, VertPoint &vp, int index);
+    void GetVertPoint(unsigned short *data, VertPoint &vp, int index);
 
     // Radial again.
-    void GetBeam(short *data, RadialData &rad);
+    void GetBeam(unsigned short *data, RadialData &rad);
 
     ~ColorConverter(void)
       {
@@ -94,7 +101,7 @@ class ColorConverter {
 
 	  for (FAST int i = 0; i < j; i++)
 	    {
-		FAST short *ptr = tbl[i];
+		FAST unsigned short *ptr = tbl[i];
 
 		free((char *)ptr);
 	    }
