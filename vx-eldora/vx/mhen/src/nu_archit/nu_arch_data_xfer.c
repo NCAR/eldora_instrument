@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1995/01/25  17:39:59  eric
+ * Initialized global Header pointers from nu_archit_dac.c to
+ * avoid conflicts.
+ *
  * Revision 1.4  1995/01/20  14:52:57  eric
  * Added code to handle 10 variable and 6 variable data sorting.
  *
@@ -119,9 +123,6 @@ for(;;)
       sem_status = semTake(real_sem,WAIT_FOREVER); /* wait for start semaphore  */
       if(sem_status == OK)
 	{
-/* Clear out Stop Flag */
-
-	    stop = 0;
 	    task_sync = 0;
 
 /* Parse Header for required system parameters */
