@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:27:23  eric
+ * Added include files to keep compatible with new
+ * Control Processor code.
+ *
  * Revision 1.1  1994/07/14  20:37:28  eric
  * Initial revision
  *
@@ -30,6 +34,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "stdioLib.h"
 
 #include "HeaderRpc.h"
+#include "RadarGbls.h"
 #include "RDPGlobals.h"
 #include "Parameter.h"
 #include "RadarDesc.h"
@@ -44,12 +49,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 long data_ray_length()
 {
-
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern FIELDRADAR *fldrdr;
-extern PARAMETER *prm;
-
 
 /* define some general purpose variables */
 
@@ -66,7 +65,6 @@ time_series_length = 0;
 /* To be done for one of the radars                             */
 /****************************************************************/
 
-rdsc = GetRadar(inHeader,1);
 
 bytes_per_cell = 0;
 for(i=0; i < rdsc->num_parameter_des; i++)
@@ -75,7 +73,6 @@ for(i=0; i < rdsc->num_parameter_des; i++)
     bytes_per_cell += prm -> binary_format;
     }
 /* Calculate the number of cells */
-cs = GetCellSpacing(inHeader,1);
 
 number_of_cells = 0;
 for (i=0; i<cs->num_segments; i++)
@@ -83,7 +80,6 @@ for (i=0; i<cs->num_segments; i++)
 printf("number_of_cells = %d \n",number_of_cells);
 /* Calculate the size of the independent frequency data */
 
-fldrdr = GetFieldRadar(inHeader,1);
 
 if(fldrdr->indepf_times_flg > 0)
   indep_freq_length = rdsc->num_freq_trans * bytes_per_cell * rdsc->num_ipps_trans + 8;
