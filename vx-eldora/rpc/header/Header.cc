@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1994/08/30  15:19:03  thor
+ * Lots of bug fixes & changes.
+ *
  * Revision 1.13  1993/08/17  15:07:32  thor
  * More 5.1 stuff.
  *
@@ -601,11 +604,22 @@ ostream& operator<<(ostream &os, Header &hdr)
 {
     TAPEHEADER *th = hdr.GetRpcHeader();
 
-    int size = sizeof(VOLUME) + sizeof(WAVEFORM) +
-      (2 * ((th->Fore.Radar.num_parameter_des * sizeof(PARAMETER)) +
-	    sizeof(CELLSPACING) + sizeof(FIELDRADAR) + sizeof(RADARDESC)));
+    os.write((unsigned char *)&th->Volume,sizeof(VOLUME));
+    os.write((unsigned char *)&th->Wave,sizeof(WAVEFORM));
+    os.write((unsigned char *)&th->Fore.Radar,sizeof(RADARDESC));
 
-    os.write((unsigned char *)th,size);
+    int size = (th->Fore.Radar.num_parameter_des * sizeof(PARAMETER)) + 
+      sizeof(CELLSPACING) + sizeof(FIELDRADAR);
+
+    os.write((unsigned char *)&th->Fore.FieldInfo,size);
+
+    size += sizeof(RADARDESC);
+
+    os.write((unsigned char *)&th->Aft,size);
+
+    os.write((unsigned char *)&th->Nav,sizeof(struct nav_descript));
+
+    os.write((unsigned char *)&th->Insitu,sizeof(struct insitu_descript));
 
     return(os);
 }
