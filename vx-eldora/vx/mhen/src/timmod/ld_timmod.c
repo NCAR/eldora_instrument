@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1994/04/29  17:08:14  eric
+ * ensured proper rounding for float to int calculations by
+ * casting ints as floats.
+ *
  * Revision 1.4  1994/03/23  21:40:39  eric
  * fixed bug with preknock in blanking ram.
  *
@@ -53,6 +57,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "systime.h"
 #include "sysLib.h"
 
+#include "HeaderRpc.h"
 #include "Parameter.h"
 #include "Header.h"
 #include "CellSpacing.h"
@@ -72,7 +77,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "dspaddr.h"
 #include "rp7.h"
 
-
+extern int Silent;
 extern CELLSPACING *cs;
 extern RADARDESC *rdsc;
 extern WAVEFORM *wvfm;
@@ -148,7 +153,7 @@ ound */
     /* Compute the duty cycle in percent */
     duty_cycle = 100.0 * wvfm -> num_chips[5] * wvfm -> chip_width[5] / (wvfm -> repeat_seq * 1.0e-3 * 60.0e6);
     /* Compute the number of samples for frequency #1 */
-    sampl = wvfm -> num_chips[0] * wvfm -> repeat_seq_dwel;
+    sampl = wvfm -> repeat_seq_dwel;
     /* Compute the shortest PRT for freqeuncy #1 in seconds */
     pcp = repeat_seq * 1.0E-3 / total_pcp;
     j = 0;
@@ -177,9 +182,12 @@ ound */
   /* check for duty cycle > 1% */
   if (duty_cycle > 1.0)
     {
-      printf("ld_timmod: duty cycle must not be more than 1%%.\n");
-      printf("ld_timmod: requested duty cycle = %f%%.\n",duty_cycle);
-      printf("ld_timmod: aborting without programming timingb module...\n\n");
+	if(!Silent)
+	  {
+	      printf("ld_timmod: duty cycle must not be more than 1%%.\n");
+	      printf("ld_timmod: requested duty cycle = %f%%.\n",duty_cycle);
+	      printf("ld_timmod: aborting without programming timingb module...\n\n");
+	  }
       return;
     } 
 
@@ -217,8 +225,11 @@ ound */
     /* error checking */
     if (maxindex > 4090)
       {
-	  printf("ld_timmod: index computation error.  CHIP RAM bounds exceeded.\n");
-	  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+	  if(!Silent)
+	    {
+		printf("ld_timmod: index computation error.  CHIP RAM bounds exceeded.\n");
+		printf("ld_timmod: aborting without fully programming timing module.\n\n");
+	    }
 	  return;
       }
     
@@ -248,8 +259,11 @@ ound */
 	    {
 		if (chiploc > (unsigned short *) TIMBASE+TIMCHIP+4090)
 		  {
-		      printf("ld_timmod: CHIP RAM index computation error.\n");
-		      printf("ld_timmod: aborting without fully programming timing module.\n\n");
+		      if(!Silent)
+			{
+			    printf("ld_timmod: CHIP RAM index computation error.\n");
+			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			}
 		      return;
 		  }
 	    }
@@ -257,18 +271,23 @@ ound */
 	    {
 		if (chiploc > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMCHIP+4090)
 		  {
-		      printf("ld_timmod: CHIP RAM index computation error.\n");
-		      printf("ld_timmod: aborting without fully programming timing module.\n\n");
+		      if(!Silent)
+			{
+			    printf("ld_timmod: CHIP RAM index computation error.\n");
+			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			}
 		      return;
 		  }
 	    }
       }
     /* Write terminal value (twice, as required by timing module) */
     *chiploc = 0x0000;
-printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
+    if(!Silent)
+      printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
     chiploc++;
     *chiploc = 0x0000;
-printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
+    if(!Silent)
+      printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
 
     /* GENERATE BLANKING VALUES */
     if (total_pcp == 1)
@@ -339,38 +358,47 @@ else
     /* check for too many gates in a PRT */
 
     gate_tm = num_gates[0]*gate_dist1[1]/60000000.0+gate_dist1[0]/60000000.0;
-    printf("freq1 gate_tm = %f \n",gate_tm);
+    if(!Silent)
+      printf("freq1 gate_tm = %f \n",gate_tm);
     if(gate_tm  > 0.98 * short_prt)
       {
-	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
+	  if(!Silent)
+	    printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
     gate_tm = num_gates[1]*gate_dist2[1]/60000000.0+gate_dist2[0]/60000000.0;
     printf("freq2 gate_tm = %f \n",gate_tm);
     if(gate_tm  > 0.98 * short_prt)
       {
-	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
+	  if(!Silent)
+	    printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
     gate_tm = num_gates[2]*gate_dist3[1]/60000000.0+gate_dist3[0]/60000000.0;
-    printf("freq3 gate_tm = %f \n",gate_tm);
+    if(!Silent)
+      printf("freq3 gate_tm = %f \n",gate_tm);
     if(gate_tm  > 0.98 * short_prt)
       {
-	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
+	  if(!Silent)
+	    printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
     gate_tm = num_gates[3]*gate_dist4[1]/60000000.0+gate_dist4[0]/60000000.0;
-    printf("freq4 gate_tm = %f \n",gate_tm);
+    if(!Silent)
+      printf("freq4 gate_tm = %f \n",gate_tm);
     if(gate_tm  > 0.98 * short_prt)
       {
-	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
+	  if(!Silent)
+	    printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
     gate_tm = num_gates[4]*gate_dist5[1]/60000000.0+gate_dist5[0]/60000000.0;
-    printf("freq5 gate_tm = %f \n",gate_tm);
+    if(!Silent)
+      printf("freq5 gate_tm = %f \n",gate_tm);
     if(gate_tm  > 0.98 * short_prt)
       {
-	  printf("ld_timmod: gates fill more than 98%% of a prt.\n");
+	  if(!Silent)
+	    printf("ld_timmod: gates fill more than 98%% of a prt.\n");
 	  return;
       }
 
@@ -379,10 +407,13 @@ else
       /* check for reasonable number of gates */
       if (num_gates[i] > 1024 || num_gates[i] < 0)
 	{
-	    printf("ld_timmod: Requested number of gates [%d]",num_gates[i]);
-	    printf("for frequency %d\n",i);
-	    printf("             is not between 0 and 1024.\n");
-	    printf("ld_timmod: Aborting without programming timmod...\n\n");
+	    if(!Silent)
+	      {
+		  printf("ld_timmod: Requested number of gates [%d]",num_gates[i]);
+		  printf("for frequency %d\n",i);
+		  printf("             is not between 0 and 1024.\n");
+		  printf("ld_timmod: Aborting without programming timmod...\n\n");
+	      }
 	    return;
 	}
    
@@ -391,9 +422,12 @@ else
       {
 	  if ((gate_dist1[0] < 8) || (gate_dist1[0] > 2046))
 	    {
-		printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
-		printf("ld_timmod: requested first gate for freq 1 was %d counts.\n",gate_dist1[0]);
-		printf("ld_timmod: aborting without programming timmod...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
+		      printf("ld_timmod: requested first gate for freq 1 was %d counts.\n",gate_dist1[0]);
+		      printf("ld_timmod: aborting without programming timmod...\n\n");
+		  }
 		return;
 	    }
       }
@@ -401,9 +435,12 @@ else
       {
 	  if ((gate_dist2[0] < 8) || (gate_dist2[0] > 2046))
 	    {
-		printf("ld_timmod: first gate spacing must be between 8 counts and 2046 counts.\n");
-		printf("ld_timmod: requested first gate for freq 2 was %d counts.\n",gate_dist2[0]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: first gate spacing must be between 8 counts and 2046 counts.\n");
+		      printf("ld_timmod: requested first gate for freq 2 was %d counts.\n",gate_dist2[0]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -411,9 +448,12 @@ else
       {
 	  if ((gate_dist3[0] < 8) || (gate_dist3[0] > 2046))
 	    {
-		printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
-		printf("ld_timmod: requested first gate for freq 3 was %d counts.\n",gate_dist3[0]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
+		      printf("ld_timmod: requested first gate for freq 3 was %d counts.\n",gate_dist3[0]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -421,9 +461,12 @@ else
       {
 	  if ((gate_dist4[0] < 8) || (gate_dist4[0] > 2046))
 	    {
-		printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
-		printf("ld_timmod: requested first gate for freq 4 was %d counts.\n",gate_dist4[0]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
+		      printf("ld_timmod: requested first gate for freq 4 was %d counts.\n",gate_dist4[0]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -431,9 +474,12 @@ else
       {
 	  if ((gate_dist5[0] < 8) || (gate_dist5[0] > 2046))
 	    {
-		printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
-		printf("ld_timmod: requested first gate for freq 5 was %d counts.\n",gate_dist5[0]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: first gate must be between 8 counts and 2046 counts.\n");
+		      printf("ld_timmod: requested first gate for freq 5 was %d counts.\n",gate_dist5[0]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -444,9 +490,12 @@ else
       {
 	  if ((gate_dist1[1] < 8) || (gate_dist1[1] > 800))
 	    {
-		printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
-		printf("ld_timmod: requested spacing for freq 1 was %d counts.\n",gate_dist1[1]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
+		      printf("ld_timmod: requested spacing for freq 1 was %d counts.\n",gate_dist1[1]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -454,9 +503,12 @@ else
       {
 	  if ((gate_dist2[1] < 8) || (gate_dist2[1] > 800))
 	    {
-		printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
-		printf("ld_timmod: requested spacing for freq 2 was %d counts.\n",gate_dist2[1]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
+		      printf("ld_timmod: requested spacing for freq 2 was %d counts.\n",gate_dist2[1]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -464,9 +516,12 @@ else
       {
 	  if ((gate_dist3[1] < 8) || (gate_dist3[1] > 800))
 	    {
-		printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
-		printf("ld_timmod: requested spacing for freq 3 was %d counts.\n",gate_dist3[1]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
+		      printf("ld_timmod: requested spacing for freq 3 was %d counts.\n",gate_dist3[1]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -474,9 +529,12 @@ else
       {
 	  if ((gate_dist4[1] < 8) || (gate_dist4[1] > 800))
 	    {
-		printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
-		printf("ld_timmod: requested spacing for freq 4 was %d counts.\n",gate_dist4[1]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
+		      printf("ld_timmod: requested spacing for freq 4 was %d counts.\n",gate_dist4[1]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -484,9 +542,12 @@ else
       {
 	  if ((gate_dist5[1] < 8) || (gate_dist5[1] > 800))
 	    {
-		printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
-		printf("ld_timmod: requested spacing for freq 5 was %d counts.\n",gate_dist5[1]);
-		printf("ld_timmod: aborting without programming timing module...\n\n");
+		if(!Silent)
+		  {
+		      printf("ld_timmod: gate spacing must be between 8 counts and 800 counts.\n");
+		      printf("ld_timmod: requested spacing for freq 5 was %d counts.\n",gate_dist5[1]);
+		      printf("ld_timmod: aborting without programming timing module...\n\n");
+		  }
 		return;
 	    }
       }
@@ -538,8 +599,11 @@ else
 		  {
 		      if(timgate0 > (unsigned short *) TIMBASE+TIMGATE0+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -547,8 +611,11 @@ else
 		  {
 		      if(timgate0 > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMGATE0+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -570,8 +637,11 @@ else
 		  {
 		      if(timgate1 > (unsigned short *) TIMBASE+TIMGATE1+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -579,8 +649,11 @@ else
 		  {
 		      if(timgate1 > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMGATE1+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }		      
@@ -601,8 +674,11 @@ else
 		  {
 		      if(timgate2 > (unsigned short *) TIMBASE+TIMGATE2+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -610,8 +686,11 @@ else
 		  {
 		      if(timgate2 > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMGATE2+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -632,8 +711,11 @@ else
 		  {
 		      if(timgate3 > (unsigned short *) TIMBASE+TIMGATE3+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -641,8 +723,11 @@ else
 		  {
 		      if(timgate3 > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMGATE3+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -663,8 +748,11 @@ else
 		  {
 		      if(timgate4 > (unsigned short *) TIMBASE+TIMGATE4+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -672,8 +760,11 @@ else
 		  {
 		      if(timgate4 > (unsigned short *) TIMBASE-STD_BASE+EXTD_BASE+TIMGATE4+4090)
 			{
-			    printf("ld_timmod: GATE RAM index computation error.\n");
-			    printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			    if(!Silent)
+			      {
+				  printf("ld_timmod: GATE RAM index computation error.\n");
+				  printf("ld_timmod: aborting without fully programming timing module.\n\n");
+			      }
 			    return;
 			}
 		  }
@@ -681,19 +772,25 @@ else
 	  *timgate4 = 0x0000;    /* Load terminal value */
       }
     /* ===========SHOW ACTUAL PROGRAMMED VALUES============== */
-    printf("values actually setup by ld_timmod:\n");
+    if(!Silent)
+      printf("values actually setup by ld_timmod:\n");
     if(num_gates[0])
-      printf("  FREQ 1: firstgate = %f[m]  gatespace = %f[m]",gate_dist1[0]*2.5,gate_dist1[1]*2.5);
+      if(!Silent)
+	printf("  FREQ 1: firstgate = %f[m]  gatespace = %f[m]",gate_dist1[0]*2.5,gate_dist1[1]*2.5);
     if(num_gates[1])
-      printf("  FREQ 2: firstgate = %f[m]  gatespace = %f[m]",gate_dist2[0]*2.5,gate_dist2[1]*2.5);
+      if(!Silent)
+	printf("  FREQ 2: firstgate = %f[m]  gatespace = %f[m]",gate_dist2[0]*2.5,gate_dist2[1]*2.5);
     if(num_gates[2])
-      printf("  FREQ 3: firstgate = %f[m]  gatespace = %f[m]",gate_dist3[0]*2.5,gate_dist3[1]*2.5);
+      if(!Silent)
+	printf("  FREQ 3: firstgate = %f[m]  gatespace = %f[m]",gate_dist3[0]*2.5,gate_dist3[1]*2.5);
     if(num_gates[3])
-      printf("  FREQ 4: firstgate = %f[m]  gatespace = %f[m]",gate_dist4[0]*2.5,gate_dist4[1]*2.5);
+      if(!Silent)
+	printf("  FREQ 4: firstgate = %f[m]  gatespace = %f[m]",gate_dist4[0]*2.5,gate_dist4[1]*2.5);
     if(num_gates[4])
-      printf("  FREQ 5: firstgate = %f[m]  gatespace = %f[m]",gate_dist5[0]*2.5,gate_dist5[1]*2.5);
-    
-    printf("ld_timmod: finished.\n");
+      if(!Silent)
+	printf("  FREQ 5: firstgate = %f[m]  gatespace = %f[m]",gate_dist5[0]*2.5,gate_dist5[1]*2.5);
+    if(!Silent)
+      printf("ld_timmod: finished.\n");
 }
 
 

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1993/05/12  15:59:24  eric
+ * modified code to map OLD TIMING MODULE into VME Extended
+ * Adress Space.
+ *
  * Revision 1.3  1992/09/10  20:54:32  shawn
  * Changed value written to 0x01, from 0x00, to accomodate timmod rev. b
  * too.  Rev. A had two addresses, an on and an off, Rev. B has one, and
@@ -20,10 +24,6 @@
  * board.  This change accompanies a change to ELDRP7.h in which a line
  * was added to define the offset to the rev. B ON/OFF address, namely,
  * a #define TIMONOFFB.
- *
- * The weather was quite nice while I was making these changes, unlike
- * the other staff member who had to be threatened with root access just
- * to do a simple thing like check in a piece of my code.
  *
  * Revision 1.2  1992/09/10  20:40:43  eric
  * *** empty log message ***
@@ -39,13 +39,17 @@
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-  
+#ifndef SPOL  
 #include "ELDRP7.h"
+#endif
+#ifdef SPOL
+#include "SPOLRP7.h"
+#endif
 
 timon()
 {
    unsigned short *timon;
  /* map Old Timing Module in VME Extended Space */ 
-   timon = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMON);
+   timon = (unsigned short *)(TIMBASE + TIMON);
    *timon = 0x0001;  /* changed value to 0x01 to accomodate rev. B board */
 }
