@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:23:46  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -30,7 +33,7 @@
 struct ins_data {
     char  ins_data_id[4];	/* Identifier = INSD. */
     long  ins_data_len;		/* Block size in bytes. */
-    short msec_latitude;	/* Millesec. into current sec. */
+    short msec_latitude[5];	/* Millesec. into current sec. */
     short status[5];		/* TBD status for each 5 Hz block. */
     float latitude[5];		/* Degrees. */
     float longitude[5];		/* Ditto. */
@@ -46,7 +49,7 @@ struct ins_data {
     float roll[50];		/* Ditto. */
     float long_accel[50];	/* Longitudinal acceleration, positive */
 				/* forward, m/s/s. */
-    float lateral_accel;	/* Right is positive. */
+    float lateral_accel[50];	/* Right is positive. */
     float normal_accel[50];	/* Up is positive. */
     float track_rate[50];	/* Change rate of track angle, */
 				/* clockwise positive, degrees/s. */
