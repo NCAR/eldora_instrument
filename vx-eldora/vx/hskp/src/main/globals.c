@@ -9,10 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  1992/08/25  20:43:42  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/19  17:27:16  craig
+ * Revision 1.1  1992/09/01  16:21:56  craig
  * Initial revision
  *
  *
@@ -65,17 +62,17 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "InSituData.h"
 
 #include "Header.h"
-extern HeaderPtr inHeader;
 
 /* include the .h files that are housekeeper code specific */
 
 #include "HskpCmd.h"
 #include "HskpStatus.h"
-#include "cntrlDef.h"
-#include "cntrlFunc.h"
 #include "hskpDef.h"
 #include "hskpInt.h"
 #include "hskpGbl.h"
+#include "cntrlDef.h"
+#include "cntrlGbl.h"
+#include "cntrlFunc.h"
 #include "todDef.h"
 #include "todFunc.h"
 #include "todGbl.h"
@@ -89,6 +86,7 @@ extern HeaderPtr inHeader;
 #include "pwrGbl.h"
 #include "pwrFunc.h"
 #include "gpsDef.h"
+#include "gpsGbl.h"
 #include "gpsFunc.h"
 #include "minDef.h"
 #include "minFunc.h"
