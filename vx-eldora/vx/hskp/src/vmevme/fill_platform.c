@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/05/12  16:08:38  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/11/03  22:51:43  craig
  * Initial revision
  *
@@ -116,7 +119,7 @@ if((msecs_ray[next_index] - msecs) < -8000000 )
    current platform index? */
 
 failsafe = 0;
-while((msecs > msecs_ray[next_index]) && (failsafe < 3))
+while((msecs > (msecs_ray[next_index]-half_dwelltime_msec)) && (failsafe < 3))
   {
 
 

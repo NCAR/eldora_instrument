@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1993/05/12  16:08:37  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  20:44:35  craig
  * Initial revision
  *
@@ -69,6 +72,9 @@ extern HeaderPtr inHeader;
 #include "cntrlDef.h"
 #include "cntrlGbl.h"
 #include "cntrlFunc.h"
+#include "iruDef.h"
+#include "iruGbl.h"
+#include "iruFunc.h"
 #include "hskpDef.h"
 #include "hskpInt.h"
 #include "hskpGbl.h"
@@ -98,8 +104,9 @@ void vmevme_isr()
 {
 /* Define some general purpose variables */
 float position, fore_angle, aft_angle, elapsed_time, temp_position;
-float degrees_moved, instant_speed, diff;
-static float dumb_position;
+float degrees_moved, instant_speed, diff, anglesin;
+static float dumb_position, dumb_rads, dumb_stepr, dumb_stepp;
+static int dumb_start = 0;
 
 char hr,min,sec,mon,day,yr;
 
@@ -117,18 +124,49 @@ long msecs_today;
 
 position = get_pos();
 
-/* Put in a fake angle if global variable fake_angles is true */
-if(fake_angles)
-  {
-      dumb_position += 1.2;
-      if(dumb_position > 360.0) dumb_position = 0;
-      position = dumb_position;
-  }
 
 
 /* Read the time from the time-of-day card */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
+msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
+
+/* Put in a fake parameters if global variable fake_angles is true */
+
+if(fake_angles)
+  {
+      if(dumb_start == 0)
+	{
+	    dumb_start = 1;
+	    dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
+	                        /* 2 pi radians per second */
+	    dumb_stepp = 0.000757 / (float)dwelltime_msec;
+	                       /* Is about 120 m/s if lat step = long step */ 
+	    dumb_rads = 0;
+	    last_iru_data.longitude = -105.;
+	    last_iru_data.latitude = 40.;
+	}
+
+      /* Dummy up rotational position */
+      dumb_position += 1.2;
+      if(dumb_position > 360.0) dumb_position = 0;
+      position = dumb_position;
+
+      /* Dummy up the INS parameters */
+      dumb_rads += dumb_stepr;
+      if(dumb_rads > 6.28318) dumb_rads = 0;
+      anglesin = sin(dumb_rads);
+      last_iru_data.longitude += dumb_stepp;
+      last_iru_data.latitude += dumb_stepp;
+      last_iru_data.pitch = 2.0 * anglesin;
+      last_iru_data.roll = 15.0 * anglesin;
+      last_iru_data.heading = 45.0 + 0.5 * anglesin;
+      last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
+      last_iru_data.seconds = sec;
+      last_iru_data.msec_longitude = msec;
+      fill_platform(msecs_today);
+
+  }
 
 /* Clear the polled handshake words */
 
@@ -211,7 +249,6 @@ aft_ray_pntr->this_rayi.minute = (short)min;
 aft_ray_pntr->this_rayi.second = (short)sec;
 aft_ray_pntr->this_rayi.millisecond = (short)msec;
 
-msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 msecs_ray[current_index] = msecs_today;
 
 /* Put the test pulse info into the correct spot in the current ray */
