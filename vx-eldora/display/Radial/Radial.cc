@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/06/13  17:52:26  thor
+ * Added SetBounds method.
+ * Rewrote drawTitle method to use radar type.
+ * Added signal to noise ratio text.
+ *
  * Revision 1.3  1991/05/06  15:08:51  thor
  * Added embedded Clock class for time display.
  *
@@ -294,7 +299,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 
     switch(param)
       {
-	case REFLECTIVITY:
+	case REFLECT:
 	  title = "Reflectivity";
 	  units = "dbZ";
 	  break;
