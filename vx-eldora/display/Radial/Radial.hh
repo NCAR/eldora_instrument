@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/29  19:21:37  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 2.0  1992/11/03  12:52:47  thor
  * First offical ELDORA release!
  *
@@ -70,12 +73,14 @@ class Radial;
 
 // This structure is used to hold the fixed point sines/cosines. The
 // format is (fp value) << 16.
+#ifndef _TRIGDATA
 struct trigdata {
     int sin;
     int cos;
 };
 
 typedef struct trigdata TrigData;
+#endif
 
 // Constants.
 
