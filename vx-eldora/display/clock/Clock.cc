@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1994/11/01  18:20:47  thor
+ * Added code to force redrawing of characters.
+ *
  * Revision 2.1  1994/09/19  15:48:53  thor
  * Lots of changes, mostly changing method names.
  *
@@ -70,7 +73,7 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 
     ptr = patterns;
 
-    for (i = 0; i < j; i++, ptr++, lx += Clock::CHAR_WIDTH)
+    for (FAST int i = 0; i < j; i++, ptr++, lx += Clock::CHAR_WIDTH)
       {
 	  ptr->x = lx;
 	  ptr->y = ly;
