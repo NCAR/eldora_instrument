@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/08/31  16:39:41  thor
+ * The first really working version.
+ *
  * Revision 1.1  1992/11/06  20:20:24  thor
  * Initial revision
  *
@@ -43,22 +46,23 @@ class Dual;
 
 // This structure is used to hold the fixed point sines/cosines. The
 // format is (fp value) << 16.
+#ifndef _TRIGDATA
 struct trigdata {
     int sin;
     int cos;
 };
 
 typedef struct trigdata TrigData;
-
+#endif
 // Constants.
 
 // Window sizes.
-static const int PLOT_WIDTH  = 1024;
-static const int PLOT_HEIGHT = 512;
-static const int PLOT_MEM    = PLOT_WIDTH;
-static const int TBL_WIDTH   = 256;
-static const int TBL_HALF    = 512;
-static const int TBL_HEIGHT  = 1024;
+static const int DUAL_PLOT_WIDTH  = 1024;
+static const int DUAL_PLOT_HEIGHT = 512;
+static const int DUAL_PLOT_MEM    = DUAL_PLOT_WIDTH;
+static const int DUAL_TBL_WIDTH   = 256;
+static const int DUAL_TBL_HALF    = 512;
+static const int DUAL_TBL_HEIGHT  = 1024;
 
 static double BEAMWIDTH = M_PI / 180.0;
 
@@ -87,7 +91,8 @@ class Dual {
 
     int clip(FAST int x , FAST int y)
     {
-	if ((x < 0) || (x >= PLOT_WIDTH) || (y < 0) || (y >= PLOT_HEIGHT))
+	if ((x < 0) || (x >= DUAL_PLOT_WIDTH) || (y < 0) ||
+	    (y >= DUAL_PLOT_HEIGHT))
 	  {
 	      return(0);
 	  }

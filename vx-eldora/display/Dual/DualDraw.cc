@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/08/31  16:39:41  thor
+ * The first really working version.
+ *
  * Revision 1.1  1992/11/06  20:20:23  thor
  * Initial revision
  *
@@ -173,8 +176,8 @@ void Dual::DrawBeam(FAST DualData &data)
 	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
 	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (PLOT_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (PLOT_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
+		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 
@@ -241,8 +244,8 @@ void Dual::DrawBeam(FAST DualData &data)
 	  for (FAST int i = fg; i < j; i++, colors1++, colors2++,
 	       c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (PLOT_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (PLOT_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
+		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 		

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/08/31  16:39:41  thor
+ * The first really working version.
+ *
  * Revision 1.1  1992/11/06  20:20:20  thor
  * Initial revision
  *
@@ -26,12 +29,12 @@
 
 Dual::Dual(GraphicController *gbd, int rad,
 	   unsigned short xoff, unsigned short yoff) :
-	   TopData(gbd,0,0,0,PLOT_WIDTH,PLOT_HEIGHT,xoff,yoff),
-	   BottomData(gbd,1,0,PLOT_HEIGHT,PLOT_WIDTH,PLOT_HEIGHT,
-		      xoff + PLOT_WIDTH,yoff),
-	   Tbl(gbd,2,PLOT_WIDTH,0,TBL_WIDTH,TBL_HEIGHT,xoff,
-	       yoff + PLOT_MEM),
-	   clk(gbd,3,0,0,xoff + (TBL_WIDTH * 2),yoff + PLOT_MEM)
+	   TopData(gbd,0,0,0,DUAL_PLOT_WIDTH,DUAL_PLOT_HEIGHT,xoff,yoff),
+	   BottomData(gbd,1,0,DUAL_PLOT_HEIGHT,DUAL_PLOT_WIDTH,
+		      DUAL_PLOT_HEIGHT,xoff + DUAL_PLOT_WIDTH,yoff),
+	   Tbl(gbd,2,DUAL_PLOT_WIDTH,0,DUAL_TBL_WIDTH,DUAL_TBL_HEIGHT,xoff,
+	       yoff + DUAL_PLOT_MEM),
+	   clk(gbd,3,0,0,xoff + (DUAL_TBL_WIDTH * 2),yoff + DUAL_PLOT_MEM)
 {
     TopData.setPriority(0);
     BottomData.setPriority(0);
@@ -42,7 +45,7 @@ Dual::Dual(GraphicController *gbd, int rad,
     // Set the base video memory addresses.
     videoMemory[0] = (unsigned char *)gbd->videoBufferAddr() + xoff +
       (yoff * 4096);
-    videoMemory[1] = videoMemory[0] + PLOT_WIDTH;
+    videoMemory[1] = videoMemory[0] + DUAL_PLOT_WIDTH;
 
     curZoom = ZOOM1;		// Start on 1x.
 
@@ -105,13 +108,13 @@ void Dual::DrawTable(int set, float max, float min, FAST int param,
     if (set == A_SET)
       {
 	  top = 0;
-	  base = TBL_HALF - 1;
+	  base = DUAL_TBL_HALF - 1;
 	  offset = tblsize;
       }
     else if (set == B_SET)
       {
-	  top = TBL_HALF;
-	  base = TBL_HEIGHT;
+	  top = DUAL_TBL_HALF;
+	  base = DUAL_TBL_HEIGHT;
 	  offset = tblsize * 2;	// Bias into color lut.
       }
     else
@@ -131,14 +134,14 @@ void Dual::DrawTable(int set, float max, float min, FAST int param,
     Point b;
 
     a.x = 15;
-    a.y = (TBL_HALF / 2) + top;
+    a.y = (DUAL_TBL_HALF / 2) + top;
 
     wdw->horText(a,title,WHITE);
     
-    a.x = TBL_WIDTH - 87;
+    a.x = DUAL_TBL_WIDTH - 87;
     a.y = top + 15;
 
-    b.x = TBL_WIDTH - 31;;
+    b.x = DUAL_TBL_WIDTH - 31;;
     b.y = top + 15;
 
     --tblsize;			// Both must decremented, since we
@@ -210,11 +213,11 @@ void Dual::DrawTitle()
 
     wdw3->horText(a,label,WHITE);
 
-    a.y += TBL_HALF;
+    a.y += DUAL_TBL_HALF;
 
     wdw3->horText(a,label,WHITE);
 
-    a.y = TBL_HALF - 15;
+    a.y = DUAL_TBL_HALF - 15;
 
     sprintf(label,"%4.1f",min);
 
@@ -228,7 +231,7 @@ void Dual::DrawTitle()
 
     wdw3->horText(a,label,WHITE);
 
-    a.y += TBL_HALF;
+    a.y += DUAL_TBL_HALF;
 
     wdw3->horText(a,label,WHITE);
 
@@ -252,20 +255,20 @@ void Dual::DrawTitle()
       }
 
     a.x = 14;
-    a.y = TBL_HEIGHT - 40;
+    a.y = DUAL_TBL_HEIGHT - 40;
 
     wdw3->horText(a,div,WHITE);
 
-    a.y -= TBL_HALF;
+    a.y -= DUAL_TBL_HALF;
 
     wdw3->horText(a,div,WHITE);
 
-    FAST short limit = PLOT_WIDTH - 1;
+    FAST short limit = DUAL_PLOT_WIDTH - 1;
 
     a.x = ppkm;
     a.y = 0;
     b.x = ppkm;
-    b.y = PLOT_HEIGHT - 1;
+    b.y = DUAL_PLOT_HEIGHT - 1;
 
     while (a.x < limit)
       {
@@ -275,11 +278,11 @@ void Dual::DrawTitle()
 	  b.x += ppkm;
       }
 
-    limit = PLOT_HEIGHT - 1;
+    limit = DUAL_PLOT_HEIGHT - 1;
 
     a.x = 0;
     a.y = ppkm;
-    b.x = PLOT_WIDTH - 1;
+    b.x = DUAL_PLOT_WIDTH - 1;
     b.y = ppkm;
 
     while (a.y < limit)
@@ -292,19 +295,19 @@ void Dual::DrawTitle()
 
     a.x = 0;
     a.y = 0;
-    b.x = PLOT_WIDTH - 1;
+    b.x = DUAL_PLOT_WIDTH - 1;
     b.y = 0;
 
     wdw2->line(a,b,WHITE);
 
-    a.y = PLOT_HEIGHT - 1;
-    b.y = PLOT_HEIGHT - 1;
+    a.y = DUAL_PLOT_HEIGHT - 1;
+    b.y = DUAL_PLOT_HEIGHT - 1;
 
     wdw1->line(a,b,WHITE);
 
-    a.y = TBL_HALF - 1;
-    b.x = TBL_WIDTH - 1;
-    b.y = TBL_HALF - 1;
+    a.y = DUAL_TBL_HALF - 1;
+    b.x = DUAL_TBL_WIDTH - 1;
+    b.y = DUAL_TBL_HALF - 1;
 
     wdw3->line(a,b,WHITE);
 
@@ -365,7 +368,7 @@ void Dual::SetBounds(float max, float min, float first)
     maxAlt = max;
     minAlt = min;
 
-    float ppm = (float)PLOT_HEIGHT / (max - min);
+    float ppm = (float)DUAL_PLOT_HEIGHT / (max - min);
 
     pixelsPerMeter = ppm;
 
