@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.12  1994/11/03  13:10:44  thor
+// Added code to properly handle long/short PRTs.
+//
 // Revision 1.11  1994/11/01  17:17:37  thor
 // Whoops, forgot VS & VL.
 //
@@ -267,6 +270,19 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
     setPriority(1);
 
     displaySet(Display::A_SET);
+
+    FAST u_long side = cmd->side;
+    
+    if (side == Dual::far_leftSide)
+      xoffset = Dual::far_left;
+    else if (side == Dual::far_rightSide)
+      xoffset = Dual::far_right;
+    else if (side == Dual::leftSide)
+      xoffset = Dual::half_left;
+    else if (side == Dual::rightSide)
+      xoffset = Dual::half_right;
+    else
+      xoffset = Dual::center;
 }
 
 void Dual::undisplay(void)

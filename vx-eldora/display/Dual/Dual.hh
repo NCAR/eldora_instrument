@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.7  1994/10/28  15:50:17  thor
+// Optimized clip() for gcc.
+//
 // Revision 1.6  1994/04/08  20:31:52  thor
 // Many changes!
 //
@@ -52,15 +55,14 @@ class Dual : public Display {
   private:
     unsigned char *videoMemory[2];
 
-    int firstGate;
-
     float maxAlt;
     float minAlt;
     float pixelsPerMeter;
+
+    int firstGate;
+    int xoffset;
     int radius;
-
     int direction;
-
     int offset1;
     int offset2;
 
@@ -79,15 +81,38 @@ class Dual : public Display {
 	return(1);
     }
 
-    void plot(FAST unsigned char *v, FAST int x, FAST int y,
-	     FAST unsigned char c)
+    int clipx(FAST int x)
     {
-	v += x + (y * 4096);
+        // Yes, this produces better code from gcc then a single if.
+        if (x < 0)
+          return(0);
+        else if (x >= Display::FULL_WIDTH)
+          return(0);
+	return(1);
+    }
 
-	*v = c;
+    int clipy(FAST int y)
+    {
+        // Yes, this produces better code from gcc then a single if.
+        if (y < 0)
+          return(0);
+        else if (y >= Display::FULL_HEIGHT/2)
+          return(0);
+	return(1);
     }
 
   public:
+
+    enum xoffsets { far_left = 0, far_right = Display::FULL_WIDTH - 1,
+                    half_left = Display::FULL_WIDTH / 4, half_right =
+                    (Display::FULL_WIDTH / 4) * 3, center =
+                    Display::FULL_WIDTH / 2
+    };
+
+    enum sides { leftSide = 0, rightSide = 1, far_leftSide = 2,
+                 far_rightSide = 4, centerSide = 8
+    };
+    
     Dual(GraphicController *gbd);
 
     void reset(Header *hdr, DispCommand *cmd);
