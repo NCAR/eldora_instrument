@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1994/09/02  18:17:41  thor
+ * Major rewrite.
+ *
  * Revision 1.5  1992/05/07  16:32:46  thor
  * Changed code to handle nmon-gcc compilation.
  *
@@ -76,7 +79,7 @@ bool_t xdr_TapeStatus(XDR *, TapeStatus *);
 #define SendCommand ((u_long)1)
 #define GetTapeStatus ((u_long)2)
 
-extern struct TapeStatus *sendcommand_1(TapeCommand *, CLIENT *);
+extern struct TapeStatus *sendtapecommand_1(TapeCommand *, CLIENT *);
 extern struct TapeStatus *gettapestatus_1(void *, CLIENT *);
 extern struct TapeStatus *sendcommand_1_svc(TapeCommand *, struct svc_req *);
 extern struct TapeStatus *gettapestatus_1_svc(void *, struct svc_req *);
@@ -86,7 +89,7 @@ void startControl(void);
 #else
 program TapeControl {
     version TapeCtrlVers {
-	struct TapeStatus SendCommand(struct TapeCommand) = 1;
+	struct TapeStatus SendTapeCommand(struct TapeCommand) = 1;
 	struct TapeStatus GetTapeStatus(void) = 2;
     } = 1;
 } = 0x30000300;

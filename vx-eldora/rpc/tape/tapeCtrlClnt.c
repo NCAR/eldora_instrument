@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/09/02  18:20:32  thor
+ * Major rewrite.
+ *
  * Revision 1.1  1991/08/28  19:48:54  thor
  * Initial revision
  *
@@ -26,7 +29,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 static struct timeval TIMEOUT = { 5, 0 };
 
-struct TapeStatus *sendcommand_1(FAST TapeCommand *argp, FAST CLIENT *clnt)
+struct TapeStatus *sendtapecommand_1(FAST TapeCommand *argp, FAST CLIENT *clnt)
 {
     static struct TapeStatus res;
     int stat;

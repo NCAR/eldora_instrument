@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/06  16:35:38  thor
+// Added reconnect method.
+//
 // Revision 1.1  1994/09/02  18:22:04  thor
 // Initial revision
 //
@@ -147,7 +150,7 @@ int messanger::sendCmd()
     cerr << cmd.cmd << endl;
 #endif    
 
-    if ((status = sendcommand_1(&cmd,client)) == NULL)
+    if ((status = sendtapecommand_1(&cmd,client)) == NULL)
       return(-2);
 
     return(0);
