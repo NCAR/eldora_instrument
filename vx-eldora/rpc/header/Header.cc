@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/09/24  13:32:10  thor
+ * Added stream I/O, new Send method.
+ *
  * Revision 1.9  1992/07/28  17:29:19  thor
  * Changed bcopy to memcpy, added nav & insitu stuff.
  *
@@ -42,7 +45,7 @@
  *
  *
  *
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ * description:
  *        This file contains both the methods for the Header class and
  * the C interface routines to the class, so our non-C++ literate
  * programmers can use this class.
@@ -63,11 +66,13 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #ifndef UNIX
 extern "C" {
 #include "stdioLib.h"
+#include "memLib.h"
+#include "string.h"
 };
 #else
-static void Die(void);
+extern "C" {
 #include <signal.h>
-static void Die(void)
+#include <sys/unistd.h>
 #include <string.h>
 };
 
@@ -94,14 +99,14 @@ Header::Header(FAST TAPEHEADER *t)
 {
     if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
       {
-    bcopy((char *)t,(char *)th,sizeof(TAPEHEADER));
+	  fprintf(stderr,"Cannot allocate space for header!\n");
 	  exit(1);
       }
 
     memcpy(th,t,sizeof(TAPEHEADER));
 
     numParams = th->Fore.Radar.num_parameter_des;
-Header::Header(void *t)
+}
 
 Header::Header(void *v)
 {
@@ -112,7 +117,9 @@ Header::Header(void *v)
       }
     
     FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) + sizeof(RADARDESC) +
-    bcopy(t,(char *)th,size);
+      sizeof(FIELDRADAR) + sizeof(CELLSPACING);
+
+    FAST unsigned char *t = (unsigned char *)v;
 
     memcpy(th,t,size);
 
@@ -120,7 +127,7 @@ Header::Header(void *v)
 
     FAST int p = th->Fore.Radar.num_parameter_des;
 
-	  FAST PARAMETER *parm = t;
+    for (FAST int i = 0; i < p; i++)
       {
 	  FAST PARAMETER *parm = (PARAMETER *)t;
 
@@ -129,7 +136,19 @@ Header::Header(void *v)
 	  t += sizeof(PARAMETER);
       }
 
-    bcopy(t,(char *)&th->Aft,size);
+    size = sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING);
+
+    memcpy(&th->Aft,t,size);
+
+    t += size;
+
+    size = sizeof(NAVDESC);
+
+    memcpy(&th->Nav,t,size);
+
+    t += size;
+
+    size = sizeof(INSITUDESC);
 
     memcpy(&th->Insitu,t,size);
 }
@@ -141,7 +160,7 @@ int Header::Parameter(FAST PARAMETER &param, FAST int paramNum)
     if (paramNum <= MAX_PARAM)	// Still room.
       p += paramNum;
     else
-    bcopy((char *)&param,(char *)p,sizeof(PARAMETER));
+      return(-1);
 
     memcpy(p,&param,sizeof(PARAMETER));
 
@@ -173,11 +192,11 @@ PARAMETER *Header::Parameter(FAST int paramNum)
 void Header::CellSpacing(CELLSPACING &cs)
 {
     FAST CELLSPACING *c = &th->Fore.CellSpacing;
-    bcopy((char *)&cs,(char *)c,i);
+    FAST int i = sizeof(CELLSPACING);
 
     memcpy(c,&cs,i);
 
-    bcopy((char *)&cs,(char *)c,i);
+    c = &th->Aft.CellSpacing;
 
     memcpy(c,&cs,i);
 }
@@ -194,13 +213,13 @@ int Header::Radar(FAST RADARDESC &r, FAST int descNum)
     FAST RADARDESC *ptr;
 
     if (descNum == 1)
-	  bcopy((char *)&r,(char *)ptr,i);
+      {
 	  ptr = &th->Fore.Radar;
 	  memcpy(ptr,&r,i);
 	  return(0);
       }
     else if (descNum == 2)
-	  bcopy((char *)&r,(char *)ptr,i);
+      {
 	  ptr = &th->Aft.Radar;
 	  memcpy(ptr,&r,i);
 	  return(0);
@@ -221,11 +240,11 @@ RADARDESC *Header::Radar(FAST int descNum)
 void Header::FieldRadar(FIELDRADAR &f)
 {
     FAST int i = sizeof(FIELDRADAR);
-    bcopy((char *)&f,(char *)ptr,i);
+    FAST FIELDRADAR *ptr = &th->Fore.FieldInfo;
 
     memcpy(ptr,&f,i);
 
-    bcopy((char *)&f,(char *)ptr,i);
+    ptr = &th->Aft.FieldInfo;
 
     memcpy(ptr,&f,i);
 }
@@ -238,7 +257,7 @@ FIELDRADAR *Header::FieldRadar(void)
 void Header::Volume(FAST VOLUME &r)
 {
     FAST int i = sizeof(VOLUME);
-    bcopy((char *)&r,(char *)ptr,i);
+    FAST VOLUME *ptr = &th->Volume;
 
     memcpy(ptr,&r,i);
 }
@@ -251,7 +270,7 @@ VOLUME *Header::Volume(void)
 void Header::Waveform(FAST WAVEFORM &r)
 {
     FAST int i = sizeof(WAVEFORM);
-    bcopy((char *)&r,(char *)ptr,i);
+    FAST WAVEFORM *ptr = &th->Wave;
 
     memcpy(ptr,&r,i);
 }
@@ -261,64 +280,99 @@ WAVEFORM *Header::Waveform(void)
     return(&th->Wave);
 }
 
+void Header::NavDesc(FAST NAVDESC &n)
+{
+    FAST int i = sizeof(NAVDESC);
+
+    FAST NAVDESC *ptr = &th->Nav;
+
+    memcpy(ptr,&n,i);
+}
+
+NAVDESC *Header::NavDesc(void)
+{
+    return(&th->Nav);
+}
+
+void Header::Insitu(FAST INSITUDESC &n)
+{
+    FAST int i = sizeof(INSITUDESC);
+
+    FAST INSITUDESC *ptr = &th->Insitu;
+
+    memcpy(ptr,&n,i);
+}
+
+INSITUDESC *Header::Insitu(void)
+{
+    return(&th->Insitu);
+}
+
 int Header::GetRealHeader(void *header)
 {
-      (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING)));
-    
+    // There are two radars, each with a field info and cellspacing block.
+    FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) +
       (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING))) +
 	sizeof(NAVDESC) + sizeof(INSITUDESC);
 
     FAST RADARDESC *rdr = &th->Fore.Radar;
 
     FAST int np = numParams;
-    FAST void *work = header;
+    size += 2 * (sizeof(PARAMETER) * np); // # params * # radars.
 
-    bcopy((char *)&th->Volume,(char *)work,sizeof(VOLUME));
+    FAST unsigned char *work = (unsigned char *)header;
 
     memcpy(work,&th->Volume,sizeof(VOLUME));
 
-    bcopy((char *)&th->Wave,(char *)work,sizeof(WAVEFORM));
+    work += sizeof(VOLUME);
 
     memcpy(work,&th->Wave,sizeof(WAVEFORM));
 
     work += sizeof(WAVEFORM);
-    bcopy((char *)&th->Fore.Radar,(char *)work,sizeof(RADARDESC));
+
     // Do forward radar.
     memcpy(work,&th->Fore.Radar,sizeof(RADARDESC));
 
-    bcopy((char *)&th->Fore.FieldInfo,(char *)work,sizeof(FIELDRADAR));
+    work += sizeof(RADARDESC);
 
     memcpy(work,&th->Fore.FieldInfo,sizeof(FIELDRADAR));
 
-    bcopy((char *)&th->Fore.CellSpacing,(char *)work,sizeof(CELLSPACING));
+    work += sizeof(FIELDRADAR);
 
     memcpy(work,&th->Fore.CellSpacing,sizeof(CELLSPACING));
 
     work += sizeof(CELLSPACING);
 
-	  bcopy((char *)Parameter(i),(char *)work,sizeof(PARAMETER));
+    for (FAST int i = 0; i < np; i++)	// Do once for each parameter block.
       {
 	  memcpy(work,Parameter(i),sizeof(PARAMETER));
 	  work += sizeof(PARAMETER);
       }
-    bcopy((char *)&th->Aft.Radar,(char *)work,sizeof(RADARDESC));
+
     // Do aft radar.
     memcpy(work,&th->Aft.Radar,sizeof(RADARDESC));
 
-    bcopy((char *)&th->Aft.FieldInfo,(char *)work,sizeof(FIELDRADAR));
+    work += sizeof(RADARDESC);
 
     memcpy(work,&th->Aft.FieldInfo,sizeof(FIELDRADAR));
 
-    bcopy((char *)&th->Aft.CellSpacing,(char *)work,sizeof(CELLSPACING));
+    work += sizeof(FIELDRADAR);
 
     memcpy(work,&th->Aft.CellSpacing,sizeof(CELLSPACING));
 
     work += sizeof(CELLSPACING);
 
-	  bcopy((char *)Parameter(i),(char *)work,sizeof(PARAMETER));
+    for (i = 0; i < np; i++)
       {
 	  memcpy(work,Parameter(i),sizeof(PARAMETER));
 	  work += sizeof(PARAMETER);
+      }
+
+    // Do Nav & Insitu descriptors.
+    memcpy(work,&th->Nav,sizeof(NAVDESC));
+
+    work += sizeof(NAVDESC);
+
     memcpy(work,&th->Insitu,sizeof(INSITUDESC));
 
     return(size);
@@ -338,7 +392,7 @@ int Header::Send(FAST char *target)
 // exit without dumping core when the signal is caught.
     FAST int f;
 
-	  signal(SIGBUS,Die);
+    if ((f = fork()) == 0)
       {
 	  signal(SIGBUS,(SIG_PF)Die);
 
@@ -357,7 +411,7 @@ int Header::Send(FAST char *target)
 int Header::Send(FAST CLIENT *client)
 {
     if (client == NULL)
-    bcopy((char *)in.th,(char *)ptr->th,sizeof(TAPEHEADER));
+      return(-1);
 
 // The following is kludge due to a bug in Sun's RPC that causes a bus
 // error at each call to sendheader_1. This allows a forked process to
@@ -368,7 +422,7 @@ int Header::Send(FAST CLIENT *client)
       {
         signal(SIGBUS,(SIG_PF)Die);
 
-    bcopy((char *)th,(char *)ptr->th,sizeof(TAPEHEADER));
+        if (sendheader_1(th,client) == NULL)
           {
               clnt_perror(client,"Header method Send failed. (th)");
               exit(1);
@@ -488,11 +542,42 @@ FIELDRADAR *GetFieldRadar(HeaderPtr ptr)
 }
 
 void SetVolume(HeaderPtr ptr, VOLUME *cs)
+{
+    Header *h = (Header *)ptr;
+    VOLUME &ref = *cs;
+
+    h->Volume(ref);
+}
+
+VOLUME *GetVolume(HeaderPtr ptr)
+{
+    Header *h = (Header *)ptr;
+
+    return(h->Volume());
+}
+
+void SetWaveform(HeaderPtr ptr, WAVEFORM *cs)
+{
+    Header *h = (Header *)ptr;
+    WAVEFORM &ref = *cs;
+
+    h->Waveform(ref);
+}
+
+WAVEFORM *GetWaveform(HeaderPtr ptr)
+{
+    Header *h = (Header *)ptr;
+
+    return(h->Waveform());
+}
+
+void SetNavDesc(FAST HeaderPtr ptr, FAST NAVDESC *nd)
+{
     FAST Header *h = (Header *)ptr;
 
     NAVDESC &ref = *nd;
 
-    bcopy((char *)h->GetRpcHeader(),(char *)th,sizeof(TAPEHEADER));
+    h->NavDesc(ref);
 }
 
 NAVDESC *GetNavDesc(FAST HeaderPtr ptr)
