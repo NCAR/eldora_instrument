@@ -13,6 +13,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  2003/09/25  18:30:31  kapoor
+ * Needed to add in old Gbl vars - trying to get housekeeper to run.  May
+ * delete these after testing and discovering where old variables are being
+ * used.
+ *
  * Revision 1.3  2003/09/25  17:33:09  kapoor
  * changed time variable to time_reg to avoid declaration conflicts
  *
@@ -101,3 +106,9 @@ scope unsigned char *imin;
 scope unsigned char *ihr;
 scope unsigned char *id1;
 scope unsigned char *id2;
+
+/* Pointers to the sub-second interrupt handling stuff */
+
+scope short *sel_525;
+scope short *reset_525;
+scope unsigned short *msec_reg;
