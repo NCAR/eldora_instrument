@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/06/30  14:48:14  thor
+ * Fixed typos.
+ *
  * Revision 1.2  1992/06/26  18:55:31  thor
  * Added DC offset points variable.
  *
@@ -70,7 +73,14 @@ struct RadarStatus {
 #define SCOPE
 #endif // SCOPE
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 #include "RadarGbls.h"
+#ifdef __cplusplus
+};
+#endif // __cplusplus
+
 #endif // UNIX
 
 typedef struct RadarCommand RadarCommand;
