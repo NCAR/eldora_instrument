@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:25:58  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -38,7 +41,7 @@ class Display;
 #include <vxWorks.h>
 #include <math.h>
 #include <iostream.h>
-#include "DisplayRpc.h"
+#include "DisplayRpc.hh"
 #include "Header.hh"
 #include "ParamNames.hh"
 #include "ColorConverter.hh"
@@ -91,6 +94,8 @@ class Display {
                     VERT_AFT = 0x200, HORIZ_AFT = 0x100};
 
     Display(GraphicController *gbd);
+
+    void setColors();
 
     void setParmNames(ParamNames &p) { namer = &p; }
 
@@ -198,6 +203,8 @@ class Display {
     void showClock() { clock->display(); }
 
     void hideClock() { clock->undisplay(); }
+
+    void refreshClock() { clock->setDefPatterns(); }
 
     virtual int wdwOk(int wdw);		// Is wdw active?
     
