@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/01/28  16:00:46  thor
+ * Added tp41 specific hardware initialization.
+ *
  * Revision 1.4  1991/11/01  20:02:24  thor
  * Added new static for time keeping.
  *
@@ -35,6 +38,7 @@ extern "C" {
 #include "stdioLib.h"
 #include "rpcLib.h"
 #include "tp41Lib.h"
+#include "sysLib.h"
 };
 
 static DispStatus ge_status;
@@ -66,7 +70,7 @@ void GeStart(char *server, int sys)
     ge_status.count = 0;
 
     // Start graphics task.
-    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI);
+    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,18000);
 
     // Start alarm task.
 
@@ -75,10 +79,10 @@ void GeStart(char *server, int sys)
     args[0] = (int)server;
     args[1] = sys;
 
-    AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI); 
+    AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI,18000); 
 
     // Now we start control loop.
-    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,6000);
+    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,18000);
 }
 
 void RpcLoop(Task &self)
