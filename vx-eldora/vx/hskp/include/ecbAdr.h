@@ -9,10 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/05/29  17:53:54  shawn
+ * Revision 1.1  1992/06/18  20:39:16  shawn
  * Initial revision
- *
- *
  *
  * description: Contains ECB SLAVE addresses (on ECB bus)
  *        
