@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:52:47  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.7  1991/10/24  13:48:03  thor
  * Switched order of window actions in C_SET part of switchSets so
  * A_SET is displayed.
@@ -57,15 +60,13 @@ class Radial;
 #define OK_RPC
 #define WRS_SIDE
 
-extern "C" {
 #include "vxWorks.h"
 #include "math.h"
 #include "DisplayRpc.h"
-};
 
 #include "ParamNames.h"
 #include "point.h"
-
+#include "mathVar.h"
 
 // This structure is used to hold the fixed point sines/cosines. The
 // format is (fp value) << 16.

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/01  16:40:28  thor
+ * Brought up to latest ANSI spec.
+ *
  * Revision 2.0  1992/11/03  12:52:47  thor
  * First offical ELDORA release!
  *
@@ -73,12 +76,11 @@
  * for the Radial class.
  *
  */
-extern "C" {
 #include "vxWorks.h"
-#include "stdioLib.h"
+#include "stdio.h"
 #include "string.h"
-#include "memLib.h"
-};
+#include "stdlib.h"
+#include "taskLib.h"
 
 #include "Radial.hh"
 
