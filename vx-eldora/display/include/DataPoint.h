@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/28  21:53:57  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -18,12 +21,17 @@
  * draw and up to four parameters of color data. The HorizMove
  * structure contains the new latitude and longitude, as well as the
  * direction to shift the display.
+ * 
+ *        This header also defines the structure used to pass drawing
+ * information for radial displays. The RadialData structure contains
+ * an angle component and three arrays to hold color data.
  *
  */
 #ifndef INCDataPointh
 #define INCDataPointh
 
 #include "point.h"
+#include "WdwGbls.h"
 
 #ifndef VERTICES
 #define VERTICES 4
@@ -41,6 +49,11 @@ struct Horiz_Move {
     int direction;
 };
 
+struct Radial_Data {
+    float angle;
+    unsigned char colors[DISPLAYED_GATES * 3];
+};
+
 static const int UPPER_LEFT  = 0;
 static const int LEFT        = 1;
 static const int LOWER_LEFT  = 2;
@@ -54,6 +67,7 @@ static const int INITIAL_LAT_LONG = 8; /* This means update only the */
 
 typedef struct Data_Point DataPoint;
 typedef struct Horiz_Move HorizMove;
+typedef struct Radial_Data RadialData;
 
 #endif INCDataPointh
 
