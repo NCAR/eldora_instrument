@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1991/10/30  17:57:23  thor
+ * Added deletion of converter, cleaned up title drawing code.
+ *
  * Revision 1.8  1991/10/24  14:03:27  thor
  * Fixed incorrect max/min values for B/C_SET.
  *
@@ -262,7 +265,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
     if (param != NO_PARAM)
 
-	  New->drawTable(B_SET,max[0],min[0],param);
+	  New->drawTable(B_SET,max[1],min[1],param);
     if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
@@ -270,7 +273,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
     if (param != NO_PARAM)
 
-	  New->drawTable(C_SET,max[0],min[0],param);
+	  New->drawTable(C_SET,max[2],min[2],param);
     if (nv)
       {
 	  param = ptr->param0;
