@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/12  15:56:13  thor
+// Added new parameters per Craig.
+//
 // Revision 1.3  1994/08/12  17:24:29  thor
 // Added const to methods declarations.
 //
@@ -55,7 +58,10 @@ class ParamNames {
 	SPEC_WIDTH3  = 0x40000,
         VEL_LONG     = 0x80000,
         VEL_SHORT    = 0x100000,
-        VEL_UNFOLDED = 0x200000,
+        SPEC_WIDTHS  = 0x200000,
+        SPEC_WIDTHL  = 0x400000,
+        NCPL         = 0x800000,
+        DBZL         = 0x1000000,
 	NO_PARAM     = -1
     };
     
@@ -84,7 +90,7 @@ class ParamNames {
 char *ParamNames::names[] = {
 "DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
 "IMAG_R2", "NCP", "DBZ1", "DBZ2", "DBZ3", "VR1", "VR2", "VR3", "SW1", "SW2",
-"SW3", "VL", "VS", "VU",
+"SW3", "VL", "VS", "SWS", "SWL", "NCPL", "DBZL",
 0};
 #endif // PARAMNAMES_SCOPE
 

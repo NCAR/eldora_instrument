@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/12  15:56:13  thor
+// Added new parameters per Craig.
+//
 // Revision 1.3  1994/08/12  17:24:29  thor
 // Added const to methods declarations.
 //
@@ -54,8 +57,11 @@ int ParamNames::paramToNum(register int p) const
       case ParamNames::SPEC_WIDTH3: return(18);
       case ParamNames::VEL_LONG: return(19);
       case ParamNames::VEL_SHORT: return(20);
-      case ParamNames::VEL_UNFOLDED: return(21);
-      case ParamNames::NO_PARAM: return(22);
+      case ParamNames::SPEC_WIDTHS: return(21);
+      case ParamNames::SPEC_WIDTHL: return(22);
+      case ParamNames::NCPL: return(23);
+      case ParamNames::DBZL: return(24);
+      case ParamNames::NO_PARAM: return(25);
       default: return(-1);
     }
 }
@@ -84,7 +90,10 @@ int ParamNames::numToParam(register int n) const
       case 18: return(ParamNames::SPEC_WIDTH3);
       case 19: return(ParamNames::VEL_LONG);
       case 20: return(ParamNames::VEL_SHORT);
-      case 21: return(ParamNames::VEL_UNFOLDED);
+      case 21: return(ParamNames::SPEC_WIDTHS);
+      case 22: return(ParamNames::SPEC_WIDTHL);
+      case 23: return(ParamNames::NCPL);
+      case 24: return(ParamNames::DBZL);
       default: return(ParamNames::NO_PARAM);
     }
 }
@@ -123,7 +132,7 @@ int ParamNames::nameToNum(register const char *c) const
  
 const char *ParamNames::numToName(register int num) const
 {
-    if (num < 0 || num > paramToNum(ParamNames::VEL_UNFOLDED))
+    if (num < 0 || num > paramToNum(ParamNames::DBZL))
       return(NULL);
     
     return(names[num]);
