@@ -1,98 +1,95 @@
+#
+#	Makefile for Directory ELDORA/vx/hskp/src/ecb
+#	Author: Craig Walther
+#	Date: 8/19/92
+#
+# GNU C 
+CC= gcc68
+CCC = $(CC)
+#
+# Totally agressive optimization.
+#OPT= -O -fstrength-reduce -fforce-mem -finline-functions -fcombine-regs \
+#	-fomit-frame-pointer
+OPT= -O -fvolatile
+#
+DEFINES= -DUSE_ANSI
+#
+# Drag in includes from here.
+INCLUDES= -I/vw/h -I. -I/ELDORA/rpc/header2 -I/ELDORA/vx/hskp/include\
+		-I/ELDORA/vx/c++/include
+#
+CFLAGS= $(DEFINES) $(INCLUDES)
+CCFLAGS= $(CFLAGS)
+#
+LIBS= /ELDORA/rpc/bin/vxheader.o /ELDORA/vx/c++/bin/builtin++.o\
+	/ELDORA/vx/c++/ctor_dummy.o
+#
+OBJS= calcs.o ecbClrFifos.o ecbCmpltIsr.o ecbGetBusStat.o ecbGetTsami.o\
+	ecbGetTsamr.o ecbGiveSem.o ecbIntInit.o ecbMenu.o ecbSetAtten.o\
+	ecbSetDDS.o ecbSetDDSfloat.o ecbSetDivN.o ecbSetIF.o ecbSetMux.o\
+	ecbShowBim.o ecbShowBusStat.o ecbShowLast.o ecbShowMstat.o\
+	ecbShowTempi.o ecbShowTempr.o fifotst1.o
+#
+SRCS= calcs.c ecbClrFifos.c ecbCmpltIsr.c ecbGetBusStat.c ecbGetTsami.c\
+	ecbGetTsamr.c ecbGiveSem.c ecbIntInit.c ecbMenu.c ecbSetAtten.c\
+	ecbSetDDS.c ecbSetDDSfloat.c ecbSetDivN.c ecbSetIF.c ecbSetMux.c\
+	ecbShowBim.c ecbShowBusStat.c ecbShowLast.c ecbShowMstat.c\
+	ecbShowTempi.c ecbShowTempr.c fifotst1.c
+#    
+HEADERS=
+#
+# Include files go here.
+INC=
+#
+# Binaries go here.
+BIN= /ELDORA/vx/hskp/bin
+
 .KEEP_STATE:
 
-INCLUDE = /ELDORA/vx/hskp/include
-BIN = /ELDORA/vx/hskp/bin
-CFLAGS= -I/vx/h -I${INCLUDE} -c
+compile: $(OBJS)
+	 install -m 774 $(OBJS) $(BIN)
 
-GETOBJS  = ecbGetTsami.o ecbGetTsamr.o
-INTOBJS  = ecbCmpltIsr.o ecbIntInit.o
-SETOBJS  = ecbSetIF.o ecbSetDDS.o ecbSetDDSfloat.o ecbSetAtten.o
-SHOWOBJS = ecbShowBim.o ecbShowLast.o ecbShowMstat.o ecbShowTempi.o ecbShowTempr.o
-UTILOBJS = ecbClrFifos.o ecbGiveSem.o fifotst1.o
+update:
+	-for i in $(HEADERS); \
+		do (diff $$i $(INC)/$$i >tmpdiff; \
+			if test -s tmpdiff; \
+			then \
+				(echo "Copying $$i";cp $$i $(INC)) \
+			fi;); \
+	rm tmpdiff; \
+	done;
+		
 
-default: ecbGets.o ecbInts.o ecbSets.o ecbShows.o ecbUtils.o
+asm:
+	for i in $(SRCS); \
+		do (echo "$(CC) -S $(CFLAGS) $$i";$(CC) -S $(CFLAGS) $$i); \
+	done;
 
-ecbGets.o: ${GETOBJS}
-	ld68k -X -r -o ecbGets.o ${GETOBJS}
-	cp ecbGets.o ${BIN}
+get_rcs:
+	for i in $(SRCS); \
+		do (echo "co $$i";co $$i); \
+	done;
 
-ecbInts.o: ${INTOBJS}
-	ld68k -X -r -o ecbInts.o ${INTOBJS}
-	cp ecbInts.o ${BIN}
+get_rcs_locked:
+	for i in $(SRCS); \
+		do (echo "co -l $$i";co -l $$i); \
+	done;
 
-ecbSets.o: ${SETOBJS}
-	ld68k -X -r -o ecbSets.o ${SETOBJS}
-	cp ecbSets.o ${BIN}
+put_rcs:
+	for i in $(SRCS); \
+		do (echo "ci $$i";ci $$i); \
+	done;
 
-ecbShows.o: ${SHOWOBJS}
-	ld68k -X -r -o ecbShows.o ${SHOWOBJS}
-	cp ecbShows.o ${BIN}
+# Modify this to include an access list if desired.
+set_rcs:
+	for i in $(SRCS); \
+		do (echo "rcs -c\" * \" -L $$i";rcs -acraig,shawn,rich,eric,reif -c" * " -L $$i); \
+	done;
 
-ecbUtils.o: ${UTILOBJS}
-	ld68k -X -r -o ecbUtils.o ${UTILOBJS}
-	cp ecbUtils.o ${BIN}
+clean:
+	rm -f *.o *~ core
 
-# modules in ecbGets.o:
-
-ecbGetTsami.o: ecbGetTsami.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/ecbStat.h
-	g68 ${CFLAGS} ecbGetTsami.c 
-
-ecbGetTsamr.o: ecbGetTsamr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/ecbStat.h
-	g68 ${CFLAGS} ecbGetTsamr.c 
-
-
-#modules in ecbInts.o:
-
-ecbCmpltIsr.o: ecbCmpltIsr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h ${INCLUDE}/hskpInt.h
-	g68 ${CFLAGS} ecbCmpltIsr.c 
-
-ecbIntInit.o: ecbIntInit.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbSem.h ${INCLUDE}/hskpInt.h
-	g68 ${CFLAGS} ecbIntInit.c 
-
-
-# modules in ecbSets.o:
-
-ecbSetDDS.o: ecbSetDDS.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbSetDDS.c 
-
-ecbSetDDSfloat.o: ecbSetDDSfloat.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbSetDDSfloat.c 
-
-ecbSetIF.o: ecbSetIF.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbSetIF.c 
-
-ecbSetAtten.o: ecbSetAtten.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/ecbSem.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbSetAtten.c 
-
-
-# modules in ecbShows.o:
-
-ecbShowBim.o: ecbShowBim.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h ${INCLUDE}/hskpInt.h
-	g68 ${CFLAGS} ecbShowBim.c 
-
-ecbShowLast.o: ecbShowLast.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbShowLast.c 
-
-ecbShowMstat.o: ecbShowMstat.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h
-	g68 ${CFLAGS} ecbShowMstat.c 
-
-ecbShowTempi.o: ecbShowTempi.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbShowTempi.c 
-
-ecbShowTempr.o: ecbShowTempr.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbStat.h ${INCLUDE}/ecbAdr.h
-	g68 ${CFLAGS} ecbShowTempr.c 
-
-
-# modules in ecbUtils.o:
-
-ecbClrFifos.o: ecbClrFifos.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbMaster.h
-	g68 ${CFLAGS} ecbClrFifos.c 
-
-ecbGiveSem.o: ecbGiveSem.c ${INCLUDE}/ecbFunc.h ${INCLUDE}/ecbSem.h
-	g68 ${CFLAGS} ecbGiveSem.c 
-
-fifotst1.o: fifotst1.c ${INCLUDE}/ecbMaster.h
-	g68 ${CFLAGS} fifotst1.c
-	cp fifotst1.o ${BIN}
+real_clean: clean
+	rm -f *.c *.h
 
 
