@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:46:22  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  1992/08/12  19:35:43  thor
  * Initial revision
  *
@@ -23,6 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define HPA_CLIENT_SIDE
 
 #include "HpaRpc.hh"
+#include <string.h>
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
@@ -31,7 +35,7 @@ void *hpasendcmd_1(enum HPA_CMD *argp, CLIENT *clnt)
 {
     static char res;
     
-    bzero((char *)&res,sizeof(res));
+    memset((char *)&res,0,sizeof(res));
     if (clnt_call(clnt,HpaSendCmd,xdr_HPA_CMD,argp,xdr_void,&res,
 		  TIMEOUT) != RPC_SUCCESS)
       {

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:46:22  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  1992/08/12  19:35:44  thor
  * Initial revision
  *
@@ -23,6 +26,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "HpaRpc.hh"
 #include <stream.h>
 #include <rpc/pmap_clnt.h>
+#include <stdlib.h>
+#include <string.h>
 
 static void hparpcprog_1(struct svc_req *,SVCXPRT *);
 
@@ -35,7 +40,7 @@ int HpaRpcInit(int hpa)
     else
       (void)pmap_unset(HpaRpcProg2,HpaRpcVers);
 
-    transp = svcudp_create(RPC_ANYSOCK);
+    transp = svcudp_create(RPC_ANYSOCK,8192,8192);
     if (transp == NULL)
       {
 	  cerr << "cannot create udp service." << endl;
@@ -91,7 +96,7 @@ static void hparpcprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	  svcerr_noproc(transp);
 	  return;
       }
-    bzero((char *)&argument,sizeof(argument));
+    memset((char *)&argument,0,sizeof(argument));
     if (!svc_getargs(transp,xdr_argument,(caddr_t) &argument))
       {
 	  svcerr_decode(transp);

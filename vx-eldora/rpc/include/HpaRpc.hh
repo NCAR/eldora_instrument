@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:46:22  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  1992/08/12  19:35:45  thor
  * Initial revision
  *
@@ -22,7 +25,6 @@
 
 #ifdef OK_RPC
 #include <rpc/rpc.h>
-#include <c_varieties.h>
 #endif // OK_RPC
 
 enum HPA_CMD {
