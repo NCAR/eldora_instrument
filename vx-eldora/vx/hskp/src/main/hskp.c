@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1996/12/09  22:43:13  craig
+ * new iru interface
+ *
  * Revision 1.10  1996/10/29  22:53:21  craig
  * *** empty log message ***
  *
@@ -97,8 +100,7 @@ sysIntEnable(ECB_SPARE_IRQ);
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
-/* init_mini(); */   /* Zeros all the counters and disables the gimbal motor
-                    sets up the clock interrupt */
+init_mini();     /* Initializes and connects mailbox interrupt */ 
 
 printf("Initializing the VME to VME interfaces\n");
 init_vmevme();  /* Intializes the VME to VME interface handshake area */
@@ -133,6 +135,7 @@ do{
     stop_motor();
     printf("Stopping the GPS interface\n");
     command_gps((char)3);
+    command_mini((short)3);   /* disable Mailbox interrupt */
 
 /*    stop_ieee(); */
 
@@ -306,6 +309,7 @@ do{
     printf("Starting the GPS interface\n");
     *tp41_mbox_0 = (char)0;
     command_gps((char)1);
+    command_mini((short)1);  /* enable Mailbox interrupt */
 
     printf("Starting the IRU Interface\n");
     start_iru();
@@ -348,11 +352,6 @@ do{
 	      printf("N");
 	      mcpl_error[2] = 0;
 	  }
-
-	/* Check on the status of the miniRIMS */
-
-	/* status_mini(); */
-
 
        /* If new GPS data exists handle the data */
 
