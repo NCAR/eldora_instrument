@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added include for horiz. display, consts for beam width & horiz/vert
+ * grid size.
+ *
  * Revision 1.3  1991/10/23  20:38:07  thor
  * Added Mouse support.
  *
@@ -24,6 +27,9 @@
  *        
  */
 #ifndef INCGeDrawhh
+#define INCGeDrawhh
+#include "Radial.hh"
+#include "HorizDisplay.hh"
 #include "Vertical.hh"
 // Uniprocessor.
 #include "Pipe.hh"
@@ -41,12 +47,17 @@ static const unsigned int NEW_DATA_FLAG = 0x1000;
 static const unsigned int DESTROY_SELF  = 0x2000;
 static const unsigned int MOUSE_FLAG    = 0x4000;
 static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
+				      FORWARD_HORIZ | FORWARD_VERT |
+				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
+				      RESTART| NEW_DATA_FLAG | DESTROY_SELF | 
+				      MOUSE_FLAG);
 #ifdef MVME133
 extern void RadialLoop(Task &self, GraphicController *agc);
 extern void HorizLoop(Task &self, GraphicController *agc);
 extern void VertLoop(Task &self, GraphicController *agc);
 #endif // MVME133
 
+extern void RadialLoop(Task &self, GraphicController *agc, Pipe &pipe);
 extern void VertLoop(Task &self, GraphicController *agc, Pipe &pipe);
 
 extern void RadialMouse(Radial *);
