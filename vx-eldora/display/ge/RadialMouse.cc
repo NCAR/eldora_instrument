@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/23  20:39:56  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -27,23 +30,32 @@ void RadialMouse(FAST Radial *disp)
     FAST int buttonState = rodent->getButtonState();
 		
     if (buttonState == LBUTTON_DOWN)
-      disp->switchSets();
+      {
+	  disp->switchSets();
+	  return;
+      }
     else if (buttonState == MBUTTON_DOWN)
       {
 	  cursor = rodent->getXY();
 		      
-	  if (cursor.x < 1024)
+	  if (cursor.x < PLOT_WIDTH)
 	    disp->nextZoom(cursor);
       }
     else if (buttonState == RBUTTON_DOWN)
       {
 	  cursor = rodent->getXY();
 		      
-	  if (cursor.x < 1024)
-	    disp->centerAll(cursor);
+	  if (cursor.x < PLOT_WIDTH)
+//	    disp->centerAll(cursor);
+	    disp->pan(cursor);
       }
     else if (buttonState == RBUTTON_DOWN | MBUTTON_DOWN)
       disp->homeAll();
+
+    cursor.x = PLOT_WIDTH / 2;
+    cursor.y = PLOT_HEIGHT / 2;
+
+    rodent->setCursorXY(cursor);
 }
 
 
