@@ -1,0 +1,203 @@
+Status, March 21:
+  Init() and C_Init() functions working.  Able to pass mbufs back and
+  forth between the eth29fc and the host, using mailbox interrupts of the
+  eth29fc. C_Init successfully does a query of the MAC address of the card.
+  Some errors seen on eth29fc console port, see below.
+
+  Host interrupt code (intConnect, sysIntEnable, ISR) in
+  place, but not tested.
+
+Next step:  start implementing actual socket calls in nifsock.c
+
+I changed the root password on magnus to tp41eldora
+
+Address of eth29fc Dual Ported Ram from Tadpole:  0x30800000
+
+Booting vxworks host:
+  boot script:  /magnus/dt/scripts/ts.cmd
+
+  Current contents of boot script
+    nfsMount "bootHost","/magnus/dt","/"
+    ld < /eldora/vx/tp41/tp41Lib.ok
+    #
+    # Set VME page 0, VME EXT
+    wcio(0,"A",0xc0)
+    #
+    ld < /eldora/vx/eth29fc/eth29fc.o
+
+  Note that magnus:/magnus/dt/eldora/... is accessed from
+  VxWorks as /eldora/...
+
+
+Cross compiling:
+  use bock
+
+  VxWorks installation
+	bock:/net/vx
+
+  vxworks man pages:  /net/vx/man
+    setenv MANPATH /net/vx/man:$MANPATH
+
+    man msgQLib
+    man intArchLib
+
+My working directory:
+  ~maclean/work/eldora
+    eth29fc_030306: untar'd original code from nif_drv_030306.tgz
+    eth29fc:  my latest version.
+
+  I suggest moving this code to /net/eldora/eldora/vx/eth29fc, where
+  the other eldora code is. (I've created the eth29fc directory there).
+
+  Code that Rich got from NAT (both these appear to be identical)
+    nif_drv_020611.tar.gz
+    nif_drv_030306.tgz
+
+  There is a Makefile in eth29fc for cross-compiling on bock.
+  You will have to add SRCS and OBJS as you add files.
+
+  Original code included a file called customize.h - for things
+  like DPR addresses.  I've called it eth29fc.h.
+
+  The initialization code (and interrupt routine) is in init.c,
+  instead of isockdrv.c.
+
+  The original code was very screwed up with fundamental pointer-passing
+  problems and un-initialized mbufs.  In several places it tried to
+  access an mbuf at the V_Port pointer, which points to the start
+  of the eth29fc dual-ported RAM.  These accesses always failed, because
+  there didn't appear to be an mbuf there.
+
+  For debug output, I've been using logMsg instead of printf:
+  	logMsg("debug, i=%d",i);
+	taskDelay(10);
+  With the taskDelay you have some possibility of seeing your
+  debug message before a hang.  logMsg can be called at interrupt level.
+
+  I've included the vxWorks header file in most source files. It does
+  its own defines of things like u_char, so I've removed them
+  from the original NAT header files:
+  
+      #define __PROTOTYPE_5_0
+      #include <vxWorks.h>
+
+  Using __PROTOTYPE_5_0 avoids some function prototype errors - use it
+  if it helps.
+
+I connected the vxworks console port to the serial port on magnus, 
+and used tip on magnus (had to be root):
+  tip com1
+  ...
+  ~. to exit tip
+
+eth29fc console is Eric's Win98 PC on top of VME rack.
+
+Compile/testing:
+
+  on bock:
+    cd ~/work/eldora/eth59fc
+    edit ...
+    make install
+
+  Then, on magnus, copy eth29fc.o to /magnus/dt:
+    cp ~maclean/work/eldora/eth59fc/eth59fc.o /magnus/dt/eldora/vx/eth29fc
+
+  On bootup, Vxworks host does an ld of eth59fc.o.  Or you can install
+  a new version by doing the ld after bootup:
+    ld < /eldora/vx/eth29fc/eth29fc.o
+
+  Then run Init():
+    > Init()
+
+  Eventually Init() could be added to the boot script.
+
+  Compare output on vxworks console with the output on the eth29fc console.
+
+  NAT output is useful. You can check mbuf addresses, and
+  get some idea of what is going on.
+
+  To cold reboot VME box, hit red square power button
+  at bottom-front of rack.
+
+  The reboot vxworks command does a soft boot:
+  > reboot
+
+  During testing you will often have to do cold reboots, since if
+  things are hung, a soft reboot doesn't seem to completely
+  reset the eth29fc.
+
+
+Here's the latest vxworks output from the Init() function:
+
+-> Init()
+C_Init
+0x401af1b4 (tShell): C_Init
+0x401af1b4 (tShell): C_Init: driver is using well known port number COMPROT_TCPIP
+0x401af1b4 (tShell): C_Init: taking IEEE address from hardware
+0x401af1b4 (tShell): L2_Init
+0x401af1b4 (tShell): get_mbuf
+0x401af1b4 (tShell): get_mbuf m=0x308fff80,m_off=1074483448,m_len=814743424
+0x401af1b4 (tShell): get_mbuf done, m=0x401a05d4,m_off=1075833424,m_len=0
+0x401af1b4 (tShell): action
+0x401af1b4 (tShell): nif_setACTH2S
+0x401af1b4 (tShell): wait_sl
+0x401af1b4 (tShell): wait_sl m=0xfff80
+0x401af1b4 (tShell): wait_sl m=0x308fff80
+0x401af1b4 (tShell): m=0x308fff80, m_off=12,m_len=44
+0x401af1b4 (tShell): L2_Init error=0401a05d4
+0x401af1b4 (tShell): put_mbuf m=0x308fff80
+0x401af1b4 (tShell): put_mbuf
+0x401af1b4 (tShell): put_mbuf error=0
+0x401af1b4 (tShell): get_mbuf m=0x308fff00,m_off=1074483448,m_len=814743296
+0x401af1b4 (tShell): nif_setACTH2S
+0x401af1b4 (tShell): wait_sl m=0xfff00
+0x401af1b4 (tShell): wait_sl m=0x308fff00
+0x401af1b4 (tShell): m=0x308fff00, m_off=12,m_len=44
+0x401af1b4 (tShell): put_mbuf m=0x308fff00
+0x401af1b4 (tShell): put_mbuf
+0x401af1b4 (tShell): put_mbuf error=0
+0x401af1b4 (tShell): C_Init: got EthernetID=00 40 42 00 07 8b
+0x401af1b4 (tShell): get_mbuf m=0x308fff80,m_off=1074483448,m_len=814743424
+0x401af1b4 (tShell): nif_setACTH2S
+0x401af1b4 (tShell): wait_sl m=0xfff80
+0x401af1b4 (tShell): wait_sl m=0x308fff80
+0x401af1b4 (tShell): put_mbuf m=0x308fff80
+0x401af1b4 (tShell): put_mbuf
+0x401af1b4 (tShell): put_mbuf error=0
+0x401af1b4 (tShell): C_Init: - completed OK
+intConnect
+0x401af1b4 (tShell): intConnect
+sysIntEnable
+0x401af1b4 (tShell): sysIntEnable
+value = 0 = 0x0
+-> 
+
+Notice that it successfully got the ethernet ID from the card.
+
+I see a few unexplained problems on the NAT console, when the
+above runs:
+
+mbox_irq = 0
+mbox_irq: PANIC mbox = 0
+  Not sure why the eth29fc is detecting a zero mailbox. The code
+  running on the vxWorks host always sets the mailbox to a
+  non-zero value.  It doesn't seem to be a fatal error.
+
+Panic - unknown media
+  No clue what this is.  Not fatal.
+
+m_free PANIC m=0x400fff80 ... already free.
+  It is as if a put_mbuf is being done twice on the same mbuf,
+  but I don't think it is.  Also not fatal.
+
+Error returned by L2_Init() function is non-zero.  The
+  L2_EthPhysID function does similar communications and
+  returns the correct MAC address, so I don't know why
+  the error is non-zero.
+
+Plans:
+  Have interrupt service routine write to a vxworks msgQueue instead
+  of the queue in the NAT code, i.e. get rid of C_Out, C_In.
+
+  do "man msgQCreate" for info on msgQs
+

@@ -1,0 +1,53 @@
+This directory contains code artifacts
+provided by NAT. The docs directory,
+below this, contains documentation
+provided by NAT.
+
+Gordon_Notes.txt - notes made by Gordon during the
+initial attempts to get the NAT sample code working.
+
+NAT provided three types of code to us. 
+
+1.) The first was a "sample driver" code, with some 
+customization notations, which we were suppposed to adapt for our
+application. It was full of bugs and errors. NAT later
+admitted that the  had never been completed. When I first
+contacted NAT, Heiko admmited that we had incomplete code. He
+then went through his bug list, and tried to fix that code
+based on reported problems (by whom?) in the code. He sent
+his revised version to us, but clearly it had never been
+run either. The "Sample driver" files are:
+
+nif_drv_020611.tgz - NAT "sample driver"
+nif_drv_030306.tgz - identical to the previous
+C_Sample_Driver.zip - the sample driver, after bug fixes by NAT
+nif_c.c - another bug fix to the by NAT.
+
+2.) After the debauchle of trying to get the sample code to work, 
+NAT put together code which they had running under vxWorks,
+on an MVME-162. This code does work, but only has partial 
+functionality, mainly demonstrating the ability to
+receive ethernet data. It uses taskDelay() to wait
+for asynchronous notification from the eth29, rather than
+suspending the task. I used it as the starting point for
+the eldora application. The main modifications involved
+adding a semaphore for task scheduling, and adding 
+many of the socket interfaces that we needed, such
+as P_Connect() and P_Send(). Note that the sample
+driver code from nif_drv.tgz, especially nifsock.c,
+is useful for adding scoket functions like P_Send, etc:
+
+eth29.tar - the NAT vxWorks limited functionality driver code.
+
+3.) NAT provided some example code, which really illustrates
+socket programming, and a little bit about how to configure their 
+card. This code calls standard Unix functions, e.g. socket(), rather
+than the function names used in the NAT driver code (e.g. P_Socket() ).
+So it is not clear if this code actually ever drove an eth29 card, or
+was lifted from some other application. I did mention this
+descrepency to Helmut at NAT, and he said that they had built
+a library which translated the standard calls to their names.
+
+ifconfig.tar - how to configure the eth29 as a standard network interface
+netprint.c 
+setdebug.c - how to set the debugging level on the eth29.
