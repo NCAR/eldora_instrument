@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/07/20  20:56:10  thor
+ * Changed shorts to chars.
+ *
  * Revision 1.1  1992/07/13  20:18:58  thor
  * Initial revision
  *
@@ -93,43 +96,43 @@ bool_t xdr_HskpStatus(FAST XDR *xdrs, FAST HskpStatus *objp)
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->ecb))
+    if(!xdr_u_char(xdrs,&objp->ecbgen))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->slave))
+    if(!xdr_u_char(xdrs,&objp->slvdead))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->onTemp))
+    if(!xdr_u_char(xdrs,&objp->onBoverT))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->offTemp))
+    if(!xdr_u_char(xdrs,&objp->offBoverT))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->foreDDS))
+    if(!xdr_u_char(xdrs,&objp->forDDSool))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->aftDDS))
+    if(!xdr_u_char(xdrs,&objp->aftDDSool))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->minirims))
+    if(!xdr_u_char(xdrs,&objp->minirims))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->minirimsTemp))
+    if(!xdr_u_char(xdrs,&objp->minirimsTemp))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->clock))
+    if(!xdr_u_char(xdrs,&objp->clock))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_char(xdrs,&objp->insitu))
+    if(!xdr_u_char(xdrs,&objp->insitu))
       {
 	  return(FALSE);
       }
