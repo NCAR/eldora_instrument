@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:20  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -78,10 +81,10 @@ va_dcl
          /* Restart DSP */
          *(pio + PCRL) = 0;
 	 *(pio + PCRL) = RUN;
-         *(pio + PCRL) = DMA + AUTO + REGMAP + RUN + ENI; 
+	 *(pio + PCRL) = REGMAP + RUN + ENI;
 	 temp = (unsigned char *)(pio + PCRL);
 	 status = *temp & 0xff;
-	 if(status != DMA + AUTO + REGMAP + RUN + ENI)
+	 if(status != REGMAP + RUN + ENI)
 	   printf("Board %x, Processor %d Failed to Start; status = %x \n", bd,i,status);
 
     }

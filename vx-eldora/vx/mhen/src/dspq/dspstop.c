@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:25  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -67,11 +70,11 @@ va_dcl
     {
 	pio = (unsigned char *)(bd + (DSPSEL + ((unsigned long)i * DSPOFF)));
         /* Stop DSP */
-        *(pio + PCRL) = DMA + AUTO + REGMAP + DSPRESET;
+        *(pio + PCRL) = REGMAP + DSPRESET;
 	/* verify DSP is stopped */
 	temp = (unsigned char *)(pio + PCRL);
 	status = *temp & 0x9f;    /* mask off PDF and PIF */
-	if(status != DMA + AUTO + REGMAP + DSPRESET)
+	if(status != REGMAP + DSPRESET)
 	  printf("DSP %d on Board %x Failed to Stop; status = %x \n", i,bd,status);
     }
   }
