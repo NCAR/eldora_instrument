@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/01/14  19:46:24  thor
+ * Added functions to transparently move messages.
+ *
  * Revision 1.1  1992/01/14  19:18:20  thor
  * Initial revision
  *
@@ -43,7 +46,7 @@ enum LOGFILES {
 
 struct LOG {
     enum LOGFILES file;
-    char message[256];
+    char message[81];
 };
 
 #ifdef OK_RPC
@@ -59,7 +62,7 @@ bool_t xdr_LOG(XDR *xdrs, LOG *objp);
 #define LogMessage ((u_long)1)
 
 #ifdef CLIENT_SIDE
-extern void logmessage_1(LOG *argp, CLIENT *clnt);
+extern void logmessage_1(LOG *argp);
 extern void loggerError(char *message);
 extern void loggerEvent(char *message);
 extern int loggerInit(char *host);
