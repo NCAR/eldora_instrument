@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  91/01/02  08:50:41  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -31,7 +34,7 @@ extern "C" {
 
 void GraphicController::qpdmCmd(FAST long *cmd, FAST int number)
 {
-    volatile FAST long *fifo = qpdmFifo;
+    volatile FAST long *fifo = (long *)qpdmFifo;
     volatile FAST unsigned char *fifoState = fifoFlags;
     FAST SEM_ID semaphore = accessSem;
     FAST unsigned char test = FIFO_HF | FIFO_AE;

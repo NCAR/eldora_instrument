@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1991/12/02  17:59:14  thor
  * Changed ISR to wait .25 second between events.
  *
@@ -108,7 +111,7 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
     *cinit++ = X_HI_GEAR;
     *cinit = Y_HI_GEAR;
 
-    cinit = cursorBase;
+    cinit = (unsigned char *)cursorBase;
     
     *cinit++ = CURSOR_ENABLE;	// Turn on cursor.
 
@@ -120,7 +123,7 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
     *sinit++ = firstXY.x;	// This is where the cursor will appear.
     *sinit = firstXY.y;
 
-    cinit = crosshairBase;
+    cinit = (unsigned char *)crosshairBase;
 
     *cinit++ = 0;		// No crosshair yet.
 
@@ -165,8 +168,8 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits, int vector)
 
 void Mouse::enableCursor(void)
 {
-    FAST unsigned char *en = cursorBase;
-    FAST unsigned char *dis = crosshairBase;
+    FAST unsigned char *en = (unsigned char *)cursorBase;
+    FAST unsigned char *dis = (unsigned char *)crosshairBase;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
 
@@ -220,8 +223,8 @@ void Mouse::setCursorImage(FAST long *cursorBits)
 
 void Mouse::enableCrosshair(void)
 {
-    FAST unsigned char *en = crosshairBase;
-    FAST unsigned char *dis = cursorBase;
+    FAST unsigned char *en = (unsigned char *)crosshairBase;
+    FAST unsigned char *dis = (unsigned char *)cursorBase;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
 

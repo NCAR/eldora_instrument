@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.4  1991/10/21  17:31:53  thor
  * Added clear method.
  *
@@ -227,7 +230,7 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
     *qpdm2 = SET_QPDM_POS | 0x480;
 
     FAST unsigned char *gcr2 = fifoFlags;
-    volatile FAST unsigned short *fifo = qpdmFifo;
+    volatile FAST unsigned short *fifo = (unsigned short *)qpdmFifo;
 
     *gcr |= 0x100;
 
@@ -267,7 +270,7 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 
 void GraphicController::clear(void)
 {
-    FAST long *ptr = baseAddr;
+    FAST long *ptr = (long *)baseAddr;
 
     FAST int k = 4096;
     FAST int m = 4096 / sizeof(long);

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  90/12/11  13:22:58  thor
  * Changed default color map method to use fully specified
  * color table.
@@ -38,8 +41,8 @@ void GraphicController::setColorMap(FAST long *colors, FAST int mapSize)
     if (colors == NULL || mapSize == 0)
       return;
 
-    FAST unsigned char *ramdacAddr = (baseAddr + RAMDAC_ADDR);
-    FAST long *clut = (baseAddr + RAMDAC_CLUT);
+    FAST unsigned char *ramdacAddr = (unsigned char *)(baseAddr + RAMDAC_ADDR);
+    FAST long *clut = (long *)(baseAddr + RAMDAC_CLUT);
 
     for (FAST int i = 0; i < mapSize; i++)
       {
@@ -50,8 +53,8 @@ void GraphicController::setColorMap(FAST long *colors, FAST int mapSize)
 
 void GraphicController::setOverlayColorMap(FAST long color)
 {
-    FAST unsigned char *ramdacAddr = (baseAddr + RAMDAC_ADDR);
-    FAST long *clut = (baseAddr + RAMDAC_OLUT);
+    FAST unsigned char *ramdacAddr = (unsigned char *)(baseAddr + RAMDAC_ADDR);
+    FAST long *clut = (long *)(baseAddr + RAMDAC_OLUT);
 
     *ramdacAddr = 2;
     *clut = color;
@@ -61,8 +64,8 @@ void GraphicController::defaultColorMap(void)
 {
     FAST int i = 0;
     FAST int j = MAX_CLUT_SIZE;
-    FAST unsigned char *ramdacAddr = (baseAddr + RAMDAC_ADDR);
-    FAST long *clut = (baseAddr + RAMDAC_CLUT);
+    FAST unsigned char *ramdacAddr = (unsigned char *)(baseAddr + RAMDAC_ADDR);
+    FAST long *clut = (long *)(baseAddr + RAMDAC_CLUT);
     FAST long *colors = defaultColors;
 
     for (; i < j; i++)

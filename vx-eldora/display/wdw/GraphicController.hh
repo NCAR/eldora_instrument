@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.5  1991/10/21  17:32:14  thor
  * Added clear method.
  *
@@ -158,7 +161,8 @@ class GraphicController {
 
     void drawPoint(FAST Point pt, unsigned char color) {
 
-	FAST unsigned char *ptr = (pt.y * 4096) + pt.x + baseAddr;
+	FAST unsigned char *ptr = (pt.y * 4096) + pt.x +
+	  (unsigned char *)baseAddr;
 	
 	*ptr = color;
     }

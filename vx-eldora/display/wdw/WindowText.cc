@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  91/01/02  08:51:05  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -55,7 +58,7 @@ void Window::horText(Point start, FAST char *text, FAST unsigned char color)
 
     FAST unsigned short yend = y + (ysize ? 14 * ysize : 7);
 
-    FAST unsigned char *vme = vmeLocation;
+    FAST unsigned char *vme = (unsigned char *)vmeLocation;
 
     for (FAST int i = 0; *text; i++, text++)
       {
@@ -110,7 +113,7 @@ void Window::vertText(Point start, FAST char *text, FAST unsigned char color)
     y -= ysize ? 7 * ysize : 4;
 
     FAST int yend = y + (ysize ? 14 * ysize : 7);
-    FAST unsigned char *vme = vmeLocation;
+    FAST unsigned char *vme = (unsigned char *)vmeLocation;
 
     for (FAST int i = 0; *text; i++, text++, yend += ysize ? 14 * ysize : 7)
       {
