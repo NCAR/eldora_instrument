@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:42  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -92,12 +95,24 @@ struct waveform_d {
 }; /* End of Structure */
 
 
+struct wave_counts {
+    int index;
+    int offset;
+    int count;
+    short counts[512];
+};
+
+
 #ifdef OK_RPC
 
 typedef struct waveform_d waveform_d;
 typedef struct waveform_d WAVEFORM;
 
-bool_t xdr_waveform_d();
+typedef struct wave_counts wave_counts;
+typedef struct wave_counts WAVECOUNTS;
+
+bool_t xdr_waveform_d(XDR *, WAVEFORM *);
+bool_t xdr_wave_counts(XDR *, WAVECOUNTS *);
 
 #endif /* OK_RPC */
 
