@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/11/19  14:08:28  thor
+ * Added trap for out of bounds angles.
+ *
  * Revision 1.4  1991/11/06  20:25:58  thor
  * Changed direction test to use positive/negative values.
  *
@@ -76,7 +79,7 @@
 	    }
 
 	  index -= 2;
-    for (FAST int i = 0; i < j; i++, colors1++)
+    for (FAST int i = firstGate; i < j; i++, colors1++)
 	    index += 720;
 	  FAST int x1 = (i * cos1) >> 16;
 	  FAST int x2 = (i * cos2) >> 16;
@@ -253,7 +256,7 @@ void Radial::Draw2(FAST RadialData &data)
 	    j += 720;
 
 	  if (index >= 720)
-    for (FAST int i = 0; i < j; i++, colors1++, colors2++)
+    for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
 
 	  FAST int x1 = (i * cos1) >> 16;
 	  FAST int x2 = (i * cos2) >> 16;
@@ -450,7 +453,7 @@ void Radial::Draw2(FAST RadialData &data)
 
 	  if (j == 1000)
 
-    for (FAST int i = 0; i < j; i++, colors1++, colors2++, colors3++)
+    for (FAST int i = firstGate; i < j; i++, colors1++, colors2++, colors3++)
 		printf("Angle to big, %d %d\n",index,j);
 	  FAST int x1 = (i * cos1) >> 16;
 	  FAST int x2 = (i * cos2) >> 16;
