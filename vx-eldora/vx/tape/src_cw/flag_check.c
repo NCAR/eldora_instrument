@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1995/03/31  22:50:59  craig
+ * Modified to handle DLT's LOAD command
+ *
  * Revision 1.3  1995/01/26  16:18:48  craig
  * Changed record flag not on message to print only once
  *
@@ -79,6 +82,7 @@ WRITE_TAPE_STATUS=0;
 vol_num=-1;
 tape_num=1;
 header_written = 0;
+max_blk_sz = (long)MAX_BLK_SZ;
 
 /*  Set default status words to indicate current conditions */
 
@@ -430,34 +434,37 @@ for(;;)
 		  rad_dscr = GetRadar(Hdr,1);
 		  cs = GetCellSpacing(Hdr,1);
 
+		  /* if needed initialize the data reduction arrays */
+		  if(rad_dscr->data_reduction == 3) reduce_init();
+
 		  /* First line */
-		  sprintf(log_chars,"Project_name:                     Date: %2d/%2d/%2d Time: %2d:%2d:%2d Flight:        \\n",head->month,head->day,
+		  sprintf(log_chars,"Project_name:                     Date: %2d/%2d/%2d Time: %2d:%2d:%2d Flight:        \n",head->month,head->day,
 head->year,head->data_set_hour,head->data_set_minute,head->data_set_second);
 		  for(i=0; i<19; i++)
 		    log_chars[i+14] = head->proj_name[i];
 		  for(i=0; i<7; i++)
 		    log_chars[i+72] = head->flight_num[i];
 		  loggerEvent(log_chars,log_ints,0);
-		  printf("%s\n",log_chars);
+		  printf("%s",log_chars);
 
 		  /* Second line */
 		  dwelltime = wave->repeat_seq_dwel * wave->repeat_seq;
 		  rpm = rad_dscr->req_rotat_vel*60.0/360.0;
 		  width = wave->chip_width[0] * 16.6666667*1.e-3;
-		  sprintf(log_chars,"Pulsing_scheme:                  Dwell: %4.1fms RSpeed %4.1fRPM Chipwidth %3.1fus\\n",dwelltime,rpm,width);
+		  sprintf(log_chars,"Pulsing_scheme:                  Dwell: %4.1fms RSpeed %4.1fRPM Chipwidth %3.1fus\n",dwelltime,rpm,width);
 		  for(i=0; i<16; i++)
 		    log_chars[i+16] = wave->ps_file_name[i];
 		  loggerEvent(log_chars,log_ints,0);
-		  printf("%s\n",log_chars);
+		  printf("%s",log_chars);
 
 		  /* Third Line */
 		  cells = 0;
 		  for(i=0; i<cs->num_segments; i++)
 		    cells += cs->num_cells[i];
-		  sprintf(log_chars,"#IPPs: %2d #Gates: %4d #Parameters: %2d #cells: %4d #Frequencies: %2d\\n",rad_dscr->num_ipps_trans, wave->num_gates[0],
+		  sprintf(log_chars,"#IPPs: %2d #Gates: %4d #Parameters: %2d #cells: %4d #Frequencies: %2d\n",rad_dscr->num_ipps_trans, wave->num_gates[0],
 rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 		  loggerEvent(log_chars,log_ints,0);
-		  printf("%s\n",log_chars);
+		  printf("%s",log_chars);
 
 		  /* Write out the needed headers */
 		  header_written = 1;
@@ -485,6 +492,11 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			      printf(" DRIVE STATUS: %X\n",drv_stat);
 			  }
 
+			/* Reset all of the error counters in the tape drive
+			   to zero */
+              /*  exb_cmds(LOG_SELECT,LOG_SEL,unschar); */
+
+
 			sgflg=HEADER;
 			vol->volume_num=vol_num;
 			printf("WRITING HEADER TO SCSI DRIVE%2d\n",
@@ -502,7 +514,7 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			      /* Log this error in the log file */
 			      log_ints[3] = drives_to_use[i];
 			      log_ints[4] = stat;
-			      loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on standard data write\n",log_ints,5);
+			      loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Standard data wrt\n",log_ints,5);
 			  }
 		    }
 	      } /* if(number_of_drives > 0) */
