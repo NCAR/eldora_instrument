@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+
+#define OK_RPC
+#define scope extern
  * Revision 1.1  1992/08/14  20:44:35  craig
  * Initial revision
  *
@@ -104,17 +107,26 @@ for(i=0; i<31; i++)
 current_index = 2;
 ads_current_index = 0;
 
-/* Set each of the indecies to zero */
+/* Setup the offsets for all of the data types */
 
 current_offset = FIRST_RADAR_OFFSET + current_index * RADAR_SIZE_INCR;
 /* Make an index that will follow behind the navigational data and make the
-nav_current_index = 0;
    radar processors send it out over the mcpl.   
 Begin by calculating the number of lags the iru data will lag behind */
 
 iru_lags = 200/dwelltime_msec + 2;  /* +2 because this should lag
 iru_lag_index = current_index - iru_lags;
-nav_current_offset = FIRST_NAV_OFFSET;
+if(iru_lag_index < 0) iru_lag_index += 27;
+
+iru_lag_offset = FIRST_RADAR_OFFSET + iru_lag_index * RADAR_SIZE_INCR;
+
+printf("MSECS in a dwell = %d   iru_lag_index = %d\n",dwelltime_msec,
+       iru_lag_index);
+if(current_platform_index < 0) current_platform_index += 27;
+current_platform_offset = FIRST_RADAR_OFFSET +
+
+/* Get current milliseconds since midnite and place the value
+fill_nav_info();
    into all entries of msecs_ray */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
