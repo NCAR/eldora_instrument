@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/12/06  23:21:03  eric
+ * modified input file path so that NFS was used
+ * rather than FTP.
+ *
  * Revision 1.1  1992/11/09  22:58:31  eric
  * Initial revision
  *
@@ -51,18 +55,19 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ctype.h"
 #include "ELDRP7.h"
 
+int Silent = 0;        /* global variable to suppress diagnostic printf's */
 int dspgo();  
 unsigned long getaddr();
 unsigned int  load8();
 static int freq, board, dsp, num_retry, j; 
 
-nu_lddsp(int rpt)
+int nu_lddsp(int rpt)
 
 {
     va_list ap;
 
   unsigned long  bd, frq;
-  int res, dst, den, dspc, na, n;
+  int res, dst, den, dspc, na, n, stat;
   char *tfile;
   unsigned char *pio;
  
@@ -70,7 +75,7 @@ nu_lddsp(int rpt)
 
     num_retry=0;
     n = rpt;
- 
+    stat = 0;
     for(na = 0; na < n; na++)
       {
 	  frq = va_arg(ap, int);         /* frequency 1,2, or 3 */
@@ -103,16 +108,23 @@ nu_lddsp(int rpt)
 		/* Stop DSP */
 		*(pio + PCRL) = 0x1A; /* DMA + AUTO + REGMAP; */
 		*(pio + PCRH) = 0x0;
-		printf("pcr register %x \n",*(pio + PCRL));
-		printf("Load to pio addr %lx\n", pio);
+		if(!Silent)
+		  {
+		      printf("pcr register %x \n",*(pio + PCRL));
+		      printf("Load to pio addr %lx\n", pio);
+		  }
 		res = load8(pio,tfile);
+		if(res == 0)
+		  stat = 1;     /* return bad status */
 		if(res >= 0)
 		  {
-		      printf("0x%x bytes loaded.\n",res);
+		      if(!Silent)
+			printf("0x%x bytes loaded.\n",res);
 		  }
 		if(res == -1)
 		  {
-		      printf("Unable to open file  %s.\n",tfile);
+		      if(!Silent)
+			printf("Unable to open file  %s.\n",tfile);
 		  }
 		if(res == -2)
 		  {
@@ -122,6 +134,7 @@ nu_lddsp(int rpt)
 	    }
       }
     va_end(ap);
+    return(stat);
 }
 
 
@@ -156,14 +169,18 @@ char *tfile;
   /* build the mounted file system name */
   i = 28;
   mnt_pnt = (char *)malloc(i);
+#ifdef ELDORA
   mnt_pnt = "/vxbin/radar/dsp";
+#endif /* ELDORA */
+
+#ifdef SPOL
+  mnt_pnt = "dsp";
+#endif /* SPOL */
+
   i = strlen(mnt_pnt) + strlen(tfile) + 2;
   fname = (char *)malloc(i);
   (void) sprintf(fname, "%s/%s", mnt_pnt, tfile);
-/*  
-printf("here before fopen, tfile = %s\n",tfile);
-printf("here before fopen, fname = %s\n",fname);
-*/ 
+
   st = 0;
   if(!(fp1=fopen(fname,"r")))
   {
@@ -199,7 +216,8 @@ printf("here before fopen, fname = %s\n",fname);
       if(flg >= 2)
       {
          chksumi = 0;
-         printf("%s start addr = %lx\n",ptr,dspa.ad24);
+	 if(!Silent)
+	   printf("%s start addr = %lx\n",ptr,dspa.ad24);
          *(pio + PARE) = dspa.pa[2];
          *(pio + PARL) = dspa.pa[0];      
 	/* If a xfer happened, compute the checksum */
@@ -213,25 +231,30 @@ printf("here before fopen, fname = %s\n",fname);
 	{
 	    if(num_retry < 6)
 	      {
-		  printf("Checksum error on load; retrying...\n");
+		  if(!Silent)
+		    printf("Checksum error on load; retrying...\n");
 		  num_retry++;
 		  n=-2;
 	      }
 	    else
 	      {
 		  num_retry=0;
-		  printf("     Load file checksum = %x\n",chksumo);
-		  printf("     Readback  checksum = %x\n",chksumi);
+		  if(!Silent)
+		    {
+			printf("     Load file checksum = %x\n",chksumo);
+			printf("     Readback  checksum = %x\n",chksumi);
+		    }
 		  n=0;
 	      }
 	}
 	 else 
 	   {
-	       printf("Load successful: checksum = %x\n",chksumi);
+	       if(!Silent)
+		 printf("Load successful: checksum = %x\n",chksumi);
 	       num_retry=0;
 	   }
      }
-      if(n != -2)
+      if(n != -2 && n != 0)
 	{
 	    strcpy(ptr,test);
 	    flg = 0;
@@ -246,7 +269,7 @@ printf("here before fopen, fname = %s\n",fname);
 
       *(pio + PARH) = dspa.pa[1];
     }
-  }while(!feof(fp1) && n!=-2);
+  }while(!feof(fp1) && n!=-2 && n!=0);
   scr = *(pio + PDRL);
   scr = *(pio + PDRH);
   fclose(fp1);
