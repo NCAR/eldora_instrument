@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.15  1992/05/04  16:46:58  thor
+ * Added/changed code to handle display of parameter values hopefully to
+ * most people's liking.
+ *
  * Revision 1.14  1992/02/27  19:25:12  thor
  * Changed manner of getting correct title to use table.
  *
@@ -341,7 +345,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
     horText(wdw,a,title,WHITE);
     
     a.x = 40;
-    a.y = 50;
+    a.y = 55;			// The extra 5 pixels centers the label.
 
     b.x = 130;
     b.y = 50;
@@ -366,11 +370,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 	      case 10:
 	      case 5:
 	      case 1:
-		int i;
-		if (m < 0.0)
-		  i = iround(m + .5);
-		else
-		  i = iround(m);
+		int i = iround(m + .5);
 		sprintf(label,"%d",i);
 		horText(wdw,a,label,WHITE);
 		break;
