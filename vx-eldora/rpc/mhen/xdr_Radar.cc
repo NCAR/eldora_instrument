@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/09/23  14:58:47  thor
+ * Changed to use new status structure.
+ *
  * Revision 1.3  1992/09/23  14:53:37  eric
  * no changes.
  *
@@ -42,6 +45,12 @@ bool_t xdr_RadarCommand(XDR *xdrs, FAST RadarCommand *objp)
       {
 	  return (FALSE);
       }
+#ifdef TASS
+    if (!xdr_ts_acq(xdrs, &objp->tass_info))
+      {
+	  return (FALSE);
+      }
+#endif /* TASS */
     return (TRUE);
 }
 
