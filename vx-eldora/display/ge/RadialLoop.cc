@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.27  1992/06/29  17:33:34  thor
+ * Added code to flush pipe and reset Ddp.
+ *
  * Revision 1.26  1992/03/19  20:16:10  thor
  * Switched to new form of ColorConverter call.
  *
@@ -258,7 +261,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		radData.direction = direct;
 
 		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
-		conv->GetBeam(data,radData);
+
 		if (direct >= 0)
 		  {
 		      if (lastAngle >= radData.angle) // Crossed to
