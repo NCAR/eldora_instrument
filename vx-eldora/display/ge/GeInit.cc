@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/01  17:21:58  thor
+ * Fixed incorrect cast.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -64,7 +67,7 @@ void GeStart(char *server, int sys)
 
     wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
 
-    system = sys;
+    dispSystem = sys;
 
     Alarm = NULL;
 
@@ -80,12 +83,12 @@ void GeStart(char *server, int sys)
 
     // Start alarm task.
 
-    int args[2];
-
-    args[0] = (int)server;
-    args[1] = sys;
-
-    AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI,18000); 
+//     int args[2];
+// 
+//     args[0] = (int)server;
+//     args[1] = sys;
+// 
+//     AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI,18000); 
 
     // Now we start control loop.
     CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,18000);
