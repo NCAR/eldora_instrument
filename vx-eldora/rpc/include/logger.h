@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:48:31  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1992/01/16  19:40:57  thor
  * Decreased size of messages to 81 characters & fixed logmessage_1 prototype.
  *
@@ -28,13 +31,22 @@
 
 #ifdef OK_RPC
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* cplusplus */
+
 #ifndef UNIX
 #include "vxWorks.h"
 #include "rpc/rpc.h"
 #else
 #include <rpc/rpc.h>
 #include <rpc/types.h>
+
 #endif /* UNIX */
+
+#ifdef __cplusplus
+};
+#endif /* cplusplus */
 
 #ifndef FAST
 #define FAST register
@@ -42,20 +54,25 @@
 
 #endif /* OK_RPC */
 
-enum LOGFILES {
-    EVENTLOG,
-    ERRORLOG
-  };
+enum LOGSOURCE {
+	FORE_LOG = 0,
+	AFT_LOG = 1,
+	DISP1_LOG = 2,
+	DISP2_LOG = 3,
+	RECORD_LOG = 4,
+	HSKP_LOG = 5,
+};
 
 struct LOG {
-    enum LOGFILES file;
-    char message[81];
+	enum LOGSOURCE src;
+	char message[81];
+	int items[4];
 };
 
 #ifdef OK_RPC
 
-typedef enum LOGFILES LOGFILES;
-bool_t xdr_LOGFILES(XDR *xdrs, LOGFILES *objp);
+typedef enum LOGSOURCE LOGSOURCE;
+bool_t xdr_LOGSOURCE(XDR *xdrs, LOGSOURCE *objp);
 
 typedef struct LOG LOG;
 bool_t xdr_LOG(XDR *xdrs, LOG *objp);
@@ -66,9 +83,8 @@ bool_t xdr_LOG(XDR *xdrs, LOG *objp);
 
 #ifdef CLIENT_SIDE
 extern void logmessage_1(LOG *argp);
-extern void loggerError(char *message);
-extern void loggerEvent(char *message);
-extern int loggerInit(char *host);
+extern void loggerEvent(char *message, int *ip, int num);
+extern int loggerInit(int src);
 
 #define LOGGER_PRI 2
 
@@ -95,4 +111,7 @@ program Logger {
 #endif /* OK_RPC */
 
 #endif /* INCloggerh */
+
+
+
 

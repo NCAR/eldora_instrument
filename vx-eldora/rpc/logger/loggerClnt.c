@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:48:31  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1992/01/16  19:41:47  thor
  * Major rewrite to use semaphore locked statics.
  *
@@ -34,15 +37,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define LOGGER_SCOPE
 #include "logger.h"
 
-#include "strLib.h"
+#include "string.h"
 #include "hostLib.h"
 #include "rpcLib.h"
 #include "socket.h"
 #include "taskLib.h"
 #include "semLib.h"
-
-/* Default timeout can be changed using clnt_control() */
-static struct timeval TIMEOUT = { 25, 0 };
 
 static u_long hostnum;		/* Our address. */
 static LOG log;			/* Outgoing packet. */
@@ -71,9 +71,9 @@ void logmessage_1(FAST struct LOG *argp)
 	  return;
       }
 
-    bzero((char *)&res,sizeof(res));
+    memset(&res,0,sizeof(res));
         
-    if (clnt_call(clnt,LogMessage,xdr_LOG,argp,xdr_void,&res,TIMEOUT) != 
+    if (clnt_call(clnt,LogMessage,xdr_LOG,argp,xdr_void,&res,tmo) != 
 	RPC_SUCCESS)
       {
 	  LoggerError = ERROR;
@@ -87,41 +87,30 @@ void logmessage_1(FAST struct LOG *argp)
     semGive(sem);
 }
 
-void loggerError(FAST char *message)
+void loggerEvent(FAST char *message, FAST int *ip , int num)
 {
     semTake(sem,WAIT_FOREVER);
 
     strncpy(&log.message[0],message,80);
 
-    log.message[80] = 0;
-
-    log.file = ERRORLOG;
-
-    if (taskSpawn("logError",LOGGER_PRI,0,4000,(FUNCPTR)logmessage_1,
-		  (int)&log) == ERROR)
-      LoggerError = ERROR;
-}
-
-void loggerEvent(FAST char *message)
-{
-    semTake(sem,WAIT_FOREVER);
-
-    strncpy(&log.message[0],message,80);
-
-    log.message[80] = 0;
-
-    log.file = EVENTLOG;
+    if (ip != NULL && num > 0)
+      memcpy(&log.items[0],ip,num*sizeof(char));
 
     if (taskSpawn("logEvent",LOGGER_PRI,0,4000,(FUNCPTR)logmessage_1,
-		  (int)&log) == ERROR)
+		  (int)&log,0,0,0,0,0,0,0,0,0) == ERROR)
+
       LoggerError = ERROR;
 }
 
-int loggerInit(FAST char *host)
+int loggerInit(FAST int src)
 {
-    hostnum = (u_long)hostGetByName(host);
+    log.src = src;
 
-    sem = semBCreate(SEM_Q_FIFO,SEM_FULL);
+    if ((hostnum = (u_long)hostGetByName("odin")) == ERROR)
+      return(ERROR);
+
+    if ((sem = semBCreate(SEM_Q_FIFO,SEM_FULL)) == NULL)
+      return(ERROR);
 
     return(OK);
 }
