@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/09/11  16:28:11  thor
+ * Fixed routines to match class.
+ *
  * Revision 1.1  1991/09/05  16:41:36  thor
  * Initial revision
  *
@@ -33,14 +36,14 @@ static const int MAX_PARAM = 10;
 
 extern HeaderPtr CreateHeader(TAPEHEADER *t, void *v);
 
-extern void SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum);
+extern int SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum);
 extern PARAMETER *GetParameter(HeaderPtr ptr, int paramNum);
 
 extern void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs);
 extern CELLSPACING *GetCellSpacing(HeaderPtr header);
 
-extern void SetRadar(HeaderPtr ptr, RADARDESC *cs);
-extern RADARDESC *GetRadar(HeaderPtr header);
+extern int SetRadar(HeaderPtr ptr, RADARDESC *cs, int descNum);
+extern RADARDESC *GetRadar(HeaderPtr header, int descNum);
 
 extern void SetFieldRadar(HeaderPtr ptr, FIELDRADAR *cs);
 extern FIELDRADAR *GetFieldRadar(HeaderPtr header);
