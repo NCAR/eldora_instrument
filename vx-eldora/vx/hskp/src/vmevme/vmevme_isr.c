@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/17  16:43:16  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/19  20:44:35  craig
  * Initial revision
  *
@@ -25,7 +28,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define OK_RPC
 #define scope extern
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+/* Include fifty million vx-works .h files */
 
 #include "vxWorks.h"
 #include "math.h"
@@ -92,6 +95,7 @@ extern HeaderPtr inHeader;
 #include "vmevmeAdr.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
+
 void vmevme_isr()
 {
 /* Define some general purpose variables */
@@ -127,6 +131,11 @@ if(fake_angles)
 /* Read the time from the time-of-day card */
 
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
+
+/* Clear the polled handshake words */
+
+if(fore_vmehndshk->polled != 1) printf("F%d",fore_vmehndshk->polled);
+if(aft_vmehndshk->polled != 1 && aft_vmehndshk->polled != 0)
   printf("A%d",aft_vmehndshk->polled);
 fore_vmehndshk->polled = 0;
 aft_vmehndshk->polled = 0;
@@ -140,7 +149,8 @@ aft_ray_pntr = (struct DATARAY *)(iru_lag_offset + STANDARD_BASE +
                  AFT_STAND_START);
 
 if(fore_vmehndshk->radar_hndshk[iru_lag_index] == 0)
-if(++radar_current_index >= NUM_RADAR_HNDSHK)
+  {
+      fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
       aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
   }
 else
@@ -169,8 +179,13 @@ else
 iru_lag_offset += RADAR_SIZE_INCR;
 iru_lag_index++;
 if(iru_lag_index >= NUM_RADAR_HNDSHK)
-fore_angle = position - ENCODER_ZERO_ANGLE + 180 + FORE_SQUINT_ANGLE;
-aft_angle = position - ENCODER_ZERO_ANGLE + AFT_SQUINT_ANGLE;
+  {
+      iru_lag_offset = FIRST_RADAR_OFFSET;
+      iru_lag_index = 0;
+  }
+
+/* Create a pointer to a data ray structure at the current radar data
+   ray location */
 
 current_offset += RADAR_SIZE_INCR;
 current_index++;

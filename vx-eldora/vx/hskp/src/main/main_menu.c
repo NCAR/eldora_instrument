@@ -8,27 +8,6 @@
  *
  * revision history
  * ----------------
- * $Log$
- * Revision 1.1  1992/09/08  23:15:54  craig
- * Initial revision
- *
- * Revision 1.2  1992/09/08  22:55:48  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/09/04  15:49:48  craig
- * Initial revision
- *
- * Revision 1.4  1992/09/03  19:57:11  craig
- * *** empty log message ***
- *
- * Revision 1.3  1992/09/01  16:21:52  craig
- * *** empty log message ***
- *
- * Revision 1.2  1992/08/25  20:43:42  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/19  17:27:16  craig
- * Initial revision
  *
  *
  * description: This module provides executive control of the ELDORA 
@@ -117,11 +96,10 @@ extern HeaderPtr inHeader;
 
 main_menu()
 {
-short cmd;
+int cmd;
 
-do{
     printf("Main Menu For The Housekeeper Executive Program\n\n");
-    printf("0) End main menu\n");
+
     printf("1) Start the Executive program\n");
     printf("2) Stop the Executive program\n");
     printf("3) Reload the Executive program\n");
@@ -141,7 +119,5 @@ do{
 	default:
 	  break;
       }
-
-}while(cmd != 0);
 
 }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/19  17:27:16  craig
+ * Initial revision
+ *
  *
  * description: This module provides executive control of the ELDORA 
  *              Housekeeping processor by reading a header passed
@@ -32,7 +35,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "memLib.h"
 #include "semLib.h"
 #include "taskLib.h"
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+#include "tyLib.h"
 #include "ioLib.h"
 #include "in.h"
 #include "systime.h"
@@ -105,6 +108,7 @@ void hskp(short rotation_flag)
 /* Define some general purpose variables */
 long kill, i;
 float rpm;
+unsigned char B, nr;
 unsigned long T;
 double frequency, temp;
 unsigned char ecbaddr, unitnum, filternum, test;
@@ -113,7 +117,7 @@ int onedone, timeout;
 /* initialize general purpose variables */
 fake_angles = rotation_flag;
 kill = 1;
-long kill;
+
 /* Initialize the global control variables */
 
 stop_flag = 1;
@@ -178,24 +182,27 @@ do{
      }while(stop_flag);
     printf("Was started by the control processor\n");
 
-    do{}while(stop_flag);
+    /* Set up all of the global header pointers */
+
+    fraddes = GetRadar(inHeader,(int)1);
     araddes = GetRadar(inHeader,(int)2);
     vol = GetVolume(inHeader);
     wave = GetWaveform(inHeader);
     frad = GetFieldRadar(inHeader);
-    vol = GetVolume(inHeader);
+    cs = GetCellSpacing(inHeader);
+    param = GetParameter(inHeader,(int)0);
+    navdes = GetNavDesc(inHeader);
     insitdes = GetInsitu(inHeader);
-    raddes = GetRadar(inHeader,(int)1);
-  /*  frad = GetFieldRadar(inHeader); */
+
     /* Calculate the number of milliseconds in a dwell time */
 
-/*    navdes = GetNav(inHeader);
+    dwelltime_msec = wave->repeat_seq * wave->repeat_seq_dwel;
 
     /* Set motor to new RPM's and start spinning */
 
     printf("Starting the motor\n");
     rpm = fraddes->req_rotat_vel * DEGPERSEC_TO_RPM;
-    rpm = raddes->req_rotat_vel;
+    set_vel(rpm);
     go_motor();
 
     /* Program the Intermediate Frequency Signal processors with the
@@ -216,11 +223,11 @@ do{
 	    }while((test = ecbSetIF(ecbaddr,unitnum,filternum) != 0) &&
 		   timeout < 30000);
 	  if(timeout >= 30000)
-    sysIntEnable(VME_VME_IRQ);
+	    printf("Failed to set fore IF filter IF #%d",unitnum);
 
 	  ecbaddr = ECBIFAFT;
 	  timeout = 0;
-
+	  do
 	    {
 		timeout++;
 	    }while((test = ecbSetIF(ecbaddr,unitnum,filternum) != 0) &&
@@ -233,11 +240,10 @@ do{
     /* Do the fore radar first */
 
     ecbaddr = ECBRFFOR;
-	if(!in_vmevme_isr)
-	  {
-	      printf("V");
-	      in_vmevme_isr = 0;
-	  }
+    for(i=0; i<fraddes->num_freq_trans; i++)
+      {
+	  switch(i)
+	    {
 		case 0:
 		frequency = fraddes->freq1 * 1e9;
 		break;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/08  22:56:42  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/03  20:26:34  craig
  * Initial revision
  *
@@ -88,6 +91,7 @@ extern HeaderPtr inHeader;
 #include "minFunc.h"
 #include "tp41vAdr.h"
 #include "vmevmeDef.h"
+#include "vme_hndshk.h"
 #include "vmevmeAdr.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
@@ -98,7 +102,9 @@ extern HeaderPtr inHeader;
 void vmevme_menu()
 {
 
-int cmd, i, number, index;
+int cmd, i, number, index, kill;
+float position;
+long offset;
 
 /* First Initalize the cards */
 init_vmevme();
@@ -126,7 +132,8 @@ do{
     printf("15) Send Nav Data Record Over the MCPL\n");
     printf("16) Send In-situ Data Record Over the MCPL\n");
     printf("17) Display Control Status Information\n");
-    printf("18) Count VME to VME interrupts\n");
+    printf("18) Start and pole for VME to VME interrupts\n");
+    printf("19) Start and follow the radar proc\n");
     scanf("%d",&cmd);
     getchar();
 
@@ -293,16 +300,59 @@ do{
 	  printf("Interrupt Detected Flag %d   \n",in_vmevme_isr);
 	  break;
 
-	case 18: /* Count VME to VME Interrupts */
-	  printf("Enter number to count\n");
-	  scanf("%d",&number);
-	  getchar();
-	  for(i=0; i<number; i++)
+	case 18: /* pole VME to VME Interrupts */
+	  kill = 0;
+	  fore_vmehndshk->polled = 0;
+	  aft_vmehndshk->polled = 0;
+	  start_vmevme();
+	  do{
+	       if(fore_vmehndshk->polled != 0)
+		 vmevme_fisr();
+	       if(aft_vmehndshk->polled != 0)
+		 vmevme_aisr();
+	       }while(kill == 0);
+	  break;
+
+	case 19: /* Start and follow the radar processor */
+	  index = 0;
+	  offset = FIRST_RADAR_OFFSET;
+	  kill = 0;
+	  start_vmevme();
+          do{
+	      if((unsigned short)fore_vmehndshk->
+                   radar_hndshk[index] != 0xAFFF)
 	    {
-		do{}while(!in_vmevme_isr);
-		printf("VME to VME interrupt #%d detected\n",i);
-		in_vmevme_isr = 0;
+	        printf("No AFFF seen index = %d value = %d\n",
+                  index,fore_vmehndshk->
+                   radar_hndshk[index]);
+		kill = 1;
 	    }
+	      do{
+		  i++;;
+	      }while((unsigned short)fore_vmehndshk->
+		     radar_hndshk[index] != 0);
+
+	  fore_ray_pntr = (struct DATARAY *)(offset +
+				    STANDARD_BASE + FORE_STAND_START); 
+	  position += 1.8;
+	  if(position > 360.0) position = 0.0;
+	  fore_ray_pntr->this_plat.rotation_angle = position;
+	  fore_ray_pntr->this_rayi.true_scan_rate = 20.0;
+
+	  fore_vmehndshk->
+		     radar_hndshk[index] = 1;
+
+
+	  offset += RADAR_SIZE_INCR;
+	  index++;
+	  if(index >= NUM_RADAR_HNDSHK)
+	    {
+		offset = FIRST_RADAR_OFFSET;
+		index = 0;
+	    }
+/*	  printf("%2d",index); */
+
+	  }while(kill == 0);
 	  break;
 
     default:

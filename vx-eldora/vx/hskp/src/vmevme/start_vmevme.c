@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/25  20:43:04  craig
+ * Initial revision
+ *
  * description: This module starts the radar processors over the
  *              vme to vme interfaces.
  *              
@@ -23,7 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
 #include "math.h"
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+#include "stdioLib.h"
 #include "intLib.h"
 #include "memLib.h"
 #include "semLib.h"
@@ -90,6 +93,7 @@ void start_vmevme()
 {
 /* Define some general purpose variables */
 long i, iru_lags, msecs_today;
+long radar_offset;
 char hr,min,sec,mon,day,yr;
 short msec,jday;
 struct DATARAY *ray_pntr;
@@ -112,11 +116,15 @@ ads_current_index = 0;
 /* Setup the offsets for all of the data types */
 
 current_offset = FIRST_RADAR_OFFSET + current_index * RADAR_SIZE_INCR;
+ads_current_offset = FIRST_ADS_OFFSET;
+
 /* Make an index that will follow behind the navigational data and make the
    radar processors send it out over the mcpl.   
 Begin by calculating the number of lags the iru data will lag behind */
 
 iru_lags = 200/dwelltime_msec + 2;  /* +2 because this should lag
+				       at a safe distance */
+
 iru_lag_index = current_index - iru_lags;
 if(iru_lag_index < 0) iru_lag_index += 27;
 
@@ -147,6 +155,8 @@ for(i=0; i<NUM_RADAR_HNDSHK; i++)
       platform_status[i] = 0;
       msecs_ray[i] = msecs_today;
       /* Put things in each record that only change with a header */
+      ray_pntr = (struct DATARAY *)(radar_offset + STANDARD_BASE +
+				    FORE_STAND_START);
       ray_pntr->this_rayi.peak_power = -999.0;
       ray_pntr->this_rayi.ray_status = 0;
       ray_pntr->this_plat.altitude_agl = -999.0;

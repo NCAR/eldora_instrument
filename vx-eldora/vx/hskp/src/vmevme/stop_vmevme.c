@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/09/04  19:34:44  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/03  20:26:30  craig
  * *** empty log message ***
  *
@@ -91,6 +94,7 @@ extern HeaderPtr inHeader;
 #include "minFunc.h"
 #include "tp41vAdr.h"
 #include "vmevmeDef.h"
+#include "vme_hndshk.h"
 #include "vmevmeAdr.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
