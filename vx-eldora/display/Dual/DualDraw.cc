@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.8  1994/07/06  13:57:41  thor
+// Fixed roll direction.
+//
 // Revision 1.7  1994/04/11  17:52:43  thor
 // Fixed bug that had display gates starting before first gate!
 //
@@ -48,28 +51,24 @@ void Dual::drawBeam(FAST DataBeam *beam)
     
     angle += roll;
     
-    if (angle < 0.0)
-      angle += 360.0;
-    else if (angle > 360.0)
-      angle -= 360.0;
-
-    FAST int j = lastIndex;
     FAST int index = fastround(angle * 2.0);
-
-    if (index == 720)
+    FAST int maxIndex = 720;
+    
+    if (index < 0)
+      index += maxIndex;
+    else if (index > maxIndex)
+      index -= maxIndex;
+    
+    if (index == maxIndex)
       index = 0;
     
-    if (index < 0 || index > 720)
-      {
-	  cout << "Angle " << angle << "out of bounds." << endl;
-	  return;
-      }
-
     float alt = beam->air.altitude_msl * 1000.0;
     float max = maxAlt;
 
     FAST int direction = fastround(beam->ray.true_scan_rate);
 
+    FAST int j = lastIndex;
+    
     if (alt >= max && (index <= 180 || index >= 540))
       {
 	  if (direction > 0)
@@ -108,12 +107,12 @@ void Dual::drawBeam(FAST DataBeam *beam)
           if (index)
             q = index - j;
           else
-            q = 720 - j;
+            q = maxIndex - j;
 
           if (q < 0)
             q = -q;
 
-          q = 720 - q;
+          q = maxIndex - q;
           
           if (q < 700)
             {
@@ -128,10 +127,10 @@ void Dual::drawBeam(FAST DataBeam *beam)
 	    j -= 4;
 	  
 	  if (j < 0)
-	    j += 720;
+	    j += maxIndex;
 	  
-	  if (index >= 720)
-	    index -= 720;
+	  if (index >= maxIndex)
+	    index -= maxIndex;
       }
     else
       {
@@ -145,12 +144,12 @@ void Dual::drawBeam(FAST DataBeam *beam)
           if (index)
             q = index - j;
           else
-            q = 720 - j;
+            q = maxIndex - j;
 
           if (q < 0)
             q = -q;
 
-          q = 720 - q;
+          q = maxIndex - q;
           
           if (q < 700)
             {
@@ -164,11 +163,11 @@ void Dual::drawBeam(FAST DataBeam *beam)
 	  if (j == index)
 	    j += 4;
 	  
-	  if (j >= 720)
-	    j -= 720;
+	  if (j >= maxIndex)
+	    j -= maxIndex;
 	  
 	  if (index < 0)
-	    index += 720;
+	    index += maxIndex;
       }
     
     lastIndex = index;
