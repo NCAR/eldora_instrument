@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/03  17:14:39  thor
+ * Added protection around trigData.
+ *
  * Revision 2.1  1993/07/29  19:21:37  thor
  * Upgraded to VxWorks 5.1.
  *
@@ -80,6 +83,8 @@ struct trigdata {
 };
 
 typedef struct trigdata TrigData;
+
+#define _TRIGDATA
 #endif
 
 // Constants.
