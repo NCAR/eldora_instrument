@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/01  16:20:03  thor
+ * Brought code up to latest ANSI draft spec.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -38,9 +41,10 @@
 #define GRAPHIC_CTLR_PRIVATE
 #include "GraphicController.hh"
 
-extern "C" {
-#include "taskLib.h"
-};
+#include <taskLib.h>
+#include <string.h>
+
+static int *clrPtr = NULL;
 
 GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 				     screenWidth, FAST unsigned short
@@ -265,21 +269,31 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 
 // Forcably clear video memory. I don't know why, but if this isn't
 // done the displayed image has strange speckles in it!
-    clear();
+// If you know of anyway to make this faster, go ahead & try it!
+// Memcpy uses move16 on the 68040, so there's not much that's faster
+// on one. Yes, this is faster then the QPDMs! And yes you must do all
+// 16mb of display memory, even though the board only has 4! Sigh :-(
+    if (clrPtr == NULL)         // Do this once.
+        {
+            clrPtr = new int[4096/sizeof(int)];
+            memset(clrPtr,BLACK,4096);
+        }
+
+    FAST int *src = clrPtr;
+    FAST int k = 4096;
+    FAST char *dst = (char *)baseAddr;
+    
+    for (i = 0; i < k; i++, dst += k)
+      memcpy(dst,src,4096);
 }
 
 void GraphicController::clear(void)
 {
-    FAST long *ptr = (long *)baseAddr;
-
+    FAST int *src = clrPtr;
+    FAST int j = 2048;
     FAST int k = 4096;
-    FAST int m = 4096 / sizeof(long);
+    FAST char *dst = (char *)baseAddr;
 
-    FAST long color = (BLACK << 24) | (BLACK << 16) | (BLACK << 8) | BLACK;
-
-    for (FAST i = 0; i < k; i++)
-      {
-	  for (FAST int l = 0; l < m; l++)
-	    *ptr++ = color;
-      }
-}
+    for (FAST int i = 0; i < j; i++, dst += k)
+      memcpy(dst,src,j);
+}    
