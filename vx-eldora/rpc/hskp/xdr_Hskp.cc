@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/13  20:18:58  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -29,27 +32,27 @@ bool_t xdr_HskpCommand(FAST XDR *xdrs, FAST HskpCommand *objp)
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->year))
+    if (!xdr_u_char(xdrs,&objp->year))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->month))
+    if (!xdr_u_char(xdrs,&objp->month))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->day))
+    if (!xdr_u_char(xdrs,&objp->day))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->hour))
+    if (!xdr_u_char(xdrs,&objp->hour))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->minute))
+    if (!xdr_u_char(xdrs,&objp->minute))
       {
 	  return(FALSE);
       }
-    if (!xdr_u_short(xdrs,&objp->second))
+    if (!xdr_u_char(xdrs,&objp->second))
       {
 	  return(FALSE);
       }

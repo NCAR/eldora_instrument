@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/13  20:19:01  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -20,12 +23,12 @@
 struct HskpCommand {
     unsigned long cmd;
     unsigned long count;
-    unsigned short year;
-    unsigned short month;
-    unsigned short day;
-    unsigned short hour;
-    unsigned short minute;
-    unsigned short second;
+    unsigned char year;
+    unsigned char month;
+    unsigned char day;
+    unsigned char hour;
+    unsigned char minute;
+    unsigned char second;
 };
 
 #ifdef OK_RPC
