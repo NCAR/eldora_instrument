@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/16  22:22:43  shawn
+ * Revision 1.1  1992/06/17  22:53:32  shawn
  * Initial revision
  *
  *
@@ -19,22 +19,17 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 /*****************************************************************************/
-/*	ecbShowLast()                                                           */
-/*		Write "set IF processor filter" command to ECB MASTER IN FIFO*/
+/*	ecbShowLast()                                                        */
+/*		Read ECB "Last Command" structure in Global memory and       */
+/*              print the contents.                                          */
 /*      Return values:                                                       */
-/*              0 - command placed into IN FIFO and "command-not-pending"    */
-/*                  semaphore taken.                                         */
-/*              1 - previous command still pending; no action taken.         */
-/*              2 - "command-not-pending" semaphore has been given, but IN   */
-/*                  FIFO is not empty;  no action taken, semaphore re-given. */
-/*              3 - "command-not-pending" semaphore has been given, but OUT  */
-/*                  FIFO is not empty;  no action taken, semaphore re-given. */
-/*              4 - error when re-Give-ing ecb_cmd_not_pending semaphore.    */
+/*              void function, no value returned.                            */
 /*****************************************************************************/
 
 #include <vxWorks.h>
 #include <stdioLib.h>
 
+#include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbStat.h"     /* global structures for ecb status */
 
 void ecbShowLast()
