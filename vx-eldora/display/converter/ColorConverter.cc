@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.21  1992/01/28  19:01:11  thor
+ * Changed firound to iround - 040 has no sp hardware!
+ *
  * Revision 1.20  1992/01/28  14:57:13  thor
  * Added call to correctly round color value.
  *
@@ -139,7 +142,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		  c = maxColor;
 		else if (c < 0.0)
 		  c = 0.0;
-		unsigned char color = (unsigned char)firound(c);
+
 		c += fb;	// Add in offset.
 
 		unsigned char color = (unsigned char)iround(c);
