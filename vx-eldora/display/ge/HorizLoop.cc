@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1992/01/22  17:54:30  thor
+ * Changed to new form of ColorConverter.
+ *
  * Revision 1.12  1992/01/08  16:20:17  thor
  * Added code for timeout change.
  *
@@ -232,8 +235,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 				 FAST GraphicController *agc)
 {
-    float Max[3];
-    float Min[3];
+    FAST DispCommand *ptr = GeCommand;
+
     if (old != NULL)
       delete(old);   
 
@@ -242,9 +245,6 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
       {
 	  delete(horizFilter);
       }
-
-    bcopy((char *)max,(char *)Max,sizeof(float) * 3);
-    bcopy((char *)min,(char *)Min,sizeof(float) * 3);
 
     float max[3];
     float min[3];
@@ -269,10 +269,8 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     FAST int param = ptr->param0;
 
-		      max[0] = (max[0] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[0] = (min[0] * p->parameter_scale) +
-			p->parameter_bias;
+    if (param != NO_PARAM)
+      {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -293,10 +291,8 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param1;
 
-		      max[1] = (max[1] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[1] = (min[1] * p->parameter_scale) +
-			p->parameter_bias;
+    if (nv > 1 && param != NO_PARAM)
+      {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -317,17 +313,17 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param2;
 
-		      max[2] = (max[2] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[2] = (min[2] * p->parameter_scale) +
-			p->parameter_bias;
+    if (nv > 2 && param != NO_PARAM)
+      {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
 	    {
-    conv = new ColorConverter(DISPLAYED_GATES,max,min,offsets,np,nv);
+		PARAMETER *p = Hdr->Parameter(i);
+
+		if (!strncmp(ptr,p->parameter_name,len))
 		  {
 		      offsets[2] = i;
                       scales[2] = p->parameter_scale;
@@ -363,17 +359,17 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     agc->setMask(0);
 
-    New->DrawTable(A_SET,Max[0],Min[0],param);
+    agc->clear();
 
     FAST HorizDisplay *New = new HorizDisplay(agc,MAX_RECT,0.0,0.0,nv,0,0);
 
     FAST u_long *colors = &GeCommand->colorTable[0];
-      New->DrawTable(B_SET,Max[1],Min[1],param);
+
     if (*colors != -1)
       agc->setColorMap((long *)colors,256);
 
     New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,ptr->size*1000.0);
-      New->DrawTable(C_SET,Max[2],Min[2],param);
+
     param = ptr->param0;
 
     New->DrawTable(A_SET,max[0],min[0],param);

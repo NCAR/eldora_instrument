@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.21  1992/01/27  18:35:01  thor
+ * Added code to correct data addresses for VME/local offset.
+ *
  * Revision 1.20  1992/01/22  17:55:16  thor
  * Changed to new form of ColorConverter.
  *
@@ -230,8 +233,8 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  {
 		      self.SetFlags(NEW_DATA_FLAG);
 		      continue;
-    float Max[3];
-    float Min[3];
+		  }
+	    }
       }
 }
 
@@ -241,9 +244,6 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
     if (old != NULL)
       delete(old);   
-    bcopy((char *)max,(char *)Max,sizeof(float) * 3);
-    bcopy((char *)min,(char *)Min,sizeof(float) * 3);
-
 
     // The following is only for uniprocessor systems!!!!!
     if (conv != NULL)
@@ -267,10 +267,8 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     FAST RADARDESC *rd = Hdr->Radar(1);
 
     FAST int np = rd->num_parameter_des;
-		      max[0] = (max[0] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[0] = (min[0] * p->parameter_scale) +
-			p->parameter_bias;
+
+    int offsets[3];
 
     FAST int param = ptr->param0;
 
@@ -291,10 +289,8 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[0] = p->parameter_bias;
 		      break;
 		  }
-		      max[1] = (max[1] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[1] = (min[1] * p->parameter_scale) +
-			p->parameter_bias;
+	    }
+      }
 
     param = ptr->param1;
 
@@ -315,17 +311,15 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 		      biases[1] = p->parameter_bias;
 		      break;
 		  }
-		      max[2] = (max[2] * p->parameter_scale) +
-			p->parameter_bias;
-		      min[2] = (min[2] * p->parameter_scale) +
-			p->parameter_bias;
+	    }
+      }
 
     param = ptr->param2;
 
     if (nv > 2 && param != NO_PARAM)
       {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
-    conv = new ColorConverter(31,max,min,offsets,np,nv);
+
 	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
@@ -364,21 +358,21 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
           maxDist += (c * width);
       }
 
-	  New->drawTable(A_SET,Max[0],Min[0],param);
+    agc->setMask(0);
 
     agc->clear();
 
     FAST Radial *New = new Radial(agc,ptr->radius,nv,0,0);
 
     FAST u_long *colors = &GeCommand->colorTable[0];
-	  New->drawTable(B_SET,Max[1],Min[1],param);
+
     if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
     New->SetBounds((float)maxDist,(float)cs->distToFirst);
 
     FAST int wdw = 0;
-	  New->drawTable(C_SET,Max[2],Min[2],param);
+
     if (nv)
       {
 	  param = ptr->param0;

@@ -9,8 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/01/22  17:54:56  thor
+ * Changed to new form of ColorConverter.
  *
  * Revision 1.1  1991/12/18  20:36:07  thor
+ * Initial revision
  *
  *
  *
@@ -39,7 +42,8 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 {
     self.FlagsInit();
 
-    FAST ColorConverter *converter = new ColorConverter(31,NULL,NULL,NULL,0,0);
+    FAST Vertical *display = NULL;
+
 #ifdef UNIPRO
     FAST ColorConverter *converter = 
       new ColorConverter(31,NULL,NULL,NULL,NULL,NULL,0,0);
@@ -161,8 +165,8 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 #ifdef UNIPRO
 static Vertical *NewDisplay(FAST GraphicController *agc,
-    float Max[3];
-    float Min[3];
+			    FAST VertFilter *filter, 
+			    FAST ColorConverter *converter,
 			    FAST int rdr)
 #else
 static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
@@ -172,9 +176,6 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
 
     float max[3];
     float min[3];
-    bcopy((char *)max,(char *)Max,sizeof(float) * 3);
-    bcopy((char *)min,(char *)Min,sizeof(float) * 3);
-
     float scales[3];
     float biases[3];
 
@@ -203,10 +204,8 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
 	  params[0] = param;
 
           FAST char *ptr = ParamTapeNames[ParamToNum(param)];
-                      max[0] = (max[0] * p->parameter_scale) +
-                        p->parameter_bias;
-                      min[0] = (min[0] * p->parameter_scale) +
-                        p->parameter_bias;
+
+          FAST int len = strlen(ptr);
 
           for (FAST int i = 0; i < np; i++)
             {
@@ -229,10 +228,8 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
       {
 	  params[1] = param;
 
-                      max[1] = (max[1] * p->parameter_scale) +
-                        p->parameter_bias;
-                      min[1] = (min[1] * p->parameter_scale) +
-                        p->parameter_bias;
+          FAST char *ptr = ParamTapeNames[ParamToNum(param)];
+
           FAST int len = strlen(ptr);
 
           for (FAST int i = 0; i < np; i++)
@@ -255,17 +252,15 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
       {
 	  params[2] = param;
 
-                      max[2] = (max[2] * p->parameter_scale) +
-                        p->parameter_bias;
-                      min[2] = (min[2] * p->parameter_scale) +
-                        p->parameter_bias;
+          FAST char *ptr = ParamTapeNames[ParamToNum(param)];
+
           FAST int len = strlen(ptr);
 
           for (FAST int i = 0; i < np; i++)
             {
                 PARAMETER *p = Hdr->Parameter(i);
 
-    converter->Reset(31,max,min,offsets,np,nv);
+                  {
                       offsets[2] = i;
                       scales[2] = p->parameter_scale;
                       biases[2] = p->parameter_bias;
@@ -295,7 +290,7 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
 printf("Here\n");taskDelay(20);
     FAST Vertical *display = new Vertical(agc,nv,0,0);
 printf("Here\n");taskDelay(20);
-    display->DrawTable(Max,Min,params);
+    float t = ptr->top;
     float b = ptr->bottom;
     float d = ptr->distance;
 
