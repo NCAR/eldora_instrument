@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/06/07  17:38:01  eric
+ * Unset DMA and AUTO bits in PCRL. This improved operation
+ * of PDF flag greatly!!
+ *
  * Revision 1.1  1992/11/09  22:58:25  eric
  * Initial revision
  *
@@ -27,14 +31,14 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  
 #include "stdioLib.h"
 #include "ctype.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ELDRP7.h"
  
 unsigned long getaddr();
 unsigned int  load8();
+extern int Silent;
 
-int dspstop(va_alist)
-va_dcl 
+int dspstop(int rpt)
 
 {
   va_list ap;
@@ -42,10 +46,9 @@ va_dcl
   unsigned char *pio, *temp;
   int i, dsp, dspst, dspen, n, na, status;
 
- va_start(ap);
+ va_start(ap,rpt);
 
-    n = va_arg(ap, int);
-
+  n = rpt;
   for(na = 0; na < n; na++)
     {
 	frq = va_arg(ap,int);           /* frequency 1,2,or 3 */
@@ -53,8 +56,9 @@ va_dcl
 	bd = va_arg(ap, int);           /* Board number */
 	bd = bd << 20;                  /* Board # * 10**5 = base addr */
 	bd += frq;                      /* Full base addr of board */
-    dsp = va_arg(ap, int);
-    printf("bd=%x dsp=%x\n", bd, dsp);
+	dsp = va_arg(ap, int);
+	if(!Silent)
+	  printf("bd=%x dsp=%x\n", bd, dsp);
 
     if(dsp < 0)
          {
@@ -70,12 +74,13 @@ va_dcl
     {
 	pio = (unsigned char *)(bd + (DSPSEL + ((unsigned long)i * DSPOFF)));
         /* Stop DSP */
-        *(pio + PCRL) = REGMAP + DSPRESET;
+        *(pio + PCRL) = DMA + REGMAP + DSPRESET;
 	/* verify DSP is stopped */
 	temp = (unsigned char *)(pio + PCRL);
 	status = *temp & 0x9f;    /* mask off PDF and PIF */
-	if(status != REGMAP + DSPRESET)
-	  printf("DSP %d on Board %x Failed to Stop; status = %x \n", i,bd,status);
+	if(status != DMA + REGMAP + DSPRESET)
+	  if(!Silent)
+	    printf("DSP %d on Board %x Failed to Stop; status = %x \n", i,bd,status);
     }
   }
 va_end(ap)
