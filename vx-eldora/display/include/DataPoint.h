@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/03/27  16:54:06  thor
+ * Changed RadialData structure to eliminate redundant angle data.
+ *
  * Revision 1.2  1991/03/01  20:30:24  thor
  * Fixed colors member of RadialData structure.
  *
@@ -53,6 +56,7 @@ struct Horiz_Move {
 };
 
 struct Radial_Data {
+    float angle;
     unsigned char colors[DISPLAYED_GATES * 3];
 };
 
