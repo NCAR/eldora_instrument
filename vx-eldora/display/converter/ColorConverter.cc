@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1992/11/09  14:13:57  thor
+ * Fixed SetBeamSize to handle user specified sizes correctly.
+ *
  * Revision 2.0  1992/11/03  12:52:00  thor
  * First offical ELDORA release!
  *
@@ -121,7 +124,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
     numOfValues = nvalues;
 
     FAST unsigned char *lkup = convertTbl;
-    FAST int j = 0xffff;
+    FAST int j = CONV_TBL_SIZE;
 
     float fbins = (float)bins;	// How many colors.
     float fb = 0.0;		// Color offset.
@@ -140,7 +143,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 	  float slope = (float)(bins - 1) / (mx - mn);
 	  float b = -(slope * mn);
 
-	  for (FAST int k = 0; k <= j; k++)
+	  for (FAST int k = 0; k < j; k++)
 	    {
 		float t = ((float)k - bias) / scale;
 
@@ -211,19 +214,18 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
       }
 
     float inc;
-    FAST int stopper = pgates;
 
     if (realMax < 0.0)
       inc = (float)maxDist / (float)pgates; // Meters/pixel.
     else
       inc = realMax / (float)pgates;
 
-    numGates = stopper;
+    numGates = pgates;
 
     float oldDiff = 0.0;
     float newDiff = 0.0;
 
-    FAST int dcells = pgates;
+    FAST int dcells = pgates - 1;
 
     FAST int *ptr = gateIndex;
 
@@ -233,9 +235,6 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
     for (i = 0; i < dcells; i++)
       {
-	  if (i == stopper)
-	    break;
-
 	  float dist = inc * (float)i; // Target distance.
 
 	  fp = fptr;
@@ -261,7 +260,7 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
 	  if (*ptr < 0)		// Ran off end of beam.
 	    {
-		--index;
+		index = ngates - 1;
 		index *= np;
 		*ptr = index + valueOffset[0];
 		ptr[pgates] = index + valueOffset[1];
@@ -269,6 +268,12 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 	    }
 	  ptr++;
       }
+// The last displayed pixel = last real gate.
+    i = ngates - 1;
+    i *= np;
+    *ptr = i + valueOffset[0];
+    ptr[pgates] = i + valueOffset[1];
+    ptr[pgates * 2] = i + valueOffset[2];
     free((char *)fptr);
 }
 
@@ -319,7 +324,8 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
     FAST int j = numGates;
     FAST int *ptr = gateIndex;
     FAST unsigned char *lkup = convertTbl;
-
+    FAST unsigned short top = (unsigned short)(lkup + (DISPLAYED_GATES *
+						       MAX_DATA_PLANES));
     for (FAST int i = 0; i < j; i++)
       {
 	  FAST unsigned short datum = *(data + *ptr++);
@@ -331,7 +337,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
 
     if (count)
       {
-	  lkup += 0x10000;
+	  lkup += CONV_TBL_SIZE;
 	  for (i = 0; i < j; i++)
 	    {
 		FAST unsigned short datum = *(data + *ptr++);
@@ -343,10 +349,10 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
       return;
     
     --count;
-    
+
     if (count)
       {
-	  lkup += 0x10000;
+	  lkup += CONV_TBL_SIZE;
 	  for (i = 0; i < j; i++)
 	    {
 		FAST unsigned short datum = *(data + *ptr++);
