@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * in the header. Added fork code to make Send work.
+ *
+ * Revision 1.4  1991/10/16  14:35:14  thor
+ * Added code for constructor using real tape header, changed GetRealHeader
  * to use user supplied memory.
  *
  * Revision 1.3  1991/10/14  19:14:54  thor
@@ -109,11 +113,27 @@ Header::Header(void *v)
 	  exit(1);
       }
 
-    numParams = 0;
-    th->Fore.Params.Params_val = params;
-    th->Aft.Params.Params_val = params;
+      }
+    
+    FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) + sizeof(RADARDESC) +
+    bcopy(t,(char *)th,size);
 
-    th->Volume.number_sensor_des = 2; // Until we get ADS, etc defined.
+    memcpy(th,t,size);
+
+    t += size;
+
+    FAST int p = th->Fore.Radar.num_parameter_des;
+
+	  FAST PARAMETER *parm = t;
+      {
+	  FAST PARAMETER *parm = (PARAMETER *)t;
+
+	  Parameter(*parm,i);
+
+	  t += sizeof(PARAMETER);
+      }
+
+    bcopy(t,(char *)&th->Aft,size);
 
     memcpy(&th->Insitu,t,size);
 }
@@ -245,7 +265,7 @@ void Header::Waveform(FAST WAVEFORM &r)
 WAVEFORM *Header::Waveform(void)
 {
     return(&th->Wave);
-int Header::GetRealHeader(void **header)
+}
 
 int Header::GetRealHeader(void *header)
 {
@@ -257,12 +277,7 @@ int Header::GetRealHeader(void *header)
     FAST RADARDESC *rdr = &th->Fore.Radar;
 
     FAST int np = numParams;
-    *header = (void *)malloc(size);
-
-    if (*header == NULL)
-      return(0);
-
-    FAST void *work = *header;
+    FAST void *work = header;
 
     bcopy((char *)&th->Volume,(char *)work,sizeof(VOLUME));
 
@@ -453,7 +468,7 @@ void SetVolume(HeaderPtr ptr, VOLUME *cs)
     bcopy((char *)h->GetRpcHeader(),(char *)th,sizeof(TAPEHEADER));
 }
 
-int GetRealHeader(HeaderPtr ptr, void **header)
+NAVDESC *GetNavDesc(FAST HeaderPtr ptr)
 {
     FAST Header *h = (Header *)ptr;
 
