@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  1991/11/19  14:07:24  thor
+ * Moved color table reset to after creation of new Radial.
+ *
+ * Revision 1.15  1991/11/15  16:07:06  thor
  * Removed taskDelay from testing days.
  *
  * Revision 1.14  1991/11/14  18:25:52  thor
@@ -199,7 +203,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  {
 		      if (lastAngle < radData.angle)
 	  // By default, sleep for 1/60 sec and then loop.
-	  taskDelay(1);
+//	  taskDelay(1);
 	  self.SetFlags(NEW_DATA_FLAG);
 			display->UpdateClock(now->hour,now->minute,
 					     now->second);
