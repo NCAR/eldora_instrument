@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1991/11/14  18:20:22  thor
+ * Fixed incorrect calculation of first gate index.
+ *
  * Revision 1.8  1991/10/24  15:46:42  thor
  * Changed nextZoom to eliminate extraneous cursor location diddling.
  *
@@ -46,6 +49,7 @@
 
 extern "C" {
 #include "stdioLib.h"
+#include "string.h"
 #include "memLib.h"
 };
 
@@ -308,98 +312,86 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
     setTextScale(wdw,2,2);
     setTextBackGround(wdw,BLACK);
     
-    FAST char *title = "Unknown Parameter";
-    FAST char *units = "Scale is Unknown";
+    FAST char *title = "Unknown";
 
     switch(param)
       {
 	case REFLECT:
-	  title = "Reflectivity";
-	  units = "dbZ";
+	  title = "dbZ";
 	  break;
 
 	case VELOCITY:
-	  title = "Velocity";
-	  units = "meters per second";
+	  title = "VR m/s";
 	  break;
 
 	case SNR:
 	  title = "SNR";
-	  units = 0;
 	  break;
 
 	case SPEC_WIDTH:
 	  title = "Spectral Width";
-	  units = NULL;
 	  break;
 
 	case LINEAR_POWER:
 	  title = "Linear Power";
-	  units = 0;
 	  break;
 
 	case REAL_R1:
 	  title = "Real R(1)";
-	  units = 0;
 	  break;
 
 	case IMAG_R1:
 	  title = "Imaginary R(1)";
-	  units = 0;
 	  break;
 
 	case REAL_R2:
 	  title = "Real R(2)";
-	  units = 0;
 	  break;
 
 	case IMAG_R2:
 	  title = "Imaginary R(2)";
-	  units = 0;
 	  break;
 
 	case NCP:
 	  title = "NCP";
-	  units = 0;
 	  break;
       }
 
     horText(wdw,a,title,WHITE);
     
-    a.x = 20;
+    a.x = 40;
     a.y = 50;
 
-    b.x = 120;
+    b.x = 130;
     b.y = 50;
 
     --tblsize;			// Both must decremented, since we
 				// start at zero.
     --offset;
 
-    float step = (max - min) / (float)tblsize;
+    FAST int step = (int)((max - min) / (float)tblsize);
+    FAST int m = (int)max;
 
-    for (; tblsize > 0; --tblsize, --offset)
+    for (tblsize++; tblsize > 0; --tblsize, --offset)
       {
 	  frect(wdw,b,20,20,offset);
 
-	  sprintf(label,"%6.1f",max);
-
-	  horText(wdw,a,label,WHITE);
-
-          max -= step;
+	  switch(tblsize)	// This is predicated on 31 colors!!!!!
+	    {
+	      case 31:
+	      case 25:
+	      case 20:
+	      case 16:
+	      case 10:
+	      case 5:
+	      case 1:
+		sprintf(label,"%d",m);
+		horText(wdw,a,label,WHITE);
+		break;
+	    }
+          m -= step;
           a.y += 30;
           b.y += 30;
-      }
-    sprintf(label,"%6.1f",min);
-
-    horText(wdw,a,label,WHITE1);
-    frect(wdw,b,20,20,offset);
-
-    if (units != NULL)
-      {
-	  a.x = 175;
-	  a.y = 512;
-	  vertCenteredText(wdw,a,units,WHITE);
       }
 }
 
@@ -436,52 +428,27 @@ void Radial::drawTitle(FAST int set, FAST int radar)
     a.y = rad;
 
     // Draw hash circles.
-    FAST int j = 5;
+    
+    float max = maxDistance * cos(BEAM_OFFSET);
 
-    float inc = (float)rad / 5.0; // Reasonable sized circles.
+    max /= 1000.0;
 
-    for (FAST int i = 1; i < j; i++)
+    FAST int ppkm = (int)(((float)rad / max) + .5);
+
+    ppkm *= 10;
+
+    FAST int i = ppkm;
+     
+    while (i < rad)
       {
-	  circle(wdw,a,(int)((float)i * inc),WHITE);
+	  circle(wdw,a,i,WHITE);
 	  taskDelay(1);
+	  i += ppkm;
       }
 
     circle(wdw,a,rad,WHITE);
 
     Point b;
-
-    // Draw bottom hash marks.
-
-    a.y = 1013;
-    b.y = 1023;
-
-    j = 10;
-
-    inc = ((float)rad * 2.0) / 10.0; // We've doing this by 10ths.
-
-    for (i = 1; i < j; i++)
-      {
-	  a.x = (int)((float)i * inc);
-	  b.x = a.x;
-
-	  line(wdw,a,b,WHITE);
-      }
-
-    // Draw side hash marks.
-
-    a.x = 0;
-    b.x = 10;
-
-    a.y = 0;
-    b.y = 0;
-
-    for (i = 1; i < j; i++)
-      {
-	  a.y = (int)((float)i * inc);
-	  b.y = a.y;
-
-	  line(wdw,a,b,WHITE);
-      }
 
     // Draw cross hairs.
     a.x = 0;
@@ -498,26 +465,20 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 
     line(wdw,a,b,WHITE);
 
-    float hashDist = maxDistance * cos(BEAM_OFFSET); // Correct for
-						     // offset from
-						     // perpendicular.
-
-    hashDist /= 5.0;		// Proper increments.
-
-    hashDist /= 1000.0;		// Now make into km.
-
-    a.x = 0;
+    a.x = 10;
     a.y = 975;
 
-    char hashText[20];
-
-    sprintf(hashText,"%9.4f km",hashDist);
-
-    horText(wdw,a,hashText,WHITE);
+    horText(wdw,a,"10 km/div.",WHITE);
 
     a.x = 770;
+
+    char tmpText[20];
+
+    sprintf(tmpText,"%9.2f",max);
+
+    strcat(tmpText," km");
     
-    horText(wdw,a,"per division",WHITE);
+    horText(wdw,a,tmpText,WHITE);
 }
     
 void Radial::nextZoom(Point cursor)
