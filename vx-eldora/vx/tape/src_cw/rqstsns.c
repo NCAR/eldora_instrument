@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:35  craig
+ * Initial revision
+ *
  * Revision 1.3  1992/10/25  17:08:11  reif
  * *** empty log message ***
  *
@@ -37,25 +40,14 @@ rqst_sen.info_mid_high=0x00;
 rqst_sen.info_mid_low=0x00;     
 rqst_sen.info_lsb=0x00;     
 rqst_sen.addit_sense_len=0x00;     
-rqst_sen.res1=0x00;     
-rqst_sen.res2=0x00;     
-rqst_sen.res3=0x00;     
-rqst_sen.undr_ovr_cntr=0x00;     
+rqst_sen.cmnd_spcfc_msb =0x00;     
+rqst_sen.cmnd_spcfc_mid_high =0x00;     
+rqst_sen.cmnd_spcfc_mid_low = 0x00;     
 rqst_sen.addit_sense_code=0x00;     
 rqst_sen.addit_sense_qual=0x00;     
-rqst_sen.res5=0x00;     
-rqst_sen.res6=0x00;     
-rqst_sen.err_ctr_msb=0x00;     
-rqst_sen.err_ctr_mid=0x00;     
-rqst_sen.err_ctr_lsb=0x00;     
-rqst_sen.stat1=0x00;     
-rqst_sen.stat2=0x00;     
-rqst_sen.stat3=0x00;     
-rqst_sen.res7=0x00;     
-rqst_sen.rem_tape_msb=0x00;     
-rqst_sen.rem_tape_mid=0x00;     
-rqst_sen.rem_tape_lsb=0x00;     
-rqst_sen.trkng_retry_cntr=0x00;     
-rqst_sen.rd_wrt_retry_cntr=0x00;     
-rqst_sen.fault_code=0x00;     
+rqst_sen.sub_assembly_code=0x00;     
+rqst_sen.SKSV_CD_BPV_bitpntr=0x00;     
+rqst_sen.fld_pntr_msb=0x00;     
+rqst_sen.fld_pntr_lsb=0x00;     
+rqst_sen.internal_stat=0x00;     
 }
