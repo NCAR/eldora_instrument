@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.9  1994/09/23  19:45:30  thor
+// Changed formatted string output to use strstreams.
+//
 // Revision 1.8  1994/09/19  15:57:51  thor
 // Changed to new color setting & added clock stuff.
 //
@@ -122,8 +125,20 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
 		  {
 		      if (max[0] == 0.0 && min[0] == 0.0)
 			{
-			    max[0] = rd->eff_unamb_vel;
-			    min[0] = -(rd->eff_unamb_vel);
+                            if (rd->num_ipps_trans == 2)
+                                {
+                                    float range = 75.0 /
+                                        (rd->freq1 * (rd->interpulse_per2
+                                                      - rd->interpulse_per1));
+
+                                    max[0] = range;
+                                    min[0] = -range;
+                                }
+                            else
+                                {
+                                    max[0] = rd->eff_unamb_vel;
+                                    min[0] = -(rd->eff_unamb_vel);
+                                }
 			}
 		  }
 		break;
@@ -147,11 +162,23 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
 		biases[1] = p->parameter_bias;
 
 		if (param == ParamNames::VELOCITY)
-		  {
-		      if (max[1] == 0.0 && min[1] == 0.0)
-			{
-			    max[1] = rd->eff_unamb_vel;
-			    min[1] = -(rd->eff_unamb_vel);
+                    {
+                      if (max[1] == 0.0 && min[1] == 0.0)
+                          {
+                              if (rd->num_ipps_trans == 2)
+                                  {
+                                      float range = 75.0 /
+                                          (rd->freq1 * (rd->interpulse_per2
+                                                        - rd->interpulse_per1));
+
+                                    max[1] = range;
+                                    min[1] = -range;
+                                }
+                            else
+                                {
+                                    max[1] = rd->eff_unamb_vel;
+                                    min[1] = -(rd->eff_unamb_vel);
+                                }
 			}
 		  }
 		break;
@@ -159,9 +186,9 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
       }
 
     converter->Reset(31,max,min,scales,biases,offsets,np,nv);
-
+    
     CELLSPACING *cs = hdr->CellSpacing();
-
+    
     float maxalt = cmd->top;
     float minalt = cmd->bottom;
     
@@ -179,7 +206,7 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
     radius = Display::FULL_HEIGHT;
 
     converter->SetBeamSize(*cs,radius,(1.0/ppm));
-
+    
     agc->setMask(0);
 
     agc->clear();
@@ -447,6 +474,19 @@ void Dual::drawTitle(int set, int radar)
     b.y++;
 
     wdw3->line(a,b,WHITE);
+
+    // Now draw in aft/fore text.
+    wdw1->setTextScale(2,2);
+    
+    a.x = 15;
+    a.y = 52;
+
+    FAST char *title = "Fore";
+
+    if (radar == Display::DUAL_AFT)
+      title = "Aft";
+
+    wdw1->horText(a,title,WHITE);
 }
 
 void Dual::displaySet(FAST int set)
