@@ -9,16 +9,11 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  1992/11/03  22:54:05  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/09/04  19:49:13  craig
- * Initial revision
  *
  * description: These are the function definitions used to handle the 
  *              Inertial Reference Unit (IRU) interface.  This interface
  *              consists of an ARINC-429 serial bus interface designed by
- *              NCAR.  This code is specific to the Honeywell LaserRef SM IRU
+ *              VMIC.  This code is specific to the Honeywell LaserRef SM IRU
  */
 
 #ifndef INCiruFunch
@@ -26,11 +21,11 @@
 
 /***************** Templates of the IRU handling functions ***********/
 
-void init_iru(short);        /* Initalize all of the IRU Pointers */
-void start_iru();           /* Starts the IRU interface */
-void iru_isr();             /* IRU interrupt service routine */
-int convert_iru(long,long *,ins_data *);  /* Function to actually read iru
-                                           data and convert to proper units */
+void init_iru(void);           /* Initalize all of the IRU Pointers */
+void start_iru(void);          /* Starts the IRU interface */
+void convert_iru(void);        /* Function to actually read iru
+				  data and convert to proper units */
+void calc_iru_pointers(void);  /*calculates the pointer to the iru data */
 #endif /* INC */
 
 

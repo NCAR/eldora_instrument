@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/02/21  17:21:27  craig
+ * *** empty log message ***
+ *
  * Revision 1.3  1993/09/01  20:07:41  craig
  * *** empty log message ***
  *
@@ -26,6 +29,7 @@ char salute[8];             /* Will contain the characters "HI RADAR" when
                                the housekeeper has finished initialization */
 short start_hndshk;         /* Handshake when radar processors are ready */
 short dc_remove_hndshk;     /* handshake to keep dc removal in sync */
+short mcpl_hndshk;          /* Handshake for mcpl xfers */
 short tpulse_flg;           /* Test pulse handshaking flag */
 long tpulse_vel;            /* Test pulse velocity measured by radar processor
 			       level in scaled m/s */

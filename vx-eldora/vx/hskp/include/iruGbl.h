@@ -9,14 +9,12 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/04  19:49:12  craig
- * Initial revision
- *
  *
  * description: These are the global variables used to handle the
  *              Inertial Reference Unit (IRU) interface.
  *              This interface consists of an ARINC-429 serial bus
- *              interface constructed at NCAR.  This code is specific
+ *              interface constructed by VMIC and is part number 
+ *              VMIVME-6005.  This code is specific
  *              to the Honeywell LaserRef SM IRU
  */
 
@@ -25,41 +23,37 @@
 
 /**** Declare global variables associated with the ARINC-429 board  ****/
 
-scope struct iru_rcontrol *iru_rpntr;  /* Pointer to the iru receive
+scope struct iru_rcontrol *iru_pntr;  /* Pointer to the iru
                                             control structure */
-scope short *iru_hi8282a; /* Pointer to the HI8282 control register port a */
+
+scope short rxa_buffer_offset;
 
 /***** data structure that contains the lastest and greatest IRU data ****/
 
-scope struct single_iru last_iru_data;
+scope struct ins_data last_iru_data;
 
-/***** Global IRU flag saying the ISR has been entered *****/
+/***** Array used to test the data to see if it has changed ****/
 
-scope short in_iru_isr;
-scope long  iru_isr_count;   /* Counter to make sure enough iru interrupts are
-                                being handled */
-scope char old_iru_interrupts; /* Used to be able to poll for iru data */
+scope long iru_new_data_test[16];
 
-/***** Indexes into all of the data arrays */
+/* Pointers to each parameter on the VME bus */
 
-scope short msec_longitude_indx;
-scope short status_indx;
-scope short latitude_indx;
-scope short longitude_indx;
-scope short wind_speed_indx;
-scope short wind_direction_indx;
-scope short ns_velocity_indx;
-scope short ew_velocity_indx;
-scope short heading_indx;
-scope short drift_indx;
-scope short altitude_indx;
-scope short inertial_vspeed_indx;
-scope short pitch_indx;
-scope short roll_indx;
-scope short integ_vert_acc_indx;
-scope short vert_acc_indx;
-scope short track_rate_indx;
-scope short pitch_rate_indx;
+scope long *latitude_pntr;
+scope long *longitude_pntr;
+scope long *wind_speed_pntr;
+scope long *wind_direction_pntr;
+scope long *ns_velocity_pntr;
+scope long *ew_velocity_pntr;
+scope long *heading_pntr;
+scope long *drift_pntr;
+scope long *altitude_pntr;
+scope long *inertial_vspeed_pntr;
+scope long *pitch_pntr;
+scope long *roll_pntr;
+scope long *integ_vert_acc_pntr;
+scope long *vert_acc_pntr;
+scope long *track_rate_pntr;
+scope long *pitch_rate_pntr;
 
 #endif /* INC */
 

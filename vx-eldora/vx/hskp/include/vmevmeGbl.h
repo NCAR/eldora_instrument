@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1996/02/21  17:21:37  craig
+ * *** empty log message ***
+ *
  * Revision 1.7  1993/09/20  16:39:19  craig
  * *** empty log message ***
  *
@@ -49,12 +52,15 @@ scope long iru_lag_index;
 
 /* Global variables to keep track of position in the nav handshake areas */
 
-scope long nav_current_size;
+/* scope long nav_current_size;
 scope long nav_current_index;
+*/
 
 scope struct nav_data *current_nav_pntr;
-scope char nav_flag;
+
+/*scope char nav_flag;
 scope char nav_mask;
+*/
 
 /* Global variables to keep track of position in all of the handshake areas */
 

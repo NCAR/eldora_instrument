@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1996/10/11  23:27:29  craig
+ * *** empty log message ***
+ *
  * Revision 1.8  1996/02/21  17:21:15  craig
  * *** empty log message ***
  *
@@ -108,6 +111,8 @@ scope float cos_atilt;
 /* array to hold mcpl errors discovered in the isr, but need to be reported
    out of it */
 scope int mcpl_error[3];
+scope short mcpl_xfer_processor; /* Indicates which radar processor is allowed
+				    to perform mcpl transfers */
 
 /* global parameters to handle the waveguide switch */
 

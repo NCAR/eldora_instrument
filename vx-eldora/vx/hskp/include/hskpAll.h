@@ -62,8 +62,8 @@
 #include "iruDef.h"
 #include "iruFunc.h"
 #include "iruGbl.h"
-#include "minDef.h"
-#include "minFunc.h"
+/* #include "minDef.h" */
+/* #include "minFunc.h" */
 #include "pwrDef.h"
 #include "pwrFunc.h"
 #include "todDef.h"
@@ -77,3 +77,5 @@
 #include "vmevmeGbl.h"
 #include "HskpCmd.h"
 #include "HskpStatus.h"
+
+
