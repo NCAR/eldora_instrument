@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1999/09/27  15:43:23  eric
+ * modified to fix slow cal.
+ *
  * Revision 1.5  1997/08/20  17:09:33  eric
  * corrected log power computation.
  * modified testpulse frequency so that only doppler offset
@@ -209,6 +212,7 @@ do
 if(Firstime)
   Firstime = 0;
 New_tp = 1;           /* handshake with Test Pulse Power Meter */
+semTake(cal_sync_sem,WAIT_FOREVER);  /* handshake with pgm_rt task */
 semGive(xmit_pwr_sem); /* handshake with Transmit Power Meter */
 
 }
