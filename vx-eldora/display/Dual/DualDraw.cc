@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.12  1994/11/29  20:29:40  thor
+// Added code to handle new variable aircraft centering & simplified
+// end of drawing tests.
+//
 // Revision 1.11  1994/11/01  15:25:59  thor
 // Let's try a faster(?) way to draw.
 //
@@ -235,8 +239,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 
-		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
-		  break;			  // drawing area!
+		if (!clip(x1,y1)) // Yes this will leave some ragged edges,
+		  break;        // but we want speed!
 
 		FAST int d = D;
 		FAST int x = x1;
@@ -247,8 +251,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
                 FAST unsigned char *ptr1 = video1 + x + (y1 * 4096);
                 FAST unsigned char *ptr2 = video2 + x + (y1 * 4096);
 
-                if (!clip(x,y1)) break;
-                
 		if (sy == 1)
 		  {
 		      for (;;)
@@ -262,7 +264,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  y1++;
-				  if (!clipy(y1)) break;
+				  if (y1 >= Display::FULL_HEIGHT / 2)
+                                    break;
                                   ptr1 += 4096;
                                   ptr2 += 4096;
                                   *ptr1 = *colors1;
@@ -290,7 +293,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 			    if (d >= 0)
 			      {
 				  y1--;
-				  if (!clipy(y1)) break;
+				  if (y1 < 0)
+                                    break;
                                   ptr1 -= 4096;
                                   ptr2 -= 4096;
 				  *ptr1 = *colors1;
@@ -321,8 +325,8 @@ void Dual::drawBeam(FAST DataBeam *beam)
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 		
-		if (!clip(x1,y1) && !clip(x2,y2)) // Both points outside of
-		  break;			  // drawing area!
+                if (!clip(x1,y1)) // Yes this will leave some ragged edges,
+		  break;        // but we want speed!
 		
 		FAST int d = D;
 		FAST int y = y1;
@@ -330,8 +334,6 @@ void Dual::drawBeam(FAST DataBeam *beam)
                 FAST unsigned char *ptr1 = video1 + x1 + (y * 4096);
                 FAST unsigned char *ptr2 = video2 + x1 + (y * 4096);
 
-                if (!clip(x1,y)) break;
-                
 		if (sy == 1)
 		  {
 		      for (;;) 
@@ -353,7 +355,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
 				  d -= ay;
 			      }   
 			    y++;
-                            if (!clipy(y))
+                            if (y >= Display::FULL_HEIGHT / 2)
                               break;
                             ptr1 += 4096;
                             ptr2 += 4096;
@@ -382,7 +384,7 @@ void Dual::drawBeam(FAST DataBeam *beam)
 				  d -= ay;
 			      }
 			    y--;
-                            if (!clipy(y))
+                            if (y < 0)
                               break;
                             ptr1 -= 4096;
                             ptr2 -= 4096;
