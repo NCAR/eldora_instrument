@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/02/05  18:24:25  thor
+ * Added code to handle variable radii for Radials.
+ *
  * Revision 1.11  1992/01/22  17:42:03  thor
  * Removed all the old stuff.
  *
@@ -116,6 +119,19 @@ class ColorConverter {
 
     // Radial again.
     void GetBeam(unsigned short *data, RadialData &rad);
+
+    // Fast inline call.
+    unsigned char Raw(FAST unsigned short datum, FAST int param)
+      {
+	  FAST unsigned char *lkup = convertTbl + datum;
+
+	  if (param == 1)
+	    lkup += 0x10000;
+	  else
+	    lkup += 0x20000;
+
+	  return(*lkup);
+      }
 };
 
 
