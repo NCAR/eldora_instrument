@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:31  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -40,7 +43,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "nfsLib.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "iosLib.h"
 #include "strLib.h"
 #include "memLib.h"
@@ -53,8 +56,8 @@ unsigned long getaddr();
 unsigned int  load8();
 static int freq, board, dsp, num_retry, j; 
 
-nu_lddsp(va_alist)
-va_dcl
+nu_lddsp(int rpt)
+
 {
     va_list ap;
 
@@ -63,10 +66,10 @@ va_dcl
   char *tfile;
   unsigned char *pio;
  
-    va_start(ap);
+    va_start(ap,rpt);
 
     num_retry=0;
-    n = va_arg(ap, int);
+    n = rpt;
  
     for(na = 0; na < n; na++)
       {
@@ -152,10 +155,10 @@ char *tfile;
 
   /* build the mounted file system name */
   i = 28;
-  mnt_pnt = malloc(i);
-  mnt_pnt = "odin:/vxbin/radar/dsp";
+  mnt_pnt = (char *)malloc(i);
+  mnt_pnt = "/vxbin/radar/dsp";
   i = strlen(mnt_pnt) + strlen(tfile) + 2;
-  fname = malloc(i);
+  fname = (char *)malloc(i);
   (void) sprintf(fname, "%s/%s", mnt_pnt, tfile);
 /*  
 printf("here before fopen, tfile = %s\n",tfile);
