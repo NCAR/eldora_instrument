@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:52:47  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.12  1992/10/21  14:30:44  thor
  * This time I think the fat beam stuff is right.
  *
@@ -315,12 +318,10 @@ void Radial::Draw2(FAST RadialData &data)
 	  if (j == 1000)
 	    j = index - 2;
 
-	  FAST int q = index - j;
+	  FAST int q = index - j + 720;
 
-	  if (q < -20)
-	    q = -q;
 
-	  if (q > 20)
+	  if (q < 700)
 	    {
 		printf("Angle to big, %d %d\n",index,j);
 		lastIndex = index;
@@ -347,10 +348,9 @@ void Radial::Draw2(FAST RadialData &data)
 
 	  FAST int q = index - j;
 
-	  if (q < -20)
-	    q = -q;
+	  q = 720 - q;
 
-	  if (q > 20)
+	  if (q < 700)
 	    {
 		printf("Angle to big, %d %d\n",index,j);
 		lastIndex = index;
