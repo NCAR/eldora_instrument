@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  2003/10/01  19:57:40  kapoor
+ * *** empty log message ***
+ *
  * Revision 1.13  2003/10/01  19:45:41  kapoor
  * *** empty log message ***
  *
@@ -144,7 +147,9 @@ scope int use_IRIGB;        /* True -> use IRIG-B for time source, false ->
 				  use real time clock as time source */
 scope int modulate_IRIGB;   /* True -> use modulated IRIG-B for time source,                                  false -> use DC shift IRIG-B as time source */
 
-
+scope int clkstart;        /* Tells Bancomm start_clock function not to run
+                              designed only for startup.cc, as a safegaurd if
+                              TOD board is used again. Will not affect TOD */ 
 
 
 
