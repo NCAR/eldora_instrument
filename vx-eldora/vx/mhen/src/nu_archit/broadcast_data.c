@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:33:14  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:38  eric
  * Initial revision
  *
@@ -82,7 +85,7 @@ for (proc=0; proc<4; proc++)
                      madinfo[proc][current_mad[proc]][COMPLETE_S];
 
    receive_data->sink_start_address = 
-       madinfo[proc][current_mad[proc]][MAD_BASE] + 0x1800 +
+       madinfo[proc][current_mad[proc]][MAD_BASE] + STARTOF_MAD_DATA +
          madinfo[proc][current_mad[proc]][SIZE_AREAS] * 
            madinfo[proc][current_mad[proc]][NUM_C_AREA];
    receive_data->mailbox_address =
@@ -108,7 +111,6 @@ for (proc=0; proc<4; proc++)
 	    err_cnt++;
 	    if(err_cnt == 1)
 	      err_stat = *mailbox;
-	    currStatus->count++;
 	    currStatus->mcpl |= INIT_TPB;
 	    switch(proc)
 	      {
@@ -171,7 +173,6 @@ for (proc=0; proc<4; proc++)
 	    err_cnt++;
 	    if(err_cnt == 1)
 	      err_stat = *mailbox_test;
-	    currStatus->count++;
 	    currStatus->mcpl |= BROADCAST;
 	    currStatus->mailbox = *mailbox;
 	    currStatus->status = status;
