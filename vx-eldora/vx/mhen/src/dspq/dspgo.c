@@ -1,4 +1,4 @@
-/*
+ /*
  *	$Id$
  *
  *	Module: DSPGO		 
@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/06/07  17:36:09  eric
+ * Unset DMA and AUTO bits in PCRL. This improved operation
+ * of PDF flag greatly!!
+ *
  * Revision 1.1  1992/11/09  22:58:20  eric
  * Initial revision
  *
@@ -27,23 +31,23 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
  
 #include "stdioLib.h"
 #include "ctype.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ELDRP7.h"
- 
+
+extern int Silent; 
 unsigned long getaddr();
 unsigned int  load8();
- 
-int dspgo(va_alist)
-va_dcl
+int dspgo(int rpt)
+
 {
   va_list ap;
   unsigned long  bd, frq;
   unsigned char *pio, scr, *temp;
   int i, dsp, dspst, dspen, n, na, status;
 
-  va_start(ap);
+  va_start(ap,rpt);
 
-    n = va_arg(ap, int);
+  n = rpt;
  
   for(na = 0; na < n; na++)
     {
@@ -53,7 +57,8 @@ va_dcl
     bd = bd << 20;                      /* Board # * 10**5 = base addr */
     bd = bd + frq;                      /* Full base addr. of board */
     dsp = va_arg(ap, int);
-    printf("bd=%x dsp=%x\n", bd, dsp);
+    if(!Silent)
+      printf("bd=%x dsp=%x\n", bd, dsp);
  
     if(dsp < 0)
          {
@@ -83,9 +88,10 @@ va_dcl
 	 *(pio + PCRL) = RUN;
 	 *(pio + PCRL) = REGMAP + RUN + ENI;
 	 temp = (unsigned char *)(pio + PCRL);
-	 status = *temp & 0xff;
+	 status = *temp & 0x1f;
 	 if(status != REGMAP + RUN + ENI)
-	   printf("Board %x, Processor %d Failed to Start; status = %x \n", bd,i,status);
+	   if(!Silent)
+	     printf("Board %x, Processor %d Failed to Start; status = %x \n", bd,i,status);
 
     }
   }
