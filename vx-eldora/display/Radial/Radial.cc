@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.6  1994/09/19  16:02:03  thor
+// Added new color setting & clock stuff.
+//
 // Revision 2.5  1994/07/06  14:09:32  thor
 // The latest & greatest - too many changes to list.
 //
@@ -138,6 +141,9 @@ Radial::Radial(GraphicController *gbd) : Display(gbd)
     FAST Window *wdw = Wdw;
 
     setPriority(0);
+
+    makeStr->setf(ios::fixed);
+    makeStr->precision(2);
 }
 
 void Radial::reset(FAST Header *hdr, FAST DispCommand *cmd)
@@ -428,13 +434,11 @@ void Radial::drawTitle(FAST int set, FAST int radar)
 
     a.x = 770;
 
-    char tmpText[20];
+    resetString();
 
-    sprintf(tmpText,"%9.2f",max);
+    *makeStr << max << " km";
 
-    strcat(tmpText," km");
-    
-    horText(wdw,a,tmpText,WHITE);
+    horText(wdw,a,outputStr,WHITE);
 }
 
 void Radial::displaySet(FAST int set)

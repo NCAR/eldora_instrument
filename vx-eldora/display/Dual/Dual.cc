@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.8  1994/09/19  15:57:51  thor
+// Changed to new color setting & added clock stuff.
+//
 // Revision 1.7  1994/08/12  18:01:36  thor
 // Fixed another nit.
 //
@@ -68,6 +71,9 @@ Dual::Dual(GraphicController *gbd) : Display(gbd)
     videoMemory[1] = videoMemory[0] + Display::FULL_WIDTH;
 
     numOfWdws = 3;
+
+    makeStr->precision(1);
+    makeStr->setf(ios::fixed);
 }
 
 void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
@@ -251,7 +257,7 @@ void Dual::drawTable(int set, float max, float min, FAST int param,
     wdw->setTextScale(2,2);
     wdw->setTextBackGround(BLACK);
     
-    FAST char *title = "Unknown";
+    FAST const char *title = "Unknown";
 
     FAST int index = namer->paramToNum(param);
 
@@ -281,7 +287,7 @@ void Dual::drawTable(int set, float max, float min, FAST int param,
 
     for (tblsize++; tblsize > 0; --tblsize, --offset)
       {
-	  char label[10];
+          resetString();
 
 	  wdw->frect(b,16,16,offset);
 
@@ -294,10 +300,9 @@ void Dual::drawTable(int set, float max, float min, FAST int param,
 	      case 10:
 	      case 5:
 	      case 1:
-		int i = iround(m);
-		sprintf(label,"%d",i);
-		wdw->horText(a,label,WHITE);
-		break;
+                  *makeStr << iround(m);
+                  wdw->horText(a,outputStr,WHITE);
+                  break;
 	    }
           m -= step;
           a.y += 16;
@@ -327,29 +332,27 @@ void Dual::drawTitle(int set, int radar)
     max /= 1000.0;
     min /= 1000.0;
 
-    char label[20];
+    resetString();
 
-    sprintf(label,"%4.1f",max);
+    *makeStr << max << " km";
 
-    strcat(label," km"); 
-
-    wdw3->horText(a,label,WHITE);
+    wdw3->horText(a,outputStr,WHITE);
 
     a.y += (Display::FULL_HEIGHT / 2);
 
-    wdw3->horText(a,label,WHITE);
+    wdw3->horText(a,outputStr,WHITE);
 
     a.y = (Display::FULL_HEIGHT / 2) - 15;
 
-    sprintf(label,"%4.1f",min);
+    resetString();
 
-   strcat(label," km");
+    *makeStr << min << " km";
 
-    wdw3->horText(a,label,WHITE);
+    wdw3->horText(a,outputStr,WHITE);
 
     a.y += (Display::FULL_HEIGHT / 2);
 
-    wdw3->horText(a,label,WHITE);
+    wdw3->horText(a,outputStr,WHITE);
 
     float dist = max - min;
 

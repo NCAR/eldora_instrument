@@ -9,6 +9,10 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/23  15:00:02  thor
+// New color code, moved windows about in AGC memory to fit in clock,
+// added clock code, fixed meters.
+//
 // Revision 1.1  1994/04/08  20:29:50  thor
 // Initial revision
 //
@@ -80,6 +84,9 @@ Horiz::Horiz(GraphicController *gbd) : Display(gbd)
     Wdw[1].setTextBackGround(BLACK);
     Wdw[3].setTextBackGround(BLACK);
     Wdw[5].setTextBackGround(BLACK);
+
+    makeStr->setf(ios::fixed);
+    makeStr->precision(2);
 }
 
 void Horiz::reset(FAST Header *hdr, FAST DispCommand *cmd)
@@ -367,37 +374,36 @@ void Horiz::drawTitle(int set, int radar)
       wdw = 5;
 
     setTextScale(wdw,2,2);
-    
-    FAST char *title;
+
+    resetString();
 
     if (radar == Display::HORIZ_FORE)
-      title = "Forward Radar";
+      *makeStr << "Forward Radar";
     else
-      title = "Aft Radar";
+      *makeStr << "Aft Radar";
+
+    // Print # meters per hash mark.
+    double meters = (double)Horiz::DATA_WIDTH / pixelsPerMeter;
+    
+    if (meters >= 500000.0)
+      *makeStr << "  100 km/div";
+    else if (meters >= 100000.0)
+      *makeStr << "  20 km/div";
+    else if (meters < 20000.0)
+      *makeStr << "  5 km/div";
+    else
+      *makeStr << "  10 km/div";
+
+    double d = altitude / 1000.0;
+    
+    *makeStr << "  " << d << " km elevation";
 
     Point a;
 
     a.x = 20;
     a.y = 20;
 
-    horText(wdw,a,title,WHITE);
-
-    // Print # meters per hash mark.
-    double meters = (double)Horiz::DATA_WIDTH / pixelsPerMeter;
-    
-    FAST char *metersText = "10 km/div";
-
-    if (meters >= 500000.0)
-      metersText = "100 km/div";
-    else if (meters >= 100000.0)
-      metersText = "20 km/div";
-    else if (meters < 20000.0)
-      metersText = "5 km/div";
-
-    a.x = 500;
-    a.y = 45;
-    
-    horText(wdw,a,metersText,WHITE1);
+    horText(wdw,a,outputStr,WHITE1);
 
     hashMarks(meters);
     degrees = meters / METERS_PER_DEGREE;

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/19  15:51:54  thor
+// Added setColors() & refreshClock().
+//
 // Revision 1.1  1994/04/08  20:25:58  thor
 // Initial revision
 //
@@ -40,7 +43,9 @@ class Display;
 
 #include <vxWorks.h>
 #include <math.h>
+#include <string.h>
 #include <iostream.h>
+#include <strstream.h>
 #include "DisplayRpc.hh"
 #include "Header.hh"
 #include "ParamNames.hh"
@@ -76,6 +81,10 @@ class Display {
     ParamNames *namer;		// Text of parameter names.
     ColorConverter *converter;	// Counts to colors.
     Clock *clock;		// Running clock.
+
+    enum StrSize { maxstring = 100 };
+    ostrstream *makeStr;         // Make output string.
+    char outputStr[Display::maxstring]; // This is data storage for above.
     
     int numOfParams;		// # of parameters in use.
     int numOfWdws;		// # of windows in use.
@@ -85,6 +94,12 @@ class Display {
     int dispType;		// Who am I?
 
     TrigData *trigData;		// Angle data.
+
+    void resetString()
+      {
+          memset(outputStr,0,Display::maxstring);
+          makeStr->seekp(0);
+      }
     
   public:
     enum sizes { FULL_WIDTH = 1024, FULL_HEIGHT = 1024, TBL_WIDTH = 256 };

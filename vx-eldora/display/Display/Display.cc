@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/19  15:51:54  thor
+// Added setColors().
+//
 // Revision 1.2  1994/08/12  17:58:31  thor
 // Fixs nit found by gcc-2.6.0.
 //
@@ -61,6 +64,7 @@ Display::Display(GraphicController *gbd)
 	  ptr->cos = (int)(cos(angle) * 65536.0);
 	  ptr->sin = (int)(sin(angle) * 65536.0);
       }
+    makeStr = new ostrstream(outputStr,100);
 }
 
 void Display::setColors()
@@ -260,8 +264,6 @@ void Display::drawTable(int set, float max, float min, FAST int param,
 	  offset = tblsize * 3;
       }
 
-    char label[10];
-
     Point a;
     Point b;
 
@@ -294,31 +296,32 @@ void Display::drawTable(int set, float max, float min, FAST int param,
     for (tblsize++; tblsize > 0; --tblsize, --offset)
       {
 	  frect(wdw,b,20,20,offset);
-
+          resetString();
+          
 	  switch(tblsize)	// This is predicated on 31 colors!!!!!
 	    {
 	      case 31:
-		sprintf(label,"%d",iround(max));
-		horText(wdw,a,label,WHITE);
-		break;
+                  *makeStr << iround(max);
+                  horText(wdw,a,outputStr,WHITE);
+                  break;
 	      case 16:
-		sprintf(label,"%d",iround((max + min) / 2.0));
-		horText(wdw,a,label,WHITE);
-		break;
+                  *makeStr << iround((max + min) / 2.0);
+                  horText(wdw,a,outputStr,WHITE);
+                  break;
 	      case 1:
-		sprintf(label,"%d",iround(min));
-		horText(wdw,a,label,WHITE);
-		break;
+                  *makeStr << iround(min);
+                  horText(wdw,a,outputStr,WHITE);
+                  break;
 	      case 24:
 	      case 8:
-		int i;
-		if (i < 0.0)
-		  i = iround(m - .5);
-		else
-		  i = iround(m);
-		sprintf(label,"%d",i);
-		horText(wdw,a,label,WHITE);
-		break;
+                  int i;
+                  if (i < 0.0)
+                    i = iround(m - .5);
+                  else
+                    i = iround(m);
+                  *makeStr << i;
+                  horText(wdw,a,outputStr,WHITE);
+                  break;
 	    }
           m -= step;
           a.y += 30;
