@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/04/08  20:58:29  thor
+ * Major changes!
+ *
  * Revision 2.3  1993/10/27  16:04:16  thor
  * Fixed code to allow clean switch between types on the fly.
  *
@@ -137,16 +140,20 @@ void DrawingLoop(FAST Task &self)
 
     // Now create the needed shared objects.
     ColorConverter conv;
-
+    Clock clock(&Agc,3,0,0,1872,1024);
+    clock.display();
     ParamNames namer;
 
     rad.setColorConverter(conv);
+    rad.setClock(clock);
     rad.setParmNames(namer);
 
     dual.setColorConverter(conv);
+    dual.setClock(clock);
     dual.setParmNames(namer);
 
     horiz.setColorConverter(conv);
+    horiz.setClock(clock);
     horiz.setParmNames(namer);
 
     vert.setColorConverter(conv);
@@ -156,6 +163,8 @@ void DrawingLoop(FAST Task &self)
       {
 	  FAST unsigned int flag = self.WaitOnFlags(mainMask,FLAGS_OR);
 
+          Agc.setOverlayColorMap(0xffffff00); // Now safe to
+                                // draw a white cursor.
 	  if ((flag & LOAD_ONLY)) // This is all that`s needed, since
 				 // we don't want to start drawing yet.
 	    {
@@ -188,8 +197,6 @@ void DrawingLoop(FAST Task &self)
 	    }
 	  else
 	    {
-		Agc.setOverlayColorMap(0xffffff00); // Now safe to
-						    // draw a white cursor.
 		switch(flag)
 		  {
 		    case REBOOT:
@@ -203,7 +210,7 @@ void DrawingLoop(FAST Task &self)
 		      if (display != &rad)
 			{
 			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(10);
+			    taskDelay(1);
 			    display = &rad;
 			}
 		      DisplayTask.SetFlags(SHOW_FORWARD);
@@ -213,7 +220,7 @@ void DrawingLoop(FAST Task &self)
 		      if (display != &rad)
 			{
 			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(10);
+			    taskDelay(1);
 			    display = &rad;
 			}
 		      DisplayTask.SetFlags(SHOW_AFT);
@@ -223,7 +230,7 @@ void DrawingLoop(FAST Task &self)
  		      if (display != &horiz)
  			{
  			    DisplayTask.SetFlags(UNDISPLAY);
- 			    taskDelay(10);
+ 			    taskDelay(1);
  			    display = &horiz;
  			}
  		      DisplayTask.SetFlags(SHOW_FORWARD);
@@ -233,7 +240,7 @@ void DrawingLoop(FAST Task &self)
  		      if (display != &horiz)
  			{
  			    DisplayTask.SetFlags(UNDISPLAY);
- 			    taskDelay(10);
+ 			    taskDelay(1);
  			    display = &horiz;
  			}
  		      DisplayTask.SetFlags(SHOW_AFT);
@@ -243,7 +250,7 @@ void DrawingLoop(FAST Task &self)
                         if (display != &vert)
                           {
                               DisplayTask.SetFlags(UNDISPLAY);
-                              taskDelay(10);
+                              taskDelay(1);
                               display = &vert;
                           }
  		      DisplayTask.SetFlags(SHOW_FORWARD);
@@ -253,7 +260,7 @@ void DrawingLoop(FAST Task &self)
                         if (display != &vert)
                           {
                               DisplayTask.SetFlags(UNDISPLAY);
-                              taskDelay(10);
+                              taskDelay(1);
                               display = &vert;
                           }
  		      DisplayTask.SetFlags(SHOW_AFT);
@@ -263,7 +270,7 @@ void DrawingLoop(FAST Task &self)
 		      if (display != &dual)
 			{
 			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(10);
+			    taskDelay(1);
 			    display = &dual;
 			}
 		      DisplayTask.SetFlags(SHOW_FORWARD);
@@ -273,7 +280,7 @@ void DrawingLoop(FAST Task &self)
 		      if (display != &dual)
 			{
 			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(10);
+			    taskDelay(1);
 			    display = &dual;
 			}
 		      DisplayTask.SetFlags(SHOW_AFT);
