@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/05/06  15:08:51  thor
+ * Added embedded Clock class for time display.
+ *
  * Revision 1.2  1991/04/29  18:47:43  thor
  * Fixed angles so we match radar conventions.
  *
@@ -301,6 +304,10 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 	  units = "meters per second";
 	  break;
 
+	case SNR:
+	  title = "Signal/Noise Ratio";
+	  break;
+
 	case SPEC_WIDTH:
 	  title = "Spectral Width";
 	  units = NULL;
@@ -371,7 +378,7 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
       }
 }
 
-void Radial::drawTitle(FAST int set, FAST int param, float distance)
+void Radial::drawTitle(FAST int set, FAST int radar)
 {
     FAST int wdw;
 
@@ -389,42 +396,12 @@ void Radial::drawTitle(FAST int set, FAST int param, float distance)
 
     setTextScale(wdw,2,2);
     
-    FAST char *title = "Unknown Parameter";
+    FAST char *title = "Unknown Display";
 
-    switch(param)
-      {
-	case REFLECTIVITY:
-	  title = "Reflectivity";
-	  break;
-
-	case VELOCITY:
-	  title = "Velocity";
-	  break;
-
-	case SPEC_WIDTH:
-	  title = "Spectral Width";
-	  break;
-
-	case LINEAR_POWER:
-	  title = "Linear Power";
-	  break;
-
-	case REAL_R1:
-	  title = "Real R(1)";
-	  break;
-
-	case IMAG_R1:
-	  title = "Imaginary R(1)";
-	  break;
-
-	case REAL_R2:
-	  title = "Real R(2)";
-	  break;
-
-	case IMAG_R2:
-	  title = "Imaginary R(2)";
-	  break;
-      }
+    if (radar == FORWARD_RADIAL)
+      title = "Forward Radar";
+    else if (radar == AFT_RADIAL)
+      title = "Aft Radar";
 
     horText(wdw,a,title,WHITE);
 
@@ -434,15 +411,52 @@ void Radial::drawTitle(FAST int set, FAST int param, float distance)
     a.y = rad;
 
     // Draw hash circles.
-    circle(wdw,a,rad/4,WHITE);
-    taskDelay(1);
-    circle(wdw,a,rad/2,WHITE);
-    taskDelay(1);
-    circle(wdw,a,(3 * rad)/4,WHITE);
-    taskDelay(1);
+    FAST int j = 5;
+
+    float inc = (float)rad / 5.0; // Reasonable sized circles.
+
+    for (FAST int i = 1; i < j; i++)
+      {
+	  circle(wdw,a,(int)((float)i * inc),WHITE);
+	  taskDelay(1);
+      }
+
     circle(wdw,a,rad,WHITE);
 
     Point b;
+
+    // Draw bottom hash marks.
+
+    a.y = 1013;
+    b.y = 1023;
+
+    j = 10;
+
+    inc = ((float)rad * 2.0) / 10.0; // We've doing this by 10ths.
+
+    for (i = 1; i < j; i++)
+      {
+	  a.x = (int)((float)i * inc);
+	  b.x = a.x;
+
+	  line(wdw,a,b,WHITE);
+      }
+
+    // Draw side hash marks.
+
+    a.x = 0;
+    b.x = 10;
+
+    a.y = 0;
+    b.y = 0;
+
+    for (i = 1; i < j; i++)
+      {
+	  a.y = (int)((float)i * inc);
+	  b.y = a.y;
+
+	  line(wdw,a,b,WHITE);
+      }
 
     // Draw cross hairs.
     a.x = 0;
@@ -458,9 +472,11 @@ void Radial::drawTitle(FAST int set, FAST int param, float distance)
 
     line(wdw,a,b,WHITE);
 
-    float hashDist = distance / 4.0;
+    float hashDist = maxDistance * cos(BEAM_OFFSET); // Correct for
+						     // offset from
+						     // perpendicular.
 
-    hashDist *= cos(BEAM_OFFSET); // Correct for offset from perpendicular.
+    hashDist /= 5.0;		// Proper increments.
 
     a.x = 0;
     a.y = 975;
@@ -524,4 +540,13 @@ Radial::~Radial(void)
       }
     clk.clear();
     clk.undisplay();
+}
+
+void Radial::SetBounds(float max, float first)
+{
+    maxDistance = max;
+
+    float step = max / (float)radius;
+
+    firstGate = (int)((first / step) + .5);
 }
