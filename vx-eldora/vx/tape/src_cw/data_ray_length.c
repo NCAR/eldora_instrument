@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:49  craig
+ * Initial revision
+ *
  *
  * description: This module calculates the length in bytes
  *              of a radar data ray.
@@ -30,7 +33,6 @@ long data_ray_length()
 
 FIELDRADAR *fldrdr;
 PARAMETER *prm;
-extern HeaderPtr inHeader;
 
 /* define some general purpose variables */
 
@@ -45,12 +47,12 @@ long number_of_cells, total_length;
 /* To be done for one of the radars                             */
 /****************************************************************/
 
-rad_dscr = GetRadar(inHeader,1);
+rad_dscr = GetRadar(Hdr,1);
 
 bytes_per_cell = 0;
 for(i=0; i < rad_dscr->num_parameter_des; i++)
     {
-    prm = GetParameter(inHeader,i);
+    prm = GetParameter(Hdr,i);
     bytes_per_cell += prm -> binary_format;
     }
 
@@ -62,7 +64,7 @@ for (i=0; i<cs->num_segments; i++)
 
 /* Calculate the size of the independent frequency data */
 
-fldrdr = GetFieldRadar(inHeader);
+fldrdr = GetFieldRadar(Hdr,1);
  
 if(fldrdr->indepf_times_flg > 0)
   indep_freq_length = rad_dscr->num_freq_trans * bytes_per_cell *
@@ -73,8 +75,8 @@ else
 /* Calculate the size of the time series data */
 
 if(fldrdr->indepf_times_flg == 3)
-  time_series_length = rad_dscr->num_freq_trans * 2 * 4 * prm->num_samples *
-                          rad_dscr->num_ipps_trans + 8;
+  time_series_length = rad_dscr->num_freq_trans * 2 * 4 * 
+    wave->repeat_seq_dwel * wave->num_chips[0] + 8;
 else
    time_series_length = 0; /* Until switch to new header */
 
@@ -86,6 +88,9 @@ offset_to_last=sizeof(ray_i)+sizeof(platform_i)+sizeof(field_parameter_data)+(nu
 longs_to_copy=(bytes_per_cell+indep_freq_length+time_series_length+4)/4;
 bytes_at_end=bytes_per_cell+indep_freq_length+time_series_length;
 cells_per_ray=number_of_cells;
+min_to_record =  sizeof(ray_i) + sizeof(platform_i) + 
+                   sizeof(field_parameter_data) + 2 * bytes_per_cell +
+		   indep_freq_length + time_series_length;
 return(total_length);
 }
 

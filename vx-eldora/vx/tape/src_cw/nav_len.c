@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:51  craig
+ * Initial revision
+ *
  * Revision 1.4  1992/10/25  17:09:25  reif
  * *** empty log message ***
  *
@@ -31,7 +34,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 unsigned int nav_length(unsigned int *nav_addr)
 {
-extern HeaderPtr inHeader;
+
 NAV_INFO *nav_inform;
 INS_DATA *ins;
 MINIRIMS_DATA *minirims;
@@ -39,7 +42,7 @@ GPS_DATA *gps;
 NAVDESC *nav_dscr;
 unsigned int nav_length;
 
-nav_dscr=GetNavDesc(inHeader);
+nav_dscr=GetNavDesc(Hdr);
 (unsigned int)nav_inform=*nav_addr;
 nav_length=nav_inform->nav_info_len;
 if(nav_dscr->ins_flag==1)
