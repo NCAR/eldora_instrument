@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1991/10/24  14:03:27  thor
+ * Fixed incorrect max/min values for B/C_SET.
+ *
  * Revision 1.7  1991/10/23  20:39:23  thor
  * Added Mouse support.
  *
@@ -48,15 +51,18 @@ static ColorConverter *conv = NULL;
 
     Radial *display = NULL;
 
+    int args;
+
     FAST Radial *display = NULL;
 
     float lastAngle = 360.0;	// Force update of time.
-						    DESTROY_SELF,FLAGS_OR);
+
+    FAST int radar;
 
     static int onetime = 0;
 
     for (;;)
-	      case DESTROY_SELF | NEW_DATA_FLAG:
+      {
 	  FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
 		  delete(display);
 		  }
@@ -70,16 +76,16 @@ static ColorConverter *conv = NULL;
 
 	      case LOAD_ONLY:
 		if (GeCommand->cmd == FORWARD_RADIAL)
-	      case RELOAD | NEW_DATA_FLAG:
+		  radar = FORWARD_RADIAL;
 	      case START | NEW_DATA_FLAG:
-	      case RESTART | NEW_DATA_FLAG:
+		  radar = AFT_RADIAL;
 
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
-	      case FORWARD_RADIAL | NEW_DATA_FLAG:
+		      pipe.Flush();
 		  }
 		break;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
@@ -87,13 +93,21 @@ static ColorConverter *conv = NULL;
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
-	      case AFT_RADIAL | NEW_DATA_FLAG:
+		  DdpCtrl->Aft();
 		display = makeDisplay(display,agc);
 		break;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 		continue;
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
+		  pipe.Flush();
+		RadialMouse(display);
+		continue;
+		break;
+
+		break;
+
+	      case AFT_RADIAL:
 	      case (AFT_RADIAL | NEW_DATA_FLAG):
 		whichRadar = AFT_RADIAL;
 		radar = whichRadar;
@@ -230,7 +244,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (*colors != -1)
       agc->setColorMap((long *)colors,256);
 
-    FAST Radial *New = new Radial(agc,DISPLAYED_GATES,ptr->numParams,0,0);
+    FAST Radial *New = new Radial(agc,DISPLAYED_GATES,nv,0,0);
       {
           FAST int c = *ncells++;
 

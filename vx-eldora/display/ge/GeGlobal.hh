@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/15  15:37:34  thor
+ * Added include of globals for radial case.
+ *
  * Revision 1.2  1991/10/14  19:20:39  thor
  * Added Task control items.
  *
@@ -33,6 +36,7 @@ extern "C" {
 #include "Header.hh"
 #include "GeAlarm.hh"
 #include "Task.hh"
+#include "Mouse.hh"
 
 #define WINDOW_GBLS_SCOPE
 #include "GblRadial.hh"
@@ -48,6 +52,8 @@ GE_SCOPE DispCommand *GeCommand;
 GE_SCOPE Header *Hdr;
 GE_SCOPE GeAlarm *Alarm;
 GE_SCOPE int system;
+
+GE_SCOPE Mouse *Rodent;
 
 GE_SCOPE Task *AlarmTask;
 GE_SCOPE Task *CtrlTask;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/23  20:37:38  thor
+ * Added Mouse support.
+ *
  * Revision 1.3  1991/10/17  17:16:55  thor
  * Added code to reboot system.
  *
@@ -30,7 +33,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "sysLib.h"
 #include "rebootLib.h"
+#include "tp41Lib.h"
+};
 
+static Task *GetsMouse;
+
+static void Reboot(void);
 static Task *GetsFlags;
 
 static void DdpLoop(Task &self, Pipe &pipe);
@@ -39,9 +47,22 @@ void DrawingLoop(FAST Task &self)
 
 
     // Create agc here!
-    
+			  AGC_VECTOR);
+
+    Agc.setOverlayColorMap(0xffffff00);
+
+    Point a;
+
+    a.x = AGC_WIDTH / 2;
+    a.y = AGC_HEIGHT / 2;
+
+    Mouse mouse((void *)AGC_ADDR,a,(long *)&boxed_cross,AGC_VECTOR);
     int args[1];
     Rodent = &mouse;
+
+    Task ddpTask((FUNCPTR)DdpLoop,args,1,DDP_PRI);
+    Task mouseTask((FUNCPTR)MouseCtrl,args,0,MOUSE_PRI);
+    args[0] = (int)&mouse;
 
 
     Task RadialTask((FUNCPTR)RadialLoop,args,1,GRAPH_PRI,6000);
@@ -50,6 +71,8 @@ void DrawingLoop(FAST Task &self)
     Task RadialTask((FUNCPTR)RadialLoop,args,2,GRAPH_PRI,6000);
     Task HorizTask((FUNCPTR)HorizLoop,args,2,GRAPH_PRI);
     Task VertTask((FUNCPTR)VertLoop,args,2,GRAPH_PRI);
+    GetsMouse = currTask;
+    FAST Task *currTask = &RadialTask;
 
     GetsFlags = currTask;
 
@@ -81,6 +104,7 @@ void DrawingLoop(FAST Task &self)
 		      currTask = &HorizTask;
 		  currTask->SetFlags(DESTROY_SELF);
 		  {
+		GetsMouse = currTask;
 		      currTask->SetFlags(DESTROY_SELF);
 		      taskDelay(30);
 		      Task rb((FUNCPTR)Reboot,args,0);
@@ -88,6 +112,7 @@ void DrawingLoop(FAST Task &self)
 		      break;
 		  currTask->SetFlags(DESTROY_SELF);
 		      
+		GetsMouse = currTask;
 		      currTask->SetFlags(flag);
 		      break;
 		      
@@ -95,6 +120,7 @@ void DrawingLoop(FAST Task &self)
 		    case RESTART:
 		  currTask->SetFlags(DESTROY_SELF);
 		      if (currTask != &RadialTask)
+		GetsMouse = currTask;
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30); // We sleep for .5 s to allow
 			                   // other active display to
@@ -102,6 +128,7 @@ void DrawingLoop(FAST Task &self)
 			}
 		  currTask->SetFlags(DESTROY_SELF);
 		      
+		GetsMouse = currTask;
 		      if (currTask != &RadialTask)
 			{
 			    currTask->SetFlags(DESTROY_SELF);
@@ -109,6 +136,7 @@ void DrawingLoop(FAST Task &self)
 			}
 		  currTask->SetFlags(DESTROY_SELF);
 		      
+		GetsMouse = currTask;
 		      if (currTask != &HorizTask)
 			{
 			    currTask->SetFlags(DESTROY_SELF);
@@ -116,6 +144,7 @@ void DrawingLoop(FAST Task &self)
 			}
 		  currTask->SetFlags(DESTROY_SELF);
 		      
+		GetsMouse = currTask;
 		      GetsFlags = currTask;
 		      currTask->SetFlags(flag);
 		      break;
@@ -126,6 +155,17 @@ void DrawingLoop(FAST Task &self)
 			    currTask->SetFlags(DESTROY_SELF);
 			    taskDelay(30);
 			}
+		      currTask = &VertTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
+		      
+		    case AFT_VERT:
+		      if (currTask != &VertTask)
+			{
+			    currTask->SetFlags(DESTROY_SELF);
+	   GetsMouse->SetFlags(MOUSE_FLAG);
+      }
 }
 
 static void Reboot(void)

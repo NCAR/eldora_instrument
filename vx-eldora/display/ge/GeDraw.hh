@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/23  20:38:07  thor
+ * Added Mouse support.
+ *
  * Revision 1.2  1991/10/17  16:49:15  thor
  * Added NEW_DATA_FLAG & DESTROY_SELF flags.
  *
@@ -36,10 +39,14 @@ static const unsigned int MOUSE_FLAG    = 0x4000;
 
 static const unsigned int NEW_DATA_FLAG = 0x1000;
 static const unsigned int DESTROY_SELF  = 0x2000;
+static const unsigned int MOUSE_FLAG    = 0x4000;
+static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 #ifdef MVME133
 extern void RadialLoop(Task &self, GraphicController *agc);
 extern void HorizLoop(Task &self, GraphicController *agc);
 extern void VertLoop(Task &self, GraphicController *agc);
+#endif // MVME133
+
 extern void VertLoop(Task &self, GraphicController *agc, Pipe &pipe);
 
 extern void RadialMouse(Radial *);
