@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  91/01/02  08:52:38  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -33,12 +36,10 @@
 #ifndef INCMousehh
 #define INCMousehh
 
-extern "C" {
 #include "vxWorks.h"
 #include "semLib.h"
 #include "taskLib.h"
 #include "memLib.h"
-};
 
 #include "point.h"
 

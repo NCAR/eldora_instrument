@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/01  16:20:03  thor
+ * Brought code up to latest ANSI draft spec.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -38,10 +41,8 @@
 #ifndef INCGraphicControllerhh
 #define INCGraphicControllerhh
 
-extern "C" {
 #include "vxWorks.h"
 #include "semLib.h"
-};
 
 #include "point.h"
 #include "qpdm.h"

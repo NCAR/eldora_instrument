@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.4  1992/03/16  21:29:45  thor
  * Added aPan method to allow raw panning.
  *
@@ -34,9 +37,7 @@
 
 #include "GraphicController.hh"
 
-extern "C" {
 #include "vxWorks.h"
-};
 
 #include "point.h"
 
