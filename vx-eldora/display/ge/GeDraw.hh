@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/12/18  16:51:09  thor
+ * Added more flags to the list.
+ *
  * Revision 1.5  1991/11/01  20:01:11  thor
  * Added new constants and changed prototypes for drawing tasks.
  *
@@ -32,6 +35,7 @@
  */
 #ifndef INCGeDrawhh
 #define INCGeDrawhh
+
 #include "Radial.hh"
 #include "HorizDisplay.hh"
 #include "Vertical.hh"
@@ -43,14 +47,15 @@ static const int AGC_ADDR                 = 0xa0000000;
 
 static const int MCPL_ADDR                = 0x20000000;
 
-static const unsigned int NEW_DATA_FLAG = 0x1000;
-static const unsigned int DESTROY_SELF  = 0x2000;
-static const unsigned int MOUSE_FLAG    = 0x4000;
-				      RESTART);
+static const unsigned short AGC_WIDTH     = 1280;
+static const unsigned short AGC_HEIGHT    = 1024;
+static const unsigned short AGC_MEM_WIDTH = 2048;
 
 static const unsigned int NEW_DATA_FLAG = 0x1000;
 static const unsigned int DESTROY_SELF  = 0x2000;
 static const unsigned int MOUSE_FLAG    = 0x4000;
+static const unsigned int TMO_FLAG      = 0x8000;
+
 static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 				      FORWARD_HORIZ | FORWARD_VERT |
 				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
@@ -68,6 +73,7 @@ static const int DDP_ADDR = 0x40200000;
 #endif // MVME133
 
 extern void RadialLoop(Task &self, GraphicController *agc, Pipe &pipe);
+extern void HorizLoop(Task &self, GraphicController *agc, Pipe &pipe);
 extern void VertLoop(Task &self, GraphicController *agc, Pipe &pipe);
 
 extern void RadialMouse(Radial *);
