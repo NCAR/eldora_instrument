@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/02  14:23:14  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -119,6 +122,8 @@ class Task {
 			     int tmo = WAIT_FOREVER);
 
     unsigned int QueryFlags(void);
+
+    ~Task(void) { (void)Delete(); }
 };
 
 #endif // INCTaskhh
