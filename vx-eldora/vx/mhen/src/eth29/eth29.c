@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.5  2003/04/09 18:28:15  martinc
+* --------- adding eldora specific functions to initialize the eth29 and send datagrams on a socket that is kept open
+* ---------
 * --------- Revision 1.4  2003/04/09 16:25:56  martinc
 * --------- New versions based on updated source code from NAT, sent on
 * --------- 9-april-03. The changes made by NAT include:
@@ -134,7 +137,7 @@ GENERAL NOTES
 /*
  * test application's version
  */
-#define ETH29_APP_VER	"$Version$"
+#define ETH29_APP_VER	"$Revision$"
 
 
 
@@ -657,23 +660,27 @@ int datagramDestPort = -1;
 /*****************************************************************************/
 
 
-void testEth29() {
+void testEth29(int count) {
 
   int status;
   int i;
   char buffer[5000];
 
+  if (count <= 0) 
+    count = 1000;
+
   status = eth29Init("128.117.80.81", 0xb0, 3);
   
   if (status) {
-    logMsg("testEth29: initialization failed\n");
-    return status; 
+    logMsg("testEth29: warning, initialization failed\n");
   }
 
-  for (i=0; i < 1000; i++) {
+  // try to send anyway; the thing may have already been initialized
+
+  for (i=0; i < count; i++) {
     status = eth29SendDgram("128.117.80.170", 50000, 
 			    buffer, sizeof(buffer));
-    if (status) {
+    if (status < 0) {
       logMsg("testEth29: eth29SendDgram failed\n");
       return status; 
     }
@@ -854,15 +861,23 @@ int eth29SendDgram(char* sendToIPaddress, int dest_port, unsigned char* buffer, 
     }
   }
 
-  if (datagramFD , 0) {
+  if (datagramFD < 0) {
     /* open UDP transmit socket */
     datagramFD = P_Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);	
+    if (datagramFD < 0) {
+      logMsg("eth29SendDgram: unable to create socket\n");
+      return -1;
+    }
 
     /* set transmit buffer length (maximum is 55758) */
     optval = 54600;
     //	optval = 16384;
     optlen = sizeof(optval);
     status = P_Setsockopt(datagramFD, SOL_SOCKET, SO_SNDBUF, (caddr_t)&optval, optlen);
+    if (status < 0) {
+      logMsg("eth29SendDgram: unable to set socket options\n");
+      return -1;
+    }
 
     /* set up remote host socket address */
     memcpy((char*)&datagramDestSa.sin_addr,(char*)&dest_addr,sizeof(dest_addr));
@@ -870,18 +885,17 @@ int eth29SendDgram(char* sendToIPaddress, int dest_port, unsigned char* buffer, 
     datagramDestSa.sin_port = dest_port;
 
     datagramDestIP = dest_addr;
-	
-  }
-
-  if (datagramFD < 0) {
-    logMsg("eth29SendDgram: unable to create socket for %s:%d\n");
-    return -1;
+    datagramDestPort = dest_port;
   }
 
   /* transmit data */
   status = P_Sendto(datagramFD, buffer, length, 0, 
 		    (caddr_t)&datagramDestSa, 
 		    sizeof(datagramDestSa));
+  if (status < 0) {
+    logMsg("eth29SendDgram: unable to Sendto on socket\n");
+      return -1;
+    }
 
   return(status);
 
