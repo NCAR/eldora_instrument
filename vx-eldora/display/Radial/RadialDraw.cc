@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.3  1994/09/27  18:44:14  thor
+// Turned immediate 720 into register varaible.
+//
 // Revision 2.2  1994/07/06  14:13:25  thor
 // Fixed roll direction.
 //
@@ -81,12 +84,6 @@ void Radial::drawBeam(FAST DataBeam *beam)
     else if (index == maxIndex)
       index = 0;
     
-    if (index < 0 || index > maxIndex)
-      {
-	  cout << "Angle " << angle << "out of bounds." << endl;
-	  return;
-      }
-
     FAST int j = lastIndex;
     FAST int direction = fastround(beam->ray.true_scan_rate);
     
@@ -111,7 +108,8 @@ void Radial::drawBeam(FAST DataBeam *beam)
           
 	  if (q < 700)
 	    {
-		cout << "Angle too big - " << index << "," << j << endl;
+                if (q)
+                  cout << "Angle too big - " << index << "," << j << endl;
 		lastIndex = index;
 		return;
 	    }
@@ -148,7 +146,8 @@ void Radial::drawBeam(FAST DataBeam *beam)
 
 	  if (q < 700)
 	    {
-		cout << "Angle too big - " << index << "," << j << endl;
+                if (q)
+                  cout << "Angle too big - " << index << "," << j << endl;
 		lastIndex = index;
 		return;
 	    }
