@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:29:52  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -24,7 +27,7 @@ void Horiz::drawBeam(DataBeam *beam)
     
     double dAlt = (double)altitude - (beam->air.altitude_msl * 1000.0);
     double elev = (double)beam->ray.elevation;
-cout << dAlt << " " << elev << endl;
+cout << dAlt << " " << elev << "\n";
     if (elev == 0.0 && dAlt == 0.0)
       {
 	  zeroCase(beam);
@@ -35,7 +38,7 @@ cout << dAlt << " " << elev << endl;
       {
           if (elev < 0.0)
             {
-                cout << "Under " << elev << endl;
+                cout << "Under " << endl;
                 return;
             }
       }
@@ -50,15 +53,13 @@ cout << dAlt << " " << elev << endl;
           elev = -elev;		// Rationalize to positive case.
           dAlt = -dAlt;
       }
-
+    else
+      return;
+    
     double plusOne = elev + 1.0; // Get beam sides.
     double minusOne = elev - 1.0;
 
-    elev = DegreesToRadians(elev); // Convert to radians.
-    plusOne = DegreesToRadians(plusOne);
-    minusOne = DegreesToRadians(minusOne);
-
-    double currDist = dAlt / sin(elev);
+    double currDist = dAlt * isines[fastround(elev * 2.0)];
 
     if (currDist > maxDistance)
       return;                   // Too far out!
@@ -68,35 +69,40 @@ cout << dAlt << " " << elev << endl;
     dAlt *= ppm;                // Convert to pixels.
     currDist *= ppm;
 
-    FAST int x1 = fastround(dAlt / tan(plusOne)); // Get x cooord. for sides.
-    FAST int x2 = fastround(dAlt / tan(minusOne));
+    // Get x cooord. for sides.
+    FAST int x1 = fastround(dAlt * itangents[fastround(plusOne * 2.0)]);
+    FAST int x2 = fastround(dAlt * itangents[fastround(minusOne * 2.0)]);
 
     int height = x2 - x1;
 
     // This is the width of the beam at our distance.
-    int width = fastround(beamWidth * currDist);
+    double w = beamWidth * currDist;
+    int width = fastround(w);
 
     // Now get corrected x,y location.
     double azimuth = beam->ray.azimuth;
 
-    cout << "az = " << azimuth << endl;
+    cout << "az = " << azimuth << "\n";
     FAST int index = fastround((azimuth - 1.0) * 2.0);
 
     FAST int sine = trigData[index].sin;
     FAST int cosine = trigData[index].cos;
 
-    FAST int x = (x2 * cosine) >> 16;
-    FAST int y = (x2 * sine) >> 16;
-
+    w *= -0.5;
+    FAST int iw = fastround(w);
+    FAST int x = ((iw * cosine) >> 16) - ((x2 * sine) >> 16);
+    FAST int y = ((iw * sine) >> 16) + ((x2 * cosine) >> 16);
+    
+cout << x << "," << y << "\n";
     double lat = (double)beam->air.latitude;
     double lon = (double)beam->air.longitude;
-
+cout << "lat = " << lat << ", Lon = " << lon << "\n";
     lat = latitude[0] - lat;
-    lon = longitude[0] - lon;
-
+    lon = longitude[0] + lon;
+cout << "lat = " << lat << ", Lon = " << lon << "\n";
     lat *= ppm * METERS_PER_DEGREE;
     lon *= ppm * METERS_PER_DEGREE;
-
+cout << "lat = " << lat << ", Lon = " << lon << "\n";
     int ax = fastround(lat);
     int ay = fastround(lon);
     
@@ -133,12 +139,27 @@ cout << dAlt << " " << elev << endl;
 
     cout << gate.x << "," << gate.y << " " << air.x << ",";
     cout << air.y << endl;
-//     do
-// 	{
-// 	    wdw->frect(gate,width,height,*colors++);
-//             wdw->point(air,WHITE1);
-//             wdw += 2;
-// 	} while (--np);       
+
+    wdw->frect(gate,width,height,*colors);
+    wdw->point(air,WHITE1);
+    --np;
+
+    if (np)
+        {
+            wdw += 2;
+            colors++;
+            wdw->frect(gate,width,height,*colors);
+            wdw->point(air,WHITE1);
+            --np;
+        }
+
+    if (np)
+        {
+            wdw += 2;
+            colors++;
+            wdw->frect(gate,width,height,*colors);
+            wdw->point(air,WHITE1);
+        }
 }
 
 int Horiz::nearestGate(double dist)
@@ -148,7 +169,7 @@ int Horiz::nearestGate(double dist)
     FAST int *cells = cellVector;
     FAST int old = 1000000;	// Impossible value.
 
-    for (FAST int i = 0; i < maxGates; i++, cells++)
+    for (FAST int i = 0; i < gates; i++, cells++)
       {
 	  FAST int diff = *cells - d;
 
@@ -232,19 +253,18 @@ int Horiz::clip(Point p, int w, int h)
     FAST int x = p.x;
     FAST int y = p.y;
     
-    if (x < 0 || y < 0 || x >= Horiz::DATA_WIDTH ||
-        y >= Horiz::DATA_HEIGHT)
+    if ( x >= Horiz::DATA_WIDTH || y >= Horiz::DATA_HEIGHT)
       return(1);
 
     x += w;
 
-
-    if (x >= Horiz::DATA_WIDTH)
+    // The bit test optimizes into faster code then a test for < 0.
+    if ((x >= Horiz::DATA_WIDTH) || (x & 0x80000000))
       return(1);
 
     y += h;
 
-    if (y >= Horiz::DATA_HEIGHT)
+    if ((y >= Horiz::DATA_HEIGHT) || (y & 0x80000000))
       return(1);
     
     return(0);
