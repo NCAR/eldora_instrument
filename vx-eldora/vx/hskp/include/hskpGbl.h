@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  2003/10/01  19:45:41  kapoor
+ * *** empty log message ***
+ *
  * Revision 1.12  2003/09/24  17:00:18  kapoor
  * Added global bancomm clock card commands
  *
@@ -141,9 +144,7 @@ scope int use_IRIGB;        /* True -> use IRIG-B for time source, false ->
 				  use real time clock as time source */
 scope int modulate_IRIGB;   /* True -> use modulated IRIG-B for time source,                                  false -> use DC shift IRIG-B as time source */
 
-scope int clkstart;        /* created to differentiate between TOD start clock                               function and Bancomm start clock function.  Will 
-                              not hurt TOD board functionality if you leave 
-			      this variable in code. */
+
 
 
 
