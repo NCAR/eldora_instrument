@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/16  22:24:11  shawn
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -18,6 +21,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /*****************************************************************************/
 /*	ecbIntInit()                                                         */
 /*		Initialize ecb interrupts -- write to BIM, attach ISR, etc.  */
+/*              Also the place where the global ecb status structures are    */
+/*              actually defined (everywhere else is "extern")               */
+/*              This function assumes that hskpIntInit has been or will soon */
+/*              be called, to enable VME IRQ's to interrupt the tp41 card    */
 /*      Return values:                                                       */
 /*              void function, no values returned.                           */
 /*****************************************************************************/
@@ -26,12 +33,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <stdioLib.h>
 #include "semLib.h"
 #include "intLib.h"
-#include "taskLib.h"
 
+#include "ecbFunc.h"     /* function prototypes for ecb______ */
 #include "ecbMaster.h"   /* general #defines for ecb master offsets */
-#include "ecbStat.h"     /* global structures for ecb status */
 #include "hskpInt.h"     /* interrupt vector definitions for hskp */
 #define MAINPROG
+#include "ecbStat.h"     /* global structures for ecb status */
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 
 void ecbIntInit()
@@ -40,7 +47,6 @@ void ecbIntInit()
     unsigned char *ecb_bim_cr2,*ecb_bim_vr2,*ecb_bim_cr3,*ecb_bim_vr3;
     unsigned char *ecb_vme_ctl;
     unsigned char shitcr0,shitvr0;
-    unsigned char *cio1porta;
 
     ecb_bim_cr0 = (unsigned char *) (MASTERBASE + MASTERBIM + BIMCR0);
     ecb_bim_cr1 = (unsigned char *) (MASTERBASE + MASTERBIM + BIMCR1);
@@ -53,13 +59,13 @@ void ecbIntInit()
 
     ecb_vme_ctl = (unsigned char *) (MASTERBASE + MASTERCTL);    
 
-    cio1porta   = (unsigned char *) 0x0d000008;
-
     /* Make sure interrupt requests lines (INT0* - INT3*) to the BIM on */
-    /* the ECB MASTER are cleared */
+    /* the ECB MASTER are cleared, clear FIFO's at the same time */
 
-    *ecb_vme_ctl = 0x00;   /* bring CLRINTn* lines low, leaving hc11 reset */
-    *ecb_vme_ctl = 0x0f;   /* bring CLRINTn* lines high, leaving hc11 reset */
+    *ecb_vme_ctl = 0xc0;   /* bring CLRINTn*, VMEINCLR* and VMEOUTCLR* lines
+			      low, leaving hc11 reset */
+    *ecb_vme_ctl = 0x0f;   /* bring CLRINTn*, VMEINCLR* and VMEOUTCLR* lines
+			      high, leaving hc11 reset */
 
     /* Attach the command complete ISR to the appropriate vector */
     if(intConnect((VOIDFUNCPTR *)(ECB_CMPLT_VEC * 4), (VOIDFUNCPTR) ecbCmpltIsr,0) == ERROR)
@@ -69,7 +75,8 @@ void ecbIntInit()
       }
     
     /* Initialize control and vector registers in ecb master BIM */
-    *ecb_bim_cr0 = 0xd9;   /* set command complete interrupt to IRQ1* */
+    *ecb_bim_cr0 = (0xd8 | ECB_CMPLT_IRQ);
+                           /* set command complete interrupt level, */
                            /* enable the interrupt and set auto-clear */
                            /* bit (meaning that the ISR must re-enable */
                            /* the interrupt) */
@@ -86,9 +93,7 @@ shitvr0 = *ecb_bim_vr0;
 printf("ecbIntInit: after writes, reading the BIM:\n");
 printf("            cr0 = 0x%2x, vr0 = 0x%2x\n",shitcr0,shitvr0);
 
-    *cio1porta = (unsigned char) 0xfd;  /* enable IRQ*(1) level int. on tp41 */
-
-    /* Create (and Give) the command-not-pending semaphore */
+    /* Create the command-not-pending semaphore */
     ecb_cmd_not_pending = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
     if (ecb_cmd_not_pending == NULL)
       {
@@ -96,21 +101,11 @@ printf("            cr0 = 0x%2x, vr0 = 0x%2x\n",shitcr0,shitvr0);
 	  printf("ecbIntInit:  returning without creating or Give-ing semaphore.\n");
 	  return;
       }
+
+    /* Give the command-not-pending semaphore */
     if(semGive(ecb_cmd_not_pending) == ERROR)
       {
 	  printf("ecbIntInit:  semGive(ecb_cmd_not_pending) returned ERROR,\n");
-	  printf("ecbIntInit:  indicating an invalid semaphore ID.\n");
-	  printf("ecbIntInit:  Returning without Give-ing the semaphore.\n");
-	  return;
-      }
-    if(semTake(ecb_cmd_not_pending,NO_WAIT) == ERROR)
-      {
-	  printf("ecbIntInit:  semTake(ecb_cmd_not_pending) returned ERROR,\n");
-	  return;
-      }
-    if(semGive(ecb_cmd_not_pending) == ERROR)
-      {
-	  printf("ecbIntInit:  2nd semGive(ecb_cmd_not_pending) returned ERROR,\n");
 	  printf("ecbIntInit:  indicating an invalid semaphore ID.\n");
 	  printf("ecbIntInit:  Returning without Give-ing the semaphore.\n");
 	  return;
