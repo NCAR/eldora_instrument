@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/10/23  20:39:23  thor
+ * Added Mouse support.
+ *
  * Revision 1.6  1991/10/22  18:03:35  thor
  * Added color table handling.
  *
@@ -221,6 +224,11 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
     conv->SetBeamSize(*cs,ptr->radius);
 
+    FAST int seg = cs->num_segments;
+
+    FAST int maxDist = cs->distToFirst;
+    if (*colors != -1)
+      agc->setColorMap((long *)colors,256);
 
     FAST Radial *New = new Radial(agc,DISPLAYED_GATES,ptr->numParams,0,0);
       {
