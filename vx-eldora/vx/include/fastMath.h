@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/12/09  20:31:24  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -17,12 +20,18 @@
 #ifndef INCfastMath_hh
 #define INCfastMath_hh
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 static int fastround(double d);
 void saveFpcr(void);
 void restoreFpcr(void);
 void setRounding(void);
+
+#ifdef __cplusplus
 };
+#endif
 
 static inline int fastround(double d)
 {
