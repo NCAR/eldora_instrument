@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.7  1994/11/01  17:59:42  thor
+ * Made converter static.
+ *
  * Revision 2.6  1994/09/23  19:59:17  thor
  * Added missing setClock() for vert.
  *
@@ -105,209 +108,246 @@ static ColorConverter conv;
 
 void DrawingLoop(FAST Task &self)
 {
-    self.FlagsInit();
+  self.FlagsInit();
 
-    Pipe AddrPipe(sizeof(long *),500);
+  Pipe AddrPipe(sizeof(long *),500);
 
-    // Create agc here!
+  // Create agc here!
 
-    GraphicController Agc((void *)AGC_ADDR,AGC_WIDTH,AGC_HEIGHT,AGC_MEM_WIDTH,
-			  AGC_VECTOR);
+  GraphicController Agc((void *)AGC_ADDR,AGC_WIDTH,AGC_HEIGHT,AGC_MEM_WIDTH,
+                        AGC_VECTOR);
 
-    Agc.setOverlayColorMap(0);	// Draw a black cursor, so we can tell
-				// if it's working!
+  Agc.setOverlayColorMap(0);	// Draw a black cursor, so we can tell
+  // if it's working!
 
-    Point a;
+  Point a;
 
-    a.x = AGC_WIDTH / 2;
-    a.y = AGC_HEIGHT / 2;
+  a.x = AGC_WIDTH / 2;
+  a.y = AGC_HEIGHT / 2;
 
-    Mouse mouse((void *)AGC_ADDR,a,(long *)&boxed_cross,AGC_VECTOR);
+  Mouse mouse((void *)AGC_ADDR,a,(long *)&boxed_cross,AGC_VECTOR);
 
-    Rodent = &mouse;
+  Rodent = &mouse;
 
-    int args[2];
+  int args[3];
 
-    args[0] = (int)&mouse;
+  args[0] = (int)&mouse;
 
-    Task mouseTask((FUNCPTR)FieldMouseEvents,args,1,MOUSE_PRI,7000);
+  Task mouseTask((FUNCPTR)FieldMouseEvents,args,1,MOUSE_PRI,7000);
 
-    args[0] = (int)&AddrPipe;
+  args[0] = (int)&AddrPipe;
 
-    Task DisplayTask((FUNCPTR)DisplayLoop,args,1,GRAPH_PRI,10000);
+  FAST SEM_ID stopSem = semBCreate(SEM_Q_PRIORITY,SEM_EMPTY);
 
-    args[0] = (int)&AddrPipe;
-    args[1] = (int)&DisplayTask;
+  args[1] = (int)stopSem;
 
-    Task ddpTask((FUNCPTR)DdpLoop,args,2,DDP_PRI);
+  Task DisplayTask((FUNCPTR)DisplayLoop,args,2,GRAPH_PRI,10000);
 
-    // Now create all the display objects.
-    Radial rad(&Agc);
-    Dual dual(&Agc);
-    Horiz horiz(&Agc);
-    Vert vert(&Agc);
+  args[0] = (int)&AddrPipe;
+  args[1] = (int)&DisplayTask;
 
-    // Now create the needed shared objects.
-    Clock clock(&Agc,3,0,0,1872,1024);
-    clock.display();
-    ParamNames namer;
+  Task ddpTask((FUNCPTR)DdpLoop,args,2,DDP_PRI);
 
-    rad.setColorConverter(conv);
-    rad.setClock(clock);
-    rad.setParmNames(namer);
+  // Now create all the display objects.
+  Radial rad(&Agc);
+  Dual dual(&Agc);
+  Horiz horiz(&Agc);
+  Vert vert(&Agc);
+  Raw raw(&Agc);
 
-    dual.setColorConverter(conv);
-    dual.setClock(clock);
-    dual.setParmNames(namer);
+  // Now create the needed shared objects.
+  Clock clock(&Agc,3,0,0,1872,1024);
+  clock.display();
+  ParamNames namer;
 
-    horiz.setColorConverter(conv);
-    horiz.setClock(clock);
-    horiz.setParmNames(namer);
+  rad.setColorConverter(conv);
+  rad.setClock(clock);
+  rad.setParmNames(namer);
 
-    vert.setColorConverter(conv);
-    vert.setClock(clock);
-    vert.setParmNames(namer);
+  dual.setColorConverter(conv);
+  dual.setClock(clock);
+  dual.setParmNames(namer);
 
-    for (;;)
-      {
-	  FAST unsigned int flag = self.WaitOnFlags(mainMask,FLAGS_OR);
+  horiz.setColorConverter(conv);
+  horiz.setClock(clock);
+  horiz.setParmNames(namer);
 
-          Agc.setOverlayColorMap(0xffffff00); // Now safe to
-                                // draw a white cursor.
-	  if ((flag & LOAD_ONLY)) // This is all that`s needed, since
-				 // we don't want to start drawing yet.
-	    {
-		FAST int cmd = (int)GeCommand->cmd;
+  vert.setColorConverter(conv);
+  vert.setClock(clock);
+  vert.setParmNames(namer);
 
-		switch(cmd)
-		  {
-		    case FORWARD_RADIAL:
-		    case AFT_RADIAL:
-                        display = &rad;
-                        break;
+  raw.setClock(clock);
+  raw.setcolor(30);
 
- 		    case FORWARD_VERT:
- 		    case AFT_VERT:
-                        display = &vert;
-                        break;
+  for (;;)
+    {
+      FAST unsigned int flag = self.WaitOnFlags(mainMask,FLAGS_OR);
+
+      Agc.setOverlayColorMap(0xffffff00); // Now safe to
+      // draw a white cursor.
+      if ((flag & LOAD_ONLY)) // This is all that`s needed, since
+        // we don't want to start drawing yet.
+        {
+          FAST int cmd = (int)GeCommand->cmd;
+
+          switch(cmd)
+            {
+              case FORWARD_RADIAL:
+              case AFT_RADIAL:
+                display = &rad;
+                break;
+
+              case FORWARD_VERT:
+              case AFT_VERT:
+                display = &vert;
+                break;
  
- 		    case FORWARD_HORIZ:
- 		    case AFT_HORIZ:
-                        display = &horiz;
-                        break;
+              case FORWARD_HORIZ:
+              case AFT_HORIZ:
+                display = &horiz;
+                break;
 
-		    case FORWARD_DUAL:
-		    case AFT_DUAL:
-                        display = &dual;
-                        break;
-		  }
-		// The following is to signal which display - fore or aft.
-		DisplayTask.SetFlags(LOAD_ONLY);
-	    }
-	  else
-	    {
-		switch(flag)
-		  {
-		    case REBOOT:
-		      DisplayTask.SetFlags(UNDISPLAY);
-		      taskDelay(30);
-		      reboot(BOOT_NORMAL);
-		      return;
-		      break;
-		      
-		    case FORWARD_RADIAL:
-		      if (display != &rad)
-			{
-			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(1);
-			    display = &rad;
-			}
-		      DisplayTask.SetFlags(SHOW_FORWARD);
-		      break;
-		      
-		    case AFT_RADIAL:
-		      if (display != &rad)
-			{
-			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(1);
-			    display = &rad;
-			}
-		      DisplayTask.SetFlags(SHOW_AFT);
-		      break;
-		      
- 		    case FORWARD_HORIZ:
- 		      if (display != &horiz)
- 			{
- 			    DisplayTask.SetFlags(UNDISPLAY);
- 			    taskDelay(1);
- 			    display = &horiz;
- 			}
- 		      DisplayTask.SetFlags(SHOW_FORWARD);
- 		      break;
- 		      
- 		    case AFT_HORIZ:
- 		      if (display != &horiz)
- 			{
- 			    DisplayTask.SetFlags(UNDISPLAY);
- 			    taskDelay(1);
- 			    display = &horiz;
- 			}
- 		      DisplayTask.SetFlags(SHOW_AFT);
- 		      break;
- 		      
- 		    case FORWARD_VERT:
-                        if (display != &vert)
-                          {
-                              DisplayTask.SetFlags(UNDISPLAY);
-                              taskDelay(1);
-                              display = &vert;
-                          }
- 		      DisplayTask.SetFlags(SHOW_FORWARD);
- 		      break;
- 		      
- 		    case AFT_VERT:
-                        if (display != &vert)
-                          {
-                              DisplayTask.SetFlags(UNDISPLAY);
-                              taskDelay(1);
-                              display = &vert;
-                          }
- 		      DisplayTask.SetFlags(SHOW_AFT);
- 		      break;
-		      
-		    case FORWARD_DUAL:
-		      if (display != &dual)
-			{
-			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(1);
-			    display = &dual;
-			}
-		      DisplayTask.SetFlags(SHOW_FORWARD);
-		      break;
-		      
-		    case AFT_DUAL:
-		      if (display != &dual)
-			{
-			    DisplayTask.SetFlags(UNDISPLAY);
-			    taskDelay(1);
-			    display = &dual;
-			}
-		      DisplayTask.SetFlags(SHOW_AFT);
-		      break;
+              case FORWARD_DUAL:
+              case AFT_DUAL:
+                display = &dual;
+                break;
 
+              case FORWARD_RAW:
+              case AFT_RAW:
+                display = &raw;
+                break;
+            }
+          // The following is to signal which display - fore or aft.
+          DisplayTask.SetFlags(LOAD_ONLY);
+        }
+      else
+        {
+          switch(flag)
+            {
+              case REBOOT:
+                DisplayTask.SetFlags(UNDISPLAY);
+                semTake(stopSem,30);
+                reboot(BOOT_NORMAL);
+                return;
+                break;
+		      
+              case FORWARD_RADIAL:
+                if (display != &rad)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &rad;
+                  }
+                DisplayTask.SetFlags(SHOW_FORWARD);
+                break;
+		      
+              case AFT_RADIAL:
+                if (display != &rad)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &rad;
+                  }
+                DisplayTask.SetFlags(SHOW_AFT);
+                break;
+		      
+              case FORWARD_HORIZ:
+                if (display != &horiz)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &horiz;
+                  }
+                DisplayTask.SetFlags(SHOW_FORWARD);
+                break;
+ 		      
+              case AFT_HORIZ:
+                if (display != &horiz)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &horiz;
+                  }
+                DisplayTask.SetFlags(SHOW_AFT);
+                break;
+ 		      
+              case FORWARD_VERT:
+                if (display != &vert)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &vert;
+                  }
+                DisplayTask.SetFlags(SHOW_FORWARD);
+                break;
+ 		      
+              case AFT_VERT:
+                if (display != &vert)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &vert;
+                  }
+                DisplayTask.SetFlags(SHOW_AFT);
+                break;
+		      
+              case FORWARD_DUAL:
+                if (display != &dual)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &dual;
+                  }
+                DisplayTask.SetFlags(SHOW_FORWARD);
+                break;
+		      
+              case AFT_DUAL:
+                if (display != &dual)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &dual;
+                  }
+                DisplayTask.SetFlags(SHOW_AFT);
+                break;
+
+                case FORWARD_RAW:
+                if (display != &raw)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &raw;
+                  }
+                DisplayTask.SetFlags(SHOW_FORWARD);
+                break;
+		      
+              case AFT_RAW:
+                if (display != &raw)
+                  {
+                    DisplayTask.SetFlags(UNDISPLAY);
+                    semTake(stopSem,WAIT_FOREVER);
+                    display = &raw;
+                  }
+                DisplayTask.SetFlags(SHOW_AFT);
+                break;
+                
 // 		    case TMO_CHANGE:
 // 		      if (display != &horiz)
 // 			break;
 // 		      DisplayTask.SetFlags(flag);
 // 		      break;
 
-		    case START:
-		    case STOP:
-		      DisplayTask.SetFlags(flag);
-		      break;
-		  }
-	    }
-      }
+              case START:
+                DisplayTask.SetFlags(flag);
+                break;
+                      
+              case STOP:
+                DisplayTask.SetFlags(flag);
+                semTake(stopSem,WAIT_FOREVER);
+                break;
+            }
+        }
+    }
 }
 
 void DdpLoop(Task &self, Pipe &pipe, FAST Task &GetsFlags)

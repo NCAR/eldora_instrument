@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/09/23  15:03:57  thor
+ * Removed unused include file.
+ *
  * Revision 2.3  1994/04/08  20:59:28  thor
  * Redid flags & wait masks. Dropped multiple loop tasks for 1 task.
  *
@@ -63,6 +66,7 @@
 #include "Radial.hh"
 #include "Vert.hh"
 #include "Dual.hh"
+#include "Raw.hh"
 
 // Uniprocessor.
 #include "Horiz.hh"
@@ -91,6 +95,7 @@ static const unsigned int mainMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 				      FORWARD_HORIZ | FORWARD_VERT |
 				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
 				      FORWARD_DUAL | AFT_DUAL |
+                                      FORWARD_RAW | AFT_RAW | 
 				      RESTART | NEW_DATA_FLAG | UNDISPLAY | 
 				      LOAD_ONLY | REBOOT);
 
@@ -112,6 +117,6 @@ static const int DDP_ADDR = 0x40200000;
 #endif // MVME133
 
 // This the drawing task.
-extern void DisplayLoop(Task &self, Pipe &pipe);
+extern void DisplayLoop(Task &self, Pipe &pipe, SEM_ID stopSem);
 
 #endif // INCGeDrawhh
