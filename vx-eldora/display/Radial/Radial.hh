@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/06/13  17:50:29  thor
+ * Add references to rpc headers. Added SetBounds method.
+ * Changes drawTitle method to use radar type instead of parameter.
+ *
  * Revision 1.3  1991/05/06  15:11:45  thor
  * Added embedded Clock class for time display.
  *
@@ -32,6 +36,8 @@
  */
 #ifndef INCRadialhh
 #define INCRadialhh
+
+class Radial;
 
 #include "Clock.hh"
 #include "Window.hh"
