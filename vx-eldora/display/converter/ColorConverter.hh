@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/05/08  20:09:37  thor
+ * Major change - dropped floating point, switched to table of levels.
+ *
  * Revision 1.1  1991/04/09  19:16:57  thor
  * Initial revision
  *
@@ -61,7 +64,7 @@ class ColorConverter {
 
     ColorConverter(void) {}
 
-    void SetBeamSize(FAST int ngates);
+    int SetBeamSize(int nchanges, short *cPts, int *sizes);
 
     // Horizontal & vertical case.
     void GetPoint(short *data, DataPoint &dp, int index);
