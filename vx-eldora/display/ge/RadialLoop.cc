@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.28  1992/10/02  20:46:36  thor
+ * Changed things to work with the new Ddp code.
+ *
  * Revision 1.27  1992/06/29  17:33:34  thor
  * Added code to flush pipe and reset Ddp.
  *
@@ -94,7 +97,7 @@
  *
  * Revision 1.1  1991/10/14  19:22:18  thor
  * Initial revision
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+ *
  *
  *
  * description:
@@ -175,7 +178,10 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 		whichRadar = radar;
 		continue;
-		  pipe.Flush();
+		break;
+
+	      case STOP:
+	      case (STOP | NEW_DATA_FLAG):
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -184,8 +190,12 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		continue;
 		break;
 
+	      case START:
 	      case RELOAD:
-		  pipe.Flush();
+	      case RESTART:
+	      case (RELOAD | NEW_DATA_FLAG):
+	      case (START | NEW_DATA_FLAG):
+	      case (RESTART | NEW_DATA_FLAG):
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
@@ -194,8 +204,12 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		lastAngle = 360.0;
 		break;
 
+	      case FORWARD_RADIAL:
 	      case (FORWARD_RADIAL | NEW_DATA_FLAG):
-		  pipe.Flush();
+		whichRadar = FORWARD_RADIAL;
+		radar = whichRadar;
+		display = makeDisplay(display,agc);
+		lastAngle = 360.0;
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
@@ -207,6 +221,8 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		radar = whichRadar;
 		display = makeDisplay(display,agc);
 		lastAngle = 360.0;
+		DdpCtrl->Aft();
+		if (!pipe.Empty())
 		  pipe.Flush();
 		break;
 
