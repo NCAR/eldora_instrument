@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Converted multiplication to addition for more speed.
+ *
+ * Revision 1.8  1992/02/03  21:33:24  thor
  * Added fast inline version of iround.
  *
  * Revision 1.7  1992/02/03  20:23:28  thor
@@ -36,7 +39,7 @@
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
 
     asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
-    FAST int index = (int)(data.angle * 2.0);
+    FAST int index = iround(data.angle * 2.0);
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
 
     return(i);
@@ -225,7 +228,7 @@ void Radial::Draw1(FAST RadialData &data)
 				  d -= ay;
 			      }
 
-    FAST int index = (int)(data.angle * 2.0);
+    FAST int index = iround(data.angle * 2.0);
 			    ptr1 += 4096;
 			    d += ax;
 			}
@@ -296,6 +299,8 @@ void Radial::Draw2(FAST RadialData &data)
 	  if (index >= 720)
 	    j = index + 2;
 
+	  FAST int q = index - j;
+
 	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
 
 		FAST int x1 = (i * cos1) >> 16;
@@ -303,7 +308,7 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int y1 = (i * sin1) >> 16;
 		FAST int y2 = (i * sin2) >> 16;
 	  
-		FAST int d = ay - (ax >> 1);
+	    }
 
 	  index -= 2;
 
@@ -364,6 +369,8 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
 		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
 		FAST int x = x1;
+		FAST int xend = x2;
+		FAST int Sx = sx;
 	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
 		if (sy == 1)
 		FAST int x1 = (i * cos1) >> 16;
@@ -372,7 +379,7 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int y2 = (i * sin2) >> 16;
 	  
 			    *ptr2 = *colors2;
-		FAST int d = ax - (ay >> 1);
+			    
 			    if (x == xend)
 			      break;
 			    
@@ -435,7 +442,7 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int y = y1;
 		FAST int yend = y2;
 
-    FAST int index = (int)(data.angle * 2.0);
+    FAST int index = iround(data.angle * 2.0);
 		  {
 		      for (;;) 
 			{
