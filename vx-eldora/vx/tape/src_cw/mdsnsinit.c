@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:30  craig
+ * Initial revision
+ *
  * Revision 1.3  1992/10/25  17:08:04  reif
  * *** empty log message ***
  *
@@ -28,21 +31,42 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void md_sns_init()
 {
-mod_sen.sense_data_len=0x00;
-mod_sen.medium=0x00;
-mod_sen.WP_buf_mode=0x00;
-mod_sen.blk_desc_len=0x00;
-mod_sen.density=0x00;
-mod_sen.num_blks_msb=0x00;
-mod_sen.num_blks_mid=0x00;
-mod_sen.num_blks_lsb=0x00;
-mod_sen.res3=0x00;
-mod_sen.blk_len_msb=0x00;
-mod_sen.blk_len_mid=0x00;
-mod_sen.blk_len_lsb=0x00;
-mod_sen.vend_parms=0x00;
-mod_sen.res4=0x00;
-mod_sen.motion_thr=0x00;
-mod_sen.recon_thr=0x00;
-mod_sen.gap_thr=0x00;
+
+/* parameter list header */
+
+mod_sen.res1 = 0x00;
+mod_sen.res2 = 0x00;
+mod_sen.buf_mode_spd = 0x00;
+mod_sen.blk_desc_len = 0x00;
+
+/* Block descriptor */
+
+mod_sen.density = 0x00;
+mod_sen.num_blks_msb = 0x00;
+mod_sen.num_blks_mid = 0x00;
+mod_sen.num_blks_lsb = 0x00;
+mod_sen.res3 = 0x00;
+mod_sen.blk_len_msb = 0x00;
+mod_sen.blk_len_mid = 0x00;
+mod_sen.blk_len_lsb = 0x00;
+
+/* device configuration page */
+
+mod_sen.page_code = 0x00;
+mod_sen.page_len = 0x00;
+mod_sen.CAP_CAF_fmt = 0x00;
+mod_sen.active_par = 0x00;
+mod_sen.write_full_ratio = 0x00;
+mod_sen.read_full_ratio = 0x00;
+mod_sen.write_dly_msb = 0x00;
+mod_sen.write_dly_lsb = 0x00;
+mod_sen.DBR_other_stuff = 0x00;
+mod_sen.gap_size = 0x00;
+mod_sen.EOD_EGG_SEW = 0x00;
+mod_sen.buff_size_msb = 0x00;
+mod_sen.buff_size_mid = 0x00;
+mod_sen.buff_size_lsb = 0x00;
+mod_sen.data_compress = 0x00;
+mod_sen.res4 = 0x00;
+
 }
