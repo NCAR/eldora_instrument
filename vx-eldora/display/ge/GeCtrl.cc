@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.8  1992/10/21  14:33:06  thor
  * Fixed LOAD_ONLY cose to propigate command.
  *
@@ -60,7 +63,7 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
       {
 	  cmdCount = 0;		// Synch. counters.
 	  status->count++;
-	  AlarmTask->SetFlags(ATASK_RESET); // (Re)start alarm loop.
+//	  AlarmTask->SetFlags(ATASK_RESET); // (Re)start alarm loop.
       }
     else if (cmd->count <= cmdCount) // Invalid command.
       return(status);
@@ -92,7 +95,7 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 		status->status = DRAWING;
 		break;
 		
-	      case RESTART:
+	      case RESTART_DISP:
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
