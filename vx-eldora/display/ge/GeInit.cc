@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:53:30  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.6  1992/10/02  20:43:24  thor
  * Changed stack sizes of tasks.
  *
@@ -56,7 +59,7 @@ void GeStart(char *server, int sys)
     sysIntEnable(2);
     sysIntEnable(3);
 
-    dport((void *)0x40200000,(void *)0x10000000,4); // Set up dual
+    dport((char *)0x40200000,(void *)0x10000000,4); // Set up dual
 						    // ported memory.
 
     wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
