@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  91/01/02  08:48:32  thor
+ * Made changes for VxWorks Version 5.0.
+ * 
  * Revision 1.1  90/12/04  10:20:07  thor
  * Initial revision
  * 
@@ -30,7 +33,7 @@ void GraphicController::drawLine(Point start, Point end,
     long data[4];
     FAST unsigned short *ptr = (unsigned short *)&data;
     FAST long *send = data;
-    FAST int size;
+    FAST int size = 0;
 
     if (color != lastColor)	// Is new color needed?
       {
@@ -47,17 +50,8 @@ void GraphicController::drawLine(Point start, Point end,
     *ptr++ = end.y;
     *ptr = 0;			// Pad out long with a no-op.
 
-    semTake(accessSem,WAIT_FOREVER);
-
-    while (!(*busy & (FIFO_HF | FIFO_AE))); // If either is set there
-					     // is at least 256 bytes left.
-
-    *fifo = *send++;
-    *fifo = *send++;
-    *fifo = *send++;
-
-    if (size)
-      *fifo = *send;
-
-    semGive(accessSem);
+    if (!size)
+      qpdmCmd(send,3);
+    else
+      qpdmCmd(send,4);
 }
