@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Changed SetBeamSize routine to use new precalcuated parameters.
+ * Changed while to do loops.
+ *
+ * Revision 1.3  1991/06/25  14:04:27  thor
  * Fixed step calculation for bins. Rewrote beam sizing routine to handle
  * variable gate sizes.
  *
@@ -54,32 +58,21 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
-int ColorConverter::SetBeamSize(FAST int nchanges, FAST short *cPts,
-				 FAST int *sizes)
-
-    FAST short *cpts = cPts;
-    FAST int *sz = sizes;
-    FAST int ngates = 0;
-    FAST int maxSize = 0;
-
-    for (FAST int i = 0; i < nchanges; i++) // Compute total # of
-					    // gates & total length of beam.
-      {
-	  FAST int ng = *cpts++;
-	  ngates += ng;
-	  maxSize += ng * *sz++;
-      }
+int ColorConverter::SetBeamSize(FAST int ngates, FAST int nchanges,
+				FAST short *cPts, FAST int *sizes,
+				float maxRange)
 
     FAST float *fptr = (float *)malloc(ngates * sizeof(float));
       {
     if (fptr == NULL)
       return(ERROR);
       (float *)malloc(sizeof(float) * ngates);; // Allocate space for
-    cpts = cPts;
-    sz = sizes;
+    FAST short *cpts = cPts;
+    FAST int *sz = sizes;
 						// temporary array to hold
 						// actual distances.
-    for (i = 0; i < nchanges; i++) // For each increment, compute gate ranges.
+    for (FAST int i = 0; i < nchanges; i++) // For each increment,
+					    // compute gate ranges.
     float dist = (float)cs.distToFirst;;
       {
 	  FAST int gates = *cpts++;
@@ -90,7 +83,7 @@ int ColorConverter::SetBeamSize(FAST int nchanges, FAST short *cPts,
 
 		dist += width;
 
-    float inc = (float)maxSize / (float)(DISPLAYED_GATES);
+    float inc = maxRange / (float)(DISPLAYED_GATES);
 
     FAST int index = 0;
     FAST int dcells = pgates;
@@ -143,7 +136,7 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 	  
 	  FAST unsigned char color = 0;
 
-	  while (color < tsize)
+	  do
 	    {
 		if (datum <= *ptr)
 		      break;
@@ -152,7 +145,8 @@ void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 		      ptr++;
 		      color++;
 		  }
-	    }
+	    } while (color < tsize);
+}
 	  dp.colors[i] = color + inc;
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
@@ -183,7 +177,7 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
 
 		FAST unsigned char color = 0;
 
-		while (color < tsize)
+		do
 		  {
 		      if (datum <= *lkup)
 			break;
@@ -192,7 +186,8 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
 			    lkup++;
 			    color++;
 			}
-		  }
+		  } while (color < tsize);
+
 		*colors++ = color + inc;
 	    }
     
