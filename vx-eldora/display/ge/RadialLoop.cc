@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1991/11/01  20:03:32  thor
+ * Added support for updating time, reading from pipe and scaling max/min.
+ *
  * Revision 1.9  1991/10/30  17:57:23  thor
  * Added deletion of converter, cleaned up title drawing code.
  *
@@ -67,12 +70,20 @@ static ColorConverter *conv = NULL;
     for (;;)
       {
 	  FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
-		  delete(display);
+
+	  switch(flag)
+	    {
+	      case DESTROY_SELF:
+	      case (DESTROY_SELF | NEW_DATA_FLAG):
+		if (display != NULL)
+		  {
+		      delete(display);
+		      display = NULL;
 		  }
 		if (conv != NULL)
 		  {
 		      delete(conv);
-	      case STOP | NEW_DATA_FLAG:
+		      conv = NULL;
 		  }
 		continue;
 		break;
@@ -80,7 +91,7 @@ static ColorConverter *conv = NULL;
 	      case LOAD_ONLY:
 		if (GeCommand->cmd == FORWARD_RADIAL)
 		  radar = FORWARD_RADIAL;
-	      case START | NEW_DATA_FLAG:
+		else
 		  radar = AFT_RADIAL;
 
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
@@ -253,26 +264,24 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
 
           FAST int width = *widths++;
 
-    param = ptr->param0;
+          maxDist += (c * width);
+      }
 
-    if (param != NO_PARAM)
-      {
+
 	  New->drawTable(A_SET,max[0],min[0],param);
 
     agc->clear();
 
-    param = ptr->param1;
+    FAST Radial *New = new Radial(agc,ptr->radius,nv,0,0);
 
-    if (param != NO_PARAM)
-
+    FAST u_long *colors = &GeCommand->colorTable[0];
 	  New->drawTable(B_SET,max[1],min[1],param);
     if (*colors != 0xffffffff)
 	  agc->setColorMap((long *)colors,256);
 
-    param = ptr->param2;
+    New->SetBounds((float)maxDist,(float)cs->distToFirst);
 
-    if (param != NO_PARAM)
-
+    FAST int wdw = 0;
 	  New->drawTable(C_SET,max[2],min[2],param);
     if (nv)
       {
