@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:24:13  eric
+ * Changed to accommodate new Control Processor Software
+ *
  * Revision 1.1  1994/07/14  20:32:52  eric
  * Initial revision
  *
@@ -46,6 +49,7 @@ Header *Hdr;
 char *PN;
 static RadarStatus status;
 static void startRpc(void);
+
 void startup(void)
 {
     if(taskSpawn("RpcLoop",2,0,12000,(FUNCPTR)startRpc,0,0,0,0,0,0,0,0,0,0) == ERROR)
@@ -72,7 +76,7 @@ bim_int3_sem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
 
     if(rpcTaskInit() == ERROR)
       exit(1);
-    startHeader();
+    HeaderRpcInit();
 
 /* Start Control Rpc */
 
