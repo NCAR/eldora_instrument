@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/14  21:45:49  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  21:43:30  reif
  * Initial revision
  *
@@ -17,126 +20,123 @@
  *              board as controller with DMA and interrupts in order to
  *              send commands to and receive data from the two WAVETEK 8502A
  *              Peak Power Meters used for fore and aft peak power 
- *              measurements.  The program also converts the string data from 
- *              the 8502A to binary and writes it to tape.
+ *              measurements.
  */
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#include <pwrIncl.h>
+#define scope
+#include <vxWorks.h>
+#include <stdioLib.h>
+#include <math.h>
+#include <string.h>
+#include <pwrDef.h>
+#include <pwrFunc.h>
 
 /******************** MAIN PROGRAM ****************************/
 
-float pwr_menu(unsigned long channel)
+void pwr_menu()
 {
-volatile unsigned char *ism0,*ism1,*acr,*adr,*dido;
-unsigned char xmt_array[25], rcv_array[25];
-unsigned char *csr,*dcr,*ocr,*scr,*chr,*niv,*eiv,*mtc,*mar,*mfc;
-int i;
-unsigned char *cpr,*mfcr,response;
-float rcv1,rcv2;
+  int i,number_times;
+  unsigned char response;
+  unsigned char string_array[15];
+  unsigned int choice;
+/************* INITIALIZE POINTERS AND ISR VECTORS ************/
 
-/***************  GPIB REGISTER POINTERS  *********************************/
+  init_ptrs();
+  init_isr_vecs();
 
-ism0 = (unsigned char *)(channel + GPIBOFF0);
-ism1 = (unsigned char *)(channel + GPIBOFF1);
-acr = (unsigned char *)(channel + GPIBOFF3);
-adr = (unsigned char *)(channel + GPIBOFF4);
-dido = (unsigned char *)(channel + GPIBOFF7);
-  
-if(intConnect((VOIDFUNCPTR *)(NORM_INT*4),(VOIDFUNCPTR)norm_isr,GPIBCHAN1)==OK)
-  printf("OK\n");
-if(intConnect((VOIDFUNCPTR *)(ERR_INT*4),(VOIDFUNCPTR)err_isr,GPIBCHAN1)==ERROR)
-  printf("OK\n");
-sysIntEnable(3);
+/******************* INITIALIZE GPIB AND DMA **********************/
 
-/***************  DMA REGISTER POINTERS  **********************************/
-
-csr = (unsigned char *)(DMACHAN0 + DMAOFF0);
-dcr = (unsigned char *)(DMACHAN0 + DMAOFF2);
-ocr = (unsigned char *)(DMACHAN0 + DMAOFF3);
-scr = (unsigned char *)(DMACHAN0 + DMAOFF4);
-chr = (unsigned char *)(DMACHAN0 + DMAOFF5);
-mtc = (unsigned char *)(DMACHAN0 + DMAOFF6);
-mar = (unsigned char *)(DMACHAN0 + DMAOFF7);
-niv = (unsigned char *)(DMACHAN0 + DMAOFF11);
-eiv = (unsigned char *)(DMACHAN0 + DMAOFF12);
-mfc = (unsigned char *)(DMACHAN0 + DMAOFF14);
-cpr = (unsigned char *)(DMACHAN0 + DMAOFF13);
-
-/*************** SET UP MZ7500 AS TALKER  *********************************/
-
-*acr = 0x10; /* CLEAR REN */
-*dido = 0x04;/* CLEAR DEVICES ON BUS */ 
-*acr = 0x80; /* SET SOFTWARE RESET (swrst)*/
-*acr = 0x00; /* CLEAR SOFTWARE RESET */
-*acr = 0x8f; /* SEND INTERFACE CLEAR (sic)*/
-taskDelay(1); /* SET DELAY */
-*acr = 0x0f; /* CLEAR sic */
-*acr = 0x93;
-*ism0 =0x00; /* Clear Int mask 0 */
-*ism1 =0x00; /* Clear Int Mask 1 */
-*acr = 0x90;  /* SEND REMOTE ENABLE */
-*acr = 0x0c;  /* TAKE CONTROL ASYNCHRONOUSLY */
-              /* TO MAKE MZ7500 CONTROLER */
-*dido = 0x24; /* SEND PPM LISTEN ADDRESS */
-*adr = 0x40;  /* SEND TALK ADDRESS OF MZ7500 */
-*acr = 0x8a;  /* SET MZ7500 AS TALKER */
-*acr = 0x0b;  /* GO TO STANBY TO DEASSERT ATN */
+  init_gpib();
+  init_dma();
 
 /**************  SEND COMMAND STRINGS TO 8502A PPM  **********************/
 
 do
   { 
+      getchar();
       puts("ENTER A COMMAND STRING");
-      scanf("%24s",xmt_array); /* GET COMMAND STRING FROM KEYBOARD */
-      for (i=0; i<=24; i++) 
+      gets(string_array); /* GET COMMAND STRING FROM KEYBOARD */
+      puts("SELECT POWER METER TO COMMAND");
+      puts("1) FOR XMIT POWER METER");
+      puts("2) FOR TESTP POWER METER");
+      puts("3) FOR BOTH POWER METERS");
+      choice=getchar();
+      getchar();
+      switch(choice)
 	{
-	    *dido = xmt_array[i]; /* SEND COMMAND STRING TO PPM ONE */
-	    taskDelay(1);         /* CHARACTER AT A TIME */
+	  case '1':
+	    send_cmnd_string(XMIT,string_array);
+	    break;
+	  case '2':
+	    send_cmnd_string(TESTP,string_array);
+	    break;
+	  case '3':
+	    send_cmnd_string(XMIT_AND_TESTP,string_array);
+	    break;
+	  default:
+	    puts("NOT A CHOICE! TRY AGAIN");
+	    break;
 	}
-      *dido = '\n'; /* END COMMAND STRING WITH A LINE FEED */
-      getchar(); /* CLEAR BUFFER */ 
 
-/**************  TURN MZ7500 INTO LISTENER AND COLLECT DATA  *************/
-
-      puts("COLLECT DATA?");
-      response = getchar(); /* CHECK TO SEE IF WE WANT TO COLLECT DATA */
+      puts("DISPLAY DATA?");
+      response=getchar(); /* CHECK TO SEE IF WE WANT TO COLLECT DATA */
       if (response== 'y')   /* IF SO, TURN BUS AROUND TO LISTEN */
-	                    /* TAKE CONTROL BY ASSERTING ATN */
 	{
-	  *acr = 0x0c;	  
-	  *acr = 0x0a; /* UNTALK MZ7500*/
-	  *dido = 0x3f; /* UNLISTEN PPM */
-	  *dido = 0x44; /* TALK ADDRESS PPM */
-	  *adr = 0x20; /* LISTEN ADDRESS MZ7500 */
-	  *acr = 0x89; /* SET MZ7500 TO LISTEN */
-	  *acr = 0x0b; /* DEASSERT ATN */
-	  printf("CHR= %02X\n",*chr);
-	  printf("STATUS = %02X\n",*csr);
-	  *niv = 0xfb;
-	  *eiv = 0xfa;
-	  *dcr = 0x20;
-	  *ocr = 0x82;
-	  *scr = 0x04;
-	  *mtc = 0x000A;
-	  *mar = (int)&rcv_array;
-	  *mfc = 0x06;
 
-/*************  CONVERT DATA TO FLOATING POINT AND DISPLAY  *************/
-	  do
-	    {
-		sscanf(rcv_array,"DBMA%f,DBMB%f",&rcv1,&rcv2); /* CONVERT TO FP */
-		/*printf("%s\r",rcv_array);*/
-		printf("CHANA = %7.2f dBm  CHANB = %7.2f dBm\n",rcv1,rcv2);
-		return(rcv1);
-	    }while (*dido != '\n');  
-	  *chr=0x00;
-	  *chr=0x10;
-      } 
-    getchar(); /* CLEAR BUFFER */
-    *chr = 0x88;
-    puts("Another Command?");
-    response = getchar(); 
+	    /****** TURN PPM INTO TALKER, MZ7500 INTO LISTENER ******/
+
+	    listen();
+
+	    /*********** START DMA CHANNEL 0 ***************/
+
+	    *d0csr=0xff; /* Clear channel status register by writing all ones */
+	    *d0ccr=0xC8; /* Set start, continue, and interrupt bits in */
+	                 /* channel control register */
+
+	    /*********** START DMA CHANNEL 1 **************/
+	    
+	    *d1csr=0xff; /* Clear channel status register by writing all ones */
+	    *d1ccr=0xC8; /* Set start, continue, and interrupt bits in the */
+	                 /* channel control register */
+	    puts("INPUT NUMBER OF TIMES TO DISPLAY DATA");
+	    scanf(" %d",&number_times);
+	    for(i=0; i<number_times; i++)
+	      {
+		  if(xmit_isr_done==1)
+		    {
+			flt_pt();
+			printf("FORE_XMIT_PWR=%-10.3E watts  AFT_XMIT_PWR=%-10.3E watts\n",fore_xmit_pwr,aft_xmit_pwr);
+			xmit_isr_done=0;
+		    }
+		  else if(xmit_isr_done==-1)
+		    {
+			printf("NO DAMN GOOD\n");
+			xmit_isr_done=0;
+		    }
+		  if(testp_isr_done==1)
+		    {
+			flt_pt(); 
+			printf("FORE_TESTP_PWR = %-7.2f dBm  AFT_TESTP_PWR = %-7.2f dBm\n",fore_testp_pwr,aft_testp_pwr);
+			testp_isr_done=0;
+		    }
+		  else if(testp_isr_done==-1)
+		    {
+			printf("NO DAMN GOOD\n");
+			testp_isr_done=0;
+		    }
+	      }   
+	}
+      getchar(); /* CLEAR BUFFER */
+      puts("Another Command?");
+      response = getchar(); 
   }while (response == 'y'); /* CHECK TO SEE IF WE WANT TO CONTINUE OR ABORT */
 }
+
+
+
+
+
+
+
