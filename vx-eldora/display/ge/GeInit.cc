@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/04/08  20:55:28  thor
+ * Added iostream support, increased stack sizes.
+ *
  * Revision 2.2  1993/08/20  17:17:03  thor
  * Renamed system to dispsystem. Commented out alarm code.
  *
@@ -44,7 +47,9 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define GE_SCOPE
+#define WINDOW_GBLS_SCOPE
 #include "GeGlobal.hh"
+#include "HeaderRpc.h"
 
 #include <stdio.h>
 #include <rpcLib.h>
@@ -57,7 +62,7 @@ static DispStatus ge_status;
 static DispCommand ge_command;
 static Beam_Time lasttime;
 
-void GeStart(char *server, int sys)
+void GeStart()
 {
     // Put hardware initialization, etc. here.
 
@@ -70,16 +75,11 @@ void GeStart(char *server, int sys)
 
     wcio(0,"a",0xc8);		// Set VME page & attach VME ext space.
 
-    dispSystem = sys;
-
-    Alarm = NULL;
-
     GeStatus = &ge_status;
     GeCommand = &ge_command;
     LastTime = &lasttime;
 
     ge_status.status = LOADED;
-    ge_status.count = 0;
 
     // Initialize all globally declared objects.
     __do_global_ctors();
@@ -88,15 +88,6 @@ void GeStart(char *server, int sys)
 
     // Start graphics task.
     DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
-
-    // Start alarm task.
-
-//     int args[2];
-// 
-//     args[0] = (int)server;
-//     args[1] = sys;
-// 
-//     AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI,18000); 
 
     // Now we start control loop.
     CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,30000);
@@ -110,38 +101,9 @@ void RpcLoop(Task &self)
 	  return;
       }
 
-    if (DispRpcInit() < 0)
-      return;
+    DispRpcInit();
 
-    startHeader();
+    HeaderRpcInit();
 
     svc_run();
-}
-
-void AlarmLoop(FAST Task &self, FAST char *server, FAST int sys)
-{
-    self.FlagsInit();
-
-    self.WaitOnFlags(ATASK_RESET,FLAGS_AND);
-
-    for (;;)
-      {
-	  FAST GeAlarm *aptr = new GeAlarm(server,sys);
-
-	  Alarm = aptr;
-
-	  for (;;)
-	    {
-		FAST unsigned int flag = 
-		  self.WaitOnFlags(ATASK_RESET | ATASK_SIGNAL,FLAGS_OR);
-
-		if (flag == ATASK_RESET)
-		  {
-		      delete(aptr);
-		      break;
-		  }
-		else
-		  aptr->Post();
-	    }
-      }
 }

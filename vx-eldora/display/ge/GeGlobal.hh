@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1994/04/08  21:00:24  thor
+ * Added items needed for new design.
+ *
  * Revision 2.1  1993/08/20  17:14:30  thor
  * Changed system to dispSystem due to name clash with VxWorks.
  *
@@ -55,13 +58,11 @@ extern "C" {
 };
 
 #include "Header.hh"
-#include "GeAlarm.hh"
 #include "Task.hh"
 #include "Mouse.hh"
 #include "Display.hh"
 #include "Ddp.hh"
 
-#define WINDOW_GBLS_SCOPE
 #include "GblRadial.hh"
 
 
@@ -70,15 +71,12 @@ extern "C" {
 #endif // GE_SCOPE
 
 GE_SCOPE DispStatus *GeStatus;
-GE_SCOPE DispStatus *AlarmStatus;
 GE_SCOPE DispCommand *GeCommand;
 GE_SCOPE Header *Hdr;
-GE_SCOPE GeAlarm *Alarm;
 GE_SCOPE int dispSystem;
 GE_SCOPE Display *display;
 GE_SCOPE Mouse *Rodent;
 
-GE_SCOPE Task *AlarmTask;
 GE_SCOPE Task *CtrlTask;
 GE_SCOPE Task *DrawingTask;
 
@@ -94,10 +92,9 @@ static const unsigned int ATASK_SIGNAL = 0x8;
 
 // Functions known locally.
 extern "C" {
-void GeStart(char *server, int system);
+void GeStart();
 
 // Entry point list.
-extern void AlarmLoop(Task &self, char *server, int sys);
 extern void RpcLoop(Task &self);
 extern void DrawingLoop(Task &self);
 extern void FieldMouseEvents(Task &self, Mouse &rodent);
@@ -106,7 +103,6 @@ extern void FieldMouseEvents(Task &self, Mouse &rodent);
 // Priorities.
 static const int DRAWING_PRI = 15;
 static const int CTRL_PRI = 10;
-static const int ALARM_PRI = 5;
 static const int GRAPH_PRI = 105;
 static const int MOUSE_PRI = 40;
 
