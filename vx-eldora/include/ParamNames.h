@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/04/14  15:03:48  thor
+ * Changes INLINE to work on all c++'s. Added routines to go from string to
+ * param.
+ *
  * Revision 1.6  1992/02/19  16:08:04  thor
  * Added items for 3 frequencies for reflectivity, velocity & spectral width.
  *
@@ -35,6 +39,8 @@
  */
 #ifndef INCParamNamesh
 #define INCParamNamesh
+
+#include <string.h>
 
 static char *ParamTapeNames[] = {
 "DBZ", "VR", "SNR", "SW", "POWER", "REAL_R1", "REAL_R2", "IMAG_R1",
