@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/09  18:03:28  thor
+ * Added forward class definition.
+ *
  * Revision 1.4  1991/06/13  17:50:29  thor
  * Add references to rpc headers. Added SetBounds method.
  * Changes drawTitle method to use radar type instead of parameter.
@@ -45,15 +48,15 @@ class Radial;
 
 // These defines are needed for rpc header.
 #define OK_RPC
-#define CLIENT_SIDE
+#define WRS_SIDE
 
 extern "C" {
 #include "vxWorks.h"
 #include "math.h"
-#include "rpc/rpc.h"
 #include "DisplayRpc.h"
 };
 
+#include "ParamNames.h"
 #include "point.h"
 
 
