@@ -9,10 +9,16 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/09/05  16:41:36  thor
+ * Initial revision
+ *
  *
  *
  * description:
- *        
+ *        This file defines the C routines that are used to interface
+ * to the Header class. HeaderPtr is used as an opaque pointer to an
+ * instance of Header.
+ *
  */
 #ifndef INCHeaderh
 #define INCHeaderh
@@ -45,9 +51,11 @@ extern VOLUME *GetVolume(HeaderPtr header);
 extern void SetWaveform(HeaderPtr ptr, WAVEFORM *cs);
 extern WAVEFORM *GetWaveform(HeaderPtr header);
 
-extern TAPEHEADER *GetRpcHeader(HeaderPtr header);
+extern void GetRpcHeader(HeaderPtr header, TAPEHEADER *th);
 
-extern void *GetRealHeader(HeaderPtr ptr);
+extern int GetRealHeader(HeaderPtr ptr, void **header);
+
+extern void DestroyHeader(HeaderPtr ptr);
 
 #endif /* INCHeaderh */
 
