@@ -1,112 +1,222 @@
-/*  This looks like C, but it's really C++!!
- *	$Id$
- *
- *	Module:		 Dual.cc
- *	Original Author: Richard E. K. Neitzel
- *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
- *
- * revision history
- * ----------------
- * $Log$
- * Revision 1.4  1993/10/21  16:38:57  thor
- * Temp save of latest work.
- *
- * Revision 1.3  1993/09/03  17:10:25  thor
- * Fixed consts to avoid clashing with others.
- *
- * Revision 1.3  1993/09/03  17:10:25  thor
- * Fixed consts to avoid clashing with others.
- *
- * Revision 1.2  1993/08/31  16:39:41  thor
- * The first really working version.
- *
- * Revision 1.1  1992/11/06  20:20:20  thor
- * Initial revision
- *
- *
- *
- * description:
- *        
- *
- */
+//  This looks like C, but it's really C++!!
+//	$Id$
+//
+//	Module:		 Dual.cc
+//	Original Author: Richard E. K. Neitzel
+//      Copywrited by the National Center for Atmospheric Research
+//	Date:		 $Date$
+//
+// revision history
+// ----------------
+// $Log$
+// Revision 1.5  1993/10/28  16:57:47  thor
+// Changed grid pattern to center on aircraft in x. Fixed Clock calls.
+//
+// Revision 1.4  1993/10/21  16:38:57  thor
+// Temp save of latest work.
+//
+// Revision 1.3  1993/09/03  17:10:25  thor
+// Fixed consts to avoid clashing with others.
+//
+// Revision 1.3  1993/09/03  17:10:25  thor
+// Fixed consts to avoid clashing with others.
+//
+// Revision 1.2  1993/08/31  16:39:41  thor
+// The first really working version.
+//
+// Revision 1.1  1992/11/06  20:20:20  thor
+// Initial revision
+//
+//
+//
+// description:
+//        
+//
+//
+#pragma implementation
+
 #include "Dual.hh"
 
-#include "string.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-Dual::Dual(GraphicController *gbd,  unsigned short xoff, unsigned short yoff) :
-	   TopData(gbd,0,0,0,DUAL_PLOT_WIDTH,DUAL_PLOT_HEIGHT,xoff,yoff),
-	   BottomData(gbd,1,0,DUAL_PLOT_HEIGHT,DUAL_PLOT_WIDTH,
-		      DUAL_PLOT_HEIGHT,xoff + DUAL_PLOT_WIDTH,yoff),
-	   Tbl(gbd,2,DUAL_PLOT_WIDTH,0,DUAL_TBL_WIDTH,DUAL_TBL_HEIGHT,xoff,
-	       yoff + DUAL_PLOT_MEM),
-	   clk(gbd,3,0,0,xoff + (DUAL_TBL_WIDTH * 2),yoff + DUAL_PLOT_MEM)
+Dual::Dual(GraphicController *gbd) : Display(gbd)
 {
-    TopData.setPriority(0);
-    BottomData.setPriority(0);
-    Tbl.setPriority(0);
-
-    clk.Display();
+    unsigned short xoff = 0;
+    unsigned short yoff = 0;
+    
+    Wdw[0].init(gbd,0,0,0,Display::FULL_WIDTH,(Display::FULL_HEIGHT / 2),
+		0,0);
+    Wdw[2].init(gbd,1,0,(Display::FULL_HEIGHT / 2),Display::FULL_WIDTH,
+		(Display::FULL_HEIGHT / 2),Display::FULL_WIDTH,0);
+    Wdw[1].init(gbd,2,Display::FULL_WIDTH,0,Display::TBL_WIDTH,
+		Display::FULL_HEIGHT,0,Display::FULL_HEIGHT);
+    
+    Wdw[0].setPriority(0);
+    Wdw[1].setPriority(0);
+    Wdw[2].setPriority(0);
 
     // Set the base video memory addresses.
-    videoMemory[0] = (unsigned char *)gbd->videoBufferAddr() + xoff +
-      (yoff * 4096);
-    videoMemory[1] = videoMemory[0] + DUAL_PLOT_WIDTH;
+    videoMemory[0] = (unsigned char *)gbd->videoBufferAddr();
+    videoMemory[1] = videoMemory[0] + Display::FULL_WIDTH;
 
-    curZoom = ZOOM1;		// Start on 1x.
+    numOfWdws = 3;
+}
 
-    lastIndex = 1000;		// Force full beam on 1st drawing.
+void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
+{
+    setZoom(ZOOM1);             // Reset zoom and window location.
+    curZoom = ZOOM1;
+    home();
+    lastIndex = 1000;           // So we draw correctly.
 
-    FAST TrigData *ptr;
+    float max[2];               // For the converter.
+    float min[2];
+    float scales[2];
+    float biases[2];
 
-    if ((ptr = (TrigData *)malloc(sizeof(TrigData) * 720)) == 
-	(TrigData *)NULL)
-      {
-	  fprintf(stderr,"Dual: Cannot allocate enough space.\n");
-	  exit(1);
-      }
+    max[0] = cmd->max0;
+    max[1] = cmd->max1;
 
-    trigData = ptr;
+    min[0] = cmd->min0;
+    min[1] = cmd->min1;
 
-    // We're using half a degree resolution. It must be understood
-    // that 0 degrees in the radar system is straight up, 90 degrees
-    // to the right. In display terms this corresponds to 270 & 0
-    // degrees.
-    double angle = 270.0 * (M_PI / 180.0);
-    double inc = 0.5 * (M_PI / 180.0);
+    FAST int nv = 2; // How many parameters are active? 2 always!
+
+    FAST RADARDESC *rd = hdr->Radar(1);
+
+    FAST int np = rd->num_parameter_des; // How are there total?
+
+    int offsets[2];
+
+    FAST int param = cmd->param0;
     
-    for (FAST int i = 0; i < 720; i++, ptr++, angle += inc)
+    FAST const char *ptr = namer->paramToName(param);
+
+    FAST int len = strlen(ptr);
+
+    for (FAST int i = 0; i < np; i++)
       {
-	  ptr->cos = (int)(cos(angle) * 65536.0);
-	  ptr->sin = (int)(sin(angle) * 65536.0);
+	  PARAMETER *p = hdr->Parameter(i);
+
+	  if (!strncmp(ptr,p->parameter_name,len))
+	    {
+		offsets[0] = i;
+		scales[0] = p->parameter_scale;
+		biases[0] = p->parameter_bias;
+
+		if (param == ParamNames::VELOCITY)
+		  {
+		      if (max[0] == 0.0 && min[0] == 0.0)
+			{
+			    max[0] = rd->eff_unamb_vel;
+			    min[0] = -(rd->eff_unamb_vel);
+			}
+		  }
+		break;
+	    }
       }
+
+    param = cmd->param1;
+
+    ptr = namer->paramToName(param);
+
+    len = strlen(ptr);
+
+    for (i = 0; i < np; i++)
+      {
+	  PARAMETER *p = hdr->Parameter(i);
+
+	  if (!strncmp(ptr,p->parameter_name,len))
+	    {
+		offsets[1] = i;
+		scales[1] = p->parameter_scale;
+		biases[1] = p->parameter_bias;
+
+		if (param == ParamNames::VELOCITY)
+		  {
+		      if (max[1] == 0.0 && min[1] == 0.0)
+			{
+			    max[1] = rd->eff_unamb_vel;
+			    min[1] = -(rd->eff_unamb_vel);
+			}
+		  }
+		break;
+	    }
+      }
+
+    converter->Reset(31,max,min,scales,biases,offsets,np,nv);
+
+    CELLSPACING *cs = hdr->CellSpacing();
+
+    float maxalt = cmd->top;
+    float minalt = cmd->bottom;
+    
+    maxAlt = maxalt;
+    minAlt = minalt;
+
+    float ppm = (float)(Display::FULL_HEIGHT / 2) / (maxalt - minalt);
+
+    pixelsPerMeter = ppm;
+
+    float f = ppm * cs->distToFirst;
+
+    firstGate = fastround(f);
+
+    radius = Display::FULL_HEIGHT;
+
+    converter->SetBeamSize(*cs,radius,(1.0/ppm));
+
+    agc->setMask(0);
+
+    agc->clear();
+    
+    FAST u_long *colors = &cmd->colorTable[0];
+
+    if (*colors != 0xffffffff)
+          agc->setColorMap((long *)colors,256);
+
+    numOfParams = nv;
+    radius = cmd->radius;
+
+    if (cmd->cmd == AFT_DUAL)
+      dispType = Display::DUAL_AFT;
+    else
+      dispType = Display::DUAL_FORE;
+    
+    param = cmd->param0;
+
+    drawTable(Display::A_SET,max[0],min[0],param);
+
+    param = cmd->param1;
+    
+    drawTable(Display::B_SET,max[1],min[1],param);
+
+    drawTitle(Display::A_SET,dispType);
+
+    agc->setMask(0x80);
+
+    setPriority(1);
+
+    displaySet(Display::A_SET);
 }
 
-unsigned short Dual::GetZoom(void)
+void Dual::undisplay(void)
 {
-    return(TopData.getZoom());
+    FAST Window *ptr = Wdw;
+
+    ptr->undisplay();
+    ptr++;
+    ptr->undisplay();
+    ptr++;
+    ptr->undisplay();
 }
 
-void Dual::Display(void)
-{
-    TopData.display();
-    Tbl.display();
-    BottomData.display();
-}
-
-void Dual::Undisplay(void)
-{
-    TopData.undisplay();
-    BottomData.undisplay();
-    Tbl.undisplay();
-}
-
-void Dual::DrawTable(int set, float max, float min, FAST int param, 
+void Dual::drawTable(int set, float max, float min, FAST int param, 
 			FAST int tblsize = 31)
 {
-    FAST Window *wdw = &Tbl;
+    FAST Window *wdw = &Wdw[1];;
     FAST int offset;
     FAST int top;
     FAST int base;
@@ -114,13 +224,13 @@ void Dual::DrawTable(int set, float max, float min, FAST int param,
     if (set == A_SET)
       {
 	  top = 0;
-	  base = DUAL_TBL_HALF - 1;
+	  base = (Display::FULL_HEIGHT / 2) - 1;
 	  offset = tblsize;
       }
     else if (set == B_SET)
       {
-	  top = DUAL_TBL_HALF;
-	  base = DUAL_TBL_HEIGHT;
+	  top = (Display::FULL_HEIGHT / 2);
+	  base = Display::FULL_HEIGHT;
 	  offset = tblsize * 2;	// Bias into color lut.
       }
     else
@@ -131,23 +241,23 @@ void Dual::DrawTable(int set, float max, float min, FAST int param,
     
     FAST char *title = "Unknown";
 
-    FAST int index = ParamToNum(param);
+    FAST int index = namer->paramToNum(param);
 
     if (index != -1)
-      title = ParamTapeNames[index];
+      title = namer->numToName(index);
 
     Point a;
     Point b;
 
     a.x = 15;
-    a.y = (DUAL_TBL_HALF / 2) + top;
+    a.y = ((Display::FULL_HEIGHT / 2) / 2) + top;
 
     wdw->horText(a,title,WHITE);
     
-    a.x = DUAL_TBL_WIDTH - 87;
+    a.x = Display::TBL_WIDTH - 87;
     a.y = top + 15;
 
-    b.x = DUAL_TBL_WIDTH - 31;;
+    b.x = Display::TBL_WIDTH - 31;;
     b.y = top + 15;
 
     --tblsize;			// Both must decremented, since we
@@ -183,11 +293,11 @@ void Dual::DrawTable(int set, float max, float min, FAST int param,
       }
 }
 
-void Dual::DrawTitle()
+void Dual::drawTitle(int set, int radar)
 {
-    FAST Window *wdw1 = &TopData;
-    FAST Window *wdw2 = &BottomData;
-    FAST Window *wdw3 = &Tbl;
+    FAST Window *wdw1 = &Wdw[0];
+    FAST Window *wdw2 = &Wdw[2];
+    FAST Window *wdw3 = &Wdw[1];;
 
     wdw3->setTextScale(2,2);
     wdw3->setTextBackGround(BLACK);
@@ -209,35 +319,23 @@ void Dual::DrawTitle()
 
     sprintf(label,"%4.1f",max);
 
-//    strcat(label," km"); 
-// What follows is a kludge to get around a gcc 2.2.2 bug.    
-    int l = strlen(label);
-
-    char *p = label + l;
-
-    strcpy(p," km");
+    strcat(label," km"); 
 
     wdw3->horText(a,label,WHITE);
 
-    a.y += DUAL_TBL_HALF;
+    a.y += (Display::FULL_HEIGHT / 2);
 
     wdw3->horText(a,label,WHITE);
 
-    a.y = DUAL_TBL_HALF - 15;
+    a.y = (Display::FULL_HEIGHT / 2) - 15;
 
     sprintf(label,"%4.1f",min);
 
-//    strcat(label," km");
-// What follows is a kludge to get around a gcc 2.2.2 bug.    
-    l = strlen(label);
-
-    p = label + l;
-
-    strcpy(p," km");
+   strcat(label," km");
 
     wdw3->horText(a,label,WHITE);
 
-    a.y += DUAL_TBL_HALF;
+    a.y += (Display::FULL_HEIGHT / 2);
 
     wdw3->horText(a,label,WHITE);
 
@@ -261,22 +359,22 @@ void Dual::DrawTitle()
       }
 
     a.x = 14;
-    a.y = DUAL_TBL_HEIGHT - 40;
+    a.y = Display::FULL_HEIGHT - 40;
 
     wdw3->horText(a,div,WHITE);
 
-    a.y -= DUAL_TBL_HALF;
+    a.y -= (Display::FULL_HEIGHT / 2);
 
     wdw3->horText(a,div,WHITE);
 
     // Draw the grid lines. The vertical lines are centered on the
     // aircraft's postion.
-    a.x = DUAL_PLOT_WIDTH / 2;
+    a.x = Display::FULL_WIDTH / 2;
     a.y = 0;
-    b.x = DUAL_PLOT_WIDTH / 2;
-    b.y = DUAL_PLOT_HEIGHT - 1;
+    b.x = Display::FULL_WIDTH / 2;
+    b.y = (Display::FULL_HEIGHT / 2) - 1;
 
-    FAST short limit = DUAL_PLOT_WIDTH - 1;
+    FAST short limit = Display::FULL_WIDTH - 1;
     
     while (a.x < limit)
       {
@@ -286,8 +384,8 @@ void Dual::DrawTitle()
 	  b.x += ppkm;
       }
 
-    a.x = (DUAL_PLOT_WIDTH / 2) - ppkm;
-    b.x = (DUAL_PLOT_WIDTH / 2) - ppkm;
+    a.x = (Display::FULL_WIDTH / 2) - ppkm;
+    b.x = (Display::FULL_WIDTH / 2) - ppkm;
 
     while (a.x < 0x7fff)	// God, I wish I'd used sign shorts!
       {
@@ -297,11 +395,11 @@ void Dual::DrawTitle()
 	  b.x -= ppkm;
       }
 
-    limit = DUAL_PLOT_HEIGHT - 1;
+    limit = (Display::FULL_HEIGHT / 2) - 1;
 
     a.x = 0;
     a.y = ppkm;
-    b.x = DUAL_PLOT_WIDTH - 1;
+    b.x = Display::FULL_WIDTH - 1;
     b.y = ppkm;
 
     while (a.y < limit)
@@ -314,19 +412,19 @@ void Dual::DrawTitle()
 
     a.x = 0;
     a.y = 0;
-    b.x = DUAL_PLOT_WIDTH - 1;
+    b.x = Display::FULL_WIDTH - 1;
     b.y = 0;
 
     wdw2->line(a,b,WHITE);
 
-    a.y = DUAL_PLOT_HEIGHT - 1;
-    b.y = DUAL_PLOT_HEIGHT - 1;
+    a.y = (Display::FULL_HEIGHT / 2) - 1;
+    b.y = (Display::FULL_HEIGHT / 2) - 1;
 
     wdw1->line(a,b,WHITE);
 
-    a.y = DUAL_TBL_HALF - 1;
-    b.x = DUAL_TBL_WIDTH - 1;
-    b.y = DUAL_TBL_HALF - 1;
+    a.y = (Display::FULL_HEIGHT / 2) - 1;
+    b.x = Display::TBL_WIDTH - 1;
+    b.y = (Display::FULL_HEIGHT / 2) - 1;
 
     wdw3->line(a,b,WHITE);
 
@@ -336,76 +434,21 @@ void Dual::DrawTitle()
     wdw3->line(a,b,WHITE);
 }
 
-void Dual::Clear(void)
+void Dual::displaySet(FAST int set)
 {
-    TopData.clear();
-    BottomData.clear();
-    Tbl.clear();
+    FAST Window *ptr = Wdw;
+    
+    ptr->display();
+    ptr++;
+    ptr->display();
+    ptr++;
+    ptr->display();
 }
 
-void Dual::NextZoom(Point cursor)
+void Dual::switchSets(void)
 {
-    FAST int zoom = curZoom;
-
-    switch(zoom)
-      {
-	case ZOOM1:
-	  zoom = ZOOM2;
-	  break;
-
-	case ZOOM2:
-	  zoom = ZOOM4;
-	  break;
-
-	case ZOOM4:
-#ifdef BROKEN_ZOOM
-	  zoom = ZOOM1;
-	  break;
-#else
-	  zoom = ZOOM8;
-	  break;
-
-	case ZOOM8:
-	  zoom = ZOOM1;
-	  break;
-#endif	  
-      }
-
-    TopData.setZoom(zoom);
-    BottomData.setZoom(zoom);
-
-    if (zoom == ZOOM1)
-      Home();
-    else
-      Center(cursor);
-
-    curZoom = zoom;
 }
-
-void Dual::SetBounds(CELLSPACING &cs, float max, float min)
-{
-    maxAlt = max;
-    minAlt = min;
-
-    float ppm = (float)DUAL_PLOT_HEIGHT / (max - min);
-
-    pixelsPerMeter = ppm;
-
-    float f = ppm * cs.distToFirst;
-
-    firstGate = fastround(f);
-
-    radius = 2 * DUAL_PLOT_HEIGHT;
-
-    conv->SetBeamSize(cs,radius,(1.0/ppm));
-}
-
+    
 Dual::~Dual(void)
 {
-    free((char *)trigData);
-
-    Clear();
-    Undisplay();
-
-    clk.Undisplay();
 }

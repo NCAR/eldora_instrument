@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1993/10/21  16:38:57  thor
+ * Temp save of latest work.
+ *
  * Revision 1.4  1993/09/28  13:12:27  thor
  * Uncommented over case.
  *
@@ -32,21 +35,34 @@
 #include "Dual.hh"
 
 
-void Dual::DrawBeam(FAST DualData &data)
+void Dual::drawBeam(FAST DataBeam *beam)
 {
+    double angle = (double)beam->air.rotation_angle;
+    double roll = (double)beam->air.roll;
+    
+    angle -= roll;
+    
+    if (angle < 0.0)
+      angle += 360.0;
+    else if (angle > 360.0)
+      angle -= 360.0;
+
     FAST int j = lastIndex;
-    FAST int index = fastround(data.angle * 2.0);
+    FAST int index = fastround(angle * 2.0);
+
+    if (index == 720)
+      index = 0;
     
     if (index < 0 || index > 720)
       {
-	  printf("Angle %g out of bounds.\n",data.angle);
+	  cout << "Angle " << angle << "out of bounds." << endl;
 	  return;
       }
 
-    float alt = data.altitude;
+    float alt = beam->air.altitude_msl * 1000.0;
     float max = maxAlt;
 
-    FAST int direction = data.direction;
+    FAST int direction = fastround(beam->ray.true_scan_rate);
 
     if (alt >= max && (index <= 180 || index >= 540))
       {
@@ -81,11 +97,21 @@ void Dual::DrawBeam(FAST DualData &data)
 	  if (j == 1000)
 	    j = index - 2;
 
-          FAST int q = index - j + 720;
+          FAST int q;
 
+          if (index)
+            q = index - j;
+          else
+            q = 720 - j;
+
+          if (q < 0)
+            q = -q;
+
+          q = 720 - q;
+          
           if (q < 700)
             {
-                printf("Angle to big, %d %d\n",index,j);
+                cout << "Angle too big - " << index << "," << j << endl;
                 lastIndex = index;
                 return;
             }
@@ -108,13 +134,21 @@ void Dual::DrawBeam(FAST DualData &data)
 	  if (j == 1000)
 	    j = index + 2;
 
-	  FAST int q = index - j;
+	  FAST int q;
 
-	  q = 720 - q;
+          if (index)
+            q = index - j;
+          else
+            q = 720 - j;
 
+          if (q < 0)
+            q = -q;
+
+          q = 720 - q;
+          
           if (q < 700)
             {
-                printf("Angle to big, %d %d\n",index,j);
+                cout << "Angle too big - " << index << "," << j << endl;
                 lastIndex = index;
                 return;
             }
@@ -154,7 +188,7 @@ void Dual::DrawBeam(FAST DualData &data)
 
     unsigned char cvalues[2048];
 
-    conv->GetBeam(data.data,cvalues);
+    converter->GetBeam((unsigned short *)(beam + 1),cvalues);
     
     FAST unsigned char *colors1 = cvalues;
     FAST unsigned char *colors2 = cvalues + 1024;
@@ -183,8 +217,8 @@ void Dual::DrawBeam(FAST DualData &data)
 	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
 	       s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + (Display::FULL_WIDTH / 2);
+		FAST int x2 = (c2 >> 16) + (Display::FULL_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 
@@ -204,7 +238,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x,y1)) break;
 			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2,1);
+			    plot(ptr2,x,y1,*colors2);
 			    
 			    if (x == xend)
 			      break;
@@ -214,7 +248,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  y1++;
 				  if (!clip(x,y1)) break;
 				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2,1);
+				  plot(ptr2,x,y1,*colors2);
 				  d -= Ax;
 			      }
 			    x += Sx;
@@ -227,7 +261,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x,y1)) break;
 			    plot(ptr1,x,y1,*colors1);
-			    plot(ptr2,x,y1,*colors2,1);
+			    plot(ptr2,x,y1,*colors2);
 			    
 			    if (x == xend)
 			      break;
@@ -237,7 +271,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  y1--;
 				  if (!clip(x,y1)) break;
 				  plot(ptr1,x,y1,*colors1);
-				  plot(ptr2,x,y1,*colors2,1);
+				  plot(ptr2,x,y1,*colors2);
 				  d -= Ax;
 			      }
 			    x += Sx;
@@ -255,8 +289,8 @@ void Dual::DrawBeam(FAST DualData &data)
 	       colors2++, c1 += cos1, c2 += cos2, s1 += sin1,
 	       s2 += sin2)
 	    {
-		FAST int x1 = (c1 >> 16) + (DUAL_PLOT_WIDTH / 2);
-		FAST int x2 = (c2 >> 16) + (DUAL_PLOT_WIDTH / 2);
+		FAST int x1 = (c1 >> 16) + (Display::FULL_WIDTH / 2);
+		FAST int x2 = (c2 >> 16) + (Display::FULL_WIDTH / 2);
 		FAST int y1 = (s1 >> 16) + yoff;
 		FAST int y2 = (s2 >> 16) + yoff;
 		
@@ -273,7 +307,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x1,y)) break;
 			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2,1);
+			    plot(ptr2,x1,y,*colors2);
 			    
 			    if (y == yend)
 			      break;
@@ -283,7 +317,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  x1 += sx;
 				  if (!clip(x1,y)) break;
 				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2,1);
+				  plot(ptr2,x1,y,*colors2);
 				  d -= ay;
 			      }   
 			    y++;
@@ -296,7 +330,7 @@ void Dual::DrawBeam(FAST DualData &data)
 			{
 			    if (!clip(x1,y)) break;
 			    plot(ptr1,x1,y,*colors1);
-			    plot(ptr2,x1,y,*colors2,1);
+			    plot(ptr2,x1,y,*colors2);
     
 			    if (y == yend)
 			      break;
@@ -306,7 +340,7 @@ void Dual::DrawBeam(FAST DualData &data)
 				  x1 += sx;
 				  if (!clip(x1,y)) break;
 				  plot(ptr1,x1,y,*colors1);
-				  plot(ptr2,x1,y,*colors2,1);
+				  plot(ptr2,x1,y,*colors2);
 				  d -= ay;
 			      }
 			    y--;
