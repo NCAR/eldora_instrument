@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/06/26  18:55:31  thor
+ * Added DC offset points variable.
+ *
  * Revision 1.1  1992/06/25  17:39:04  thor
  * Initial revision
  *
@@ -29,15 +32,15 @@
 #endif
 #else // UNIX
 
-#ifdef __cpluplus
+#ifdef __cplusplus
 extern "C" {
-#endif // __cpluplus
+#endif // __cplusplus
 #include "vxWorks.h"
 #include "string.h"
 #include "rpc/rpc.h"
-#ifdef __cpluplus
+#ifdef __cplusplus
 };
-#endif // __cpluplus
+#endif // __cplusplus
 #endif // UNIX
 
 #endif // OK_RPC
@@ -88,6 +91,7 @@ extern struct RadarStatus *getradarstatus_1(void *, CLIENT *);
 extern struct RadarStatus *sendcommand_1(struct RadarCommand *,
 					 struct svc_req *);
 extern struct RadarStatus *getradarstatus_1(void *, struct svc_req *);
+extern int StartRadarCtrl(void);
 #endif // CLIENT_SIDE
 
 #else // OK_RPC
