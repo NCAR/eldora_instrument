@@ -9,7 +9,7 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/06/19  01:05:00  shawn
+ * Revision 1.1  1992/06/26  00:26:58  shawn
  * Initial revision
  *
  * description: Writes "set DDS frequency" command to ECB MASTER IN FIFO
@@ -36,6 +36,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 /*                  action taken.                                            */
 /*              6 - unitnum passed is out of range; no action taken.         */
 /*              7 - desfreq passed is not in valid range (LOWFREQ..HIGHFREQ) */
+/*              8 - nr value passed is not valid (0 or 1)                    */
 /*****************************************************************************/
 
 #include <vxWorks.h>
@@ -49,7 +50,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbErrBound.h" /* various #defines for error bounds */
 
 unsigned char ecbSetDDSfloat(unsigned char ecbadr,unsigned char unitnum,double
-desfreq)
+desfreq,unsigned char nr)
 {
     unsigned char *vmestat,*infifo,*outfifo;
     unsigned char B=0,onebyte=0;
@@ -122,6 +123,25 @@ desfreq)
 	  return(7);
       }
 
+    /* Check for valid nr value */
+    if (nr != 0  &&  nr != 1)
+      {
+	  printf("ecbSetDDSfloat: nr passed [%u] is out ",nr);
+	  printf("of range.\n");
+	  printf("ecbSetDDSfloat: Returning without issuing command.\n");
+	  printf("ecbSetDDSfloat: Re-Giving ecb_cmd_not_pending Semaphore.\n");
+	  if(semGive(ecb_cmd_not_pending) == ERROR)
+	    {
+		printf("ecbSetDDSfloat: semGive(ecb_cmd_not_pending) ");
+		printf("returned ERROR,\n");
+		printf("ecbSetDDSfloat: indicating an invalid semaphore ID\n");
+		printf("ecbSetDDSfloat: Returning without Give-ing ");
+		printf("semaphore.\n");
+		return(4);
+	    }
+	  return(8);
+      }
+
     vmestat = (unsigned char *)(MASTERBASE + MASTERSTAT);
     infifo  = (unsigned char *)(MASTERBASE + MASTERIN);
     outfifo  = (unsigned char *)(MASTERBASE + MASTEROUT);
@@ -182,7 +202,7 @@ desfreq)
 #endif
 
     *infifo = ecbadr;  /* write ecb address into master's IN FIFO */
-    *infifo = (unsigned char) 7;  /* write numbytes into IN FIFO */
+    *infifo = (unsigned char) 8;  /* write numbytes into IN FIFO */
     *infifo = 0x10;  /* write command ID Code into IN FIFO */
     *infifo = unitnum;  /* write IF unit number into IN FIFO */
     *infifo = B;  /* write B value into IN FIFO */
@@ -194,6 +214,7 @@ desfreq)
     *infifo = onebyte; /* write next-to-LSB of T to IN FIFO */
     onebyte = (unsigned char) (T & 0x000000FF);
     *infifo = onebyte; /* write LSB of T to IN FIFO */
+    *infifo = nr;      /* write noise reduction value to IN FIFO */
     *infifo = (unsigned char) ECBEOS; /* write end-of-sequence into IN FIFO */
 
     return(0);
