@@ -9,12 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.3  1992/09/03  15:20:20  craig
- * *** empty log message ***
- *
- * Revision 1.2  1992/09/01  17:20:50  craig
- * *** empty log message ***
- *
  * Revision 1.1  1992/08/14  21:36:36  reif
  * Initial revision
  *
@@ -72,8 +66,16 @@
 #define SELECT_ABSOLUTE_UPPER   (0X140 + MOTOR_BASE)
 #define SELECT_ABSOLUTE_LOWER   (0X180 + MOTOR_BASE)
 #define COUNTS                  65536
-#define MAX_SAMPLE              0xCB;
+#define MAX_SAMPLE              0xCB
 #define PERIOD                  0.001000 /* In seconds */
 #define GAIN                    2.1 /* In v/rpm */
 
+#define INTEGRATOR_GAIN         0.01   /* Gain of motion control integrator */
+#define DELTA_DEGPERSEC        1.0   /* Integrator allowable error */
 #endif /* INC */
+
+
+
+
+
+

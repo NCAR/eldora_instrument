@@ -1,7 +1,7 @@
 /*
  *	$Id$
  *
- *	Module:	pwr1.c	 
+ *	Module:	pwrDef.h	 
  *	Original Author: Reif Heck 
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
@@ -9,20 +9,21 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/01  17:25:20  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:38:48  reif
  * Initial revision
  *
  *
- * description: The purpose of this module is to set up the MZ7500 GPIB
- *              board as controller with DMA and interrupts in order to
- *              send commands to and receive data from the two WAVETEK 8502A
- *              Peak Power Meters used for fore and aft peak power 
- *              measurements.  The program also converts the string data from 
- *              the 8502A to binary and writes it to tape.
+ * description: The purpose of this module is to 
  */
 
 #ifndef INCpwrDefh
 #define INCpwrDefh
+#ifndef scope
+#define scope extern
+#endif /* scope */
 
 /*****************  SET BASE ADDRESS OF THE MZ7500 GPIB BOARD  ************/
 
@@ -35,47 +36,157 @@
 
 /*****************  SET UP MZ7500 GPIB REGISTER OFFSETS  ******************/
 
-#define GPIBOFF0 0x01 /* INTERRUPT STATUS REG/MASK 0 */
-#define GPIBOFF1 0X03 /* INTERRUPT STATUS REG/MASK 1 */
-#define GPIBOFF2 0X05 /* ADDRESS STATUS REGISTER */
-#define GPIBOFF3 0x07 /* BUS STATUS REG/AUX CMND REG */
-#define GPIBOFF4 0x09 /* ADDRESS REGISTER */
-#define GPIBOFF5 0X0B /* SERIAL POLL REGISTER */
-#define GPIBOFF6 0X0D /* CMD PASS THRU/PARALLEL POLL REGISTER */
-#define GPIBOFF7 0x0F /* DATA IN/DATA OUT REGISTER */
+#define INT_STAT_REG0 0x01 /* INTERRUPT STATUS REG/MASK 0 */
+#define INT_STAT_REG1 0X03 /* INTERRUPT STATUS REG/MASK 1 */
+#define ADDR_STAT_REG 0X05 /* ADDRESS STATUS REGISTER */
+#define AUX_CMND_REG 0x07 /* BUS STATUS REG/AUX CMND REG */
+#define ADDRESS_REG 0x09 /* ADDRESS REGISTER */
+#define SER_POLL_REG 0X0B /* SERIAL POLL REGISTER */
+#define PAR_POLL_REG 0X0D /* CMD PASS THRU/PARALLEL POLL REGISTER */
+#define DATA_IN_OUT_REG 0x0F /* DATA IN/DATA OUT REGISTER */
 
 /*****************  SET UP MZ7500 DMA REGISTER OFFSETS  *******************/
 
-#define DMAOFF0 0X00 /* CHANNEL STATUS REGISTER */
-#define DMAOFF1 0x01 /* CHANNEL ERROR REGISTER */
-#define DMAOFF2 0X04 /* DEVICE CONTROL REGISTER */
-#define DMAOFF3 0X05 /* OPERATION CONTROL REGISTER */
-#define DMAOFF4 0X06 /* SEQUENCE CONTROL REGISTER */
-#define DMAOFF5 0X07 /* CHANNEL CONTROL REGISTER */
-#define DMAOFF6 0X0A /* MEMORY TRANSFER COUNTER */
-#define DMAOFF7 0X0C /* MEMORY ADDRESS REGISTER */
-#define DMAOFF8 0X14 /* DEVICE ADDRESS REGISTER */
-#define DMAOFF9 0X1A /* BASE TRANSFER COUNTER */
-#define DMAOFF10 0X1C /* BASE ADDRESS REGISTER */
-#define DMAOFF11 0X25 /* NORMAL INTERRUPT VECTOR REGISTER */
-#define DMAOFF12 0X27 /* ERROR INTERRUPT VECTOR REGISTER  */
-#define DMAOFF13 0X2D /* CHANNEL PRIORITY REGISTER */
-#define DMAOFF14 0X29 /* MEMORY FUNCTION CODE REGISTER */
-#define DMAOFF15 0X31 /* DEVICE FUNCTION CODE REGISTER */
-#define DMAOFF16 0X39 /* BASE FUNCTION CODE REGISTER */
-#define DMAOFF17 0XFF /* GENERAL  CONTROL REGISTER */
+#define CHAN_STAT_REG  0X00 /* CHANNEL STATUS REGISTER */
+#define CHAN_ERR_REG  0x01 /* CHANNEL ERROR REGISTER */
+#define DEV_CNTRL_REG  0X04 /* DEVICE CONTROL REGISTER */
+#define OP_CNTRL_REG 0X05 /* OPERATION CONTROL REGISTER */
+#define SEQ_CNTRL_REG 0X06 /* SEQUENCE CONTROL REGISTER */
+#define CHAN_CNTRL_REG 0X07 /* CHANNEL CONTROL REGISTER */
+#define MEM_XFER_CNTR 0X0A /* MEMORY TRANSFER COUNTER */
+#define MEM_ADDR_REG1 0X0C /* MEMORY ADDRESS REGISTER1 */
+#define MEM_ADDR_REG2 0X0E /* MEMORY ADDRESS REGISTER2 */
+#define DEV_ADDR_REG 0X14 /* DEVICE ADDRESS REGISTER */
+#define BASE_XFER_CNTR 0X1A /* BASE TRANSFER COUNTER */
+#define BASE_ADDR_REG1 0X1C /* BASE ADDRESS REGISTER */
+#define BASE_ADDR_REG2 0X1E /* BASE ADDRESS REGISTER */
+#define NORM_INT_VECT 0X25 /* NORMAL INTERRUPT VECTOR REGISTER */
+#define ERR_INT_VECT 0X27 /* ERROR INTERRUPT VECTOR REGISTER  */
+#define CHAN_PRTY_REG 0X2D /* CHANNEL PRIORITY REGISTER */
+#define MEM_FUNC_CODE 0X29 /* MEMORY FUNCTION CODE REGISTER */
+#define DEV_FUNC_CODE 0X31 /* DEVICE FUNCTION CODE REGISTER */
+#define BASE_FUNC_CODE 0X39 /* BASE FUNCTION CODE REGISTER */
+#define GEN_CNTRL_REG 0XFF /* GENERAL  CONTROL REGISTER */
 
-/****************  SET UP INTERRUPT VECTOR ADDRESSES  *********************/
+/****************  DEFINE INTERRUPT VECTORS *********************/
 
-#define INT0  /* USER INTERRUPT VECTOR 0 */
-#define INT1  /* USER INTERRUPT VECTOR 1 */
-#define INT2  /* USER INTERRUPT VECTOR 2 */
-#define INT3  /* USER INTERRUPT VECTOR 3 */
-#define INT4  /* USER INTERRUPT VECTOR 4 */
-#define INT5  /* USER INTERRUPT VECTOR 5 */
-#define INT6  /* USER INTERRUPT VECTOR 6 */
-#define BINT  /* BUS CLEAR INTERRUPT */
-#define NORM_INT 250
-#define ERR_INT 249
+#define XMIT_NORM_INT 240  /* XMIT NORMAL INTERRUPT VECTOR */
+#define XMIT_ERR_INT 239  /* XMIT ERROR INTERRUPT VECTOR  */
+#define TESTP_NORM_INT 238  /* TESTP NORMAL INTERRUPT VECTOR */
+#define TESTP_ERR_INT 237  /* TESTP ERROR INTERRUPT VECTOR */
+
+/*************** POWER METER OFFSETS ******************/
+
+#define XMIT_OFFSET_FORE 65.00
+#define XMIT_OFFSET_AFT 65.00
+#define TESTP_OFFSET_FORE 65.00
+#define TESTP_OFFSET_AFT 65.00
+
+/****************** MISC DEFINES ****************************/
+
+#define XMIT 1
+#define TESTP 2
+#define XMIT_AND_TESTP 3
+
+/**************** POWER METER COMMAND STRINGS ***************/
+
+#define RATIO_A_CW_TO_B_CW "ACBC\0"
+#define RATIO_A_CW_TO_B_PK "ACBP\0"
+#define RATIO_A_PK_TO_B_CW "APBC\0"
+#define RATIO_A_PK_TO_B_PK "APBP\0"
+#define AUTOSCALE_DELAY "ASDL\0"
+#define AVERAGE_AUTOSCALE "AVAS\0"
+#define AVERAGE_CW "AVCW\0"
+#define AVERAGE_PK "AVPK\0"
+#define CALIBRATE_A "CALA\0"
+#define CALIBRATE_B "CALB\0"
+#define CURSOR_DELAY_A "CDLA\0"
+#define CURSOR_DELAY_B "CDLB\0"
+#define READ_CURSOR_DELAY_A "CDOA\0"
+#define READ_CURSOR_DELAY_B "CDOB\0"
+#define CW_DUAL_CHANNEL "CWAB\0"
+#define CW_CHANNEL_A "CWPA\0"
+#define CW_CHANNEL_B "CWPB\0"
+#define DATA_FAST "DATF\0"
+#define DATA_NORMAL "DATN\0"
+#define DISPLAY_IN_DBM "DBMW\0"
+#define CAL_FACTOR_A "DCPA\0"
+#define CAL_FACTOR_B "DCPB\0"
+#define OFFSET_A "OFFA\0"
+#define OFFSET_B "OFFB\0"
+#define PEAK_DUAL_CHANNEL "PKAB\0"
+#define PEAK_CHANNEL_A "PKPA\0"
+#define PEAK_CHANNEL_B "PKPB\0"
+#define REFERENCE_DELAY_A "RDLA\0"
+#define REFERENCE_DELAY_B "RDLB\0"
+#define START_DELAY_A "SDLA\0"
+#define START_DELAY_B "SDLB\0"
+#define DISABLE_SRQ "SRQD\0"
+#define ENABLE_SRQ "SRQE\0"
+#define EXTERNAL_TRIGGER "TRGE\0"
+#define INTERNAL_TRIGGER_A "TRGA\0"
+#define INTERNAL_TRIGGER_B "TRGB\0"
+#define UPDATE_CONTINUOUSLY "UPDC\0"
+#define DISPLAY_IN_WATTS "WATT\0"
+#define AUTOZERO_A "ZERA\0
+#define AUTOZERO_B "ZERB\0
+
+/*************** GLOBAL VARIABLES ******************/
+
+scope float fore_xmit_pwr,aft_xmit_pwr;
+scope float fore_testp_pwr,aft_testp_pwr;
+scope char xmit_isr_done;
+scope char testp_isr_done;
+scope unsigned char xmit_array[29];
+scope unsigned char testp_array[25];
+scope long ieee_xmit_cnt,ieee_testp_cnt;
+/**************** GLOBAL GPIB POINTERS ******************/
+
+scope unsigned char *g1ism0,*g1ism1,*g1acr,*g1adr,*g1dido;
+scope unsigned char *g2ism0,*g2ism1,*g2acr,*g2adr,*g2dido;
+
+/********************* GLOBAL DMA POINTERS ***********************/
+
+scope unsigned char *d0csr,*d0dcr,*d0ocr,*d0scr,*d0ccr,*d0niv,*d0eiv;
+scope unsigned char *d1csr,*d1dcr,*d1ocr,*d1scr,*d1ccr,*d1niv,*d1eiv;
+scope unsigned char *d0bfc,*d0mfc;
+scope unsigned char *d1bfc,*d1mfc;
+scope unsigned short *d0bar1,*d0bar2;
+scope unsigned short *d1bar1,*d1bar2;
+scope unsigned short *d0mtc,*d0btc;
+scope unsigned short *d1mtc,*d1btc;
+scope unsigned short *d0mar1,*d0mar2;
+scope unsigned short *d1mar1,*d1mar2;
+scope unsigned char *d0cpr;
+scope unsigned char *d1cpr;
+scope unsigned char *gcr;
 
 #endif /* INC */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

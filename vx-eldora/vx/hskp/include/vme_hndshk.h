@@ -9,9 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/10  15:37:28  craig
- * Initial revision
- *
  * Revision 1.1  1992/09/10  19:35:36  craig
  * Initial revision
  *
@@ -24,8 +21,13 @@
 struct vmevmehndshk {
 char salute[8];             /* Will contain the characters "HI RADAR" when
                                the housekeeper has finished initialization */
+short start_hndshk;         /* Handshake when radar processors are ready */
+short dc_remove_hndshk;     /* handshake to keep dc removal in sync */
 short tpulse_flg;           /* Test pulse handshaking flag */
-float tpulse_level;         /* Test pulse measured level in dbm */
+float tpulse_level;         /* Test pulse measured (by power meter)
+			       level in dbm */
+float tpulse_level_proc;    /* Test pulse level in db (from radar
+			       processors) */
 long tpulse_dist;           /* Distance to Test pulse in meters */
 long tpulse_width;          /* Width of Test pulse in meters */
 float tpulse_freq;          /* Test Pulse transmitted frequency in GHz */

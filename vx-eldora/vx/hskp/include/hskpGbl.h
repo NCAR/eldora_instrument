@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/11/03  22:53:48  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  19:33:48  craig
  * Initial revision
  *
@@ -55,10 +58,12 @@ scope long aft_sweep_num;
 /* Milliseconds since midnight of all rays in the handshake areas */
 scope long msecs_ray[27];
 scope long dwelltime_msec;
+scope float half_dwelltime_msec;
 
 /* Global Control flags */
 scope short stop_flag;
 scope short reload_flag;
+scope short dc_remove_flag;
 
 /* Parameters to handle the test pulse */
 

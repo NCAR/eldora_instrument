@@ -83,7 +83,7 @@ struct single_iru{
  #define ALTITUDE_LAB       0361   /* 0xF1 */
  #define INERTIAL_VSPEED_LAB  0365   /* 0xF5 */
  #define PITCH_LAB          0324   /* 0xD4 */
- #define ROLL_LAB           0327   /* 0xD7 */
+ #define ROLL_LAB           0325   /* 0xD5 */
  #define INTEG_VERT_ACC_LAB  0265   /* 0xB5 */
  #define VERT_ACC_LAB       0364   /* 0xF4 */
  #define TRACK_RATE_LAB     0335   /* 0xDD */

@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:20:24  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:36:51  reif
  * Initial revision
  *
@@ -27,6 +30,7 @@
 void motor_menu(void);
 float get_pos(void);
 void set_vel(float);
+void just_set_vel(float);
 void write_reg(void);
 void read_reg(void);
 float read_rpm(void);

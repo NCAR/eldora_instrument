@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/11/03  22:53:58  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  19:35:34  craig
  * Initial revision
  *
@@ -23,7 +26,7 @@ scope void start_vmevme();
 scope void vmevme_isr();
 scope void fill_nav_info(int);
 scope void fill_platform(long);
-
+scope void dc_removal();
 
 
 
