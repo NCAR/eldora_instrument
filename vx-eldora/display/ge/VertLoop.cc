@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/02/05  18:21:45  thor
+ * Added new variable required for ColorConverter.
+ *
  * Revision 1.4  1992/01/28  16:01:33  thor
  * Fixed typo.
  *
@@ -278,7 +281,7 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
                       break;
                   }
             }
-    converter->SetBeamSize(*cs);
+      }
 
 #ifdef UNIPRO
 
