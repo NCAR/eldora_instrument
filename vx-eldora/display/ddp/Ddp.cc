@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/10/02  20:30:38  thor
+ * Many changes to use a more correct method of following mcpl input.
+ *
  * Revision 1.6  1992/06/29  17:30:06  thor
  * Added code to test for current radar type before doing pipe write.
  *
@@ -82,16 +85,16 @@ void Ddp::Next(void)
       {
 	  semTake(semaphore,WAIT_FOREVER);
 
-	  FAST int foreEnd = Count;
+	  FAST int end = Count;
 
-	  while (!foreEnd)
+	  while (!end)
 	    {
 		FAST volatile long *rep = repeat;
-		foreEnd = *rep; // Wait till here to make certain
+		end = *rep; // Wait till here to make certain
 			    // we have a valid repeat count!
 
-		foreEnd /= 2;
-		Count = foreEnd;
+		end /= 2;
+		Count = end;
 	    }
 
 	  if (*fptr != 0)
@@ -100,14 +103,15 @@ void Ddp::Next(void)
 		*fptr = 0;
 
 		if (status != 0xbfff)
-		  PostAlarm();
+//		  PostAlarm();
+		  printf("F %x\n",status);
 		else if (!radar) // We want fore beams!
 		  {
 
-		      DataBeam *db = (DataBeam *)*foreAddr;
+		      FAST DataBeam *db = (DataBeam *)*foreAddr;
 
 		      FAST int tmp = (int)db; // This done to correct for
-		      tmp += 0x30200000;      // address difference betweem
+		      tmp += 0x30200000;      // address difference between
 		      db = (DataBeam *)tmp;   // VMEbus & onboard memory.
 		      
 		      FAST char rname = db->data.radar_name[0];
@@ -119,7 +123,7 @@ void Ddp::Next(void)
 
 		fcount++;
 
-		if (fcount == foreEnd)
+		if (fcount == end)
 		  {
 		      foreAddr = addrBase;
 		      fptr = mailBase;
@@ -140,7 +144,6 @@ void Ddp::Next(void)
 		FAST long acount = aftCurr;
 		FAST volatile unsigned short *aptr = aft;
 		FAST volatile long *aftAddr = aftSavedAddr;
-		FAST int aftEnd = Count;
 		
 		if (*aptr != 0)
 		  {
@@ -148,13 +151,14 @@ void Ddp::Next(void)
 		      *aptr = 0;
 		      
 		      if (status != 0xbfff)
-			PostAlarm();
+//			PostAlarm();
+		  printf("A %x\n",status);
 		      else if (radar) // We want aft beams!
 			{
-			    DataBeam *db = (DataBeam *)*aftAddr;
+			    FAST DataBeam *db = (DataBeam *)*aftAddr;
 			    
 			    FAST int tmp = (int)db; // This done to correct for
-			    tmp += 0x30200000;      // address difference betweem
+			    tmp += 0x30200000;   // address difference between
 			    db = (DataBeam *)tmp;   // VMEbus & onboard memory.
 			    
 			    FAST char rname = db->data.radar_name[0];
@@ -165,7 +169,7 @@ void Ddp::Next(void)
 			}
 		      acount++;
 		      
-		      if (acount == aftEnd)
+		      if (acount == end)
 			{
 			    aftAddr = addrBase + 1;
 			    aptr = mailBase + 1;
@@ -196,6 +200,7 @@ void Ddp::PostAlarm(void)
 void Ddp::Clear(void)
 {
     taskLock();
+    FAST int level = intLock();
 
     Count = 0;
     foreCurr = 0;
@@ -211,6 +216,7 @@ void Ddp::Clear(void)
     while ((int)ptr < (int)addrBase)
       *ptr++ = 0;
 
+    intUnlock(level);
     taskUnlock();
 }
 
