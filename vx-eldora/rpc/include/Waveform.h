@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/15  17:57:29  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.3  1991/10/09  15:25:28  thor
  * Removed unneeded wavecount items.
  *
@@ -61,8 +64,8 @@ struct waveform_d {
     float uv_pcp;		/* Number of PCP that set the */
 				/* unambiguous velocity, after real */
 				/* time unfolding. */
-    short num_gates[6];		/* Total number of gates sampled. */
-    int uniform_gates;		/* Flag 0 => Non uniform gates, all */
+    short num_gates[5];		/* Total number of gates sampled. */
+    short uniform_gates;	/* Flag 0 => Non uniform gates, all */
 				/* are listed, nonzero => uniform */
 				/* gates. */
     short gate_dist1[2];	/* Distance from radar to data cell #1 */
