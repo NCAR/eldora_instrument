@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/20  14:54:32  eric
+ * Fixed bug that caused Time Series name field to be
+ * overwritten.
+ *
  * Revision 1.2  1994/11/14  20:09:05  craig
  * Expand to possible 3000 rays in a MAD area
  *
@@ -50,6 +54,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "systime.h"
 #include "sysLib.h"
 
+#include "RadarGbls.h"
 #include "HeaderRpc.h"
 #include "Parameter.h"
 #include "RadarDesc.h"
@@ -61,7 +66,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Waveform.h"
 #include "IndFreq.h"
 #include "TimeSeries.h"
-#include "RadarGbls.h"
 #include "RDPGlobals.h"
 #include "mcpl_def.h"
 #include "mcpl_gbl.h"
@@ -75,11 +79,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "rp7.h"
 
 extern float rpm;
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern WAVEFORM *wvfm;
-extern PARAMETER *prm;
-extern FIELDRADAR *fldrdr;
 
 /* make the following variables available throughout this
    module only !                                        
@@ -107,11 +106,9 @@ short proc, timeout, status, mad;
 
 /* Parse Header for required TPB info */
 
-cs = GetCellSpacing(inHeader,1);
 cellspace.num_segments = cs -> num_segments;
 for (i=0; i<cellspace.num_segments; i++)
   cellspace.num_cells[i] = cs -> num_cells[i];
-rdsc = GetRadar(inHeader,1);
 this_radar.num_parameter_des = rdsc -> num_parameter_des;
 for(i=0;i<this_radar.num_parameter_des;i++)
   {
@@ -133,13 +130,13 @@ for (j=0; j < rdsc -> num_parameter_des; j++)
 printf("bytes_per_cell = %d \n",bytes_per_cell);
 data_len = num_cells * bytes_per_cell;
 printf("data_len = %d \n",data_len);
-fldrdr = GetFieldRadar(inHeader,1); /* Assume Fore and Aft have identicle operation */
+
 if(fldrdr -> indepf_times_flg > 0)
   indep_freq_len = rdsc -> num_freq_trans * 8 * rdsc -> num_ipps_trans + sizeof(INDEP_FREQ);
 else
   indep_freq_len = 0;
 printf("indep_freq_len = %d \n",indep_freq_len);
-wvfm = GetWaveform(inHeader);
+
 if(fldrdr -> indepf_times_flg == 3)
   time_series_len = rdsc -> num_freq_trans * 2 * 4 * wvfm -> repeat_seq_dwel * wvfm -> num_chips[0] + sizeof(TIME_SERIES);
 else
