@@ -9,12 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.16  2003/09/24  17:29:20  kapoor
- * initialized additional global variables
- *
- * Revision 1.15  2003/09/24  16:08:01  kapoor
- * Changed init_clock call, change to Bancomm clock card
- *
  * Revision 1.14  2000/05/15  18:30:25  eric
  * Revised power meter stop routine and added firstime flag so
  * that stop_ieee is not called upon powerup.
@@ -119,7 +113,7 @@ sysIntEnable(ECB_ERROR_IRQ);
 sysIntEnable(ECB_SPARE_IRQ);
 
 printf("Initializing the clock card\n");
-init_clock(); /* Sets up the pointers to go with the clock card */
+init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
 /* init_mini(); */    /* Initializes and connects mailbox interrupt */ 
 
