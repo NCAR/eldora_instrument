@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/01  16:15:09  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -24,10 +27,8 @@ extern "C" {
 #include "rpcLib.h"
 };
 
-static void RpcLoop(void);
-
-
 static DispStatus ge_status;
+static DispCommand ge_command;
 
 void GeStart(char *server, int sys)
 {
@@ -38,21 +39,28 @@ void GeStart(char *server, int sys)
     Alarm = NULL;
 
     GeStatus = &ge_status;
+    GeCommand = &ge_command;
 
     ge_status.status = LOADED;
     ge_status.count = 0;
 
-    // Now we start Rpc services.
+    // Start graphics task.
+    DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI);
 
-    if (taskSpawn("RpcLoop",2,0,4000,(FUNCPTR)RpcLoop) == ERROR)
-      fprintf(stderr,"Failed to start RpcLoop!!!\n");
+    // Start alarm task.
 
-      if (taskSpawn("Alarm",2,0,4000,(FUNCPTR)AlarmLoop,(int)server,sys)
-	  == ERROR)
-	fprintf(stderr,"Failed to start Alarm loop!!!\n");
+    int args[2];
+
+    args[0] = (int)server;
+    args[1] = sys;
+
+    AlarmTask = new Task((FUNCPTR)AlarmLoop,args,2,ALARM_PRI); 
+
+    // Now we start control loop.
+    CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI);
 }
 
-static void RpcLoop(void)
+void RpcLoop(Task &self)
 {
     if (rpcTaskInit() == ERROR)
       {
@@ -68,12 +76,30 @@ static void RpcLoop(void)
     svc_run();
 }
 
-void AlarmLoop(char *server, int sys)
+void AlarmLoop(FAST Task &self, FAST char *server, FAST int sys)
 {
-    GeAlarm alarm(server,sys);
+    self.FlagsInit();
 
-    Alarm = &alarm;
-    
+    self.WaitOnFlags(ATASK_RESET,FLAGS_AND);
+
     for (;;)
-      alarm.Wait();
+      {
+	  FAST GeAlarm *aptr = new GeAlarm(server,sys);
+
+	  Alarm = aptr;
+
+	  for (;;)
+	    {
+		FAST unsigned int flag = 
+		  self.WaitOnFlags(ATASK_RESET | ATASK_SIGNAL,FLAGS_OR);
+
+		if (flag == ATASK_RESET)
+		  {
+		      delete(aptr);
+		      break;
+		  }
+		else
+		  aptr->Post();
+	    }
+      }
 }
