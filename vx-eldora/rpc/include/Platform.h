@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/15  16:45:52  thor
+ * Initial revision
+ *
  * Revision 1.1  1991/08/30  18:39:34  thor
  * Initial revision
  *
@@ -80,9 +83,8 @@ struct platform_i {
 				/* positive) in m/sec */
     float vert_wind;		/* Vertical wind velocity at the */
 				/* platform (up is positive) in m/sec */
-    float rotation_vel;		/* Instantaneous antenna rotational */
-				/* velocity with respect to airframe */
-				/* (clockwise is positive) in deg/sec */
+    float heading_change;	/* Heading change rate in degrees/second. */
+    float pitch_change;		/* Pitch change rate in degrees/second. */
 }; /* End of Structure */
 
 #ifdef OK_RPC
