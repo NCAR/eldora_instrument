@@ -23,3 +23,19 @@
  *             
  *             
  */
+
+scope unsigned char *timer;
+scope unsigned char *vel_lsb;
+scope unsigned char *vel_msb;
+scope unsigned char *prog_cntr;
+scope unsigned char *status;
+scope unsigned char *flag;
+scope unsigned char *gain;
+scope unsigned char *cmnd;
+scope unsigned char *reset
+scope unsigned char *pin_stat;
+scope unsigned char *status;
+scope unsigned char *ltch;
+scope unsigned char *rd2016;
+scope unsigned char *act_vel_lsb;
+scope unsigned char *act_vel_msb;
