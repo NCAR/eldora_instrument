@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.3  1991/11/25  20:07:45  thor
  * Added filter flag.
  *
@@ -66,7 +69,6 @@ struct parameter_d {
     float parameter_scale;	/* Scale factor for parameter. */
     float parameter_bias;	/* Bias factor for parameter. */
     long  bad_data;		/* Bad data flag. */
-    long  filter_flag;		/* 0 = no filtering, 1 = filtering. */
 }; /* End of Structure */
 
 
