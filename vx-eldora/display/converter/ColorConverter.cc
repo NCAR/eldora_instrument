@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.20  1992/01/28  14:57:13  thor
+ * Added call to correctly round color value.
+ *
+ * Revision 1.19  1992/01/28  14:46:11  thor
  * Moved addition of color table offset to initialization & removed it from
  * runtime. Added correct table offset increases.
  *
@@ -77,6 +81,7 @@
  * for radial displays.
  *
  */
+#include "ColorConverter.hh"
 
 extern "C" {
 #include "math.h"
@@ -134,7 +139,7 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 		  c = maxColor;
 		else if (c < 0.0)
 		  c = 0.0;
-		unsigned char color = (unsigned char)c;
+		unsigned char color = (unsigned char)firound(c);
 		c += fb;	// Add in offset.
 
 		unsigned char color = (unsigned char)iround(c);
