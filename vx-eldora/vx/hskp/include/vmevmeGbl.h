@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1997/08/26  21:25:36  craig
+ * *** empty log message ***
+ *
  * Revision 1.8  1996/02/21  17:21:37  craig
  * *** empty log message ***
  *
@@ -72,3 +75,15 @@ scope short in_vmevme_isr;
 
 /* Global "use fake angles flag" */
 scope int fake_angles;
+
+/* Global variables to set and test Housekeeper/Radar Processor synchronization */
+
+scope int Intr_cnt, Proc_dly_sync;
+
+
+
+
+
+
+
+
