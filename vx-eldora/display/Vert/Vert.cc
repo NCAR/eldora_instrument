@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/04/08  20:34:53  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -19,6 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #pragma implementation
 
 #include "Vert.hh"
+#include <strstream.h>
 
 const double Vert::METERS_PER_DEGREE = 112251.29;
 const double Vert::TILT_ANGLE = 18.0;
@@ -54,6 +58,9 @@ Vert::Vert(GraphicController *gbd) : Display(gbd)
                 Display::FULL_HEIGHT,tbl_x,tbl_y);
 
     setPriority(0);
+
+    makeStr->setf(ios::fixed);
+    makeStr->precision(2);
 }
 
 void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
@@ -189,10 +196,8 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
 
     agc->clear();
 
-    FAST u_long *colors = &cmd->colorTable[0];
-
-    if (*colors != 0xffffffff)
-          agc->setColorMap((long *)colors,256);
+    if (cmd->userColors)
+          setColors();
 
     numOfParams = nv;
 
@@ -203,9 +208,10 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
     
     numOfWdws = nv * 2;
     altitude = cmd->top;
+    bottom = cmd->bottom;
     distance = cmd->distance;
     whichSide = cmd->side;
-    pixelsPerMeter = (double)Display::FULL_WIDTH / (altitude - cmd->bottom);
+    pixelsPerMeter = (double)Display::FULL_WIDTH / (altitude - bottom);
 
     // This next bit is gross, but efficient. We really want the
     // tangent of the angle to divide by the distance, but
@@ -231,7 +237,16 @@ void Vert::reset(FAST Header *hdr, FAST DispCommand *cmd)
       }
 
     calcX(Vert::TILT_ANGLE);
+
+    refreshClock();
+
+    Point cpt;
+
+    cpt.x = Display::FULL_WIDTH + Display::TBL_WIDTH - Clock::WIDTH;
+    cpt.y = Display::FULL_HEIGHT - Clock::HEIGHT;
     
+    moveClock(cpt);
+
     agc->setMask(0x80);
 
     setPriority(1);
@@ -265,6 +280,8 @@ void Vert::displaySet(int set)
 
 void Vert::drawTitle(int set, int radar)
 {
+    resetString();
+    
     FAST int wdw;
 
     if (set == Display::A_SET)
@@ -276,36 +293,44 @@ void Vert::drawTitle(int set, int radar)
 
     setTextScale(wdw,2,2);
     
-    FAST char *title;
-
     if (radar == Display::VERT_FORE)
-      title = "Forward Radar";
+      *makeStr << "Forward Radar";
     else
-      title = "Aft Radar";
+      *makeStr << "Aft Radar";
+
+    // Print # meters per hash mark.
+    double meters = (double)Display::FULL_HEIGHT / pixelsPerMeter;
+    
+    if (meters < 20000.0)
+      *makeStr << "  5 km/div";
+    else if (meters >= 100000.0)
+      *makeStr << "  20 km/div";
+    else
+      *makeStr << "  10 km/div";
+
+    double d = distance / 1000.0;
+    
+    *makeStr << "  " << d << " km from aircraft";
 
     Point a;
 
     a.x = 20;
     a.y = 20;
 
-    horText(wdw,a,title,WHITE);
-
-    // Print # meters per hash mark.
-    double meters = (double)Display::FULL_HEIGHT / pixelsPerMeter;
-    
-    FAST char *metersText = "10 km/div";
-
-    if (meters < 20000.0)
-      metersText = "5 km/div";
-    else if (meters >= 100000.0)
-      metersText = "20 km/div";
-
-    a.x = 500;
-    a.y = 20;
-    
-    horText(wdw,a,metersText,WHITE1);
+    horText(wdw,a,outputStr,WHITE);
 
     hashMarks(meters);
+
+    // Now put the minimum altitude on the screen.
+    resetString();
+
+    d = bottom / 1000.0;
+    
+    *makeStr << d << " km";
+
+    a.y = Display::FULL_HEIGHT - 20;
+
+    horText(wdw,a,outputStr,WHITE);
 }
 
 void Vert::makeCellVector(CELLSPACING &spacing)
