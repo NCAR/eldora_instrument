@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1992/02/11  19:12:15  thor
+ * Changed DualData to point to unsigned short array.
+ *
  * Revision 1.12  1992/02/10  17:06:00  thor
  * Fixed mistake in DualData.
  *
@@ -117,7 +120,7 @@ struct Dual_Data {
     float angle;
     float altitude;
     int direction;
-    unsigned short *data;
+    unsigned char colors[DISPLAYED_GATES * 2];
 };
 
 static const int POSITIVE = 1;
