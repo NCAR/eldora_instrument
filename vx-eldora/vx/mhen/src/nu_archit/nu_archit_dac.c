@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/11/14  17:25:55  eric
+ * Updated code to run Staggered PRT mode.
+ *
  * Revision 1.2  1994/07/14  20:33:17  eric
  * Simplified task interaction by doing End of Beam error
  * detection in nu_arch_data_xfer.c
@@ -96,6 +99,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define DMC_BASE 0xFF81 + SHORT_BASE    /* Base Address of DMC-300 Card */
 
 extern int Silent;
+int Param = 10;
 short task_sync = 0;
 float rpm;
 int position, err_cnt, int_cnt, proc_stat;
@@ -317,7 +321,7 @@ for(;;)
 	    chip_avg4 = (float)(cs -> spacing[3])/(float)(gate_sp) + 0.5;
 	    if(!radar_fore_aft)
 	      fldrdr = GetFieldRadar(inHeader,1);
-	    else
+            if(radar_fore_aft)
 	      fldrdr = GetFieldRadar(inHeader,2);
 	    pick_gate = fldrdr -> time_series_gate; /* must be divisible by 8 !!! */
 	    if(!Silent)
@@ -396,7 +400,10 @@ for(;;)
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,4,0,0,"dlprt_col.dmp");
+                  if(Param != 6)
+                    load_stat = nu_lddsp(1,4,0,0,"dlprt_col.dmp");
+                  else
+                    load_stat = nu_lddsp(1,4,0,0,"dlprt_col6v.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
@@ -852,6 +859,10 @@ for(;;)
 
 	    load = 0;     /* Reset load flag */
 /*	    printf("load = %d \n",load); */
+	    if(!radar_fore_aft)
+	      fldrdr = GetFieldRadar(inHeader,1);
+            if(radar_fore_aft)
+	      fldrdr = GetFieldRadar(inHeader,2);
 	    n_frq = (double)(fldrdr -> scale_factor[0]);
 	    scale_fac = n_frq/1.0;
 	    printf("scale_fac = %f\n",scale_fac);
