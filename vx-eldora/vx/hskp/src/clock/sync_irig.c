@@ -9,12 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  1992/08/31  22:37:57  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/30  20:12:57  craig
- * Initial revision
- *
  * Revision 1.1  1992/08/14  21:42:52  reif
  * Initial revision
  *
@@ -28,73 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
 #define scope extern
-
-/* Include fifty million vx-works .h files */
-
-#include "vxWorks.h"
-#include "math.h"
-#include "stdioLib.h"
-#include "intLib.h"
-#include "memLib.h"
-#include "semLib.h"
-#include "taskLib.h"
-#include "tyLib.h"
-#include "ioLib.h"
-#include "in.h"
-#include "systime.h"
-#include "sysLib.h"
-
-/* include fifty million .h files to deal with the header formats */
-#include "Volume.h"
-#include "Waveform.h"
-#include "RadarDesc.h"
-#include "FieldRadar.h"
-#include "CellSpacing.h"
-#include "Parameter.h"
-#include "NavDesc.h"
-#include "InSitu.h"
-#include "Ray.h"
-#include "Platform.h"
-#include "FieldParam.h"
-#include "IndFreq.h"
-#include "TimeSeries.h"
-#include "NavInfo.h"
-#include "Ins.h"
-#include "MiniRIMS.h"
-#include "Gps.h"
-#include "InSituData.h"
-
-#include "Header.h"
-extern HeaderPtr inHeader;
-
-/* include the .h files that are housekeeper code specific */
-
-#include "cntrlDef.h"
-#include "cntrlFunc.h"
-#include "hskpDef.h"
-#include "hskpInt.h"
-#include "hskpGbl.h"
-#include "todDef.h"
-#include "todFunc.h"
-#include "todGbl.h"
-#include "ecbAdr.h"
-#include "ecbErrBound.h"
-#include "ecbFunc.h"
-#include "ecbMaster.h"
-#include "ecbSem.h"
-#include "ecbStat.h"
-#include "pwrDef.h"
-#include "pwrGbl.h"
-#include "pwrFunc.h"
-#include "gpsDef.h"
-#include "gpsFunc.h"
-#include "minDef.h"
-#include "minFunc.h"
-#include "tp41vAdr.h"
-#include "vmevmeDef.h"
-#include "vmevmeAdr.h"
-#include "vmevmeFunc.h"
-#include "vmevmeGbl.h"
+#include "hskpAll.h"
 
 char sync_irig() 
 {
@@ -120,13 +48,13 @@ if(timeout >= 90) return((char)0);
 /************** LOAD CLOCK REGISTERS WITH IRIG DATA ****************/
 
 *tod_cmnd=0x04; /* Stop clock for loading,leave in 24 hr mode */
-*hsec=0x00;     /* Init hundreths to zero */
-*sec=1+((unsigned char)0x0F&*isec)+((*isec>>4)*10); /* ADD 1 second */
+*hsec_reg=0x00;     /* Init hundreths to zero */
+*sec_reg=1+((unsigned char)0x0F&*isec)+((*isec>>4)*10); /* ADD 1 second */
 
-*min=((unsigned char)0x0F&*imin)+((*imin>>4)*10); /* Load minute register
+*min_reg=((unsigned char)0x0F&*imin)+((*imin>>4)*10); /* Load minute register
 						     with IRIG minutes */
 
-*hr=((unsigned char)0x0F&*ihr)+((*ihr>>4)*10); /* Load hours register with
+*hr_reg=((unsigned char)0x0F&*ihr)+((*ihr>>4)*10); /* Load hours register with
 						  IRIG hours */
 
 /*********** WAIT FOR TIME MARK BEFORE STARTING CLOCK ********/

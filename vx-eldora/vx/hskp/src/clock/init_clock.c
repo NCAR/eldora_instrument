@@ -24,73 +24,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
 #define scope extern
-
-/* Include fifty million vx-works .h files */
-
-#include "vxWorks.h"
-#include "math.h"
-#include "stdioLib.h"
-#include "intLib.h"
-#include "memLib.h"
-#include "semLib.h"
-#include "taskLib.h"
-#include "tyLib.h"
-#include "ioLib.h"
-#include "in.h"
-#include "systime.h"
-#include "sysLib.h"
-
-/* include fifty million .h files to deal with the header formats */
-#include "Volume.h"
-#include "Waveform.h"
-#include "RadarDesc.h"
-#include "FieldRadar.h"
-#include "CellSpacing.h"
-#include "Parameter.h"
-#include "NavDesc.h"
-#include "InSitu.h"
-#include "Ray.h"
-#include "Platform.h"
-#include "FieldParam.h"
-#include "IndFreq.h"
-#include "TimeSeries.h"
-#include "NavInfo.h"
-#include "Ins.h"
-#include "MiniRIMS.h"
-#include "Gps.h"
-#include "InSituData.h"
-
-#include "Header.h"
-extern HeaderPtr inHeader;
-
-/* include the .h files that are housekeeper code specific */
-
-#include "cntrlDef.h"
-#include "cntrlFunc.h"
-#include "hskpDef.h"
-#include "hskpInt.h"
-#include "hskpGbl.h"
-#include "todDef.h"
-#include "todFunc.h"
-#include "todGbl.h"
-#include "ecbAdr.h"
-#include "ecbErrBound.h"
-#include "ecbFunc.h"
-#include "ecbMaster.h"
-#include "ecbSem.h"
-#include "ecbStat.h"
-#include "pwrDef.h"
-#include "pwrGbl.h"
-#include "pwrFunc.h"
-#include "gpsDef.h"
-#include "gpsFunc.h"
-#include "minDef.h"
-#include "minFunc.h"
-#include "tp41vAdr.h"
-#include "vmevmeDef.h"
-#include "vmevmeAdr.h"
-#include "vmevmeFunc.h"
-#include "vmevmeGbl.h"
+#include "hskpAll.h"
 
 void init_clock(short div_525) 
 {
@@ -99,13 +33,13 @@ long i;
 
 /* INITIALIZE ALL OF THE Clock chip related GLOBAL POINTERS *****************/
 
-hsec = (unsigned char *)(HUNDRETHS);
-sec  = (unsigned char *)(SECONDS);
-min =  (unsigned char *)(MINUTES);
-hr  =  (unsigned char *)(HOURS);
-day =  (unsigned char *)(DAY);
-mon =  (unsigned char *)(MONTH);
-yr  =  (unsigned char *)(YEAR);
+hsec_reg = (unsigned char *)(HUNDRETHS);
+sec_reg  = (unsigned char *)(SECONDS);
+min_reg =  (unsigned char *)(MINUTES);
+hr_reg =  (unsigned char *)(HOURS);
+day_reg =  (unsigned char *)(DAY);
+mon_reg =  (unsigned char *)(MONTH);
+yr_reg  =  (unsigned char *)(YEAR);
 tod_cmnd = (unsigned char *)(TOD_CMND_REG);
 int_msk = (unsigned char *)(INT_STAT_AND_MASK);
 
@@ -121,7 +55,7 @@ id2  = (unsigned char *)(SELDAY2);
 
 /* Pointers to the sub-second interrupt handling stuff */
 
-msec = (unsigned short *)(READ_MS);
+msec_reg = (unsigned short *)(READ_MS);
 sel_525 = (short *)SEL_525;
 reset_525 = (short *)RST_525;
 
@@ -148,8 +82,8 @@ tod_bim_vr3 = (unsigned char *)BIM_VR3;
 
 /* Check for leap year, update the jday_calc array if it is */
 
-vyr = *hsec;  /* To latch the time and date registers */
-vyr = *yr;    /* read the read */
+vyr = *hsec_reg;  /* To latch the time and date registers */
+vyr = *yr_reg;    /* read the year */
 
 if((((int)(vyr/4))*4 == vyr) && (jday_calc[2] == 60))
   {

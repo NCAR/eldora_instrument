@@ -19,61 +19,10 @@
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#define OK_RPC
+
 #define scope extern
 
-/* Include fifty million vx-works .h files */
-
-#include "vxWorks.h"
-#include "math.h"
-#include "stdioLib.h"
-#include "intLib.h"
-#include "memLib.h"
-#include "semLib.h"
-#include "taskLib.h"
-#include "tyLib.h"
-#include "ioLib.h"
-#include "in.h"
-#include "systime.h"
-#include "sysLib.h"
-
-/* include fifty million .h files to deal with the header formats */
-#include "Volume.h"
-#include "Waveform.h"
-#include "RadarDesc.h"
-#include "FieldRadar.h"
-#include "CellSpacing.h"
-#include "Parameter.h"
-#include "NavDesc.h"
-#include "InSitu.h"
-#include "Ray.h"
-#include "Platform.h"
-#include "FieldParam.h"
-#include "IndFreq.h"
-#include "TimeSeries.h"
-#include "NavInfo.h"
-#include "Ins.h"
-#include "MiniRIMS.h"
-#include "Gps.h"
-#include "InSituData.h"
-
-#include "Header.h"
-extern HeaderPtr inHeader;
-
-/* include the .h files that are housekeeper code specific */
-
-#include "hskpDef.h"
-#include "hskpInt.h"
-#include "hskpGbl.h"
-#include "tp41vAdr.h"
-#include "vmevmeDef.h"
-#include "vme_hndshk.h"
-#include "vmevmeAdr.h"
-#include "vmevmeFunc.h"
-#include "vmevmeGbl.h"
-#include "iruDef.h"
-#include "iruFunc.h"
-#include "iruGbl.h"
+#include "hskpAll.h"
 
 void start_iru()
 {

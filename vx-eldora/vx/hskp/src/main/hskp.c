@@ -9,9 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.5  1993/08/10  20:01:17  craig
- * *** empty log message ***
- *
  * Revision 1.1  1992/08/19  17:27:16  craig
  * Initial revision
  *
@@ -25,86 +22,10 @@
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
-#define OK_RPC
+
 #define scope extern
+#include "hskpAll.h"
 
-
-/* Include fifty million vx-works .h files */
-
-#include "vxWorks.h"
-#include "math.h"
-#include "stdioLib.h"
-#include "intLib.h"
-#include "memLib.h"
-#include "semLib.h"
-#include "taskLib.h"
-#include "tyLib.h"
-#include "ioLib.h"
-#include "in.h"
-#include "systime.h"
-#include "sysLib.h"
-
-/* include fifty million .h files to deal with the header formats */
-
-#include "Volume.h"
-#include "Waveform.h"
-#include "RadarDesc.h"
-#include "FieldRadar.h"
-#include "CellSpacing.h"
-#include "Parameter.h"
-#include "NavDesc.h"
-#include "InSitu.h"
-#include "Ray.h"
-#include "Platform.h"
-#include "FieldParam.h"
-#include "IndFreq.h"
-#include "TimeSeries.h"
-#include "NavInfo.h"
-#include "Ins.h"
-#include "MiniRIMS.h"
-#include "Gps.h"
-#include "InSituData.h"
-
-#include "Header.h"
-extern HeaderPtr inHeader;
-
-/* include the .h files that are housekeeper code specific */
-
-#include "HskpCmd.h"
-#include "HskpStatus.h"
-#include "cntrlDef.h"
-#include "cntrlFunc.h"
-#include "cntrlGbl.h"
-#include "hskpDef.h"
-#include "hskpInt.h"
-#include "hskpGbl.h"
-#include "hskpFunc.h"
-#include "todDef.h"
-#include "todFunc.h"
-#include "todGbl.h"
-#include "ecbAdr.h"
-#include "ecbErrBound.h"
-#include "ecbFunc.h"
-#include "ecbMaster.h"
-#include "ecbSem.h"
-#include "ecbStat.h"
-#include "pwrDef.h"
-#include "pwrGbl.h"
-#include "pwrFunc.h"
-#include "gpsDef.h"
-#include "gpsGbl.h"
-#include "gpsFunc.h"
-#include "minDef.h"
-#include "minFunc.h"
-#include "tp41vAdr.h"
-#include "vmevmeDef.h"
-#include "vme_hndshk.h"
-#include "vmevmeAdr.h"
-#include "vmevmeFunc.h"
-#include "vmevmeGbl.h"
-#include "iruDef.h"
-#include "iruFunc.h"
-#include "iruGbl.h"
 extern void stop11(void);
 extern void dpclr(void);
 extern void go11(void);
@@ -114,13 +35,19 @@ void hskp()
 {
 
 /* Define some general purpose variables */
+
+#define DEGS_TO_RADS 0.0174533
 long kill, i;
 unsigned char B, nr;
 unsigned long T;
 double frequency, temp;
 unsigned char ecbaddr, unitnum, filternum, test;
-int onedone, timeout;
+int timeout;
 char ecbname[20];
+float anglesin;
+static float dumb_rads, dumb_stepr, dumb_stepp;
+static int dumb_start = 0, dumb_index = 25;
+
 
 /* initialize general purpose variables */
 kill = 1;
@@ -143,6 +70,15 @@ ldsrec(ecbname);
 ecbIntInit(1000000);
 go11();
 
+/* Enable 68040 Interrupts */
+sysIntEnable(VME_VME_IRQ);
+sysIntEnable(IEEE_IRQ);
+sysIntEnable(ARINC_IRQ);
+sysIntEnable(GPS_IRQ);
+sysIntEnable(ECB_CMPLT_IRQ);
+sysIntEnable(ECB_ERROR_IRQ);
+sysIntEnable(ECB_SPARE_IRQ);
+
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
@@ -163,15 +99,6 @@ init_iru((short)0);     /* Initializes the ARINC 429 card to interrupt on
 
 printf("Initializing the GPS interface\n");
 init_gps((short)0);/* Sets up the the GPS mailbox interrupt, proper pointers */
-
-/* Enable 68040 Interrupts */
-sysIntEnable(VME_VME_IRQ);
-sysIntEnable(IEEE_IRQ);
-sysIntEnable(ARINC_IRQ);
-sysIntEnable(GPS_IRQ);
-sysIntEnable(ECB_CMPLT_IRQ);
-sysIntEnable(ECB_ERROR_IRQ);
-sysIntEnable(ECB_SPARE_IRQ);
 
 
 /********************************************************/
@@ -198,7 +125,6 @@ do{
     printf("Will wait now for the control processor to start me\n");
     do{
     taskDelay(60);
-    if(dc_remove_flag)dc_removal();
      }while(stop_flag);
     printf("Was started by the control processor\n");
 
@@ -208,8 +134,9 @@ do{
     araddes = GetRadar(inHeader,(int)2);
     vol = GetVolume(inHeader);
     wave = GetWaveform(inHeader);
-    frad = GetFieldRadar(inHeader);
-    cs = GetCellSpacing(inHeader);
+    ffrad = GetFieldRadar(inHeader,1);
+    afrad = GetFieldRadar(inHeader,2);
+    cs = GetCellSpacing(inHeader,1);
     param = GetParameter(inHeader,(int)0);
     navdes = GetNavDesc(inHeader);
     insitdes = GetInsitu(inHeader);
@@ -219,6 +146,12 @@ do{
     dwelltime_msec = wave->repeat_seq * wave->repeat_seq_dwel;
     half_dwelltime_msec = dwelltime_msec / 2;
 
+    /* Calculate the sine and cosine of each of the tilt angles */
+    sin_ftilt = sin((double)(ffrad->E_plane_angle * DEGS_TO_RADS));
+    sin_atilt = sin((double)(afrad->E_plane_angle * DEGS_TO_RADS));
+    cos_ftilt = cos((double)(ffrad->E_plane_angle * DEGS_TO_RADS));
+    cos_atilt = cos((double)(afrad->E_plane_angle * DEGS_TO_RADS));
+
     /* Set motor to new RPM's and start spinning */
 
     printf("Starting the motor\n");
@@ -226,37 +159,6 @@ do{
     set_vel(rpm);
     go_motor();
 
-    /* Program the Intermediate Frequency Signal processors with the
-       proper filters */
-
-    /* Note that this programs the aft identical to the fore this code
-       will have to change, if that no longer is desired */
-/*
-    for(i=0; i<fraddes->num_freq_trans; i++)
-      {
-	  ecbaddr = ECBIFFOR;
-	  unitnum = i+1;
-	  filternum = frad->filter_num[i];
-	  timeout = 0;
-	  do
-	    {
-		timeout++;
-	    }while((test = ecbSetIF(ecbaddr,unitnum,filternum) != 0) &&
-		   timeout < 30000);
-	  if(timeout >= 30000)
-	    printf("Failed to set fore IF filter IF #%d",unitnum);
-
-	  ecbaddr = ECBIFAFT;
-	  timeout = 0;
-	  do
-	    {
-		timeout++;
-	    }while((test = ecbSetIF(ecbaddr,unitnum,filternum) != 0) &&
-		   timeout< 30000);
-	  if(timeout >= 30000)
-	    printf("Failed to set aft IF filter IF #%d",unitnum);
-      }
-*/
     /* Program the receiver/exciter chassis with the proper frequencies */
     /* Do the fore radar first */
 /*
@@ -376,37 +278,61 @@ do{
 /**************************************************************/
 
     do{
-       onedone = 0;
 
-       i = 0;
-       do{
-	   i ++;
-       }
-       while(fore_vmehndshk->polled == 0 && !stop_flag && !reload_flag);
-       vmevme_isr();
+	/* Is there new IRU data to handle? */
 
        if(old_iru_interrupts != iru_rpntr->num_interrupts)
-	 {
               iru_isr();
-	      onedone = 1;
-	  }
 
 	/* Check on the status of the miniRIMS */
 
 	/* status_mini(); */
 
-        if((*gps_hndshk != (short)0) && (onedone == 0))
-	  {
+
+       /* If new GPS data exists handle the data */
+
+        if(*gps_hndshk != (short)0)
 	      gps_isr();
-	      onedone = 1;
-	  }
-/*
-	if((tp_dwell_count >= testpulse_max_count) && (onedone == 0))
-	  {
+
+/*	if(tp_dwell_count >= testpulse_max_count)
 	      update_testpulse();
-	      onedone = 1;
-	  }
 */
+       /* If fake_angles is true, we need to fake up some iru data */
+
+/* Put in a fake parameters if global variable fake_angles is true */
+
+       if(fake_angles)
+	 {
+	     if(dumb_start == 0)
+	       {
+		   dumb_start = 1;
+		   dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
+		   /* 2 pi radians per second */
+		   dumb_stepp = 0.000757 / (float)dwelltime_msec;
+		   /* Is about 120 m/s if lat step = long step */ 
+		   dumb_rads = 0;
+		   last_iru_data.longitude = -105.;
+		   last_iru_data.latitude = 40.;
+	       }
+
+	     /* Dummy up the INS parameters */
+	     dumb_rads += dumb_stepr;
+	     if(dumb_rads > 6.28318) dumb_rads = 0;
+	     anglesin = sin(dumb_rads);
+	     last_iru_data.longitude += dumb_stepp;
+	     last_iru_data.latitude += dumb_stepp;
+	     last_iru_data.pitch = 2.0 * anglesin;
+	     last_iru_data.roll = 15.0 * anglesin;
+	     last_iru_data.heading = 45.0 + 0.5 * anglesin;
+	     last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
+	     last_iru_data.seconds = sec;
+	     last_iru_data.msec_longitude = msec;
+	     dumb_index++;
+	     if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
+	     fill_platform(msecs_ray[dumb_index]);
+
+	 }
+
        }while(!stop_flag && !reload_flag);
 
    }while(kill);

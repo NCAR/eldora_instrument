@@ -1,4 +1,4 @@
-/*
+ /*
  *	$Id$
  *
  *	Module:	fill_platform	 
@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/20  16:56:18  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1993/05/12  16:08:38  craig
  * *** empty log message ***
  *
@@ -29,66 +32,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
 #define scope extern
-
-/* Include fifty million vx-works .h files */
-
-#include "vxWorks.h"
-#include "math.h"
-#include "stdioLib.h"
-#include "intLib.h"
-#include "memLib.h"
-#include "semLib.h"
-#include "taskLib.h"
-#include "tyLib.h"
-#include "ioLib.h"
-#include "in.h"
-#include "systime.h"
-#include "sysLib.h"
-
-/* include fifty million .h files to deal with the header formats */
-#include "Volume.h"
-#include "Waveform.h"
-#include "RadarDesc.h"
-#include "FieldRadar.h"
-#include "CellSpacing.h"
-#include "Parameter.h"
-#include "NavDesc.h"
-#include "InSitu.h"
-#include "Ray.h"
-#include "Platform.h"
-#include "FieldParam.h"
-#include "IndFreq.h"
-#include "TimeSeries.h"
-#include "NavInfo.h"
-#include "Ins.h"
-#include "MiniRIMS.h"
-#include "Gps.h"
-#include "InSituData.h"
-
-#include "Header.h"
-extern HeaderPtr inHeader;
-
-/* include the .h files that are housekeeper code specific */
-#include "hskpDef.h"
-#include "hskpInt.h"
-#include "hskpGbl.h"
-#include "pwrDef.h"
-#include "pwrGbl.h"
-#include "pwrFunc.h"
-#include "gpsDef.h"
-#include "gpsGbl.h"
-#include "gpsFunc.h"
-#include "iruDef.h"
-#include "iruGbl.h"
-#include "iruFunc.h"
-#include "minDef.h"
-#include "minFunc.h"
-#include "tp41vAdr.h"
-#include "vmevmeDef.h"
-#include "vme_hndshk.h"
-#include "vmevmeAdr.h"
-#include "vmevmeFunc.h"
-#include "vmevmeGbl.h"
+#include "hskpAll.h"
 
 void fill_platform(long msecs)
 {
@@ -160,14 +104,14 @@ while((msecs > (msecs_ray[next_index]-half_dwelltime_msec)) && (failsafe < 3))
       sin_pitch = sin((double)(last_iru_data.pitch * DEGS_TO_RADS));
       cos_pitch = cos((double)(last_iru_data.pitch * DEGS_TO_RADS));
 
-      x = -1.0 * cos_crot_angle * sin_heading * COS_FTILT * sin_pitch +
-	cos_heading * sin_crot_angle * COS_FTILT +
-	  sin_heading * cos_pitch * SIN_FTILT;
-      y = -1.0 * cos_crot_angle * cos_heading * COS_FTILT * sin_pitch -
-	sin_heading * sin_crot_angle * COS_FTILT +
-	  cos_pitch * cos_heading * SIN_FTILT;
-      z = cos_pitch * COS_FTILT * cos_crot_angle +
-	sin_pitch * SIN_FTILT;
+      x = -1.0 * cos_crot_angle * sin_heading * cos_ftilt * sin_pitch +
+	cos_heading * sin_crot_angle * cos_ftilt +
+	  sin_heading * cos_pitch * sin_ftilt;
+      y = -1.0 * cos_crot_angle * cos_heading * cos_ftilt * sin_pitch -
+	sin_heading * sin_crot_angle * cos_ftilt +
+	  cos_pitch * cos_heading * sin_ftilt;
+      z = cos_pitch * cos_ftilt * cos_crot_angle +
+	sin_pitch * sin_ftilt;
 
       if((x != (double)0.0) && (y != (double)0.0))
 	{
@@ -209,14 +153,14 @@ while((msecs > (msecs_ray[next_index]-half_dwelltime_msec)) && (failsafe < 3))
       sin_crot_angle = sin((double)(corr_rot_angle * DEGS_TO_RADS));
       cos_crot_angle = cos((double)(corr_rot_angle * DEGS_TO_RADS));
 
-      x = -1.0 * cos_crot_angle * sin_heading * COS_ATILT * sin_pitch +
-	cos_heading * sin_crot_angle * COS_ATILT +
-	  sin_heading * cos_pitch * SIN_ATILT;
-      y = -1.0 * cos_crot_angle * cos_heading * COS_ATILT * sin_pitch -
-	sin_heading * sin_crot_angle * COS_ATILT +
-	  cos_pitch * cos_heading * SIN_ATILT;
-      z = cos_pitch * COS_ATILT * cos_crot_angle +
-	sin_pitch * SIN_ATILT;
+      x = -1.0 * cos_crot_angle * sin_heading * cos_atilt * sin_pitch +
+	cos_heading * sin_crot_angle * cos_atilt +
+	  sin_heading * cos_pitch * sin_atilt;
+      y = -1.0 * cos_crot_angle * cos_heading * cos_atilt * sin_pitch -
+	sin_heading * sin_crot_angle * cos_atilt +
+	  cos_pitch * cos_heading * sin_atilt;
+      z = cos_pitch * cos_atilt * cos_crot_angle +
+	sin_pitch * sin_atilt;
 
       if((x != (double)0.0) && (y != (double)0.0))
 	{

@@ -19,17 +19,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define scope extern
-#include "vxWorks.h"
-#include "stdioLib.h"
-#include "string.h"
-#include "hostLib.h"
-#include "taskLib.h"
-#include "nfsLib.h"
-#include "iosLib.h"
-#include "memLib.h"
-#include "vmevmeGbl.h"
-#include "hskpFunc.h"
-
+#include "hskpAll.h"
 
 void hostStartup(void)
 {

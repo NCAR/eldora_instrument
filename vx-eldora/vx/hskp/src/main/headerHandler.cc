@@ -9,18 +9,6 @@
  * revision history
  * ----------------
  * $Log$
-// Revision 1.1  1992/09/03  19:58:37  craig
-// Initial revision
-//
- * Revision 1.1  1992/08/14  17:52:04  reif
- * Initial revision
- *
- * Revision 1.3  1991/11/25  19:55:59  thor
- * Cleaned up.
- *
- * Revision 1.2  1991/10/09  15:32:32  thor
- * Eliminated unused wavecount items.
- *
  * Revision 1.1  1991/09/11  19:36:04  thor
  * Initial revision
  *
