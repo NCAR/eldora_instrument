@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:18:48  craig
+ * Changed record flag not on message to print only once
+ *
  * Revision 1.2  1994/11/14  17:50:16  craig
  * Modified for new control processor software
  *
@@ -255,7 +258,32 @@ for(i=0; i<2; i++)
 	}
   }
 
-/* Wait for the drives to come ready and then write EOF's on all of them */
+/* Wait for the LOAD_FLAG to be set then continue */
+
+LOAD_FLAG = 0;
+printf("Will wait now for the LOAD_FLAG to be set to 1\n");
+while(LOAD_FLAG == 0)
+  taskDelay(60);
+LOAD_FLAG = 0;
+
+
+/* Load tape in all heathy drives */
+
+for(i=0; i<2; i++)
+  {
+      for(j=0; j<2; j++)
+	{
+	    if(health.sqr[i][j]) /* IF DRIVE IS HEALTHY, load its tape */
+	      {
+		  unschar = physical_unit[i][j];
+		  printf("LOADING TAPE ON SCSI DRIVE: %2d\n",
+			       physical_unit[i][j]);
+		  exb_cmds(LOAD,LD_ULD,unschar);
+	      }
+	}
+  }
+
+/* Wait for each drive to come ready before proceeding*/
 
 for(i=0; i<2; i++)
   {
@@ -265,22 +293,17 @@ for(i=0; i<2; i++)
 				    to come ready,THEN WRITE an EOF */
 	      {
 		  unschar = physical_unit[i][j];
-		  drive_init(unschar);
 		  drv_stat=tst_unt_rdy(unschar);
-		  while(drv_stat!=0x80 && timeout < 20)
+		  while(drv_stat!=0x80 && timeout < 2000)
 		    {
+			printf("Waiting for drive %d to come ready\n",
+			       physical_unit[i][j]); 
 			drv_stat=tst_unt_rdy(unschar);
 			timeout++;
 			taskDelay(200);
 		    }
-		  if(timeout == 20)
+		  if(timeout == 2000)
 			printf("ERROR: DRIVE NOT READY, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
-		  else
-		    {
-		      printf("WRITING BEGINNING FILEMARK TO SCSI DRIVE: %2d\n",
-			       physical_unit[i][j]);
-		      exb_cmds(WRITE_FILEMARK,WRT_FLMK,unschar);
-		    }
 	      }
 	}
   }
@@ -296,10 +319,9 @@ number_of_drives = record_sys[0][2];
 drives_to_use[0] = record_sys[0][0];
 drives_to_use[1] = record_sys[0][1];
 
-/* Get the starting amount of tape for the first drive of each recording
-   system */
-if(record_sys[0][2] > 0) starting_amnt[0] = tape_remain(record_sys[0][0]);
-if(record_sys[1][2] > 0) starting_amnt[1] = tape_remain(record_sys[1][0]);
+/* Set the amount written to tape to zero for each recording system */
+amount_written[0] = 0;
+amount_written[1] = 0;
 
 /********************************************************************/
 /**********   Start of infinite run time loop         ***************/
@@ -443,6 +465,26 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 		  for(i=0; i<number_of_drives; i++)
 		    {
 			unschar = drives_to_use[i];
+
+			/* test to make sure drive is ready 
+			   (user could have stuck in a new tape */
+
+			drv_stat=tst_unt_rdy(unschar);
+			while(drv_stat!=0x80 && timeout < 2000)
+			  {
+			      printf("Waiting for drive %d to come ready\n",
+				     physical_unit[i][j]); 
+			      drv_stat=tst_unt_rdy(unschar);
+			      timeout++;
+			      taskDelay(200);
+			  }
+			if(timeout == 2000)
+			  {
+			      printf("ERROR: DRIVE NOT READY, SCSI DRIVE: %2d",
+				     drives_to_use[i]);
+			      printf(" DRIVE STATUS: %X\n",drv_stat);
+			  }
+
 			sgflg=HEADER;
 			vol->volume_num=vol_num;
 			printf("WRITING HEADER TO SCSI DRIVE%2d\n",
