@@ -1,0 +1,237 @@
+### makefile for MVME2306 and ETH29 target ### 
+
+#
+# makefile's basics
+#
+TARGET		= eth29
+OS		= 
+EXTRA_DEFINE	= 
+
+#
+# make soome variables public
+#
+export OS
+export EXTRA_DEFINE
+
+#
+# sources
+#
+SOURCES         = eth29.c
+#include $(TARGET).mak
+
+#
+# vpath
+#
+VPATH		= .
+
+#
+# include paths
+#
+CC_INCLUDE	= -I/usr/ppc-linux/ppc-linux/include \
+		  -I. 
+#
+# tools
+#
+TOOLENV		= ppc-linux-
+
+AR		= $(TOOLENV)ar
+AS		= $(TOOLENV)as
+CPP		= $(TOOLENV)cpp
+CC		= $(TOOLENV)gcc
+LD		= $(TOOLENV)ld
+NM		= $(TOOLENV)nm
+RM		= rm -f
+
+#
+# options
+#
+CC_DEFINES	=
+
+CC_OPTIM	= 
+CC_WARNINGS	= -Wall
+LD_LIB		=
+ 
+ASFLAGS		= -E $(CC_INCLUDE) $(CC_DEFINES)
+CPPFLAGS	= -E -P
+CCFLAGS		= $(CC_OPTIM) $(CC_WARNINGS) $(CC_INCLUDE) $(CC_DEFINES)
+LDFLAGS		= -N -Map $(TARGET).map $(LD_LIB)
+LDOFORMAT	= 
+LDENTRY		= 
+
+#
+# what to do with assembler files
+#
+.s.o:
+	@ echo
+	@ echo "* compiling: $< *"
+	@ $(CPP) $(ASFLAGS) -E -P $< > tmp.s
+	@ $(CC) $(CCFLAGS) -c -o $*.o tmp.s
+	@ ls -l $*.o
+	@ $(RM) tmp.s
+
+#
+# what to do with C files
+#
+.c.o:
+	@ echo
+	@ echo "* compiling: $< *"
+	@ $(CC) $(CCFLAGS) -c $<
+	@ ls -l $@
+
+#
+# object file string
+#
+OBJECTS		= $(notdir $(SOURCES:.c=.o))
+
+#
+# default: link object files to target relocatable file
+#
+$(TARGET)_obj.o: $(OBJECTS)
+	@ echo
+	@ echo "* make $(TARGET)_obj.o *"
+	@ $(LD) -N -Map $(TARGET)_obj.map -r -o $(TARGET)_obj.o \
+		$(OBJECTS)
+	@ file -b $(TARGET)_obj.o
+	@ ls -l $(TARGET)_obj.o
+	@ ls -l $(TARGET)_obj.map
+	@ echo
+	@ echo "*** $(TARGET)_obj.o done ***"
+	@ echo
+
+#
+# copy relocatable into download directory
+# NOTE: should be customized
+#
+.PHONY: install
+install: $(TARGET)_obj.o
+	@ echo
+	@ echo "* install $(TARGET)_obj.o *"
+	@ cp $(TARGET)_obj.o /home/tornado/dlall
+	@ ls -o /home/tornado/dlall/$(TARGET)_obj.o
+	@ echo "*** install $(TARGET)_obj.o done ***"
+	@ echo
+
+#
+# generate depndency file $(TARGET).dep automatically
+# NOTE: commenting in .PHONY... creates a new
+#       dependency file every time 'make' is called
+#
+#.PHONY: $(TARGET).dep
+$(TARGET).dep:
+	@ echo
+	@ echo "* dependency file: $(TARGET).dep *"
+	@ $(CC) $(CC_INCLUDE) $(CC_DEFINES) -MM $(SOURCES) > $(TARGET).dep
+	@ ls -l *.dep
+	@ echo "*** $(TARGET).dep done ***"
+
+#
+# create dependency file
+#
+.PHONY: dep
+dep:
+	@ echo
+	@ echo "* create dependency file: $(TARGET).dep *"
+	@ -$(RM) *.dep
+	@ $(CC) $(CC_INCLUDE) $(CC_DEFINES) -MM $(SOURCES) > $(TARGET).dep
+	@ ls -l *.dep
+	@ echo "*** $(TARGET).dep created ***"
+	@ echo
+
+
+#
+# clean up
+# NOTE: dependency file is not removed because it would be recreated
+#       on each call to 'make clean', so after calling 'make clean'
+#       'make dep' should be called which explicitly recreates the
+#       dependency file
+# NOTE: editor backups are not removed
+#
+.PHONY: clean
+clean:
+	@ echo
+	@ echo "* clean up $(TARGET) *"
+	@ $(RM) *.o
+	@ $(RM) $(TARGET).map
+	@ $(RM) $(TARGET)
+	@ echo "*** $(TARGET) clean done ***"
+	@ echo
+
+#
+# clean up all
+#
+.PHONY: cleanall
+cleanall:
+	@ echo
+	@ echo "* clean up all $(TARGET) *"
+	@ $(RM) *.o
+	@ $(RM) *.map
+	@ $(RM) $(TARGET)
+	@ $(RM) *.dep
+	@ $(RM) *.bck
+	@ $(RM) *%
+	@ $(RM) *.\$??
+	@ $(RM) *~
+	@ echo "*** $(TARGET) clean all done ***"
+	@ echo
+
+#
+# make will echo all source files
+#
+.PHONY: dir
+dir:
+	@ echo
+	@ echo "* source files for $(TARGET) *"
+	@ echo $(SOURCES)
+	@ echo
+
+#
+# make will echo all object files
+#
+.PHONY: dirobj
+dirobj:
+	@ echo
+	@ echo "* object files for $(TARGET) *"
+	@ echo $(OBJECTS)
+	@ echo
+
+#
+# make will precompile all sourcefiles
+#
+.PHONY: cpp
+cpp:
+	@ echo
+	@ echo "* precompiling $(TARGET) *"
+	$(CPP) $(CPPFLAGS) > $(TARGET).d
+	@ ls -l $(TARGET).d
+	@ echo "*** $(TARGET).d done ***"
+	@ echo
+
+#
+# create distribution files
+#
+.PHONY: dist
+dist:
+	@ echo
+	@ echo "* create $(TARGET)_host.tgz *"
+	@ tar -cvf $(TARGET)_host.tar \
+		./eth29.c \
+		../../tcpip/C_SRC_DRV/mbuf.h \
+		../../tcpip/C_SRC_DRV/nif.h \
+		../../tcpip/C_SRC_DRV/socket.h \
+		../../tcpip/C_SRC_DRV/neterr.h \
+		../../tcpip/C_SRC_DRV/neterrno.h \
+		./makefile
+	@ gzip $(TARGET)_host.tar
+	@ mv $(TARGET)_host.tar.gz $(TARGET)_host.tgz
+	@ chmod 777 $(TARGET)_host.tgz
+	@ ls -l $(TARGET)_host.tgz
+	@ echo "*** $(TARGET)_host.tgz done ***"
+	@ echo
+
+#
+# include rules to create object files
+#
+include $(TARGET).dep
+
+
+

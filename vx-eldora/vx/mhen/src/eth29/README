@@ -1,0 +1,18 @@
+ETH29 firmware test application
+-------------------------------
+
+This test application running under vxWorks initializes the ETH29
+and then opens an UDP socket on port 50000 on which data is received.
+
+The test application has been tested using a Motorola MV2306 VME carrier
+and an ETH29 with VME base Address 0x50c00000 (rotary switches set to 0x50c).
+The IP address assigned to the ETH29 is defined by ETH29_IP_ADDR in
+the file eth29.c
+
+To run the application using vxWorks, load the compiled object
+	"ld < eth29_obj.o"
+and call the main function
+	"eth29"
+
+Data can be sent to the board using socksend. For example:
+	"socksend -d <ip address> -L 10 -p 50000 -u"
