@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/17  21:07:15  shawn
+ * debugged; copy prior to adding writes to global hskp rpc status.
+ *
  * Revision 1.1  1992/09/17  18:09:55  shawn
  * Initial revision
  *
@@ -94,6 +97,11 @@ logMsg("\necbErrorIsr:  LAST ECB COMMAND ISSUED ENDED IN ERROR!!!\n");
  	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to NO KNOWN ADDRESS!!!!\n",ecbadr);
 	  break;
       }
+
+    /* load global status structure to be rpc'd back to control processor */
+    /* (Set appropriate slave-dead bit) */
+    currStatus->slvdead = currStatus->slvdead | (0x01<<ecbadr);
+    logMsg("ecbErrorIsr:  currStatus->slvdead = 0x%2x\n",currStatus->slvdead);
 
     if (errCheckOUT())   /* check for OUT FIFO EMPTY */
       {
@@ -192,9 +200,6 @@ logMsg("\necbErrorIsr:  LAST ECB COMMAND ISSUED ENDED IN ERROR!!!\n");
 	  logMsg("\necbErrorIsr: ERROR!!! ecbadr RETURNED IN ECB MASTER OUT FIFO DOES NOT\necbErrorIsr: CORRESPOND TO ANY VALID SLAVE ADDRESS. Re-Enabling interrupt\necbErrorIsr: and Give-ing ecb_cmd_not_pending semaphore anyway.\n");
 	break;
       }
-
-    /* load global status structure to be sent back to control processor */
-    /* (set appropriate slave-dead bit) */
 
     /* Re-enable interrupt in ECB MASTER BIM */
     *ecb_bim_cr1 = (0xd8 | ECB_ERROR_IRQ);
