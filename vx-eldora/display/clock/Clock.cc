@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/05/03  18:05:57  thor
+ * Added comments, fixed incorrect call to copyBlock.
+ *
  * Revision 1.1  1991/05/03  15:19:17  thor
  * Initial revision
  *
@@ -25,7 +28,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
 	     short y, unsigned short xoff, unsigned short yoff) : 
-	     Window(cntlr, window, x, y, 100, 24, xoff, yoff)
+	     Window(cntlr, window, x, y, 136, 32, xoff, yoff)
 {
     foreground = WHITE1;	// Default colors are white on black.
     background = BLACK;
@@ -37,10 +40,11 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
     FAST Point *ptr = location;
 
     FAST int j = 8;
+    FAST unsigned short k = 4 + CLKWIDTH;
     FAST unsigned short lx = 4;	// 4 pixel wide boarders.
     FAST unsigned short ly = 4;
 
-    for (FAST int i = 0; i < j; i++, ptr++, lx += 12)
+    for (FAST int i = 0; i < j; i++, ptr++, lx += k)
       {
 	  ptr->x = lx;
 	  ptr->y = ly;
@@ -49,7 +53,7 @@ Clock::Clock(GraphicController *cntlr, int window, unsigned short x, unsigned
     j = 11;
 
     lx = 0;
-    ly = 24;			// Start data storage directly below
+    ly = CLKHEIGHT + 8;		// Start data storage directly below
 				// displayed area.
 
     ptr = patterns;
@@ -90,22 +94,23 @@ void Clock::SetDefPatterns(void)
     shift(patterns[10],location[5],CLKWIDTH,CLKHEIGHT);
 }
 
-void Clock::Pattern(FAST Point *ptr, FAST unsigned char *pattern)
+void Clock::Pattern(FAST Point *ptr, FAST unsigned short *pattern)
 {
     Point pt = *ptr;		// Where is data space to draw character.
 
     FAST int j = CLKHEIGHT;
+    FAST int l = CLKWIDTH;
 
     // Loop drawing each line.
     for (FAST int i = 0; i < j; i++, pattern++)
       {
-	  FAST int l = CLKWIDTH;
+	  FAST unsigned short p = *pattern;
 
-	  FAST unsigned char p = *pattern;
+	  p <<= 4;		// Get rid of unused top end nibble.
 
 	  for (FAST int k = 0; k < l; k++)
 	    {
-		if ((p & 0x80))	// Set bit means draw foreground color.
+		if ((p & 0x8000))	// Set bit means draw foreground color.
 		  point(pt,foreground);
 		else
 		  point(pt,background);
