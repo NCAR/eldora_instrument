@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/16  20:25:18  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -18,10 +21,8 @@
 #ifndef INCWdoghh
 #define INCWdoghh
 
-extern "C" {
 #include "vxWorks.h"
 #include "wdLib.h"
-};
 
 class Wdog {
   private:
