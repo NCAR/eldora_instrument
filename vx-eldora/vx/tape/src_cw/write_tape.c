@@ -9,21 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.2  1993/09/24  22:13:20  reif
- * new wrtape.c
- *
- * Revision 1.4  1992/10/30  23:54:40  reif
- * *** empty log message ***
- *
- * Revision 1.3  1992/10/25  17:07:58  reif
- * *** empty log message ***
- *
- * Revision 1.2  1992/10/17  21:32:05  reif
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/14  17:50:06  reif
+ * Revision 1.1  1994/01/06  21:31:56  craig
  * Initial revision
- *
  *
  * description:
  *        
@@ -126,29 +113,30 @@ switch(parmblk[cmnd_ident].stat_flags)
   {
     case 0xC2:
       printf("WRITE COMMAND COMPLETE WITH SOFT ERROR\n");
-      stat=1;
+      stat=0xC2;
       break;
     case 0xC0:
       printf("WRITE COMMAND COMPLETE WITH ERROR\n");
-      stat=1;
+      stat=0xC0;
       break;
     case 0x90:
-      /*printf("WRITE COMMAND COMPLETE WITH TRUNCATED DATA DRV%d\n",drv_num);*/
-      stat=1;
+/*      printf("WRITE COMMAND COMPLETE WITH TRUNCATED DATA DRV%d\n",drv_num);
+      stat=0x90; */
+      stat = 0;
       break;
     case 0xE0:
       printf("WRITE COMMAND COMPLETE BUT REQUIRED RETRIES\n");
-      stat=1;
+      stat=0xE0;
       break;
     case 0x60:
       printf("WRITE COMMAND NOT COMPLETE DUE TO RETRIES\n");
-      stat=1;
+      stat=0x60;
       break;
     case 0x44:
       printf("WRITE COMMAND NOT COMPLETE DUE TO ERROR\n");
-      stat=1;
+      stat=0x44;
       break;
-    case 0x80:
+    case 0x80:   /* 0x08 is the good completion status */
       stat=0;
       break;
     case 0x00:
