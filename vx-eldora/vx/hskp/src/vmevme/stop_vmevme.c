@@ -9,18 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.4  1992/09/04  19:34:44  craig
- * *** empty log message ***
- *
- * Revision 1.2  1992/09/03  20:26:30  craig
- * *** empty log message ***
- *
  * Revision 1.1  1992/08/25  20:43:01  craig
  * Initial revision
- *
- * Revision 1.1  1992/08/14  20:44:35  craig
- * Initial revision
- *
  *
  * description: This module initializes the vme to vme interfaces and their
  *              handshake areas 
@@ -101,6 +91,10 @@ extern HeaderPtr inHeader;
 
 void stop_vmevme()
 {
+/* Clear the radar processors are ready handshake words */
+
+fore_vmehndshk->start_hndshk = 0;
+aft_vmehndshk->start_hndshk = 0;
 
 /* Clear the "Hi Radar" in the radar processors to get them  to stop */
 

@@ -9,9 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/17  16:43:16  craig
- * Initial revision
- *
  * Revision 1.1  1992/08/19  20:44:35  craig
  * Initial revision
  *
@@ -70,6 +67,7 @@ extern HeaderPtr inHeader;
 /* include the .h files that are housekeeper code specific */
 
 #include "cntrlDef.h"
+#include "cntrlGbl.h"
 #include "cntrlFunc.h"
 #include "hskpDef.h"
 #include "hskpInt.h"
@@ -100,7 +98,7 @@ void vmevme_isr()
 {
 /* Define some general purpose variables */
 float position, fore_angle, aft_angle, elapsed_time, temp_position;
-float degrees_moved;
+float degrees_moved, instant_speed, diff;
 static float dumb_position;
 
 char hr,min,sec,mon,day,yr;
@@ -265,10 +263,20 @@ else                            /* Trying to spin in negative direction */
 
 degrees_moved = position - last_position; 
 
-fore_ray_pntr->this_rayi.true_scan_rate = degrees_moved/elapsed_time;
-aft_ray_pntr->this_rayi.true_scan_rate = degrees_moved/elapsed_time;
+instant_speed = degrees_moved/elapsed_time;
+fore_ray_pntr->this_rayi.true_scan_rate = instant_speed;
+aft_ray_pntr->this_rayi.true_scan_rate = instant_speed;
 
 last_position = temp_position;
+
+/* Set the velocity command based on an integrated error in velocity */
+
+diff = fraddes->req_rotat_vel - instant_speed;
+if((diff < ((-1)*delta_degpersec)) || (diff > delta_degpersec))
+  {
+      rpm = rpm + diff * integrator_gain * DEGPERSEC_TO_RPM;
+      just_set_vel(rpm);
+  }
 
 /* Now we need to update the sweep number for
    each of the radars */

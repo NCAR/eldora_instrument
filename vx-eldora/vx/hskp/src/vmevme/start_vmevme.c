@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/11/03  22:51:38  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/25  20:43:04  craig
  * Initial revision
  *
@@ -196,6 +199,13 @@ fore_vmehndshk->nav_length = (short)(nav_current_size * i);
 /* Clear the polled handshake words */
 fore_vmehndshk->polled = 0;
 aft_vmehndshk->polled = 0;
+
+/* Wait for the radar processors to get ready */
+
+do{
+    taskDelay(2);
+}while((fore_vmehndshk->start_hndshk == 0) ||
+       (aft_vmehndshk->start_hndshk == 0)); 
 
 /* Now write "Hi Radar" to the radars to get them going */
 

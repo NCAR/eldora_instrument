@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/03  22:51:43  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/09/25  20:43:04  craig
  * Initial revision
  *
@@ -137,49 +140,10 @@ while((msecs > msecs_ray[next_index]) && (failsafe < 3))
  
 /* Calculate the East-West and North South horizontal winds */
 
-      if((last_iru_data.wind_direction > 0.0) &&
-	 (last_iru_data.wind_direction <= 90.0))
-	 {
-	     ew_wind =
-	       sin((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
-		 last_iru_data.wind_speed;
-	     ns_wind =
-	       cos((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
-		 last_iru_data.wind_speed;
-	 }
-      if((last_iru_data.wind_direction > 90.0) &&
-	 (last_iru_data.wind_direction <= 180.0))
-	 {
-	     last_iru_data.wind_direction -= 90.0;
-	     ew_wind =
-	       cos((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
-		 last_iru_data.wind_speed;
-	     ns_wind =
-	       (-1.) * sin((double)(last_iru_data.wind_direction *
-				    DEGS_TO_RADS)) * last_iru_data.wind_speed;
-	 }
-      if((last_iru_data.wind_direction > 180.0) &&
-	 (last_iru_data.wind_direction <= 270.0))
-	 {
-	     last_iru_data.wind_direction -= 180.0;
-	     ew_wind =
-	       (-1.) * sin((double)(last_iru_data.wind_direction *
-				    DEGS_TO_RADS)) * last_iru_data.wind_speed;
-	     ns_wind =
-	       (-1.) * (last_iru_data.wind_direction * DEGS_TO_RADS) *
-		 last_iru_data.wind_speed;
-	 }
-      if((last_iru_data.wind_direction > 270.0) &&
-	 (last_iru_data.wind_direction <= 360.0))
-	 {
-	     last_iru_data.wind_direction -= 270.0;
-	     ew_wind =
-	       (-1.) * cos((double)(last_iru_data.wind_direction *
-				    DEGS_TO_RADS)) * last_iru_data.wind_speed;
-	     ns_wind =
-	       sin((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
-		 last_iru_data.wind_speed;
-	 }
+      ew_wind = sin((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
+		 (-1) * last_iru_data.wind_speed;
+      ns_wind = cos((double)(last_iru_data.wind_direction * DEGS_TO_RADS)) *
+		 (-1) * last_iru_data.wind_speed;
       ray_pntr->this_plat.ns_horiz_wind = ns_wind;
       ray_pntr->this_plat.ew_horiz_wind = ew_wind;
 
