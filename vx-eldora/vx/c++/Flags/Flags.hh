@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+Revision 1.1  90/11/15  11:52:29  thor
+Initial revision
+
  *
  * description:
  *        This is then header file for the class Flags, which
@@ -20,9 +23,11 @@
 #ifndef INCFlagshh
 #define INCFlagshh
 
-#include "vxWorks.hh"
-#include "semLib.hh"
-#include "taskLib.hh"
+extern "C" {
+#include "vxWorks.h"
+#include "semLib.h"
+#include "taskLib.h"
+};
 
 const int FLAGS_OR = 0;
 const int FLAGS_AND = 1;
@@ -39,12 +44,13 @@ class Flags {
     Flags(void) 
       {
 	  flags = 0;
-	  flag_sem = semCreate();
+	  flag_sem = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE |
+				SEM_INVERSION_SAFE);
       }
 
     ~Flags(void)
       {
-	  semTake(flag_sem);	/* Wait till last user is done. */
+	  semTake(flag_sem,WAIT_FOREVER); /* Wait till last user is done. */
 	  semDelete(flag_sem);
       }
 
@@ -59,7 +65,7 @@ class Flags {
 	  flags = 0;
       }
 
-    unsigned int wait(unsigned int mask, int type);
+    unsigned int wait(unsigned int mask, int type, int timeout = WAIT_FOREVER);
 
     unsigned int query(void)
       {
