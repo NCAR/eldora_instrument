@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/01/14  19:18:18  thor
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -19,6 +22,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #ifndef UNIX
 #define UNIX
 #endif
+
+#include <stdio.h>
 #include "logger.h"
 
 void logger_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
