@@ -9,7 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/11/06  20:25:58  thor
+ * Changed direction test to use positive/negative values.
  *
+ * Revision 1.3  1991/06/13  17:53:56  thor
  * Changed main loop to start at first real gate.
  *
  * Revision 1.2  1991/04/29  18:48:34  thor
@@ -18,27 +21,48 @@
  * Revision 1.1  1991/04/08  20:29:20  thor
  * Initial revision
 
-void Radial::Draw1(float angle, FAST RadialData *data)
-
-    FAST int index = (int)(angle * 2.0);
+    asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
 
     asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
+    FAST int index = (int)(data.angle * 2.0);
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
-// This is based on positive rotation for now.
-    if (j == 1000)
-      j = index - 2;
-    if (index < 0 || index > 720)
-    index += 2;
-	  return;
-    if (j == index)
-      j -= 4;
+    if (data.direction == POSITIVE)
+    FAST int index = fastround(data.angle * 2.0);
 
-    if (j < 0)
-      j += 720;
+    if (index < 0 || index > 720)
+      {
+	  printf("Angle %g out of bounds.\n",data.angle);
+	  return;
+      }
+
+    if (data.direction > 0)
+      {
 	  // This is positive rotation.
-    if (index >= 720)
-      index -= 720;
+
+	  if (j == 1000)
 	    j = index - 2;
+
+	  FAST int q = index - j;
+
+	  if (q < -20)
+	    q = -q;
+
+	  if (q > 20)
+	    {
+		printf("Angle to big, %d %d\n",index,j);
+		lastIndex = index;
+		return;
+	    }
+
+	  index += 2;
+
+	  if (j == index)
+	    j -= 4;
+
+	  if (j < 0)
+	    j += 720;
+
+	  if (index >= 720)
 	    index -= 720;
       }
     else
@@ -50,7 +74,7 @@ void Radial::Draw1(float angle, FAST RadialData *data)
 
 		return;
 	    }
-    FAST unsigned char *colors1 = (unsigned char *)data;
+
 	  index -= 2;
     for (FAST int i = 0; i < j; i++, colors1++)
 	    index += 720;
@@ -172,27 +196,48 @@ void Radial::Draw1(float angle, FAST RadialData *data)
 			      {
 				  ptr1 += sx;
 				  *ptr1 = *colors1;
-void Radial::Draw2(float angle, FAST RadialData *data)
+				  d -= ay;
 			      }
-    FAST int index = (int)(angle * 2.0);
 
-
+    FAST int index = (int)(data.angle * 2.0);
 			    ptr1 += 4096;
-// This is based on positive rotation for now.
-    if (j == 1000)
-      j = index - 2;
+    if (data.direction == POSITIVE)
+			    *ptr1 = *colors1;
+
 			    if (y == yend)
-    index += 2;
+			      break;
+			    
 			    if (d >= 0)
-    if (j == index)
-      j -= 4;
+			      {
 				  ptr1 += sx;
-    if (j < 0)
-      j += 720;
+				  *ptr1 = *colors1;
+				  d -= ay;
 			      }
-    if (index >= 720)
-      index -= 720;
+
+			    y--;
 			    ptr1 -= 4096;
+			    d += ax;
+			}
+		  }
+	    }
+      }
+}		
+
+void Radial::Draw2(FAST RadialData &data)
+{
+    FAST int j = lastIndex;
+    FAST int index = fastround(data.angle * 2.0);
+
+    if (index < 0 || index > 720)
+      {
+	  printf("Angle %g out of bounds.\n",data.angle);
+	  return;
+      }
+
+    if (data.direction > 0)
+      {
+	  // This is positive rotation.
+
 	  if (j == 1000)
 	    j = index - 2;
 
@@ -205,7 +250,7 @@ void Radial::Draw2(float angle, FAST RadialData *data)
 	    j -= 4;
 
 	  if (j < 0)
-    FAST unsigned char *colors1 = (unsigned char *)data;
+	    j += 720;
 
 	  if (index >= 720)
     for (FAST int i = 0; i < j; i++, colors1++, colors2++)
@@ -346,27 +391,48 @@ void Radial::Draw2(float angle, FAST RadialData *data)
 		FAST int d = D;
 		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
 		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
-void Radial::Draw3(float angle, FAST RadialData *data)
+		FAST int y = y1;
 		FAST int yend = y2;
-    FAST int index = (int)(angle * 2.0);
 
+    FAST int index = (int)(data.angle * 2.0);
+			    if (y == yend)
+    if (data.direction == POSITIVE)
+			    
+			    if (d >= 0)
+			      {
+				  ptr1 += sx;
+				  ptr2 += sx;
+				  *ptr1 = *colors1;
+				  *ptr2 = *colors2;
+				  d -= ay;
+			      }
+
+			    y++;
+			    ptr1 += 4096;
+			    ptr2 += 4096;
+			    d += ax;
+			}
+		  }
+		else
+		  {
+		      for (;;) 
+			{
+			    *ptr1 = *colors1;
+			    *ptr2 = *colors2;
 
 			    if (y == yend)
-// This is based on positive rotation for now.
-    if (j == 1000)
-      j = index - 2;
+			      break;
+			    
+			    if (d >= 0)
 			      {
-    index += 2;
+				  ptr1 += sx;
+				  ptr2 += sx;
 				  *ptr1 = *colors1;
-    if (j == index)
-      j -= 4;
+				  *ptr2 = *colors2;
 				  d -= ay;
-    if (j < 0)
-      j += 720;
-			    y++;
-    if (index >= 720)
-      index -= 720;
-			    d += ax;
+			      }
+
+			    y--;
 			    ptr1 -= 4096;
 			    ptr2 -= 4096;
 			    d += ax;
@@ -380,7 +446,7 @@ void Radial::Draw3(float angle, FAST RadialData *data)
 
     if (data.direction > 0)
       {
-    FAST unsigned char *colors1 = (unsigned char *)data;
+	  // This is positive rotation.
 
 	  if (j == 1000)
 
