@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  18:59:55  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -71,12 +74,12 @@ int Pipe::Write(FAST void *ptr, FAST int item_count, FAST int timeout)
 
 void Pipe::Flush()
 {
-    semTake(write_sem,WAIT_FOREVER);
-    semTake(read_sem,WAIT_FOREVER);
+    taskLock();
     
     Ring::Flush();
 
     semGive(write_sem);
+    taskUnlock();
 }
 
 int Pipe::Free(void)
