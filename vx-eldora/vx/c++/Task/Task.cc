@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/02  14:23:10  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -49,9 +52,13 @@ Task::Task(FUNCPTR entry, FAST int *args, int argsize, int pri = 100,
       }
     else
       {
-	  taskId = taskSpawn("",pri,options,stacksize,entry,(int)this,args[0],
-			     args[1],args[2],args[3],args[4],args[5],args[6],
-			     args[7],args[8]);
+	  if (argsize)
+	    taskId = 
+	    taskSpawn("",pri,options,stacksize,entry,(int)this,args[0],
+		      args[1],args[2],args[3],args[4],args[5],args[6],
+		      args[7],args[8]);
+	  else
+	    taskId = taskSpawn("",pri,options,stacksize,entry,(int)this);
       }
 
     flags = NULL;		// No flags by default.
