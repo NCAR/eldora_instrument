@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1992/02/10  17:06:00  thor
+ * Fixed mistake in DualData.
+ *
  * Revision 1.11  1992/02/10  15:58:25  thor
  * Added DualData definition.
  *
@@ -114,7 +117,7 @@ struct Dual_Data {
     float angle;
     float altitude;
     int direction;
-    unsigned char colors[DISPLAYED_GATES];
+    unsigned short *data;
 };
 
 static const int POSITIVE = 1;
