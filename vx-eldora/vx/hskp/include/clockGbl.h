@@ -13,6 +13,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2003/09/25  17:33:09  kapoor
+ * changed time variable to time_reg to avoid declaration conflicts
+ *
  * Revision 1.2  2003/09/24  20:15:54  kapoor
  * Added global var declarations, to satisfy convert_iru.c
  *
@@ -73,4 +76,28 @@ scope unsigned char day;
 scope unsigned char mon;
 scope unsigned char yr;
 
+/******** THESE Addl Gbl vars need to be here to make housekeeper happy **/
+/****************Testing*****************/
 
+
+/* All of the pointers to the various clock locations on the TOD board */
+
+scope unsigned char *hsec_reg;
+scope unsigned char *sec_reg;
+scope unsigned char *min_reg;
+scope unsigned char *hr_reg;
+scope unsigned char *day_reg;
+scope unsigned char *mon_reg;
+scope unsigned char *yr_reg;
+scope unsigned char *tod_cmnd;
+scope unsigned char *int_msk;
+
+/* Pointers to the IRIG-B reading registers on the TOD Board */
+
+scope unsigned char *irigb;
+scope unsigned char *strg;
+scope unsigned char *isec;
+scope unsigned char *imin;
+scope unsigned char *ihr;
+scope unsigned char *id1;
+scope unsigned char *id2;
