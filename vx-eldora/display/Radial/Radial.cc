@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/04/08  20:28:42  thor
+ * Initial revision
+ *
  *
  * description:
  *        This file contains all but the drawing and inline methods
@@ -72,11 +75,14 @@ Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
 
     trigData = ptr;
 
-    // We're using half a degree resolution.
-    double angle = 0.0;
-    double dec = 0.5 * (M_PI / 180.0);
+    // We're using half a degree resolution. It must be understood
+    // that 0 degrees in the radar system is straight up, 90 degrees
+    // to the right. In display terms this corresponds to 270 & 0
+    // degrees.
+    double angle = 270.0 * (M_PI / 180.0);
+    double inc = 0.5 * (M_PI / 180.0);
     
-    for (FAST int i = 0; i < 720; i++, ptr++, angle -= dec)
+    for (FAST int i = 0; i < 720; i++, ptr++, angle += inc)
       {
 	  ptr->cos = (int)(cos(angle) * 65536.0);
 	  ptr->sin = (int)(sin(angle) * 65536.0);
