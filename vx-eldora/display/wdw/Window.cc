@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  91/01/02  08:50:55  thor
+ * Made changes for VxWorks Version 5.0.
+ * 
  * Revision 1.1  90/12/04  10:21:29  thor
  * Initial revision
  * 
@@ -181,89 +184,133 @@ int Window::center(FAST Point center)
 
     if (zoom == ZOOM1)		// Get the right zoom factor.
       return(OK);		// No panning allowed!
-    else if (zoom == ZOOM2)
-      {
-	  zoom = 2;
-	  center.x >>= 1;
-	  center.y >>= 1;
-      }
-    else if (zoom == ZOOM4)
-      {
-	  zoom = 3;
-	  center.x >>= 2;
-	  center.y >>= 2;
-      }	  
-    else			// == ZOOM8.
-      {
-	  zoom = 4;
-	  center.x >>= 3;
-	  center.y >>= 3;
-      }
-
-    center.x += controlSetting.xoffset;
-    center.y += controlSetting.yoffset;
-
+    
     FAST unsigned short width = (bottomRight.x - upperLeft.x) + 1;
     FAST unsigned short height = (bottomRight.y - upperLeft.y) + 1;
 
-    width /= 2;
-    height /= 2;
+    FAST unsigned short x = center.x;
+    FAST unsigned short y = center.y;
 
-    FAST unsigned short hw = width >> zoom;
-    FAST unsigned short hh = height >> zoom;
-    
+    if (zoom == ZOOM2)
+      {
+	  width /= 4;		// Calculate the half size of a window.
+	  height /= 4;
+      }
+    else if (zoom == ZOOM4)
+      {
+	  width /= 8;
+	  height /= 8;
+	  x /= 2;		// Correct for previous zoom.
+	  y /= 2;
+      }
+    else
+      {
+	  width /= 16;
+	  height /= 16;
+	  x /= 4;
+	  y /= 4;
+      }
 
-    FAST int x = center.x & 0xffff;
-    FAST int y = center.y & 0xffff;
+    x += controlSetting.xoffset; // Put x,y at real location selected.
+    y += controlSetting.yoffset;
 
-    x -= hw;
-    y -= hh;
+    x -= width;			// Change from "center" to offsets of
+				// upper left.
+    y -= height;
 
-    zoom -= 2;
+    FAST unsigned short botX = bottomRight.x - (width * 2);
 
-    hw = width >> zoom;
-    hh = height >> zoom;
+    botX++;			// Include all pixels.
 
+    if (x > 0x7fff)		// Negative value?
+      x = 0;
+    else if (x > botX)		// Too close to edge.
+      x = botX;
 
-    if (x < upperLeft.x)
-      x = upperLeft.x;
+    FAST unsigned short botY = bottomRight.y - (height * 2);
+    botY++;
 
-    if (x > bottomRight.x + 1 - hw)
-      x = bottomRight.x + 1 - hw;
+    if (y > 0x7fff)
+      y = 0;
+    else if (y > botY)
+      y = botY;
 
-    if (y < upperLeft.y)
-      y = upperLeft.y;
-
-    if (y > bottomRight.y + 1 - hh)
-      y = bottomRight.y + 1 - hh;
-
-    controlSetting.xoffset = x;
+    controlSetting.xoffset = x;	// New x,y offsets.
     controlSetting.yoffset = y;
 
-    resize(width * 2,height * 2);
-
-    if (displayState == DISPLAYED)
+    if (displayState == DISPLAYED) // If on crt do update now!
       {
 	  FAST long l = x << 16;
 
 	  l |= y;
-	  
+
 	  gbd->pan(window,l);
       }
-
     return(OK);
 }    
     
 int Window::pan(FAST Point panOrigin)
 {
-    panOrigin.x += controlSetting.xoffset;
-    panOrigin.y += controlSetting.yoffset;
+    FAST unsigned short x = panOrigin.x;
+    FAST unsigned short y = panOrigin.y;
+    FAST unsigned short width = (bottomRight.x - upperLeft.x) + 1;
+    FAST unsigned short height = (bottomRight.y - upperLeft.y) + 1;
 
-    if (panOrigin.x >= bottomRight.x  || panOrigin.y >= bottomRight.y)
-      return(ERROR);
+    FAST unsigned short zoom = getZoom();
 
-    controlSetting.xoffset = panOrigin.x;
-    controlSetting.yoffset = panOrigin.y;
+    if (zoom = ZOOM1)
+      {
+	  width /= 2;
+	  width /= 2;
+      }
+    if (zoom == ZOOM2)
+      {
+	  x /= 2;
+	  y /= 2;
+	  width /= 4;		// Calculate the half size of a window.
+	  height /= 4;
+      }
+    else if (zoom == ZOOM4)
+      {
+	  x /= 4;
+	  y /= 4;
+	  width /= 8;		// Calculate the half size of a window.
+	  height /= 8;
+      }
+    else if (zoom == ZOOM8)
+      {
+	  x /= 8;
+	  y /= 8;
+	  width /= 16;		// Calculate the half size of a window.
+	  height /= 16;
+      }
+
+    x += controlSetting.xoffset;
+    y += controlSetting.yoffset;
+
+    x -= width;			// Change from "center" to offsets of
+				// upper left.
+    y -= height;
+
+    FAST unsigned short botX = bottomRight.x - (width * 2);
+
+    botX++;			// Include all pixels.
+
+    if (x > 0x7fff)		// Negative value?
+      x = 0;
+    else if (x > botX)		// Too close to edge.
+      x = botX;
+
+    FAST unsigned short botY = bottomRight.y - (height * 2);
+    botY++;
+
+    if (y > 0x7fff)
+      y = 0;
+    else if (y > botY)
+      y = botY;
+
+    controlSetting.xoffset = x;	// New x,y offsets.
+    controlSetting.yoffset = y;
 
     if (displayState == DISPLAYED)
       {
