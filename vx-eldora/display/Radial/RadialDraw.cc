@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.2  1994/07/06  14:13:25  thor
+// Fixed roll direction.
+//
 // Revision 2.1  1993/10/27  14:37:09  thor
 // Fixed too big an angle code.
 //
@@ -68,23 +71,23 @@ void Radial::drawBeam(FAST DataBeam *beam)
     
     angle += roll;
     
-    if (angle < 0.0)
-      angle += 360.0;
-    else if (angle > 360.0)
-      angle -= 360.0;
-    
-    FAST int j = lastIndex;
     FAST int index = fastround(angle * 2.0);
-
-    if (index == 720)
+    FAST int maxIndex = 720;
+    
+    if (index < 0)
+      index += maxIndex;
+    else if (index > maxIndex)
+      index -= maxIndex;
+    else if (index == maxIndex)
       index = 0;
     
-    if (index < 0 || index > 720)
+    if (index < 0 || index > maxIndex)
       {
 	  cout << "Angle " << angle << "out of bounds." << endl;
 	  return;
       }
-    
+
+    FAST int j = lastIndex;
     FAST int direction = fastround(beam->ray.true_scan_rate);
     
     if (direction >= 0)
@@ -99,12 +102,12 @@ void Radial::drawBeam(FAST DataBeam *beam)
           if (index)
             q = index - j;
           else
-            q = 720 - j;
+            q = maxIndex - j;
 
 	  if (q < -20)
 	    q = -q;
 
-          q = 720 - q;
+          q = maxIndex - q;
           
 	  if (q < 700)
 	    {
@@ -119,10 +122,10 @@ void Radial::drawBeam(FAST DataBeam *beam)
 	    j -= 4;
 
 	  if (j < 0)
-	    j += 720;
+	    j += maxIndex;
 
-	  if (index >= 720)
-	    index -= 720;
+	  if (index >= maxIndex)
+	    index -= maxIndex;
       }
     else
       {
@@ -136,12 +139,12 @@ void Radial::drawBeam(FAST DataBeam *beam)
           if (index)
             q = index - j;
           else
-            q = 720 - j;
+            q = maxIndex - j;
 
 	  if (q < -20)
 	    q = -q;
 
-          q = 720 - q;
+          q = maxIndex - q;
 
 	  if (q < 700)
 	    {
@@ -155,11 +158,11 @@ void Radial::drawBeam(FAST DataBeam *beam)
 	  if (j == index)
 	    j += 4;
 
-	  if (j >= 720)
-	    j -= 720;
+	  if (j >= maxIndex)
+	    j -= maxIndex;
 
 	  if (index < 0)
-	    index += 720;
+	    index += maxIndex;
       }
 
     lastIndex = index;
