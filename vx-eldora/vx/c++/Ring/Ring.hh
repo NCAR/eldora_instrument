@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  15:11:01  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -26,11 +29,11 @@
 
 
 #ifndef UNIX			/* This is the VxWorks case. */
-extern "C" {
 #include "vxWorks.h"
 #include "memLib.h"
 #include "string.h"
-};
+#include "stdio.h"
+#include "stdlib.h"
 #else				/* UNIX case. */
 #include <stdio.h>
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  15:10:58  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -18,10 +21,6 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "Ring.hh"
-
-extern "C" {
-#include "stdioLib.h"
-};
 
 Ring::Ring(FAST int size_of_item, FAST int num_of_items = 10)
 {
@@ -56,7 +55,7 @@ int Ring::Get(FAST void *ptr)
     FAST  char *to = (char *)ptr;
     FAST char *from = out_addr;
 
-    bcopy(from,to,inc);
+    memmove(to,from,inc);
 
     gauge = --g;		// One less open slot.
 
@@ -81,7 +80,7 @@ int Ring::Put(FAST void *ptr)
     FAST  char *from = (char *)ptr;
     FAST char *to = (char *)in_addr;
 
-    bcopy(from,to,inc);
+    memmove(to,from,inc);
 
     gauge = ++g;		// One less free slot.
  
