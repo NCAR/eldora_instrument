@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1999/09/27  15:59:34  eric
+ * added global Firstime to keep track of initial time through update
+ * testpulse loop.
+ *
  * Revision 1.10  1997/08/26  21:25:21  craig
  * *** empty log message ***
  *
@@ -127,3 +131,12 @@ scope float wg_sw_big_angle;
 scope float wg_sw_small_angle;
 scope int wg_sw_counter;
 scope int wg_sw_flag;
+
+/* global command flags for bancomm clock board */
+
+scope int use_IRIGB;        /* True -> use IRIG-B for time source, false ->
+				  use real time clock as time source */
+scope int modulate_IRIGB;   /* True -> use modulated IRIG-B for time source,                                  false -> use DC shift IRIG-B as time source */
+
+
+
