@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1992/10/09  14:47:33  thor
+ * Added Setting of LOAD_ONLY task for current task.
+ *
  * Revision 1.13  1992/10/02  20:45:23  thor
  * Added LOAD_ONLY support.
  *
@@ -122,11 +125,10 @@ void DrawingLoop(FAST Task &self)
 
     for (;;)
       {
-	  FAST unsigned int flag = self.WaitOnFlags(waitMask | REBOOT |
-						    LOAD_ONLY,
+	  FAST unsigned int flag = self.WaitOnFlags(waitMask | REBOOT,
 						    FLAGS_OR);
 
-	  if (flag == LOAD_ONLY) // This is all that`s needed, since
+	  if ((flag & LOAD_ONLY)) // This is all that`s needed, since
 				 // we don't want to start drawing yet.
 	    {
 		FAST int cmd = (int)GeCommand->cmd;
