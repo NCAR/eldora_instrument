@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/05/20  20:37:04  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/25  20:43:04  craig
  * Initial revision
  *
@@ -43,7 +46,7 @@ if(ascii)
   }
 
 /* Get the current time from the time of day board */
-get_time(&hour,&min,&sec,&msec,&jday,&mon,&day,&yr);
+get_time();
 
 current_nav_pntr->s_nav_info.julian_day = jday;
 current_nav_pntr->s_nav_info.hours = hour;
