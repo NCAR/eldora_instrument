@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/09/24  20:52:51  kapoor
+ * Initial revision
+ *
  * Revision 1.2  2003/09/23  22:58:15  kapoor
  * changed include to "hskpAll.h"
  *
@@ -46,7 +49,7 @@
  * description: The purpose of this module is to initialize all of the
  *              global variables used with the Bancomm clock
  *              board.  It also corrects the day/month calculation
- *              array for leap year
+ *              array for leap yr
  */
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -94,7 +97,7 @@ day_mon_calc[10] = 30;   /* nov */
 day_mon_calc[11] = 31;   /* dec */
 day_mon_calc[12] = 0;   /* place holder */
 
-if(((int)(year/4))*4 == year)
+if(((int)(yr/4))*4 == yr)
   day_mon_calc[1] = 29;
 
 return;
