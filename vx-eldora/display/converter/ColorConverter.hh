@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/04/09  19:16:57  thor
+ * Initial revision
+ *
  * Revision 1.1  1991/03/01  16:31:58  thor
  * Initial revision
  *
@@ -20,12 +23,13 @@
  * horizontal, vertical and radial displays. For radial displays the
  * SetBeamSize method must be called to set up a index vector table.
  * This is used to map the nearest real gate onto the displayed gate.
- * All conversion methods use the same basic algorithm - using
- * precomputed values for slope and y intercept, the datum point is
- * used as the X value to find the color (Y). If the color is less
- * then zero, it is set to zero, conversely, if it is greater then the
- * maximum color it is set to the maximum.
- *
+ * All conversion methods use the same basic algorithm - we set up an
+ * array that contains discrete levels in the constructor. When we
+ * want the converted value we walk up the array. If the value is <=
+ * the array value the index equals the color (plus any offset into
+ * the color table). If we reach the end of the array with no match
+ * the color defaults to the maximum color value.
+ * 
  */
 #ifndef INCColorConverterhh
 #define INCColorConverterhh
@@ -42,15 +46,14 @@ static const int MAX_DATA_PLANES = 3;
 
 class ColorConverter {
   protected:
-    int valueOffset[MAX_DATA_PLANES];
-    float slope[MAX_DATA_PLANES];
-    float yInt[MAX_DATA_PLANES];
+    int valueOffset[MAX_DATA_PLANES]; // Offsets into the data array.
+    short *tbl[MAX_DATA_PLANES];      // The lookup tables.
 
-    int nbins;
-    int numOfParams;
-    int numOfValues;
+    int nbins;			// Number of colors in use.
+    int numOfParams;		// Number of parameters in data array.
+    int numOfValues;		// Number of parameters used.
 
-    int gateIndex[DISPLAYED_GATES];
+    int gateIndex[DISPLAYED_GATES]; // List of indexes into data array.
 
   public:
     ColorConverter(int bins, float *max, float *min, int *offsets, int nparams,
@@ -64,6 +67,18 @@ class ColorConverter {
     void GetPoint(short *data, DataPoint &dp, int index);
 
     void GetBeam(FAST short *data, FAST RadialData &rad);
+
+    ~ColorConverter(void)
+      {
+	  FAST int j = numOfValues;
+
+	  for (FAST int i = 0; i < j; i++)
+	    {
+		FAST short *ptr = tbl[i];
+
+		free((char *)ptr);
+	    }
+      }
 };
 
 

@@ -9,14 +9,16 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/05/08  20:08:41  thor
+ * Major change - dropped floating point, switched to table of levels.
  *
+ * Revision 1.1  1991/04/09  19:16:52  thor
  * Initial revision
  *
- * class. The constructor derives the slope and y intercept for all
- * needed parameters. The SetBeamSize method sets up the index vector
- * for radial displays. The GetPoint method returns the color
- * information for horizontal displays. The GetBeam method returns
- * color information for radial displays.
+ *
+ * description:
+ *        This file contains all the methods for the ColorConverter
+ * class. The SetBeamSize method sets up the index vector for radial
  * displays. The GetPoint method returns the color information for
  * horizontal displays. The GetBeam method returns color information
  * for radial displays.
@@ -32,18 +34,23 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
 			   FAST int *offsets, int nparams, FAST int nvalues)
 {
     nbins = bins;
-    --bins;			// Since slope is from 0 to y.
+    --bins;			// Since we don't need maximum value
+				// in our table.
 
     for (FAST int i = 0; i < nvalues; i++)
     float fb = 0.0;		// Color offset.
 
     for (FAST int i = 0; i < nvalues; i++)
       {
-	  valueOffset[i] = *offsets++;
+	  FAST short *ptr = (short *)malloc(sizeof(short) * bins);
+	  tbl[i] = ptr;
 
-	  slope[i] = (float)bins / (mx - mn); // dy is fixed.
+	  float step = mx - mn;
 
-	  yInt[i] = -(slope[i] * mn);
+	  for (FAST int j = 0; j < bins; j++)
+	    *ptr++ = (short)(mn + (j * step)); // Ignore roundoff errors.
+
+	  float mx = *max++;
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
@@ -62,41 +69,43 @@ void ColorConverter::SetBeamSize(FAST int ngates)
 void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 			    FAST int index)
 {
-    FAST int bins = nbins;
+    FAST unsigned char bins = nbins;
+    FAST unsigned char tsize = bins - 1; // Loop count maximum.
+    FAST unsigned char inc = 0;		 // Offset into color table.
     FAST int count = numOfValues;
-    FAST int inc = 0;
     FAST int off = numOfParams * index;	// Offset to this gates' location.
     FAST int *offsets = valueOffset;
-    FAST float *s = slope;
-    FAST float *y = yInt;
     --count;
     for (FAST int i = 0; i < count; i++, inc += bins)
 	  FAST unsigned short datum = *(data + offset);
 	  FAST int offset = *offsets++ + off; // Now add in offset to param.
 
-	  float datum = (float)*(data + offset);
+	  FAST short datum = *(data + offset);
     else
- 	  FAST float m = *s++;
- 	  FAST float b = *y++;
- 	  FAST int color = (int)((m * datum) + b);
+	  FAST short *ptr = tbl[i];
+	  
+	  FAST unsigned char color = 0;
 
-	  if (color < 0)
-	    color = 0;
-	  else if (color > bins)
+	  while (color < tsize)
 	    {
-		color = bins;
-		--color;	// Because colors start at 0.
+		if (datum <= *ptr)
+		  break;
+		else
+		  {
+		      ptr++;
+		      color++;
+		  }
 	    }
-
-	  dp.colors[i] = (unsigned char)(color + inc);
+	  dp.colors[i] = color + inc;
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
 void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
-    FAST int bins = nbins;
+    FAST unsigned char bins = nbins;
+    FAST unsigned char tsize = bins - 1; // Loop count maximum.
+    FAST unsigned char inc = 0;		 // Offset into color table.
     FAST int count = numOfValues;
-    FAST int inc = 0;
     FAST unsigned char *colors = &rad.colors[0];
 
     for (FAST int i = 0; i < count; i++, inc += bins)
@@ -104,26 +113,28 @@ void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
 	  FAST int j = DISPLAYED_GATES;
 	  FAST int *ptr = gateIndex;
 	  FAST int offset = valueOffset[i];
-	  FAST float m = slope[i];
-	  FAST float b = yInt[i];
 
 	  for (FAST int k = 0; k < j; k++)
 	    {
 		FAST int off = offset + *ptr++;	// Offset to param +
 						// index to correct gate.
 
-		float datum = (float)*(data + off);
+		FAST short datum = *(data + off);
 
-		FAST int color = (int)((m * datum) + b);
+		FAST short *lkup = tbl[i];
 
-		if (color < 0)
-		  color = 0;
-		else if (color > bins)
+		FAST unsigned char color = 0;
+
+		while (color < tsize)
 		  {
-		      color = bins;
-		      --color;	// Because colors start at 0.
+		      if (datum <= *lkup)
+			break;
+		      else
+			{
+			    lkup++;
+			    color++;
+			}
 		  }
-
-		*colors++ = (unsigned char)(color + inc);
+		*colors++ = color + inc;
 	    }
     
