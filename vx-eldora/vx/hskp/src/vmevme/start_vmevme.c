@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1999/09/27  15:45:35  eric
+ * added support for testing radar processor and housekeeper
+ * synchronization.
+ *
  * Revision 1.12  1999/07/20  17:44:34  eric
  * Corrected pipeline delay through radar processors.
  *
@@ -98,7 +102,7 @@ current_platform_offset = FIRST_RADAR_OFFSET +
 /* Get current milliseconds since midnite and place the value
    into all entries of msecs_ray */
 
-get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
+get_time();
 msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 
 radar_offset = FIRST_RADAR_OFFSET;
