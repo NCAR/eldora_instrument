@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1996/07/23  20:18:44  root
+ * Saving Craig's latest work.
+ *
  * Revision 1.8  1996/02/09  18:29:49  craig
  * *** empty log message ***
  *
@@ -112,7 +115,7 @@ init_gps((short)0);/* Sets up the the GPS mailbox interrupt, proper pointers */
 
 /* Initialize parameters to deal with the waveguide switch */
 wg_sw_flag = 0;
-wg_sw_pntr = (unsigned short *)(MIN_BASE + MIN_COMMAND);
+wg_sw_pntr = (unsigned char *)(SHORT_BASE + WG_SW_BASE);
 
 /********************************************************/
 /**********  The code below is run once on a   **********/
@@ -343,8 +346,8 @@ do{
 
        if(old_iru_interrupts != iru_rpntr->num_interrupts)
 	 {
-	     if(iru_rpntr->num_interrupts - old_iru_interrupts > 1)
-	       printf("M");
+	   /*	     if(iru_rpntr->num_interrupts - old_iru_interrupts > 1)
+	       printf("M"); */
 	     iru_isr();
 	 }
 
@@ -361,8 +364,6 @@ do{
 	if(tp_dwell_count >= testpulse_max_count && autocal)
 	      update_testpulse();
 
-	if(tp_dwell_count >= testpulse_test_count && autocal)
-	      test_testpulse();
 
        }while(!stop_flag && !reload_flag);
 

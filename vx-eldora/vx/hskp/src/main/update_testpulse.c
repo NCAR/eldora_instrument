@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/09/12  17:22:18  craig
+ * completed code
+ *
  * Revision 1.1  1992/08/25  20:43:04  craig
  * Initial revision
  *
@@ -31,7 +34,7 @@ unsigned long T;
 double frequency, temp;
 unsigned char unitnum, ecbaddr,test,attenuation, foraft;
 int timeout;
-float dbz, log_power, received_lna_pwr, injected_lna_power, received_vel;
+float dbz, log_power, received_lna_pwr, injected_lna_pwr, received_vel;
 float diff;
 
 
@@ -48,7 +51,7 @@ injected_lna_pwr = fore_tp_level_sum / tp_sum_count +
 diff = received_lna_pwr - injected_lna_pwr;
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_PWR_DIFF) printf("FP "); 
-received_vel = ((fore_vel_sum / tp_sum_count) - 8191.0) / fore_vscale;
+received_vel = ((fore_vel_sum / tp_sum_count) - 8191.0) / f_vscale;
 diff = received_vel - fore_tp_velocity[tp_freq_offset_count];
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_VEL_DIFF) printf("FV "); 
@@ -61,7 +64,7 @@ injected_lna_pwr = aft_tp_level_sum / tp_sum_count +
 diff = received_lna_pwr - injected_lna_pwr;
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_PWR_DIFF) printf("AP "); 
-received_vel = ((aft_vel_sum / tp_sum_count) - 8191.0) / aft_vscale;
+received_vel = ((aft_vel_sum / tp_sum_count) - 8191.0) / a_vscale;
 diff = received_vel - aft_tp_velocity[tp_freq_offset_count];
 if(diff < 0) diff *= -1;
 if(diff > MAX_TP_VEL_DIFF) printf("AV "); 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/09/12  17:22:02  craig
+ * Completed code
+ *
  * Revision 1.2  1994/05/20  20:37:28  craig
  * *** empty log message ***
  *
@@ -29,6 +32,7 @@ void start_testpulse()
 {
 long distance, width;
 double temp;
+float lambda;
 
 /* First reset all of the global variables that keep track of where we
    are in a given test pulse sequence */
