@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/07/13  16:49:51  thor
+ * *** empty log message ***
+ *
  * Revision 1.2  1997/11/12 19:44:43  eric
  * modified to support Graph Mode for xmit pulse.
  *
@@ -34,6 +37,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void listener(int channel)
 {
+  int timeout;
 /**************  TURN MZ7500 INTO LISTENER *************/
   
   /* TURN BUS AROUND TO LISTEN */
@@ -47,7 +51,19 @@ if(channel == 1)
     *g1acr = 0x0c;	  
     *g1acr = 0x0a; /* UNTALK MZ7500*/
     *g1dido = 0x3f; /* UNLISTEN PPM */
+    timeout = 0;
+    while(*g1ism0 != 0x10 && timeout < 30)
+      {
+	timeout++;
+	taskDelay(1);
+      }
     *g1dido = 0x44; /* TALK ADDRESS PPM */
+    timeout = 0;
+    while(*g1ism0 != 0x10 && timeout < 30)
+      {
+	timeout++;
+	taskDelay(1);
+      }
     *g1adr = 0x20; /* LISTEN ADDRESS MZ7500 */
     *g1acr = 0x89; /* SET MZ7500 TO LISTEN */
     *g1acr = 0x0b; /* DEASSERT ATN */
@@ -60,7 +76,19 @@ if(channel == 2)
     *g2acr = 0x0c;	  
     *g2acr = 0x0a; /* UNTALK MZ7500*/
     *g2dido = 0x3f; /* UNLISTEN PPM */
+    timeout = 0;
+    while(*g2ism0 != 0x10 && timeout < 30)
+      {
+	timeout++;
+	taskDelay(1);
+      }
     *g2dido = 0x44; /* TALK ADDRESS PPM */
+    timeout = 0;
+    while(*g2ism0 != 0x10 && timeout < 30)
+      {
+	timeout++;
+	taskDelay(1);
+      }
     *g2adr = 0x20; /* LISTEN ADDRESS MZ7500 */
     *g2acr = 0x89; /* SET MZ7500 TO LISTEN */
     *g2acr = 0x0b; /* DEASSERT ATN */
