@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/07/28  17:09:20  thor
+ * Upgraded tp VxWorks 5.1.
+ *
  * Revision 1.1  1992/01/16  20:25:18  thor
  * Initial revision
  *
@@ -28,7 +31,7 @@ class Wdog {
   private:
     WDOG_ID wid;		// The watchdog id.
 
-    VOIDFUNCPTR code;		// The function to invoke when the
+    FUNCPTR code;		// The function to invoke when the
 				// watchdog triggers.
 
     int parameter;		// Value passed to code.
@@ -36,7 +39,7 @@ class Wdog {
     int delay;			// Timeout in ticks.
 
   public:
-    Wdog(VOIDFUNCPTR func, int time, int param, int go = 0)
+    Wdog(FUNCPTR func, int time, int param, int go = 0)
       {
 	  delay = time;
 	  code = func;
