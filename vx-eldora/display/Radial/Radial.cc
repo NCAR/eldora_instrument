@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1992/02/27  19:25:12  thor
+ * Changed manner of getting correct title to use table.
+ *
  * Revision 1.13  1992/02/05  20:44:06  thor
  * Faster firstGate calc.
  *
@@ -57,13 +60,14 @@
  * for the Radial class.
  *
  */
-#include "Radial.hh"
-
 extern "C" {
+#include "vxWorks.h"
 #include "stdioLib.h"
 #include "string.h"
 #include "memLib.h"
 };
+
+#include "Radial.hh"
 
 Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
 	       unsigned short xoff, unsigned short yoff) :
@@ -346,8 +350,8 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 				// start at zero.
     --offset;
 
-    FAST int step = (int)((max - min) / (float)tblsize);
-    FAST int m = (int)max;
+    float step = (max - min) / (float)tblsize;
+    float m = max;
 
     for (tblsize++; tblsize > 0; --tblsize, --offset)
       {
@@ -362,7 +366,12 @@ void Radial::drawTable(int set, float max, float min, FAST int param,
 	      case 10:
 	      case 5:
 	      case 1:
-		sprintf(label,"%d",m);
+		int i;
+		if (m < 0.0)
+		  i = iround(m + .5);
+		else
+		  i = iround(m);
+		sprintf(label,"%d",i);
 		horText(wdw,a,label,WHITE);
 		break;
 	    }
