@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.3  1991/10/16  15:33:53  thor
  * Changed variable name.
  *
@@ -66,8 +69,6 @@ struct radar_d {
 				/* (Has different meaning for */
 				/* different scan modes). */
     float scan_mode_pram1;	/* Scan mode specific parameter #1. */
-    float fixed_angle;		/* Fixed Angle that radar is */
-				/* attempting to scan in degrees. */
     short  num_parameter_des;	/* Total number of parameter */
 				/* descriptor blocks for this radar. */
     short  total_num_des;	/* Total number of additional */
@@ -86,7 +87,7 @@ struct radar_d {
 				/* maximum altitude, km. */
     float radar_longitude;	/* Longitude of radar in degrees. */
     float radar_latitude;	/* Latitude of radar in degrees. */
-    float radar_altitude;	/*  Altitude of radar above msl in m. */
+    float radar_altitude;	/*  Altitude of radar above msl in km. */
     float eff_unamb_vel;	/* Effective unambiguous velocity, m/s. */
     float eff_unamb_range;	/* Effective unambiguous range, km. */
     short num_freq_trans;	/* Number of frequencies transmitted. */
