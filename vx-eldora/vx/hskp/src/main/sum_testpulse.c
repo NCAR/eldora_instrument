@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/09/12  17:21:56  craig
+ * Initial revision
+ *
  *
  * description: This module sums up the current readings of received testpulse
  *              power and velocity and measured testpulse power.
@@ -30,6 +33,11 @@ aft_dbz_sum += aft_vmehndshk->tpulse_level_proc;
 fore_vel_sum += fore_vmehndshk->tpulse_vel;
 aft_vel_sum += aft_vmehndshk->tpulse_vel;
 
-fore_tp_level_sum += fore_testp_pwr;
-aft_tp_level_sum += aft_testp_pwr;
+fore_tp_level = fore_testp_pwr;
+aft_tp_level = aft_testp_pwr;
 }
+
+
+
+
+
