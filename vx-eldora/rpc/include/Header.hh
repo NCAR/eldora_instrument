@@ -12,6 +12,9 @@
  * Revision 1.8  1992/07/28  17:23:46  thor
  * *** empty log message ***
  *
+ * Revision 1.8  1992/07/28  17:23:46  thor
+ * *** empty log message ***
+ *
  * Revision 1.7  1992/01/02  20:40:35  thor
  * Added method & C function to change TAPEHEADER of object.
  *
@@ -80,6 +83,12 @@ class Header {
 
     int Radar(RADARDESC &r, int descNum);
     RADARDESC *Radar(int descNum);
+
+    void FieldRadar(FIELDRADAR &f);
+    FIELDRADAR *FieldRadar(void);
+
+    void Volume(VOLUME &v);
+    VOLUME *Volume(void);
 
     void Waveform(WAVEFORM &w);
     WAVEFORM *Waveform(void);
