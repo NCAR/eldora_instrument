@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+Revision 1.3  1991/09/25  20:40:34  thor
+Really want binary semaphore.
+
 Revision 1.2  90/12/27  09:48:33  thor
 Modified to use new mutex semaphores and WRS ansi headers.
 
@@ -26,11 +29,10 @@ Initial revision
 #ifndef INCFlagshh
 #define INCFlagshh
 
-extern "C" {
 #include "vxWorks.h"
 #include "semLib.h"
 #include "taskLib.h"
-};
+#include "stdio.h"
 
 const int FLAGS_OR = 0;
 const int FLAGS_AND = 1;
