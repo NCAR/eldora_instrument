@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/08/28  15:51:38  craig
+ * Added nav loss of sync definitions.
+ *
  * Revision 1.3  1992/07/27  14:45:29  thor
  * Added extern for init routine.
  *
@@ -35,12 +38,12 @@ struct HskpStatus {
     unsigned char testPower;
     unsigned char iru;
     unsigned char gps;
-    unsigned char ecb;
-    unsigned char slave;
-    unsigned char onTemp;
-    unsigned char offTemp;
-    unsigned char foreDDS;
-    unsigned char aftDDS;
+    unsigned char ecbgen;
+    unsigned char slvdead;
+    unsigned char onBoverT;
+    unsigned char offBoverT;
+    unsigned char forDDSool;
+    unsigned char aftDDSool;
     unsigned char minirims;
     unsigned char minirimsTemp;
     unsigned char clock;
@@ -72,26 +75,25 @@ typedef struct HskpStatus HskpStatus;
 #define GPS_DATA_LATE    0x1
 #define UNKNOWN_GPS_DATA 0x2
 
-#define ECB_MASTER_BAD 0x1
+#define SLAVE_1_ALIVE 0x2
+#define SLAVE_2_ALIVE 0x4
+#define SLAVE_3_ALIVE 0x8
+#define SLAVE_4_ALIVE 0x10
+#define SLAVE_5_ALIVE 0x20
 
-#define SLAVE_1_DEAD 0x2
-#define SLAVE_2_DEAD 0x4
-#define SLAVE_3_DEAD 0x8
-#define SLAVE_4_DEAD 0x10
-#define SLAVE_5_DEAD 0x20
+#define MASTER_OVER_TEMP  0x1
+#define SLAVE_1_OVER_TEMP 0x2
+#define SLAVE_2_OVER_TEMP 0x4
+#define SLAVE_3_OVER_TEMP 0x8
+#define SLAVE_4_OVER_TEMP 0x10
+#define SLAVE_5_OVER_TEMP 0x20
 
-#define MASTER_TEMP_BAD  0x1
-#define SLAVE_1_TEMP_BAD 0x2
-#define SLAVE_2_TEMP_BAD 0x4
-#define SLAVE_3_TEMP_BAD 0x8
-#define SLAVE_4_TEMP_BAD 0x10
-#define SLAVE_5_TEMP_BAD 0x20
-
-#define SLAVE_1_LOCK_BAD 0x2
-#define SLAVE_2_LOCK_BAD 0x4
-#define SLAVE_3_LOCK_BAD 0x8
-#define SLAVE_4_LOCK_BAD 0x10
-#define SLAVE_5_LOCK_BAD 0x20
+#define FREQ_1_OOL 0x2
+#define FREQ_2_OOL 0x4
+#define FREQ_3_OOL 0x8
+#define FREQ_4_OOL 0x10
+#define FREQ_5_OOL 0x20
+#define FREQ_6_OOL 0x40
 
 #define MINIRIMS_WARMING      0x1
 #define MINIRIMS_ALIGNING     0x2
