@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1995/03/01  23:01:20  eric
+ * removed clearing out stop flag from initialization.
+ *
  * Revision 1.5  1995/01/25  17:39:59  eric
  * Initialized global Header pointers from nu_archit_dac.c to
  * avoid conflicts.
@@ -99,7 +102,7 @@ long           k, l, m, p, q, r, s;
 register long  i,j;
 
 int            *samps, data_samps, buff_cnt, prf, gates,sem_status, sampl,
-               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, tp_pwr_off, tp_pwr_indx,
+               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, 
                f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, offset, lgate_off,
                indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int,
                lgate_off2, cnt;
@@ -115,7 +118,7 @@ unsigned long  data_loc_base, temp;
 volatile register unsigned long *dptr;
 volatile register unsigned long   *data_loc;
 
-float          a_dummy, *tp_pwr_loc;
+float          a_dummy;
 
 volatile register float *ts_loc;
 for(;;)
@@ -168,7 +171,6 @@ for(;;)
 
 	    data_loc = (unsigned long *)(COL0BASE + DB_1);
 	    ts_off = (tnum_int * num_param * 2) + (2 * f_flag * num_param * 2 *(prt_flag + 1));
-	    tp_pwr_off = ts_off + (2 * f_flag * 4 * sampl);
 	    data_samps = (tnum_int - 1) * num_param * 2 / 4;
 	    buff_cnt = 0;
 	    ts_cnt = 0;
@@ -182,6 +184,7 @@ for(;;)
 	    r = 0;
 	    s = 0;
 	    q = 0;
+            j = 0;
 	    switch(indf_ts)
 	      {
 		case 0:
@@ -215,18 +218,16 @@ for(;;)
 			      lgate_off = 0x0;
 			      break;
 			    case 2:
-			      lgate_off = 0x8;
-			      tp_pwr_indx = tp_pwr_off + 0x4;
+			      lgate_off = 0x2;
 			      break;
 			    case 3:
-			      lgate_off = 0x10;
-			      tp_pwr_indx = tp_pwr_off + 0x8;
+			      lgate_off = 0x4;
 			      break;
 			    case 4:
-			      lgate_off = 0x18;
+			      lgate_off = 0x6;
 			      break;
 			    case 5:
-			      lgate_off = 0x20;
+			      lgate_off = 0x8;
 			      break;
 			    default:
 			      lgate_off = 0x0;
@@ -259,33 +260,52 @@ for(;;)
                                     {
                                         *dptr++ = *data_loc++;
                                     }
+                                data_loc++; /* increment past last gate */
+                                data_loc++;
                                 data_loc += lgate_off;
-                                *dptr++ = *data_loc++;
-                                *dptr++ = *data_loc++;
+                                *dptr++ = *data_loc;
+                        /* Write testpulse velocity to vme to vme handshake area */        
+                                vme2_pntr->tpulse_vel = (*data_loc++ & 0xffff); 
+                                *dptr++ = *data_loc;
+                        /* Write testpulse power to vme to vme handshake area */
+                                vme2_pntr->tpulse_level_proc = (*data_loc++ & 0xffff);
+			
+			
+                                
+			
+
                             }
                          if(num_param == 6)
                              {
                                  while(i-- != 0)
                                      {
                                          *dptr++ = *data_loc++;
-                                     }                                 
-                                 data_loc += lgate_off;
+                                     }
+                                 data_loc++; /* increment past last gate */
+                                 data_loc++;
+                                 data_loc++;
+                                 data_loc += (lgate_off*2);
                                  temp = *data_loc++;
-                                 lgate[0] = temp & 0xff;         /* Ws */
-                                 lgate[1] = (temp >> 16) & 0xff; /* Vs */
+                                 lgate[0] = temp & 0xffff;         /* Vs */
+                                 lgate[1] = (temp >> 16) & 0xffff; /* Ws */
                                  temp = *data_loc++;
-                                 lgate[2] = temp & 0xff;         /* NCPs */
-                                 lgate[3] = (temp >> 16) & 0xff; /* DBZs */
-                                 data_loc += lgate_off2;
+                                 lgate[2] = temp & 0xffff;         /* DBZs */
+                                 lgate[3] = (temp >> 16) & 0xffff; /* NCPs */
+                                /* data_loc += lgate_off2; */
                                  temp = *data_loc++;
-                                 lgate[4] = temp & 0xff;         /* Wl */
-                                 lgate[5] = (temp >> 16) & 0xff; /* Vl */
+                                 lgate[4] = temp & 0xffff;         /* Vl */
+                                 lgate[5] = (temp >> 16) & 0xffff; /* Wl */
                                  temp = *data_loc++;
-                                 lgate[6] = temp & 0xff;         /* NCPl */
-                                 lgate[7] = (temp >> 16) & 0xff; /* DBZl */
-                                 *dptr++ = lgate[5] || (lgate[1] << 16); /* Vl,Vs */
-                                 *dptr++ = (lgate[0] + lgate[4]) >> 2; /* W,V=0 */
-                                 *dptr++ = ((lgate[2] + lgate[6]) >> 2) || (((lgate[3] + lgate[7]) >> 2) << 16); /* NCP,DBZ */
+                                 lgate[6] = temp & 0xffff;         /* DBZl */
+                                 lgate[7] = (temp >> 16) & 0xffff; /* NCPl */
+                                 *dptr++ = lgate[4] | (lgate[0] << 16); /* Vl,Vs */
+                                 *dptr++ = (((lgate[1] + lgate[5]) >> 1) << 16) & 0xffff0000; /* W,V=0 */
+                                 *dptr++ = ((lgate[2] + lgate[6]) >> 1) | (((lgate[3] + lgate[7]) >> 1) << 16); /* NCP,DBZ */
+
+                        /* Write testpulse velocity and power to vme to vme handshake area */        
+                                 vme2_pntr->tpulse_vel = lgate[0];
+                                 vme2_pntr->tpulse_level_proc = lgate[2];
+
                              }
                         if(num_param == 12)     /* 10 parameter header */
                             {
@@ -323,6 +343,7 @@ for(;;)
                                 *dptr++ = lgate[6] || (lgate[7] << 16); /* NCPl,DBZl */
                                 *dptr++ = (lgate[0] + lgate[4]) >> 2;   /* W,V=0 */
                                 *dptr++ = ((lgate[2] + lgate[6]) >> 2) || (((lgate[3] + lgate[7]) >> 2) << 16); /* NCP, DBZ */
+
                             }
                         if((indf_ts == 1)||(indf_ts == 3))
                             {
@@ -351,11 +372,6 @@ for(;;)
 			if(k == 0)
 			  q++;
 			      
-			/* Write testpulse power into vme to vme handshake area */
-			
-			tp_pwr_loc = (float *)(data_loc_base + tp_pwr_indx);
-/*			vme2_pntr -> tpulse_level_proc = *tp_pwr_loc; */
-			
 			if (buff_cnt == 0)
 			  {
 			      buff_cnt = 1;

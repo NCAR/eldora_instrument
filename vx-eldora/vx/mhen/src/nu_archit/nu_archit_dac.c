@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1995/01/25  17:38:01  eric
+ * Initialized global Header pointers in this routine only to eliminate
+ * conflicts.
+ *
  * Revision 1.4  1995/01/20  14:52:02  eric
  * Put in patch to fix bug in PPP scale_fac in aft processor.
  *
@@ -44,6 +48,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define FREQ_4
 #define FREQ_5
 #define NEW_TM
+#define T_PULSE
 #define GATES 512
 #define int_vec0 255
 #define int_vec1 254
@@ -102,7 +107,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define DMC_BASE 0xFF81 + SHORT_BASE    /* Base Address of DMC-300 Card */
 
 extern int Silent;
-int Param = 10;
+int Param = 6;
 short task_sync = 0;
 float rpm;
 int position, err_cnt, int_cnt, proc_stat;
@@ -260,9 +265,7 @@ for(;;)
 	    num1 = gates - 3;
 	    gate_sp = wvfm -> gate_dist1[1];
 	    gate_sp = (gate_sp * 2.5) + 0.5; /* convert 60 mhz counts to m and round */
-            first_gate = wvfm -> gate_dist1[0]; /* Assumes first gate spacing for all frequencies */
-            first_gate = (first_gate * 2.5) + 0.5; /* convert 60 mhz counts to m and round */
-
+            first_gate = cs -> distToFirst; /* Assumes same first gate spacing for all frequencies */
 	    chips[0] = wvfm -> num_chips[0];
 	    f1_flag = wvfm -> num_chips[0];
 	    prt_flag = 0;    /* default is single prt */
@@ -345,12 +348,14 @@ for(;;)
 
 	    rpm = (float )((prf/sampl)*(0.9*60.0/360.0)); /* scan @ 1 ray per beamwidth */
 #ifdef NEW_TM
-	    tst_pls = ((gates - 5) * gate_sp) + gate_sp/2; /* ensure test pulse spans gates - 4 range gate (last gate for processor 0) */
+#ifndef T_PULSE
+	    tst_pls = ((gates - 2) * gate_sp) + gate_sp/2; /* ensure test pulse spans gates - 1 range gate (last gate for processor 2) */
 
 	    tp_width = 2 * gate_sp; /* can change width factor from 2 if req'd */
 
 	    testpulseb(prf,1,0,tst_pls,tp_width); /* freq1 testpulse */
 #endif
+#endif            
 #ifndef NEW_TM
 	    tst_pls = gate_sp * 10;   /* for old timing module */
 #endif
@@ -476,56 +481,80 @@ for(;;)
 		    }
 #endif
 #ifdef NEW_DSP_CODE
-		  load_stat = nu_lddsp(1,1,3,0,"dlprt_dp_m.dmp");
+                  if(Param != 6)
+                    load_stat = nu_lddsp(1,1,3,0,"dlprt_dp_m.dmp");
+                  else
+                    load_stat = nu_lddsp(1,1,3,0,"dlprt_dp6v_m.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,1,"dlprt_dp_s.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,1,3,1,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,1,3,1,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,2,"dlprt_dp_s.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,1,3,2,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,1,3,2,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,1,3,3,"dlprt_dp_s.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,1,3,3,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,1,3,3,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,0,"dlprt_dp_s.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,2,3,0,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,2,3,0,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,1,"dlprt_dp_s.dmp");
+                  if(Param != 6)
+                    load_stat = nu_lddsp(1,2,3,1,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,2,3,1,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,2,"dlprt_dp_s.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,2,3,2,"dlprt_dp_s.dmp");
+                  else
+                    load_stat = nu_lddsp(1,2,3,2,"dlprt_dp6v_s.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
 			
 			currStatus->rp7 |= DSP_LOAD;			
 		    }
-		  load_stat = nu_lddsp(1,2,3,3,"dlprt_dp_d7.dmp");
+                  if(Param != 6)                  
+                    load_stat = nu_lddsp(1,2,3,3,"dlprt_dp_d7.dmp");
+                  else
+                    load_stat = nu_lddsp(1,2,3,3,"dlprt_dp6v_d7.dmp");
 		  if(load_stat)
 		    {
 			/* Update Status */
@@ -1283,21 +1312,19 @@ nal priority */
 		  sem_status = semTake(bim_int1_sem, 30); /* wait 30 ticks for ISR to pass sem */
 		  if (sem_status == OK)
 		    {
-
+#ifdef T_PULSE
                   /* Update Testpulse Parameters -- if required */
-                  /* Uncomment when HSKPR Test Pulse Works */
-/*     
+     
                         if(vme2_pntr->tpulse_flg == 1)
                           {
-                              testpulseb(prf,1,0,vme2_pntr->tpulse_dist,vme2_pnt
-r->tpulse_width);
+                              testpulseb(prf,!radar_fore_aft,vme2_pntr->tpulse_freq_num-1,vme2_pntr->tpulse_dist,vme2_pntr->tpulse_width);
                               vme2_pntr->tpulse_flg = 0;
                           }
-*/
+#endif
+                        
                   /* Send data across mcpl at mid-beam */
 
                         /* check for valid NAV data */
-
 
 			if(send_nav)
 			  {
@@ -1404,7 +1431,7 @@ Determine which DP went out of sync by reading sync flag status back from all op
 			int_cnt++;
 /*			printf("Collator Out of Sync Error \n"); */
 		    }
-		  if(int_cnt >= 1 && int_cnt <= 4)
+		  if(int_cnt >= 1 && int_cnt <= 4 && !stop)
 		    {		    
 			int_cnt = 5;
 			switch(proc_stat)
@@ -1534,7 +1561,7 @@ Determine which DP went out of sync by reading sync flag status back from all op
 		  *mb_clr = 0;
 		  *bim_cr1 = 0xdb;  /* re-enable interrupt INT1* */
 	      }
-	    taskDelay(7); /* this ensures real time task has enough time to stop */
+/*	    taskDelay(7); this ensures real time task has enough time to stop */
 
 /* Disable all interrupts */
 
@@ -1552,8 +1579,10 @@ Determine which DP went out of sync by reading sync flag status back from all op
 	    if(reboot)
 	      reboot = 0;
 	    if(stop)
-	      stop = 0;
-
+                {
+/*                    stop = 0; */
+                    printf("Executive Task Stopped \n");
+                }
 	}
       else
 	{
