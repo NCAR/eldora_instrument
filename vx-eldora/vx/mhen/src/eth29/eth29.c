@@ -54,6 +54,9 @@
 * ==========================
 *
 * --------- $Log$
+* --------- Revision 1.2  2003/04/07 19:47:33  martinc
+* --------- *** empty log message ***
+* ---------
 * --------- Revision 1.1.1.1  2003/04/07 19:24:03  martinc
 * --------- import
 * ---------
@@ -218,7 +221,7 @@ typedef void *caddr_t;
 #endif
 
 #ifndef printd
-//#define printd	printf
+//#define printd	logMsg
 #define printd	//
 #endif
 
@@ -589,6 +592,7 @@ static struct mbuf *m_save = NULL;
 /*****************************************************************************/
 
 #include <vxWorks.h>
+#include <semLib.h>
 #include <iv.h>
 
 #ifdef NEVER
@@ -609,6 +613,8 @@ int logMsg(char *fmt,				    /* vxWorks print routine */
 
 
 #endif
+
+volatile SEM_ID taskSem;
 
 /*****************************************************************************/
 /*	PUBLIC FUNCTION DEFINITIONS					     */
@@ -639,6 +645,8 @@ int eth29(void)
 #endif
 	u_char *buf_p;					   /* buffer pointer */
 	int i;
+
+        taskSem = semBCreate(SEM_Q_FIFO, SEM_EMPTY);
 
 	printd("*** ETH29 test application V%s (%s %s) ***\n",
 		ETH29_APP_VER, __DATE__, __TIME__);
@@ -695,8 +703,8 @@ int eth29(void)
 	//status = sock_a[0] = P_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	/* set firmware debug level */
-	optval = 9;
-	optlen = sizeof(optval);
+		// optval = 9;
+		//optlen = sizeof(optval);
 	//	status = P_Setsockopt(sock_a[0], SOL_SOCKET, SO_DEBUG, &optval, optlen);
 
 	/* issue ioctl to set IP address */
@@ -787,7 +795,7 @@ int eth29(void)
 
 	  nDatagram++;
 	  if ((nDatagram %100) == 0) {
-	    logMsg("\r%d", nDatagram);
+	    //	    logMsg("\r%d", nDatagram);
 	  }
 	}
 
@@ -1224,6 +1232,8 @@ void eth29_isr(int dummy)
 		default:
 			m_save = m;
 			sem_flag = 1;
+			printd("giving semaphore\n");
+			semGive(taskSem);
 			break;
 	}
 }
@@ -2478,6 +2488,15 @@ Return:		!NULL => pointer to mbuf saved in eth29_isr()
 void *wait_sem(int timeout)
 {
 	int ik;
+
+	int semStatus;
+	printd("taking semaphore\n");
+	semStatus = semTake(taskSem, WAIT_FOREVER);
+	printd("semaphore taken\n");
+	if (semStatus == ERROR)
+	  return NULL;
+	ADDR_S2H(m_save);
+	return m_save;
 
 	ik = intLock();
 	//	while((sem_flag == 0) && (timeout--)) {

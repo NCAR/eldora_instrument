@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#define DO_STREAM 1
+#define DO_STREAM 0
 
 int main(int argc, char** argv) {
 
@@ -78,6 +78,8 @@ int main(int argc, char** argv) {
 
     int status;
  
+    int readCount = 0;
+
     struct sockaddr_in sa;
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -90,13 +92,30 @@ int main(int argc, char** argv) {
     status = bind(fd, (sockaddr*)&sa, sizeof(sa));
     std::cout << "bind call returned " << status << std::endl;
 
+    int total = 0;
+    int last_total = 0;
+
+    time_t last_time = time(NULL);
+
     while(1) {
 
       unsigned char buf[2000];
 
       status = read(fd, buf, sizeof(buf));
+      time_t this_time = time(NULL);
+      readCount++;
 
-      std::cout << "recv returned " << status << std::endl;
+      total += status;
+
+      int delta = this_time - last_time;
+      if (delta >= 10) {
+	double throughput = (total - last_total)/ delta ;
+	std::cout << "reads:" << readCount << ", " << delta << " secs, " << (total - last_total)/1000.0 <<
+	  " kb, " << throughput/1000.0 << " kb/s" << std::endl;;
+	last_total = total;
+	last_time = this_time;
+	readCount = 0;
+      }
 
       if (status < 0) {
 	perror("recv");
