@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/16  14:36:17  thor
+ * Changed GetRealHeader to use user supplied memory.
+ *
  * Revision 1.3  1991/10/14  19:13:34  thor
  * Fixed radar descriptor functions to handle 2 descriptors & added error repor
  * ing for parameter functions.
@@ -61,6 +64,8 @@ extern WAVEFORM *GetWaveform(HeaderPtr header);
 extern void GetRpcHeader(HeaderPtr header, TAPEHEADER *th);
 
 extern int GetRealHeader(HeaderPtr ptr, void *header);
+
+extern void CopyHeader(HeaderPtr src, HeaderPtr dest);
 
 extern void DestroyHeader(HeaderPtr ptr);
 
