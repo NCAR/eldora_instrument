@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/02/21  17:21:19  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/01  17:25:12  craig
  * *** empty log message ***
  *
@@ -73,6 +76,33 @@
 #define PLATFORM_TEMP 0x70
 #define TEMP_MASK 0x70
 #define GIMB_DSBL 0x100
+
+#include "MiniRIMS.h"
+
+/* The Basic Minirims Structure of Structures */
+
+struct RIMS_DATA {
+  int data_valid;
+  int buff_addr;
+  struct minirims_data rims_buff1_0;
+  struct minirims_data rims_buff1_1;
+  struct minirims_data rims_buff1_2;
+  struct minirims_data rims_buff1_3;
+  struct minirims_data rims_buff1_4;
+  struct minirims_data rims_buff1_5;
+  struct minirims_data rims_buff1_6;
+  struct minirims_data rims_buff1_7;
+
+  struct minirims_data rims_buff2_0;
+  struct minirims_data rims_buff2_1;
+  struct minirims_data rims_buff2_2;
+  struct minirims_data rims_buff2_3;
+  struct minirims_data rims_buff2_4;
+  struct minirims_data rims_buff2_5;
+  struct minirims_data rims_buff2_6;
+  struct minirims_data rims_buff2_7;
+};
+
 
 #endif /* INC */
 
