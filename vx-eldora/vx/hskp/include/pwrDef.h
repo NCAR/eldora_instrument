@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/14  21:38:48  reif
+ * Initial revision
+ *
  *
  * description: The purpose of this module is to set up the MZ7500 GPIB
  *              board as controller with DMA and interrupts in order to
@@ -74,7 +77,5 @@
 #define BINT  /* BUS CLEAR INTERRUPT */
 #define NORM_INT 250
 #define ERR_INT 249
-
-#define scope
 
 #endif /* INC */

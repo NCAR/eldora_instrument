@@ -9,39 +9,49 @@
  * revision history
  * ----------------
  * $Log$
+/* Define global pointers to header structures so everyone can benefit */
+scope VOLUME *vol;
+scope WAVEFORM *wave;
 scope RADARDESC *fraddes;
 scope RADARDESC *araddes;
 scope FIELDRADAR *frad;
 scope CELLSPACING *cs;
-scope struct VOLUME *vol;
-scope struct WAVEFORM *wave;
-scope struct RADARDESC *raddes;
-scope struct FIELDRADAR *frad;
-scope struct CELLSPACING *cs;
-scope struct PARAMETER *param;
-scope struct NAVDESC *navdes;
-scope struct INSITU_PARAMETER *insitdes;
-scope struct RAY *rayi;
-scope struct PLATFORM *plat;
-scope struct FIELDPARAMDATA *fdata;
-scope struct INDEP_FREQ *ifreq;
-scope struct TIME_SERIES *tseries;
-scope struct NAV_INFO *navi;
-scope struct INS_DATA *ins;
-scope struct MINIRIMS_DATA *minir;
-scope struct GPS_DATA *gps;
-scope struct INSITU_DATA *insitu;
+scope PARAMETER *param;
+scope NAVDESC *navdes;
+scope INSITUDESC *insitdes;
+scope RAY *rayi;
+scope PLATFORM *plat;
+scope FIELDPARAMDATA *fdata;
+scope INDEP_FREQ *ifreq;
+scope TIME_SERIES *tseries;
+scope NAV_INFO *navi;
+scope INS_DATA *ins;
+scope MINIRIMS_DATA *minir;
+scope GPS_DATA *gps;
+scope INSITU_DATA *insitdat;
 
-/* Define a data ray structure that will be used to fill the various
-   data areas */
+/* Pointers to the current fore and aft radar data rays */
+
+scope struct DATARAY *fore_ray_pntr;
+scope struct DATARAY *aft_ray_pntr;
+
+/* Variables to hold old values of various parameters */
 scope long  last_msecs_today;
-scope struct ray{
-struct RAY this_rayi;
-struct PLATFORM this_plat;
-struct FIELDPARAMDATA this_fdata;
-} 
+scope char  last_day;
+scope float last_fore_position;
 scope float last_aft_position;
+scope float last_position;
+scope long msecs_ray[27];
+scope long dwelltime_msec;
+
+/* Global Control flags */
+scope short stop_flag;
+scope short reload_flag;
+
 /* Parameters to handle the test pulse */
+
+scope short tp_freq_count;
+scope short tp_freq_offset_count;
 scope short tp_atten;
 scope short tp_atten_start;
 scope short tp_dwell_count;

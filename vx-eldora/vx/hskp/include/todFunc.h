@@ -9,15 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/14  21:39:58  reif
+ * Initial revision
  *
- * description: The purpose of this module is to test the various functions
- *              of the TIME OF DAY board (TOD).  These include setting the
- *              Real Time Clock (RTC), reading time of power failure, writing
- *              and reading the various register on the RTC, setting up the 
- *              TOD for interrupts using the Bus Interrupter Module (BIM), the 
- *              RTC and the Power Monitor (PM) chip.  The software also
- *              allows the TOD to be set to IRIGB and reading time from the
- *              RTC.
+ *
+ * description: This is the list of functions associated with 
+ *              the TIME OF DAY board (TOD).
  */
 
 #ifndef INCtodFunch
@@ -25,16 +22,15 @@
 
 /**************** FUNCTION TEMPLATES **************************/
 
-void write_data(void);
-void read_data(void);
-void tod_menu(void);
-void view_time(void);
-void synch_to_irigb(void);
-void start_clock(void);
-void set_time(char,char,char,char,char,char);
-void get_time(char *,char *,char *,char *,short *,char *,char *,char *);
-short jul_day(int,int,int);
-void calc_date(long,int *,int *,int *);
+scope void write_data(void);
+scope void init_clock(short);
+scope void read_data(void);
+scope void tod_menu(void);
+scope void view_time(void);
+scope char sync_irig(void);
+scope void start_clock(void);
+scope void set_time(char,char,char,char,char,char);
+scope void get_time(char *,char *,char *,short *,short *,char *,char *,char *);
 
 #endif /* INC */
 

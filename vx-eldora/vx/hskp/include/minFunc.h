@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/14  21:38:25  reif
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -20,5 +23,7 @@
 /********************** FUNCTION PROTOTYPES *****************/
 
 void mini_menu(void);
+void align_mini(void);
 
 #endif /* INC */
+

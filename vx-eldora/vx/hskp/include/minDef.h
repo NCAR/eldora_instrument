@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/14  21:38:15  reif
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -58,8 +61,6 @@
 #define Z_ACCL_TEMP 0x050
 #define LWR_STBL_EL_TEMP 0x060
 #define GIMB_DSBL 0x100
-
-#define scope
 
 #endif /* INC */
 

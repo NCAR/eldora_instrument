@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/19  19:33:47  craig
+ * Initial revision
+ *
  *
  * description: These are the function definitions used to handle the 
  *              Global Positioning System (GPS) interface.  This interface
@@ -21,11 +24,9 @@
 
 /***************** Templates of the GPS handling functions ***********/
 
-void gps_init();                 /* Initalize all of the GPS Pointers */
-void gps_cmnd(short cmnd);       /* Send a command to the GPS interface */
+void init_gps(short);            /* Initalize all of the GPS Pointers */
+void command_gps(short);         /* Sends commands to the GPS interface */
 void gps_isr();                  /* GPS mailbox interrupt service routine */
-
-#define scope
 
 #endif /* INC */
 
