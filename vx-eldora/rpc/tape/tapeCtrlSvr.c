@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/28  19:48:18  thor
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -21,12 +24,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 static void tapecontrol_1(struct svc_req *, SVCXPRT *);
 
-void startRpc(void)
+void startControl(void)
 {
     FAST SVCXPRT *transp;
-
-    if (rpcTaskInit() == ERROR)
-      exit(1);
 
     (void) pmap_unset(TapeControl,TapeCtrlVers);
 
@@ -45,11 +45,6 @@ void startRpc(void)
 		  "unable to register (TapeControl,TapeCtrlVers,udp).");
 	  exit(1);
       }
-
-    svc_run();
-    fprintf(stderr, "svc_run returned");
-    exit(1);
-    /* NOTREACHED */
 }
 
 static void tapecontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
