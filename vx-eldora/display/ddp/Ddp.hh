@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/06/29  14:11:48  thor
+ * Add Clear method.
+ *
  * Revision 1.3  1992/02/27  19:37:21  thor
  * Added missing Task.hh include.
  *
@@ -43,6 +46,8 @@ class Ddp {
     long *addrBase;
 
     long current;
+    int mailboxCount;
+    int radar;
 
     SEM_ID sem;
 
@@ -56,6 +61,10 @@ class Ddp {
     void Next(void);
     
     void Clear(void) { taskLock(); sem->semCount = 0; taskUnlock(); }
+
+    void Fore(void) { radar = 0; }
+    
+    void Aft(void) { radar++; }
 };
 
 #endif // INCDdphh
