@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ *
+ * description: This module provides executive control of the ELDORA 
+ *              Housekeeping processor by reading a header passed
  *              by the Control Processor and following command passed
  *              by the control processor. 
  *              
@@ -120,19 +123,32 @@ in_gps_isr = 0;
 
 /* Initialize all of the various houskeeping interfaces */
 
+printf("Initializing the clock card\n");
+init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
 /* init_mini(); */   /* Zeros all the counters and disables the gimbal motor
                     sets up the clock interrupt */
 
 printf("Initializing the VME to VME interfaces\n");
+init_vmevme();  /* Intializes the VME to VME interface handshake area */
 
+printf("Initializing the motor controller\n");
 init_motor();   /* Sets gains, sample interval etc. on motor controller card */
 
+/* init_ieee(); */    /* Initalizes the power meters to begin sending data */
+
 printf("Initializing the ARINC 429 interface\n");
-/* init_motor(); */   /* Sets gains, sample interval etc. on motor controller card */
+init_iru((short)0);     /* Initializes the ARINC 429 card to interrupt on
+			   300 words or the latitude label */
+
+printf("Initializing the GPS interface\n");
 init_gps((short)0);/* Sets up the the GPS mailbox interrupt, proper pointers */
+
+/* Enable 68040 Interrupts */
 sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
+sysIntEnable(ARINC_IRQ);
+sysIntEnable(GPS_IRQ);
 
 
 /********************************************************/
@@ -143,10 +159,14 @@ sysIntEnable(IEEE_IRQ);
 do{
 
     reload_flag = 0;
+
+    printf("Stopping the VME to VME interfaces\n");
     stop_vmevme();
- /*   stop_motor();
-    stop_ieee(); */
+    printf("Stopping the motor controller\n");
+    stop_motor();
+    printf("Stopping the GPS interface\n");
     command_gps((char)3);
+
 /*    stop_ieee(); */
 
 
@@ -157,7 +177,9 @@ do{
     taskDelay(60);
      }while(stop_flag);
     printf("Was started by the control processor\n");
+
     do{}while(stop_flag);
+    araddes = GetRadar(inHeader,(int)2);
     vol = GetVolume(inHeader);
     wave = GetWaveform(inHeader);
     frad = GetFieldRadar(inHeader);
@@ -171,19 +193,26 @@ do{
 
     /* Set motor to new RPM's and start spinning */
 
+    printf("Starting the motor\n");
+    rpm = fraddes->req_rotat_vel * DEGPERSEC_TO_RPM;
     rpm = raddes->req_rotat_vel;
-  /*  set_vel(rpm);
-    go_motor(); */
+    go_motor();
+
     /* Program the Intermediate Frequency Signal processors with the
        proper filters */
 
     /* Note that this programs the aft identical to the fore this code
        will have to change, if that no longer is desired */
+
+    for(i=0; i<fraddes->num_freq_trans; i++)
       {
 	  ecbaddr = ECBIFFOR;
 	  unitnum = i+1;
 	  filternum = frad->filter_num[i];
 	  timeout = 0;
+	  do
+	    {
+		timeout++;
 	    }while((test = ecbSetIF(ecbaddr,unitnum,filternum) != 0) &&
 		   timeout < 30000);
 	  if(timeout >= 30000)
@@ -203,6 +232,12 @@ do{
     /* Program the receiver/exciter chassis with the proper frequencies */
     /* Do the fore radar first */
 
+    ecbaddr = ECBRFFOR;
+	if(!in_vmevme_isr)
+	  {
+	      printf("V");
+	      in_vmevme_isr = 0;
+	  }
 		case 0:
 		frequency = fraddes->freq1 * 1e9;
 		break;

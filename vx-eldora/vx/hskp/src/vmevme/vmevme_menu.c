@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/03  20:26:34  craig
+ * Initial revision
+ *
  *
  * description:  Allows the user to individually test the VME to 
  *               VME interfaces and radar processor handshaking.
@@ -96,6 +99,9 @@ void vmevme_menu()
 {
 
 int cmd, i, number, index;
+
+/* First Initalize the cards */
+init_vmevme();
 
 /* Just sit in the menu until told to quit */
 
@@ -247,7 +253,7 @@ do{
 	  getchar();
 	  if(index < 0) index = 0;
 	  if(index > 26) index = 26;
-	  printf("\n Fore radar record #%d sent over MCPL\n");
+	  printf("\n Fore radar record #%d sent over MCPL\n",index);
 	  fore_vmehndshk->radar_hndshk[index] = (short)1;
 	  break;
 
@@ -257,7 +263,7 @@ do{
 	  getchar();
 	  if(index < 0) index = 0;
 	  if(index > 26) index = 26;
-	  printf("\n Aft radar record #%d sent over MCPL\n");
+	  printf("\n Aft radar record #%d sent over MCPL\n",index);
 	  aft_vmehndshk->radar_hndshk[index] = (short)1;
 	  break;
 
@@ -267,7 +273,7 @@ do{
 	  getchar();
 	  if(index < 0) index = 0;
 	  if(index > 1) index = 1;
-	  printf("\n Nav data record #%d sent over MCPL\n");
+	  printf("\n Nav data record #%d sent over MCPL\n",index);
 	  fore_vmehndshk->nav_hndshk[index] = (short)1;
 	  break;
 
@@ -277,7 +283,7 @@ do{
 	  getchar();
 	  if(index < 0) index = 0;
 	  if(index > 1) index = 1;
-	  printf("\nInsitu data record #%d sent over MCPL\n");
+	  printf("\nInsitu data record #%d sent over MCPL\n",index);
 	  fore_vmehndshk->ads_hndshk[index] = (short)1;
 	  break;
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/01  17:25:37  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/19  19:35:36  craig
  * Initial revision
  *
@@ -30,7 +33,8 @@ short tpulse_atten;         /* Test Pulse attennuator setting in db */
 short tpulse_freq_num;      /* Test Pulse frequency Number (1 to 5) */
 short nav_length;           /* Length of a navigational data record in Bytes */
 short ads_length;           /* Length of a ADS data record in bytes */
-char  dummy[2];             /* Dummy area to get other thing to line up */
+short polled;               /* Polled interrupt location set to 1 in
+                                Mid-Beam interrupt by radar processor */
 short radar_hndshk[27];     /* Radar Data handshake areas */
 short nav_hndshk[2];        /* navigational data record handshake areas */
 short ads_hndshk[2];        /* Airborne Data System (ADS) record
