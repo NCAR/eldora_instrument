@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/07/29  17:55:14  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *
@@ -148,7 +151,7 @@ class Window {
 
     void point(Point pt, unsigned char color);
 
-    void text(Point start, char *text, unsigned char color,
+    void text(Point start, const char *text, unsigned char color,
 	      float angle = 0.0);
 
     void clear(void);
@@ -159,11 +162,11 @@ class Window {
 
     void setTextBackGround(int color);
 
-    void horText(Point start, char *text, unsigned char color);
-    void horCenteredText(Point start, char *text, unsigned char color);
+    void horText(Point start, const char *text, unsigned char color);
+    void horCenteredText(Point start, const char *text, unsigned char color);
 
-    void vertText(Point start, char *text, unsigned char color);
-    void vertCenteredText(Point start, char *text, unsigned char color);
+    void vertText(Point start, const char *text, unsigned char color);
+    void vertCenteredText(Point start, const char *text, unsigned char color);
 
     void shift(Point src, Point dst, int width, int height);
 

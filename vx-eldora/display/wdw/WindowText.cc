@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/07/09  15:53:29  thor
+ * Fixed a strange problem with optimizing away y position calc in HorText.
+ *
  * Revision 2.1  1993/07/01  16:20:03  thor
  * Brought code up to latest ANSI draft spec.
  *
@@ -48,7 +51,8 @@ void Window::setTextBackGround(int color)
     backGroundColor = color;
 }
 
-void Window::horText(Point start, FAST char *text, FAST unsigned char color)
+void Window::horText(Point start, FAST const char *text,
+                     FAST unsigned char color)
 {
     FAST unsigned short x = start.x + upperLeft.x;
     FAST unsigned short y = start.y + upperLeft.y;
@@ -98,7 +102,8 @@ void Window::horText(Point start, FAST char *text, FAST unsigned char color)
       }
 }
 
-void Window::horCenteredText(Point start, char *text, unsigned char color)
+void Window::horCenteredText(Point start, const char *text,
+                             unsigned char color)
 {
     FAST int xsize = textScaleX;
 
@@ -107,7 +112,8 @@ void Window::horCenteredText(Point start, char *text, unsigned char color)
     horText(start,text,color);
 }
 
-void Window::vertText(Point start, FAST char *text, FAST unsigned char color)
+void Window::vertText(Point start, FAST const char *text,
+                      FAST unsigned char color)
 {
     FAST int x = start.x + upperLeft.x;
     FAST int y = start.y + upperLeft.y;
@@ -157,7 +163,8 @@ void Window::vertText(Point start, FAST char *text, FAST unsigned char color)
       }
 }
 
-void Window::vertCenteredText(Point start, char *text, unsigned char color)
+void Window::vertCenteredText(Point start, const char *text,
+                              unsigned char color)
 {
     FAST int ysize = textScaleY;
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  1991/02/27  16:58:31  thor
  * Added shift, copyBlock and rootXY methods.
  *
@@ -161,8 +164,8 @@ void Window::point(Point pt, unsigned char color)
     gbd->drawPoint(pt,color);
 }
 
-void Window::text(Point start, char *text, unsigned char color,
-		  float angle = 0.0)
+void Window::text(Point start, const char *text, unsigned char color,
+		  float angle)
 {
 }
 
