@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/10/19  15:03:31  thor
+ * Added missing svc_run().
+ *
  * Revision 2.3  1994/09/07  16:43:33  thor
  * Updated to the new TLIRPC.
  *
@@ -83,7 +86,6 @@ int _rpcsvcstate = _IDLE;         /* Set when a request is serviced */
 static void _msgout(char* msg);
 static void closedown(int sig);
 
-static FILE *eventFps[KNOWN_HOSTS]; /* Event log file. */
 static char *directory = ".";	/* Default directory path. */
 static char *files[] = {
 "fore.log", "aft.log", "disp1.log", "disp2.log", "record.log", "hskp.log"
@@ -101,22 +103,6 @@ main(FAST int argc, FAST char **argv)
 
     if (argc > 1)
       directory = argv[1];
-
-    /* Open the files for append access. */
-    for (i = 0, fps = eventFps; i < j; i++, fps++)
-      {
-	  char buffer[256];
-
-	  strcpy(buffer,directory);
-	  strcat(buffer,"/");
-	  strcat(buffer,files[i]);
-
-      if ((*fps = fopen(buffer,"a+")) == NULL)
-	{
-	    perror(argv[0]);
-	    exit(1);
-	}
-      }
 
     if (!ioctl(0, I_LOOK, mname) &&
         (!strcmp(mname, "sockmod") || !strcmp(mname, "timod"))) {
@@ -194,16 +180,20 @@ main(FAST int argc, FAST char **argv)
 
 void *logmessage_1_svc(FAST LOGMSG *argp, FAST struct svc_req *req)
 {
-    FAST int len = strlen(&argp->message[0]);
+    FAST FILE *fp;
+    char buffer[256];
+    
+    strcpy(buffer,directory);
+    strcat(buffer,"/");
+    strcat(buffer,files[argp->src]);
 
-    FAST FILE *fp = eventFps[argp->src];
+    fp = fopen(buffer,"a+");
 
     fprintf(fp,argp->message,argp->items[0],argp->items[1],
 	    argp->items[2],argp->items[3],argp->items[4],argp->items[5],
 	    argp->items[6],argp->items[7],argp->items[8],argp->items[9]);
 
-    fflush(fp);			/* Force output to be written now. */
-
+    fclose(fp);
     return(argp);
 }
 
