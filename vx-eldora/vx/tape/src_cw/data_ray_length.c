@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:51:08  craig
+ * fixed problem that would calculate wrong with dual prf
+ *
  * Revision 1.1  1994/01/06  21:31:49  craig
  * Initial revision
  *
@@ -58,6 +61,7 @@ for(i=0; i < rad_dscr->num_parameter_des; i++)
 
 /* Calculate the number of cells */
 
+cs = GetCellSpacing(Hdr,1);
 number_of_cells = 0;
 for (i=0; i<cs->num_segments; i++)
   number_of_cells += cs -> num_cells[i];
@@ -67,12 +71,16 @@ for (i=0; i<cs->num_segments; i++)
 fldrdr = GetFieldRadar(Hdr,1);
  
 if(fldrdr->indepf_times_flg > 0)
-  indep_freq_length = rad_dscr->num_freq_trans * bytes_per_cell *
+/*  When headers are all working with num_base_param replace line with:
+  indep_freq_length = rad_dscr->num_freq_trans * fldrdr->num_base_param*2 * */
+  indep_freq_length = rad_dscr->num_freq_trans * 8 *
                        rad_dscr->num_ipps_trans + 8;
 else
    indep_freq_length = 0; /* Until switch to new header */
 
 /* Calculate the size of the time series data */
+
+wave = GetWaveform(Hdr);
 
 if(fldrdr->indepf_times_flg == 3)
   time_series_length = rad_dscr->num_freq_trans * 2 * 4 * 
