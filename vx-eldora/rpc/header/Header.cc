@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1993/07/21  21:45:20  vanandel
+ * compat changes for compile with gcc
+ *
  * Revision 1.11  1992/09/29  19:10:10  thor
  * Removed some now extraneous init code. Changed >> & << to use Sherrie's
  * new file format.
@@ -68,11 +71,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #endif // FAST
 
 #ifndef UNIX
-extern "C" {
-#include "stdioLib.h"
-#include "memLib.h"
-#include "string.h"
-};
+#include "stdio.h"
+#include "stdlib.h"
 #else
 extern "C" {
 #include <signal.h>
@@ -399,7 +399,7 @@ int Header::Send(FAST char *target)
 
     if ((f = fork()) == 0)
       {
-	  signal(SIGBUS,Die);
+	  signal(SIGBUS,(SIG_PF)Die);
 
 	  if (sendheader_1(th,client) == NULL)
 	    {
@@ -425,7 +425,7 @@ int Header::Send(FAST CLIENT *client)
 
     if ((f = fork()) == 0)
       {
-        signal(SIGBUS,Die);
+        signal(SIGBUS,(SIG_PF)Die);
 
         if (sendheader_1(th,client) == NULL)
           {
