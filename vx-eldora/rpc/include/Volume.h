@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:40  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -47,7 +50,7 @@ struct volume_d {
     short data_set_hour;	/* hour data taken in hours. */
     short data_set_minute;	/* minute data taken in minutes. */
     short data_set_second;	/* second data taken in seconds. */
-    char  flight_num;		/* Flight number. */
+    char  flight_num[8];	/* Flight number. */
     short gen_year;		/* year this recording was generated */
 				/* in years. */
     short gen_month;		/* month this recording was generated */
@@ -57,6 +60,7 @@ struct volume_d {
     char  gen_facility[8];	/* identifier of facility that */
 				/* generated this recording. */
     short data_compress;	/* Data compression scheme in use. */
+    short padding3;
 }; /* End of Structure */
 
 
