@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/07/20  20:55:53  thor
+ * Changed shorts to chars.
+ *
  * Revision 1.1  1992/07/13  20:19:01  thor
  * Initial revision
  *
@@ -38,9 +41,9 @@ typedef struct HskpCommand HskpCommand;
 
 #define ALIGN       0x10
 #define GPS_START   0x20
-#define IRIGB_SYNC  0x30
-#define SET_TIME    0x40
-#define START_CLOCK 0x80
+#define IRIGB_SYNC  0x40
+#define SET_TIME    0x80
+#define START_CLOCK 0x100
 
 #endif /* OK_RPC */
 
