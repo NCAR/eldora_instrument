@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/15  15:38:00  thor
+ * Fixed reversed order of bcopy.
+ *
  * Revision 1.2  1991/10/14  19:20:00  thor
  * Added task control calls.
  *
@@ -104,7 +107,7 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 		break;
 		
 	      case AFT_VERT:
-    bcopy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
+    bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
