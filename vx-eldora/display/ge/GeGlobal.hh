@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/06/29  17:32:19  thor
+ * Added global Ddp pointer. Increased priority of control loop task.
+ *
  * Revision 1.6  1991/12/03  19:26:29  thor
  * Changed priorities so header download works.
  *
@@ -37,8 +40,8 @@
 
 #define OK_RPC
 #define WRS_SIDE
-extern "C" {
 #include "DisplayRpc.h"
+extern "C" {
 #include "TapeHeader.h"
 };
 
