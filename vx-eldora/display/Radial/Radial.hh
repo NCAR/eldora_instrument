@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/04/08  20:29:04  thor
+ * Initial revision
+ *
  *
  * description:
  *        The class Radial implements drawing of an RHI type display.
@@ -67,24 +70,24 @@ class Radial {
 
     TrigData *trigData;
 
-    void Draw1(float angle, RadialData *colors);
-    void Draw2(float angle, RadialData *colors);
-    void Draw3(float angle, RadialData *colors);
+    void Draw1(RadialData &data);
+    void Draw2(RadialData &data);
+    void Draw3(RadialData &data);
 
   public:
     Radial(GraphicController *gbd, int rad, int nparams,
            unsigned short xoff, unsigned short yoff);
 
-    void drawBeam(float angle, FAST RadialData *data)
+    void drawBeam(FAST RadialData &data)
       {
 	  FAST int np = numOfParams;
 
 	  if (np == 1)
-	    Draw1(angle,data);
+	    Draw1(data);
 	  else if (np == 2)
-	    Draw2(angle,data);
+	    Draw2(data);
 	  else
-	    Draw3(angle,data);
+	    Draw3(data);
       }
     
     void drawTable(int set, float max, float min, int param,
