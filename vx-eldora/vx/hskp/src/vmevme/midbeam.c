@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1999/09/27 15:45:02  eric
+ * added test for missed or extra processor interrupts.
+ *
  * Revision 1.4  1999/07/22  17:47:06  eric
  * made ls byte of tpulse_freq_num track test pulse and
  * ms byte track xmit pulse frequency numbers.
@@ -96,8 +99,10 @@ semTake(vmeSem,WAIT_FOREVER);
 	anglesin = sin(dumb_rads);
 	last_iru_data.longitude += dumb_stepp;
 	last_iru_data.latitude += dumb_stepp;
-	last_iru_data.pitch = 2.0 * anglesin;
-	last_iru_data.roll = 15.0 * anglesin;
+/* 	last_iru_data.pitch = 2.0 * anglesin; */
+/* 	last_iru_data.roll = 15.0 * anglesin; */
+	last_iru_data.pitch = 0.0;
+	last_iru_data.roll = 1.0;
 	last_iru_data.heading = 45.0 + 0.5 * anglesin;
 	last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
 	last_iru_data.sec_longitude = sec;
