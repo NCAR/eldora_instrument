@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Moved addition of color table offset to initialization & removed it from
+ * runtime. Added correct table offset increases.
+ *
  * Revision 1.18  1992/01/22  17:41:45  thor
  * Removed all the old stuff.
  *
@@ -98,6 +101,9 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
     numOfParams = nparams;
     numOfValues = nvalues;
 
+    FAST unsigned char *lkup = convertTbl;
+    FAST int j = 0xffff;
+
     float fbins = (float)bins;	// How many colors.
     float fb = 0.0;		// Color offset.
 
@@ -105,26 +111,34 @@ void ColorConverter::Reset(FAST int bins, float *max, float *min,
       {
 	  float mx = *max++;
 	  float mn = *min++;
-	  float slope = (float)(bins - 1) / (mx - mn);
-	  float b = (float)(bins - 1) - (slope * mx);
-
 
 	  valueOffset[i] = *offsets++;
 
 	  float bias = *biases++;
-	  for (FAST int k = 0; k < j; k++)
+	  float scale = *scales++;
+	  float maxColor = (float)(bins - 1);
+
+	  float slope = (float)(bins - 1) / (mx - mn);
 	  float b = -(slope * mn);
-		float c = (slope * (((float)k - bias)/ scale)) + b;
+
+	  for (FAST int k = 0; k <= j; k++)
+	    {
+		float t = ((float)k - bias) / scale;
+
+		if (t < mn)
 		  t = mn;
 
 		float c = (slope * t) + b;
 
 		if (c > maxColor)
 		  c = maxColor;
+		else if (c < 0.0)
+		  c = 0.0;
 		unsigned char color = (unsigned char)c;
 		c += fb;	// Add in offset.
 
 		unsigned char color = (unsigned char)iround(c);
+
 		*lkup++ = color;
 	    }
 	  fb += fbins;		// Bump up in color lut.
@@ -241,17 +255,13 @@ void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
 
     --count;
 
-    FAST unsigned char bins;
-
     if (count)
       {
-	  bins = nbins;
-
 	  offset = *offsets++ + off;
 
 	  FAST unsigned short datum = *(data + offset);
 
-	  *colors++ = *(lkup + datum) + bins;
+	  *colors++ = *(lkup + datum);
       }
     else
       return;
@@ -260,13 +270,11 @@ void ColorConverter::GetPoint(FAST unsigned short *data, FAST HorizPoint &dp,
 
     if (count)
       {
-	  bins *= 2;
-
 	  offset = *offsets + off;
 
 	  FAST unsigned short datum = *(data + offset);
 
-	  *colors = *(lkup + datum) + bins;
+	  *colors = *(lkup + datum);
       }
 }
 
@@ -288,17 +296,13 @@ void ColorConverter::GetVertPoint(FAST unsigned short *data,
     if (count)
       {
 	  offset = *offsets++ + off;
-    FAST unsigned char bins;
-
 
 	  FAST unsigned short datum = *(data + offset);
-	  bins = nbins;
-
 
 	  *colors++ = *(lkup + datum);
       }
     else
-	  *colors++ = *(lkup + datum) + bins;
+      return;
 
     --count;
 
@@ -307,13 +311,11 @@ void ColorConverter::GetVertPoint(FAST unsigned short *data,
 	  offset = *offsets + off;
 
 	  FAST unsigned short datum = *(data + offset);
-	  bins *= 2;
-
 
 	  *colors = *(lkup + datum);
       }
 }
-	  *colors = *(lkup + datum) + bins;
+
 void ColorConverter::GetBeam(FAST unsigned short *data,
 			     FAST unsigned char *colors)
 {
@@ -334,17 +336,14 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
     if (count)
       {
 	  lkup += 0x10000;
-    FAST unsigned char bins;
-
 	  for (i = 0; i < j; i++)
 	    {
-	  bins = nbins;
-
+		FAST unsigned short datum = *(data + *ptr++);
 		
 		*colors++ = *(lkup + datum);
 	    }
 
-		*colors++ = *(lkup + datum) + bins;
+    else
       return;
     
     --count;
@@ -354,12 +353,11 @@ void ColorConverter::GetBeam(FAST unsigned short *data, FAST RadialData &rad)
 
 	  for (i = 0; i < j; i++)
 	    {
-	  bins *= 2;
-
+		FAST unsigned short datum = *(data + *ptr++);
 		
 		*colors++ = *(lkup + datum);
 	    }
 
-		*colors++ = *(lkup + datum) + bins;
+}
 
     
