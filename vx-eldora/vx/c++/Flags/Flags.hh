@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+Revision 1.2  90/12/27  09:48:33  thor
+Modified to use new mutex semaphores and WRS ansi headers.
+
 Revision 1.1  90/11/15  11:52:29  thor
 Initial revision
 
@@ -44,8 +47,7 @@ class Flags {
     Flags(void) 
       {
 	  flags = 0;
-	  flag_sem = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE |
-				SEM_INVERSION_SAFE);
+	  flag_sem = semBCreate(SEM_Q_PRIORITY,SEM_EMPTY);
       }
 
     ~Flags(void)
