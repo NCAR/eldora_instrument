@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1997/11/12 19:45:12  eric
+ * Initial revision
+ *
  *
  * Initial revision
  *
@@ -155,7 +158,7 @@ void xmit_rt()
 	  freq_count++;	      
 	  init_dma(1,15);                         
 	  taskDelay(1);
-	  listen(1);      /* turn MZ7500 into listener and power meter into tallker */
+	  listener(1);      /* turn MZ7500 into listener and power meter into tallker */
 	  *d0csr = 0xff;
 	  taskDelay(1);
 	  *d0ccr = 0xC8;  /* start DMA */

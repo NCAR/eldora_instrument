@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12 19:46:57  eric
+ * modified to support Graph Mode for xmit pulse. Also made it
+ * it compatible with existing housekeeper software.
+ *
  * Revision 1.1  1993/09/20  17:37:01  reif
  * Initial revision
  *
@@ -121,8 +125,8 @@ void start_ieee()
 init_dma(1,15);
 init_dma(2,24);
 
-listen(1);
-listen(2);
+listener(1);
+listener(2);
 
 #ifdef CLOCK_ISR
 

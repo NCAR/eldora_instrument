@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12 19:44:43  eric
+ * modified to support Graph Mode for xmit pulse.
+ *
  * Revision 1.1  1993/09/20  17:36:00  reif
  * Initial revision
  *
@@ -29,7 +32,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <pwrDef.h>
 #include <pwrFunc.h>
 
-void listen(int channel)
+void listener(int channel)
 {
 /**************  TURN MZ7500 INTO LISTENER *************/
   

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1997/11/12 19:45:49  eric
+ * modified to support Graph Mode for xmit pulse.
+ * Also added semaphores and restructured code.
+ *
  * Revision 1.2  1993/09/20  17:35:35  reif
  * *** empty log message ***
  *
@@ -441,7 +445,7 @@ do
 
 	  if(choice == 2)
 	    {
-	      listen(2);
+	      listener(2);
 
 	    /*********** START DMA CHANNEL 1 **************/
 	    
@@ -452,7 +456,7 @@ do
 	    }
 	  else
 	    {
-	      listen(1);
+	      listener(1);
 
 	    /*********** START DMA CHANNEL 0 ***************/
 
@@ -538,7 +542,7 @@ do
 			    freq_cnt++;
 			    init_dma(1,15);			    
 			    taskDelay(1);
-			    listen(1);
+			    listener(1);
 			    *d0csr = 0xff;
 			    taskDelay(1);
 			    *d0ccr = 0xC8;  /* start DMA */
