@@ -9,8 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Fixed incorrect aBase initialization, changed to do loop & added
+ * loop to fix nonzero mailbox.
  *
  * Revision 1.1  1991/10/31  19:50:05  thor
+ * Initial revision
  *
  *
  *
@@ -56,36 +59,59 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
     FAST long end = repeat;
     foreCurr = 0;
     FAST volatile unsigned short *mb = mailBase + count;
-    FAST long *aBase = addrBase;
+    FAST long *aBase = addrBase + count;
     intConnect((VOIDFUNCPTR *)(vector * 4),(VOIDFUNCPTR)ddpIsr,(int)sem);
 }
-    semTake(semaphore,WAIT_FOREVER);
 
-    while (semaphore->semCount)
 void Ddp::Next(void)
 {
 	  FAST int foreEnd = Count;
-	  if (count == repeat)
+
 	  while (!foreEnd)
 	    {
 		mb = mailBase;
 		aBase = addrBase;
 			    // we have a valid repeat count!
 
-	  if ((status = *mb))
-		      FAST char rname = db->data.radar_name[0];
-		      if (rname == 'F')
+		foreEnd /= 2;
+		Count = foreEnd;
+	    }
+
+	  if (*fptr != 0)
+	    {
+		status = *fptr;
+		      mb = mailBase;
+		      aBase = addrBase;
+		if (status != 0xbfff)
 		  PostAlarm();
+		else if (!radar) // We want fore beams!
+		  {
 
-		break;
+		      DataBeam *db = (DataBeam *)*foreAddr;
 
+		      FAST int tmp = (int)db; // This done to correct for
+		      tmp += 0x30200000;      // address difference betweem
+		      db = (DataBeam *)tmp;   // VMEbus & onboard memory.
+		      
+		      FAST char rname = db->data.radar_name[0];
+
+// We perform this test to keep from sending incorrect packets.
+		      if (rname == 'F')
+			pipe.Write(foreAddr);
+		  }
+
+		fcount++;
+
+		if (fcount == foreEnd)
+		  {
 		      foreAddr = addrBase;
 	  pipe.Write(aBase);
 		foreCurr = fcount;		
 	    }
 	  else
 	    {
-      }
+		FAST long acount = aftCurr;
+		FAST volatile unsigned short *aptr = aft;
 		FAST volatile long *aftAddr = aftSavedAddr;
 		FAST int aftEnd = Count;
 		
