@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/03/01  20:30:24  thor
+ * Fixed colors member of RadialData structure.
+ *
  * Revision 1.1  1991/02/28  21:53:57  thor
  * Initial revision
  *
@@ -50,7 +53,6 @@ struct Horiz_Move {
 };
 
 struct Radial_Data {
-    float angle;
     unsigned char colors[DISPLAYED_GATES * 3];
 };
 
