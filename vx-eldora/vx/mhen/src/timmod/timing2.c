@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/07/31  02:27:45  shawn
+ * made first gate twice the distance from leading edge of chip.
+ *
  * Revision 1.1  1992/04/30  15:00:40  eric
  * Initial revision
  *
@@ -58,12 +61,12 @@ void timing2(prf,numgates,gatespace,duty,tp_pos)
   col_first  = (unsigned long *) (COL0BASE + COL_RZERO);           /* Col. first-gate   */
   col_gate   = (unsigned long *) (COL0BASE + COL_GATE_SPACE);      /* Col. gate-spacing */
 
-  timgate0   = (unsigned short *)(TIMBASE + TIMGATE0); /* Gate RAM 0 */
-  timgate1   = (unsigned short *)(TIMBASE + TIMGATE1); /* Gate RAM 1 */
-  timpcpn    = (unsigned short *)(TIMBASE + TIMPCPN);  /* N for PCP Counter */
-  timblank   = (unsigned short *)(TIMBASE + TIMBLANK); /* Blanking RAM */
-  timchip    = (unsigned short *)(TIMBASE + TIMCHIP);  /* Chip RAM */
-  timoff     = (unsigned short *)(TIMBASE + TIMOFF);   /* Stop address */
+  timgate0   = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMGATE0); /* Gate RAM 0 */
+  timgate1   = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMGATE1); /* Gate RAM 1 */
+  timpcpn    = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMPCPN);  /* N for PCP Counter */
+  timblank   = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMBLANK); /* Blanking RAM */
+  timchip    = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMCHIP);  /* Chip RAM */
+  timoff     = (unsigned short *)(TIMBASE - STD_BASE + EXTD_BASE + TIMOFF);   /* Stop address */
 
   /* compute derived parameters */
   prt      = (1.0 / prf);
@@ -199,7 +202,7 @@ void timing2(prf,numgates,gatespace,duty,tp_pos)
 	chipramvalue = chipramvalue | 0x0010;
       *timchip = chipramvalue;
       timchip++;
-      if (timchip > (unsigned short *) TIMBASE+TIMCHIP+4090)
+      if (timchip > (unsigned short *) TIMBASE - STD_BASE + EXTD_BASE + TIMCHIP+4090)
 	{
 	  printf("timing2: CHIP RAM index computation error.\n");
 	  printf("timing2: aborting without fully programming timing module.\n\n");
@@ -225,14 +228,14 @@ void timing2(prf,numgates,gatespace,duty,tp_pos)
 	*timgate0 = gatevalue;
 	*timgate1 = gatevalue;
 	timgate0++;
-	if(timgate0 > (unsigned short *) TIMBASE+TIMGATE0+4090)
+	if(timgate0 > (unsigned short *) TIMBASE - STD_BASE + EXTD_BASE + TIMGATE0+4090)
 	  {
 	      printf("timing2: GATE RAM index computation error.\n");
 	      printf("timing2: aborting without fully programming timing module.\n\n");
 	      return;
 	  }
 	timgate1++;
-	if(timgate1 > (unsigned short *) TIMBASE+TIMGATE1+4090)
+	if(timgate1 > (unsigned short *) TIMBASE - STD_BASE + EXTD_BASE + TIMGATE1+4090)
 	  {
 	      printf("timing2: GATE RAM index computation error.\n");
 	      printf("timing2: aborting without fully programming timing module.\n\n");
