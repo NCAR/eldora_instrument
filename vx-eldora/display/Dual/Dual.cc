@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.6  1994/04/08  20:31:30  thor
+// Many changes!
+//
 // Revision 1.5  1993/10/28  16:57:47  thor
 // Changed grid pattern to center on aircraft in x. Fixed Clock calls.
 //
@@ -214,7 +217,7 @@ void Dual::undisplay(void)
 }
 
 void Dual::drawTable(int set, float max, float min, FAST int param, 
-			FAST int tblsize = 31)
+			FAST int tblsize)
 {
     FAST Window *wdw = &Wdw[1];;
     FAST int offset;
