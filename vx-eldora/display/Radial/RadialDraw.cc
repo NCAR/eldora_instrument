@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/01/22  14:43:52  thor
+ * Moved invariant code out of main loop & moved main loop inward.
+ *
  * Revision 1.5  1991/11/19  14:08:28  thor
  * Added trap for out of bounds angles.
  *
@@ -29,7 +32,7 @@
     asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
     FAST int index = (int)(data.angle * 2.0);
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
-    if (data.direction == POSITIVE)
+    FAST int j = lastIndex;
     FAST int index = fastround(data.angle * 2.0);
 
     if (index < 0 || index > 720)
@@ -204,7 +207,7 @@
 
     FAST int index = (int)(data.angle * 2.0);
 			    ptr1 += 4096;
-    if (data.direction == POSITIVE)
+			{
 			    *ptr1 = *colors1;
 
 			    if (y == yend)
@@ -399,7 +402,7 @@ void Radial::Draw2(FAST RadialData &data)
 
     FAST int index = (int)(data.angle * 2.0);
 			    if (y == yend)
-    if (data.direction == POSITIVE)
+			      break;
 			    
 			    if (d >= 0)
 			      {
