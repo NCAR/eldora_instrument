@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * converter creator to use correct number of COLOR bins.
+ *
+ * Revision 1.13  1991/11/12  20:16:01  thor
  * Changed time update to happen on sweep change. Added code to check for
  * proper beam type.
  *
@@ -67,7 +70,9 @@ static ColorConverter *conv = NULL;
 
 static int whichRadar = FORWARD_RADIAL;
 
-    FAST int count = 9;
+void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
+{
+    self.FlagsInit();
 
     FAST Radial *display = NULL;
 
@@ -104,21 +109,23 @@ static int whichRadar = FORWARD_RADIAL;
 		else
 		  radar = AFT_RADIAL;
 
-		count = 9;
+		whichRadar = radar;
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
 		      pipe.Flush();
 		  }
+		continue;
 		break;
-		count = 9;
+
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
 		  DdpCtrl->Aft();
 		display = makeDisplay(display,agc);
+		lastAngle = 360.0;
 		break;
-		count = 9;
+
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
@@ -132,6 +139,14 @@ static int whichRadar = FORWARD_RADIAL;
 		lastAngle = 360.0;
 		  pipe.Flush();
 		break;
+		break;
+	    }
+	  // Get next DDP data item.
+
+	  DataBeam *dataBeam;
+
+	  if (pipe.Full())
+	    {
 		pipe.Flush();
 		printf("Pipe full\n");
 	    }
@@ -142,17 +157,22 @@ static int whichRadar = FORWARD_RADIAL;
 		tmp += 0x30200000;	      // address difference betweem
 		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
 
-		if (++count == 10)
-		  {
-		      display->UpdateClock(now->hour,now->minute,now->second);
-		      count = 0;
-		  }
-
 		radData.angle = dataBeam->air.rotation_angle - 
 		  dataBeam->air.tilt;;
+		  }
 		radData.direction = (int)dataBeam->ray.true_scan_rate;
 		  continue;
 		FAST short *data = (short *)(dataBeam + 1);
+
+		FAST int direct = radData.direction;
+		bcopy((char *)&(dataBeam->ray.hour),(char *)now,
+		if (lastAngle > radData.angle && direct > 0) //Crossed
+							     //to next sweep.
+		  display->UpdateClock(now->hour,now->minute,now->second);
+		else if (lastAngle < radData.angle)
+		  display->UpdateClock(now->hour,now->minute,now->second);
+
+		radData.direction = direct;
 
 		FAST unsigned short *data = (unsigned short *)(dataBeam + 1);
 		conv->GetBeam(data,radData);
