@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  1999/09/27  15:43:46  eric
+ * added taskDelay in run-time loop to improve chances for slow
+ * cal to run.
+ *
  * Revision 1.12  1996/12/09  22:58:34  eric
  * Added support for Minirims interface.
  *
@@ -48,7 +52,7 @@ extern void stop11(void);
 extern void dpclr(void);
 extern void go11(void);
 extern short ldsrec(char*);
-
+static int First;
 void hskp()
 {
 
@@ -68,6 +72,7 @@ int dumb_start, dumb_index;
 
 
 /* initialize general purpose variables */
+First = 1;
 kill = 1;
 dumb_start = 0;
 dumb_index = 25;
@@ -141,12 +146,13 @@ do{
     /*    command_mini((short)3);  */ /* disable Mailbox interrupt */
 
     /* Added the following two lines to try to improve power meter reliability */
-    autocal = 0;
-    taskDelay(20);
-   
-    stop_ieee(); 
-
-
+    if(!First)
+      {
+	autocal = 0;
+	taskDelay(20);
+	stop_ieee(); 
+      }
+    First = 0;
     /* Wait here to be (re)started by the control processor */
 
     printf("Will wait now for the control processor to start me\n");
