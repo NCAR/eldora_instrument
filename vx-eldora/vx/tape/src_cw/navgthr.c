@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:38  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  17:50:25  reif
  * Initial revision
  *
@@ -31,11 +34,11 @@ nav_sg_ptr=(unsigned int *)&nav_sg[nav_sg_index+1];
 
       if(nav_sg_index < MAX_NAV_DSCR_BLK && !done)
 	{
-	    nav_sg[nav_sg_index].next_nav_sg_addr=(unsigned int)nav_sg_ptr;
+	    nav_sg[nav_sg_index].next_sg_addr=(unsigned int)nav_sg_ptr;
 	}
       else
 	{
-	    nav_sg[nav_sg_index].next_nav_sg_addr=0xFFFFFFFF;
+	    nav_sg[nav_sg_index].next_sg_addr=0xFFFFFFFF;
 	}
       nav_sg[nav_sg_index].am_and_dat_len1=nav_xfer_len[0];
       nav_sg[nav_sg_index].dat_addr1=nav_xfer_addr[0];

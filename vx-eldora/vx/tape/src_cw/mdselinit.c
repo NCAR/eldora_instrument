@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:29  craig
+ * Initial revision
+ *
  * Revision 1.4  1993/09/22  15:27:29  reif
  * *** empty log message ***
  *
@@ -34,32 +37,41 @@ void md_sel_init()
 {
 /******** PARAMETER LIST HEADER *********/
 
-mod_sel.res1 = 0x00;
-mod_sel.res2 = 0x00;
-mod_sel.buf_mode = 0x10; /* BUFFERED MODE */
-mod_sel.blk_desc_len = 0x08; /* FULL BLOCK DESCRIPTOR LENGTH */
+mod_sel.res1 = 0;
+mod_sel.res2 = 0;
+mod_sel.buf_mode_spd = 0x10;  /* select buffered mode, and default speed */
+mod_sel.blk_desc_len = 8;     /* block descriptor length */
 
-/********** BLOCK DESCRIPTOR ***********/
+/* block descriptor */
 
-mod_sel.density = 0x15; /* EXB 8500 FORMAT FULL ERROR CHECKING */
-mod_sel.num_blks_msb = 0x00; /* SINCE EXB 8500 ONLY SUPPORTS ONE */
-mod_sel.num_blks_mid = 0x00; /* DENSITY, 0 IS CORRECT FOR THESE  */
-mod_sel.num_blks_lsb = 0x00; /* FIELDS */
-mod_sel.res3 = 0x00;
-mod_sel.blk_len_msb = 0x00; /* SELECTED VARIABLE LENGTH */
-mod_sel.blk_len_mid = 0x00; /* LOGICAL BLOCKS WITH THESE */
-mod_sel.blk_len_lsb = 0x00; /* FIELDS */
+mod_sel.density = 0x19;       /* 62500 BPI, 64 track pairs */
+mod_sel.num_blks_msb = 0;     /* Set to zero because DLT says so */
+mod_sel.num_blks_mid = 0;
+mod_sel.num_blks_lsb = 0;
+mod_sel.res3 = 0;
+mod_sel.blk_len_msb = 0;      /* Set to zero for variable length records */
+mod_sel.blk_len_mid = 0;
+mod_sel.blk_len_lsb = 0;
 
-/*********** VENDOR UNIQUE PARAMETERS *********/
+/* device configuration page */
 
-mod_sel.vend_parms =0x02; 
-mod_sel.res4 = 0x00;
-mod_sel.motion_thr = 0x30; /* 500 KBYTEs BEFORE TAPE MOTION */
-mod_sel.recon_thr = 0xD0; /* 500 KBYTES BEFORE RECONNECT */
-mod_sel.gap_thr = 0x00; /* GAP BLOCKS WRITTEN BEFORE TAPE STOPS */
+mod_sel.page_code = 0x10;        /* page is device configuration */
+mod_sel.page_len = 0xE;          /* 14 bytes follow in this page */
+mod_sel.CAP_CAF_fmt = 0;         /* all must be zero */
+mod_sel.active_par = 0;          /* Only partion zero is used */
+mod_sel.write_full_ratio = 0;    /* zero: DLT figures this for us */
+mod_sel.read_full_ratio = 0;     /* ditto */
+mod_sel.write_dly_msb = 0;
+mod_sel.write_dly_lsb = 0x32;    /* flush buffer evry 5 seconds */
+mod_sel.DBR_other_stuff = 0x40;  /* do as the book says */ 
+mod_sel.gap_size = 0;            /* not used */
+mod_sel.EOD_EGG_SEW = 0x10;      /* enable end-of-data */
+mod_sel.buff_size_msb = 0;       /* leave zero for noe */
+mod_sel.buff_size_mid = 0;
+mod_sel.buff_size_lsb = 0;
+mod_sel.data_compress = 0;       /* disable data compression for now */
+mod_sel.res3 = 0;
 
-/* THESE FIELD DESCRIPTIONS CAN BE FOUND BEGINNING ON PAGE */
-/* 79 of EXB 8500 MANUAL UNDER MODE SELECT */
 }
 
 
