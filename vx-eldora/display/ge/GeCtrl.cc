@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/09/28  13:04:33  thor
+ * Added dual display support.
+ *
  * Revision 2.1  1993/08/20  17:17:03  thor
  * Commented out alarm code & renamed RESTART RESTART_DISP.
  *
@@ -57,20 +60,13 @@ extern "C" {
 
 static u_long cmdCount = 0;
 
-struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
+struct DispStatus *sendcommand_1_svc(FAST DispCommand *cmd,
+                                     struct svc_req *req)
 {
     FAST u_long command = cmd->cmd;
     FAST DispStatus *status = GeStatus;
 
-    if (command == INIT)	// UNIX side has (re)started.
-      {
-	  cmdCount = 0;		// Synch. counters.
-	  status->count++;
-//	  AlarmTask->SetFlags(ATASK_RESET); // (Re)start alarm loop.
-      }
-    else if (cmd->count <= cmdCount) // Invalid command.
-      return(status);
-    else if (command & LOAD_ONLY)
+    if (command & LOAD_ONLY)
       {
 	  command &= ~LOAD_ONLY;
 	  memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
@@ -84,87 +80,73 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 	    {
 	      case REBOOT:
 	      case STOP:
-		DrawingTask->SetFlags(command);
-		status->status = IDLE;
-		break;
-		
-	      case RELOAD:
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  DrawingTask->SetFlags(command);
+                  status->status = IDLE;
+                  break;
 		
 	      case START:
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
-		
-	      case RESTART_DISP:
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case FORWARD_RADIAL:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case FORWARD_HORIZ:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case FORWARD_VERT:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case AFT_RADIAL:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case AFT_HORIZ:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 		
 	      case AFT_VERT:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 
 	      case FORWARD_DUAL:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 
 	      case AFT_DUAL:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		status->status = DRAWING;
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  status->status = DRAWING;
+                  break;
 
 	      case TMO_CHANGE:
-		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
-		DrawingTask->SetFlags(command);
-		break;
+                  memcpy(GeCommand,cmd,sizeof(DispCommand));
+                  DrawingTask->SetFlags(command);
+                  break;
 	    }
       }
-    status->count++;
-    
     return(status);
 }
 
-DispStatus *getstatus_1(void *nought, struct svc_req *req)
+DispStatus *getstatus_1_svc(void *nought, struct svc_req *req)
 {
-    GeStatus->count++;
-
     return(GeStatus);
 }
