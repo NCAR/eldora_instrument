@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.18  1992/10/09  14:54:14  thor
+ * Added LOAD_ONLY support. Modified actions on stop/start to work with new
+ * Ddp code.
+ *
  * Revision 1.17  1992/06/29  17:43:33  thor
  * Added code to flush pipe and reset Ddp.
  *
@@ -71,6 +75,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "GeGlobal.hh"
 #include "GeDraw.hh"
+extern "C" {
+#include "sysLib.h"
+};
 
 static HorizDisplay *makeDisplay(HorizDisplay *, GraphicController *);
 
@@ -119,10 +126,10 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		break;
 
 	      case LOAD_ONLY:
-		if (GeCommand->cmd == FORWARD_RADIAL)
-		  radar = FORWARD_RADIAL;
+		if (GeCommand->cmd == FORWARD_HORIZ)
+		  radar = FORWARD_HORIZ;
 		else
-		  radar = AFT_RADIAL;
+		  radar = AFT_HORIZ;
 
 		whichRadar = radar;
 		continue;
@@ -130,6 +137,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case STOP:
 	      case (STOP | NEW_DATA_FLAG):
+                sysIntDisable(3);
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -144,7 +152,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (RELOAD | NEW_DATA_FLAG):
 	      case (START | NEW_DATA_FLAG):
 	      case (RESTART | NEW_DATA_FLAG):
-		if (radar == FORWARD_RADIAL)
+		if (radar == FORWARD_HORIZ)
 		  DdpCtrl->Fore();
 		else
 		  DdpCtrl->Aft();
@@ -154,6 +162,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		reset = 1;
                 if (!pipe.Empty())
 		  pipe.Flush();
+                sysIntEnable(3);
 		break;
 
 	      case FORWARD_HORIZ:
@@ -167,6 +176,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
                 DdpCtrl->Fore();
                 if (!pipe.Empty())
 		  pipe.Flush();
+                sysIntEnable(3);
 		break;
 
 	      case AFT_HORIZ:
@@ -180,6 +190,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
                 DdpCtrl->Aft();
                 if (!pipe.Empty())
 		  pipe.Flush();
+                sysIntEnable(3);
 		break;
 
 	      case MOUSE_FLAG:

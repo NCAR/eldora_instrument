@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.29  1992/10/09  14:54:14  thor
+ * Added LOAD_ONLY support. Modified actions on stop/start to work with new
+ * Ddp code.
+ *
  * Revision 1.28  1992/10/02  20:46:36  thor
  * Changed things to work with the new Ddp code.
  *
@@ -107,6 +111,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "GeGlobal.hh"
 #include "GeDraw.hh"
+extern "C" {
+#include "sysLib.h"
+};
 
 static inline int fastround(double d);
 
@@ -145,7 +152,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
     float lastAngle = 360.0;	// Force update of time.
 
-    FAST int radar;
+    FAST int radar = FORWARD_RADIAL;
 
     static int onetime = 0;
 
@@ -182,6 +189,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case STOP:
 	      case (STOP | NEW_DATA_FLAG):
+		sysIntDisable(3);
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -202,6 +210,7 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  DdpCtrl->Aft();
 		display = makeDisplay(display,agc);
 		lastAngle = 360.0;
+		sysIntEnable(3);
 		break;
 
 	      case FORWARD_RADIAL:
@@ -210,9 +219,11 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		radar = whichRadar;
 		display = makeDisplay(display,agc);
 		lastAngle = 360.0;
+		sysIntDisable(3);
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
+		sysIntEnable(3);
 		break;
 
 	      case AFT_RADIAL:
@@ -221,9 +232,11 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		radar = whichRadar;
 		display = makeDisplay(display,agc);
 		lastAngle = 360.0;
+		sysIntDisable(3);
 		DdpCtrl->Aft();
 		if (!pipe.Empty())
 		  pipe.Flush();
+		sysIntEnable(3);
 		break;
 
 	      case MOUSE_FLAG:
