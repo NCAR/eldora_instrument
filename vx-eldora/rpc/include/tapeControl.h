@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/28  19:49:14  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -92,7 +95,7 @@ extern struct TapeStatus *sendcommand_1(TapeCommand *, struct svc_req *);
 extern struct TapeStatus *gettapestatus_1(void *, struct svc_req *);
 #endif
 
-void startRpc(void);
+void startControl(void);
 
 #else
 program TapeControl {
