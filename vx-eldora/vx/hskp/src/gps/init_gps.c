@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/09/03  15:25:28  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/01  15:56:50  craig
  * *** empty log message ***
  *
@@ -98,6 +101,7 @@ extern HeaderPtr inHeader;
 
 void init_gps(short mbox)
 {
+
 /* Set the pointers to the gps data areas */
 
 gps_status = (char *)(GPS_STATUS + STANDARD_BASE + GPS_BASE);
@@ -114,6 +118,9 @@ gps_d_loc_l = (short *)(GPS_D_LOC_L + STANDARD_BASE + GPS_BASE);
 /* Set the gps status byte to indicate no errors */
 
 currStatus->gps = 0;
+
+/* Clear the global GPS interrupt detected flag */
+in_gps_isr = 0;
 
 /* Setup the TP41V to handle mailbox interrupts */
 

@@ -9,12 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/03  15:25:34  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/09/01  15:56:57  craig
  * Initial revision
- *
- * Revision 1.1  1992/08/19  17:23:56  craig
- * Initial revision
- *
  *
  * description:  Allows the user to individually test the GPS interface.
  *        
@@ -100,7 +99,7 @@ extern HeaderPtr inHeader;
 void gps_menu()
 {
 
-int buf_num, cmd, i;
+int buf_num, cmd, i, number;
 struct gps_data copy_space;
 char *cp_pntr, *vme_pntr;
 union
@@ -131,6 +130,7 @@ do{
     printf("12) Display Handshake Information\n");
     printf("13) Display Control Status Information\n");
     printf("14) Clear the Handshake word\n");
+    printf("15) Count GPS interrupts\n");
     scanf("%d",&cmd);
     getchar();
     if((cmd > 4) && (cmd < 12))
@@ -226,12 +226,25 @@ do{
     case 13:	/* Display Control Status Information */
 	  printf("Fore Radar processor status %x\n",currStatus->fore);
 	  printf("Aft Radar processor status %x\n",  currStatus->aft);
-	  printf("GPS status word %x\n",             currStatus->gps);
+	  printf("GPS status word %x           \n",currStatus->gps);
+	  printf("Interrupt Detected Flag %d   \n",in_gps_isr);
 	  break;
 
     case 14:	/* Clear the handshake word */
 	  printf("Clearing handshake word\n");
 	  *gps_hndshk = (short)0;
+	  break;
+
+    case 15:	/* Count GPS Interrupts */
+	  printf("Enter number to count\n");
+	  scanf("%d",&number);
+	  getchar();
+	  for(i=0; i<number; i++)
+	    {
+		do{}while(!in_gps_isr);
+		printf("GPS interrupt #%d detected\n",i);
+		in_gps_isr = 0;
+	    }
 	  break;
 
     default:

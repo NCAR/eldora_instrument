@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ *
+ * description: This module answers the interrupt caused by the fore
+ *              radar vme to vme interface.  This is the middle of beam
  *              interrupt. This routine handles both the fore and aft
  *              radar processors.
  *
@@ -22,7 +25,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
-#define SCOPE extern
+#define scope extern
 #include "stdioLib.h"
 #include "intLib.h"
 #include "memLib.h"
@@ -117,6 +120,9 @@ if(fake_angles)
       position = dumb_position;
   }
 
+
+/* Set global vme to vme interrupt answered flag */
+in_vmevme_isr = 1;
 get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
   printf("A%d",aft_vmehndshk->polled);
 fore_vmehndshk->polled = 0;

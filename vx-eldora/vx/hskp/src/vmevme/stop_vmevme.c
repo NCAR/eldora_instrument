@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/08/25  20:43:01  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/14  20:44:35  craig
  * Initial revision
  *
@@ -21,7 +24,7 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define OK_RPC
-#define SCOPE extern
+#define scope extern
 
 /* Include fifty million vx-works .h files */
 

@@ -9,10 +9,10 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/01  15:56:56  craig
- * Initial revision
+ * Revision 1.2  1992/09/03  15:25:32  craig
+ * *** empty log message ***
  *
- * Revision 1.1  1992/08/19  17:23:56  craig
+ * Revision 1.1  1992/09/01  15:56:56  craig
  * Initial revision
  *
  *
@@ -103,7 +103,7 @@ extern HeaderPtr inHeader;
 
 void gps_isr(void)
 {
-char *where_data_is, *where_data_goes;
+char *where_data_is, *where_data_goes, *last_gps_pntr;
 long i, data_size;
 union
   {
@@ -117,6 +117,9 @@ union
 *TP41_CIO_2_CNTRL_ADRS = ZCIO_PBCS;
 *TP41_CIO_2_CNTRL_ADRS = ZCIO_CS_CLIPIUS;
 *tp41_mbox_0 = 0;
+
+/* Set the global flag */
+in_gps_isr = 1;
 
 /* Determine if this routine was called due to an error (*gps_hndshk = 0x81)
    or due to a data (= 0x80), if error, give indication and return */
@@ -139,6 +142,15 @@ else  /* We have a good data buffer ready */
 
       where_data_is = (char *)(address.add + STANDARD_BASE + GPS_BASE);
       data_size = sizeof(struct gps_data);
+      
+      /* Update the latest and greatest GPS data area */
+
+      last_gps_pntr = (char *)&last_gps_data.gps_data_id[0];
+      for(i=0; i<data_size; i++)
+	*last_gps_pntr++ = *where_data_is++;
+
+      where_data_is = (char *)(address.add + STANDARD_BASE + GPS_BASE);
+
 
       /* See if GPS data has already been inserted in this second's data
          record */
