@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/11/01  20:06:38  thor
+ * Added support for scaling max/min.
+ *
  * Revision 1.3  1991/11/01  20:02:49  thor
  * Added support for reading from pipe and setting time.
  *
@@ -192,6 +195,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     FAST int param = ptr->param0;
 
+		      max[0] = (max[0] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[0] = (min[0] - p->parameter_bias) / 
+			p->parameter_scale;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -212,6 +219,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param1;
 
+		      max[1] = (max[1] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[1] = (min[1] - p->parameter_bias) / 
+			p->parameter_scale;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
@@ -232,6 +243,10 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     param = ptr->param2;
 
+		      max[2] = (max[2] - p->parameter_bias) / 
+			p->parameter_scale;
+		      min[2] = (min[2] - p->parameter_bias) / 
+			p->parameter_scale;
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
 	  FAST int len = strlen(ptr);
