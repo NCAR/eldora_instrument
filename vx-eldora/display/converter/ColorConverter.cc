@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/08/20  17:07:52  thor
+ * Fixed bad count on lut generation, cleaned up code that generates
+ * gateIndex and converted hardcoded table sizes to const.
+ *
  * Revision 2.1  1992/11/09  14:13:57  thor
  * Fixed SetBeamSize to handle user specified sizes correctly.
  *
@@ -195,6 +199,9 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 
     FAST float *fp = fptr;
 
+    if (fptr == NULL)
+      printf("What the hell? %d gates?\n",ngates);
+    
     nc = ncells;
     w = widths;
 
