@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/12/04  19:01:58  eric
+ * Initial revision
+ *
  *
  * description:
  *
@@ -27,8 +30,8 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 
-#include "/ELDORA/vx/mhen/include/ELDRP7.h"
-#include "/ELDORA/dsp/include/col_dpramdefs.h"
+#include "ELDRP7.h"
+#include "coll_dpramdefs.h"
 
 #define PK_TO_F0_RISE       22  /* in counts  */
 #define PK_TO_F0_FALL       19  /* in counts  */
@@ -48,8 +51,8 @@ void timing(prf,numgates,gatespace,duty,tp_pos)
 
 /* Pointers to Collator */
   unsigned long  *col_first,*col_gate;
-  col_first  = (unsigned long *) COL_RZERO;           /* Col. first-gate   */
-  col_gate   = (unsigned long *) COL_GATE_SPACE;      /* Col. gate-spacing */
+  col_first  = (unsigned long *) (COL0BASE + COL_RZERO);           /* Col. first-gate   */
+  col_gate   = (unsigned long *) (COL0BASE + COL_GATE_SPACE);      /* Col. gate-spacing */
 
   timgate0   = (unsigned short *)(TIMBASE + TIMGATE0); /* Gate RAM 0 */
   timpcpn    = (unsigned short *)(TIMBASE + TIMPCPN);  /* N for PCP Counter */
