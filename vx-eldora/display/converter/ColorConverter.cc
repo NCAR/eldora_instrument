@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1991/11/14  20:02:13  thor
+ * Fixed typo.
+ *
  * Revision 1.8  1991/11/14  18:24:43  thor
  * Fixed a number of bugs that caused incorrect calculation of gate index.
  *
@@ -181,7 +184,7 @@ void ColorConverter::GetBeam(FAST unsigned short *data,
 {
 void ColorConverter::GetBeam(FAST short *data, FAST RadialData &rad)
     FAST int *ptr = gateIndex;
-    FAST unsigned char bins = bins;
+    FAST unsigned char bins = nbins;
     FAST unsigned char tsize = bins - 1; // Loop count maximum.
     FAST unsigned char inc = 0;	   // Offset into color table.
     FAST int count = numOfValues;
