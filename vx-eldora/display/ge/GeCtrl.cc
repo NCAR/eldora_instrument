@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:17:03  thor
+ * Commented out alarm code & renamed RESTART RESTART_DISP.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -135,7 +138,19 @@ struct DispStatus *sendcommand_1(FAST DispCommand *cmd, struct svc_req *req)
 		DrawingTask->SetFlags(command);
 		status->status = DRAWING;
 		break;
-		
+
+	      case FORWARD_DUAL:
+		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
+		status->status = DRAWING;
+		break;
+
+	      case AFT_DUAL:
+		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
+		DrawingTask->SetFlags(command);
+		status->status = DRAWING;
+		break;
+
 	      case TMO_CHANGE:
 		bcopy((char *)cmd,(char *)GeCommand,sizeof(DispCommand));
 		DrawingTask->SetFlags(command);

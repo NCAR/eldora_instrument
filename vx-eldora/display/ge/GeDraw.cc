@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:17:03  thor
+ * Cleaned up reboot action & added code to 1st draw cursor in black,
+ * then white.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -124,7 +128,8 @@ void DrawingLoop(FAST Task &self)
     Task RadialTask((FUNCPTR)RadialLoop,args,2,GRAPH_PRI,6000);
     Task HorizTask((FUNCPTR)HorizLoop,args,2,GRAPH_PRI);
     Task VertTask((FUNCPTR)VertLoop,args,2,GRAPH_PRI);
-
+    Task DualTask((FUNCPTR)DualLoop,args,2,GRAPH_PRI);
+    
     FAST Task *currTask = &RadialTask;
 
     GetsFlags = currTask;
@@ -154,6 +159,11 @@ void DrawingLoop(FAST Task &self)
 		    case FORWARD_HORIZ:
 		    case AFT_HORIZ:
 		      currTask = &HorizTask;
+		      break;
+
+		    case FORWARD_DUAL:
+		    case AFT_DUAL:
+		      currTask = &DualTask;
 		      break;
 		  }
 		// The following is to signal which display - fore or aft.
@@ -253,6 +263,28 @@ void DrawingLoop(FAST Task &self)
 		      currTask->SetFlags(flag);
 		      break;
 		      
+		    case FORWARD_DUAL:
+		      if (currTask != &DualTask)
+			{
+			    currTask->SetFlags(DESTROY_SELF);
+			    taskDelay(30);
+			}
+		      currTask = &DualTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
+		      
+		    case AFT_DUAL:
+		      if (currTask != &DualTask)
+			{
+			    currTask->SetFlags(DESTROY_SELF);
+			    taskDelay(30);
+			}
+		      currTask = &DualTask;
+		      GetsFlags = currTask;
+		      currTask->SetFlags(flag);
+		      break;
+
 		    case TMO_CHANGE:
 		      if (currTask != &HorizTask)
 			break;
