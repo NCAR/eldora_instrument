@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/11  18:37:27  thor
+ * Initial revision
+ *
  *
  * description:
  *      This C file contains the needed stdlib function ___builtin_new
@@ -22,6 +25,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
 #include "memLib.h"
+#include "stdioLib.h"
 
 #define BLTIN_LOCAL
 #include "builtin.h"
@@ -40,7 +44,7 @@ void *__builtin_new(int size)	/* Note that we use only two _'s, the */
     return(ptr);
 }
 
-void __std_new_handler()	/* Do nothing */
+void __std_new_handler()
 {
-    return;
+    fprintf(stderr,"Sorry - New ran out of memory!\n");
 }
