@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/09  20:27:41  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,13 +22,13 @@
 
 extern "C" {
 #include "Ray.h"
-#include "Aircraft.h"
+#include "Platform.h"
 #include "FieldParam.h"
 };
 
 struct data_beam {
     RAY ray;
-    AIRCRAFT air;
+    PLATFORM air;
     FIELDPARAMDATA data;
 };
 
