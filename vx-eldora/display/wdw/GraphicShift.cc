@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:19:53  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -22,111 +25,21 @@
  */
 #include "GraphicController.hh"
 
-void GraphicController::shift(FAST Point left, FAST Point right, 
-			      FAST int shift, FAST int direction = SHIFT_RIGHT)
+void GraphicController::shift(Point src, Point dst, FAST int width,
+			      FAST int height)
 {
-    FAST void *base = baseAddr;
-    FAST int xlength = right.x - left.x;
-    FAST int ylength = right.y - left.y;
+    long data[4];
+    FAST unsigned short *ptr = (unsigned short *)&data;
+    FAST long *send = data;
 
-    
-    FAST int xy = 4096 * left.y; // Start at top.
+    *ptr++ = 0x22;
+    *ptr++ = width;
+    *ptr++ = height;
+    *ptr++ = 0x5c;
+    *ptr++ = src.x;
+    *ptr++ = src.y;
+    *ptr++ = dst.x;
+    *ptr = dst.y;
 
-    if (direction == SHIFT_RIGHT)
-      xy += right.x;
-    else
-      xy += left.x;
-
-    FAST int rump = xy & 0x3;	// At long border?
-    FAST int odd = (xlength - rump) % sizeof(long); // Extra bytes?
-
-    for (FAST int i = 0; i < ylength; i++, xy += 4096)
-      {
-	  FAST int xl = xlength;
-	  FAST unsigned char *csrc = base + xy;	// Address of next line.
-	  FAST unsigned char *cdst;
-
-	  if (direction == SHIFT_RIGHT)
-	    cdst = csrc + shift;
-	  else
-	    cdst = csrc - shift;
-
-	  FAST int rp;
-
-	  if ((rp = rump))	// If we need to get to 4 byte border.
-	    {
-		if (direction == SHIFT_RIGHT)
-		  {
-		      while (rp-- && xl-- > -1)
-			*cdst-- = *csrc--;
-		  }
-		else
-		  {
-		      while (rp-- && xl-- > -1)
-			*cdst++ = *csrc++;
-		  }
-	    }
-	  if (xl)		// If anything's left.
-	    {
-		xl -= odd;	// Get correct size for loop.
-
-		if (xl)
-		  {
-		      xl /= sizeof(long); 
-		      FAST long *ldst = (long *)cdst;
-		      FAST long *lsrc = (long *)csrc;
-
-		      if (direction == SHIFT_RIGHT)
-			{
-			    switch(xl % 10)
-			      {
-				  do {
-				    case 0: *ldst-- = *lsrc--;
-				    case 9: *ldst-- = *lsrc--;
-				    case 8: *ldst-- = *lsrc--;
-				    case 7: *ldst-- = *lsrc--;
-				    case 6: *ldst-- = *lsrc--;
-				    case 5: *ldst-- = *lsrc--;
-				    case 4: *ldst-- = *lsrc--;
-				    case 3: *ldst-- = *lsrc--;
-				    case 2: *ldst-- = *lsrc--;
-				    case 1: *ldst-- = *lsrc--;
-					} while (xl -= 10 > 0);
-			      }
-			}
-		      else
-			{
-			    switch(xl % 10)
-			      {
-				  do {
-				    case 0: *ldst++ = *lsrc++;
-				    case 9: *ldst++ = *lsrc++;
-				    case 8: *ldst++ = *lsrc++;
-				    case 7: *ldst++ = *lsrc++;
-				    case 6: *ldst++ = *lsrc++;
-				    case 5: *ldst++ = *lsrc++;
-				    case 4: *ldst++ = *lsrc++;
-				    case 3: *ldst++ = *lsrc++;
-				    case 2: *ldst++ = *lsrc++;
-				    case 1: *ldst++ = *lsrc++;
-					} while (xl -= 10 > 0);
-			      }
-			}
-		  }
-		if (odd)	// Any thing left?
-		  {
-		      if (direction == SHIFT_RIGHT)
-			{
-			    while (odd--)
-			      *cdst-- = *csrc--;
-			}
-		      else
-			{
-			    while (odd--)
-			      *cdst++ = *csrc++;
-			}
-		  }
-
-	    }
-      }
+    qpdmCmd(send,4);
 }
