@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/08/30  15:21:34  thor
+// Initial revision
+//
 //
 // description:
 //        
@@ -22,9 +25,13 @@ int *headerrpcfunc_1_svc(FAST struct headername *argp,
                          FAST struct svc_req *rqstp)
 {
     static int result;
+    static int firstTime = 1;
 
-    if (Hdr == NULL)            // Must be the first time through.
-      Hdr = new Header;
+    if (firstTime)            // Must be the first time through.
+        {
+            Hdr = new Header();
+            firstTime = 0;
+        }
 
     char *file = &argp->name[0];
     
@@ -36,5 +43,8 @@ int *headerrpcfunc_1_svc(FAST struct headername *argp,
 
             result = input.good();
         }
+    else
+      cout << "Bad open of file " << file << endl;
+
     return(&result);
 }
