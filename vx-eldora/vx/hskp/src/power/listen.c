@@ -1,7 +1,7 @@
 /*
  *	$Id$
  *
- *	Module:	start_ieee.c	 
+ *	Module:	listen.c	 
  *	Original Author: Reif Heck 
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
@@ -9,11 +9,16 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/09/20  17:36:00  reif
+ * Initial revision
+ *
  * Revision 1.1  1992/09/01  16:48:23  craig
  * Initial revision
  *
  *
- * description: The purpose of this module is to 
+ * description: The purpose of this module is to turn MZ7500 into listener
+ *              and Power meters into talkers
+ * 
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
@@ -24,31 +29,37 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <pwrDef.h>
 #include <pwrFunc.h>
 
-void listen()
+void listen(int channel)
 {
 /**************  TURN MZ7500 INTO LISTENER *************/
   
   /* TURN BUS AROUND TO LISTEN */
   /* TAKE CONTROL BY ASSERTING ATN */
 
+
+if(channel == 1)
+  {
 /*********** CHANNEL 1 **************/
 
-  *g1acr = 0x0c;	  
-  *g1acr = 0x0a; /* UNTALK MZ7500*/
-  *g1dido = 0x3f; /* UNLISTEN PPM */
-  *g1dido = 0x44; /* TALK ADDRESS PPM */
-  *g1adr = 0x20; /* LISTEN ADDRESS MZ7500 */
-  *g1acr = 0x89; /* SET MZ7500 TO LISTEN */
-  *g1acr = 0x0b; /* DEASSERT ATN */
+    *g1acr = 0x0c;	  
+    *g1acr = 0x0a; /* UNTALK MZ7500*/
+    *g1dido = 0x3f; /* UNLISTEN PPM */
+    *g1dido = 0x44; /* TALK ADDRESS PPM */
+    *g1adr = 0x20; /* LISTEN ADDRESS MZ7500 */
+    *g1acr = 0x89; /* SET MZ7500 TO LISTEN */
+    *g1acr = 0x0b; /* DEASSERT ATN */
+  }
 
+if(channel == 2)
+  {
 /************ CHANNEL 2 ******************/
 
-  *g2acr = 0x0c;	  
-  *g2acr = 0x0a; /* UNTALK MZ7500*/
-  *g2dido = 0x3f; /* UNLISTEN PPM */
-  *g2dido = 0x44; /* TALK ADDRESS PPM */
-  *g2adr = 0x20; /* LISTEN ADDRESS MZ7500 */
-  *g2acr = 0x89; /* SET MZ7500 TO LISTEN */
-  *g2acr = 0x0b; /* DEASSERT ATN */
-
+    *g2acr = 0x0c;	  
+    *g2acr = 0x0a; /* UNTALK MZ7500*/
+    *g2dido = 0x3f; /* UNLISTEN PPM */
+    *g2dido = 0x44; /* TALK ADDRESS PPM */
+    *g2adr = 0x20; /* LISTEN ADDRESS MZ7500 */
+    *g2acr = 0x89; /* SET MZ7500 TO LISTEN */
+    *g2acr = 0x0b; /* DEASSERT ATN */
+  }
 }
