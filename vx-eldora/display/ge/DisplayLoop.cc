@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.3  1994/09/23  19:58:54  thor
+// Removed some debugging output.
+//
 // Revision 1.2  1994/09/23  15:03:57  thor
 // Added clock code.
 //
@@ -27,6 +30,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeDraw.hh"
 
 #include <sysLib.h>
+#include <iostream.h>
 
 static const int clkUpdateStart = 359; // Every 360 beams (not degrees).
 
@@ -52,9 +56,22 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 
 	      case LOAD_ONLY:
 		dispPtr = display;
-                // We loop here until we get a valid header.
-                FAST volatile Header **h = &Hdr;
-                while (*h == NULL) ;
+		continue;
+		break;
+
+	      case STOP:
+	      case (STOP | NEW_DATA_FLAG):
+		sysIntDisable(3);
+		DdpCtrl->Clear();
+		if (!pipe.Empty())
+		  {
+		      pipe.Flush();
+		  }
+		continue;
+		break;
+
+	      case START:
+	      case (START | NEW_DATA_FLAG):
 		dispPtr->reset(Hdr,GeCommand);
                 int type = dispPtr->getType();
                 switch(type)
@@ -75,23 +92,7 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
                         DdpCtrl->Aft();
                         break;
                   }
-		continue;
-		break;
 
-	      case STOP:
-	      case (STOP | NEW_DATA_FLAG):
-		sysIntDisable(3);
-		DdpCtrl->Clear();
-		if (!pipe.Empty())
-		  {
-		      pipe.Flush();
-		  }
-		continue;
-		break;
-
-	      case START:
-	      case (START | NEW_DATA_FLAG):
-		dispPtr->reset(Hdr,GeCommand);
 		sysIntDisable(3);
 		if (!pipe.Empty())
 		  pipe.Flush();
@@ -129,7 +130,7 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 	  if (pipe.Full())
 	    {
 		pipe.Flush();
-		printf("Pipe full\n");
+		cout << "Pipe full" <<endl;
 	    }
 
 	  DataBeam *dataBeam;
