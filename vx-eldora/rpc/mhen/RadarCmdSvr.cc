@@ -1,5 +1,6 @@
 #define OK_RPC
 #include "RadarRpc.hh"
+#include <iostream.h>
 
 #ifdef UNIX
 #include <stdio.h>
@@ -11,6 +12,7 @@
 #include "stdio.h"
 #include "semLib.h"
 #include "rpc/pmap_clnt.h"
+#include "rpcLib.h"
 #include "stdlib.h"
 #include "taskLib.h"
 #endif // UNIX
@@ -23,14 +25,14 @@ int StartRadarCtrl(void)
 
     (void)pmap_unset(RadarControl,RadarCtrlVers);
     
-    transp = svcudp_create(RPC_ANYSOCK,8192,8192);
+    transp = svcudp_create(RPC_ANYSOCK);
     if (transp == NULL)
       {
 	  fprintf(stderr,"cannot create udp service.");
 	  return(ERROR);
       }
-    if (!svc_register(transp,RadarControl,RadarCtrlVers,
-		      radarcontrol_1,IPPROTO_UDP))
+    FAST void (*dispatch)(...) = (void (*)(...))radarcontrol_1;
+    if (!svc_register(transp,RadarControl,RadarCtrlVers,dispatch,IPPROTO_UDP))
       {
 	  fprintf(stderr,"unable to register RadarControl,RadarCtrlVers,udp.");
 	  return(ERROR);
@@ -57,13 +59,13 @@ static void radarcontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
         case SendCommand:
 	  xdr_argument = (xdrproc_t)xdr_RadarCommand;
 	  xdr_result = (xdrproc_t)xdr_RadarStatus;
-	  local = (char *(*)(char *,struct svc_req *))sendcommand_1;
+	  local = (char *(*)(char *,struct svc_req *))sendcommand_1_svc;
 	  break;
 	  
         case GetRadarStatus:
 	  xdr_argument = (xdrproc_t)xdr_void;
 	  xdr_result = (xdrproc_t)xdr_RadarStatus;
-	  local = (char *(*)(char *,struct svc_req *))getradarstatus_1;
+	  local = (char *(*)(char *,struct svc_req *))getradarstatus_1_svc;
 	  break;
 	  
         default:
@@ -89,21 +91,12 @@ static void radarcontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
     return;
 }
 
-struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
-				  struct svc_req *)
+#ifndef DEBUG_ONLY
+struct RadarStatus *sendcommand_1_svc(FAST struct RadarCommand *cmdBlk,
+                                      struct svc_req *)
 {
-    static u_long count = 0;
-
     FAST u_long cmd = cmdBlk->cmd;
 
-    if (cmd & INIT)
-      count = 0;
-
-    else if (count < cmdBlk->count)
-      {
-	  printf("Received command 0x%x.\n",cmd);
-	  count++;
-      }
     if(cmd & LOAD)
       load = 1;
 
@@ -127,7 +120,6 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
     if(cmd & DC_REMOVAL)
       {    
 	  dc_removal = 1;
-	  currStatus->count++;
 	  currStatus->rp7 |= DC_BUSY;
 	  printf("current rp7 status = %X \n",currStatus->rp7);
       }
@@ -167,28 +159,52 @@ struct RadarStatus *sendcommand_1(FAST struct RadarCommand *cmdBlk,
 #endif /* TASS */
 	
     printf("ts_freq = %d \n",ts_freq);
-    currStatus->count++;
 
     return(currStatus);
 }
 
-struct RadarStatus *getradarstatus_1(void *, struct svc_req *)
+struct RadarStatus *getradarstatus_1_svc(void *, struct svc_req *)
 {
-    currStatus->count++;
-
     return(currStatus);
 }
 
+#else // !DEBUG_ONLY
 
+struct RadarStatus *getradarstatus_1_svc(void *, struct svc_req *)
+{
+    static RadarStatus status;
 
+    cout << "Received status request." << endl;
+    
+    return(&status);
+}
 
+struct RadarStatus *sendcommand_1_svc(FAST struct RadarCommand *cmdBlk,
+                                      struct svc_req *)
+{
+    static RadarStatus status;
 
+    hex(cout);
+    
+    cout << "Received command 0x" << cmdBlk->cmd << endl;
+    
+    return(&status);
+}
 
+extern "C" {
+    void mhentst();
+    void __do_global_ctors(void);
+};
 
+void mhentst()
+{
+    __do_global_ctors();
 
+    rpcTaskInit();
 
+    StartRadarCtrl();
 
+    svc_run();
+}
 
-
-
-
+#endif // !DEBUG_ONLY

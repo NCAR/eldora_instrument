@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1993/07/23  14:56:40  thor
+ * Added TASS stuff.
+ * >> .
+ *
  * Revision 1.4  1992/09/23  14:58:47  thor
  * Changed to use new status structure.
  *
@@ -37,10 +41,6 @@ bool_t xdr_RadarCommand(XDR *xdrs, FAST RadarCommand *objp)
       {
 	  return (FALSE);
       }
-    if (!xdr_u_long(xdrs,&objp->count))
-      {
-	  return (FALSE);
-      }
     if (!xdr_int(xdrs,&objp->dc_points))
       {
 	  return (FALSE);
@@ -56,10 +56,6 @@ bool_t xdr_RadarCommand(XDR *xdrs, FAST RadarCommand *objp)
 
 bool_t xdr_RadarStatus(XDR *xdrs, FAST RadarStatus *objp)
 {
-    if (!xdr_u_long(xdrs,&objp->count))
-      {
-	  return (FALSE);
-      }
     if (!xdr_char(xdrs,&objp->rp7))
       {
 	  return (FALSE);
