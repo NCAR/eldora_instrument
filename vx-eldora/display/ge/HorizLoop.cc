@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Removed bunch of test code.
+ * Added real data handling & scaling.
+ *
  * Revision 1.4  1991/11/01  20:06:38  thor
  * Added support for scaling max/min.
  *
@@ -24,6 +27,9 @@
  *
  *
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+
+// Uniprocessor conditional.
+#define UNIPRO
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -44,6 +50,9 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
     self.FlagsInit();
 
     FAST HorizDisplay *display = NULL;
+    Pipe dataPipe(sizeof(DataPoint),100);
+    Pipe movePipe(sizeof(HorizMove),10);
+
 
     Pipe dataPipe(sizeof(HorizPoint),100);
 
@@ -82,34 +91,27 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = radar;
 		continue;
 		break;
+		horizFilter->Pipe(&dataPipe,&movePipe);
 	      case STOP:
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		continue;
 		break;
 
 	      case START:
 	      case RELOAD:
 	      case (RELOAD | NEW_DATA_FLAG):
+		horizFilter->Pipe(&dataPipe,&movePipe);
 	      case (RESTART | NEW_DATA_FLAG):
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		reset = 1;
                 if (!pipe.Empty())
 		  pipe.Flush();
 		break;
 
 	      case (FORWARD_HORIZ | NEW_DATA_FLAG):
+		horizFilter->Pipe(&dataPipe,&movePipe);
                 radar = whichRadar;
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
-		continue;
 		break;
 
 	      case AFT_HORIZ:
-		HorizMouse(display);
-		continue;
-		break;
-
 	      case (AFT_HORIZ | NEW_DATA_FLAG):
 		whichRadar = AFT_HORIZ;
                 radar = whichRadar;
@@ -133,17 +135,32 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		      display->Shift(&m);
 		  }
 
-		
+		FAST Beam_Time *now = (Beam_Time *)&(dataBeam->ray.hour);
+
+		// Check for moves.
+		while (movePipe.Empty() == FALSE)
 		  {
-		//	  display->drawBeam(radData);
+		      HorizMove m;
+		      
+		      movePipe.Read(&m);
+		if (++count == 10)
+		      display->Shift(&m);
+		  }
+		  {
+		      display->UpdateClock(now->hour,now->minute,now->second);
+		      count = 0;
+		      DataPoint dp;
+
+		bcopy((char *)now,(char *)LastTime,
+		      sizeof(Beam_Time));
+
+
+		// Color convert it - only on uniprocessor!
 		// This is hard! 
 		horizFilter->Draw(*dataBeam);
 
-
-	  printf("Looping\n");	// Strictly for testing!!!!!
-	  taskDelay(10);
-
-	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
+	  taskDelay(1);
+	  self.SetFlags(NEW_DATA_FLAG);
 		// Draw it.
 		while (dataPipe.Empty() == FALSE)
 		  {
@@ -163,6 +180,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 				 FAST GraphicController *agc)
 {
+    float Max[3];
+    float Min[3];
     if (old != NULL)
       delete(old);   
 
@@ -171,6 +190,9 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
       {
 	  delete(horizFilter);
       }
+
+    bcopy((char *)max,(char *)Max,sizeof(float) * 3);
+    bcopy((char *)min,(char *)Min,sizeof(float) * 3);
 
     float max[3];
     float min[3];
@@ -289,17 +311,17 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     agc->setMask(0);
 
-    New->DrawTable(A_SET,max[0],min[0],param);
+    New->DrawTable(A_SET,Max[0],Min[0],param);
 
     FAST HorizDisplay *New = new HorizDisplay(agc,MAX_RECT,0.0,0.0,nv,0,0);
 
     FAST u_long *colors = &GeCommand->colorTable[0];
-      New->DrawTable(B_SET,max[1],min[1],param);
+      New->DrawTable(B_SET,Max[1],Min[1],param);
     if (*colors != -1)
       agc->setColorMap((long *)colors,256);
 
     New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,ptr->size*1000.0);
-      New->DrawTable(C_SET,max[2],min[2],param);
+      New->DrawTable(C_SET,Max[2],Min[2],param);
 
     New->HashMarks();
     param = ptr->param0;
