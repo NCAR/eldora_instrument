@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  2002/03/21 00:17:18  thor
+ * Useless attempt to fix fake_angles & elevation.
+ *
  * Revision 1.5  1999/09/27 15:45:02  eric
  * added test for missed or extra processor interrupts.
  *
@@ -39,6 +42,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define scope extern
 #include "hskpAll.h"
 
+#if defined(USE_INT_HNDSHK)
+#include "sendInt.h"
+#endif
+
 int ERR_CHK; 
 static int proc_offset_f, proc_offset_a;
 void midbeam()
@@ -48,6 +55,7 @@ void midbeam()
 float position, fore_angle, aft_angle, elapsed_time, temp_position;
 float degrees_moved, instant_speed, diff;
 static float dumb_position;
+static fake_vel = 130.0;
 float dumb_stepr, dumb_stepp, anglesin, dumb_rads;
 int dumb_start, dumb_index, test, delta_f, delta_a;
 
@@ -107,6 +115,8 @@ semTake(vmeSem,WAIT_FOREVER);
 	last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
 	last_iru_data.sec_longitude = sec;
 	last_iru_data.msec_longitude = msec;
+	last_iru_data.ew_velocity = fake_vel;
+	last_iru_data.ns_velocity = fake_vel;
 	dumb_index++;
 	if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
 	fill_platform(msecs_ray[dumb_index]);
@@ -131,6 +141,9 @@ semTake(vmeSem,WAIT_FOREVER);
 
     if(fore_vmehndshk->radar_hndshk[iru_lag_index] == 0)
       {
+#if defined(USE_INT_HNDSHK)
+	triggerVMEInts(iru_lag_index);
+#endif
 	fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
 	aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
       }
@@ -330,7 +343,8 @@ if(ERR_CHK)
     aft_ray_pntr->this_rayi.sweep_num = aft_sweep_num;
     
 /* Handle the data from the IRU here */
-    convert_iru();
+    if (fake_angles == 0)
+      convert_iru();
     
 /* If necessary handle the waveguide switch here */
 
