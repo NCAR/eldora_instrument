@@ -24,9 +24,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void hostStartup(void)
 {
     FILE *fp1;
-    char fname[40];
+    char fname[80];
 
-     strcpy(fname,"odin:/vxbin/hskp/scripts/realtime.cmds");
+     strcpy(fname,"/usr/local/vxbin/hskp/scripts/realtime.cmds");
     
     /* Open the file and read all global control flags */
     if(!(fp1=fopen(fname,"r")))
