@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/11/14  17:26:43  eric
+ * Updated code to handle Staggered PRT's and
+ * variable parameter headers.
+ *
  * Revision 1.2  1994/07/14  20:36:17  eric
  * Added End of Beam error detection.
  *
@@ -95,13 +99,16 @@ register long  i,j;
 int            *samps, data_samps, buff_cnt, prf, gates,sem_status, sampl,
                prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, tp_pwr_off, tp_pwr_indx,
                f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, offset, lgate_off,
-               indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int, cnt;
+               indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int,
+               lgate_off2, cnt;
 
 volatile short indf_ts, ray_hndshk_stat;
 
 short          num_param;
 
-unsigned long  data_loc_base;
+unsigned short lgate[8];
+
+unsigned long  data_loc_base, temp;
 
 volatile register unsigned long *dptr;
 volatile register unsigned long   *data_loc;
@@ -143,6 +150,7 @@ for(;;)
             if(f5_flag > 1)
                   f5_flag = 1;
             f_flag = f1_flag + f2_flag + f3_flag + f4_flag + f5_flag;
+            lgate_off2 = (f_flag - 1)*8;
 	    sampl = wvfm -> repeat_seq_dwel;
 	    incr = ((f_flag * 8) - 4)/4;
 	    if(!radar_fore_aft)
@@ -167,7 +175,7 @@ for(;;)
 
 	    if(!radar_fore_aft)
 	      fldrdr = GetFieldRadar(inHeader,1);
-	    else
+            if(radar_fore_aft)
 	      fldrdr = GetFieldRadar(inHeader,2);
 	    indf_ts = fldrdr -> indepf_times_flg;
 
@@ -222,18 +230,18 @@ for(;;)
 			      lgate_off = 0x0;
 			      break;
 			    case 2:
-			      lgate_off = 0x8 * (prt_flag + 1);
+			      lgate_off = 0x8;
 			      tp_pwr_indx = tp_pwr_off + 0x4;
 			      break;
 			    case 3:
-			      lgate_off = 0x10 * (prt_flag + 1);
+			      lgate_off = 0x10;
 			      tp_pwr_indx = tp_pwr_off + 0x8;
 			      break;
 			    case 4:
-			      lgate_off = 0x18 * (prt_flag + 1);
+			      lgate_off = 0x18;
 			      break;
 			    case 5:
-			      lgate_off = 0x20 * (prt_flag + 1);
+			      lgate_off = 0x20;
 			      break;
 			    default:
 			      lgate_off = 0x0;
@@ -260,7 +268,7 @@ for(;;)
 			i = data_samps;
 
 			/* Pull data from Collator's Dual Port Ram */
-			if(!prt_flag || num_param == 6)
+			if(!prt_flag && num_param == 4)
                             {
                                 while(i-- != 0)
                                     {
@@ -270,7 +278,31 @@ for(;;)
                                 *dptr++ = *data_loc++;
                                 *dptr++ = *data_loc++;
                             }
-                        else
+                         if(num_param == 6)
+                             {
+                                 while(i-- != 0)
+                                     {
+                                         *dptr++ = *data_loc++;
+                                     }                                 
+                                 data_loc += lgate_off;
+                                 temp = *data_loc++;
+                                 lgate[0] = temp & 0xff;         /* Ws */
+                                 lgate[1] = (temp >> 16) & 0xff; /* Vs */
+                                 temp = *data_loc++;
+                                 lgate[2] = temp & 0xff;         /* NCPs */
+                                 lgate[3] = (temp >> 16) & 0xff; /* DBZs */
+                                 data_loc += lgate_off2;
+                                 temp = *data_loc++;
+                                 lgate[4] = temp & 0xff;         /* Wl */
+                                 lgate[5] = (temp >> 16) & 0xff; /* Vl */
+                                 temp = *data_loc++;
+                                 lgate[6] = temp & 0xff;         /* NCPl */
+                                 lgate[7] = (temp >> 16) & 0xff; /* DBZl */
+                                 *dptr++ = lgate[5] || (lgate[1] << 16); /* Vl,Vs */
+                                 *dptr++ = (lgate[0] + lgate[4]) >> 2; /* W,V=0 */
+                                 *dptr++ = ((lgate[2] + lgate[6]) >> 2) || (((lgate[3] + lgate[7]) >> 2) << 16); /* NCP,DBZ */
+                             }
+                        if(num_param == 12)     /* 10 parameter header */
                             {
                                 j = 0;
                                 while(i-- != 0)
@@ -287,12 +319,27 @@ for(;;)
                                         if(j == 6)
                                           j = 0;
                                     }
-                            }
                                 data_loc += lgate_off;
-                                *dptr++ = *data_loc++;
-                                *dptr++ = *data_loc++;
-
-                  if((indf_ts == 1)||(indf_ts == 3))
+                                temp = *data_loc++;
+                                lgate[0] = temp & 0xff;         /* Ws */
+                                lgate[1] = (temp >> 16) & 0xff; /* Vs */
+                                temp = *data_loc++;
+                                lgate[2] = temp & 0xff;         /* NCPs */
+                                lgate[3] = (temp >> 16) & 0xff; /* DBZs */
+                                data_loc += lgate_off2;
+                                temp = *data_loc++;
+                                lgate[4] = temp & 0xff;         /* Wl */
+                                lgate[5] = (temp >> 16) & 0xff; /* Vl */
+                                temp = *data_loc++;
+                                lgate[6] = temp & 0xff;         /* NCPl */
+                                lgate[7] = (temp >> 16) & 0xff; /* DBZl */
+                                *dptr++ = lgate[0] || (lgate[1] << 16); /* Ws,Vs */
+                                *dptr++ = lgate[4] || (lgate[5] << 16); /* Wl,Vl */
+                                *dptr++ = lgate[6] || (lgate[7] << 16); /* NCPl,DBZl */
+                                *dptr++ = (lgate[0] + lgate[4]) >> 2;   /* W,V=0 */
+                                *dptr++ = ((lgate[2] + lgate[6]) >> 2) || (((lgate[3] + lgate[7]) >> 2) << 16); /* NCP, DBZ */
+                            }
+                        if((indf_ts == 1)||(indf_ts == 3))
                             {
 			      dptr++;       /* skip over indep freq header info */
 			      dptr++;
