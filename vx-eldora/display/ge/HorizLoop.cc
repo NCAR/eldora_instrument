@@ -9,8 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/30  17:56:38  thor
+ * First working version.
  *
  * Revision 1.1  1991/10/28  19:37:49  thor
+ * Initial revision
  *
  *
  *
@@ -37,6 +40,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
     FAST HorizDisplay *display = NULL;
 
     Pipe dataPipe(sizeof(HorizPoint),100);
+
 	  FAST unsigned int flag = self.WaitOnFlags(waitMask | NEW_DATA_FLAG |
 						    DESTROY_SELF | MOUSE_FLAG,
       {
@@ -46,12 +50,22 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	  switch(flag)
 	    {
-		  delete(display);
+	      case DESTROY_SELF:
+	      case (DESTROY_SELF | NEW_DATA_FLAG):
+		if (display != NULL)
+		  {
+		      delete(display);
+		      display = NULL;
+		  }
+		if (horizFilter != NULL) // Only the filter need be
+					 // deleted, as it deleltes
+					 // the converter.
+		  {
 		      delete(horizFilter);
 		      horizFilter = NULL;
 		  }
 		continue;
-	      case STOP | NEW_DATA_FLAG:
+		break;
 
 	      case LOAD_ONLY:
 		if (GeCommand->cmd == FORWARD_RADIAL)
@@ -59,7 +73,7 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		else
 		  radar = AFT_RADIAL;
 
-	      case START | NEW_DATA_FLAG:
+		whichRadar = radar;
 		continue;
 		break;
 	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
@@ -114,9 +128,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 		if (pipe.Empty() == FALSE)
 		  self.SetFlags(NEW_DATA_FLAG);
-    if (conv != NULL)
+	    }
       }
-	  delete(conv);
 }
 
 static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
@@ -236,17 +249,16 @@ static HorizDisplay *makeDisplay(FAST HorizDisplay *old,
 
     agc->setMask(0);
 
-    if (param != NO_PARAM)
-      New->DrawTable(A_SET,max[0],min[0],param);
+    New->DrawTable(A_SET,max[0],min[0],param);
 
     FAST HorizDisplay *New = new HorizDisplay(agc,MAX_RECT,0.0,0.0,nv,0,0);
 
-    if (param != NO_PARAM)
+    FAST u_long *colors = &GeCommand->colorTable[0];
       New->DrawTable(B_SET,max[1],min[1],param);
     if (*colors != -1)
       agc->setColorMap((long *)colors,256);
 
-    if (param != NO_PARAM)
+    New->DrawTitle(whichRadar,ptr->distance,0.0,0.0,ptr->size*1000.0);
       New->DrawTable(C_SET,max[2],min[2],param);
 
     New->HashMarks();
