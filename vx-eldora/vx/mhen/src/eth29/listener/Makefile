@@ -6,4 +6,4 @@ listener: listener.o
 	g++ -o listener listener.o
 
 clean:
-	rm listener *.o *~ #*
+	rm -f listener *.o *~ #*
