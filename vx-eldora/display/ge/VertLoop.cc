@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/01/27  18:35:54  thor
+ * Added code to correct data addresses for VME/local offset.
+ *
  * Revision 1.2  1992/01/22  17:54:56  thor
  * Changed to new form of ColorConverter.
  *
@@ -123,6 +126,10 @@ void VertLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      break;
 	  
 
+		FAST int tmp = (int)dataBeam; // This done to correct for
+		tmp += 0x30200000;	      // address difference betweem
+		dataBeam = (DataBeam *)tmp;   // VMEbus & onboard memory.
+	      break;
 	  }
 
 #ifdef UNIPRO
@@ -260,6 +267,7 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
             {
                 PARAMETER *p = Hdr->Parameter(i);
 
+                if (!strncmp(ptr,p->parameter_name,len))
                   {
                       offsets[2] = i;
                       scales[2] = p->parameter_scale;
@@ -276,9 +284,9 @@ static Vertical *NewDisplay(FAST GraphicController *agc, FAST int rdr)
     filter->Reset(ptr->top,ptr->bottom,ptr->distance,2.0,converter,ptr->side,
 		  VDATA_WIDTH);
 
+    CELLSPACING *cs = Hdr->CellSpacing();
 
-
-
+    converter->SetBeamSize(*cs,DISPLAYED_GATES);
 
     filter->Cells(*cs);
 

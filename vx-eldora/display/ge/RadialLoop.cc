@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Added new variable required for ColorConverter and code to handle
+ * variable radii.
+ *
  * Revision 1.21  1992/01/27  18:35:01  thor
  * Added code to correct data addresses for VME/local offset.
  *
@@ -162,6 +165,10 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		lastAngle = 360.0;
 		  pipe.Flush();
 		break;
+
+	      case MOUSE_FLAG:
+	      case (MOUSE_FLAG | NEW_DATA_FLAG):
+		RadialMouse(display);
 		break;
 	    }
 	  // Get next DDP data item.

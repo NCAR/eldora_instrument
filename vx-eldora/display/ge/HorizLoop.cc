@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1992/01/27  18:36:03  thor
+ * Added code to correct data addresses for VME/local offset.
+ *
  * Revision 1.13  1992/01/22  17:54:30  thor
  * Changed to new form of ColorConverter.
  *
@@ -163,6 +166,10 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		{
 		    FAST DispCommand *ptr = GeCommand;
 		    FAST int tmo = ptr->tmo;
+
+		    display->StopTimer();
+
+		    if (tmo)
 		      display->StartTimer(tmo);
 		}
 	    }
