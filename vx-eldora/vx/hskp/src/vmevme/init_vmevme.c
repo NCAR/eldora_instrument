@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/25  20:42:50  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  20:44:35  craig
  * Initial revision
  *
@@ -125,6 +128,10 @@ for(i=0; i<0x100000; i++)
 /* Clear the fore and aft sweep numbers to zero */
 fore_sweep_num = 0;
 aft_sweep_num = 0;
+
+/* Create the navigation data mask */
+
+nav_mask = GPS_ON + MINIRIMS_ON + IRU_ON + KALMAN_ON;
 
 /* Attach the vmevme_isr to the proper interrupt vector */
 if(intConnect((VOIDFUNCPTR *)(VME_VME_VEC * 4),
