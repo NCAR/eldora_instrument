@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1996/02/09  18:29:49  craig
+ * *** empty log message ***
+ *
  * Revision 1.7  1994/05/20  20:37:20  craig
  * *** empty log message ***
  *
@@ -56,6 +59,7 @@ int dumb_start, dumb_index;
 kill = 1;
 dumb_start = 0;
 dumb_index = 25;
+autocal = 1;
 
 /* Initialize the global control variables */
 
@@ -68,24 +72,23 @@ in_gps_isr = 0;
 
 printf("Initializing the ELDORA Control Bus (ecb)\n");
 
-/*
 strcpy(ecbname,"mstrvme8.sre");
 stop11();
 dpclr();
 ldsrec(ecbname);
 ecbIntInit(1000000);
 go11();
-*/
 
 /* Enable 68040 Interrupts */
+
 sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
 sysIntEnable(ARINC_IRQ);
 sysIntEnable(GPS_IRQ);
-/*sysIntEnable(ECB_CMPLT_IRQ);
+sysIntEnable(ECB_CMPLT_IRQ);
 sysIntEnable(ECB_ERROR_IRQ);
 sysIntEnable(ECB_SPARE_IRQ);
-*/
+
 printf("Initializing the clock card\n");
 init_clock((short)244); /* Sets up the pointers to go with the clock card */
 
@@ -176,7 +179,7 @@ do{
 
     /* Program the receiver/exciter chassis with the proper frequencies */
     /* Do the fore radar first */
-/*
+
     ecbaddr = ECBRFFOR;
     for(i=0; i<fraddes->num_freq_trans; i++)
       {
@@ -207,6 +210,7 @@ do{
 		frequency = (double)aint * (double)1000.0;
 		break;
 	    }
+	  fore_freqs[i] = frequency;
 	  B = (unsigned char)(361 - (int)(frequency / 30.0e6));
 	  temp = 15445.3333333333333 - (frequency / 703125.0);
 	  temp = (16777216.0 / (B+1)) * temp;
@@ -227,9 +231,9 @@ do{
 	  taskDelay(60);
 
       }
-*/
+
     /* Now do the aft radar */
-/*
+
     ecbaddr = ECBRFAFT;
     for(i=0; i<araddes->num_freq_trans; i++)
       {
@@ -260,6 +264,7 @@ do{
 		frequency = (double)aint * (double)1000.0;
 		break;
 	    }
+	  aft_freqs[i] = frequency;
 	  B = (unsigned char)(361 - (int)(frequency / 30.0e6));
 	  temp = 15445.3333333333333 - (frequency / 703125.0);
 	  temp = (16777216.0 / (B+1)) * temp;
@@ -279,9 +284,9 @@ do{
 	    printf("Aft radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
 	  taskDelay(60);
       }
-*/
+
     /* Now start the automatic testpulse calibration scheme */
-  /*   start_testpulse(); */ 
+  start_testpulse();
 
     /* Start the interrupts from the ieee-488 board */
   /*  start_ieee(); */
@@ -353,11 +358,14 @@ do{
         if(*gps_hndshk != (short)0)
 	      gps_isr();
 
-/*	if(tp_dwell_count >= testpulse_max_count)
+	if(tp_dwell_count >= testpulse_max_count && autocal)
 	      update_testpulse();
-*/
+
+	if(tp_dwell_count >= testpulse_test_count && autocal)
+	      test_testpulse();
 
        }while(!stop_flag && !reload_flag);
 
    }while(kill);
 }
+
