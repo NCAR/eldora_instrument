@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/09/07  17:10:48  thor
+ * Moved to new version of RPC.
+ *
  * Revision 2.2  1993/09/28  13:04:33  thor
  * Added dual display support.
  *
@@ -60,8 +63,8 @@ extern "C" {
 
 static u_long cmdCount = 0;
 
-struct DispStatus *sendcommand_1_svc(FAST DispCommand *cmd,
-                                     struct svc_req *req)
+struct DispStatus *senddispcommand_1_svc(FAST DispCommand *cmd,
+                                         struct svc_req *req)
 {
     FAST u_long command = cmd->cmd;
     FAST DispStatus *status = GeStatus;
