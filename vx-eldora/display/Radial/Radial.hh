@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/09/03  17:16:54  thor
+ * Forgot the !!@## define line.
+ *
  * Revision 2.2  1993/09/03  17:14:39  thor
  * Added protection around trigData.
  *
@@ -323,6 +326,18 @@ class Radial {
           Wdw[2].home();
           Wdw[4].home();
       }
+
+    void Undisplay(void)
+    {
+	FAST Window *ptr = Wdw;
+
+	ptr->undisplay(); ptr++;
+	ptr->undisplay(); ptr++;
+	ptr->undisplay(); ptr++;
+	ptr->undisplay(); ptr++;
+	ptr->undisplay(); ptr++;
+	ptr->undisplay();
+    }
 
     void UpdateClock(FAST short h, FAST short m, FAST short s)
       {
