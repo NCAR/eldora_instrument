@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  1992/02/10  16:29:04  thor
+ * Added tests for empty pipe prior to flush.
+ *
  * Revision 1.15  1992/02/06  21:10:15  thor
  * Add flush of pipe on restart to avoid drawing outdated data.
  *
@@ -124,7 +127,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 
 	      case STOP:
 	      case (STOP | NEW_DATA_FLAG):
-		pipe.Flush();
+		if (!pipe.Empty())
+		  pipe.Flush();
 		continue;
 		break;
 
@@ -135,7 +139,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 	      case (START | NEW_DATA_FLAG):
 	      case (RESTART | NEW_DATA_FLAG):
 		if (radar == FORWARD_RADIAL)
-		pipe.Flush();
+		if (!pipe.Empty())
+		  pipe.Flush();
 		reset = 1;
                 if (!pipe.Empty())
 		  pipe.Flush();
@@ -146,7 +151,8 @@ void HorizLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		whichRadar = FORWARD_HORIZ;
                 radar = whichRadar;
 		display = makeDisplay(display,agc);
-		pipe.Flush();
+		if (!pipe.Empty())
+		  pipe.Flush();
 		break;
 
 	      case AFT_HORIZ:

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.26  1992/03/19  20:16:10  thor
+ * Switched to new form of ColorConverter call.
+ *
  * Revision 1.25  1992/02/10  16:28:22  thor
  * Added tests for empty pipe prior to flush.
  *
@@ -168,7 +171,8 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		  radar = AFT_RADIAL;
 
 		whichRadar = radar;
-		pipe.Flush();
+		continue;
+		  pipe.Flush();
 		DdpCtrl->Clear();
 		if (!pipe.Empty())
 		  {
@@ -177,7 +181,8 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		continue;
 		break;
 
-		pipe.Flush();
+	      case RELOAD:
+		  pipe.Flush();
 		if (radar == FORWARD_RADIAL)
 		  DdpCtrl->Fore();
 		else
@@ -186,7 +191,8 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc, FAST Pipe &pipe)
 		lastAngle = 360.0;
 		break;
 
-		pipe.Flush();
+	      case (FORWARD_RADIAL | NEW_DATA_FLAG):
+		  pipe.Flush();
 		DdpCtrl->Fore();
 		if (!pipe.Empty())
 		  pipe.Flush();
