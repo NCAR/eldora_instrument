@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1999/09/27  16:42:27  eric
+ * added code to restart testpulse power meter if interrupts failed.
+ *
  * Revision 1.1  1997/11/12  19:51:43  eric
  * Initial revision
  *
@@ -58,7 +61,12 @@ void testp_rt()
 		{
 		  flt_pt(0);  
 		  if(Debug)
-		    printf("FORE_TESTP_PWR = %-7.2f dBm  AFT_TESTP_PWR = %-7.2f dBm\n",fore_testp_pwr,aft_testp_pwr);	
+		    {
+		      printf("FORE TP FREQ = %d: FORE XMIT FREQ = %d\n",fore_vmehndshk->tpulse.freq_num[0],fore_vmehndshk->tpulse.freq_num[1]);	
+		      printf("AFT TP FREQ = %d: AFT XMIT FREQ = %d\n",aft_vmehndshk->tpulse.freq_num[0],aft_vmehndshk->tpulse.freq_num[1]);
+		      printf("FORE C =%4X: AFT C =%4X\n",fore_vmehndshk->tpulse.combined_freq_num,aft_vmehndshk->tpulse.combined_freq_num);
+		      printf("FORE_TESTP_PWR = %-7.2f dBm  AFT_TESTP_PWR = %-7.2f dBm\n",fore_testp_pwr,aft_testp_pwr);	
+		    }
 		  fore_tp_level = fore_testp_pwr;
 		  aft_tp_level = aft_testp_pwr;
 		  New_tp = 0;
@@ -81,14 +89,18 @@ void testp_rt()
 	      *d1ccr = 0x10; /* Abort channel 2 DMA operation */
 	      taskDelay(1);
 	      *d1csr = 0xff; /* Clear DMA status register */
+
+	      /* Return PPM Control to Local */
 	      
+	      Return_to_Local(2);
+#ifdef DESPERATE	      
 	  /* try clearing GPIB Interface */
 	      
 	      *g2acr = 0x00; /* CLEAR SOFTWARE RESET */
 	      *g2acr = 0x8f; /* SEND INTERFACE CLEAR (sic)*/
 	      taskDelay(1);  /* SET DELAY */
 	      *g2acr = 0x0f; /* CLEAR sic */          
- 	  
+#endif 	  
 	  /* handle any pending interrupts */
 	  
 	      sem_status = semTake(testp_data_sem,NO_WAIT);
