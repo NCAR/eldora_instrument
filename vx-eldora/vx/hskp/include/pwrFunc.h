@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/09/01 20:07:20  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/14  21:39:01  reif
  * Initial revision
  *
@@ -22,18 +25,20 @@
 /********************  FUNCTION PROTOTYPES *************************/
 
 void pwr(void);
-void start_ieee(float,float);
+void start_ieee(void);
 void xmit_norm_isr(void);
 void xmit_err_isr(void);
 void testp_norm_isr(void);
 void testp_err_isr(void);
-void flt_pt(void);
+void flt_pt(int);
 void init_ptrs(void);
 void init_isr_vecs(void);
 void send_cmnd_string(char,char *);
-void init_gpib(void);
-void init_dma(void);
-void listen(void);
+void init_gpib(int);
+void init_dma(int,int);
+void listener(int);
+void xmit_rt(void);
+void testp_rt(void);
 
 #endif /* INC */
 
