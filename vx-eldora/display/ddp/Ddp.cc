@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/11/13  14:37:48  thor
+ * A little optimizing.
+ *
  * Revision 1.3  1991/11/11  15:35:10  thor
  * Removed constructor wait code, added repeat count read to Next.
  *
@@ -56,12 +59,13 @@ Ddp::Ddp(FAST void *addr, int vector, Pipe &p) : pipe(p)
     FAST volatile unsigned short *mb = mailBase + count;
     FAST long *aBase = addrBase + count;
     intConnect((VOIDFUNCPTR *)(vector * 4),(VOIDFUNCPTR)ddpIsr,(int)sem);
+    FAST volatile long *rep = repeat;
 }
 
 void Ddp::Next(void)
 {
     FAST long fcount = foreCurr;
-	  FAST long end = *repeat; // Wait till here to make certain
+	  FAST long end = *rep; // Wait till here to make certain
 				   // we have a valid repeat count!
 	  FAST int foreEnd = Count;
 
