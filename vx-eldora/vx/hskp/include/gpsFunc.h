@@ -26,7 +26,8 @@
 
 void init_gps(short);            /* Initalize all of the GPS Pointers */
 void command_gps(short);         /* Sends commands to the GPS interface */
-void gps_isr();                  /* GPS mailbox interrupt service routine */
+void gps_isr(void);              /* GPS mailbox interrupt service routine */
+void gps_menu(void);             /* diagnostic menu */
 
 #endif /* INC */
 
