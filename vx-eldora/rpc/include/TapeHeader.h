@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:44  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -66,6 +69,30 @@ typedef struct tapeHeader TAPEHEADER;
 
 bool_t xdr_sensorDesc(XDR *, SENSORDESC *);
 bool_t xdr_tapeHeader(XDR *, TAPEHEADER *);
+
+#define HeaderRPC ((u_long)0x30000100)
+#define HeaderVers ((u_long)1)
+#define SendHeader ((u_long)1)
+#define SendCounts ((u_long)2)
+
+#ifdef CLIENT_SIDE
+extern void *sendheader_1(TAPEHEADER *, CLIENT *);
+extern void *sendcounts_1(WAVECOUNTS *, CLIENT *);
+#else
+extern void startHeader(void);
+extern void *sendheader_1(TAPEHEADER *, struct svc_req *);
+extern void *sendcounts_1(WAVECOUNTS *, struct svc_req *);
+extern void headerrpc_1(struct svc_req *, register SVCXPRT *);
+#endif /* CLIENT_SIDE */
+
+#else
+
+program HeaderRPC {
+    version HeaderVers {
+	void SendHeader(struct tapeHeader) = 1;
+	void SendCounts(struct wave_counts) = 2;
+    } = 1;
+} = 0x30000100;
 
 #endif /* OK_RPC */
 
