@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:23:46  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -40,7 +43,7 @@ struct gps_data {
     long  hdop;
     long  vdop;
     long  tdop;
-    short software_version;
+    short software_version;	/* Trimbal software version. */
     short month;
     short day;
     short year;
