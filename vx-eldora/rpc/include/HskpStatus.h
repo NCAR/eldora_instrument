@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/09/17  22:40:40  shawn
+ * Changed ecb variable nomenclature.
+ *
  * Revision 1.4  1992/08/28  15:51:38  craig
  * Added nav loss of sync definitions.
  *
@@ -75,11 +78,11 @@ typedef struct HskpStatus HskpStatus;
 #define GPS_DATA_LATE    0x1
 #define UNKNOWN_GPS_DATA 0x2
 
-#define SLAVE_1_ALIVE 0x2
-#define SLAVE_2_ALIVE 0x4
-#define SLAVE_3_ALIVE 0x8
-#define SLAVE_4_ALIVE 0x10
-#define SLAVE_5_ALIVE 0x20
+#define SLAVE_1_DEAD 0x2
+#define SLAVE_2_DEAD 0x4
+#define SLAVE_3_DEAD 0x8
+#define SLAVE_4_DEAD 0x10
+#define SLAVE_5_DEAD 0x20
 
 #define MASTER_OVER_TEMP  0x1
 #define SLAVE_1_OVER_TEMP 0x2
