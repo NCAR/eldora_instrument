@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:14:30  thor
+ * Changed AGC address to work under MMU.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *
@@ -54,6 +57,7 @@
 #include "Radial.hh"
 #include "HorizDisplay.hh"
 #include "Vertical.hh"
+#include "Dual.hh"
 
 // Uniprocessor.
 #include "Horiz.hh"
@@ -72,14 +76,15 @@ static const unsigned short AGC_HEIGHT    = 1024;
 static const unsigned short AGC_MEM_WIDTH = 2048;
 static const unsigned short AGC_VECTOR    = 250;
 
-static const unsigned int NEW_DATA_FLAG = 0x1000;
-static const unsigned int DESTROY_SELF  = 0x2000;
-static const unsigned int MOUSE_FLAG    = 0x4000;
-static const unsigned int TMO_FLAG      = 0x8000;
+static const unsigned int NEW_DATA_FLAG = 0x10000000;
+static const unsigned int DESTROY_SELF  = 0x20000000;
+static const unsigned int MOUSE_FLAG    = 0x40000000;
+static const unsigned int TMO_FLAG      = 0x08000000;
 
 static const unsigned int waitMask = (STOP | START | RELOAD | FORWARD_RADIAL |
 				      FORWARD_HORIZ | FORWARD_VERT |
 				      AFT_RADIAL | AFT_HORIZ | AFT_VERT |
+				      FORWARD_DUAL | AFT_DUAL |
 				      RESTART| NEW_DATA_FLAG | DESTROY_SELF | 
 				      MOUSE_FLAG | LOAD_ONLY);
 
@@ -100,9 +105,11 @@ static const int DDP_ADDR = 0x40200000;
 extern void RadialLoop(Task &self, GraphicController *agc, Pipe &pipe);
 extern void HorizLoop(Task &self, GraphicController *agc, Pipe &pipe);
 extern void VertLoop(Task &self, GraphicController *agc, Pipe &pipe);
+extern void DualLoop(Task &self, GraphicController *agc, Pipe &pipe);
 
 extern void RadialMouse(Radial *);
 extern void HorizMouse(HorizDisplay *);
 extern void VertMouse(Vertical *);
+extern void DualMouse(Dual *);
 
 #endif // INCGeDrawhh
