@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/10/02  13:24:06  vanandel
+ * added optional task name
+ *
  * Revision 1.3  1991/10/30  15:23:43  thor
  * Undid destructor.
  *
@@ -128,6 +131,13 @@ class Task {
 			     int tmo = WAIT_FOREVER);
 
     unsigned int QueryFlags(void);
+
+    // since may only want to give another process the right to manipulate
+    // our flags, and not change the other state of our Task , we provide 
+    // an method that only lets outsiders access our flags
+
+    Flags *TaskFlags(void) { return (flags);}
+
 };
 
 #endif // INCTaskhh
