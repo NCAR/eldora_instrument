@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/13  20:19:00  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -25,15 +28,12 @@
 #define FAST register
 #endif // FAST
 
-#include <rpc/rpc.h>
-
 #else // UNIX
-extern "C" {
-#include "vxWorks.h"
-#include "string.h"
-#include "rpc/rpc.h"
-};
+#include <vxWorks.h>
+#include <string.h>
 #endif // UNIX
+
+#include <rpc/rpc.h>
 
 #endif // OK_RPC
 
@@ -50,14 +50,11 @@ extern "C" {
 bool_t xdr_HskpCommand(XDR *, HskpCommand *);
 bool_t xdr_HskpStatus(XDR *, HskpStatus *);
 
-#ifdef CLIENT_SIDE
 extern struct HskpStatus *sendcommand_1(struct HskpCommand *, CLIENT *);
 extern struct HskpStatus *gethskpstatus_1(void *, CLIENT *);
-#else // CLIENT_SIDE
-extern int HskpRpcInit(void);
-extern struct HskpStatus *sendcommand_1(struct HskpCommand *, struct svc_req *);
-extern struct HskpStatus *gethskpstatus_1(void *, struct svc_req *);
-#endif // CLIENT_SIDE
+extern struct HskpStatus *sendcommand_1_svc(struct HskpCommand *,
+                                            struct svc_req *);
+extern struct HskpStatus *gethskpstatus_1_svc(void *, struct svc_req *);
 
 #else // OK_RPC
 program HskpControl {
