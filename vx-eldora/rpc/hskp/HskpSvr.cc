@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/09/06  19:36:21  thor
+ * Changed name to sendhskpcommand_1.
+ *
  * Revision 1.3  1994/09/01  18:05:25  thor
  * Updated for use with TLIRPC. Removed unneeded count field.
  *
@@ -29,7 +32,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define HSKP_RPC_SCOPE
 #include "Hskp.hh"
 
-#include <stdioLib.h>
+#include <iostream.h>
 #include <sysLib.h>
 #include <rebootLib.h>
 #include <rpc/pmap_clnt.h>
@@ -75,7 +78,6 @@ extern "C" {
 #include "todGbl.h"
 #include "todFunc.h"
 #include "gpsFunc.h"
-#include "minFunc.h"
 #include "cntrlFunc.h"
 };
 
@@ -93,7 +95,7 @@ int HskpRpcInit(void)
     transp = svcudp_create(RPC_ANYSOCK);
     if (transp == NULL)
       {
-	  fprintf(stderr,"cannot create udp service.");
+	  cerr << "cannot create udp service." << endl;
 	  return(ERROR);
       }
 
@@ -101,7 +103,7 @@ int HskpRpcInit(void)
     
     if (!svc_register(transp,HskpControl,HskpCtrlVers,dispatch,IPPROTO_UDP))
       {
-	  fprintf(stderr,"unable to register (HskpControl,HskpCtrlVers,udp).");
+	  cerr << "unable to register (HskpControl,HskpCtrlVers,udp)." << endl;
 	  return(ERROR);
       }
     
@@ -152,23 +154,33 @@ static void hskpcontrol_1(FAST struct svc_req *rqstp, FAST SVCXPRT *transp)
       }
     if (!svc_freeargs(transp,xdr_argument,(caddr_t) &argument))
       {
-	  fprintf(stderr,"unable to free arguments");
+	  cerr << "unable to free arguments" << endl;
 	  return;
       }
     return;
 }
 
 #ifndef DEBUG_ONLY
+
+extern "C" { void __do_global_ctors(void); };
+
 struct HskpStatus *sendhskpcommand_1_svc(FAST struct HskpCommand *cmdBlk,
                                      struct svc_req *)
 {
     float position;
     char year,date,hour,minute,second,month,test;
     long i;
+    static int once = 0;
 
     FAST u_long cmd = cmdBlk->cmd;
 
-    printf("command received: %lx\n",cmd);
+    if (!once)                  // Initialize C++ I/O.
+        {
+            once++;
+            __do_global_ctors();
+        }
+    hex(cout);
+    cout << "command received: " << cmd << endl;
     if (cmd & INIT)
       ;
     else
@@ -196,13 +208,6 @@ struct HskpStatus *sendhskpcommand_1_svc(FAST struct HskpCommand *cmdBlk,
 	    }
 	  if(cmd & REBOOT)   /* Has control Processor told us to reboot? */
 	    reboot((int)BOOT_NORMAL);
-	  if(cmd & ALIGN)    /* Has control Processor told us to align
-	                        the miniRIMS IRU? */
-	    {
-		/*	position = ENCODER_ZERO_FORE_UP; */
-		goto_pos(position);
-		align_mini();
-	    }
 	  if(cmd & GPS_START)  /* Has the control processor told us to
 	                          program the TANS II GPS receiver? */
 	    {
