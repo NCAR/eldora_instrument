@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24 23:00:14  craig
+ * Initial revision
+ *
  *
  * description: This routine calculates the RMS value of the time
  *              series data for use when calibrating the system.
@@ -55,9 +58,9 @@ aft_addr = fore_addr + 1;
 num_recs=(unsigned int *)NUM_RECS; /* How many records to scan for */
 last_mailbox=MAIL_BOX + *num_recs*2-2;
 
-fldrdr = GetFieldRadar(Hdr,1);
-rad_dscr = GetRadar(Hdr,1);
-wave = GetWaveform(Hdr);
+fldrdr = GetFieldRadar(inHeader,1);
+rad_dscr = GetRadar(inHeader,1);
+wave = GetWaveform(inHeader);
 kill = 0;
 
 rad_rec_length=data_ray_length(); /* Calculate size of radar record */
