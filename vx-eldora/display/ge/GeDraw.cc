@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.5  1994/09/23  15:03:57  thor
+ * Added clock code & reduced taskDelay time.
+ *
  * Revision 2.4  1994/04/08  20:58:29  thor
  * Major changes!
  *
@@ -157,6 +160,7 @@ void DrawingLoop(FAST Task &self)
     horiz.setParmNames(namer);
 
     vert.setColorConverter(conv);
+    vert.setClock(clock);
     vert.setParmNames(namer);
 
     for (;;)
