@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:40:22  craig
+ * cleaned up
+ *
  * Revision 1.1  1996/06/18  16:07:56  craig
  * Initial revision
  *
@@ -36,7 +39,7 @@ union
       unsigned char tape[4];
   }tp;
 
-dlt_cmds(REQUEST_SENSE,drv_id);
+dlt_cmds(REQUEST_SENSE,drv_id,STD_AM);
 
 index = -1;
 for(i=0; i<4; i++)

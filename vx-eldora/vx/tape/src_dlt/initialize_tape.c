@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:40:06  craig
+ * added scatter gather buffers
+ *
  * Revision 1.1  1996/06/18  16:07:37  craig
  * Initial revision
  *
@@ -96,8 +99,8 @@ if(sg_or_blocked == SCATTER_GATHER)
       sg_init(i);
   }
 
-cip_cmds(GEN_OPS,GOPS,scsi_id[0]);
-cip_cmds(UNIT_OPS,UOPS,scsi_id[0]);
+cip_cmds(GEN_OPS,GOPS,scsi_id[0],STD_AM);
+cip_cmds(UNIT_OPS,UOPS,scsi_id[0],STD_AM);
 
 /* Set write completion condition to "good" so first write does not
    complain */

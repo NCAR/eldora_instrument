@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:02:54  craig
+ * Initial revision
+ *
  *
  *
  * description:  Tests to see if the given SCSI unit number is ready 
@@ -22,7 +25,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 /********************* TEST UNIT READY **************************/
 
-char tst_unt_rdy(unsigned char drv_num)
+char tst_unt_rdy(unsigned char drv_num,int control_am)
 {
 unsigned short *addr_buff;
 volatile unsigned short *status;
@@ -46,7 +49,7 @@ new_stat=*status;
 parmblk[TEST_UNIT_READY]->cmd_id=TEST_UNIT_READY;
 parmblk[TEST_UNIT_READY]->resvd=0x00; 
 parmblk[TEST_UNIT_READY]->flags=0x00; 
-parmblk[TEST_UNIT_READY]->addr_mod=AM; 
+parmblk[TEST_UNIT_READY]->addr_mod= control_am; 
 parmblk[TEST_UNIT_READY]->targ_id=drv_num; 
 parmblk[TEST_UNIT_READY]->vme_addr=0x00000000;
 parmblk[TEST_UNIT_READY]->xfer_count=0x00000000;
@@ -62,7 +65,7 @@ parmblk[TEST_UNIT_READY]->scsi_blk[5]=0x00;
 i = parmblk[TEST_UNIT_READY];
 i += tape_vme_offset;
 addr.pb= (PARMBLK *)i;
-*addr_buff=CB_AM; /* Control Byte and Address Modifier */
+*addr_buff = control_am | CONTROL_BYTE; /* Control Byte and Address Modifier */
 *addr_buff=addr.pb_addr[0]; /* MSW OF paramblk addr */
 *addr_buff=addr.pb_addr[1]; /* LSW of paramblk addr */ 
 chan_attn(0); /* Issue channel attention 0 */

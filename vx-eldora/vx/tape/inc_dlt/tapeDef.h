@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/10/02  17:40:39  craig
+ * Initial revision
+ *
  *
  * description: Defines all of the parameters and structures associated 
  *              with the Exabyte tape writing software
@@ -100,8 +103,6 @@
 #define BLOCKS 0x00
 #define EOFS 0x01
 #define EOD  0x03
-#define CB_AM 0x843D
-#define AM 0x3D
 #define INT_LVL 0x00
 #define USER_ID 0x00
 
@@ -126,6 +127,11 @@
 
 #define SCATTER_GATHER 0x69
 #define BLOCKED 0x68
+#define CONTROL_BYTE 0x8400;
+
+/* Address modifiers - must be used to match your system */
+#define STD_AM 0x003D  /* Standard space address modifier */
+#define EXT_AM 0x000D  /* Extended space address modifier */
 
 /************* PARAMETER BLOCK STRUCTURE ***********/
 

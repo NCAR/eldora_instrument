@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:40:30  craig
+ * added more buffers
+ *
  * Revision 1.1  1996/06/18  16:03:28  craig
  * Initial revision
  *
@@ -23,7 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <tapeDef.h>
 #include <tapeGbl.h>
 
-int fill_sg(unsigned int *data_add,int length, int sg_buff)
+int fill_sg(unsigned int *data_add,int length, int sg_buff, int data_am)
 {
 char stat;
 int i;
@@ -31,7 +34,7 @@ int i;
 /* fill current position in the scatter gather structure */
 
 sg[sg_buff][sg_blk_cnt[sg_buff]]->len_add[sg_add_cnt[sg_buff]].am_and_length = 
-  AM * 0x01000000 + length;
+  data_am * 0x01000000 + length;
 
 sg[sg_buff][sg_blk_cnt[sg_buff]]->len_add[sg_add_cnt[sg_buff]].address =
   (unsigned int)data_add;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:40:40  craig
+ * cleaned up
+ *
  * Revision 1.1  1996/06/18  16:03:34  craig
  * Initial revision
  *
@@ -23,7 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <tapeDef.h>
 #include <tapeGbl.h>
 
-int read_tape(unsigned int *data_addr,unsigned int data_length,unsigned char sgflg,unsigned char drv_num)
+int read_tape(unsigned int *data_addr,unsigned int data_length,unsigned char sgflg,unsigned char drv_num, int control_am, int data_am)
 {
 unsigned short *addr_buff;
 volatile unsigned short *status;
@@ -61,7 +64,7 @@ op5=0x00;
 parmblk[cmnd_ident]->cmd_id = cmnd_ident;
 parmblk[cmnd_ident]->resvd = 0x00;
 parmblk[cmnd_ident]->flags = sgflg; /*Set for scatter/gather or single block*/
-parmblk[cmnd_ident]->addr_mod = 0x0D;
+parmblk[cmnd_ident]->addr_mod = data_am;
 parmblk[cmnd_ident]->targ_id = drv_num;
 parmblk[cmnd_ident]->vme_addr = (unsigned int)data_addr;
 parmblk[cmnd_ident]->xfer_count = 0;
@@ -78,7 +81,7 @@ i = (int)parmblk[cmnd_ident];
 i += tape_vme_offset;
 addr.pb = (PARMBLK *)i;
 
-*addr_buff=CB_AM; /* Control Byte and Address Modifier */
+*addr_buff = control_am | CONTROL_BYTE; /* Control Byte and Address Modifier */
 *addr_buff=addr.pb_addr[0]; /* MSW OF paramblk addr */
 *addr_buff=addr.pb_addr[1]; /* LSW of paramblk addr */ 
 chan_attn(0); /* Issue channel attention 0 for sending single commands */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:22  craig
+ * Initial revision
+ *
  *
  * description:  Waits for drive to come ready, then sets it mode select
  *               parameters.
@@ -25,16 +28,16 @@ void drive_init(unsigned char drv_num)
 
 unsigned char drv_stat;
 
-drv_stat = tst_unt_rdy(drv_num);  /* SEE IF DLT IS READY */
+drv_stat = tst_unt_rdy(drv_num, STD_AM);  /* SEE IF DLT IS READY */
 
 while(drv_stat != 0x80)
   {
-      drv_stat=tst_unt_rdy(drv_num);  /* SEE IF DLT IS READY */
+      drv_stat=tst_unt_rdy(drv_num,STD_AM);  /* SEE IF DLT IS READY */
       printf("Waiting for SCSI Drive %2d to come ready\n",drv_num);
       taskDelay(100);
   }
 
-dlt_cmds(MODE_SELECT,drv_num);  /* CONFIGURE DLT DRIVEs */
+dlt_cmds(MODE_SELECT,drv_num,STD_AM);  /* CONFIGURE DLT DRIVEs */
 
 return;
 }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:34:23  craig
+ * cleaned up
+ *
  * Revision 1.1  1996/06/24  22:59:09  craig
  * Initial revision
  *
@@ -33,6 +36,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <recordIncs.h>
 #include <tapeDef.h>
 #include <tapeGbl.h>
+#include <paraDef.h>
+#include <paraGbl.h>
 
 extern int file_size;
 
@@ -241,10 +246,10 @@ for(i=0; i<2; i++)
 		  printf("INITIALIZING SCSI DRIVE %2d\n",
 			 physical_unit[i][j]);
 		  drive_init(unschar);
-		  drv_stat=tst_unt_rdy(unschar);
+		  drv_stat=tst_unt_rdy(unschar,STD_AM);
 		  while(drv_stat!=0x80 && timeout < 10)
 		    {
-			drv_stat=tst_unt_rdy(unschar);
+			drv_stat=tst_unt_rdy(unschar,STD_AM);
 			timeout++;
 			taskDelay(200);
 		    }
@@ -252,7 +257,7 @@ for(i=0; i<2; i++)
 			printf("ERROR: DRIVE INITIALIZATION, SCSI DRIVE: %2d, DRIVE STATUS: %X\n",physical_unit[i][j],drv_stat);
 		  /* EJECT THE TAPE */
 		  printf("Unloading tape drive: %2d\n",physical_unit[i][j]);
-		  dlt_cmds(UNLOAD,unschar);
+		  dlt_cmds(UNLOAD,unschar,STD_AM);
 	      }
 	}
   }
@@ -277,7 +282,7 @@ for(i=0; i<2; i++)
 		  unschar = physical_unit[i][j];
 		  printf("LOADING TAPE ON SCSI DRIVE: %2d\n",
 			       physical_unit[i][j]);
-		  dlt_cmds(LOAD,unschar);
+		  dlt_cmds(LOAD,unschar,STD_AM);
 	      }
 	}
   }
@@ -292,12 +297,12 @@ for(i=0; i<2; i++)
 				    to come ready,THEN WRITE an EOF */
 	      {
 		  unschar = physical_unit[i][j];
-		  drv_stat=tst_unt_rdy(unschar);
+		  drv_stat=tst_unt_rdy(unschar,STD_AM);
 		  while(drv_stat!=0x80 && timeout < 2000)
 		    {
 			printf("Waiting for drive %d to come ready\n",
 			       physical_unit[i][j]); 
-			drv_stat=tst_unt_rdy(unschar);
+			drv_stat=tst_unt_rdy(unschar,STD_AM);
 			timeout++;
 			taskDelay(200);
 		    }
@@ -344,7 +349,7 @@ for(;;)
 		for(i=0; i<number_of_drives; i++)
 		  {
 		      unschar = drives_to_use[i];
-		      dlt_cmds(UNLOAD,unschar);
+		      dlt_cmds(UNLOAD,unschar,STD_AM);
 		  }
 	      }
 
@@ -355,7 +360,7 @@ for(;;)
 		for(i=0; i<number_of_drives; i++)
 		  {
 		      unschar = drives_to_use[i];
-		      dlt_cmds(REWND,unschar);
+		      dlt_cmds(REWND,unschar,STD_AM);
 		  }
 	      }
 
@@ -471,12 +476,12 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			/* test to make sure drive is ready 
 			   (user could have stuck in a new tape */
 
-			drv_stat=tst_unt_rdy(unschar);
+			drv_stat=tst_unt_rdy(unschar,STD_AM);
 			while(drv_stat!=0x80 && timeout < 2000)
 			  {
 			      printf("Waiting for drive %d to come ready\n",
 				     physical_unit[i][j]); 
-			      drv_stat=tst_unt_rdy(unschar);
+			      drv_stat=tst_unt_rdy(unschar,STD_AM);
 			      timeout++;
 			      taskDelay(200);
 			  }
@@ -490,7 +495,7 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			/* Reset all of the error counters in the tape drive
 			   to zero */
 
-			dlt_cmds(LOG_SELECT,unschar);
+			dlt_cmds(LOG_SELECT,unschar,STD_AM);
 
 
 			vol->volume_num=vol_num;
@@ -498,7 +503,7 @@ rad_dscr->num_parameter_des, cells, rad_dscr->num_freq_trans);
 			       drives_to_use[i]);
 
 			stat = write_tape((unsigned int *)tapeHdr,hdrsz,
-				   BLOCKED,unschar);
+				   BLOCKED,unschar,STD_AM,STD_AM);
 			if(stat != 0)
 			  {
 			      tapeStatus->status[current_unit] &= ~RECORDING;

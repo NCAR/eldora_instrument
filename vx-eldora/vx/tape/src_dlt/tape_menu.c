@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/09/03  16:40:54  craig
+ * cleaned up added timed tape write, tape copy, tape read
+ *
  * Revision 1.1  1996/06/18  16:03:46  craig
  * Initial revision
  *
@@ -102,10 +105,10 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			drv_stat=tst_unt_rdy(scsi_id[i]);
+			drv_stat=tst_unt_rdy(scsi_id[i],STD_AM);
 			while(drv_stat!=0x80)
 			  {
-			      drv_stat=tst_unt_rdy(scsi_id[i]);
+			      drv_stat=tst_unt_rdy(scsi_id[i],STD_AM);
 			      printf("SCSI STATUS= %X\n",
 				     parmblk[TEST_UNIT_READY]->scsi_status);
 			      printf("SCSI FLAGS= %X\n",drv_stat);
@@ -127,7 +130,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(REWND,scsi_id[i]);
+			dlt_cmds(REWND,scsi_id[i],STD_AM);
 		    }
 	      }
 	    break;
@@ -141,7 +144,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(UNLOAD,scsi_id[i]);
+			dlt_cmds(UNLOAD,scsi_id[i],STD_AM);
 		    }
 	      }
 	    break;
@@ -154,7 +157,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(LOAD,scsi_id[i]);
+			dlt_cmds(LOAD,scsi_id[i],STD_AM);
 		    }
 	      }
 	    break;
@@ -181,7 +184,8 @@ do
 			      read_tape((unsigned int *)address,
 					 (unsigned int)length,
 					 (unsigned char)BLOCKED,
-					 scsi_id[i]);
+					 scsi_id[i],
+					 STD_AM, EXT_AM);
 			      printf("\n\nReading record record %d",j);
 
 			      for(k=0; k < bytes_to_print/20; k++)
@@ -230,7 +234,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(MODE_SENSE,scsi_id[i]);
+			dlt_cmds(MODE_SENSE,scsi_id[i],STD_AM);
 			print_md_sns();
 		    }
 	      }
@@ -244,7 +248,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(REQUEST_SENSE,scsi_id[i]);
+			dlt_cmds(REQUEST_SENSE,scsi_id[i],STD_AM);
 			print_rqst_sns();
 		    }
 	      }
@@ -259,7 +263,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(WRITE_FILEMARK,scsi_id[i]);
+			dlt_cmds(WRITE_FILEMARK,scsi_id[i],STD_AM);
 			printf("WROTE FILEMARK TO SCSI Drive: %2d\n",
 			       scsi_id[i]);
 		    }
@@ -290,7 +294,8 @@ do
 			      write_tape((unsigned int *)address,
 					 (unsigned int)length,
 					 (unsigned char)BLOCKED,
-					 scsi_id[i]);
+					 scsi_id[i],
+					 STD_AM, EXT_AM);
 			  }
 			m = tickGet();
 			k = sysClkRateGet();
@@ -315,7 +320,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(ERASE,scsi_id[i]);
+			dlt_cmds(ERASE,scsi_id[i],STD_AM);
 		    }
 	      }
 	    break;
@@ -336,11 +341,11 @@ do
 	      statr = read_tape((unsigned int *)address,
 			(unsigned int)length,
 			(unsigned char)BLOCKED,
-			read_id);
+			read_id, STD_AM, EXT_AM);
 	      statw = write_tape((unsigned int *)address,
 			 (unsigned int)length,
 			 (unsigned char)BLOCKED,
-			 write_id);
+			 write_id, STD_AM, EXT_AM);
 	      number += 1;
 	    }while(statr == 0 && statw == 0);
 	    printf("\n%d records copied from drive %d  to drive %d\n\n",
@@ -380,7 +385,7 @@ do
 			printf("SCSI Drive: %2d?",scsi_id[i]);
 			scanf(" %c",&response);
 			if(response=='y')
-			  space_tape(number,EOFS,0x00,scsi_id[i]);
+			  space_tape(number,EOFS,0x00,scsi_id[i],STD_AM);
 		    }
 		  break;
 
@@ -392,7 +397,7 @@ do
 			printf("SCSI Drive: %2d?",scsi_id[i]);
 			scanf(" %c",&response);
 			if(response=='y')
-			  space_tape(number,BLOCKS,0x00,scsi_id[i]);
+			  space_tape(number,BLOCKS,0x00,scsi_id[i],STD_AM);
 		    }
 		  break;
 
@@ -402,7 +407,7 @@ do
 			printf("SCSI Drive: %2d?",scsi_id[i]);
 			scanf(" %c",&response);
 			if(response=='y')
-			  space_tape(0,EOD,0x00,scsi_id[i]);
+			  space_tape(0,EOD,0x00,scsi_id[i],STD_AM);
 		    }
 		  break;
  
@@ -436,7 +441,8 @@ do
 			      write_tape((unsigned int *)address,
 					 (unsigned int)length,
 					 (unsigned char)BLOCKED,
-					 scsi_id[i]);
+					 scsi_id[i],
+					 STD_AM, EXT_AM);
 			  }
 		    }
 	      }
@@ -473,7 +479,7 @@ do
 				    long_pntr = (long *)((int)address + 
 						     n * sg_length);
 				    fill_sg((unsigned int *)long_pntr,
-					    sg_length,sg_buff);
+					    sg_length,sg_buff,EXT_AM);
 				    for(k=0; k<sg_length/4 + 1; k++)
 				      *long_pntr++ = j * n;
 				}
@@ -483,7 +489,8 @@ do
 				       &sg[sg_buff][0]->next_sg_blk_add,
 					 (unsigned int)length,
 					 (unsigned char)SCATTER_GATHER,
-					 scsi_id[i]);
+					 scsi_id[i],
+				         STD_AM, EXT_AM);
 			      sg_buff += 1;
 			      if(sg_buff >= NUM_SG_STRUCTS) sg_buff = 0;
 			      sg_init(sg_buff);
@@ -499,7 +506,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(LOG_SENSE,scsi_id[i]);
+			dlt_cmds(LOG_SENSE,scsi_id[i],STD_AM);
 			print_log_sns();
 		    }
 	      }
@@ -513,7 +520,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(LOG_SENSE_SPGS,scsi_id[i]);
+			dlt_cmds(LOG_SENSE_SPGS,scsi_id[i],STD_AM);
 			print_log_pgs();
 		    }
 	      }
@@ -526,7 +533,7 @@ do
 		  scanf(" %c",&response);
 		  if(response=='y')
 		    {
-			dlt_cmds(LOG_SELECT,scsi_id[i]);
+			dlt_cmds(LOG_SELECT,scsi_id[i],STD_AM);
 		    }
 	      }
 	    break;

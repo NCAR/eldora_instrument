@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:25  craig
+ * Initial revision
+ *
  *
  * description: Writes a record to the tape drive, data can be either in
  *              blocked mode or in a scatter-gather configuration
@@ -22,7 +25,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 /************ WRITE TAPE FUNCTION *************************/
 
-char write_tape(unsigned int *data_addr,unsigned int data_len,unsigned char sgflg,unsigned char drv_num)
+char write_tape(unsigned int *data_addr,unsigned int data_len,unsigned char sgflg,unsigned char drv_num, int control_am, int data_am)
 {
 unsigned short *addr_buff;
 volatile unsigned short *status;
@@ -129,7 +132,10 @@ op5=0x00;
 parmblk[cmnd_ident]->cmd_id = cmnd_ident;
 parmblk[cmnd_ident]->resvd = 0x00;
 parmblk[cmnd_ident]->flags = sgflg; /*Set for scatter/gather or write buffer */
-parmblk[cmnd_ident]->addr_mod = AM;
+if(sgflg == BLOCKED)
+  parmblk[cmnd_ident]->addr_mod = data_am;
+else
+  parmblk[cmnd_ident]->addr_mod = control_am;
 parmblk[cmnd_ident]->targ_id = drv_num;
 parmblk[cmnd_ident]->vme_addr = (unsigned int)data_addr;
 parmblk[cmnd_ident]->xfer_count = 0x00008000;
@@ -140,12 +146,13 @@ parmblk[cmnd_ident]->scsi_blk[3]=op3;
 parmblk[cmnd_ident]->scsi_blk[4]=op4;
 parmblk[cmnd_ident]->scsi_blk[5]=op5;
 
+
 /******************* LOAD CIPRICO ADDRESS BUFFER *******************/
 
 i = (int)parmblk[cmnd_ident];
 i += tape_vme_offset;
 addr.pb= (PARMBLK *)i;
-*addr_buff=CB_AM; /* Control Byte and Address Modifier */
+*addr_buff = control_am | CONTROL_BYTE;
 *addr_buff=addr.pb_addr[0]; /* MSW OF paramblk addr */
 *addr_buff=addr.pb_addr[1]; /* LSW of paramblk addr */ 
 chan_attn(0); /* Issue channel attention 0 for sending single commands */

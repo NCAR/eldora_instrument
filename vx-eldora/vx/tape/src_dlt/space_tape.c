@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:42  craig
+ * Initial revision
+ *
  *
  * description: Spaces down the tape a given number of blocks
  *        
@@ -21,7 +24,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 /********************* SPACE **************************/
 
-void space_tape(long blocks,char code,char eod,char drv_num)
+void space_tape(long blocks,char code,char eod,char drv_num, int control_am)
 {
 unsigned short *addr_buff;
 volatile unsigned short *status;
@@ -51,7 +54,7 @@ cnt.count=blocks;
 parmblk[SPACE]->cmd_id=SPACE;
 parmblk[SPACE]->resvd=0x00; 
 parmblk[SPACE]->flags=0x00; 
-parmblk[SPACE]->addr_mod=AM; 
+parmblk[SPACE]->addr_mod = control_am; 
 parmblk[SPACE]->targ_id=drv_num; 
 parmblk[SPACE]->vme_addr=0x00000000;
 parmblk[SPACE]->xfer_count=0x00000000;
@@ -67,7 +70,7 @@ parmblk[SPACE]->scsi_blk[5]=eod;
 i = (int)parmblk[SPACE];
 i += tape_vme_offset;
 addr.pb = (PARMBLK *)i;
-*addr_buff=CB_AM; /* Control Byte and Address Modifier */
+*addr_buff=control_am | CONTROL_BYTE; /* Control Byte and Address Modifier */
 *addr_buff=addr.pb_addr[0]; /* MSW OF paramblk addr */
 *addr_buff=addr.pb_addr[1]; /* LSW of paramblk addr */ 
 chan_attn(0); /* Issue channel attention 0 for sending single commands */
