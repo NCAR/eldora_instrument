@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1994/04/08  20:29:55  thor
+// Initial revision
+//
  *
  *
  * description:
@@ -81,11 +84,15 @@ class Horiz : public Display {
     double altitude;
     double maxDistance;
     double degrees;
+    double eighth;
     double pixelsPerMeter;	// Scale for drawing.
 
     int *cellVector;
     
     int maxGates;
+
+    double isines[180];         // Inverted sine values.
+    double itangents[180];      // Inverted tangent values.
 
     // Local enums.
     enum directions { NOUGHT, LEFT, RIGHT, UP, DOWN };
