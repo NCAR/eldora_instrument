@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:44  craig
+ * Initial revision
+ *
  * Revision 1.4  1992/10/25  17:08:21  reif
  * *** empty log message ***
  *
@@ -29,138 +32,74 @@
  *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
-extern "C"{
-#include <cipincl.h>
+
+extern "C" {
+#define TAPE_CTRL_SCOPE extern
+#include <tapeGlobals.h>
+#include <tapeControl.h>
 };
-TapeStatus *sendcommand_1(FAST TapeCommand *command, struct svc_req *req)
+
+TapeStatus *sendcommand_1_svc(FAST TapeCommand *command, struct svc_req *req)
 {
     FAST u_long cmd = command->cmd; /* The command. */
     FAST TapeStatus *ptr = tapeStatus; /* Our global status. */
     FAST u_long *stat = (u_long *)&(ptr->status);
 
-    static u_long count = 0;	/* The running count of commnads. */
-
-    if (cmd == INIT)		/* Indicates that other side has restarted. */
-      {
-	  count = 0;		/* Back to beginning! */
-	  PACKSTATUS(IDLE,stat,0);
-	  PACKSTATUS(IDLE,stat,1);
-	  ptr->count = 1;
-	  return(ptr);
-      }
-
-    if (count >= command->count) /* Stale command. */
-      return(ptr);
-
-    count = command->count;
-
     while (cmd)
       {
-	  if (cmd & REBOOT)
-	    reboot(BOOT_NORMAL); /* Wham! */
-	  else if (cmd & STOP)
-	  {
-	      cmd &= ~STOP;
-	      PACKSTATUS(IDLE,stat,command->unit);
-	      RUN_FLAG=0;
-	      printf("SYSTEM STOPPED\n");
-	      ptr->count++;
-	  }
-	else if (cmd & START)
-	  {
-	      printf("SYSTEM STARTED\n");
-	      cmd &= ~START;
-	      PACKSTATUS(RUNNING,stat,command->unit);
-	      RUN_FLAG=1;
-	      ptr->count++;
-	  }
-	else if (cmd & REC_ON)
-	  {
-	      cmd &= ~REC_ON;
-	      PACKSTATUS(RECORDING,stat,command->unit);
-	      REC_FLAG = 1;
-	      printf("RECORD ON\n");
-	      ptr->count++;
-	  }
-	else if (cmd & REC_OFF)
-	  {
-	      cmd &= ~REC_OFF;
-	      PACKSTATUS(RUNNING,stat,command->unit);
-	      REC_FLAG = 0;
-	      printf("RECORD OFF\n");
-	      ptr->count++;
-	  }
-	else if (cmd & REWIND)
-	  {
-	      cmd &= ~REWIND;
-	      PACKSTATUS(REWINDING,stat,command->unit);
-	      REWIND_FLAG=1;
-	      printf("REWINDING\n");
-	      ptr->count++;
-	  }
-	else if (cmd & EJECT)
-	  {
-	      cmd &= ~EJECT;
-	      PACKSTATUS(EJECTING,stat,command->unit);
-	      UNLOAD_FLAG=1;
-	      printf("EJECTING\n");
-	      ptr->count++;
-	  }
-	else if (cmd & SET_UNIT)
-	  {
-	      printf("CHANGING UNIT\n");
-	      cmd &= ~SET_UNIT;
-	      ptr->unit = command->unit;
-	      UNIT_NUM=command->unit;
-	  }
-	else if (cmd & PP_ON)
-	  {
-	      printf("PING PONG ON\n");
-	      cmd &= ~PP_ON;
-	      PP_FLAG = 1;
-	  }
-	else if (cmd & PP_OFF)
-	  {
-	      printf("PING PONG OFF\n");
-	      cmd &= ~PP_OFF;
-	      PP_FLAG = 0;
-	  }
-	else if (cmd & PAR_ON)
-	  {
-	      printf("PARALLEL ON\n");
-	      cmd &= ~PAR_ON;
-	      PARALLEL_REC = 1;
-	  }
-	else if (cmd & PAR_OFF)
-	  {
-	      printf("PARALLEL OFF\n");
-	      cmd &= ~PAR_OFF;
-	      PARALLEL_REC = 0;
-	  }
-	else if (cmd & CLIP)
-	  {
-	      printf("CLIPPING\n");
-	      cmd &= ~CLIP;
-	      CLIPPING = 0;
-	  }
-	else if (cmd & PIE_SLICE)
-	  {
-	      printf("SLICING OFF\n");
-	      cmd &= ~PIE_SLICE;
-	      SLICE = 0;
-	  }
-	else if (cmd & THRESHOLD)
-	  {
-	      printf("THRESHOLD OFF\n");
-	      cmd &= ~THRESHOLD;
-	      THRSHLD = 0;
-	  }
-    }
+	  if (cmd & STOP)
+	    {
+		cmd &= ~STOP;
+		RUN_FLAG=0;
+#ifdef PRNT
+		cout << "SYSTEM STOP COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & START)
+	    {
+#ifdef PRNT
+		cout << "SYSTEM START COMMAND RECEIVED" << endl;
+#endif
+		cmd &= ~START;
+		RUN_FLAG=1;
+	    }
+	  else if (cmd & REC_ON)
+	    {
+		cmd &= ~REC_ON;
+		REC_FLAG = 1;
+#ifdef PRNT
+		cout << "RECORD COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & REC_OFF)
+	    {
+		cmd &= ~REC_OFF;
+		REC_FLAG = 0;
+#ifdef PRNT
+		cout << "RECORD OFF COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & REWIND)
+	    {
+		cmd &= ~REWIND;
+		REWIND_FLAG=1;
+#ifdef PRNT
+		cout << "REWIND COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & EJECT)
+	    {
+		cmd &= ~EJECT;
+		UNLOAD_FLAG=1;
+#ifdef PRNT
+		cout << "EJECT COMMAND RECEIVED" << endl;
+#endif
+	    }
+      }
     return(ptr);
 }
 
-TapeStatus *gettapestatus_1(void *x, struct svc_req *req)
+TapeStatus *gettapestatus_1_svc(void *x, struct svc_req *req)
 {
     return(tapeStatus);
 }
-
