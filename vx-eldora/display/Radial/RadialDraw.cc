@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1992/10/16  14:12:33  thor
+ * Added fat beam code to 1 & 3 parameter methods.
+ *
  * Revision 1.10  1992/10/09  14:58:58  thor
  * Added code to reject overly large beams.
  *
@@ -130,14 +133,22 @@ void Radial::Draw1(FAST RadialData &data)
 	    }
 
 	  index -= 2;
+
+	  if (j == index)
+	    j += 4;
+
+	  if (j >= 720)
+	    j -= 720;
+
 	  if (index < 0)
 	    index += 720;
-	  for (FAST int i = firstGate; i < j; i++, colors1++)
+      }
+
     lastIndex = index;
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
+    FAST int sin1 = trigData[j].sin;
+    FAST int cos1 = trigData[j].cos;
+
+    FAST int cos2 = trigData[index].cos;
     FAST int sin2 = trigData[index].sin;    
 
     j = radius;
@@ -191,12 +202,13 @@ void Radial::Draw1(FAST RadialData &data)
 			    
 			    if (d >= 0)
 			      {
-	  for (FAST int i = firstGate; i < j; i++, colors1++)
+				  ptr1 += 4096;
+				  *ptr1 = *colors1;
 				  d -= Ax;
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
+			      }
+			    x += Sx;
+			    ptr1 += Sx;
+			    d += Ay;
 			}
 		  }
 		else
@@ -321,17 +333,25 @@ void Radial::Draw2(FAST RadialData &data)
 	    j += 720;
 
 	  if (index >= 720)
+	    index -= 720;
+      }
+    else
+      {
+	  // This is negative rotation.
+
+	  if (j == 1000)
 	    j = index + 2;
 
 	  FAST int q = index - j;
 
-	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
+	  if (q < -20)
+	    q = -q;
 
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
-	  
+	  if (q > 20)
+	    {
+		printf("Angle to big, %d %d\n",index,j);
+		lastIndex = index;
+		return;
 	    }
 
 	  index -= 2;
@@ -395,13 +415,14 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int x = x1;
 		FAST int xend = x2;
 		FAST int Sx = sx;
-	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++)
+		FAST int Ax = ax;
+		FAST int Ay = ay;
+
 		if (sy == 1)
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
-	  
+		  {
+		      for (;;)
+			{
+			    *ptr1 = *colors1;
 			    *ptr2 = *colors2;
 			    
 			    if (x == xend)
@@ -536,16 +557,23 @@ void Radial::Draw3(FAST RadialData &data)
 	  // This is positive rotation.
 
 	  if (j == 1000)
-	  
+	    j = index - 2;
+
+	  FAST int q = index - j;
+
+	  if (q < -20)
+	    q = -q;
+
+	  if (q > 20)
 	    {
 		printf("Angle to big, %d %d\n",index,j);
 		lastIndex = index;
-	       colors3++)
+		return;
 	    }
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
+
+	  index += 2;
+
+	  if (j == index)
 	    j -= 4;
 
 	  if (j < 0)
@@ -618,12 +646,12 @@ void Radial::Draw3(FAST RadialData &data)
     FAST int s1 = sin1 * fg;
     FAST int s2 = sin2 * fg;
 
-	       colors3++)
+    if (ax > ay)
       {
-		FAST int x1 = (i * cos1) >> 16;
-		FAST int x2 = (i * cos2) >> 16;
-		FAST int y1 = (i * sin1) >> 16;
-		FAST int y2 = (i * sin2) >> 16;
+	  for (FAST int i = firstGate; i < j; i++, colors1++, colors2++,
+	       colors3++, c1 += cos1, c2 += cos2, s1 += sin1, s2 += sin2)
+	    {
+		FAST int x1 = c1 >> 16;
 		FAST int x2 = c2 >> 16;
 		FAST int y1 = s1 >> 16;
 		FAST int y2 = s2 >> 16;
