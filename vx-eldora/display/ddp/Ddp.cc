@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/12/03  17:09:31  thor
+ * Added Isr stuff.
+ *
  * Revision 2.1  1993/08/20  17:21:45  thor
  * Brought up to lastest ANSI spec & commented out alarm stuff.
  *
@@ -113,24 +116,8 @@ void Ddp::Next(void)
 		status = *fptr;
 		*fptr = 0;
 
-		if (status != 0xbfff)
-		  ;
-//		  PostAlarm();
-		else if (!radar) // We want fore beams!
-		  {
-
-		      FAST DataBeam *db = (DataBeam *)*foreAddr;
-
-		      FAST int tmp = (int)db; // This done to correct for
-		      tmp += 0x30200000;      // address difference between
-		      db = (DataBeam *)tmp;   // VMEbus & onboard memory.
-		      
-		      FAST char rname = db->data.radar_name[0];
-
-// We perform this test to keep from sending incorrect packets.
-		      if (rname == 'F')
-			pipe.Write(foreAddr);
-		  }
+		if ((status == 0xbfff) && (!radar)) // We want fore beams!
+                  pipe.Write(foreAddr);
 
 		fcount++;
 
@@ -161,25 +148,9 @@ void Ddp::Next(void)
 		      status = *aptr;
 		      *aptr = 0;
 		      
-		      if (status != 0xbfff)
-			;
-//			PostAlarm();
-		      else if (radar) // We want aft beams!
-			{
-			    FAST DataBeam *db = (DataBeam *)*aftAddr;
-			    
-			    FAST int tmp = (int)db; // This done to correct for
-			    tmp += 0x30200000;   // address difference between
-			    db = (DataBeam *)tmp;   // VMEbus & onboard memory.
-			    
-			    FAST char rname = db->data.radar_name[0];
-			    
-// We perform this test to keep from sending incorrect packets.
-			    if (rname == 'A')
-			      {
-				  pipe.Write(aftAddr);
-			      }
-			}
+		      if ((status == 0xbfff) && (radar)) // We want aft beams!
+                        pipe.Write(aftAddr);
+
 		      acount++;
 		      
 		      if (acount == end)
@@ -205,9 +176,7 @@ void Ddp::Next(void)
 
 void Ddp::PostAlarm(void)
 {
-#ifdef GE
-    Alarm->Set(DDP_RCV_ERR);
-#endif // GE
+
 }
 
 void Ddp::Clear(void)
