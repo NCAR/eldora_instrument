@@ -10,6 +10,9 @@
 # revision history
 # ----------------
 # $Log$
+# Revision 1.1  1996/04/08  21:47:51  thor
+# Initial revision
+#
 #
 #   This is the GUI portion of the HPA control program. 
 #
@@ -20,6 +23,8 @@ from IconWindow import *
 from Dialog import *
 
 from Hpa import *
+
+import posix
 
 class HpaGui(Tk,Hpa):
 	def __init__(self,unit,portname,testing=0):
@@ -128,6 +133,11 @@ class HpaGui(Tk,Hpa):
 		self.parse_dict = { 0: HPA.off, 1: HPA.on, 2: HPA.operate,
 			  3: HPA.standby, 4: HPA.antenna, 5: HPA.dummyload,
 			  6: HPA.status, 7: HPA.warmup, 8: HPA.cooldown }
+
+		file = unit + '.pid'
+		f = open(file,"w")
+		f.write(`posix.getpid()`)
+		f.close()
 		
 	def __del__(self):
 		print 'bye'
