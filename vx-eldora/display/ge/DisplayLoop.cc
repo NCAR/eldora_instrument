@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/11/01  17:49:31  thor
+// Fine tuning.
+//
 // Revision 1.3  1994/09/23  19:58:54  thor
 // Removed some debugging output.
 //
@@ -32,7 +35,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <sysLib.h>
 #include <iostream.h>
 
-static const int clkUpdateStart = 359; // Every 360 beams (not degrees).
+static const int clkUpdateStart = 360; // Every 360 beams (not degrees).
 
 void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 {
@@ -67,6 +70,7 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe)
 		  {
 		      pipe.Flush();
 		  }
+                cout << "Display stopped." << endl;
 		continue;
 		break;
 
