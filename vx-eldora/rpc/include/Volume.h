@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/15  17:57:07  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.2  1991/10/09  15:24:44  thor
  * Fixed incorrect flight number variable and added needed padding.
  *
@@ -43,7 +46,7 @@ struct volume_d {
     short volume_num;		/* Volume Number into current tape. */
     long  maximum_bytes;	/* Maximum number of bytes in any. */
 				/* physical record in this volume. */
-    char  proj_name[8];		/* Project number or name. */
+    char  proj_name[20];		/* Project number or name. */
     short year;			/* Year data taken in years. */
     short month;		/* Month data taken in months. */
     short day;			/* Day data taken in days. */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/16  15:34:22  thor
+ * Increased array size to elinimate padding.
+ *
  * Revision 1.2  1991/10/15  17:55:06  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -41,8 +44,6 @@ struct field_radar_i {
 				/* information block in bytes. */
     short data_sys_id;		/* Data system identification. */
     short signal_source;	/* Signal source. */
-    float freqs[5];		/* Transmitted frequencies for f0 */
-				/* through f4 in Ghz. */
     float loss_out;		/* Losses between Transmitter and */
 				/* antenna in db. */
     float loss_in;		/* Losses between antenna and Low */
@@ -59,8 +60,6 @@ struct field_radar_i {
     float ant_v_dim;		/* Antenna Vertical Dimension in m. */
     float ant_h_dim;		/* Antenna Horizontal Dimension in m. */
     float aperture_eff;		/* Aperture Efficiency. */
-    float bandwidths[5];	/* Receiver bandwidths for frequencies */
-				/* f0 through f4 in Mhz. */
     char  filter_num[8];	/* If signal processor filter number */
 				/* being used. */
     float bessel_correct;	/* Bessel Filter Correction Factor. */

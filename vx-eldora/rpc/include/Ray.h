@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/15  17:56:43  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.1  1991/08/30  18:39:38  thor
  * Initial revision
  *
@@ -36,6 +39,7 @@ struct ray_i {
     long ray_info_length;	/* length of a data ray info block in */
 				/* bytes. */
     long  sweep_num;		/* sweep number for this radar. */
+    long  julian_day;		/* Guess. */
     short hour;			/* Hour in hours. */
     short minute;		/* Minute in minutes. */
     short second;		/* Second in seconds. */

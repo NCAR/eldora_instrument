@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/16  15:35:16  thor
+ * Changed array size and following variable to fit alignment.
+ *
  * Revision 1.4  1991/10/15  17:57:29  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -64,16 +67,14 @@ struct waveform_d {
     float uv_pcp;		/* Number of PCP that set the */
 				/* unambiguous velocity, after real */
 				/* time unfolding. */
-    short num_gates[5];		/* Total number of gates sampled. */
-    short uniform_gates;	/* Flag 0 => Non uniform gates, all */
-				/* are listed, nonzero => uniform */
-				/* gates. */
+    short num_gates[6];		/* Total number of gates sampled. */
     short gate_dist1[2];	/* Distance from radar to data cell #1 */
-				/* in 60 MHz counts. */
-    short gate_dist2[2];	/* Ditto. */
-    short gate_dist3[2];	/* Ditto. */
-    short gate_dist4[2];	/* Ditto. */
-    short gate_dist5[2];	/* Ditto. */
+				/* in 60 MHz counts in 0, subsequent */
+				/* spacing in 1 for freq 1. */
+    short gate_dist2[2];	/* Ditto for freq 2. */
+    short gate_dist3[2];	/* Ditto for freq 3. */
+    short gate_dist4[2];	/* Ditto for freq 4. */
+    short gate_dist5[2];	/* Ditto for freq 5. */
 };
 
 #ifdef OK_RPC

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/11/25  20:07:45  thor
+ * Added filter flag.
+ *
  * Revision 1.2  1991/10/15  17:56:03  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -41,15 +44,12 @@ struct parameter_d {
     char  parameter_name[8];	/* Name of parameter being described. */
     char  param_description[40]; /* Detailed description of this parameter. */
     char  param_units[8];	/* Units parameter is written in. */
-    float interpulse_time;	/* Effective inter-pulse period of */
-				/* this parameter in us. */
-    float xmitted_freq;		/* Average transmitted frequency of */
-				/* this  parameter in GHz. */
+    short interpulse_time;	/* Inter-pulse periods used. bits 0-1 */
+				/* = frequencies 1-2. */
+    short xmitted_freq;		/* Frequencies used for this */
+				/* parameter. */
     float recvr_bandwidth;	/* Effective receiver bandwidth for */
 				/* this parameter in MHz.*/
-    float unambiguous_velocity; /* Unambiguous velocity after */
-				/* unfolding in m/s. */
-    float unambiguous_rng;	/* Unambiguous range after unfolding in km.  */
     short pulse_width;		/* Effective pulse width of parameter */
 				/* in m. */
     short polarization;		/* Polarization of the radar beam for */
@@ -65,8 +65,7 @@ struct parameter_d {
     float threshold_value;	/* Value of threshold in ? */
     float parameter_scale;	/* Scale factor for parameter. */
     float parameter_bias;	/* Bias factor for parameter. */
-    long  bad_data;		/* Bad data flag (Length is same as */
-				/* that of the data). */
+    long  bad_data;		/* Bad data flag. */
     long  filter_flag;		/* 0 = no filtering, 1 = filtering. */
 }; /* End of Structure */
 

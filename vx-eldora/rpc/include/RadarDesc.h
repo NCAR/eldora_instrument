@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/16  15:33:53  thor
+ * Changed variable name.
+ *
  * Revision 1.2  1991/10/15  17:56:24  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -69,15 +72,36 @@ struct radar_d {
 				/* descriptor blocks for this radar. */
     short  total_num_des;	/* Total number of additional */
 				/* descriptor block for this radar. */
-    short data_reduction;	/* Data Reduction algorithm in use. */
-    short data_compress;	/* Data reduction algorithm. */
-    float data_red_parm0;	/* Data reduction algorithm specific */
-				/* parameter #0. */
-    float data_red_parm1;	/* Data reduction algorithm specific */
-				/* parameter #1. */
+    short data_compress;	/* Data compression. 0 = none, 1 = HRD */
+				/* scheme. */
+    short data_reduction;	/* Data Reduction algorithm: 1 = none, */
+				/* 2 = between 2 angles, 3 = Between */
+				/* concentric circles, 4 = Above/below */
+				/* certain altitudes.*/
+    float data_red_parm0;	/* 1 = smallest positive angle in */
+				/* degrees, 2 = inner circle diameter, */
+				/* km, 4 = minimum altitude, km. */
+    float data_red_parm1;	/* 1 = largest positve angle, degress, */
+				/* 2 = outer cicle diameter, km, 4 = */
+				/* maximum altitude, km. */
     float radar_longitude;	/* Longitude of radar in degrees. */
     float radar_latitude;	/* Latitude of radar in degrees. */
     float radar_altitude;	/*  Altitude of radar above msl in m. */
+    float eff_unamb_vel;	/* Effective unambiguous velocity, m/s. */
+    float eff_unamb_range;	/* Effective unambiguous range, km. */
+    short num_freq_trans;	/* Number of frequencies transmitted. */
+    short num_ipps_trans;	/* Number of different inter-pulse */
+				/* periods transmitted. */
+    float freq1;		/* Frequency 1. */
+    float freq2;		/* Frequency 2. */
+    float freq3;		/* Frequency 3. */
+    float freq4;		/* Frequency 4. */
+    float freq5;		/* Frequency 5. */
+    float interpulse_per1;	/* Interpulse period 1. */
+    float interpulse_per2;	/* Interpulse period 2. */
+    float interpulse_per3;	/* Interpulse period 3. */
+    float interpulse_per4;	/* Interpulse period 4. */
+    float interpulse_per5;	/* Interpulse period 5. */
 }; /* End of Structure */
 
 
@@ -91,4 +115,3 @@ bool_t xdr_radar_d(XDR *, RADARDESC *);
 #endif /* OK_RPC */
 
 #endif /* INCRadarDesch */
-
