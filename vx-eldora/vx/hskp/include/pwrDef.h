@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/01  20:07:18  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/01  17:25:20  craig
  * *** empty log message ***
  *
@@ -19,6 +22,7 @@
  * description: The purpose of this module is to 
  */
 
+#include "semLib.h"
 #ifndef INCpwrDefh
 #define INCpwrDefh
 #ifndef scope
@@ -128,38 +132,47 @@
 #define INTERNAL_TRIGGER_B "TRGB\0"
 #define UPDATE_CONTINUOUSLY "UPDC\0"
 #define DISPLAY_IN_WATTS "WATT\0"
-#define AUTOZERO_A "ZERA\0
-#define AUTOZERO_B "ZERB\0
+#define AUTOZERO_A "ZERA\0"
+#define AUTOZERO_B "ZERB\0"
 
 /*************** GLOBAL VARIABLES ******************/
 
+scope SEM_ID xmit_pwr_sem;
+scope SEM_ID xmit_data_sem;
+scope SEM_ID xmit_err_sem;
+scope SEM_ID testp_data_sem;
+scope SEM_ID testp_err_sem;
+scope volatile int isr_count,freq_count,fore_aft,tp_cnt,New_tp;
+scope int pgm,xmit,testp, Avg, Debug;
 scope float fore_xmit_pwr,aft_xmit_pwr;
 scope float fore_testp_pwr,aft_testp_pwr;
+scope float xmit_csr_delay,testp_csr_delay;
 scope char xmit_isr_done;
-scope char testp_isr_done;
-scope unsigned char xmit_array[29];
-scope unsigned char testp_array[25];
+scope char testp_isr_done,dma_err1,dma_err2;
+scope volatile unsigned char *xmit_array;
+scope volatile unsigned char *testp_array;
 scope long ieee_xmit_cnt,ieee_testp_cnt;
+
 /**************** GLOBAL GPIB POINTERS ******************/
 
-scope unsigned char *g1ism0,*g1ism1,*g1acr,*g1adr,*g1dido;
-scope unsigned char *g2ism0,*g2ism1,*g2acr,*g2adr,*g2dido;
+scope volatile unsigned char *g1ism0,*g1ism1,*g1acr,*g1adr,*g1dido;
+scope volatile unsigned char *g2ism0,*g2ism1,*g2acr,*g2adr,*g2dido;
 
 /********************* GLOBAL DMA POINTERS ***********************/
 
-scope unsigned char *d0csr,*d0dcr,*d0ocr,*d0scr,*d0ccr,*d0niv,*d0eiv;
-scope unsigned char *d1csr,*d1dcr,*d1ocr,*d1scr,*d1ccr,*d1niv,*d1eiv;
-scope unsigned char *d0bfc,*d0mfc;
-scope unsigned char *d1bfc,*d1mfc;
-scope unsigned short *d0bar1,*d0bar2;
-scope unsigned short *d1bar1,*d1bar2;
-scope unsigned short *d0mtc,*d0btc;
-scope unsigned short *d1mtc,*d1btc;
-scope unsigned short *d0mar1,*d0mar2;
-scope unsigned short *d1mar1,*d1mar2;
-scope unsigned char *d0cpr;
-scope unsigned char *d1cpr;
-scope unsigned char *gcr;
+scope volatile unsigned char *d0csr,*d0dcr,*d0ocr,*d0scr,*d0ccr,*d0niv,*d0eiv;
+scope volatile unsigned char *d1csr,*d1dcr,*d1ocr,*d1scr,*d1ccr,*d1niv,*d1eiv;
+scope volatile unsigned char *d0bfc,*d0mfc,*d0cer;
+scope volatile unsigned char *d1bfc,*d1mfc,*d1cer;
+scope volatile unsigned short *d0bar1,*d0bar2;
+scope volatile unsigned short *d1bar1,*d1bar2;
+scope volatile unsigned short *d0mtc,*d0btc;
+scope volatile unsigned short *d1mtc,*d1btc;
+scope volatile unsigned short *d0mar1,*d0mar2;
+scope volatile unsigned short *d1mar1,*d1mar2;
+scope volatile unsigned char *d0cpr;
+scope volatile unsigned char *d1cpr;
+scope volatile unsigned char *gcr;
 
 #endif /* INC */
 
