@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/07/28  17:33:44  thor
+ * Added nav & insitu items.
+ *
  * Revision 1.4  1991/10/22  17:07:48  thor
  * Changed to use 10 fixed PARAMETERs.
  *
@@ -32,14 +35,6 @@
 #ifndef INCTapeHeaderh
 #define INCTapeHeaderh
 
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
 #include "CellSpacing.h"
 #include "FieldRadar.h"
 #include "Parameter.h"
@@ -48,8 +43,6 @@
 #include "Waveform.h"
 #include "InSitu.h"
 #include "NavDesc.h"
-
-#endif /* OK_RPC */
 
 struct sensorDesc {
     radar_d        Radar;
@@ -68,39 +61,11 @@ struct tapeHeader {
 };
 
 
-#ifdef OK_RPC
-
 typedef struct sensorDesc sensorDesc;
 typedef struct sensorDesc SENSORDESC;
 
 typedef struct tapeHeader tapeHeader;
 typedef struct tapeHeader TAPEHEADER;
-
-bool_t xdr_sensorDesc(XDR *, SENSORDESC *);
-bool_t xdr_tapeHeader(XDR *, TAPEHEADER *);
-
-#define HeaderRPC ((u_long)0x30000100)
-#define HeaderVers ((u_long)1)
-#define SendHeader ((u_long)1)
-#define SendCounts ((u_long)2)
-
-#ifdef CLIENT_SIDE
-extern void *sendheader_1(TAPEHEADER *, CLIENT *);
-#else
-extern void startHeader(void);
-extern void *sendheader_1(TAPEHEADER *, struct svc_req *);
-extern void headerrpc_1(struct svc_req *, register SVCXPRT *);
-#endif /* CLIENT_SIDE */
-
-#else
-
-program HeaderRPC {
-    version HeaderVers {
-	void SendHeader(struct tapeHeader) = 1;
-    } = 1;
-} = 0x30000100;
-
-#endif /* OK_RPC */
 
 #endif /* INCTapeHeaderh */
 
