@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/09/06  16:08:53  thor
+ * Changed RPC registration routine name.
+ *
  * Revision 1.1  1991/08/28  19:49:14  thor
  * Initial revision
  *
@@ -107,10 +110,10 @@ program TapeControl {
 #endif
 
 #ifdef __GNUC__
-static int UNPACKSTATUS(FAST int status, FAST int unit);
-static void PACKSTATUS(FAST int status, FAST int *blk, FAST int unit);
+static u_long UNPACKSTATUS(FAST u_long status, FAST int unit);
+static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit);
 
-inline static int UNPACKSTATUS(FAST int status, FAST int unit)
+inline static u_long UNPACKSTATUS(FAST u_long status, FAST int unit)
 {
     if (unit == 0)
       return(status & 0xffff);
@@ -118,9 +121,9 @@ inline static int UNPACKSTATUS(FAST int status, FAST int unit)
       return(status >> 16);
 }
 
-inline static void PACKSTATUS(FAST int status, FAST int *blk, FAST int unit)
+inline static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit)
 {
-    FAST int i = *blk;
+    FAST u_long i = *blk;
 
     if (unit == 1)
       {
