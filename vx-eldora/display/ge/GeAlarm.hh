@@ -9,10 +9,17 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/01  16:15:16  thor
+ * Initial revision
+ *
  *
  *
  * description:
- *        
+ *        The class GeAlarm encapsulates everything needed to generate
+ * alarms from the realtime crate to the control crate. To set the
+ * alarm to a particular value use Set. Use Post to send the alarm on
+ * its way.
+ *
  */
 #ifndef INCGeAlarm
 #define INCGeAlarm
@@ -20,10 +27,6 @@
 class GeAlarm;
 
 #include "GeGlobal.hh"
-
-extern "C" {
-#include "semLib.h"
-};
 
 class GeAlarm {
   private:
@@ -35,16 +38,14 @@ class GeAlarm {
 
     int system;
 
-    SEM_ID waitSem;
-
   public:
     GeAlarm(char *server, int system);
 
     void Set(int error);
 
-    void Send(void);
-    
-    void Wait(void);
+    void Post(void) { sendalarm_1(&status,client); }
+
+    ~GeAlarm(void);
 };
 
 

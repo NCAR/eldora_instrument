@@ -9,10 +9,14 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/01  16:15:14  thor
+ * Initial revision
+ *
  *
  *
  * description:
- *        
+ *        Methods for GeAlarm class.
+ *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
@@ -21,9 +25,9 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 extern "C" {
 #include "hostLib.h"
 #include "rpcLib.h"
-#include "semLib.h"
 #include "socket.h"
 #include "taskLib.h"
+#include "ioLib.h"
 };
 
 GeAlarm::GeAlarm(char *server, int system)
@@ -44,7 +48,7 @@ GeAlarm::GeAlarm(char *server, int system)
 
     FAST CLIENT *clnt;
 
-    for (FAST int i = 0; i < j; i++)
+    for (FAST int i = 0; i < j; i++) // Repeat up to 10 times before failing.
       {
 	  if ((clnt = clntudp_create(&addr,DispAlarm,DispAlarmVers,tmo,
 				       &s)) != NULL)
@@ -63,9 +67,10 @@ GeAlarm::GeAlarm(char *server, int system)
     else
       client = clnt;
 
-    waitSem = semBCreate(SEM_FULL,SEM_Q_FIFO);
+    clnt_control(clnt,CLSET_FD_CLOSE,NULL); // May be someday WRS will
+					    // have clnt_destroy.
 
-    status.count = system;
+    status.count = system;	// Tell where it came from!
 }
 
 void GeAlarm::Set(int error)
@@ -73,13 +78,9 @@ void GeAlarm::Set(int error)
     status.status = error;
 }
 
-void GeAlarm::Send(void)
+GeAlarm::~GeAlarm(void)
 {
-   semGive(waitSem); 
-}
-
-void GeAlarm::Wait(void)
-{
-    semTake(waitSem,WAIT_FOREVER);
-    sendalarm_1(&status,client);
+    free((char *)client);	// These really should be done with
+				// clnt_destroy. 
+    close(socket);
 }
