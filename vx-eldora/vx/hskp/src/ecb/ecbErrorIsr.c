@@ -9,6 +9,8 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/17  18:09:55  shawn
+ * Initial revision
  *
  * description: ECB "Command Error" Interrupt Service Routine.
  *        
@@ -35,6 +37,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ecbSem.h"      /* semaphore definitions for ecb master */
 #include "ecbAdr.h"      /* Slave addresses on ECB bus */
 #include "hskpInt.h"     /* interrupt vector definitions for hskp */
+#define OK_RPC           /* makes definitions active in HskpStatus.h */
+#include "HskpStatus.h"  /* global housekeeping status... rpc to cntl proc */
 
 unsigned char errCheckOUT();    /* function to check OUT FIFO for empty */
 
@@ -61,22 +65,52 @@ void ecbErrorIsr()
 logMsg("\necbErrorIsr:  LAST ECB COMMAND ISSUED ENDED IN ERROR!!!\n");
 
     /* do status retrieval */
-    if (errCheckOUT()) return;  /* check for OUT FIFO EMPTY */
+    if (errCheckOUT())   /* check for OUT FIFO EMPTY */
+      {
+	  logMsg("ecbErrorIsr:  but OUT FIFO IS EMPTY!!!  No ecbadr or ComID\n              information is available.\n\n");
+	  return;
+      }
 
     ecbadr = *ecb_out_fifo;  /* get address of slave returning status */
     chksumback += ecbadr;
+    switch(ecbadr)
+      {
+	case ECBRFFOR:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to FORWARD RCVR/XCTR SLAVE.\n",ecbadr);
+	  break;
+	case ECBRFAFT:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to AFT RCVR/XCTR SLAVE.\n",ecbadr);
+	  break;
+	case ECBIFFOR:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to FORWARD IF PROCESSOR SLAVE.\n",ecbadr);
+	  break;
+	case ECBIFAFT:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to AFT IF PROCESSOR SLAVE.\n",ecbadr);
+	  break;
+	case ECBATTEN:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to ATTENUATOR CHASSIS SLAVE.\n",ecbadr);
+	  break;
+	default:
+ 	  logMsg("ecbErrorIsr:  ecbadr = %d.\n                         This corresponds to NO KNOWN ADDRESS!!!!\n",ecbadr);
+	  break;
+      }
 
-    if (errCheckOUT()) return;  /* check for OUT FIFO EMPTY */
+    if (errCheckOUT())   /* check for OUT FIFO EMPTY */
+      {
+	  logMsg("ecbErrorIsr:  but OUT FIFO IS NOW EMPTY!!!  No numbytes or ComID\n              information is available.\n\n");
+	  return;
+      }
     numbytes = *ecb_out_fifo; /* get numbytes (of status) */
     chksumback += numbytes;
 
-    if (errCheckOUT()) return;  /* check for OUT FIFO EMPTY */
+    if (errCheckOUT())   /* check for OUT FIFO EMPTY */
+      {
+	  logMsg("ecbErrorIsr:  but OUT FIFO IS NOW EMPTY!!!  No ComID\n              information is available.\n\n");
+	  return;
+      }
     ecbcomID = *ecb_out_fifo; /* get Command ID status is associated with */
     chksumback += ecbcomID;
-
-#ifdef ECBDEBUG
-logMsg("ecbadr, numbytes, ecbcomID ==> 0x%x,%d,0x%x\n",ecbadr,numbytes,ecbcomID);
-#endif
+    logMsg("ecbErrorIsr:  ComID of bad command is 0x%2x.\n",ecbcomID);
 
     /* load any returned status bytes into status buffer */
     for (bcount = 0; bcount<numbytes; bcount++)
@@ -187,6 +221,10 @@ unsigned char errCheckOUT()
     else
       return(0);
 }
+
+
+
+
 
 
 
