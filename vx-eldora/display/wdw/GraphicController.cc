@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  90/12/04  10:19:29  thor
+ * Initial revision
+ * 
  *
  *
  * description:
@@ -252,10 +255,11 @@ GraphicController::GraphicController(FAST void *addr, FAST unsigned short
 
     FAST int k = 4096;
     FAST int m = 4096 / sizeof(long);
+    FAST long color = (BLACK << 24) | (BLACK << 16) | (BLACK << 8) | BLACK;
 
     for (i = 0; i < k; i++)
       {
 	  for (FAST int l = 0; l < m; l++)
-	    *ptr++ = 0;
+	    *ptr++ = color;
       }
 }
