@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:48:45  craig
+ * Fixed Buffer Flushing
+ *
  * Revision 1.1  1994/01/06  21:31:27  craig
  * Initial revision
  *
@@ -94,7 +97,6 @@ rad_xfer_index = 0;
 nav_xfer_index = 0;
 ads_xfer_index = 0;
 fore_mb = (unsigned short *)MAIL_BOX;
-mb_ptr = fore_mb;
 aft_mb = fore_mb + 1;
 fore_addr = (unsigned int *)DATA_RECS;
 aft_addr = fore_addr + 1;
@@ -110,18 +112,17 @@ printf(" Will Flush the mailboxes now\n");
 
 /* Flush out all mail boxes with zeros */
 
-for(mb_count=0; mb_count<last_mailbox; mb_count++)
+mb_ptr = (unsigned short *)MAIL_BOX;
+for(mb_count=0; mb_count<*num_recs; mb_count++)
   {
       *mb_ptr=0; /*Flush all mailboxes */
       mb_ptr++;
       if((int)mb_ptr > last_mailbox)
-	{
-	    mb_ptr = fore_mb;
 	    break;
-	}
   }
 
 /* Look for first occurence of good fore_mb */
+
 i = 0;
 while(*fore_mb!=0xBFFF)
   {
