@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1996/02/23  18:03:27  eric
+ * modified code to support test pulse (slow cal).
+ *
  * Revision 1.6  1995/03/01  23:01:20  eric
  * removed clearing out stop flag from initialization.
  *
@@ -89,7 +92,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "rp7.h"
 
 #define EOB 0x2
-
+#define AVG
+#define FFT_PTS 128
 extern short task_sync;
 extern int int_cnt, proc_stat;
 
@@ -102,10 +106,12 @@ long           k, l, m, p, q, r, s;
 register long  i,j;
 
 int            *samps, data_samps, buff_cnt, prf, gates,sem_status, sampl,
-               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, 
-               f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, offset, lgate_off,
-               indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int,
-               lgate_off2, cnt;
+               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, status, 
+               f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, 
+               offset, lgate_off,indf_off, num_int1, num_int2, num_int3, 
+               num_int4, tnum_int, lgate_off2, cnt, raw_d_off, data_len, 
+               indep_freq_len, time_series_len, ts_len, bytes_per_cell, 
+               num_cells, I, Q;
 
 volatile short indf_ts, ray_hndshk_stat;
 
@@ -117,10 +123,20 @@ unsigned long  data_loc_base, temp;
 
 volatile register unsigned long *dptr;
 volatile register unsigned long   *data_loc;
+volatile register float *ts_data_loc,*raw_ptr;
 
-float          a_dummy;
+float          a_dummy, t_scale, *array, *av_array, *b_array;
 
+double wp;
 volatile register float *ts_loc;
+if (!(array = (float *)malloc(4*2000*sizeof(float))))
+  printf("680X0 OUT OF MEMORY; ALLOCATION FAILED \n");
+if (!(b_array = (float *)malloc(4*2000*sizeof(float))))
+  printf("680X0 OUT OF MEMORY; ALLOCATION FAILED \n");
+if (!(av_array = (float *)malloc(4*2000*sizeof(float))))
+  printf("680X0 OUT OF MEMORY; ALLOCATION FAILED \n");
+FFT_pts = FFT_PTS;  /* Initialize FFT size to 128 by default */
+
 for(;;)
   {
       sem_status = semTake(real_sem,WAIT_FOREVER); /* wait for start semaphore  */
@@ -162,15 +178,47 @@ for(;;)
             num_param = rdsc -> num_parameter_des;
             if(num_param == 10) /* we really have 12 parameters in collator */
               num_param = 12;
-            
+
+/* Calculate data length, independent frequency length, and time_series length i
+n bytes */
+
+	    num_cells = 0;
+	    for (j=0; j < cs -> num_segments; j++)
+	      num_cells += cs -> num_cells[j];
+	    bytes_per_cell = 0;
+	    for (j=0; j < rdsc -> num_parameter_des; j++)
+	      {
+		prm = GetParameter(inHeader,j);
+		bytes_per_cell += prm -> binary_format;
+	      }
+	    data_len = num_cells * bytes_per_cell;
+
+	    if(fldrdr -> indepf_times_flg > 0)
+	      indep_freq_len = rdsc -> num_freq_trans * 8 * rdsc -> num_ipps_trans + sizeof(INDEP_FREQ);
+	    else
+	      indep_freq_len = 0;
+
+	    if(fldrdr -> indepf_times_flg == 3)
+	      time_series_len = rdsc -> num_freq_trans * 2 * 4 * wvfm -> repeat_seq_dwel * wvfm -> num_chips[0] + sizeof(TIME_SERIES);
+	    else
+	      time_series_len = 0;
+	    if((fldrdr -> indepf_times_flg == 3))
+	      ts_len = time_series_len;
+	    else
+	      ts_len = sizeof(TIME_SERIES);
+            raw_d_off = data_len + indep_freq_len + sizeof(ray_i) + sizeof(platform_i) + sizeof(field_parameter_data) + ts_len;
 /* Substitute code to process indf_ts here !!! */
 
 	    indf_ts = fldrdr -> indepf_times_flg;
 
+	    /* Calculate offset for Power Spectrum */
+
+	    wp = 10.0 - 20.0 * log10((double)65535*(float)(wvfm->chip_width[0]/7.5));
+
       /* General Initialization */
 
 	    data_loc = (unsigned long *)(COL0BASE + DB_1);
-	    ts_off = (tnum_int * num_param * 2) + (2 * f_flag * num_param * 2 *(prt_flag + 1));
+	    ts_off = (tnum_int * num_param * 2) + (f_flag * 4 * 2 *(prt_flag + 1)) + (f_flag * 4 * 2 * (prt_flag + 1));
 	    data_samps = (tnum_int - 1) * num_param * 2 / 4;
 	    buff_cnt = 0;
 	    ts_cnt = 0;
@@ -185,6 +233,8 @@ for(;;)
 	    s = 0;
 	    q = 0;
             j = 0;
+	    for(i=0; i<2*sampl;i++) /* Initialize av_array to 0 */
+	      av_array[i] = 0.0;
 	    switch(indf_ts)
 	      {
 		case 0:
@@ -205,7 +255,7 @@ for(;;)
 
 	    while(!(stop || reboot))
 	      {
-	    /* Wait 5 ticks for End of Beam Interrupt */
+	    /* Wait 30 ticks for End of Beam Interrupt */
 		  
 		  sem_status = semTake(bim_int0_sem,30); /* wait 30 ticks for ISR to pass sem */
 		  
@@ -248,9 +298,11 @@ for(;;)
 			      /* send error status to control processor */
 			  }
 
-			ray = (struct RAY*)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (k * DATA_RAY_OFFSET));
+			ray = (struct DATA_RAY*)(VMEMEM_BASE + STD_BASE + DATA_RAY_BASE + (k * DATA_RAY_OFFSET));
+			raw_d = (struct RAW_D*)((char *)ray + raw_d_off);
 			ray -> fielddata.ray_count = k + (q * 27);
 			dptr = &(ray->data[0]);
+			raw_ptr = &(raw_d->data[0]);
 			i = data_samps;
 
 			/* Pull data from Collator's Dual Port Ram */
@@ -268,11 +320,7 @@ for(;;)
                                 vme2_pntr->tpulse_vel = (*data_loc++ & 0xffff); 
                                 *dptr++ = *data_loc;
                         /* Write testpulse power to vme to vme handshake area */
-                                vme2_pntr->tpulse_level_proc = (*data_loc++ & 0xffff);
-			
-			
-                                
-			
+                                vme2_pntr->tpulse_level_proc = (*data_loc++ & 0xffff);			
 
                             }
                          if(num_param == 6)
@@ -367,6 +415,252 @@ for(;;)
 				    *dptr++ = *data_loc++; /* copy floats over as ints */  
 				}
 			  }
+			
+			/* Do Raw Data Processing if Req'd */
+
+			ts_data_loc = (float *)(data_loc_base + ts_off + (TS_freq -1) * sampl * 2 * sizeof(float));
+			switch(ASCOPE_mode)
+			  {
+			  case 0: /* Time Series */
+			    i = sampl;
+			    if(!TS_off)
+			      {
+				raw_d ->rd.x_label[0] = 'S';
+				raw_d ->rd.x_label[1] = 'A';
+				raw_d ->rd.x_label[2] = 'M';
+				raw_d ->rd.x_label[3] = 'P';
+				raw_d ->rd.x_label[4] = 'L';
+				raw_d ->rd.x_label[5] = 'E';
+				raw_d ->rd.x_label[6] = ' ';
+				raw_d ->rd.x_label[7] = ' ';
+
+				raw_d ->rd.y_label[0] = 'I';
+				raw_d ->rd.y_label[1] = 'N';
+				raw_d ->rd.y_label[2] = 'P';
+				raw_d ->rd.y_label[3] = 'H';
+				raw_d ->rd.y_label[4] = 'A';
+				raw_d ->rd.y_label[5] = 'S';
+				raw_d ->rd.y_label[6] = 'E';
+				raw_d ->rd.y_label[7] = ' ';
+				raw_d ->rd.xmax = (float)(sampl-1);
+				raw_d ->rd.xmin = 0.0;
+  				raw_d ->rd.ymax = 65535*(float)(wvfm->chip_width[0]/7.5); 
+				raw_d ->rd.ymin = -65536*(float)(wvfm->chip_width[0]/7.5);
+				raw_d ->rd.numPoints = sampl;
+				while(i-- != 0)
+				  {
+
+				    *raw_ptr++ = *ts_data_loc++ * SCALE_fac;  /* Read I */
+				    ts_data_loc++; /* skip over Q */
+
+				  }
+			      }
+			    else
+			      {
+				raw_d ->rd.x_label[0] = 'S';
+				raw_d ->rd.x_label[1] = 'A';
+				raw_d ->rd.x_label[2] = 'M';
+				raw_d ->rd.x_label[3] = 'P';
+				raw_d ->rd.x_label[4] = 'L';
+				raw_d ->rd.x_label[5] = 'E';
+				raw_d ->rd.x_label[6] = ' ';
+				raw_d ->rd.x_label[7] = ' ';
+
+				raw_d ->rd.y_label[0] = 'Q';
+				raw_d ->rd.y_label[1] = 'U';
+				raw_d ->rd.y_label[2] = 'A';
+				raw_d ->rd.y_label[3] = 'D';
+				raw_d ->rd.y_label[4] = 'R';
+				raw_d ->rd.y_label[5] = 'A';
+				raw_d ->rd.y_label[6] = 'T';
+				raw_d ->rd.y_label[7] = '.';
+				raw_d ->rd.xmax = (float)(sampl-1);
+				raw_d ->rd.xmin = 0.0;
+				raw_d ->rd.ymax = 65535*(float)(wvfm->chip_width[0]/7.5); 
+				raw_d ->rd.ymin = -65536*(float)(wvfm->chip_width[0]/7.5); 
+				raw_d ->rd.numPoints = sampl;
+				while(i-- != 0)
+				  {
+				    ts_data_loc++;     /* point to Q */
+				    *raw_ptr++ = *ts_data_loc++ * SCALE_fac;  /* Read Q */
+				  }
+			      }
+
+			    break;
+			  case 1: /* Velocity */
+			    data_loc = (unsigned long *)(data_loc_base);
+			    i = tnum_int;
+			    if(prt_flag)
+			      prm = GetParameter(inHeader,3); /* velocity */
+			    else
+			      prm = GetParameter(inHeader,1); /* velocity */
+			    t_scale = 1.0/prm->parameter_scale;
+				raw_d ->rd.x_label[0] = 'G';
+				raw_d ->rd.x_label[1] = 'A';
+				raw_d ->rd.x_label[2] = 'T';
+				raw_d ->rd.x_label[3] = 'E';
+				raw_d ->rd.x_label[4] = ' ';
+				raw_d ->rd.x_label[5] = ' ';
+				raw_d ->rd.x_label[6] = ' ';
+				raw_d ->rd.x_label[7] = ' ';
+
+				raw_d ->rd.y_label[0] = 'V';
+				raw_d ->rd.y_label[1] = 'E';
+				raw_d ->rd.y_label[2] = 'L';
+				raw_d ->rd.y_label[3] = 'O';
+				raw_d ->rd.y_label[4] = 'C';
+				raw_d ->rd.y_label[5] = 'I';
+				raw_d ->rd.y_label[6] = 'T';
+				raw_d ->rd.y_label[7] = 'Y';
+				raw_d ->rd.xmax = (float)(tnum_int-1);
+				raw_d ->rd.xmin = 0.0;
+				raw_d ->rd.ymax = prm->parameter_bias * t_scale;
+				raw_d ->rd.ymin = -prm->parameter_bias * t_scale;
+				raw_d ->rd.numPoints = tnum_int;
+
+			    while(i-- != 0)
+			      {
+				if(prt_flag) /* staggered PRT */
+				  {
+				    data_loc++;
+				    *raw_ptr++ = ((*data_loc++ & 0xffff) - prm->parameter_bias) * t_scale;
+				    data_loc++;
+				  }
+				else  /* simple PRT */
+				  {
+				    *raw_ptr++ = ((*data_loc++ & 0xffff) - prm->parameter_bias) * t_scale;
+				    data_loc++;
+				  }
+			      }
+			      
+			    break;
+			  case 2: /* Power (Actually dbZ for now) */
+			    data_loc = (unsigned long *)(data_loc_base);
+			    i = tnum_int;
+			    if(prt_flag)
+			      prm = GetParameter(inHeader,5); /* dbZ */
+			    else
+			      prm = GetParameter(inHeader,3); /* dbZ */
+			    t_scale = 1.0/prm->parameter_scale;
+
+				raw_d ->rd.x_label[0] = 'G';
+				raw_d ->rd.x_label[1] = 'A';
+				raw_d ->rd.x_label[2] = 'T';
+				raw_d ->rd.x_label[3] = 'E';
+				raw_d ->rd.x_label[4] = ' ';
+				raw_d ->rd.x_label[5] = ' ';
+				raw_d ->rd.x_label[6] = ' ';
+				raw_d ->rd.x_label[7] = ' ';
+
+				raw_d ->rd.y_label[0] = 'P';
+				raw_d ->rd.y_label[1] = 'O';
+				raw_d ->rd.y_label[2] = 'W';
+				raw_d ->rd.y_label[3] = 'E';
+				raw_d ->rd.y_label[4] = 'R';
+				raw_d ->rd.y_label[5] = ' ';
+				raw_d ->rd.y_label[6] = ' ';
+				raw_d ->rd.y_label[7] = ' ';
+				raw_d ->rd.xmax = (float)(tnum_int-1);
+				raw_d ->rd.xmin = 0.0;
+				raw_d ->rd.ymax = 70.0;
+				raw_d ->rd.ymin = -30.0;
+				raw_d ->rd.numPoints = tnum_int;
+				
+			    while(i-- != 0)
+			      {
+				if(prt_flag) /* staggered PRT */
+				  {
+				    data_loc++;
+				    data_loc++;
+				    *raw_ptr++ = ((*data_loc++ & 0xffff) - prm->parameter_bias) * t_scale;
+
+				  }
+				else  /* simple PRT */
+				  {
+				    data_loc++;
+				    *raw_ptr++ = ((*data_loc++ & 0xffff) - prm->parameter_bias) * t_scale;
+				  }
+			      }
+			    break;
+			  case 3: /* Power Spectrum */
+			    i = 2 * sampl;
+			    raw_d ->rd.x_label[0] = 'B';
+			    raw_d ->rd.x_label[1] = 'I';
+			    raw_d ->rd.x_label[2] = 'N';
+			    raw_d ->rd.x_label[3] = ' ';
+			    raw_d ->rd.x_label[4] = ' ';
+			    raw_d ->rd.x_label[5] = ' ';
+			    raw_d ->rd.x_label[6] = ' ';
+			    raw_d ->rd.x_label[7] = ' ';
+
+			    raw_d ->rd.y_label[0] = 'F';
+			    raw_d ->rd.y_label[1] = 'F';
+			    raw_d ->rd.y_label[2] = 'T';
+			    raw_d ->rd.y_label[3] = '*';
+			    raw_d ->rd.y_label[4] = '*';
+			    raw_d ->rd.y_label[5] = '2';
+			    raw_d ->rd.y_label[6] = ' ';
+			    raw_d ->rd.y_label[7] = ' ';
+			    raw_d ->rd.xmax = (float)(sampl-1);
+			    raw_d ->rd.xmin = 0.0;
+			    raw_d ->rd.ymax = 10.0;
+			    raw_d ->rd.ymin = -90.0;
+			    raw_d ->rd.numPoints = FFT_pts;
+			    for(i=0; i<2*sampl; i+=2)
+			      {
+				/* Swap I and Q for ELDORA */
+
+				b_array[i+1] = *ts_data_loc++;
+				b_array[i] = *ts_data_loc++; 
+			      }
+			    status = getseries(array,2*FFT_pts,b_array,2*sampl);
+			    if(status)
+			      {
+				hann(array,FFT_pts);
+				fft(array,FFT_pts);
+				for(i=0; i<2*FFT_pts; i++)
+				  {
+				    I = i * 2;
+				    Q = I + 1;
+				    if(array[I] == 0.0 && array[Q] == 0.0)
+				      {
+					array[i] = 0.0;
+					continue;
+				      }
+				    array[i] = 10.0 * log10(array[I]*array[I] + array[Q]*array[Q]) + wp;				
+#ifdef AVG
+				    array[i] = 0.9*av_array[i] + 0.1*array[i];
+				    av_array[i] = array[i];
+#endif /* AVG */
+				  }
+#ifdef SWAP
+				for(i=0; i<sampl; i++)
+				  {
+				    if(i <= sampl/2-1)
+				      *raw_ptr++ = array[i + sampl/2];
+				    else
+				      *raw_ptr++ = array[i - sampl/2];
+				  }
+#endif /* SWAP */
+#ifndef SWAP
+				for(i=0; i<FFT_pts; i++)
+				  {
+				    *raw_ptr++ = array[i];
+				  }
+#endif /* SWAP */
+			      }
+			    else    /* if new fft not ready use previous fft */
+			      {
+				for(i=0; i<FFT_pts; i++)
+				  {
+				    *raw_ptr++ = av_array[i];
+				  }
+			      }
+			    break;
+			  default:
+			    break;
+			  }
+
 			vme2_pntr -> radar_hndshk[k] = 0;
 			k = k<26?k+1:0;
 			if(k == 0)
@@ -482,6 +776,7 @@ for(;;)
       else
 	printf("PANIC: BAD REAL TIME SEMAPHORE \n");
 }
+free(array);
 }
 
 
