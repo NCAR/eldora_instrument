@@ -10,7 +10,7 @@ CCC = $(CC)
 # Totally agressive optimization.
 #OPT= -O -fstrength-reduce -fforce-mem -finline-functions \
 	-fomit-frame-pointer
-#OPT= -O2
+OPT= -O2
 #OPT=-O1
 #
 DEFINES= -DUSE_ANSI -DTADPL -DNEW_DSP_CODE -DVXWORKS
