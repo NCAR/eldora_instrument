@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/02/28  14:44:02  thor
+ * Updated default colors.
+ *
  * Revision 1.2  91/01/02  08:52:11  thor
  * Made changes for VxWorks Version 5.0.
  * 
@@ -33,13 +36,10 @@ extern "C" {
 
 #include "point.h"
 #include "qpdm.h"
+#include "WdwGbls.h"
 
 /* Private header. */
 #include "GraphicControllerP.hh"
-
-/* Direction for shift method. */
-static const int SHIFT_LEFT = 0;
-static const int SHIFT_RIGHT = 1;
 
 /* Maximum priority for a window and the legal zoom factors. */
 static const unsigned short MAX_WDW_PRI = 7;
@@ -53,12 +53,6 @@ static const unsigned char FIFO_VECTOR = 0x2;
 static const unsigned char QPDM_VECTOR = 0xe;
 static const unsigned char MCU_VECTOR = 0x8;
 static const unsigned char FRAME_VECTOR = 0xb;
-
-/* Some predefined colors. */
-static const unsigned char WHITE = 0x80;
-static const unsigned char WHITE1 = 0x7f;
-static const unsigned char ALL_SET = 0xff;
-static const unsigned char BLACK = 0x7e;
 
 /* The AGCV window register layout */
 struct WindowControlRegs {
