@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/01/06  21:31:53  craig
+ * Initial revision
+ *
  * Revision 1.1  1992/08/21  22:31:17  reif
  * Initial revision
  *
@@ -27,11 +30,11 @@ extern int bytes_per_cell;
 extern int bytes_at_end;
 extern int cells_per_ray;
  
-unsigned int reduce_data(short type,unsigned int *rec_addr)
+int reduce_data(short type,unsigned int *rec_addr)
 {
-extern HeaderPtr inHeader;
+
 struct data_beam *db;
-unsigned int keep;
+int keep;
 unsigned int *copy_from_address;
 unsigned int *copy_to_address;
 int i;
@@ -51,6 +54,8 @@ int diff;
 keep=1; /* Return this if we want to keep entire record */
 db->fpd.first_rec_gate = 0;
 db->fpd.last_rec_gate = cells_per_ray - 1;
+db->fpd.field_param_data_len = cells_per_ray * bytes_per_cell +
+                               sizeof(field_parameter_data);
 
 switch(type)
   {
@@ -72,20 +77,20 @@ switch(type)
          is zero.  The below algorithm blows up, just return in these cases
          and record the entire data ray */
 
-      if(db->pi.altitude_msl < rad_dscr->data_red_parm0 ||
-         db->pi.altitude_msl > rad_dscr->data_red_parm1 ||
+      if(db->pi.altitude_msl > rad_dscr->data_red_parm0 ||
+         db->pi.altitude_msl < rad_dscr->data_red_parm1 ||
          db->ri.elevation == 0.0) return(keep);
 
       if(db->ri.elevation>0)
 	{
 	    /* Along beam distance to the maximum altitude line (meters) */
-	    beam_dist=1000.0 *(rad_dscr->data_red_parm1 - db->pi.altitude_msl)/
+	    beam_dist=1000.0 *(rad_dscr->data_red_parm0 - db->pi.altitude_msl)/
 	      sin((double)(db->ri.elevation * DEG_TO_RAD));
 	}
       else
 	{
 	    /* Along beam distance to minimum altitude line (meters) */
-	    beam_dist=1000.0 *(rad_dscr->data_red_parm0 - db->pi.altitude_msl)/
+	    beam_dist=1000.0 *(rad_dscr->data_red_parm1 - db->pi.altitude_msl)/
 	      sin((double)(db->ri.elevation * DEG_TO_RAD));
 	}
 
@@ -100,6 +105,10 @@ switch(type)
 		  current_dist-=cs->num_cells[i]*cs->spacing[i];
 		  diff=beam_dist-current_dist;
 		  total_cells+=diff/cs->spacing[i]+1;
+
+		  if(total_cells >= cells_per_ray)
+		    return(keep);
+
 		  (unsigned int)copy_to_address=(unsigned int)db+
 		    sizeof(struct data_beam)+(total_cells*bytes_per_cell);
 		  (unsigned int)copy_from_address=(unsigned int)db+
@@ -108,11 +117,13 @@ switch(type)
 		    {
 			*copy_to_address++ = *copy_from_address++;
 		    }
+
 		  db->fpd.last_rec_gate=total_cells;
 		  keep=sizeof(struct data_beam)+total_cells*bytes_per_cell
-		    +bytes_at_end;
-		  db->fpd.field_param_data_len=keep-(sizeof(ray_i)+
-						     sizeof(platform_i));
+		    + bytes_at_end;
+		  db->fpd.field_param_data_len = (total_cells + 1) *
+		    bytes_per_cell + sizeof(field_parameter_data);
+		  break;
 	      }
 	    total_cells+=cs->num_cells[i];
 	}
@@ -122,6 +133,5 @@ switch(type)
                  recorded gate to zero, last recorded gate to max */
       break;
   }
-      
 return(keep);
 }
