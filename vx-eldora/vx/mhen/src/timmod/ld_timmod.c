@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/02/01  15:19:51  craig
+ * Change calculation of duty cycle, PRF, etc and some error checking
+ *
  * Revision 1.2  1994/01/31  18:19:47  eric
  * changed type of repeat_seq to float from short.
  *
@@ -87,7 +90,6 @@ void ld_timmod(int site,int module)
     short gate_dist4[2],gate_dist5[2];
     unsigned short *timgate0,*timgate1,*timgate2,*timgate3,*timgate4;
     unsigned short gateindex,gatevalue;
-    char           blank_chip[256];
     int            sampl,gates,gate_sp,first_gate,rpt_seq,j,shortcnt;
     int            pcpcnt[10];
     float          duty_cycle, prf, repeat_seq, dwell_time, gate_tm; 
@@ -270,7 +272,7 @@ printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
     if (total_pcp == 1)
       {
 	  blankingvalue = wvfm -> blank_chip[0] & 0x001f;
-	  if (blank_chip[0] & 0x0020)
+	  if (wvfm -> blank_chip[0] & 0x0020)
 	    blankingvalue=blankingvalue|0x0C00; /*shift pk*/
 	  *blankloc = blankingvalue;
 /*	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); */
@@ -292,7 +294,7 @@ printf("wrote chipram terminal value of 0000 to location %8x\n",chiploc);
 	    }
 	  blankingvalue = wvfm -> blank_chip[i] & 0x001f; /* load lower five bits, with
 						     STOPCT* = 0; */
-	  if (blank_chip[i] & 0x0020)
+	  if (wvfm -> blank_chip[i] & 0x0020)
 	    blankingvalue=blankingvalue|0xC00;    /* shift PK bit */
 	  *blankloc = blankingvalue;
 /*	  printf("writing blanking value of %4x to location %8x\n",blankingvalue,blankloc); */
