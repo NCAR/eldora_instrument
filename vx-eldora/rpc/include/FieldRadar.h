@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.3  1991/10/16  15:34:22  thor
  * Increased array size to elinimate padding.
  *
@@ -88,7 +91,9 @@ struct field_radar_i {
     short dly_rf_twt_off;	/* Time between a chip off edge in */
 				/* timing module and chip actually off */
 				/* out of the TWT in ns. */
-    short padding4;
+    short indepf_times_flg;	/*  */
+    short indep_freq_gate;	/*  */
+    short times_series_gate;	/*  */
 }; /* End of Structure */
 
 
