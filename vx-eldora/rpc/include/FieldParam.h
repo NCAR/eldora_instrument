@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:21  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -30,9 +33,9 @@
 struct field_parameter_data {
     char  field_param_data[4];	/* Field parameter data identifier */
 				/* (ascii characters FRAD) */
-    short field_param_data_len; /* Length of the field parameter */
+    long field_param_data_len;	/* Length of the field parameter */
 				/* data block in bytes */
-    short data_sys_status;	/* Status word, bits will be assigned
+    long data_sys_status;	/* Status word, bits will be assigned */
                                 /*  particular status when needed */
     char  radar_name[8];	/* Name of radar from which this data ray  */
 				/* came from */

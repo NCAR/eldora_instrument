@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:38  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -30,9 +33,8 @@
 struct ray_i {
     char  ray_info[4];		/* Identifier for a data ray info. */
 				/* block (ascii characters "RYIB"). */
-    short ray_info_length;	/* length of a data ray info block in */
+    long ray_info_length;	/* length of a data ray info block in */
 				/* bytes. */
-    short padding1;
     long  sweep_num;		/* sweep number for this radar. */
     short hour;			/* Hour in hours. */
     short minute;		/* Minute in minutes. */
@@ -42,6 +44,7 @@ struct ray_i {
     float elevation;		/* Elevation in degrees. */
     float peak_power;		/* Last measured peak transmitted */
 				/* power in kw. */
+    float true_scan_rate;	/* Actual scan rate in degrees/second. */
 }; /* End of Structure */
 
 

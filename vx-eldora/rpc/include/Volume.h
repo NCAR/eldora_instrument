@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/09  15:24:44  thor
+ * Fixed incorrect flight number variable and added needed padding.
+ *
  * Revision 1.1  1991/08/30  18:39:40  thor
  * Initial revision
  *
@@ -34,15 +37,12 @@ struct volume_d {
     char  volume_des[4];	/* Volume descriptor identifier: ASCII */
 				/* characters "VOLD" stand for Volume */
 				/* Descriptor. */
-    short volume_des_length;	/* Volume descriptor length in bytes. */
-    short  format_version;	/* ELDORA/ASTRAEA field tape format */
+    long  volume_des_length;	/* Volume descriptor length in bytes. */
+    short format_version;	/* ELDORA/ASTRAEA field tape format */
 				/* revision number. */
     short volume_num;		/* Volume Number into current tape. */
-    short padding1;
     long  maximum_bytes;	/* Maximum number of bytes in any. */
 				/* physical record in this volume. */
-    long  number_sensor_des;	/* Total Number of sensor descriptors */
-				/* that follow. */
     char  proj_name[8];		/* Project number or name. */
     short year;			/* Year data taken in years. */
     short month;		/* Month data taken in months. */
@@ -51,16 +51,15 @@ struct volume_d {
     short data_set_minute;	/* minute data taken in minutes. */
     short data_set_second;	/* second data taken in seconds. */
     char  flight_num[8];	/* Flight number. */
+    char  gen_facility[8];	/* identifier of facility that */
+				/* generated this recording. */
     short gen_year;		/* year this recording was generated */
 				/* in years. */
     short gen_month;		/* month this recording was generated */
 				/* in months. */
     short gen_day;		/* day this recording was generated in days. */
-    short padding2;
-    char  gen_facility[8];	/* identifier of facility that */
-				/* generated this recording. */
-    short data_compress;	/* Data compression scheme in use. */
-    short padding3;
+    short number_sensor_des;	/* Total Number of sensor descriptors */
+				/* that follow. */
 }; /* End of Structure */
 
 

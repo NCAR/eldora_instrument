@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:23  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -31,12 +34,10 @@ struct field_radar_i {
     char  field_radar_info[4];	/* Identifier for a field written */
 				/* radar information block */
 				/* (ascii characters FRIB). */
-    short field_radar_info_len; /* Length of this field written radar */
+    long field_radar_info_len;	/* Length of this field written radar */
 				/* information block in bytes. */
-    short padding1;
-    char  data_sys_id;		/* Data system identification. */
-    char  signal_source;	/* Signal source. */
-    char padding2[2];
+    short data_sys_id;		/* Data system identification. */
+    short signal_source;	/* Signal source. */
     float freqs[5];		/* Transmitted frequencies for f0 */
 				/* through f4 in Ghz. */
     float loss_out;		/* Losses between Transmitter and */
@@ -70,7 +71,7 @@ struct field_radar_i {
     short dly_dircplr_ad[5];	/* Time delay from the test pulse. */
 				/* directional coupler to the A/D */
 				/* converters in ns. */
-    short padding3;
+    short padding1;
     short dly_timmod_testpulse; /* Time delay from timeing Module test */
 				/* pulse edge and test pulse being */
 				/* injected into directional coupler in ns. */

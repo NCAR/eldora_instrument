@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:32  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -30,15 +33,11 @@
 struct parameter_d {
     char  parameter_des[4];	/* Parameter Descriptor identifier */
 				/* (ascii characters "PARM"). */
-    short parameter_des_length; /* Parameter Descriptor length in */
+    long parameter_des_length;	/* Parameter Descriptor length in */
 				/* bytes.*/
-    short binary_format;	/* Binary format of radar data. */
     char  parameter_name[8];	/* Name of parameter being described. */
     char  param_description[40]; /* Detailed description of this parameter. */
     char  param_units[8];	/* Units parameter is written in. */
-    short pulse_width;		/* Effective pulse width of parameter */
-				/* in m. */
-    short padding1;
     float interpulse_time;	/* Effective inter-pulse period of */
 				/* this parameter in us. */
     float xmitted_freq;		/* Average transmitted frequency of */
@@ -48,11 +47,14 @@ struct parameter_d {
     float unambiguous_velocity; /* Unambiguous velocity after */
 				/* unfolding in m/s. */
     float unambiguous_rng;	/* Unambiguous range after unfolding in km.  */
+    short pulse_width;		/* Effective pulse width of parameter */
+				/* in m. */
     short polarization;		/* Polarization of the radar beam for */
 				/* this parameter (0 Horizontal,1 */
 				/* Vertical,2 Circular,3 Elliptical) in na. */
     short num_samples;		/* Number of samples used in estimate */
 				/* for this parameter. */
+    short binary_format;	/* Binary format of radar data. */
     char  threshold_field[8];	/* Name of parameter upon which this */
 				/* parameter is thresholded (ascii */
 				/* characters NONE if not */

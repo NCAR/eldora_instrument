@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/11  15:32:10  thor
+ * Added variable for offset to first gate.
+ *
  * Revision 1.1  1991/08/30  18:39:19  thor
  * Initial revision
  *
@@ -33,7 +36,7 @@
 struct cell_spacing_d {
     char   cell_spacing_des[4]; /* Identifier for a cell spacing descriptor
 				/* (ascii characters CSPD). */
-    short  cell_spacing_des_len; /* Cell Spacing descriptor length in bytes. */
+    long   cell_spacing_des_len; /* Cell Spacing descriptor length in bytes. */
     short  num_segments;	/* Number of segments that contain cells of */
 				/* equal widths. */
     short  distToFirst;		/* Distance to first gate in meters. */

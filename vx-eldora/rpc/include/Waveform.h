@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/09  15:25:28  thor
+ * Removed unneeded wavecount items.
+ *
  * Revision 1.2  1991/09/11  16:29:24  thor
  * Added wave_counts items.
  *
@@ -34,12 +37,11 @@
 #endif /* OK_RPC */
 
 struct waveform_d {
-    char  waveform_des[4];		/* Identifier for the waveform */
+    char  waveform_des[4];	/* Identifier for the waveform */
 				/* descriptor (ascii characters "WAVE"). */
-    short waveform_des_length;	/* Length of the waveform descriptor */
+    long waveform_des_length;	/* Length of the waveform descriptor */
 				/* in bytes. */
-    short padding1;
-    char  ps_file_name[16];		/* Pulsing scheme file name.*/
+    char  ps_file_name[16];	/* Pulsing scheme file name.*/
     short num_chips[6];		/* Number of chips in a repeat. */
 				/* sequence for each frequency. */
     char  blank_chip[256];	/* Blanking RAM sequence. */
@@ -59,12 +61,10 @@ struct waveform_d {
     float uv_pcp;		/* Number of PCP that set the */
 				/* unambiguous velocity, after real */
 				/* time unfolding. */
-    short num_gates[5];		/* Total number of gates sampled. */
-    short padding2;    
-    short uniform_gates;	/* Flag 0 => Non uniform gates, all */
+    short num_gates[6];		/* Total number of gates sampled. */
+    int uniform_gates;		/* Flag 0 => Non uniform gates, all */
 				/* are listed, nonzero => uniform */
 				/* gates. */
-    short padding3;
     short gate_dist1[2];	/* Distance from radar to data cell #1 */
 				/* in 60 MHz counts. */
     short gate_dist2[2];	/* Ditto. */

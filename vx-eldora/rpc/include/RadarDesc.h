@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/30  18:39:36  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -30,9 +33,8 @@
 struct radar_d {
     char  radar_des[4];		/* Identifier for a radar descriptor */
 				/* block (ascii characters "RADD"). */
-    short radar_des_length;	/* Length of a radar descriptor block */
+    long radar_des_length;	/* Length of a radar descriptor block */
 				/* in bytes. */
-    short padding1;
     char  radar_name[8];	/* Eight character radar name. */
     float radar_const;		/* Radar constant in ?? */
     float peak_power;		/* Typical peak power of the radar in kw. */
@@ -60,20 +62,19 @@ struct radar_d {
     float scan_mode_pram1;	/* Scan mode specific parameter #1. */
     float fixed_angle;		/* Fixed Angle that radar is */
 				/* attempting to scan in degrees. */
-    short data_reduction;	/* Data Reduction algorithm in use. */
-    short padding2;
-    float data_red_parm0;	/* Data reduction algorithm specific */
-				/* parameter #0. */
-    float data_red_parm1;	/* Data reduction algorithm specific */
-				/* parameter #1. */
-    float airport_longitude;	/* Longitude of airport from which */
-				/* aircraft took off in degrees. */
-    float airport_latitude;	/* Latitude of airport from which */
-				/* aircraft took off in degrees. */
     short  num_parameter_des;	/* Total number of parameter */
 				/* descriptor blocks for this radar. */
     short  total_num_des;	/* Total number of additional */
 				/* descriptor block for this radar. */
+    short data_reduction;	/* Data Reduction algorithm in use. */
+    short data_red_algor;	/* Data reduction algorithm. */
+    float data_red_parm0;	/* Data reduction algorithm specific */
+				/* parameter #0. */
+    float data_red_parm1;	/* Data reduction algorithm specific */
+				/* parameter #1. */
+    float radar_longitude;	/* Longitude of radar in degrees. */
+    float radar_latitude;	/* Latitude of radar in degrees. */
+    float radar_altitude;	/*  Altitude of radar above msl in m. */
 }; /* End of Structure */
 
 
