@@ -9,10 +9,15 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/05/03  15:19:49  thor
+ * Initial revision
+ *
  *
  *
  * description:
- *        
+ *        Private data - local constamts and the default chararcter
+ * maps.
+ *
  */
 #ifndef INCClockPhh
 #define INCClockPhh
