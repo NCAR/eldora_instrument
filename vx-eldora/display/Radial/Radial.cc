@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1991/10/22  18:10:08  thor
+ * Fixed signal/noise ratio text to fit screen. Added NCP (normalized
+ * coherent poer).
+ *
  * Revision 1.6  1991/10/21  18:08:37  thor
  * Fixed to draw text on black background, divide max distance by 1000.
  *
@@ -520,14 +524,10 @@ void Radial::nextZoom(Point cursor)
     switch(zoom)
       {
 	case ZOOM1:
-	  cursor.x *= 2;
-	  cursor.y *= 2;
 	  zoom = ZOOM2;
 	  break;
 
 	case ZOOM2:
-	  cursor.x *= 2;
-	  cursor.y *= 2;
 	  zoom = ZOOM4;
 	  break;
 
