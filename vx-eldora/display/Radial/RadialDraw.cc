@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1992/10/09  14:58:58  thor
+ * Added code to reject overly large beams.
+ *
+ * Revision 1.9  1992/02/05  20:44:33  thor
  * Converted multiplication to addition for more speed.
  *
  * Revision 1.8  1992/02/03  21:33:24  thor
@@ -35,11 +39,31 @@
  *
  * Revision 1.1  1991/04/08  20:29:20  thor
  * Initial revision
+ *
+ *
+ * description:
+ *        This contains the drawing methods for the Radial class. To
+ * provide maximum speed for lesser amounts of drawn data, there are
+ * three methods, one for each level of parameters.
+ *
+ */
+#include "Radial.hh"
+static inline int fastround(double d);
+
+static inline int fastround(double d)
+{
+    register int i;
+    register int cm;
+    register int im;
+
+    asm volatile ("fmove%.l fpcr,%0" : "=dm" (cm) : );
+
+    im = cm & 0xff00;
 
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (im));
 
     asm volatile ("fmove%.l %1,%0" : "=d" (i) : "f" (d));
-    FAST int index = iround(data.angle * 2.0);
+
     asm volatile ("fmove%.l %0,fpcr" : : "dmi" (cm));
 
     return(i);
@@ -228,7 +252,7 @@ void Radial::Draw1(FAST RadialData &data)
 				  d -= ay;
 			      }
 
-    FAST int index = iround(data.angle * 2.0);
+			    y++;
 			    ptr1 += 4096;
 			    d += ax;
 			}
@@ -442,7 +466,7 @@ void Radial::Draw2(FAST RadialData &data)
 		FAST int y = y1;
 		FAST int yend = y2;
 
-    FAST int index = iround(data.angle * 2.0);
+		if (sy == 1)
 		  {
 		      for (;;) 
 			{
