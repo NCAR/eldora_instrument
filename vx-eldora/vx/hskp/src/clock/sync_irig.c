@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/31  22:37:57  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/08/30  20:12:57  craig
  * Initial revision
  *
@@ -98,6 +101,7 @@ char sync_irig()
 
 unsigned char hseconds; 
 short timeout;
+short i;
 
 /********** ENABLE LOADING OF IRIG REGISTER **************/
 
@@ -108,16 +112,16 @@ short timeout;
 timeout = 0;
 do{
     timeout++;
-    taskDelay(2);
+    taskDelay(1);
     }while(((*strg & LDDAY2) != LDDAY2) && (timeout < 90));
 if(timeout >= 90) return((char)0);
-taskDelay(2);
+
 
 /************** LOAD CLOCK REGISTERS WITH IRIG DATA ****************/
 
 *tod_cmnd=0x04; /* Stop clock for loading,leave in 24 hr mode */
 *hsec=0x00;     /* Init hundreths to zero */
-*sec=3+((unsigned char)0x0F&*isec)+((*isec>>4)*10); /* ADD 1 second */
+*sec=1+((unsigned char)0x0F&*isec)+((*isec>>4)*10); /* ADD 1 second */
 
 *min=((unsigned char)0x0F&*imin)+((*imin>>4)*10); /* Load minute register
 						     with IRIG minutes */
@@ -131,7 +135,7 @@ taskDelay(2);
 timeout = 0;
 do{
       timeout++;
-      taskDelay(2);
+      taskDelay(1);
   }while(((*strg & TMRKFND) != TMRKFND) && (timeout < 90));
 
 
@@ -142,3 +146,5 @@ if(timeout >= 90) return((char)0);
 
 return((char)1);
 }
+
+
