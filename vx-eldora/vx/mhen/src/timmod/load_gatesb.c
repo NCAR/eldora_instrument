@@ -9,9 +9,8 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1991/12/04  18:00:41  eric
+ * Revision 1.1  1992/09/15  20:41:00  shawn
  * Initial revision
- *
  *
  * description:
 
@@ -30,19 +29,12 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "ELDRP7.h"
-#include "coll_dpramdefs.h"
 
 void load_gatesb(short num_gates[],short gate_dist1[],short gate_dist2[],short gate_dist3[],short gate_dist4[],short gate_dist5[])
 
 {
-    float floatgate;
     unsigned short *timgate0,*timgate1,*timgate2,*timgate3,*timgate4;
     unsigned short i,gateindex,gatevalue;
-    
-    /* Pointers to Collator */
-    unsigned long  *col_first,*col_gate;
-    col_first  = (unsigned long *) (COL0BASE + COL_RZERO);           /* Col. first-gate   */
-    col_gate   = (unsigned long *) (COL0BASE + COL_GATE_SPACE);      /* Col. gate-spacing */
     
     timgate0   = (unsigned short *)(TIMBASE + TIMGATE0); /* Gate RAM 0 */
     timgate1   = (unsigned short *)(TIMBASE + TIMGATE1); /* Gate RAM 1 */
@@ -134,13 +126,6 @@ void load_gatesb(short num_gates[],short gate_dist1[],short gate_dist2[],short g
 	  printf("load_gatesb: aborting without programming timing module...\n\n");
 	  return;
       }
-    
-    /* write frequency 1 first gate and gate spacing in km 
-       (in at&t floating point) to collator DPRAM */
-    floatgate  = (float) gate_dist1[0]*0.0025;
-    *col_first = i3e2dsp(floatgate);
-    floatgate  = (float) gate_dist1[1]*0.0025;
-    *col_gate  = i3e2dsp(floatgate);
     
     /* ======================DO GATES======================= */
     /* Load first gate count-up value */
