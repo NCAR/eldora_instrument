@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1996/03/04  19:53:29  eric
+ * Added task delay after Collator dspgo -- this improved
+ * power on startup synchronization. Added code to give elapsed
+ * run time in minutes from start to processor failure.
+ *
  * Revision 1.6  1996/02/23  18:04:25  eric
  * modified code to support test pulse (slow cal).
  *
@@ -53,10 +58,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define NEW_TM
 #define T_PULSE
 #define GATES 512
-#define int_vec0 255
-#define int_vec1 254
-#define int_vec2 253
-#define int_vec3 252
+#define int_vec0 175
+#define int_vec1 174
+#define int_vec2 173
+#define int_vec3 172
 #define DATAX    0x0            /* Offset to X axis Data Byte */
 #define STATUSX  0x2            /* Offset to X axis status byte */
 #define POS_OFF  0              /* Offset from "true" North in counts */
@@ -182,6 +187,14 @@ void bim_int3_isr();
 int posit();
 
 vme2_pntr = (struct vmevmehndshk *)(VMEMEM_BASE + STD_BASE);
+
+/* Initialize Ascope Defaults */
+
+TS_gate = 40;
+TS_freq = 1;
+TS_off = 0;
+SCALE_fac = 1.0;
+ASCOPE_mode = TIMESERIES; /* default is Time Series */
 
 #ifdef PIO_CARD
 
@@ -337,6 +350,7 @@ for(;;)
 	    chip_avg3 = (float)(cs -> spacing[2])/(float)(gate_sp) + 0.5;
 	    chip_avg4 = (float)(cs -> spacing[3])/(float)(gate_sp) + 0.5;
 	    pick_gate = fldrdr -> time_series_gate; /* must be divisible by 8 !!! */
+	    TS_gate = pick_gate;
 	    if(!Silent)
 	      printf("pick_gate = %d \n",pick_gate);
 
@@ -610,7 +624,7 @@ for(;;)
 		    {
 			/* Update Status */
 			
-			currStatus->rp7 |= DSP_LOAD;			
+		      currStatus->rp7 |= DSP_LOAD;			
 		    }
 		  load_stat = nu_lddsp(1,1,1,1,"dlprt_ppp_s.dmp");
 		  if(load_stat)
@@ -1322,6 +1336,36 @@ nal priority */
 		  sem_status = semTake(bim_int1_sem, 30); /* wait 30 ticks for ISR to pass sem */
 		  if (sem_status == OK)
 		    {
+
+		  /* Update Time Series Gate if required */
+		      
+		      if(pick_gate != TS_gate)
+			{
+			  sysIntDisable(4);
+			  sysIntDisable(1);
+			  sysIntDisable(2);
+			  sysIntDisable(3);
+			  if(f1_flag)
+			    ppp_ts_gate(TS_gate,1,1);
+			  if(f2_flag)
+			    ppp_ts_gate(TS_gate,2,1);
+			  if(f3_flag)
+			    ppp_ts_gate(TS_gate,3,1);
+			  if(f4_flag)
+			    ppp_ts_gate(TS_gate,4,1);
+			  if(f5_flag)
+			    ppp_ts_gate(TS_gate,5,1);
+			  pick_gate = TS_gate;
+			  printf("Done programming: TS_gate = %d \n",TS_gate);
+			  sem_status = semTake(bim_int2_sem, NO_WAIT); /* don't wait for ISR to pass sem */
+			  sem_status = semTake(bim_int3_sem, NO_WAIT); /* don't wait for ISR to pass sem */	
+			  sem_status = semTake(bim_int1_sem, NO_WAIT); /* don't wait for ISR to pass sem */
+			  sysIntEnable(4);
+			  sysIntEnable(1);
+			  sysIntEnable(2);
+			  sysIntEnable(3);
+			}
+
 #ifdef T_PULSE
                   /* Update Testpulse Parameters -- if required */
      
@@ -1509,7 +1553,7 @@ Determine which DP went out of sync by reading sync flag status back from all op
 			      break;
 
 			  }	
-                        e_time = tickGet()/6000;
+                        e_time = tickGet()/3600;
                         printf("SYSTEM FAILED AFTER %d MINUTES \n",e_time);
 
 		    }
