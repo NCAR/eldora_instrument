@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/09/17  23:06:48  shawn
+ * Changed ecb mask nomenclature
+ *
  * Revision 1.5  1992/09/17  22:40:40  shawn
  * Changed ecb variable nomenclature.
  *
@@ -74,6 +77,7 @@ typedef struct HskpStatus HskpStatus;
 
 #define ARINC_INT_BAD 0x1
 #define IRU_WORDS_BAD 0x2
+#define ARINC_ERRORS  0x4
 
 #define GPS_DATA_LATE    0x1
 #define UNKNOWN_GPS_DATA 0x2
