@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/10/01  00:16:34  vanandel
+ * always use flags, add some debug messages
+ *
  * Revision 1.2  1992/06/24  15:58:25  thor
  * Fixed constructor to allow for 0 length arg list and immediate start.
  *
@@ -150,7 +153,9 @@ void Task::SetFlags(FAST unsigned int mask)
 {
     if (flags == NULL)		// Protect ourself from pointer error.
     {
+#ifdef DEBUG
       logMsg("Task::SetFlags called this = %x, with NIL flags\n", this);
+#endif
       return;
     }
 
