@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1995/03/31  22:51:15  craig
+ * modified for DLT
+ *
  * Revision 1.3  1995/01/26  16:19:20  craig
  * Fixed problem with volume numbers counting incorrectly
  *
@@ -52,7 +55,7 @@ if(new_volume)
   {
       log_ints[3] = vol_num;
       log_ints[4] = tape_num;
-      loggerEvent("Volume_Start Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d\n"
+      loggerEvent("Volume_Start: %2d/%2d/%2d Vol#: %3d Tape#: %2d\n"
 		  ,log_ints,5);
       new_volume = 0;
   }
@@ -76,7 +79,7 @@ for(i=0; i<number_of_drives; i++)
 	    /* Log this error in the log file */
 	    log_ints[3] = drives_to_use[i];
 	    log_ints[4] = stat;
-	    loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on standard data write\n",log_ints,5);
+	    loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Standard data wrt\n",log_ints,5);
 	}
   }
 
@@ -104,7 +107,7 @@ if(file_size >= MAX_FILE_SIZE)
 		  /* Log this error in the log file */
 		  log_ints[3] = drives_to_use[i];
 		  log_ints[4] = stat;
-		  loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on Maximum File Ending Header Write\n",log_ints,5);
+		  loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Max File End Header Wrt\n",log_ints,5);
 	      }
 
 	    exb_cmds(WRITE_FILEMARK,WRT_FLMK,drive_id);
@@ -113,7 +116,7 @@ if(file_size >= MAX_FILE_SIZE)
       /* Log end of volume in the log file */
       log_ints[3] = vol_num;
       log_ints[4] = tape_num;
-      loggerEvent("Volume_End Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d Maximum Volume Size Reached\n",log_ints,5);
+      loggerEvent("Volume_End: %2d/%2d/%2d Vol#: %3d Tape#: %2d Maximum Size Reached\n",log_ints,5);
       new_volume = 1;
 
       /* Do not increment volume number write new header on active drives */
@@ -131,7 +134,7 @@ if(file_size >= MAX_FILE_SIZE)
 		  /* Log this error in the log file */
 		  log_ints[3] = drives_to_use[i];
 		  log_ints[4] = stat;
-		  loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on New Header Write\n",log_ints,5);
+		  loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x New Header Wrt\n",log_ints,5);
 	      }
 	}
 
@@ -147,7 +150,7 @@ if(WRITE_TAPE_STATUS==1)
       drive_id = drives_to_use[0];
       tapeStatus->attempts[current_unit] = write_attempts;
 
-      exb_cmds(LOG_SENSE,LOG_SEN,drive_id);
+/*      exb_cmds(LOG_SENSE,LOG_SEN,drive_id); */
       err.achar[0] = log_page.total_errors_cor.pvalue_msb;
       err.achar[0] = log_page.total_errors_cor.pvalue_midh;
       err.achar[0] = log_page.total_errors_cor.pvalue_midl;
@@ -185,13 +188,13 @@ if(WRITE_TAPE_STATUS==1)
 			/* Log this error in the log file */
 			log_ints[3] = drives_to_use[i];
 			log_ints[4] = stat;
-			loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on Ending Header Write\n",log_ints,5);
+			loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x Ending Header Wrt\n",log_ints,5);
 		    }
 
 		  /* Log end of volume in the log file */
 		  log_ints[3] = vol_num;
 		  log_ints[4] = tape_num;
-		  loggerEvent("Volume_End Time: %2d/%2d/%2d Volume#: %3d Tape#: %2d End of Tape Reached\n",log_ints,5);
+		  loggerEvent("Volume_End: %2d/%2d/%2d Vol#: %3d Tape#: %2d End of Tape\n",log_ints,5);
 		  new_volume = 1;
 
 		  /* Write a filemark and then unload each active drive */
@@ -257,7 +260,7 @@ if(WRITE_TAPE_STATUS==1)
 				    /* Log this error in the log file */
 				    log_ints[3] = drives_to_use[i];
 				    log_ints[4] = stat;
-				    loggerEvent("Tape_Error Time: %2d/%2d/%2d SCSI_ID: %1d Status: %4x Error on New Header Write\n",log_ints,5);
+				    loggerEvent("Tape_Error: %2d/%2d/%2d SCSI_ID: %1d Stat: %4x New Header Wrt\n",log_ints,5);
 				}
 			  }
 		    } /* if(number_of_drives > 0) */

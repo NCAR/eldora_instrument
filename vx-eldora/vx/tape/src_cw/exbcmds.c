@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1995/03/31  22:48:45  craig
+ * Modified for DLT
+ *
  * Revision 1.1  1994/01/06  21:31:22  craig
  * Initial revision
  *
@@ -184,6 +187,20 @@ switch(cmnd_ident)
       op8=sizeof(log_page);
       op9=0x00;
       break;
+    case LOG_SENSE_SPGS:
+      vme_addr=(unsigned int)&suprt_pgs;/* BEGINNING OF suprt_pgs */
+      xfer_count=sizeof(suprt_pgs);
+      flags = 0x6C;
+      op1=0x00;
+      op2=0x00;           /* cumulative values, write errors */
+      op3=0x00;
+      op4=0x00;
+      op5=0x00;
+      op6=0x00;
+      op7=0x00;
+      op8=sizeof(suprt_pgs);
+      op9=0x00;
+      break;
   }
 /******************* SETUP CIPRICO PARAMETER BLOCK *****************/
 
@@ -221,7 +238,7 @@ while(old_stat==new_stat) /* Watch for ENT bit to toggle */
   {                       /* to show if board is ready for */
       new_stat=*status;   /* another command. */             
       i++;                     
-      if(i==500000000)
+      if(i==500000)
 	{
 	    stat=1;
 	    puts("CHAN ATTN TIMEOUT\n");
@@ -234,9 +251,9 @@ i=0;
 while(parmblk[cmnd_ident].stat_flags!=0x80) /* Watch for command complete */
   {                                         /* flag showing command was   */
       i++;                                  /* successfully completed     */
-      if(i==500000000)                      /* If not drop out and show   */
+      if(i==500000)                      /* If not drop out and show   */
 	{                                   /* error status.   */
-	    printf("COMMAND #%X TIMEOUT in exbcmds\n",cmnd_ident);
+	    printf("COMMAND #%d TIMEOUT in exbcmds\n",cmnd_ident);
 	    stat=1;                       
 	    break;
 	}
