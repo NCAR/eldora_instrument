@@ -9,20 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1994/01/06  21:39:10  craig
- * Initial revision
- *
- * Revision 1.6  1993/09/22  14:56:31  reif
- * *** empty log message ***
- *
- * Revision 1.5  1992/12/17  21:40:21  reif
- * *** empty log message ***
- *
- * Revision 1.4  1992/11/04  04:55:13  reif
- * *** empty log message ***
- *
- * Revision 1.3  1992/10/30  23:59:26  reif
- * *** empty log message ***
  *
  * Revision 1.2  1992/10/17  21:38:07  reif
  * changed for global structures
@@ -108,10 +94,11 @@
 #define AM 0x3D
 #define INT_LVL 0x00
 #define USER_ID 0x00
+
 #define MAD_BASE 0x2000000
 #define NUM_RECS 0x2000004
 #define MAIL_BOX 0x2000008
-#define DATA_RECS 0x2000800
+#define DATA_RECS 0x2001800
 #define MAX_TRIES 70
 #define MAX_COUNT 1000
 #define MAX_BLK_SZ 32768

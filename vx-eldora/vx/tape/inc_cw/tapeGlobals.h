@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:58:23  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1994/01/06  21:39:16  craig
  * Initial revision
  *
@@ -67,6 +70,8 @@ TAPE_CTRL_SCOPE int log_ints[10];     /* Array to hold integer values to be
 					 sent to the log file, by definition
 					 during run time, the first three
 					 values are hour, minute, second */
+TAPE_CTRL_SCOPE int calibrate;        /* Flag to switch over to the
+					 calibrate mode */
 
 #endif /* INCtapeCtrlGblh */
 

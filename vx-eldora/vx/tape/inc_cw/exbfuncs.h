@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:58:21  craig
+ * *** empty log message ***
+ *
  * Revision 1.1  1994/01/06  21:39:14  craig
  * Initial revision
  *
@@ -73,6 +76,7 @@ void ads_sctr_gthr(int,int);
 unsigned int tape_header(void);
 void drv_sel(unsigned int *,unsigned int,unsigned char);
 int tape_remain(int);
+void cal_sum(void);
 void record_on(int);
 void record_off(int);
 int reduce_data(short,unsigned int *);
