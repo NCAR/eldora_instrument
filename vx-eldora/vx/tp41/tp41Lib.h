@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/08/24  18:10:36  thor
+ * Added new routines.
+ *
  * Revision 1.3  1992/03/04  17:11:20  thor
  * Added new code to dual port in standard i/o space.
  *
@@ -28,11 +31,14 @@
 #define INCtp41Libh
 
 #include "vxWorks.h"
+
+#ifdef TP41LIB
 #include "stdioLib.h"
 #include "memLib.h"
 #include "vme.h"
 #include "tp41.h"
 #include "sysLib.h"
+#endif /* TP41LIB */
 
 /* Local extensions. */
 extern STATUS dport(char *localAddr, void *vmeAddr, int numSegs);
