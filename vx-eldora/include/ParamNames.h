@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1991/10/14  19:40:36  thor
+ * Added char strings for variables and NCP.
+ *
  * Revision 1.3  1991/09/30  14:58:11  thor
  * Added no parameter value.
  *
@@ -60,7 +63,7 @@ static INLINE int ParamToNum(register int p)
       case REAL_R2: return(6);
       case IMAG_R1: return(7);
       case IMAG_R2: return(8);
-      case NCP: return(9)
+      case NCP: return(9);
       case NO_PARAM: return(10);
       default: return(-1);
     }
