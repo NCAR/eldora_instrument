@@ -1,28 +1,18 @@
 /*
- *	$Id$
- *
- *	Module:	DSPDEFS	 
- *	Original Author: Grant Gray
- *      Copywrited by the National Center for Atmospheric Research
- *	Date: 	       $Date$
- *
- * revision history
- * ----------------
- * $Log$
- *
- *
- * description:
- *
- *	General RP7 DSP/Collator board definitions
- *	8/5/89 
- *	Added:
- *		ISIM and QSIM; which simulate I and Q outputs, respectively,
- *		when addressed.
- *        
- */
-#ifndef INCdspdefs
-#define INCdspdefs
+*		Module:	dspdefs.h
+*		Author:	Grant Gray
+*		Date:	2/25/89
+*
+*	General RP7 DSP/Collator board definitions
+*	8/5/89 
+*	Added:
+*		ISIM and QSIM; which simulate I and Q outputs, respectively,
+		when addressed.
+*/
+ 
 
+#ifndef INCdspdefsh
+#define  INCdspdefsh
 /*
 Parallel IO offsets for PIO mode 1 -- 8 bit transfers, DSP32 emulation.
 PCR[9]=0,PCR[1]=0
@@ -132,4 +122,4 @@ DSPQ and Collator board definitions
 #define		DAISY	0x00000	/* Daisy-chain enable latch		*/
  
 
-#endif /* INCdspdefs */
+#endif INCdspdefsh

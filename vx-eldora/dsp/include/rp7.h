@@ -1,26 +1,12 @@
 /*
- *	$Id$
- *
- *	Module:	RP7	 
- *	Original Author: Grant Gray
- *      Copywrited by the National Center for Atmospheric Research
- *	Date: 	      $Date$
- *
- * revision history
- * ----------------
- * $Log$
- *
- *
- * description:
- *
- *  This is an "include" file which defines all the special I/O 
- *  locations in the memory spaces of the Quad DSP and Collator boards.
- *        
- */
-#ifndef INCrp7
-#define INCrp7
+		Module:	RP7.H
+		Author:	Grant Gray
+		Date:	6/8/89
 
+This is an "include" file which defines all the special I/O locationsin the
+memory spaces of the Quad DSP and Collator boards.
 
+*/
 /* Quad DSP and Collator */
  
 #define	A_PORT	0xFFDF04
@@ -54,5 +40,3 @@
 #define	B_SENSE	1
 #define	C_SENSE	2
 #define	ALLSENSE	3
-
-#endif /* INCrp7 */

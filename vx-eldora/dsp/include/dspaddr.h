@@ -1,28 +1,86 @@
+/******************************************************************************
+*                                                                             *
+* Copyright (c) 1990,							      *
+* 	National Center for Atmospheric Research                              *
+*									      *
+*******************************************************************************
+                                                                               
+$Header$
+
+*******************************************************************************
+* Revision history:
+* $Log$
+ * Revision 1.18  91/03/19  07:17:08  vanandel
+ * added offset for time series data
+ * 
+ * Revision 1.17  90/12/06  11:07:04  vanandel
+ * constants for DSP index beam control
+ * 
+ * Revision 1.16  90/11/30  11:42:56  vanandel
+ * change to use gin_NumOfQuads, since this is
+ * defined on all procesors
+ * 
+ * Revision 1.15  90/11/26  13:05:33  vanandel
+ * added various constants for support of full control,
+ * indexed beam code
+ * 
+ * Revision 1.14  90/11/19  14:19:16  vanandel
+ * add  globals to indicate how many samples were actually integrated,
+ * and to control operation of indexing
+ * 
+ * Revision 1.13  90/11/13  16:27:31  gagnon
+ * *** empty log message ***
+ * 
+ * Revision 1.12  90/10/01  07:53:10  vanandel
+ * added offsets for GATES, SAMPLES, FILTER, for debug use
+ * 
+ * Revision 1.11  90/08/06  10:04:10  vanandel
+ * added DSP_TS_LEN_OUT for timeseries
+ * 
+ * Revision 1.10  90/05/21  12:53:29  vanandel
+ * added COL_STAT_ADDR macro
+ * 
+ * Revision 1.9  90/05/10  17:18:49  vanandel
+ * added checksum location 
+ * 
+ * Revision 1.8  90/05/09  14:57:07  vanandel
+ * added gate averaging control word
+ * 
+ * Revision 1.7  90/05/04  17:55:49  vanandel
+ * fixed comments and several typos
+ * 
+ * Revision 1.6  90/05/03  15:52:16  vanandel
+ * add gate selection parameter
+ * 
+ * Revision 1.5  90/05/01  12:31:56  vanandel
+ * added averages for A & B
+ * 
+ * Revision 1.4  90/04/26  13:01:05  vanandel
+ * added power counts and 'MAGIC' (sanity bit pattern) 
+ * 
+ * Revision 1.3  90/04/23  18:27:43  vanandel
+ * added defines for I and Q offset stats
+ * 
+ * Revision 1.2  90/02/24  15:27:35  vanandel
+ * malformed comment
+ * 
+ * Revision 1.1  90/02/24  15:20:43  vanandel
+ * Initial revision
+ * 
+* 
+*********************************END OF RCS INFO******************************/
+
+#ifndef INCdspaddr
+#define INCdspaddr
+
 /*
- *	$Id$
- *
- *	Module:	DSPADDR
- *	Original Author: JoeVanAndel?
- *      Copywrited by the National Center for Atmospheric Research
- *	Date:        $Date$
- *
- * revision history
- * ----------------
- * $Log$
- *
- *
- * description:
  * define locations in quad/collator code used for parameters set by host
  *
  * (these are not defined in dspdefs.h, since they are conventions and
  *  not hardwired addresses)
  * 
  * WARNING- these values are also assumed in various DSP32C routines! 
- *        
  */
-
-#ifndef INCdspaddr
-#define INCdspaddr
 
 #define DSP_PARAM_BASE  0x50
 

@@ -1,28 +1,9 @@
+
 /*
- *	$Id$
- *
- *	Module: COLQUADSUBS		 
- *	Original Author: Frank Pratte
- *      Copywrited by the National Center for Atmospheric Research
- *	Date:   	 $Date$
- *
- * revision history
- * ----------------
- * $Log$
- *
- *
- * description:
- *
- *	COLLATOR & QUAD subroutines from AT&T DSP32C library
- *	invf, log10, loge, divf, sqrtq
- *	26 Nov 90 f.p.
- *        
- */
-#ifndef INCcolquadsubs
-#define INCcolquadsubs
-
-
-
+*	COLLATOR & QUAD subroutines from AT&T DSP32C library
+*	invf, log10, loge, divf, sqrtq
+*	26 Nov 90 f.p.
+*/
 
 /*  define HIRESLOG for the full precision log routines */
 #define HIRESLOG
@@ -299,6 +280,7 @@ _logc0e:         	float -2.083333333*ETOE      /* c0 */
 #endif COLSUBS
 
 #ifdef COLSUBS
+.global _divf, _sqrtf
 /************************************************************/
 /* The routine _divf follows                                */
 /************************************************************/
@@ -805,5 +787,5 @@ endcode:	int24	0x5555
 
 #endif OLD_ATAN2
 #endif COLSUBS
-#endif /* INCcolquadsubs */
+
 /* end of COLLATOR subroutines */
