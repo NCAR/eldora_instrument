@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  20:09:05  craig
+ * Expand to possible 3000 rays in a MAD area
+ *
  * Revision 1.1  1994/07/14  20:33:03  eric
  * Initial revision
  *
@@ -132,12 +135,13 @@ data_len = num_cells * bytes_per_cell;
 printf("data_len = %d \n",data_len);
 fldrdr = GetFieldRadar(inHeader,1); /* Assume Fore and Aft have identicle operation */
 if(fldrdr -> indepf_times_flg > 0)
-  indep_freq_len = rdsc -> num_freq_trans * bytes_per_cell * rdsc -> num_ipps_trans + sizeof(INDEP_FREQ);
+  indep_freq_len = rdsc -> num_freq_trans * 8 * rdsc -> num_ipps_trans + sizeof(INDEP_FREQ);
 else
   indep_freq_len = 0;
 printf("indep_freq_len = %d \n",indep_freq_len);
+wvfm = GetWaveform(inHeader);
 if(fldrdr -> indepf_times_flg == 3)
-  time_series_len = rdsc -> num_freq_trans * 2 * 4 * prm -> num_samples * rdsc -> num_ipps_trans + sizeof(TIME_SERIES);
+  time_series_len = rdsc -> num_freq_trans * 2 * 4 * wvfm -> repeat_seq_dwel * wvfm -> num_chips[0] + sizeof(TIME_SERIES);
 else
   time_series_len = 0;
 printf("time_series_len = %d \n",time_series_len);
