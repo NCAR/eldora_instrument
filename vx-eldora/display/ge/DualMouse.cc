@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1993/09/28  13:19:09  thor
+// Initial revision
+//
  *
  *
  * description:
@@ -37,7 +40,7 @@ void DualMouse(FAST Dual *disp)
     else if (buttonState == RBUTTON_DOWN)
       {
 	  cursor = rodent->getXY();
-		      
+
 	  if (cursor.x < PLOT_WIDTH)
 	    disp->Pan(cursor);
       }
@@ -45,7 +48,7 @@ void DualMouse(FAST Dual *disp)
       disp->Home();
 
     cursor.x = PLOT_WIDTH / 2;
-    cursor.y = PLOT_HEIGHT / 2;
+    cursor.y = PLOT_HEIGHT / 4;
 
     rodent->setCursorXY(cursor);
 }
