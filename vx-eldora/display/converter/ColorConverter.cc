@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1991/12/06  16:37:01  thor
+ * Added method for vertical displays.
+ *
  * Revision 1.10  1991/11/15  16:46:18  thor
  * Fix another indexing bug, optimized calc loops.
  *
@@ -166,6 +169,38 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 			      FAST int index)
 void ColorConverter::GetPoint(FAST short *data, FAST DataPoint &dp,
 			    FAST int index)
+    FAST int *offsets = valueOffset;
+    FAST unsigned char bins = nbins;
+    FAST unsigned char tsize = bins - 1; // Loop count maximum.
+    FAST unsigned char inc = 0;	   // Offset into color table.
+    FAST int count = numOfValues;
+    FAST int off = numOfParams * index;	// Offset to this gates' location.
+    FAST int offset = *offsets++ + off; // Now add in offset to param.
+    FAST unsigned char *colors = &dp.colors[0];
+    FAST short **tbls = tbl;
+
+    for (FAST int i = 0; i < count; i++, inc += bins, tbls++)
+      {
+	  FAST int offset = *offsets++ + off; // Now add in offset to param.
+
+	  FAST short datum = *(data + offset);
+
+	  FAST short *lkup = *tbls;
+	  
+	  FAST unsigned char color = 0; 
+
+	  do
+	    {
+		if (datum <= *lkup++)
+		  break;
+	    } while (++color < tsize);
+
+	  *colors++ = color + inc;
+      }
+}
+
+void ColorConverter::GetVertPoint(FAST short *data, FAST VertPoint &dp,
+				  FAST int index)
 {
     FAST unsigned char bins = nbins;
     FAST unsigned char tsize = bins - 1; // Loop count maximum.

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/14  19:16:08  thor
+ * Fixed to use CELLSPACING structure from header.
+ *
  * Revision 1.4  1991/06/28  19:06:55  thor
  * Changed SetBeamSize routine to use new precalcuated parameters.
  *
@@ -76,11 +79,14 @@ class ColorConverter {
     // For radial case.
     void SetBeamSize(CELLSPACING &cs);
 
-    // Horizontal & vertical case.
+    // Horizontal case.
     void GetPoint(short *data, DataPoint &dp, int index);
 
+    // Vertical case.
+    void GetVertPoint(short *data, VertPoint &vp, int index);
+
     // Radial again.
-    void GetBeam(FAST short *data, FAST RadialData &rad);
+    void GetBeam(short *data, RadialData &rad);
 
     ~ColorConverter(void)
       {
