@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/08/28  19:48:54  thor
+ * Initial revision
+ *
  *
  * description:
  *        
@@ -19,6 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define CLIENT_SIDE
 #define OK_RPC
 #include "tapeControl.h"
+#include <memory.h>
 
 static struct timeval TIMEOUT = { 5, 0 };
 
@@ -27,9 +31,10 @@ struct TapeStatus *sendcommand_1(FAST TapeCommand *argp, FAST CLIENT *clnt)
     static struct TapeStatus res;
     int stat;
 
-    bzero((char *)&res, sizeof(res));
-    if (clnt_call(clnt, SendCommand, xdr_TapeCommand, argp, xdr_TapeStatus,
-		  &res, TIMEOUT) != RPC_SUCCESS) 
+    (void)memset((char *)&res,0,sizeof(res));
+    if (clnt_call(clnt,SendCommand,(xdrproc_t)xdr_TapeCommand,(caddr_t)argp,
+                  (xdrproc_t)xdr_TapeStatus,(caddr_t)&res,TIMEOUT)
+        != RPC_SUCCESS) 
       {
 	  return (NULL);
       }
@@ -40,9 +45,10 @@ struct TapeStatus *gettapestatus_1(FAST void *argp, FAST CLIENT *clnt)
 {
     static struct TapeStatus res;
 
-    bzero((char *)&res, sizeof(res));
-    if (clnt_call(clnt, GetTapeStatus, xdr_void, argp, xdr_TapeStatus, &res,
-		  TIMEOUT) != RPC_SUCCESS) 
+    (void)memset((char *)&res,0,sizeof(res));
+    if (clnt_call(clnt,GetTapeStatus,(xdrproc_t)xdr_void,(caddr_t)argp,
+                  (xdrproc_t)xdr_TapeStatus,(caddr_t)&res,TIMEOUT)
+        != RPC_SUCCESS) 
       {
 	  return (NULL);
       }

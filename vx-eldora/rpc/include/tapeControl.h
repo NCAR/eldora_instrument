@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/05/07  16:32:46  thor
+ * Changed code to handle nmon-gcc compilation.
+ *
  * Revision 1.4  1992/01/14  15:21:54  thor
  * Added code for data reduction.
  *
@@ -31,53 +34,30 @@
 
 #ifdef OK_RPC
 
-#ifdef TAE
-#include <rpc/rpc.h>
-#define FAST register
-#else
-
 #ifndef UNIX
 #include "vxWorks.h"
-#include "rpc/rpc.h"
 #include "taskLib.h"
 #else
-#include <rpc/rpc.h>
 #define FAST register
 #endif /* UNIX */
 
-#endif /* TAE */
+#include <rpc/rpc.h>
 
 #endif /* OK_RPC */
 
 struct TapeCommand {
     u_long cmd;			/* Command */
-    u_long count;		/* Running count. */
-    int unit;			/* Effected unit. */
-    int parameter;		/* Parameter for thresholding. */
-    float top;			/* Max altitude for clipping. */
-    float bottom;		/* Min altitude for clipping. */
-    float start;		/* First angle for pie slice. */
-    float stop;			/* Last angle for pie slice. */
-    float threshold;		/* Threshold value. */
-};
-
-struct TapeError {
-    int error;
-};
-
-struct ScsiError {
-    int error;
 };
 
 struct TapeStatus {
-    u_long status;
-    u_long count;
-    u_long failures;
-    u_long attempts;
+    u_long drives0[2];
+    u_long drives1[2];
+    u_long number_of_drives[2];
+    u_long status[2];
+    u_long failures[2];
+    u_long attempts[2];
     int eot_warning;
     int unit;
-    struct TapeError terr;
-    struct ScsiError serr;
 };
 
 #ifdef OK_RPC
@@ -88,12 +68,6 @@ struct TapeStatus {
 typedef struct TapeCommand TapeCommand;
 bool_t xdr_TapeCommand(XDR *, TapeCommand *);
 
-typedef struct TapeError TapeError;
-bool_t xdr_TapeError(XDR *, TapeError *);
-
-typedef struct ScsiError ScsiError;
-bool_t xdr_ScsiError(XDR *, ScsiError *);
-
 typedef struct TapeStatus TapeStatus;
 bool_t xdr_TapeStatus(XDR *, TapeStatus *);
 
@@ -102,13 +76,10 @@ bool_t xdr_TapeStatus(XDR *, TapeStatus *);
 #define SendCommand ((u_long)1)
 #define GetTapeStatus ((u_long)2)
 
-#ifdef CLIENT_SIDE
 extern struct TapeStatus *sendcommand_1(TapeCommand *, CLIENT *);
 extern struct TapeStatus *gettapestatus_1(void *, CLIENT *);
-#else
-extern struct TapeStatus *sendcommand_1(TapeCommand *, struct svc_req *);
-extern struct TapeStatus *gettapestatus_1(void *, struct svc_req *);
-#endif
+extern struct TapeStatus *sendcommand_1_svc(TapeCommand *, struct svc_req *);
+extern struct TapeStatus *gettapestatus_1_svc(void *, struct svc_req *);
 
 void startControl(void);
 
@@ -119,45 +90,6 @@ program TapeControl {
 	struct TapeStatus GetTapeStatus(void) = 2;
     } = 1;
 } = 0x30000300;
-#endif
-
-#ifdef __STDC__
-static u_long UNPACKSTATUS(FAST u_long status, FAST int unit);
-static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit);
-
-#ifdef __cplusplus
-#define INLINE inline
-#else
-#define INLINE 
-#endif
-
-INLINE static u_long UNPACKSTATUS(FAST u_long status, FAST int unit)
-{
-    if (unit == 0)
-      return(status & 0xffff);
-    else
-      return(status >> 16);
-}
-
-INLINE static void PACKSTATUS(FAST int status, FAST u_long *blk, FAST int unit)
-{
-    FAST u_long i = *blk;
-
-    if (unit == 1)
-      {
-	  status <<= 16;
-	  i &= 0xffff;
-	  i |= status;
-      }
-    else
-      {
-	  i &= 0xffff0000;
-	  i |= status;
-      }
-    *blk = i;
-}
-
-#endif /* GNUC */
-      
+#endif /* OK_RPC */      
 #endif /* INCtapeControlh */
 
