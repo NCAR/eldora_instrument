@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:25:16  eric
+ * Removed status block variable "count".
+ *
  * Revision 1.1  1994/07/14  20:32:58  eric
  * Initial revision
  *
@@ -59,11 +62,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "dspdefs.h"
 #include "dspaddr.h"
 #include "rp7.h"
-
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern WAVEFORM *wvfm;
-extern PARAMETER *prm;
 
 mcpl_init()
 {
