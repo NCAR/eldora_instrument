@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:11:14  eric
+ * Initial revision
+ *
  *
  * description:
  *
@@ -36,6 +39,7 @@ void col_sync()
 
     pio = (unsigned char *)(bd + DSPSEL);
     if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
+    *(pio + PCRL) = 0x1b; /* setup Auto incrementing */
     parm = (unsigned int )COL_F1_SYNC;
     *(pio + PARE) = (0xff0000 & parm) >> 16;
     *(pio + PARL) = 0xff & parm;
@@ -44,13 +48,11 @@ void col_sync()
     status = *temp & 0xff;
     temp = (unsigned char *)(pio + PDRH);
     status += ((*temp & 0xff)<< 8);
-    *(pio + PARE) = (0xff0000 & (parm + 2)) >> 16;
-    *(pio + PARL) = 0xff & (parm + 2);
-    *(pio + PARH) = (0xff00 & (parm + 2)) >> 8;
     temp = (unsigned char *)(pio + PDRL);
     status += (*temp & 0xff) << 16;
     temp = (unsigned char *)(pio + PDRH);
     status += ((*temp & 0xff)<< 24);
+    *(pio + PCRL) = REGMAP + RUN + ENI; /* disable Auto incrementing */
     if(status)
       {
 	  printf("COLLATOR SYNC ERROR CAUSED BY F1 Doppler Processor \n" );
