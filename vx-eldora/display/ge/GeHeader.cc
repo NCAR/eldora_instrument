@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/01  16:15:13  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -19,11 +22,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "GeGlobal.hh"
 
 static char junk;
-
-void *sendcounts_1(WAVECOUNTS *wc, struct svc_req *req)
-{
-    return((void *)&junk);
-}
 
 void *sendheader_1(FAST TAPEHEADER *th, struct svc_req *x)
 {
