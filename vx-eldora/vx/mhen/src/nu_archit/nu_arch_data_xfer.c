@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/07/14  20:36:17  eric
+ * Added End of Beam error detection.
+ *
  * Revision 1.1  1994/04/22  19:56:20  eric
  * Initial revision
  *
@@ -50,6 +53,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "systime.h"
 #include "sysLib.h"
 
+#include "HeaderRpc.h"
 #include "Parameter.h"
 #include "Header.h"
 #include "CellSpacing.h"
@@ -86,14 +90,16 @@ coll_data_xfer()
 
 long           k, l, m, p, q, r, s;
 
-register long  i;
+register long  i,j;
 
 int            *samps, data_samps, buff_cnt, prf, gates,sem_status, sampl,
-               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, tp_pwr_off,
+               prt_flag, f1_flag, f2_flag, ts_sampl, n, fta_freq, tp_pwr_off, tp_pwr_indx,
                f3_flag, f4_flag, f5_flag, f_flag, ts_off, ts_cnt, incr, offset, lgate_off,
                indf_off, num_int1, num_int2, num_int3, num_int4, tnum_int, cnt;
 
 volatile short indf_ts, ray_hndshk_stat;
+
+short          num_param;
 
 unsigned long  data_loc_base;
 
@@ -117,14 +123,27 @@ for(;;)
 
 	    wvfm = GetWaveform(inHeader);
 	    gates = wvfm -> num_gates[0];
-	    f1_flag = wvfm -> num_chips[0];
-	    f2_flag = wvfm -> num_chips[1];
-	    f3_flag = wvfm -> num_chips[2];
-	    f4_flag = wvfm -> num_chips[3];
-	    f5_flag = wvfm -> num_chips[4];
-	    f_flag = f1_flag + f2_flag + f3_flag + f4_flag + f5_flag;
-	    prt_flag = 0;
-	    sampl = wvfm -> repeat_seq_dwel * wvfm -> num_chips[0];
+            f1_flag = wvfm -> num_chips[0];
+            prt_flag = 0;    /* default is single prt */
+            if(f1_flag > 1)
+              {
+                  f1_flag = 1;
+                  prt_flag = 1;
+              }
+            f2_flag = wvfm -> num_chips[1];
+            if(f2_flag > 1)
+                  f2_flag = 1;
+            f3_flag = wvfm -> num_chips[2];
+            if(f3_flag > 1)
+                  f3_flag = 1;
+            f4_flag = wvfm -> num_chips[3];
+            if(f4_flag > 1)
+                  f4_flag = 1;
+            f5_flag = wvfm -> num_chips[4];
+            if(f5_flag > 1)
+                  f5_flag = 1;
+            f_flag = f1_flag + f2_flag + f3_flag + f4_flag + f5_flag;
+	    sampl = wvfm -> repeat_seq_dwel;
 	    incr = ((f_flag * 8) - 4)/4;
 	    if(!radar_fore_aft)
 	      cs = GetCellSpacing(inHeader,1);
@@ -136,6 +155,14 @@ for(;;)
             num_int4 = cs -> num_cells[3];
 	    tnum_int = num_int1 + num_int2 + num_int3 + num_int4;
 
+            if(!radar_fore_aft)
+              rdsc = GetRadar(inHeader,1);
+            if(radar_fore_aft)
+              rdsc = GetRadar(inHeader,2);
+            num_param = rdsc -> num_parameter_des;
+            if(num_param == 10) /* we really have 12 parameters in collator */
+              num_param = 12;
+            
 /* Substitute code to process indf_ts here !!! */
 
 	    if(!radar_fore_aft)
@@ -147,9 +174,9 @@ for(;;)
       /* General Initialization */
 
 	    data_loc = (unsigned long *)(COL0BASE + DB_1);
-	    ts_off = (tnum_int * 4 * 2) + (2 * f_flag * 4 * 2);
+	    ts_off = (tnum_int * num_param * 2) + (2 * f_flag * num_param * 2 *(prt_flag + 1));
 	    tp_pwr_off = ts_off + (2 * f_flag * 4 * sampl);
-	    data_samps = (tnum_int - 1) * 2;
+	    data_samps = (tnum_int - 1) * num_param * 2 / 4;
 	    buff_cnt = 0;
 	    ts_cnt = 0;
 	    cnt = 0;
@@ -165,14 +192,14 @@ for(;;)
 	    switch(indf_ts)
 	      {
 		case 0:
-		  data_samps = (tnum_int - 1) * 2;
+		  data_samps = (tnum_int - 1) * num_param * 2 / 4;
 		  break;
 		case 1:
-		  indf_off = 2 * 4 * (tnum_int + f_flag);
+		  indf_off = 2 * (num_param * tnum_int + f_flag * 4 * (prt_flag + 1));
 		  break;
 		case 3:
-		  indf_off = 2 * 4 * (tnum_int + f_flag);
-		  ts_sampl = 2 * sampl * f_flag;
+		  indf_off = 2 * (num_param * tnum_int + f_flag * 4 * (prt_flag + 1));
+		  ts_sampl = 2 * sampl * f_flag * (prt_flag + 1);
 		  break;
 	      }
      
@@ -192,18 +219,24 @@ for(;;)
 			switch(vme2_pntr -> tpulse_freq_num)
 			  {
 			    case 1:
-			      lgate_off = 0x2;
+			      lgate_off = 0x0;
 			      break;
 			    case 2:
-			      lgate_off = 0x4;
-			      tp_pwr_off += 0x4;
+			      lgate_off = 0x8 * (prt_flag + 1);
+			      tp_pwr_indx = tp_pwr_off + 0x4;
 			      break;
 			    case 3:
-			      lgate_off = 0x6;
-			      tp_pwr_off += 0x8;
+			      lgate_off = 0x10 * (prt_flag + 1);
+			      tp_pwr_indx = tp_pwr_off + 0x8;
+			      break;
+			    case 4:
+			      lgate_off = 0x18 * (prt_flag + 1);
+			      break;
+			    case 5:
+			      lgate_off = 0x20 * (prt_flag + 1);
 			      break;
 			    default:
-			      lgate_off = 0x2;
+			      lgate_off = 0x0;
 			      break;
 			  }
 			data_loc_base = (unsigned long)data_loc;
@@ -227,21 +260,44 @@ for(;;)
 			i = data_samps;
 
 			/* Pull data from Collator's Dual Port Ram */
-			
-			while(i-- != 0)
-			  {
-			      *dptr++ = *data_loc++;
-			  }
-			data_loc += lgate_off;
-			*dptr++ = *data_loc++;
-			*dptr++ = *data_loc++;
+			if(!prt_flag || num_param == 6)
+                            {
+                                while(i-- != 0)
+                                    {
+                                        *dptr++ = *data_loc++;
+                                    }
+                                data_loc += lgate_off;
+                                *dptr++ = *data_loc++;
+                                *dptr++ = *data_loc++;
+                            }
+                        else
+                            {
+                                j = 0;
+                                while(i-- != 0)
+                                    {
+                                        if(j != 1)
+                                            {
+                                                *dptr++ = *data_loc++;
+                                            }
+                                        else
+                                            {
+                                                data_loc++;
+                                            }
+                                        j++;
+                                        if(j == 6)
+                                          j = 0;
+                                    }
+                            }
+                                data_loc += lgate_off;
+                                *dptr++ = *data_loc++;
+                                *dptr++ = *data_loc++;
 
-			if((indf_ts == 1)||(indf_ts == 3))
-			  {
+                  if((indf_ts == 1)||(indf_ts == 3))
+                            {
 			      dptr++;       /* skip over indep freq header info */
 			      dptr++;
 			      data_loc = (unsigned long *)(data_loc_base + indf_off);
-			      i = 2*f_flag;
+			      i = 2*f_flag * (prt_flag + 1);
 			      while(i-- != 0)
 				{
 				    *dptr++ = *data_loc++;
@@ -265,8 +321,8 @@ for(;;)
 			      
 			/* Write testpulse power into vme to vme handshake area */
 			
-			tp_pwr_loc = (float *)(data_loc_base + tp_pwr_off);
-			vme2_pntr -> tpulse_level_proc = *tp_pwr_loc;
+			tp_pwr_loc = (float *)(data_loc_base + tp_pwr_indx);
+/*			vme2_pntr -> tpulse_level_proc = *tp_pwr_loc; */
 			
 			if (buff_cnt == 0)
 			  {
@@ -356,18 +412,17 @@ for(;;)
 				      }
 
 			  }
-		    }
-		  else
-		    {
+              }
+            else
+                {
 /*			printf("ERROR: NO END OF BEAM INTERRUPT \n"); */
 			int_cnt++;
 			      /* Update Status */
-			currStatus -> count++;
 			currStatus -> rp7 |= END_OF_BEAM;
 			proc_stat |= EOB;
-		    }
+                }
 	   
-	      }
+        }
 
        /* Make sure that semaphore is empty after last Stop Command */
 
@@ -375,10 +430,10 @@ for(;;)
 	    if (sem_status == OK)
 	      *bim_cr0 = 0xdc;  /* re-enable interrupt INT0* */            
 	    printf("Real Time Task Stopped \n");
-	}
+  }
       else
 	printf("PANIC: BAD REAL TIME SEMAPHORE \n");
-  }
+}
 }
 
 
