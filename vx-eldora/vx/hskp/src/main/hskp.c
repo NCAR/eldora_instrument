@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  2003/09/24  17:29:20  kapoor
+ * initialized additional global variables
+ *
  * Revision 1.15  2003/09/24  16:08:01  kapoor
  * Changed init_clock call, change to Bancomm clock card
  *
@@ -93,7 +96,7 @@ in_vmevme_isr = 0;
 in_gps_isr = 0;
 
 use_IRIGB = 1;
-modulate_IRIGB = 0;
+modulate_IRIGB = 1;
 
 /* Initialize all of the various houskeeping interfaces */
 
