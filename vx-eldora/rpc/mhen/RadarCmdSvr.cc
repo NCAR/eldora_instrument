@@ -28,13 +28,13 @@ int StartRadarCtrl(void)
     transp = svcudp_create(RPC_ANYSOCK);
     if (transp == NULL)
       {
-	  fprintf(stderr,"cannot create udp service.");
+          cerr << "cannot create udp service." << endl;
 	  return(ERROR);
       }
     FAST void (*dispatch)(...) = (void (*)(...))radarcontrol_1;
     if (!svc_register(transp,RadarControl,RadarCtrlVers,dispatch,IPPROTO_UDP))
       {
-	  fprintf(stderr,"unable to register RadarControl,RadarCtrlVers,udp.");
+          cerr << "unable to register RadarControl,RadarCtrlVers,udp." << endl;
 	  return(ERROR);
       }
     return(OK);
