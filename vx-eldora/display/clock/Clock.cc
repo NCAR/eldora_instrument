@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1994/09/19  15:48:53  thor
+ * Lots of changes, mostly changing method names.
+ *
  * Revision 2.0  1992/11/03  12:53:12  thor
  * First offical ELDORA release!
  *
@@ -101,6 +104,12 @@ void Clock::setDefPatterns(void)
     frect(a,Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT,BLACK);
     shift(patterns[10],location[2],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
     shift(patterns[10],location[5],Clock::CHAR_WIDTH,Clock::CHAR_HEIGHT);
+
+    // Since the patterns have changed or been refreshed, invalidate the
+    // current display time.
+    lastHour = -1;
+    lastMin = -1;
+    lastSec = -1;
 }
 
 void Clock::pattern(FAST Point *ptr, FAST unsigned short *pattern)
