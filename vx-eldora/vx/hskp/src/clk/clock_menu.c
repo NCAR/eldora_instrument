@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/09/25  17:26:38  kapoor
+ * change of variable names
+ *
  * Revision 1.1  2003/09/24  20:48:44  kapoor
  * Initial revision
  *
@@ -42,6 +45,7 @@
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
+#define OK_RPC
 #define scope extern
 #include "hskpAll.h"
 
