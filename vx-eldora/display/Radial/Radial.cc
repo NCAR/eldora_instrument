@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/10/27  14:37:09  thor
+ * Add ZOOM8 & fixed clk calls.
+ *
  * Revision 2.2  1993/07/29  19:21:37  thor
  * Upgraded to VxWorks 5.1.
  *
@@ -93,6 +96,7 @@ Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
 		   xoff + PLOT_WIDTH + (3 * TBL_WIDTH),
 		   yoff + PLOT_HEIGHT)
 {
+    agc = gbd;
     clk.Display();
 
     // Set the base video memory addresses.
@@ -158,6 +162,20 @@ Radial::Radial(GraphicController *gbd, FAST int rad, FAST int nparams,
       }
 }
 
+void Radial::Reset(FAST int rad, FAST int nparams)
+{
+    setZoom(ZOOM1);		// Reset zoom and window location.
+    curZoom = ZOOM1;
+    homeAll();
+    
+    radius = rad;		// Our new values.
+    numOfParams = nparams;
+    lastIndex = 1000;		// So we draw correctly.
+
+    clk.SetDefPatterns();
+    clk.Display();		// Clock back on!
+}
+    
 void Radial::expose(FAST int wdw)
 {
     Wdw[wdw].expose();

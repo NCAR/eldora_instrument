@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1993/10/27  14:37:09  thor
+ * Added Undisplay().
+ *
  * Revision 2.3  1993/09/03  17:16:54  thor
  * Forgot the !!@## define line.
  *
@@ -76,6 +79,7 @@ class Radial;
 #include "ParamNames.h"
 #include "point.h"
 #include "mathVar.h"
+#include "fastMath.h"
 
 // This structure is used to hold the fixed point sines/cosines. The
 // format is (fp value) << 16.
@@ -107,6 +111,8 @@ class Radial {
     unsigned char *videoMemory[3];
     unsigned char *videoBase[3];
 
+    GraphicController *agc;
+    
     int numOfParams;
     int curZoom;
     int displayedSet;
@@ -128,6 +134,8 @@ class Radial {
     Radial(GraphicController *gbd, int rad, int nparams,
            unsigned short xoff, unsigned short yoff);
 
+    void Reset(int rad, int nparams);
+    
     void drawBeam(FAST RadialData &data)
       {
 	  FAST int np = numOfParams;
@@ -337,7 +345,10 @@ class Radial {
 	ptr->undisplay(); ptr++;
 	ptr->undisplay(); ptr++;
 	ptr->undisplay();
+	clk.Undisplay();
     }
+
+    void ClockOn(void) { clk.Display(); }
 
     void UpdateClock(FAST short h, FAST short m, FAST short s)
       {
