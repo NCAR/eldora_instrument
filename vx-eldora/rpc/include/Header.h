@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/01/02  20:28:51  thor
+ * Added method for copying.
+ *
  * Revision 1.4  1991/10/16  14:36:17  thor
  * Changed GetRealHeader to use user supplied memory.
  *
@@ -66,6 +69,8 @@ extern void GetRpcHeader(HeaderPtr header, TAPEHEADER *th);
 extern int GetRealHeader(HeaderPtr ptr, void *header);
 
 extern void CopyHeader(HeaderPtr src, HeaderPtr dest);
+
+extern void ResetHeader(HeaderPtr ptr, TAPEHEADER *th);
 
 extern void DestroyHeader(HeaderPtr ptr);
 

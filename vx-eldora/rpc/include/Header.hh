@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/07/28  17:23:46  thor
+ * *** empty log message ***
+ *
  * Revision 1.7  1992/01/02  20:40:35  thor
  * Added method & C function to change TAPEHEADER of object.
  *
@@ -82,8 +85,9 @@ class Header {
     WAVEFORM *Waveform(void);
 
     void NavDesc(NAVDESC &n);
-    Header &operator=(Header &);
+    NAVDESC *NavDesc(void);
 
+    void Insitu(INSITUDESC &id);
     INSITUDESC *Insitu(void);
 
     TAPEHEADER *GetRpcHeader(void) { return(th); }

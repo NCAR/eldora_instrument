@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/03/06  18:50:49  thor
+ * Fix lack of return statement in = method.
+ *
  * Revision 1.7  1992/01/02  20:41:16  thor
  * Added method & C function to change TAPEHEADER of object.
  *
@@ -358,6 +361,16 @@ int Header::Send(FAST CLIENT *client)
 // exit without dumping core when the signal is caught.
     FAST int f;
 
+    if ((f = fork()) == 0)
+      {
+        signal(SIGBUS,(SIG_PF)Die);
+
+    bcopy((char *)th,(char *)ptr->th,sizeof(TAPEHEADER));
+          {
+              clnt_perror(client,"Header method Send failed. (th)");
+        exit(0);
+      }
+    clnt_destroy(client);
 
     return(0);
 }
@@ -490,6 +503,13 @@ void SetInsitu(FAST HeaderPtr ptr, FAST INSITUDESC *id)
     FAST INSITUDESC &ref = *id;
 
     h->Insitu(ref);
+}
+
+INSITUDESC *GetInsitu(HeaderPtr ptr)
+{
+    FAST Header *h = (Header *)ptr;
+
+    return(h->Insitu());
 }
 
 void GetRpcHeader(HeaderPtr ptr, TAPEHEADER *th)
