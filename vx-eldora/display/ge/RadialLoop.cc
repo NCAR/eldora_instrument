@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/10/22  17:19:47  thor
+ * Finally updates correctly.
+ *
  * Revision 1.4  1991/10/17  16:50:00  thor
  * Major revision - now actually loops correctly (even if only a test!).
  *
@@ -37,43 +40,56 @@ void RadialLoop(FAST Task &self, FAST GraphicController *agc)
 #include "ColorConverter.hh"
 static ColorConverter *conv = NULL;
 
-    FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
+//    FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
 
     Radial *display = NULL;
 
     FAST Radial *display = NULL;
 
-	  if (flag)
+    float lastAngle = 360.0;	// Force update of time.
+						    DESTROY_SELF,FLAGS_OR);
 
-		switch(flag)
-		  {
-		    case STOP:
-		      if (display != NULL)
-			delete(display);
-		      flag = self.WaitOnFlags(waitMask,FLAGS_OR);
-		      continue;
-		      break;
+    static int onetime = 0;
 
-		    case START:
-		    case RELOAD:
-		    case RESTART:
-		      display = makeDisplay(display,agc);
-		      break;
-
-		    case FORWARD_RADIAL:
-		      whichRadar = FORWARD_RADIAL;
-		      display = makeDisplay(display,agc);
-		      break;
-
-		    case AFT_RADIAL:
-		      whichRadar = AFT_RADIAL;
-		      display = makeDisplay(display,agc);
-		      break;
-		if (!pipe.Empty())
-		    default:
-		      continue;
-		      break;
+    for (;;)
+	      case DESTROY_SELF | NEW_DATA_FLAG:
+	  FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
+		  delete(display);
 		  }
+		if (conv != NULL)
+		  {
+		      delete(conv);
+	      case STOP | NEW_DATA_FLAG:
+		  }
+		continue;
+		break;
+
+	      case LOAD_ONLY:
+		if (GeCommand->cmd == FORWARD_RADIAL)
+	      case RELOAD | NEW_DATA_FLAG:
+	      case START | NEW_DATA_FLAG:
+	      case RESTART | NEW_DATA_FLAG:
+
+	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
+		continue;
+		DdpCtrl->Clear();
+		if (!pipe.Empty())
+		  {
+	      case FORWARD_RADIAL | NEW_DATA_FLAG:
+		  }
+		break;
+	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
+		continue;
+		if (radar == FORWARD_RADIAL)
+		  DdpCtrl->Fore();
+		else
+	      case AFT_RADIAL | NEW_DATA_FLAG:
+		display = makeDisplay(display,agc);
+		break;
+	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
+		continue;
+		DdpCtrl->Fore();
+		if (!pipe.Empty())
 	      case (AFT_RADIAL | NEW_DATA_FLAG):
 		whichRadar = AFT_RADIAL;
 		radar = whichRadar;
@@ -81,7 +97,11 @@ static ColorConverter *conv = NULL;
 //	  conv->GetBeam(theData,radData);
 	  // Draw it.
 //	  display->drawBeam(radData);
-	  flag = self.QueryFlags();
+
+	  printf("Looping\n");	// Strictly for testing!!!!!
+	  taskDelay(10);
+
+	  self.SetFlags(NEW_DATA_FLAG);	// Strictly for testing!!!!!
 			display->UpdateClock(now->hour,now->minute,
 					     now->second);
 		  }
@@ -134,7 +154,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
       {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
-    if (param != NO_PARAM)
+	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
 	    {
@@ -154,7 +174,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
       {
 	  FAST char *ptr = ParamTapeNames[ParamToNum(param)];
 
-    if (param != NO_PARAM)
+	  FAST int len = strlen(ptr);
 
 	  for (FAST int i = 0; i < np; i++)
 	    {
@@ -197,7 +217,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(B_SET,max[0],min[0],param);
-	  New->drawTitle(B_SET,whichRadar);
+	  New->drawTitle(A_SET,whichRadar);
 	  agc->setColorMap((long *)colors,256);
 
     param = ptr->param2;
@@ -205,7 +225,7 @@ static Radial *makeDisplay(FAST Radial *old, FAST GraphicController *agc)
     if (param != NO_PARAM)
 
 	  New->drawTable(C_SET,max[0],min[0],param);
-	  New->drawTitle(C_SET,whichRadar);
+	  New->drawTitle(A_SET,whichRadar);
       {
       {
 	  param = ptr->param1;
