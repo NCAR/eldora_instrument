@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/08/26  16:33:06  thor
+ * Fixed totally screwed up defines.
+ *
  * Revision 1.2  1992/07/20  20:55:53  thor
  * Changed shorts to chars.
  *
@@ -25,7 +28,6 @@
 
 struct HskpCommand {
     unsigned long cmd;
-    unsigned long count;
     unsigned char year;
     unsigned char month;
     unsigned char day;
@@ -39,11 +41,12 @@ typedef struct HskpCommand HskpCommand;
 
 #include "GblCommands.h"
 
-#define ALIGN       0x10
+#define DC_REMOVAL  0x10
 #define GPS_START   0x20
 #define IRIGB_SYNC  0x40
 #define SET_TIME    0x80
 #define START_CLOCK 0x100
+#define ALIGN       0x200
 
 #endif /* OK_RPC */
 

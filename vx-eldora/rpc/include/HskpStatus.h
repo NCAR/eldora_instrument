@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/09/23  22:21:36  craig
+ * added ARINC_ERRORS definition
+ *
  * Revision 1.6  1992/09/17  23:06:48  shawn
  * Changed ecb mask nomenclature
  *
@@ -36,7 +39,6 @@
 #define INCHskpStatush
 
 struct HskpStatus {
-    unsigned long count;
     unsigned char fore;
     unsigned char aft;
     unsigned char motorCtrl;
