@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1997/08/27  16:50:00  craig
+ * *** empty log message ***
+ *
  * Revision 1.5  1994/05/20  20:37:05  craig
  * *** empty log message ***
  *
@@ -116,8 +119,8 @@ do{
 	  printf("Attenuation (db):       %4d       %4d\n",
                   fore_vmehndshk->tpulse_atten,aft_vmehndshk->tpulse_atten);
 	  printf("Frequency Num:          %4d       %4d\n",
-                 fore_vmehndshk->tpulse_freq_num,
-		 aft_vmehndshk->tpulse_freq_num);
+                 fore_vmehndshk->tpulse.combined_freq_num,
+		 aft_vmehndshk->tpulse.combined_freq_num);
 	  break;
 
 	case 8:	/* Display Special record length Information */
