@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1992/07/28  17:29:19  thor
+ * Changed bcopy to memcpy, added nav & insitu stuff.
+ *
  * Revision 1.8  1992/03/06  18:50:49  thor
  * Fix lack of return statement in = method.
  *
@@ -368,6 +371,8 @@ int Header::Send(FAST CLIENT *client)
     bcopy((char *)th,(char *)ptr->th,sizeof(TAPEHEADER));
           {
               clnt_perror(client,"Header method Send failed. (th)");
+              exit(1);
+          }
         exit(0);
       }
     clnt_destroy(client);
