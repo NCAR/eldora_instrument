@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/10/23  14:42:43  thor
+ * Added some needed includes.
+ *
  * Revision 1.5  1991/10/09  18:03:28  thor
  * Added forward class definition.
  *
@@ -281,12 +284,11 @@ class Radial {
           else
             {
                 dset = A_SET;
+                Wdw[4].undisplay();
+                Wdw[5].undisplay();
 
                 Wdw[0].display();
                 Wdw[1].display();
-
-                Wdw[4].undisplay();
-                Wdw[5].undisplay();
             }
 	  displayedSet = dset;
       }
