@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  1999/07/20  17:44:34  eric
+ * Corrected pipeline delay through radar processors.
+ *
  * Revision 1.11  1997/08/27  16:49:58  craig
  * *** empty log message ***
  *
@@ -139,6 +142,11 @@ fore_vmehndshk->nav_length = sizeof(struct nav_data);
 fore_vmehndshk->polled = 0;
 aft_vmehndshk->polled = 0;
 
+/* Initialize global variables */
+
+Intr_cnt = 0;
+Proc_dly_sync = 1;
+
 /* Wait for the radar processors to get ready */
 
 do{
@@ -168,3 +176,10 @@ fore_vmehndshk->salute[6] = 'A';
 fore_vmehndshk->salute[7] = 'R';
 
 }
+
+
+
+
+
+
+
