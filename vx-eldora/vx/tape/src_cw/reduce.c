@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:51:52  craig
+ * Fixed problem that calculated length of FRAD block wrong
+ *
  * Revision 1.1  1994/01/06  21:31:53  craig
  * Initial revision
  *
@@ -80,6 +83,8 @@ switch(type)
       if(db->pi.altitude_msl > rad_dscr->data_red_parm0 ||
          db->pi.altitude_msl < rad_dscr->data_red_parm1 ||
          db->ri.elevation == 0.0) return(keep);
+
+      if(db->ri.elevation < -82.0 || db->ri.elevation > 82.0) return(keep);
 
       if(db->ri.elevation>0)
 	{
