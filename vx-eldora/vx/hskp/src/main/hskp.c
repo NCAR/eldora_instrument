@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  2000/05/15  18:30:25  eric
+ * Revised power meter stop routine and added firstime flag so
+ * that stop_ieee is not called upon powerup.
+ *
  * Revision 1.13  1999/09/27  15:43:46  eric
  * added taskDelay in run-time loop to improve chances for slow
  * cal to run.
@@ -106,7 +110,7 @@ sysIntEnable(ECB_ERROR_IRQ);
 sysIntEnable(ECB_SPARE_IRQ);
 
 printf("Initializing the clock card\n");
-init_clock((short)244); /* Sets up the pointers to go with the clock card */
+init_clock(); /* Sets up the pointers to go with the clock card */
 
 /* init_mini(); */    /* Initializes and connects mailbox interrupt */ 
 
