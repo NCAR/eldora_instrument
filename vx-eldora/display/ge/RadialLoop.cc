@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Changed time update to happen on sweep change. Added code to check for
+ * proper beam type.
+ *
+ * Revision 1.12  1991/11/08  21:33:45  thor
  * Remove testing code.
  *
  * Revision 1.11  1991/11/06  21:43:13  thor
@@ -128,8 +132,6 @@ static int whichRadar = FORWARD_RADIAL;
 		lastAngle = 360.0;
 		  pipe.Flush();
 		break;
-		printf("Got pipe data\n");
-
 		pipe.Flush();
 		printf("Pipe full\n");
 	    }
