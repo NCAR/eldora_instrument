@@ -1,7 +1,7 @@
 /*
  *	$Id$
  *
- *	Module clear_int.c 		 
+ *	Module vme_isr.c 		 
  *	Original Author: Craig Walther 
  *      Copywrited by the National Center for Atmospheric Research
  *	date  $Date$
@@ -13,8 +13,9 @@
  * Initial revision
  *
  *
- * description:  This program clears an interrupt in the Housekeeping
- *               Processor caused by one of the radar processors.
+ * description:  This interrrupt service for the vme to vme interfaces
+ *               in the Housekeeping Processor these interrupts are caused
+ *               by one of the radar processors.
  *
  */
 
@@ -34,27 +35,11 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include <vmevmeGbl.h>
 #include <hskpInt.h>
 
-clear_int()
+void vme_isr()
 {
-char stat;
 
-stat = *fore_remote_status;
-
-if((stat & 0x02) != 0)
-  {
-      *fore_remote_command = 0x40;
-      fore_int_cnt++;
-      printf("f");
-  }
-
-stat = *aft_remote_status;
-
-if((stat & 0x02) != 0)
-  {
-      *aft_remote_command = 0x40;
-      aft_int_cnt++;
-      printf("a");
-  }
-
+    *fore_remote_command = 0x40;
+    *aft_remote_command = 0x40;
+    int_count++;
 
 }

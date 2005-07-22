@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1992/04/14  15:40:09  thor
+ * Added include of string.h, since it will be needed.
+ *
  * Revision 1.7  1992/04/14  15:03:48  thor
  * Changes INLINE to work on all c++'s. Added routines to go from string to
  * param.

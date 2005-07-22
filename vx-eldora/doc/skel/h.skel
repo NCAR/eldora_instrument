@@ -1,0 +1,25 @@
+/*
+ *	$Id$
+ *
+ *	Module:		 .h
+ *	Original Author: 
+ *      Copywrited by the National Center for Atmospheric Research
+ *	Date:		 $Date$
+ *
+ * description:
+ */
+#ifndef INC
+#define INC
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+PUT YOUR CODE HERE!
+
+#ifdef __cplusplus
+};
+#endif
+
+#endif /* INC */
+

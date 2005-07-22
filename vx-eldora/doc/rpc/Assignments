@@ -1,0 +1,22 @@
+Name		Program number	Version number	Procedure number
+----		--------------	--------------	----------------
+HeaderRPC	0x30000100	1(HeaderVers)	1 (SendHeader)
+
+DispControl	0x30000200	1(DispCtrlVers) 1 (SendCommand)
+						2 (GetDispStatus)
+
+TapeControl	0x30000300	1(TapeCtrlVers)	1 (SendCommand)
+						2 (GetTapeStatus)
+
+RadarControl    0x30000400	1(RadarCtrlVers) 1(SendCommand)
+						 2(GetRadarStatus)
+
+ColorSet	0x30001000	1(ColorSetVers)	1 (ColorSetProc)
+
+Logger		0x30002000	1(LoggerVers)	1 (LoggerProc)
+
+HskpControl	0x30000500      1(HskpCtrlVers) 1 (SendCommand)
+						2 (GetHskpStatus)
+
+HpaRpcProg	0x30000600	1(HpaRpcVers)	1 (HpaSendCmd)
+

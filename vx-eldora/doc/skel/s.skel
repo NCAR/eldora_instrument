@@ -1,0 +1,20 @@
+|
+|	$Id$
+|
+|	Module:   	 .s
+|	Original Author: 
+|       Copywrited by the National Center for Atmospheric Research
+|	Date:		 $Date$
+|
+| revision history
+| ----------------
+| $Log$
+|
+| calling convention:
+|
+| description:
+|        
+|
+	.data
+Id:
+	.ascii "$Date$ $RCSfile$ $Revision$"

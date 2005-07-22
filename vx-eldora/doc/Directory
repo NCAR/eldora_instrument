@@ -1,0 +1,153 @@
+This is a map of the proposed eldora directory tree. Also included are
+RCS guidelines, proposed skeleton files (these are already in /ELDORA)
+and a suggestion on using ANSI C. Beat this to death.
+
+Rich
+
+Directory map for ELDORA:
+-------------------------
+
+The top level directory is  /ELDORA. This is a symbolic link
+so that the entire tree can be moved as disk space requires.
+
+The next level will have the following subdirectories:
+
+doc - for our detailed documentation, when it's written.
+diag - for system and/or component diagnostics. 
+rpc - for RPC connections between different crates.
+vx - for the realtime systems code
+unix - for the unix system control code
+misc - for things that do not fit in neatly.
+dsp - for dspq and collator code (not tools for loading, etc. but
+	DSP-32C code).
+
+Under rpc are the following subdirectories:
+
+hskp - for unix - housekeeper communications
+tape - for recording - unix comm.
+disp - for display - unix comm.
+mhen - for mother hen - unix comm.
+
+Each of these directories has an RCS subdirectory for source
+control.
+
+Under unix are the following subdirectories:
+
+bin - for executables
+hpa - for unix - hpa comm./control code.
+include - for common include files used in this subtree.
+ipc - for the code that directly communicates with realtime systems.
+ui - for user interface code.
+vfy - for the verifier code.
+
+Except for bin, each of these directories will have an RCS directory
+for code control.
+
+Under vx are the following directories:
+
+mhen - for the mother hen code.
+hskp - for housekeeper code
+tape - for recording code.
+disp - for display code.
+
+Each of these will have the following directories:
+
+include - for includes.
+bin - for executables.
+src - for code.
+
+Further subdirectories may be added under include or src if needed,
+but all end nodes must have an RCS directory.
+
+Under dsp are the following subdirectories:
+
+dspq - for dspq specific code.
+coll - for collator code.
+
+Again further subdirectories may be created, but must have an RCS
+directory.
+
+Traversing the tree
+-------------------
+
+Once the directory tree is firmed up, a c shell script will be
+executed by your .cshrc that will generate environment variables like
+$RPC that allow shorter path names. Please use these instead of hard
+path names, since this allows us to move things around without
+requiring editting makefiles, etc.
+
+File Permissions
+----------------
+
+If you create a new directory, RCS file, etc. please check and make
+sure that it has group read/write permission if you intend for others
+to have access to it.
+
+RCS Use
+-------
+
+Since RSG is using RCS for code control, ELODRA will follow their
+lead. To maintain tight control over our code we will use strict
+locking on all RCS files. To do this use the following command after
+creating a new RCS file:
+
+rcs -L -athor,craig,shawn[...] file
+
+where ... contains more login names that should have access to the
+named file. 
+
+To check out a file for editing you must use:
+
+co -l file
+
+Omitting the -l will check out a file, but no locking will be
+performed, so that file cannot be used for a new revision.
+
+Skeleton files
+--------------
+
+In the top level directory /ELDORA are source code skeleton files:
+
+s.skel - for 680x0 assembler.
+c.skel - for C.
+h.skel - for include files.
+cc.skel - for C++.
+m.skel - makefile skelton for C files.
+mm.skel - makefile skelton for C++ files.
+
+These are read-only and should be copied to your working file when you
+create it. Note that for include file the lines:
+
+#ifndef INC
+#define INC
+#endif /* INC */
+
+should all have the name of the include file appended to INC. So for
+what.h INC becomes INCwhath. 
+
+$Id$ is used instead of $Header$ to reduce the size of the file name
+printed. 
+
+In C code and header files, it is recommemded that you use the ANSI
+standard. To make sure that this code will work with both ANSI (like
+gcc) and old C compilers (like Sun's), use the following conditionals:
+
+in a .h file:
+
+#ifndef __STDC__
+int myfunc(); /* Old style function declaration */
+#else
+int myfunc(int,int); /* Ansi style */
+#endif
+
+in a C file:
+#ifndef __STDC__
+int myfunc()
+int input;
+int scale;
+#else
+int myfunc(int input, int scale)
+#endif
+
+Yes it's more work, but it will help prevent errors and move us
+forward. Also, the ANSI style is virtually required for C++.

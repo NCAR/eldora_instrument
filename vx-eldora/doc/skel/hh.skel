@@ -1,0 +1,17 @@
+/*  This looks like C, but it's really C++!!
+ *	$Id$
+ *
+ *	Module:		 .hh
+ *	Original Author: 
+ *      Copywrited by the National Center for Atmospheric Research
+ *	Date:		 $Date$
+ *
+ * description:
+ *        
+ */
+#ifndef INC
+#define INC
+
+
+#endif // INC
+
