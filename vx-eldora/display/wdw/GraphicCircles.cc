@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  90/12/04  10:20:26  thor
  * Initial revision
  * 

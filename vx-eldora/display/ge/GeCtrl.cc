@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.5  1996/06/21  19:32:09  thor
+ * Added raw support.
+ *
  * Revision 2.4  1994/09/12  18:44:18  thor
  * Changed name to senddispcommand_1_svc.
  *
@@ -52,119 +55,222 @@
  *
  *
  * description:
- *        These functions are called by the underlying rpc code as
- * needed. Sendcommand_1 takes a command and invokes the appropriate
- * action. Getstatus_1 simply returns the latest status.
+ *        This function runs forever, reading the UDP socket for commands.
+ *  The same socket is used to reply.
  *
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "GeGlobal.hh"
-extern "C" {
-#include "string.h"
-};
+#include "vxWorks.h"
+#include <errno.h>
+#include <cstring>
+#include "udpSvr.hh"
 
-static u_long cmdCount = 0;
-
-struct DispStatus *senddispcommand_1_svc(FAST DispCommand *cmd,
-                                         struct svc_req *req)
+void svrTask(int port)
 {
-  FAST u_long command = cmd->cmd;
+  udpSvr svr(port);
+
+  DispCommand cmd;
   FAST DispStatus *status = GeStatus;
 
-  if (command & LOAD_ONLY)
+  while (1)
     {
-      command &= ~LOAD_ONLY;
-      memcpy((char *)GeCommand,(char *)cmd,sizeof(DispCommand));
-      GeCommand->cmd = command; // It seems we cannot alter cmd.
-      DrawingTask->SetFlags(LOAD_ONLY);
-      status->status = IDLE;
+      int bytes = svr.recvfrom((void *)&cmd,sizeof(cmd.cmd),MSG_PEEK);
+
+      if ((cmd.cmd == STOP) || (cmd.cmd == START) || (cmd.cmd == HEADER))
+	svr.recvfrom((void *)&cmd,sizeof(cmd.cmd));
+      else
+	{
+	  bytes = svr.recvfrom((void *)&cmd,sizeof(cmd));
+
+	  if ( bytes < sizeof(cmd))
+	    {
+	      if (bytes < 0)
+		{
+		  cerr << "udpSvr: " << strerror(errno) << endl;
+		  continue;
+		}
+	    }
+	}
+
+      int command = cmd.cmd;
+
+      if (command & LOAD_ONLY)
+	{
+	  command &= ~LOAD_ONLY;
+	  memcpy((void *)GeCommand,(void *)&cmd,sizeof(DispCommand));
+	  GeCommand->cmd = command; // It seems we cannot alter cmd.
+#ifndef TEST_ONLY
+	  DrawingTask->SetFlags(LOAD_ONLY);
+#else
+	  cout << "LOAD_ONLY" << endl;
+#endif
+	  status->status = IDLE;
+	}
+      else
+	{
+	  char *file = "/usr/local/vxbin/headers/current.hdr";
+	  int i = 0;
+
+	  switch(command)
+	    {
+	    case HEADER:
+
+	      if (Hdr == (Header *)NULL)
+		Hdr = new Header(file);
+	      else
+		{
+		  if (Hdr->readFile(file))
+		    {
+		      cout << "Bad open of file: " << file << endl;
+		      i = 1;
+		    }
+		}
+	      status->status = IDLE;
+
+	      svr.setAddr((struct sockaddr_in *)svr.getAddr());
+	      svr.sendto((void *)&i,sizeof(i));
+	      continue;
+	      break;
+
+	    case REBOOT:
+	    case STOP:
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "STOP" << endl;
+#endif
+	      status->status = IDLE;
+	      break;
+		
+	    case START:
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "START" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+		
+	    case FORWARD_RADIAL:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "FR" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+		
+	    case FORWARD_HORIZ:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "FH" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+		
+	    case FORWARD_VERT:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "FV" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+		
+	    case AFT_RADIAL:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "AR" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+		
+	    case AFT_HORIZ:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "AH" << endl;
+#endif
+	      status->status = DRAWING;
+
+	      break;
+		
+	    case AFT_VERT:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "AV" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+
+	    case FORWARD_DUAL:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "FD" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+
+	    case AFT_DUAL:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "AD" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+
+	    case FORWARD_RAW:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "FR" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+
+	    case AFT_RAW:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "AR" << endl;
+#endif
+	      status->status = DRAWING;
+	      break;
+
+	    case TMO_CHANGE:
+	      memcpy((void *)GeCommand,(void *) &cmd,sizeof(DispCommand));
+#ifndef TEST_ONLY
+	      DrawingTask->SetFlags(command);
+#else
+	  cout << "TMO" << endl;
+#endif
+	      break;
+
+	    default:
+	      cerr << "Unknown command received: " << cmd.cmd << endl;
+	      break;
+	    }
+	}
+
+      svr.setAddr((struct sockaddr_in *)svr.getAddr());
+
+      svr.sendto((void *)&status->status,sizeof(int));
     }
-  else
-    {
-      switch(command)
-        {
-          case REBOOT:
-          case STOP:
-            DrawingTask->SetFlags(command);
-            status->status = IDLE;
-            break;
-		
-          case START:
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case FORWARD_RADIAL:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case FORWARD_HORIZ:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case FORWARD_VERT:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case AFT_RADIAL:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case AFT_HORIZ:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-		
-          case AFT_VERT:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-
-          case FORWARD_DUAL:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-
-          case AFT_DUAL:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-
-          case FORWARD_RAW:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-
-          case AFT_RAW:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            status->status = DRAWING;
-            break;
-
-          case TMO_CHANGE:
-            memcpy(GeCommand,cmd,sizeof(DispCommand));
-            DrawingTask->SetFlags(command);
-            break;
-        }
-    }
-  return(status);
-}
-
-DispStatus *getstatus_1_svc(void *nought, struct svc_req *req)
-{
-    return(GeStatus);
 }

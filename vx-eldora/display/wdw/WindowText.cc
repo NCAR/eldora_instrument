@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/08/12  17:42:08  thor
+ * Missed one.
+ *
  * Revision 2.3  1994/08/12  17:35:28  thor
  * Added const's that were missing.
  *

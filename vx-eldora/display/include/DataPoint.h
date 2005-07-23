@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.14  1992/03/16  17:44:14  thor
+ * Changed color member in DualData to hold colors.
+ *
  * Revision 1.13  1992/02/11  19:12:15  thor
  * Changed DualData to point to unsigned short array.
  *
@@ -120,7 +123,7 @@ struct Dual_Data {
     float angle;
     float altitude;
     int direction;
-    unsigned char colors[DISPLAYED_GATES * 2];
+    unsigned short *data;
 };
 
 static const int POSITIVE = 1;

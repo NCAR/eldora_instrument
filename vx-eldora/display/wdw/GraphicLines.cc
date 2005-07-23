@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.3  1991/02/27  16:55:33  thor
  * Fixed issuing of command to qpdm.
  *

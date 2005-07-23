@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/27  15:44:42  thor
+// Uses precalc'ed sines/tangents, unrolled loop, better clip detection.
+//
 // Revision 1.1  1994/04/08  20:29:52  thor
 // Initial revision
 //
@@ -88,8 +91,9 @@ cout << dAlt << " " << elev << "\n";
     FAST int sine = trigData[index].sin;
     FAST int cosine = trigData[index].cos;
 
-    w *= -0.5;
-    FAST int iw = fastround(w);
+//    w *= -0.5;
+//    FAST int iw = fastround(w);
+    FAST int iw = width / 2;
     FAST int x = ((iw * cosine) >> 16) - ((x2 * sine) >> 16);
     FAST int y = ((iw * sine) >> 16) + ((x2 * cosine) >> 16);
     
@@ -164,6 +168,42 @@ cout << "lat = " << lat << ", Lon = " << lon << "\n";
 
 int Horiz::nearestGate(double dist)
 {
+#if 1                           // I think this will be faster then
+                                // the brute force approach.
+    FAST int d = fastround(dist);
+    FAST int gates = maxGates;
+    FAST int top = gates - 1;
+    FAST int bottom = 0;
+    FAST int *cells = cellVector;
+
+    while(1)
+      {
+          FAST int mid = (top + bottom) / 2;
+
+          FAST int diff1 = cells[mid] - d;
+
+          FAST int diff2 = cells[mid + 1] - d;
+
+          if (diff2 < diff1)
+            {
+                if (gates == 1)
+                  return(mid + 1);
+
+                bottom = mid;
+            }
+          else if ((diff2 == diff1) || !diff1)
+                return(mid);
+          else
+            {
+                if (gates == 1)
+                  return(mid);
+
+                top = mid;
+            }
+          gates = top - bottom;
+      }
+
+#else    
     FAST int d = fastround(dist);
     FAST int gates = maxGates;
     FAST int *cells = cellVector;
@@ -182,6 +222,7 @@ int Horiz::nearestGate(double dist)
 	      old = diff;
       }
     return(--i);
+#endif    
 }
 
 void Horiz::zeroCase(DataBeam *beam)
@@ -252,7 +293,38 @@ int Horiz::clip(Point p, int w, int h)
 {
     FAST int x = p.x;
     FAST int y = p.y;
+
+    // Yeah, this looks awful, but gcc generates lousy code for the
+    // 68k otherwise.
+#if (CPU_FAMILY==MC680X0)
+    FAST int res = 1;
     
+    if (x >= Horiz::DATA_WIDTH)
+      return(res);
+    if (y >= Horiz::DATA_HEIGHT)
+      return(res);
+
+    x += w;
+
+    if (x >= Horiz::DATA_WIDTH)
+      return(res);
+
+    // The bit test optimizes into faster code then a test for < 0.
+    FAST int neg = 0x80000000;
+    if (x & neg)
+      return(res);
+
+    y += h;
+
+    if (y & neg)                // This test must come 1st or gcc
+                                // emits really bad code.
+      return(res);
+
+    if (y >= Horiz::DATA_HEIGHT)
+      return(res);
+
+    return(0);
+#else
     if ( x >= Horiz::DATA_WIDTH || y >= Horiz::DATA_HEIGHT)
       return(1);
 
@@ -268,4 +340,5 @@ int Horiz::clip(Point p, int w, int h)
       return(1);
     
     return(0);
+#endif // CPU_FAMILY==MC680X0
 }

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.4  1994/11/28  17:40:04  thor
+// Removed unneeded test, added code to stop 0,0 message.
+//
 // Revision 2.3  1994/09/27  18:44:14  thor
 // Turned immediate 720 into register varaible.
 //
@@ -367,8 +370,9 @@ void Radial::Draw2(FAST int sin1, FAST int sin2, FAST int cos1, FAST int cos2)
 		FAST int y2 = s2 >> 16;
 
 		FAST int d = D;
-		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
+                FAST int tmp = x1 + (y1 * 4096);
+		FAST unsigned char *ptr1 = video1 + tmp;
+		FAST unsigned char *ptr2 = video2 + tmp;
 		FAST int x = x1;
 		FAST int xend = x2;
 		FAST int Sx = sx;
@@ -439,8 +443,9 @@ void Radial::Draw2(FAST int sin1, FAST int sin2, FAST int cos1, FAST int cos2)
 		FAST int y2 = s2 >> 16;
 
 		FAST int d = D;
-		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
+                FAST int tmp = x1 + (y1 * 4096);
+		FAST unsigned char *ptr1 = video1 + tmp;
+		FAST unsigned char *ptr2 = video2 + tmp;
 		FAST int y = y1;
 		FAST int yend = y2;
 
@@ -537,9 +542,10 @@ void Radial::Draw3(FAST int sin1, FAST int sin2, FAST int cos1, FAST int cos2)
 		FAST int y2 = s2 >> 16;
 
 		FAST int d = ay - (ax >> 1);
-		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr3 = video3 + x1 + (y1 * 4096);
+                FAST int tmp = x1 + (y1 * 4096);
+		FAST unsigned char *ptr1 = video1 + tmp;
+		FAST unsigned char *ptr2 = video2 + tmp;
+		FAST unsigned char *ptr3 = video3 + tmp;
 		FAST int x = x1;
 		FAST int xend = x2;
 		FAST int Sx = sx;
@@ -615,9 +621,10 @@ void Radial::Draw3(FAST int sin1, FAST int sin2, FAST int cos1, FAST int cos2)
 		FAST int y2 = s2 >> 16;
 
 		FAST int d = ax - (ay >> 1);
-		FAST unsigned char *ptr1 = video1 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr2 = video2 + x1 + (y1 * 4096);
-		FAST unsigned char *ptr3 = video3 + x1 + (y1 * 4096);
+                FAST int tmp = x1 + (y1 * 4096);
+		FAST unsigned char *ptr1 = video1 + tmp;
+		FAST unsigned char *ptr2 = video2 + tmp;
+		FAST unsigned char *ptr3 = video3 + tmp;
 		FAST int y = y1;
 		FAST int yend = y2;
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1993/11/11  17:13:08  thor
+ * Fixed incorrect set of priority.
+ *
  * Revision 2.1  1993/10/28  13:06:48  thor
  * Fixed the scroll over the edge problem!
  *
@@ -145,8 +148,9 @@ void Window::init(GraphicController *cntlr, int wdw, unsigned short x,
 
 void Window::setPriority(FAST unsigned short priority)
 {
-    controlSetting.viewPriority = (priority << 3) + 7; // Only set global
-						       // priority.
+    priority <<= 3;		// Only the global priority changes.
+    priority += 7;
+    controlSetting.viewPriority = priority;
 
     if (displayState == DISPLAYED)
       gbd->priority(window,priority);
@@ -380,9 +384,6 @@ void Window::home(void)
     
 int Window::move(FAST Point newOrigin)
 {
-    newOrigin.x += upperLeft.x;
-    newOrigin.y += upperLeft.y;
-
     if (newOrigin.x >= MAX_X_WIDTH || newOrigin.y >= MAX_Y_HEIGHT)
       return(ERROR);
     

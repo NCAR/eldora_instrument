@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/27  15:45:34  thor
+// Made eighth a precalculated variable. Changed name to prevent clashes.
+//
 // Revision 1.1  1994/04/08  20:29:53  thor
 // Initial revision
 //

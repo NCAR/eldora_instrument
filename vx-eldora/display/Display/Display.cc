@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.4  1994/09/23  19:44:11  thor
+// Changed formatted string output to use strstreams.
+//
 // Revision 1.3  1994/09/19  15:51:54  thor
 // Added setColors().
 //

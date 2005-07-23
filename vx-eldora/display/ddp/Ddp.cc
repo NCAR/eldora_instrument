@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1994/09/27  18:37:22  thor
+ * Removed checking for correct beam, should be done by comsumer.
+ *
  * Revision 2.2  1993/12/03  17:09:31  thor
  * Added Isr stuff.
  *
@@ -55,154 +58,179 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "Ddp.hh"
 
-#ifdef GE
-#include "GeGlobal.hh"
-#include "GeDraw.hh"
-#else
-#include "PeGlobal.hh"
-#endif // GE
-
-static void ddpIsr(SEM_ID);
-
 Ddp::Ddp(FAST void *addr, int vector, Pipe &p) :
 Isr(vector,0,(VOIDFUNCPTR)&Ddp::IsrFunction),pipe(p)
 {
-    mailBase = (unsigned short *)(addr + 8);
+  mailBase = (unsigned short *)((char *)addr + Ddp::mailbox);
 
-    fore = mailBase;
-    aft = mailBase + 1;
+  fore = mailBase;
+  aft = mailBase + 1;
 
-    addrBase = (long *)(addr + 0x800);
+  addrBase = (long *)((char *)addr + Ddp::address);
 
-    foreSavedAddr = addrBase;
+  foreSavedAddr = addrBase;
 
-    aftSavedAddr = addrBase + 1;
+  aftSavedAddr = addrBase + 1;
 
-    repeat = (long *)(addr + 4);
+  repeat = (long *)((char *)addr + Ddp::number);
 
-    Count = 0;
-    foreCurr = 0;
-    aftCurr = 0;
+  Count = 0;
+  foreCurr = 0;
+  aftCurr = 0;
 
-    ddpsem = semCCreate(SEM_Q_FIFO,0);
+  ddpsem = semCCreate(SEM_Q_FIFO,0);
+#ifdef CAN_SKIP
+  skip = 0;                     // By default don't skip beams.
+#endif
 }
 
 void Ddp::Next(void)
 {
-    FAST long fcount = foreCurr;
-    FAST unsigned short status;
-    FAST volatile unsigned short *fptr = fore;
-    FAST volatile long *foreAddr = foreSavedAddr;
-    FAST SEM_ID semaphore = ddpsem;
+  FAST unsigned short status;
+  FAST SEM_ID semaphore = ddpsem;
+#ifdef CAN_SKIP
+  FAST unsigned int toggle = 0;
+#endif
 
-    do				// Must fall through at least once!
-      {
-	  semTake(semaphore,WAIT_FOREVER);
+  do				// Must fall through at least once!
+    {
+      semTake(semaphore,WAIT_FOREVER);
 
-	  FAST int end = Count;
+      FAST int end = Count;
 
-	  while (!end)
-	    {
-		FAST volatile long *rep = repeat;
-		end = *rep; // Wait till here to make certain
-			    // we have a valid repeat count!
+      while (!end)
+        {
+          FAST volatile long *rep = repeat;
+          end = *rep;       // Wait till here to make certain
+          // we have a valid repeat count!
 
-		end /= 2;
-		Count = end;
-	    }
+          end /= 2;
+          Count = end;
+        }
 
-	  if (*fptr != 0)
-	    {
-		status = *fptr;
-		*fptr = 0;
+      FAST volatile unsigned short *fptr = fore;
+      
+      if ((status = *fptr) != 0)
+        {
+          FAST long fcount = foreCurr;
+          FAST volatile long *foreAddr = foreSavedAddr;
+          
+          *fptr = 0;
 
-		if ((status == 0xbfff) && (!radar)) // We want fore beams!
-                  pipe.Write(foreAddr);
+          if ((!radar) && (status == 0xbfff)) // We want fore beams!
+            {
+#ifdef CAN_SKIP
+              if (!skip || !toggle)
+#endif
+                pipe.Write((void *)foreAddr);
+#ifdef CAN_SKIP
+              toggle ^= 1;
+#endif
+            }
+          
+          fcount++;
 
-		fcount++;
+          if (fcount == end)
+            {
+              foreAddr = addrBase;
+              fptr = mailBase;
+              fcount = 0;
+            }
+          else
+            {
+              fptr += 2;
+              foreAddr += 2;
+            }
 
-		if (fcount == end)
-		  {
-		      foreAddr = addrBase;
-		      fptr = mailBase;
-		      fcount = 0;
-		  }
-		else
-		  {
-		      fptr += 2;
-		      foreAddr += 2;
-		  }
-
-		foreSavedAddr = foreAddr;
-		fore = fptr;
-		foreCurr = fcount;		
-	    }
-	  else
-	    {
-		FAST long acount = aftCurr;
-		FAST volatile unsigned short *aptr = aft;
-		FAST volatile long *aftAddr = aftSavedAddr;
+          foreSavedAddr = (long *)foreAddr;
+          fore = (unsigned short *)fptr;
+          foreCurr = fcount;		
+        }
+      else
+        {
+          FAST long acount = aftCurr;
+          FAST volatile unsigned short *aptr = aft;
+          FAST volatile long *aftAddr = aftSavedAddr;
 		
-		if (*aptr != 0)
-		  {
-		      status = *aptr;
-		      *aptr = 0;
+          if ((status = *aptr) != 0)
+            {
+              *aptr = 0;
 		      
-		      if ((status == 0xbfff) && (radar)) // We want aft beams!
-                        pipe.Write(aftAddr);
+              if ((radar) && (status == 0xbfff)) // We want aft beams!
+                {
+#ifdef CAN_SKIP
+                  if (!skip || !toggle)
+#endif
+                    pipe.Write((void *)aftAddr);
+#ifdef CAN_SKIP
+                  toggle ^= 1;
+#endif
+                }
 
-		      acount++;
+              acount++;
 		      
-		      if (acount == end)
-			{
-			    aftAddr = addrBase + 1;
-			    aptr = mailBase + 1;
+              if (acount == end)
+                {
+                  aftAddr = addrBase + 1;
+                  aptr = mailBase + 1;
 			    
-			    acount = 0;
-			}
-		      else
-			{
-			    aptr += 2;
-			    aftAddr += 2;
-			}
+                  acount = 0;
+                }
+              else
+                {
+                  aptr += 2;
+                  aftAddr += 2;
+                }
 		      
-		      aftSavedAddr = aftAddr;
-		      aft = aptr;
-		      aftCurr = acount;		
-		  }
-	    }
-      } while (semaphore->semCount);
-}
-
-void Ddp::PostAlarm(void)
-{
-
+              aftSavedAddr = (long *)aftAddr;
+              aft = (unsigned short *)aptr;
+              aftCurr = acount;		
+            }
+        }
+    } while (semaphore->semCount);
 }
 
 void Ddp::Clear(void)
 {
-    taskLock();
-    FAST int level = intLock();
+  taskLock();
+  FAST int level = intLock();
 
-    Count = 0;
-    foreCurr = 0;
-    aftCurr = 0;
-    fore = mailBase;
-    aft = mailBase + 1;
-    foreSavedAddr = addrBase;
-    aftSavedAddr = addrBase + 1;
-    ddpsem->semCount = 0;
+  Count = 0;
+  foreCurr = 0;
+  aftCurr = 0;
+  fore = mailBase;
+  aft = mailBase + 1;
+  foreSavedAddr = addrBase;
+  aftSavedAddr = addrBase + 1;
+  ddpsem->semCount = 0;
 
-    FAST long *ptr = (long *)mailBase;
+  memset(mailBase,0,Ddp::maxMbox - Ddp::mailbox);
+//     FAST long *ptr = (long *)mailBase;
 
-    while ((int)ptr < (int)addrBase)
-      *ptr++ = 0;
+//     while ((int)ptr < (int)addrBase)
+//       *ptr++ = 0;
 
-    intUnlock(level);
-    taskUnlock();
+  intUnlock(level);
+  taskUnlock();
 }
 
 void Ddp::IsrFunction()
 {
-    semGive(ddpsem);
+  semGive(ddpsem);
 }
+
+#ifdef CAN_SKIP
+void Ddp::doSkip(FAST Header *hdr)
+{
+  WAVEFORM *w = hdr->Waveform();
+
+  double ms = (double)w->repeat_seq;
+
+  ms *= (double)w->repeat_seq_dwel;
+
+  if (ms <= 9.0)
+    skip = 1;
+  else
+    skip = 0;
+}
+#endif

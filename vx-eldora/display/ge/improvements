@@ -1,0 +1,13 @@
+1> Convert all loops to use single copies. This entails adding Reset
+functions.
+
+2> Add a base class - GraphData:
+
+	Required members:
+
+		Reset, Draw, (Un)Display, SwitchSet, Home, Pan,
+		NextZoom, ColorConverter(, UpdateClk)
+
+3> Make Clock a seperate entity.
+
+4> Roll all loops & mouse tasks into one.

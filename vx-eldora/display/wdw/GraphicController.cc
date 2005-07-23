@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1996/02/16  16:46:31  thor
+ * Updated to lastest C++ standard.
+ *
  * Revision 2.2  1994/09/12  18:36:40  thor
  * Tightened clear() to make it run faster.
  *

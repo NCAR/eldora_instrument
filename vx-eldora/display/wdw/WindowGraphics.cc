@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1994/08/12  17:35:28  thor
+ * Added const's that were missing.
+ *
  * Revision 2.0  1992/11/03  12:51:14  thor
  * First offical ELDORA release!
  *

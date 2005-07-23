@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.5  1994/11/03  17:13:42  thor
+// Removed unused VEL_UNFOLDED, added more items for long/short PRT case.
+//
 // Revision 1.4  1994/09/12  15:56:13  thor
 // Added new parameters per Craig.
 //

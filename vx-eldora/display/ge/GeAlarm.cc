@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/08/20  17:17:03  thor
+ * Dumped unused variables.
+ *
  * Revision 2.0  1992/11/03  12:53:30  thor
  * First offical ELDORA release!
  *

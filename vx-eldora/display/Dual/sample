@@ -1,0 +1,62 @@
+PROCEDURE Line(X1, Y1, X2, Y2 : INTEGER; Color : BYTE);
+VAR DeltaX, DeltaY : INTEGER;
+BEGIN
+  DeltaX := ABS(X2-X1);
+  DeltaY := ABS(Y2-Y1);
+  IF DeltaY = 0 THEN 
+    { Sort points }
+    HLine(X1, Y1, X2, Color)
+  ELSE IF DeltaX = 0 THEN
+    { Sort points }
+    VLine(X1, Y1, Y2, Color)
+  ELSE IF DeltaY > DeltaX THEN
+    { Sort points }
+    YMajorLine(X1, Y1, X2, Y2, Color)
+  ELSE
+    { Sort Points }
+    XMajorLine(X1, Y1, X2, Y2, Color);
+END;
+
+PROCEDURE FixLine(X1, Y1, X2, Y2 : INTEGER; Color : BYTE);
+VAR
+  DeltaX, DeltaY,     { Change in X and Y   }
+  Y     : INTEGER;    { Current position    }
+  X, Slope : LONGINT; 
+BEGIN
+  DeltaX := X2-X1+1; DeltaY := Y2-Y1+1;
+  Slope := (LONGINT(DeltaX) SHL 16) DIV DeltaY;
+
+  X := LONGINT(X1) SHL 16;
+  FOR Y := Y1 TO Y2 DO
+  BEGIN
+    SetPixel(X SHR 16, Y, Color);
+    X := X + Slope;
+  END;
+END;
+
+PROCEDURE RunLine(X1, Y1, X2, Y2 : INTEGER; Color : BYTE);
+VAR
+  DeltaX, DeltaY : INTEGER;
+  ShortLen : INTEGER;
+  X, Y : INTEGER;
+  Rem : INTEGER;
+  Total, Incr : WORD;
+BEGIN
+  DeltaX := X2-X1+1;
+  DeltaY := Y2-Y1+1;
+  X := X1; Y := Y1;
+  ShortLen := DeltaX DIV DeltaY; { These two lines     }
+  Rem := DeltaX MOD DeltaY;      { become a single DIV }
+
+  Total := 32768;   { .5 SHL 16 }
+  Incr := (LONGINT(Rem) SHL 16) DIV DeltaY;
+
+  WHILE Y <= Y2 DO
+  BEGIN
+    Total := Total + Incr;
+    IF Overflow THEN
+      DrawRun(ShortLen+1)  { This uses the same DrawRun as before }
+    ELSE
+      DrawRun(ShortLen);
+  END;
+END;

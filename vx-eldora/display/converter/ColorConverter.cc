@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.8  1996/02/16  16:50:35  thor
+ * Updated to lastest C++ standard.
+ *
  * Revision 2.7  1994/11/01  15:12:57  thor
  * Cleaned up includes, switched to C++ I/O.
  *
@@ -287,17 +290,15 @@ void ColorConverter::SetBeamSize(FAST CELLSPACING &cs, FAST int pgates,
 		newDiff = *fp++ - dist;
 		index++;
 	    }
-	  if (k == ngates)	// Hit end of real beam!
-	    {
-		--k;
-		k *= np;
-		*ptr = k + valueOffset[0];
-		ptr[pgates] = k + valueOffset[1];
-		ptr[pgates * 2] = k + valueOffset[2];
-	    }
       }
-	  
-    free((char *)fptr);
+    FAST int end = ngates - 1;
+    
+    end *= np;
+    *ptr = end + valueOffset[0];
+    ptr[pgates] = end + valueOffset[1];
+    ptr[pgates * 2] = end + valueOffset[2];
+
+    free((void *)fptr);
 }
 
 void ColorConverter::GetPoint(FAST unsigned short *data,

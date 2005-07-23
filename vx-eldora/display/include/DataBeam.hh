@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/10/15  18:05:20  thor
+ * Changed include to Platform from Aircraft.
+ *
  * Revision 1.1  1991/10/09  20:27:41  thor
  * Initial revision
  *

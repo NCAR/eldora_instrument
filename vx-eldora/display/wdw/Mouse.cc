@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1993/12/03  17:50:51  thor
+ * Switched to Isr class for interrupt code.
+ *
  * Revision 2.2  1993/07/29  17:55:14  thor
  * Upgraded to VxWorks 5.1 & removed BSDisms.
  *
@@ -50,6 +53,8 @@
 #include "string.h"
 #include "tickLib.h"
 
+#include <iostream.h>
+
 Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits,
 	     int vector) : Isr((vector & 0xf0) + 8,1,
 			       (VOIDFUNCPTR)&Mouse::IsrFunction)
@@ -72,6 +77,30 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits,
     curX = (unsigned short *)(addr + CURX_OFFSET);
     
     clearIsr = (unsigned char *)(addr + WHY_OFFSET);
+
+    FAST volatile unsigned short *valid = (unsigned short *)(addr + 0x1000000);
+
+    *valid = 0;
+
+    FAST volatile unsigned char *mcuInt = interruptMCU;
+    FAST unsigned char *cmdReg = mcuCmd;
+
+    FAST int counter = 0;
+    
+    while ((*valid != 0xcb84) && (counter < 60))
+      {
+          counter++;
+          cout << "Waiting for AGC MCU." << endl;
+          *cmdReg = 1;
+          *mcuInt = 1;
+          taskDelay(1);               // Give it a fair chance.
+      }
+
+    if (counter == 60)
+      {
+          cerr << "Warning - AGC's MCU is dead!" << endl;
+          return;
+      }
     
 // Download the cursor pattern.
     
@@ -129,11 +158,7 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits,
 // 
 //     *cinit++ = KBD_RESET;	// Get keyboard ready.
 // 
-//     *cinit = KBD_INT_MASK;	// Interrupt on key press.
-    
-    volatile FAST unsigned char *mcuInt = interruptMCU;
-    FAST unsigned char *cmdReg = mcuCmd;
-    
+//     *cinit = KBD_INT_MASK;	// Interrupt on key press.        
     // To send the AGC MCU a command, first write command type to
     // mcuCmd and then interrupt the MCU by writing any value to
     // interruptMCU.
@@ -153,6 +178,7 @@ Mouse::Mouse(FAST void *addr, Point firstXY, FAST long *cursorBits,
     
     *clearIsr = 0;		// Must be set to 0 for MCU to interrupt host.
     lastTick = 0;
+    interruptReason = 0;
 }
 
 void Mouse::enableCursor(void)
@@ -176,9 +202,9 @@ void Mouse::enableCursor(void)
 void Mouse::setCursorXY(Point newLocation)
 {
     FAST unsigned short *ptr = (unsigned short *)(cursorBase + CURSOR_SET_OFF);
-    FAST SEM_ID sem = accessSem;
+    FAST SEM_ID lclSem = accessSem;
 
-    semTake(sem,WAIT_FOREVER);
+    semTake(lclSem,WAIT_FOREVER);
 
     *ptr++ = newLocation.x;
 
@@ -190,7 +216,7 @@ void Mouse::setCursorXY(Point newLocation)
     *cmd = CURSOR_XY_CHANGE;
     *mcuInt = 1;
 
-    semGive(sem);
+    semGive(lclSem);
 }
 
 void Mouse::setCursorImage(FAST long *cursorBits)
@@ -198,16 +224,16 @@ void Mouse::setCursorImage(FAST long *cursorBits)
     FAST long *target = cursorImage;
     FAST unsigned char *mcuInt = interruptMCU;
     FAST unsigned char *cmd = mcuCmd;
-    FAST SEM_ID sem = accessSem;
+    FAST SEM_ID lclSem = accessSem;
 
-    semTake(sem,WAIT_FOREVER);
+    semTake(lclSem,WAIT_FOREVER);
 
     memcpy((char *)target,(char *)cursorBits,CURSOR_SIZE);
 
     *cmd = CURSOR_PARAM_CHANGE;
     *mcuInt = 1;
 
-    semGive(sem);
+    semGive(lclSem);
 }
 
 void Mouse::enableCrosshair(void)
@@ -232,9 +258,9 @@ void Mouse::setCrosshairXY(Point newLocation)
 {
     FAST unsigned short *ptr = (unsigned short *)(crosshairBase +
 						  CROSSHAIR_SET_OFF);
-    FAST SEM_ID sem = accessSem;
+    FAST SEM_ID lclSem = accessSem;
 
-    semTake(sem,WAIT_FOREVER);
+    semTake(lclSem,WAIT_FOREVER);
 
     *ptr++ = newLocation.x;
 
@@ -246,7 +272,7 @@ void Mouse::setCrosshairXY(Point newLocation)
     *cmd = CURSOR_XY_CHANGE;
     *mcuInt = 1;
 
-    semGive(sem);
+    semGive(lclSem);
 }
 
 // getNextKey() will return the next key event in the buffer -
@@ -256,11 +282,11 @@ int Mouse::getNextKey(void)
     if (keyboardEmpty())
       return(NO_KEY_EVENT);
 
-    FAST SEM_ID sem = accessSem;
+    FAST SEM_ID lclSem = accessSem;
     FAST keyEvent *kev = kbdQueue;
     FAST unsigned char *index = kbdTail;
 
-    semTake(sem,WAIT_FOREVER);
+    semTake(lclSem,WAIT_FOREVER);
 
     FAST unsigned char loc = *index;
 
@@ -271,7 +297,7 @@ int Mouse::getNextKey(void)
 
     *index = loc;
 
-    semGive(sem);
+    semGive(lclSem);
 
     return(kev->keyCode & 0xff);
 }
@@ -303,14 +329,14 @@ void Mouse::enableInterrupts(FAST int mask)
 {
     FAST unsigned char *mouse = (unsigned char *)(mouseBase + MOUSE_INT_OFF);
     FAST unsigned char *kbd = (unsigned char *)(mouseBase + MOUSE_INT_OFF);
-    FAST SEM_ID sem = accessSem;
+    FAST SEM_ID lclSem = accessSem;
 
-    semTake(sem,WAIT_FOREVER);
+    semTake(lclSem,WAIT_FOREVER);
     
     *mouse = mask & (BUTTON_UP | BUTTON_DOWN);	// Only button events allowed.
     *kbd = mask & 1;				// Only one keyboard case.
 
-    semGive(sem);
+    semGive(lclSem);
 }
 
 void Mouse::IsrFunction()

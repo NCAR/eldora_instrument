@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.4  1994/09/23  15:03:57  thor
+ * Removed unused include file.
+ *
  * Revision 2.3  1994/09/12  18:43:56  thor
  * Removed alarm stuff.
  *
@@ -95,10 +98,11 @@ extern "C" {
 void GeStart();
 
 // Entry point list.
-extern void RpcLoop(Task &self);
+extern void SocketLoop(Task &self);
 extern void DrawingLoop(Task &self);
 extern void FieldMouseEvents(Task &self, Mouse &rodent);
 };
+void svrTask(int port);
 
 // Priorities.
 static const int DRAWING_PRI = 15;

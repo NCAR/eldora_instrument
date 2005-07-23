@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.8  1996/06/21  19:30:55  thor
+ * Added stop semaphore support & raw data object.
+ *
  * Revision 2.7  1994/11/01  17:59:42  thor
  * Made converter static.
  *

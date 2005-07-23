@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1991/10/09  18:26:30  thor
+ * Sigh! Undo previous change - too many conflicts.
+ *
  * Revision 1.5  1991/10/09  18:02:18  thor
  * Added more nested includes and global variables.
  *

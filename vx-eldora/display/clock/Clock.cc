@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.3  1996/02/16  16:53:49  thor
+ * Updated to latest C++ standard.
+ *
  * Revision 2.2  1994/11/01  18:20:47  thor
  * Added code to force redrawing of characters.
  *

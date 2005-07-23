@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.6  1996/06/21  19:29:53  thor
+// Added a stop semaphore to properly sync stopping the current drawing object.
+//
 // Revision 1.5  1995/02/24  23:12:45  thor
 // Added message on STOP.
 //
@@ -46,16 +49,19 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe, FAST SEM_ID stopSem)
     
   FAST char radar;
 
+  FAST long oldCount = 0xffffffff;
+
   for (;;)
     {
       FAST unsigned int flag = self.WaitOnFlags(waitMask,FLAGS_OR);
 
-      FAST Display *dispPtr = display;
+      FAST volatile Display *dispPtr = display;
           
       switch(flag)
         {
           case UNDISPLAY:
           case (UNDISPLAY | NEW_DATA_FLAG):
+	    oldCount = 0xffffffff;
             dispPtr->undisplay();
             semGive(stopSem);
             continue;
@@ -69,6 +75,7 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe, FAST SEM_ID stopSem)
           case STOP:
           case (STOP | NEW_DATA_FLAG):
             sysIntDisable(3);
+	    oldCount = 0xffffffff;
             DdpCtrl->Clear();
             if (!pipe.Empty())
               {
@@ -164,18 +171,33 @@ void DisplayLoop(FAST Task &self, FAST Pipe &pipe, FAST SEM_ID stopSem)
           if (data->data.radar_name[0] != radar)
             continue;
 
-          // Draw it.
-          dispPtr->drawBeam(data);
+	  // Check if we are way off in ray count.
+	  FAST int rc = data->data.ray_count;
 
-          // Check for time update.
-          if (!doClkUpdate)
-            {
-              doClkUpdate = clkUpdateStart;
-              dispPtr->updateClock(data);
-            }
-          else
-            --doClkUpdate;
-        }
+	  if (oldCount != 0xffffffff)
+	    {
+	      if ((rc - oldCount) > 100)
+		{
+		  pipe.Flush();
+		  cout << "Too far behind" << endl;
+		}
+	      else
+		{
+		  // Draw it.
+		  dispPtr->drawBeam(data);
+
+		  // Check for time update.
+		  if (!doClkUpdate)
+		    {
+		      doClkUpdate = clkUpdateStart;
+		      dispPtr->updateClock(data);
+		    }
+		  else
+		    --doClkUpdate;
+		}
+	    }
+	  oldCount = rc;
+	}
       if (pipe.Empty() == FALSE)
         self.SetFlags(NEW_DATA_FLAG);
     }

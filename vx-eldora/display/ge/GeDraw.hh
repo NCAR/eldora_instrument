@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.5  1996/06/21  19:31:21  thor
+ * Added stop semaphore support & raw data object.
+ *
  * Revision 2.4  1994/09/23  15:03:57  thor
  * Removed unused include file.
  *

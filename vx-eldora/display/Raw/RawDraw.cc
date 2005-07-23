@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1996/06/21  19:27:26  thor
+// First truely working version.
+//
 // Revision 1.1  1996/03/25  21:57:32  thor
 // Initial revision
 //

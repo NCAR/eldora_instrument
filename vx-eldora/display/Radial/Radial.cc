@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 2.11  1994/11/03  13:23:25  thor
+// Added code to properly handle long/short PRTs.
+//
 // Revision 2.10  1994/11/01  17:24:57  thor
 // Whoops, forgot VS & VL.
 //

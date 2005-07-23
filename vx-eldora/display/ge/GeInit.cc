@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.6  1996/06/25  16:13:36  thor
+ * Dropped seperate HeaderRpcInit() declaration, since header is fixed.
+ *
  * Revision 2.5  1994/11/01  17:58:09  thor
  * Switched to C++ I/O, added name for RPC task.
  *
@@ -58,7 +61,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "HeaderRpc.h"
 
 #include <iostream.h>
-#include <rpcLib.h>
 #include "tp41Lib.h"
 #include <sysLib.h>
 
@@ -89,27 +91,33 @@ void GeStart()
 
   // Initialize all globally declared objects.
   __do_global_ctors();
+  cout.sync_with_stdio(0);
 
   Hdr = NULL;
 
+#ifndef TEST_ONLY
   // Start graphics task.
   DrawingTask = new Task((FUNCPTR)DrawingLoop,NULL,0,DRAWING_PRI,60000);
+#endif
 
   // Now we start control loop.
-  CtrlTask = new Task((FUNCPTR)RpcLoop,NULL,0,CTRL_PRI,60000,0,1,"RpcLoop");
+  CtrlTask = new Task((FUNCPTR)SocketLoop,NULL,0,CTRL_PRI,60000,0,1,
+		      "SocketLoop");
 }
 
-void RpcLoop(Task &self)
+void SocketLoop(Task &self)
 { 
-  if (rpcTaskInit() == ERROR)
-    {
-      cout << "Failed to initialize Rpc." << endl;
-      return;
-    }
-
-  DispRpcInit();
-
-  HeaderRpcInit();
-
-  svc_run();
+  svrTask(3000);
 }
+
+#ifdef TEST_ONLY
+extern "C"
+{
+  void _exit(int);
+};
+
+void _exit(int i)
+{
+  exit(i);
+}
+#endif

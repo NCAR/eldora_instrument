@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/03  12:51:14  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.2  1991/02/27  16:56:05  thor
  * Fixed shift routine to use qpdms.
  *

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.13  1994/11/29  20:29:40  thor
+// Added code to handle new variable aircraft centering.
+//
 // Revision 1.12  1994/11/03  13:10:44  thor
 // Added code to properly handle long/short PRTs.
 //
@@ -168,7 +171,7 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
 
     len = strlen(ptr);
 
-    for (i = 0; i < np; i++)
+    for (FAST int i = 0; i < np; i++)
       {
 	  PARAMETER *p = hdr->Parameter(i);
 
@@ -272,7 +275,7 @@ void Dual::reset(FAST Header *hdr, FAST DispCommand *cmd)
     displaySet(Display::A_SET);
 
     FAST u_long side = cmd->side;
-    
+
     if (side == Dual::far_leftSide)
       xoffset = Dual::far_left;
     else if (side == Dual::far_rightSide)
@@ -332,11 +335,18 @@ void Dual::drawTable(int set, float max, float min, FAST int param,
     Point a;
     Point b;
 
-    a.x = 15;
+    a.x = 15;    
     a.y = ((Display::FULL_HEIGHT / 2) / 2) + top;
 
     wdw->horText(a,title,WHITE);
+
+    a.y -= 35;
     
+    if (dispType == Display::DUAL_AFT)
+      wdw->horText(a,"Aft",WHITE);
+    else
+      wdw->horText(a,"Fore",WHITE);
+
     a.x = Display::TBL_WIDTH - 87;
     a.y = top + 15;
 
