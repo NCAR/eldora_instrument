@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/11/18  15:10:37  thor
+ * Changes per Craig.
+ *
  * Revision 1.4  1994/09/06  19:36:21  thor
  * Changed name to sendhskpcommand_1.
  *
@@ -34,6 +37,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include <iostream.h>
 #include <sysLib.h>
+#include <semLib.h>
 #include <rebootLib.h>
 #include <rpc/pmap_clnt.h>
 

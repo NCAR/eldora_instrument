@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/09/06  19:36:21  thor
+ * Changed name to sendhskpcommand_1.
+ *
  * Revision 1.2  1994/09/01  18:02:35  thor
  * Updated for use with TLIRPC.
  *

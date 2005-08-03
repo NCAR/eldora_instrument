@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1994/09/01  18:03:36  thor
+ * Removed unneeded count field.
+ *
  * Revision 1.7  1992/09/23  22:21:36  craig
  * added ARINC_ERRORS definition
  *

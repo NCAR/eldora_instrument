@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/09/01  18:03:36  thor
+ * Removed unneeded count field.
+ *
  * Revision 1.3  1992/08/26  16:33:06  thor
  * Fixed totally screwed up defines.
  *

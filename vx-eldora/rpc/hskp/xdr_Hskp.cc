@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/09/01  18:05:25  thor
+ * Updated for use with TLIRPC. Removed unneeded count field.
+ *
  * Revision 1.3  1992/09/24  14:55:58  thor
  * Fixed to use new structure.
  *

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.5  1994/09/13  16:24:18  thor
+// Fixed losing clnt_destroy().
+//
 // Revision 1.4  1994/09/07  15:36:05  thor
 // Added missing clnt_destroy().
 //
@@ -159,13 +162,23 @@ int messanger::reconnect()
 int messanger::sendCmd()
 {
     cin >> cmd.cmd;
-    cin >> cmd.year;
-    cin >> cmd.month;
-    cin >> cmd.day;
-    cin >> cmd.hour;
-    cin >> cmd.minute;
-    cin >> cmd.second;
 
+    int tmp;
+    
+    cin >> tmp;
+    cmd.year = (unsigned char)tmp;
+    cin >> tmp;
+    cmd.month = (unsigned char)tmp;
+    cin >> tmp;
+    cmd.day = (unsigned char)tmp;
+    cin >> tmp;
+    cmd.hour = (unsigned char)tmp;
+    cin >> tmp;
+    cmd.minute = (unsigned char)tmp;
+    cin >> tmp;
+    cmd.second = (unsigned char)tmp;
+
+    cerr << cmd.cmd << endl;
 #ifdef DEBUG_ONLY
     cerr << cmd.cmd << endl;
     cerr << cmd.year << endl;
