@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/03/24  16:20:05  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -19,12 +22,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "BaseWdw.hh"
 #include "tape.image.h"
 #include "tape.err.image.h"
+#include "eot.image.h"
 
 
 BaseWdw::BaseWdw(int argc, char **argv) : Ok(64,64,tapeImageBits),
-Bad(64,64,tapeerrImageBits)
+Bad(64,64,tapeerrImageBits), Eot(64,64,eotImageBits)
 {
-    cout << argc << " " << argv[0] << endl;
     MainWdw.initUI(argc,argv);
     MainWdw.setWidth(563);
     MainWdw.setHeight(438);
@@ -73,11 +76,17 @@ Bad(64,64,tapeerrImageBits)
     Ctrl2.setDisplayBorders(TRUE);
     MainWdw.addDisplay(Ctrl2);
 
-    Record.setX(228);
-    Record.setY(24);
-    Record.setForegroundColor("Red");
-    Record.setLabel("Recording off");
-    Ctrl2.addComponent(Record);
+    RecordOn.setX(164);
+    RecordOn.setY(24);
+    RecordOn.setForegroundColor("Black");
+    RecordOn.setLabel("Recording On");
+    Ctrl2.addComponent(RecordOn);
+
+    RecordOff.setX(276);
+    RecordOff.setY(24);
+    RecordOff.setForegroundColor("Red");
+    RecordOff.setLabel("Recording off");
+    Ctrl2.addComponent(RecordOff);
 
     Log.setX(72);
     Log.setY(72);
@@ -123,8 +132,10 @@ Bad(64,64,tapeerrImageBits)
     setThis(Zero);
     One.setNotifyHandler((UICHandlerFunction)&BaseWdw::OneHandler);
     setThis(One);
-    Record.setNotifyHandler((UICHandlerFunction)&BaseWdw::RecordHandler);
-    setThis(Record);
+    RecordOn.setNotifyHandler((UICHandlerFunction)&BaseWdw::RecordOnHandler);
+    setThis(RecordOn);
+    RecordOff.setNotifyHandler((UICHandlerFunction)&BaseWdw::RecordOffHandler);
+    setThis(RecordOff);
     Log.setNotifyHandler((UICHandlerFunction)&BaseWdw::LogHandler);
     setThis(Log);
     Rewind.setNotifyHandler((UICHandlerFunction)&BaseWdw::RewindHandler);
@@ -133,8 +144,6 @@ Bad(64,64,tapeerrImageBits)
     setThis(Eject);
     Quit.setNotifyHandler((UICHandlerFunction)&BaseWdw::QuitHandler);
     setThis(Quit);
-
-    recordingState = 0;         // Not recording.
 }
 
 void BaseWdw::ZeroHandler(UIObject *obj)
@@ -153,51 +162,44 @@ void BaseWdw::OneHandler(UIObject *obj)
     sys1->show();
 }
 
-void BaseWdw::RecordHandler(UIObject *obj)
+void BaseWdw::RecordOnHandler(UIObject *obj)
 {
     obj = getObject(this);
     this = getThis(obj);
 
     TapeStatus *status;
     
-    if (recordingState)         // Recording is on.
+    status = targetSys.recordOn();
+    if (status == NULL)
       {
-          status = targetSys.recordOn();
-          if (status == NULL)
-            {
-                NoticePrompt note;
+          NoticePrompt note;
     
-                note.setMessage("Recording system failed to accept record command");
-                note.addButtonLabel("Noted");
-                note.show(obj);
-            }
-          else
-            {
-                sys0->update(status);
-                sys1->update(status);
-                recordingState = 0;
-                warning();
-            }
+          note.setMessage("Recording system failed to accept record on command");
+          note.addButtonLabel("Noted");
+          note.show(obj);
       }
     else
-      {
-          status = targetSys.recordOff();
-          if (status == NULL)
-            {
-                NoticePrompt note;
+      doStatus(status);
+}
+
+void BaseWdw::RecordOffHandler(UIObject *obj)
+{
+    obj = getObject(this);
+    this = getThis(obj);
+
+    TapeStatus *status;
     
-                note.setMessage("Recording system failed to accept record command");
-                note.addButtonLabel("Noted");
-                note.show(obj);
-            }
-          else
-            {
-                sys0->update(status);
-                sys1->update(status);
-                recordingState = 1;
-                fine();
-            }
+    status = targetSys.recordOff();
+    if (status == NULL)
+      {
+          NoticePrompt note;
+    
+          note.setMessage("Recording system failed to accept record off command");
+          note.addButtonLabel("Noted");
+          note.show(obj);
       }
+    else
+      doStatus(status);
 }
 
 void BaseWdw::LogHandler(UIObject *obj)
@@ -215,10 +217,7 @@ void BaseWdw::LogHandler(UIObject *obj)
           note.show(obj);
       }
     else
-      {
-          sys0->update(status);
-          sys0->update(status);
-      }
+      doStatus(status);
 }
 
 void BaseWdw::RewindHandler(UIObject *obj)
@@ -236,10 +235,7 @@ void BaseWdw::RewindHandler(UIObject *obj)
           note.show(obj);
       }
     else
-      {
-          sys0->update(status);
-          sys0->update(status);
-      }
+      doStatus(status);
 }
 
 void BaseWdw::EjectHandler(UIObject *obj)
@@ -257,10 +253,7 @@ void BaseWdw::EjectHandler(UIObject *obj)
           note.show(obj);
       }
     else
-      {
-          sys0->update(status);
-          sys0->update(status);
-      }
+      doStatus(status);
 }
 
 void BaseWdw::QuitHandler(UIObject *obj)
@@ -299,11 +292,37 @@ void BaseWdw::updateTime(int seconds)
 void BaseWdw::setMeter(int percent)
 {
     if (percent >= 95)
-      Ctrl3.setBackgroundColor("Yellow");
+      {
+          Ctrl3.setBackgroundColor("Yellow");
+          Eot.Attach(MainWdw);
+      }
     else
-      Ctrl3.setBackgroundColor("Aquamarine");
+      {
+          Ctrl3.setBackgroundColor("Aquamarine");
+          currIcon->Attach(MainWdw);
+      }
 
     Meter.setValue(percent);
+}
+
+void BaseWdw::doStatus(TapeStatus *status)
+{
+    int i = status->status[0] | status->status[1];
+    
+    if (i & 0x4)
+      fine();
+    else
+      warning();
+    
+    sys0->update(status);
+    sys1->update(status);
+
+    int percent = 100 - status->eot_warning;
+cout << "Current percent = " << percent << endl;
+    setMeter(percent);
+
+    Ctrl3.show(FALSE);
+    Ctrl3.show(TRUE);
 }
 
 void BaseWdw::update(BaseWdw *realWdw)
@@ -313,12 +332,6 @@ void BaseWdw::update(BaseWdw *realWdw)
     if (status == NULL)
       realWdw->warning();
     else
-      {
-          realWdw->sys0->update(status);
-          realWdw->sys1->update(status);
-
-          int percent = 100 - status->eot_warning;
-
-          realWdw->setMeter(percent);                
-      }
+      realWdw->doStatus(status);
+          
 }

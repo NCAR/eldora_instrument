@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1994/03/24  16:20:10  thor
+// Initial revision
+//
  *
  *
  * description:
@@ -44,24 +47,10 @@ class BaseWdw : public UIWrapper {
     void setSys0(StatusWdw &wdw) { sys0 = &wdw; }
     void setSys1(StatusWdw &wdw) { sys1 = &wdw; }
 
-    void warning()
-      {
-          Ctrl2.setBackgroundColor("Red");
-          Record.setForegroundColor("Red");
-          Record.setLabel("Recording off");
-          Bad.Attach(MainWdw,"Red");
-      }
-
-    void fine()
-      {
-          Ctrl2.setBackgroundColor("Aquamarine");
-          Record.setForegroundColor("Black");
-          Record.setLabel("Recording on");
-          Ok.Attach(MainWdw);
-      }
-
     void setMeter(int percent);
-    
+
+    void doStatus(TapeStatus *status);
+  
   private:
     BaseWindow MainWdw;
     ComponentDisplay Ctrl1;
@@ -70,7 +59,8 @@ class BaseWdw : public UIWrapper {
     Button One;
     TextItem Active;
     ComponentDisplay Ctrl2;
-    Button Record;
+    Button RecordOn;
+    Button RecordOff;
     Button Log;
     Button Rewind;
     Button Eject;
@@ -82,11 +72,11 @@ class BaseWdw : public UIWrapper {
 
     UIIcon Ok;
     UIIcon Bad;
+    UIIcon Eot;
+    UIIcon *currIcon;
     
     StatusWdw *sys0;
     StatusWdw *sys1;
-
-    int recordingState;
 
     BaseWdw *getThis(UIObject *obj)
       {
@@ -96,10 +86,29 @@ class BaseWdw : public UIWrapper {
     // Callbacks:
     void ZeroHandler(UIObject *obj);
     void OneHandler(UIObject *obj);
-    void RecordHandler(UIObject *obj);
+    void RecordOnHandler(UIObject *obj);
+    void RecordOffHandler(UIObject *obj);
     void LogHandler(UIObject *obj);
     void RewindHandler(UIObject *obj);
     void EjectHandler(UIObject *obj);
     void QuitHandler(UIObject *obj);
+
+    void warning()
+      {
+          Ctrl2.show(FALSE);
+          Ctrl2.setBackgroundColor("Red");
+          Bad.Attach(MainWdw,"Red");
+          currIcon = &Bad;
+          Ctrl2.show(TRUE);
+      }
+
+    void fine()
+      {
+          Ctrl2.show(FALSE);
+          Ctrl2.setBackgroundColor("Aquamarine");
+          Ok.Attach(MainWdw);
+          currIcon = &Ok;
+          Ctrl2.show(TRUE);
+      }          
 };
 #endif // INCBaseWdw_hh

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/03/24  16:20:08  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -128,16 +131,16 @@ StatusWdw::StatusWdw(int which) : toascii(buffer,80,ios::out)
 void StatusWdw::update(TapeStatus *status)
 {
     int which = whichSys;
-    
+
     if (status->unit == which)
       {
-          Current.setSelectedChoice(0,TRUE);
-          Current.setSelectedChoice(1,FALSE);
+          Current.setSelectedChoice("Yes",TRUE);
+          Current.setSelectedChoice("No",FALSE);
       }
     else
       {
-          Current.setSelectedChoice(0,FALSE);
-          Current.setSelectedChoice(1,TRUE);
+          Current.setSelectedChoice("Yes",FALSE);
+          Current.setSelectedChoice("No",TRUE);
       }
 
     u_long drv1;
@@ -153,15 +156,16 @@ void StatusWdw::update(TapeStatus *status)
 	drv1 = status->drives1[0];
 	drv2 = status->drives1[1];
       }
-    
-    for (int i = 1; i <= 4; i++)
-      {
-          if (drv1 == i || drv2 == i)
-            Drives.setSelectedChoice(i,TRUE);
-          else
-            Drives.setSelectedChoice(i,FALSE);
-      }
 
+    for (int i = 1; i <= 4; i++)
+      Drives.setSelectedChoice(i,FALSE);
+
+    if (drv1)
+      Drives.setSelectedChoice(drv1,TRUE);
+
+    if (drv2)
+      Drives.setSelectedChoice(drv2,TRUE);
+    
     toascii.seekp(0,ios::beg);
 
     hex(toascii);
@@ -178,12 +182,12 @@ void StatusWdw::update(TapeStatus *status)
     if (failed == 0xffffffff)
       totalFailed = 0;
     
-    if (failed >= StatusWdw::burst_limit)
+    if ((failed - totalFailed) >= StatusWdw::burst_limit)
       softErr.show();
 
-    totalFailed += failed;
+    totalFailed = failed;
 
-    if (totalFailed >= StatusWdw::soft_limit)
+    if (failed >= StatusWdw::soft_limit)
       softErr.show();
 
     dec(toascii);

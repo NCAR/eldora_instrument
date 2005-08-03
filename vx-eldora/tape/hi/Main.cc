@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/03/24  16:19:58  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -32,8 +35,13 @@ main(int argc, char **argv)
 
     opterr = 0;
     
-    while ((opt = getopt(argc,argv,"t:")) != -1)
-      target = optarg;
+    while ((opt = getopt(argc,argv,"t:s:")) != -1)
+      {
+          if (opt == 't')
+            target = optarg;
+          else if (opt == 's')
+            tmo = atoi(optarg);
+      }
 
     BaseWdw Base(argc,argv);
     
@@ -46,8 +54,8 @@ main(int argc, char **argv)
     if (target != NULL)
       {
           Base.startRpc(target);
-      }
           Base.updateTime(tmo);
+      }
 
     Notifier notifier;
 
