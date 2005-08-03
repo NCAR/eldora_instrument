@@ -160,6 +160,7 @@ _logc0f:         	float -2.083333333*ETO10      /* c0 */
 #endif COLSUBS
 
 #ifdef COLSUBS
+#ifndef NU_COLL
 #ifdef HIRESLOG
 .global _loge, _logeC
 /************************************************************/
@@ -277,9 +278,11 @@ _logc2e: 	        float -3.00000000*ETOE      /* c2 */
 _logc1e:	        float 4.00000000*ETOE       /* c1 */
 _logc0e:         	float -2.083333333*ETOE      /* c0 */
 #endif HIRESLOG
+#endif NU_COLL
 #endif COLSUBS
 
 #ifdef COLSUBS
+#ifndef NU_COLL
 .global _divf, _sqrtf
 /************************************************************/
 /* The routine _divf follows                                */
@@ -315,9 +318,12 @@ _divf:  r4e = *r14++          /* numerator pointer */
 
 _divfA: float 0.81, 1.4074074347, 2.27424702, -.263374728
 
+#endif NU_COLL
 #endif COLSUBS
 
 #if defined(COLSUBS) || defined(QUADSUBS)
+#ifndef NU_COLL
+
 /************************************************************/
 /* The routine _sqrtq follows                               */
 /************************************************************/
@@ -429,7 +435,7 @@ _sqrtfD: float 1.4074074347, 0.81, 2.27424702, -.263374728
 
 /* -------------------------------------------------------- */
 
-
+#endif NU_COLL
 #endif
 
 #ifdef COLSUBS
@@ -645,6 +651,7 @@ endcode:	int24	0x5555
 #endif COLSUBS
 
 #ifdef COLSUBS
+#ifndef NU_COLL
 #ifdef OLD_ATAN2
 /* atan is not in checksum because of local storage */
 /* in the atan function */
@@ -786,6 +793,7 @@ endcode:	int24	0x5555
          float .785398163, .999866     /* pi/4, c1 */
 
 #endif OLD_ATAN2
+#endif NU_COLL
 #endif COLSUBS
 
 /* end of COLLATOR subroutines */

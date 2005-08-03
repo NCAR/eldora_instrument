@@ -76,7 +76,12 @@ Special Collator DPRAM memory locations and definitions
 #define DATA_BUFF_2  0x8700 /* 0x7700 when try TOGA COARE code */
 
 /* New Architecture Collator Data Buffer Locations */
-
+#ifndef NEW_DSP_CODE
 #define DB_1 0x4B00
 #define DB_2 0x9AA0
+#endif 
+#ifdef NEW_DSP_CODE
+#define DB_1 0x6800
+#define DB_2 0xA7A0
+#endif 
 #endif INCcoll_dpramdefs

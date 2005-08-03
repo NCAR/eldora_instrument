@@ -10,6 +10,9 @@ $Header$
 *******************************************************************************
 * Revision history:
 * $Log$
+ * Revision 1.2  1994/07/18  20:11:02  eric
+ * *** empty log message ***
+ *
  * Revision 1.18  91/03/19  07:17:08  vanandel
  * added offset for time series data
  * 
