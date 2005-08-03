@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1992/08/11  15:38:43  thor
+ * Changed some longs to floats.
+ *
  * Revision 1.2  1992/08/11  13:46:30  thor
  * Added more doc.
  *

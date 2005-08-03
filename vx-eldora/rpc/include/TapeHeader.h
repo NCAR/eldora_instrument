@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1994/08/30  15:19:48  thor
+ * Dropped old rpc stuff.
+ *
  * Revision 1.5  1992/07/28  17:33:44  thor
  * Added nav & insitu items.
  *

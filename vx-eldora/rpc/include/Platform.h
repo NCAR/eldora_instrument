@@ -9,6 +9,18 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/03/14 15:30:39  vanandel
+ * *** empty log message ***
+ *
+ * Revision 1.1  2003/03/14 15:27:34  vanandel
+ * Initial revision
+ *
+ * Revision 1.2  1991/10/15  19:17:45  thor
+ * Added new variables.
+ *
+ * Revision 1.2  1991/10/15  19:17:45  thor
+ * Added new variables.
+ *
  * Revision 1.1  1991/10/15  16:45:52  thor
  * Initial revision
  *
@@ -22,16 +34,6 @@
  */
 #ifndef INCPlatformh
 #define INCPlatformh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct platform_i {
     char  platform_info[4];	/* Identifier for the aircraft/ship */
@@ -58,12 +60,12 @@ struct platform_i {
 				/* rotodome rotational axis and true */
 				/* North, clockwise (looking down) */
 				/* positive) in degrees */
-    float roll;			/* Roll angle of aircraft tail section
+    float roll;			/* Roll angle of aircraft tail section */
 				/* (Horizontal zero, Positive left wing up) */
 				/* in degrees */
     float pitch;		/* Pitch angle of rotodome (Horizontal */
 				/* is zero positive front up) in degrees*/
-    float drift_angle;		/* Antenna drift Angle. (angle between
+    float drift_angle;		/* Antenna drift Angle. (angle between */
 				/* platform true velocity and heading, */
 				/* positive is drift more clockwise */
 				/* looking down) in degrees */
@@ -87,15 +89,9 @@ struct platform_i {
     float pitch_change;		/* Pitch change rate in degrees/second. */
 }; /* End of Structure */
 
-#ifdef OK_RPC
-
 typedef struct platform_i platform_i;
 typedef struct platform_i PLATFORM;
 typedef struct platform_i AIRCRAFT;
-
-bool_t xdr_platform_i(XDR *, PLATFORM *);
-
-#endif /* OK_RPC */
 
 #endif /* INCPlatformh */
 

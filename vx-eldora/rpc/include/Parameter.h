@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/07/28  17:31:33  thor
+ * Removed filter_flag.
+ *
  * Revision 1.4  1992/04/20  17:18:31  thor
  * Latest Eldora/Asterea revisions included.
  *
@@ -28,16 +31,6 @@
  */
 #ifndef INCParameterh
 #define INCParameterh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct parameter_d {
     char  parameter_des[4];	/* Parameter Descriptor identifier */
@@ -71,15 +64,8 @@ struct parameter_d {
     long  bad_data;		/* Bad data flag. */
 }; /* End of Structure */
 
-
-#ifdef OK_RPC
-
 typedef struct parameter_d parameter_d;
 typedef struct parameter_d PARAMETER;
-
-bool_t xdr_parameter_d(XDR *, PARAMETER *);
-
-#endif /* OK_RPC */
 
 #endif /* INCParameterh */
 

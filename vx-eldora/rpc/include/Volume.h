@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.3  1991/10/15  17:57:07  thor
  * Fixed to meet latest version of tape spec.
  *
@@ -25,16 +28,6 @@
  */
 #ifndef INCVolumeh
 #define INCVolumeh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct volume_d {
     char  volume_des[4];	/* Volume descriptor identifier: ASCII */
@@ -66,14 +59,8 @@ struct volume_d {
 }; /* End of Structure */
 
 
-#ifdef OK_RPC
-
 typedef struct volume_d volume_d;
 typedef struct volume_d VOLUME;
-
-bool_t xdr_volume_d(XDR *, VOLUME *);
-
-#endif /* OK_RPC */
 
 #endif /* INCVolumeh */
 

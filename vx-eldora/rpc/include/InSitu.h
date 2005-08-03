@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:25:10  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -16,16 +19,6 @@
  */
 #ifndef INCInSituh
 #define INCInSituh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct insitu_parameter {
     char  name[8];
@@ -39,18 +32,11 @@ struct insitu_descript {
     struct insitu_parameter params[256]; /* Is this enough? */
 };
 
-#ifdef OK_RPC
-
 typedef struct insitu_descript insitu_descript;
 typedef struct insitu_descript INSITUDESC;
-
-extern bool_t xdr_insitu_descript(XDR *, insitu_descript *);
 
 typedef struct insitu_parameter insitu_parameter;
 typedef struct insitu_parameter INSITU_PARAMETER;
 
-extern bool_t xdr_insitu_parameter(XDR *, insitu_parameter *);
-
-#endif /* OK_RPC */
 #endif /* INCInSituh */
 

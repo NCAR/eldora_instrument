@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1992/04/20  17:18:31  thor
+ * Latest Eldora/Asterea revisions included.
+ *
  * Revision 1.5  1991/10/16  15:35:16  thor
  * Changed array size and following variable to fit alignment.
  *
@@ -31,16 +34,6 @@
  */
 #ifndef INCWaveformh
 #define INCWaveformh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct waveform_d {
     char  waveform_des[4];	/* Identifier for the waveform */
@@ -77,14 +70,8 @@ struct waveform_d {
     short gate_dist5[2];	/* Ditto for freq 5. */
 };
 
-#ifdef OK_RPC
-
 typedef struct waveform_d waveform_d;
 typedef struct waveform_d WAVEFORM;
-
-bool_t xdr_waveform_d(XDR *, WAVEFORM *);
-
-#endif /* OK_RPC */
 
 #endif /* INCWaveformh */
 

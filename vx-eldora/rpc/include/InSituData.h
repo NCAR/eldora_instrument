@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/08/11  13:47:18  thor
+ * Fixed typo.
+ *
  * Revision 1.1  1992/07/28  17:25:10  thor
  * Initial revision
  *
@@ -20,16 +23,6 @@
 #ifndef INCInsituDatah
 #define INCInsituDatah
 
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
-
 struct insitu_data {
     char  insitu_data_id[4];	/* Identifier = ISIT. */
     long  insitu_data_len;	/* Block size in bytes. */
@@ -39,13 +32,8 @@ struct insitu_data {
     short seconds;
 };
 
-#ifdef OK_RPC
-
 typedef struct insitu_data insitu_data;
 typedef struct insitu_data INSITU_DATA;
 
-extern bool_t xdr_insitu_data(XDR *, insitu_data *);
-
-#endif /* OK_RPC */
 #endif /* INCInsituDatah */
 

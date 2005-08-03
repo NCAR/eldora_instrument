@@ -9,6 +9,15 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/03/14 15:31:01  vanandel
+ * Initial revision
+ *
+ * Revision 1.2  1991/10/15  17:54:55  thor
+ * Fixed to meet latest version of tape spec.
+ *
+ * Revision 1.2  1991/10/15  17:54:55  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.1  1991/08/30  18:39:21  thor
  * Initial revision
  *
@@ -20,16 +29,6 @@
 #ifndef INCFieldParamh
 #define INCFieldParamh
 
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
-
 struct field_parameter_data {
     char  field_param_data[4];	/* Field parameter data identifier */
 				/* (ascii characters FRAD) */
@@ -39,7 +38,7 @@ struct field_parameter_data {
                                 /*  particular status when needed */
     char  radar_name[8];	/* Name of radar from which this data ray  */
 				/* came from */
-    float test_pulse_level;	/* Test pulse power level as measured by the
+    float test_pulse_level;	/* Test pulse power level as measured by the */
                                 /*  power meter in dbm */
     float test_pulse_dist;	/* Distance from antenna to middle of */
 				/* test pulse in km */
@@ -56,13 +55,7 @@ struct field_parameter_data {
     short last_rec_gate;	/* Last recorded gate number (M) */
 };				/* End of Structure */
 
-#ifdef OK_RPC 
-
 typedef struct field_parameter_data field_parameter_data;
 typedef struct field_parameter_data FIELDPARAMDATA;
-
-bool_t xdr_field_parameter_data(XDR *, field_parameter_data *);
-
-#endif /* OK_RPC */
 
 #endif /* INCFieldParamh */

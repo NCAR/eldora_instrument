@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.15  1994/10/24  18:55:52  thor
+ * Fixed broked << operator.
+ *
  * Revision 1.14  1994/08/30  15:19:03  thor
  * Lots of bug fixes & changes.
  *
@@ -71,581 +74,658 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #endif // UNIX
 
 #include "Header.hh"
+#include <netinet/in.h>
 
 #ifndef FAST
 #define FAST register
 #endif // FAST
 
-#ifndef UNIX
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#else
+#include <cstring>
+
+#ifdef UNIX
 #include <signal.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 static void Die(int);
 
 static void Die(int)
 {
-    exit(0);
+  exit(0);
 }
 #endif // UNIX
 
 Header::Header(void)
 {
-    if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
+  if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
+    {
+      cerr << "Cannot allocate space for header!" << endl;
+      exit(1);
+    }
     
-    numParams = 0;
+  numParams = 0;
 }
 
 Header::Header(FAST TAPEHEADER *t)
 {
-    if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
+  if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
+    {
+      cerr << "Cannot allocate space for header!" << endl;
+      exit(1);
+    }
 
-    memcpy(th,t,sizeof(TAPEHEADER));
+  memcpy(th,t,sizeof(TAPEHEADER));
 
-    numParams = th->Fore.Radar.num_parameter_des;
+  numParams = th->Fore.Radar.num_parameter_des;
 }
 
 Header::Header(void *v)
 {
-    if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
-      {
-	  fprintf(stderr,"Cannot allocate space for header!\n");
-	  exit(1);
-      }
+  if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
+    {
+      cerr << "Cannot allocate space for header!" << endl;
+      exit(1);
+    }
     
-    FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) + sizeof(RADARDESC) +
-      sizeof(FIELDRADAR) + sizeof(CELLSPACING);
+  FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) + sizeof(RADARDESC) +
+    sizeof(FIELDRADAR) + sizeof(CELLSPACING);
 
-    FAST unsigned char *t = (unsigned char *)v;
+  FAST unsigned char *t = (unsigned char *)v;
 
-    memcpy(th,t,size);
+  memcpy(th,t,size);
 
-    t += size;
+  t += size;
 
-    FAST int p = th->Fore.Radar.num_parameter_des;
+  FAST int p = th->Fore.Radar.num_parameter_des;
 
-    for (FAST int i = 0; i < p; i++)
-      {
-	  FAST PARAMETER *parm = (PARAMETER *)t;
+  for (FAST int i = 0; i < p; i++)
+    {
+      FAST PARAMETER *parm = (PARAMETER *)t;
 
-	  Parameter(*parm,i);
+      Parameter(*parm,i);
 
-	  t += sizeof(PARAMETER);
-      }
+      t += sizeof(PARAMETER);
+    }
 
-    size = sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING);
+  size = sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING);
 
-    memcpy(&th->Aft,t,size);
+  memcpy(&th->Aft,t,size);
 
-    t += size;
+  t += size;
 
-    size = sizeof(NAVDESC);
+  size = sizeof(NAVDESC);
 
-    memcpy(&th->Nav,t,size);
+  memcpy(&th->Nav,t,size);
 
-    t += size;
+  t += size;
 
-    size = sizeof(INSITUDESC);
+  size = sizeof(INSITUDESC);
 
-    memcpy(&th->Insitu,t,size);
+  memcpy(&th->Insitu,t,size);
+}
+
+Header::Header(const char *file)
+{
+  if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
+    {
+      cerr << "Cannot allocate space for header!" << endl;
+      exit(1);
+    }
+  readFile(file);
 }
 
 int Header::Parameter(FAST PARAMETER &param, FAST int paramNum)
 {
-    FAST PARAMETER *p = &th->Fore.Params[0];
+  FAST PARAMETER *p = &th->Fore.Params[0];
 
-    if (paramNum <= MAX_PARAM)	// Still room.
-      p += paramNum;
-    else
-      return(-1);
+  if (paramNum <= MAX_PARAM)	// Still room.
+    p += paramNum;
+  else
+    return(-1);
 
-    memcpy(p,&param,sizeof(PARAMETER));
+  memcpy(p,&param,sizeof(PARAMETER));
 
-    paramNum++;			// To get correct count.
+  paramNum++;			// To get correct count.
 
-    if (paramNum > numParams)	// Need to update parameter values.
-      {
-	  numParams = paramNum;
-	  th->Fore.Radar.num_parameter_des = paramNum;
-	  th->Aft.Radar.num_parameter_des = paramNum;
-	  th->Fore.Radar.total_num_des = paramNum + 1;
-	  th->Aft.Radar.total_num_des = paramNum + 1;
-      }
-    return(0);
+  if (paramNum > numParams)	// Need to update parameter values.
+    {
+      numParams = paramNum;
+      th->Fore.Radar.num_parameter_des = paramNum;
+      th->Aft.Radar.num_parameter_des = paramNum;
+      th->Fore.Radar.total_num_des = paramNum + 1;
+      th->Aft.Radar.total_num_des = paramNum + 1;
+    }
+  return(0);
 }
 
 PARAMETER *Header::Parameter(FAST int paramNum)
 {
-    FAST PARAMETER *p = &th->Fore.Params[0];
+  FAST PARAMETER *p = &th->Fore.Params[0];
 
-    if (paramNum > numParams)
-      p = NULL;
-    else
-      p += paramNum;
+  if (paramNum > numParams)
+    p = NULL;
+  else
+    p += paramNum;
 
-    return(p);
+  return(p);
 }
 
 void Header::CellSpacing(CELLSPACING &cs, FAST int descNum)
 {
-    FAST int i = sizeof(CELLSPACING);
+  FAST int i = sizeof(CELLSPACING);
 
-    FAST CELLSPACING *c;
+  FAST CELLSPACING *c;
 
-    if (descNum == 1)
-      c = &th->Fore.CellSpacing;
-    else
-      c = &th->Aft.CellSpacing;
+  if (descNum == 1)
+    c = &th->Fore.CellSpacing;
+  else
+    c = &th->Aft.CellSpacing;
 
-    memcpy(c,&cs,i);
+  memcpy(c,&cs,i);
 }
 
 CELLSPACING *Header::CellSpacing(FAST int descNum)
 {
-    if (descNum == 1)
-      return(&th->Fore.CellSpacing);
-    else
-      return(&th->Aft.CellSpacing);
+  if (descNum == 1)
+    return(&th->Fore.CellSpacing);
+  else
+    return(&th->Aft.CellSpacing);
 }
 
 int Header::Radar(FAST RADARDESC &r, FAST int descNum)
 {
-    FAST int i = sizeof(RADARDESC);
+  FAST int i = sizeof(RADARDESC);
 
-    FAST RADARDESC *ptr;
+  FAST RADARDESC *ptr;
 
-    if (descNum == 1)
-      {
-	  ptr = &th->Fore.Radar;
-	  memcpy(ptr,&r,i);
-	  return(0);
-      }
-    else if (descNum == 2)
-      {
-	  ptr = &th->Aft.Radar;
-	  memcpy(ptr,&r,i);
-	  return(0);
-      }
-    return(-1);
+  if (descNum == 1)
+    {
+      ptr = &th->Fore.Radar;
+      memcpy(ptr,&r,i);
+      return(0);
+    }
+  else if (descNum == 2)
+    {
+      ptr = &th->Aft.Radar;
+      memcpy(ptr,&r,i);
+      return(0);
+    }
+  return(-1);
 }
 
 RADARDESC *Header::Radar(FAST int descNum)
 {
-    if (descNum == 1)
-      return(&th->Fore.Radar);
-    else if (descNum == 2)
-      return(&th->Aft.Radar);
-    else
-      return(NULL);
+  if (descNum == 1)
+    return(&th->Fore.Radar);
+  else if (descNum == 2)
+    return(&th->Aft.Radar);
+  else
+    return(NULL);
 }
 
 void Header::FieldRadar(FAST FIELDRADAR &f, FAST int descNum)
 {
-    FAST int i = sizeof(FIELDRADAR);
-    FAST FIELDRADAR *ptr;
+  FAST int i = sizeof(FIELDRADAR);
+  FAST FIELDRADAR *ptr;
 
-    if (descNum == 1)
-      ptr = &th->Fore.FieldInfo;
-    else
-      ptr = &th->Aft.FieldInfo;
+  if (descNum == 1)
+    ptr = &th->Fore.FieldInfo;
+  else
+    ptr = &th->Aft.FieldInfo;
 
-    memcpy(ptr,&f,i);
+  memcpy(ptr,&f,i);
 }
 
 FIELDRADAR *Header::FieldRadar(FAST int descNum)
 {
-    if (descNum == 1)
-      return(&th->Fore.FieldInfo);
-    else
-      return(&th->Aft.FieldInfo);
+  if (descNum == 1)
+    return(&th->Fore.FieldInfo);
+  else
+    return(&th->Aft.FieldInfo);
 }
 
 void Header::Volume(FAST VOLUME &r)
 {
-    FAST int i = sizeof(VOLUME);
-    FAST VOLUME *ptr = &th->Volume;
+  FAST int i = sizeof(VOLUME);
+  FAST VOLUME *ptr = &th->Volume;
 
-    memcpy(ptr,&r,i);
+  memcpy(ptr,&r,i);
 }
 
 VOLUME *Header::Volume(void)
 {
-    return(&th->Volume);
+  return(&th->Volume);
 }
 
 void Header::Waveform(FAST WAVEFORM &r)
 {
-    FAST int i = sizeof(WAVEFORM);
-    FAST WAVEFORM *ptr = &th->Wave;
+  FAST int i = sizeof(WAVEFORM);
+  FAST WAVEFORM *ptr = &th->Wave;
 
-    memcpy(ptr,&r,i);
+  memcpy(ptr,&r,i);
 }
 
 WAVEFORM *Header::Waveform(void)
 {
-    return(&th->Wave);
+  return(&th->Wave);
 }
 
 void Header::NavDesc(FAST NAVDESC &n)
 {
-    FAST int i = sizeof(NAVDESC);
+  FAST int i = sizeof(NAVDESC);
 
-    FAST NAVDESC *ptr = &th->Nav;
+  FAST NAVDESC *ptr = &th->Nav;
 
-    memcpy(ptr,&n,i);
+  memcpy(ptr,&n,i);
 }
 
 NAVDESC *Header::NavDesc(void)
 {
-    return(&th->Nav);
+  return(&th->Nav);
 }
 
 void Header::Insitu(FAST INSITUDESC &n)
 {
-    FAST int i = sizeof(INSITUDESC);
+  FAST int i = sizeof(INSITUDESC);
 
-    FAST INSITUDESC *ptr = &th->Insitu;
+  FAST INSITUDESC *ptr = &th->Insitu;
 
-    memcpy(ptr,&n,i);
+  memcpy(ptr,&n,i);
 }
 
 INSITUDESC *Header::Insitu(void)
 {
-    return(&th->Insitu);
+  return(&th->Insitu);
 }
 
 int Header::GetRealHeader(void *header)
 {
-    // There are two radars, each with a field info and cellspacing block.
-    FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) +
-      (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING))) +
-	sizeof(NAVDESC) + sizeof(INSITUDESC);
+  // There are two radars, each with a field info and cellspacing block.
+  FAST int size = sizeof(VOLUME) + sizeof(WAVEFORM) +
+    (2 * (sizeof(RADARDESC) + sizeof(FIELDRADAR) + sizeof(CELLSPACING))) +
+    sizeof(NAVDESC) + sizeof(INSITUDESC);
 
-    FAST RADARDESC *rdr = &th->Fore.Radar;
+  FAST RADARDESC *rdr = &th->Fore.Radar;
 
-    FAST int np = numParams;
-    size += 2 * (sizeof(PARAMETER) * np); // # params * # radars.
+  FAST int np = numParams;
+  size += 2 * (sizeof(PARAMETER) * np); // # params * # radars.
 
-    FAST unsigned char *work = (unsigned char *)header;
+  FAST unsigned char *work = (unsigned char *)header;
 
-    memcpy(work,&th->Volume,sizeof(VOLUME));
+  memcpy(work,&th->Volume,sizeof(VOLUME));
 
-    work += sizeof(VOLUME);
+  work += sizeof(VOLUME);
 
-    memcpy(work,&th->Wave,sizeof(WAVEFORM));
+  memcpy(work,&th->Wave,sizeof(WAVEFORM));
 
-    work += sizeof(WAVEFORM);
+  work += sizeof(WAVEFORM);
 
-    // Do forward radar.
-    memcpy(work,&th->Fore.Radar,sizeof(RADARDESC));
+  // Do forward radar.
+  memcpy(work,&th->Fore.Radar,sizeof(RADARDESC));
 
-    work += sizeof(RADARDESC);
+  work += sizeof(RADARDESC);
 
-    memcpy(work,&th->Fore.FieldInfo,sizeof(FIELDRADAR));
+  memcpy(work,&th->Fore.FieldInfo,sizeof(FIELDRADAR));
 
-    work += sizeof(FIELDRADAR);
+  work += sizeof(FIELDRADAR);
 
-    memcpy(work,&th->Fore.CellSpacing,sizeof(CELLSPACING));
+  memcpy(work,&th->Fore.CellSpacing,sizeof(CELLSPACING));
 
-    work += sizeof(CELLSPACING);
+  work += sizeof(CELLSPACING);
 
-    for (FAST int i = 0; i < np; i++)	// Do once for each parameter block.
-      {
-	  memcpy(work,Parameter(i),sizeof(PARAMETER));
-	  work += sizeof(PARAMETER);
-      }
+  for (FAST int i = 0; i < np; i++)	// Do once for each parameter block.
+    {
+      memcpy(work,Parameter(i),sizeof(PARAMETER));
+      work += sizeof(PARAMETER);
+    }
 
-    // Do aft radar.
-    memcpy(work,&th->Aft.Radar,sizeof(RADARDESC));
+  // Do aft radar.
+  memcpy(work,&th->Aft.Radar,sizeof(RADARDESC));
 
-    work += sizeof(RADARDESC);
+  work += sizeof(RADARDESC);
 
-    memcpy(work,&th->Aft.FieldInfo,sizeof(FIELDRADAR));
+  memcpy(work,&th->Aft.FieldInfo,sizeof(FIELDRADAR));
 
-    work += sizeof(FIELDRADAR);
+  work += sizeof(FIELDRADAR);
 
-    memcpy(work,&th->Aft.CellSpacing,sizeof(CELLSPACING));
+  memcpy(work,&th->Aft.CellSpacing,sizeof(CELLSPACING));
 
-    work += sizeof(CELLSPACING);
+  work += sizeof(CELLSPACING);
 
-    for (i = 0; i < np; i++)
-      {
-	  memcpy(work,Parameter(i),sizeof(PARAMETER));
-	  work += sizeof(PARAMETER);
-      }
+  for (FAST int i = 0; i < np; i++)
+    {
+      memcpy(work,Parameter(i),sizeof(PARAMETER));
+      work += sizeof(PARAMETER);
+    }
 
-    // Do Nav & Insitu descriptors.
-    memcpy(work,&th->Nav,sizeof(NAVDESC));
+  // Do Nav & Insitu descriptors.
+  memcpy(work,&th->Nav,sizeof(NAVDESC));
 
-    work += sizeof(NAVDESC);
+  work += sizeof(NAVDESC);
 
-    memcpy(work,&th->Insitu,sizeof(INSITUDESC));
+  memcpy(work,&th->Insitu,sizeof(INSITUDESC));
 
-    return(size);
+  return(size);
+}
+
+int Header::readFile(const char *file)
+{
+
+  ifstream input(file);
+
+  if (!input.good())
+    return 1;
+
+  input >> *this;
+
+  if (!input.good())
+    return 1;
+
+  return 0;
 }
 
 Header &Header::operator=(FAST Header &in)
 {
-    FAST Header *ptr = this;
+  FAST Header *ptr = this;
 
-    memcpy(ptr->th,in.th,sizeof(TAPEHEADER));
+  memcpy(ptr->th,in.th,sizeof(TAPEHEADER));
 
-    ptr->numParams = in.numParams;
+  ptr->numParams = in.numParams;
 
-    return(*ptr);
+  return(*ptr);
 }
 
 Header &Header::operator=(FAST TAPEHEADER *th)
 {
-    FAST Header *ptr = this;
+  FAST Header *ptr = this;
 
-    memcpy(ptr->th,th,sizeof(TAPEHEADER));
+  memcpy(ptr->th,th,sizeof(TAPEHEADER));
 
-    numParams = th->Fore.Radar.num_parameter_des;
+  numParams = th->Fore.Radar.num_parameter_des;
 
-    return(*this);
+  return(*this);
 }    
-
 
 Header::~Header(void)
 {
-    if (th != NULL)
-      free((char *)th);
+  if (th != NULL)
+    free((char *)th);
 }
 
 // The following are C linkage routines to access this class.
 
 HeaderPtr CreateHeader(FAST TAPEHEADER *t, FAST void *v)
 {
-    Header *ptr;
+  Header *ptr;
 
-    if (v != NULL)
-      ptr = new Header(v);
-    else if (t != NULL)
-      ptr = new Header(t);
-    else
-      ptr = new Header;
+  if (v != NULL)
+    ptr = new Header(v);
+  else if (t != NULL)
+    ptr = new Header(t);
+  else
+    ptr = new Header;
 
-    return(ptr);
+  return(ptr);
+}
+
+HeaderPtr CreateHeaderFromFile(char *file)
+{
+  Header *ptr = new Header(file);
+
+  return(ptr);
 }
 
 int SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum)
 {
-    Header *h = (Header *)ptr;
-    PARAMETER &ref = *param;
+  Header *h = (Header *)ptr;
+  PARAMETER &ref = *param;
 
-    return(h->Parameter(ref,paramNum));
+  return(h->Parameter(ref,paramNum));
 }
 
 PARAMETER *GetParameter(HeaderPtr ptr, int paramNum)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->Parameter(paramNum));
+  return(h->Parameter(paramNum));
 }
 
 void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs, int descNum)
 {
-    Header *h = (Header *)ptr;
-    CELLSPACING &ref = *cs;
+  Header *h = (Header *)ptr;
+  CELLSPACING &ref = *cs;
 
-    h->CellSpacing(ref,descNum);
+  h->CellSpacing(ref,descNum);
 }
 
 CELLSPACING *GetCellSpacing(HeaderPtr ptr, int descNum)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->CellSpacing(descNum));
+  return(h->CellSpacing(descNum));
 }
 
 int SetRadar(HeaderPtr ptr, RADARDESC *cs, int descNum)
 {
-    Header *h = (Header *)ptr;
-    RADARDESC &ref = *cs;
+  Header *h = (Header *)ptr;
+  RADARDESC &ref = *cs;
 
-    return(h->Radar(ref,descNum));
+  return(h->Radar(ref,descNum));
 }
 
 RADARDESC *GetRadar(HeaderPtr ptr, int descNum)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->Radar(descNum));
+  return(h->Radar(descNum));
 }
 
 void SetFieldRadar(HeaderPtr ptr, FIELDRADAR *cs, int descNum)
 {
-    Header *h = (Header *)ptr;
-    FIELDRADAR &ref = *cs;
+  Header *h = (Header *)ptr;
+  FIELDRADAR &ref = *cs;
 
-    h->FieldRadar(ref,descNum);
+  h->FieldRadar(ref,descNum);
 }
 
 FIELDRADAR *GetFieldRadar(HeaderPtr ptr, int descNum)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->FieldRadar(descNum));
+  return(h->FieldRadar(descNum));
 }
 
 void SetVolume(HeaderPtr ptr, VOLUME *cs)
 {
-    Header *h = (Header *)ptr;
-    VOLUME &ref = *cs;
+  Header *h = (Header *)ptr;
+  VOLUME &ref = *cs;
 
-    h->Volume(ref);
+  h->Volume(ref);
 }
 
 VOLUME *GetVolume(HeaderPtr ptr)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->Volume());
+  return(h->Volume());
 }
 
 void SetWaveform(HeaderPtr ptr, WAVEFORM *cs)
 {
-    Header *h = (Header *)ptr;
-    WAVEFORM &ref = *cs;
+  Header *h = (Header *)ptr;
+  WAVEFORM &ref = *cs;
 
-    h->Waveform(ref);
+  h->Waveform(ref);
 }
 
 WAVEFORM *GetWaveform(HeaderPtr ptr)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->Waveform());
+  return(h->Waveform());
 }
 
 void SetNavDesc(FAST HeaderPtr ptr, FAST NAVDESC *nd)
 {
-    FAST Header *h = (Header *)ptr;
+  FAST Header *h = (Header *)ptr;
 
-    NAVDESC &ref = *nd;
+  NAVDESC &ref = *nd;
 
-    h->NavDesc(ref);
+  h->NavDesc(ref);
 }
 
 NAVDESC *GetNavDesc(FAST HeaderPtr ptr)
 {
-    FAST Header *h = (Header *)ptr;
+  FAST Header *h = (Header *)ptr;
 
-    return(h->NavDesc());
+  return(h->NavDesc());
 }
 
 void SetInsitu(FAST HeaderPtr ptr, FAST INSITUDESC *id)
 {
-    FAST Header *h = (Header *)ptr;
-    FAST INSITUDESC &ref = *id;
+  FAST Header *h = (Header *)ptr;
+  FAST INSITUDESC &ref = *id;
 
-    h->Insitu(ref);
+  h->Insitu(ref);
 }
 
 INSITUDESC *GetInsitu(HeaderPtr ptr)
 {
-    FAST Header *h = (Header *)ptr;
+  FAST Header *h = (Header *)ptr;
 
-    return(h->Insitu());
+  return(h->Insitu());
 }
 
 void GetRpcHeader(HeaderPtr ptr, TAPEHEADER *th)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    memcpy(th,h->GetRpcHeader(),sizeof(TAPEHEADER));
+  memcpy(th,h->GetRpcHeader(),sizeof(TAPEHEADER));
 }
 
 int GetRealHeader(HeaderPtr ptr, void *header)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    return(h->GetRealHeader(header));
+  return(h->GetRealHeader(header));
 }
 
 void CopyHeader(HeaderPtr src, HeaderPtr dest)
 {
-    FAST Header *s = (Header *)src;
-    FAST Header *d = (Header *)dest;
+  FAST Header *s = (Header *)src;
+  FAST Header *d = (Header *)dest;
 
-    *d = *s;
+  *d = *s;
 }
 
 void ResetHeader(HeaderPtr ptr, FAST TAPEHEADER *th)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    *h = th;
+  *h = th;
 }
 
 void DestroyHeader(HeaderPtr ptr)
 {
-    Header *h = (Header *)ptr;
+  Header *h = (Header *)ptr;
 
-    delete(h);
+  delete(h);
+}
+
+int readHeaderFile(HeaderPtr ptr, char *file)
+{
+  Header *h = (Header *)ptr;
+
+  return h->readFile(file);
 }
 
 ostream& operator<<(ostream &os, Header &hdr)
 {
-    TAPEHEADER *th = hdr.GetRpcHeader();
+  TAPEHEADER *th = hdr.GetRpcHeader();
 
-    os.write((unsigned char *)&th->Volume,sizeof(VOLUME));
-    os.write((unsigned char *)&th->Wave,sizeof(WAVEFORM));
-    os.write((unsigned char *)&th->Fore.Radar,sizeof(RADARDESC));
+  os.write((unsigned char *)&th->Volume,sizeof(VOLUME));
+  os.write((unsigned char *)&th->Wave,sizeof(WAVEFORM));
+  os.write((unsigned char *)&th->Fore.Radar,sizeof(RADARDESC));
 
-    int size = (th->Fore.Radar.num_parameter_des * sizeof(PARAMETER)) + 
-      sizeof(CELLSPACING) + sizeof(FIELDRADAR);
+#ifdef linux
+  int des = ntohs(th->Fore.Radar.num_parameter_des);
+#else
+  int des = th->Fore.Radar.num_parameter_des;
+#endif
 
-    os.write((unsigned char *)&th->Fore.FieldInfo,size);
+  int size = (des * sizeof(PARAMETER)) +  sizeof(CELLSPACING) + 
+    sizeof(FIELDRADAR);
 
-    size += sizeof(RADARDESC);
+  os.write((unsigned char *)&th->Fore.FieldInfo,size);
 
-    os.write((unsigned char *)&th->Aft,size);
+  size += sizeof(RADARDESC);
 
-    os.write((unsigned char *)&th->Nav,sizeof(struct nav_descript));
+  os.write((unsigned char *)&th->Aft,size);
 
-    os.write((unsigned char *)&th->Insitu,sizeof(struct insitu_descript));
+  os.write((unsigned char *)&th->Nav,sizeof(struct nav_descript));
 
-    return(os);
+  os.write((unsigned char *)&th->Insitu,sizeof(struct insitu_descript));
+
+  return(os);
 }
 
 istream& operator>>(istream &is, Header &hdr)
 {
-    TAPEHEADER th;
+  TAPEHEADER th;
 
-    is.read((unsigned char *)&th.Volume,sizeof(VOLUME));
-    is.read((unsigned char *)&th.Wave,sizeof(WAVEFORM));
-    is.read((unsigned char *)&th.Fore.Radar,sizeof(RADARDESC));
+  memset(&th.Fore.FieldInfo.file_name[0],0,80);
+  memset(&th.Aft.FieldInfo.file_name[0],0,80);
 
-    int size = (th.Fore.Radar.num_parameter_des * sizeof(PARAMETER)) + 
-      sizeof(CELLSPACING) + sizeof(FIELDRADAR);
+  is.read((unsigned char *)&th.Volume,sizeof(VOLUME));
+  is.read((unsigned char *)&th.Wave,sizeof(WAVEFORM));
+  is.read((unsigned char *)&th.Fore.Radar,sizeof(RADARDESC));
 
-    is.read((unsigned char *)&th.Fore.FieldInfo,size);
+  int fsize = sizeof(FIELDRADAR);
 
-    size += sizeof(RADARDESC);
+#ifdef linux
+  int i = ntohs(th.Volume.format_version);
+  int des = ntohs(th.Fore.Radar.num_parameter_des);
+#else
+  int i = th.Volume.format_version;
+  int des = th.Fore.Radar.num_parameter_des;
+#endif
 
-    is.read((unsigned char *)&th.Aft,size);
+  if (i == 1)
+    {
+      fsize -= 80;
+#ifdef linux
+      th.Volume.format_version = htons(2);
+#else
+      th.Volume.format_version = 2;
+#endif
+    }
 
-    is.read((unsigned char *)&th.Nav,sizeof(struct nav_descript));
+  is.read((unsigned char *)&th.Fore.FieldInfo,fsize);
 
-    is.read((unsigned char *)&th.Insitu,sizeof(struct insitu_descript));
+  int size = (des * sizeof(PARAMETER)) + sizeof(CELLSPACING);
 
-    hdr = &th;
+  is.read((unsigned char *)&th.Fore.CellSpacing,size);
 
-    return(is);
+  is.read((unsigned char *)&th.Aft.Radar,sizeof(RADARDESC));
+
+  is.read((unsigned char *)&th.Aft.FieldInfo,fsize);
+
+  is.read((unsigned char *)&th.Aft.CellSpacing,size);
+
+  is.read((unsigned char *)&th.Nav,sizeof(struct nav_descript));
+
+  is.read((unsigned char *)&th.Insitu,sizeof(struct insitu_descript));
+
+#ifdef linux
+  size = htonl(sizeof(FIELDRADAR));
+#else
+  size = sizeof(FIELDRADAR);
+#endif
+
+  th.Fore.FieldInfo.field_radar_info_len = size;
+  th.Aft.FieldInfo.field_radar_info_len = size;
+
+  hdr = &th;
+
+  return(is);
 }

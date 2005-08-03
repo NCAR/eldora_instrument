@@ -1,0 +1,161 @@
+
+ Introduction
+
+	In order to use the header to determine local parameters there
+are four areas that must be discussed. The first is actual header, the
+second is the transport mechanism that passes a header from the
+control system to the real time targets, third is how the real time
+targets respond when a new header arrives and lastly, how to access
+the information in the header.
+
+ The Header
+
+	The ELDORA tape header format has been documented in a paper
+by Craig Walther. It defines how the header is to appear on tape. This
+is an important point, since implementation constraints require that
+the header passed to the real time systems is not in that exact
+format. However, this is really a moot point except in the case of the
+tape recording system, since obtaining local parameters from the
+header information only requires access to a form consistent with the
+form defined in that paper. This has been implemented by defining a
+properly padded structure for each head block type along with routines
+to insert/extract them from the header format used.
+
+	Each header block has an include file defining its structure.
+Since we will be using the passed header, refering to structure
+members guarntees that any change to the structure organization will
+not require any change to code except for recompilation.
+
+ Transport
+
+	Sun's RPC is used as the transport. Each real time system will
+run a server routine that allows the UNIX side to asynchronously
+download a new header. Routines to perform this downloading will be
+supplied in a library, so the user need only make the call to start
+the server. 
+
+ Real Time Response
+
+	When a new header arrives, the server will automatically be
+invoked. It will place the new header in local storage. That is all it
+will do. Each real time system will also have a control server that
+will be sent proper commands when this new header is to be used. Since
+this code is simple, but slightly system dependent, we will use the
+recording system version as a baseline.
+
+ Accessing the Header
+
+	Each system will have a global pointer to a variable of type
+HeaderPtr. All access to the header is via this pointer and a set of C
+routines. For each section of the header there a get and set routine -
+normally only the get version will be used. For those functions that
+take a decsriptor number use 1 to get the descriptor from the forward
+radar descriptor and 2 to get the same from the aft descriptor. The
+functions are:
+
+HeaderPtr CreateHeader(TAPEHEADER *t, void *v) and void
+DestroyHeader(HeaderPtr ptr) - These are used only in the server code.
+
+void SetParameter(HeaderPtr ptr, PARAMETER *param, int paramNum) -
+Returns parameter number paramNum in the PARAMETER structure pointed
+to by param. Parameters begin at 0.
+
+PARAMETER *GetParameter(HeaderPtr ptr, int paramNum) - Returns pointer to 
+structure.
+
+void SetCellSpacing(HeaderPtr ptr, CELLSPACING *cs, int descNum) -
+Fills in the CELLSPACING structure pointed to by cs.
+
+CELLSPACING *GetCellSpacing(HeaderPtr header, int descNum) - Returns
+pointer to structure.
+
+void SetRadar(HeaderPtr ptr, RADARDESC *cs, int descNum) - Fills in
+the RADARDESC structure pointed to by cs.
+
+RADARDESC *GetRadar(HeaderPtr header, int descNum) - Returns pointer to 
+structure.
+
+void SetFieldRadar(HeaderPtr ptr, FIELDRADAR *cs, int descNum) - Fills
+in the FIELDRADAR  structure pointed to by cs.
+
+FIELDRADAR *GetFieldRadar(HeaderPtr header, int descNum) - Returns
+pointer to structure.
+
+void SetVolume(HeaderPtr ptr, VOLUME *cs) - Fills in the VOLUME
+structure pointed to by cs.
+
+VOLUME *GetVolume(HeaderPtr header) - Returns pointer to 
+structure.
+
+void SetWaveform(HeaderPtr ptr, WAVEFORM *cs) - Fills in the WAVEFORM
+structure pointed to by cs.
+
+WAVEFORM *GetWaveform(HeaderPtr header) - Returns pointer to 
+structure.
+
+int GetRealHeader(HeaderPtr ptr, void *header) - Allocates storage
+for a true tape header and puts the address of the header into the
+address pointed to by header. It returns the number of bytes in the
+tape header. This means that the returned header can be destroyed by
+freeing the allocated memory. It also means that multiple copies of
+the tape header can be made. An example:
+
+	extern HeaderPtr passedHeader;
+	void *myheader;
+	int headersize;
+	CELLSPACING *cs;
+
+	....
+
+	myheader = (void *)malloc(..lots of memory..);
+
+	if ((headersize = GetRealHeader(passedHeader,myheader)) == 0)
+	  /* Error handling */
+	else
+	  /* Normal code. Example shows how to get cell spacing structure. */
+		
+	cs = GetCellSpacing(passedHeader);
+	...
+
+	free(myheader);
+
+ Location
+
+	The headers for all structures are located in:
+
+/ELDORA/rpc/include
+
+	The relavent headers are:
+
+Aircraft.h		*
+CellSpacing.h
+FieldParam.h		*
+FieldRadar.h
+Header.h
+Parameter.h
+RadarDesc.h
+Ray.h			*
+TapeHeader.h
+Volume.h
+Waveform.h
+
+	Those marked by a '*' are only used in the generated data
+stream.
+
+	The library to link into your real time code is:
+
+/ELDORA/rpc/bin/vxHeader.o
+
+	You will also have to link in the following files:
+
+/ELDORA/vx/c++/bin/builtin++.o
+/ELDORA/vx/c++/bin/ctor_dummy.o
+
+	Linking these to your code may done as follows:
+
+/locallib/g++68-ld -X -r -o outfile your_objects other_objects
+
+where outfile is the name of the object file that will be downloaded
+to the target, your_objects is a list of your local object files to
+include and other_objects includes the files just discussed plus any
+others your application may require.

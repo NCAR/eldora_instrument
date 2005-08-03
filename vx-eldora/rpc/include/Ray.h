@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/07/28  17:33:03  thor
+ * Added ray_status.
+ *
  * Revision 1.3  1992/04/20  17:18:31  thor
  * Latest Eldora/Asterea revisions included.
  *
@@ -25,16 +28,6 @@
  */
 #ifndef INCRayh
 #define INCRayh
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct ray_i {
     char  ray_info[4];		/* Identifier for a data ray info. */
@@ -55,15 +48,8 @@ struct ray_i {
     long  ray_status;		/* 0 = normal, 1 = transition, 2 = bad. */
 }; /* End of Structure */
 
-
-#ifdef OK_RPC
-
 typedef struct ray_i ray_i;
 typedef struct ray_i RAY;
-
-bool_t xdr_ray_i(XDR *, RAY *);
-
-#endif /* OK_RPC */
 
 #endif /* INCRayh */
 

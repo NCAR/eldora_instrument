@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/07/28  17:23:46  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -16,16 +19,6 @@
  */
 #ifndef INCNavDesch
 #define INCNavDesch
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct nav_descript {
     char  nav_descript_id[4];	/* Identifier = NDDS. */
@@ -36,13 +29,8 @@ struct nav_descript {
     short kalman_flag;		/* 0 = no kalman data, 1 = data recorded. */
 };
 
-#ifdef OK_RPC
-
 typedef struct nav_descript nav_descript;
 typedef struct nav_descript NAVDESC;
 
-extern bool_t xdr_nav_descript(XDR *, nav_descript *);
-
-#endif /* OK_RPC */
 #endif /* INCNavDesch */
 

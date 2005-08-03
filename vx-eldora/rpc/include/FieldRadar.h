@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  1994/11/18  18:08:07  thor
+ * Changed padding at end to num_base_params.
+ *
  * Revision 1.5  1992/09/24  17:12:09  thor
  * Added new items.
  *
@@ -31,16 +34,6 @@
  */
 #ifndef INCFieldRadarh
 #define INCFieldRadarh
-
-#ifdef OK_RPC
-
-#if defined(UNIX) && defined(sun)
-#include <rpc/rpc.h>
-#else if defined(WRS)
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct field_radar_i {
     char  field_radar_info[4];	/* Identifier for a field written */
@@ -114,18 +107,10 @@ struct field_radar_i {
     short time_series_gate;	/* gate number where the time series data come
                                    from */
     short num_base_params;      /* Number of base parameters. */
+    char  file_name[80];	/* Name of this header file. */
 }; /* End of Structure */
-
-
-#ifdef OK_RPC 
 
 typedef struct field_radar_i field_radar_i;
 typedef struct field_radar_i FIELDRADAR;
-
-#if defined(sun) || defined(WRS)
-bool_t xdr_field_radar_i(XDR *, FIELDRADAR *);
-#endif
-
-#endif /* OK_RPC */
 
 #endif /* INCFieldRadarh */

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1991/10/15  17:54:21  thor
+ * Fixed to meet latest version of tape spec.
+ *
  * Revision 1.2  1991/10/11  15:32:10  thor
  * Added variable for offset to first gate.
  *
@@ -23,18 +26,8 @@
 #ifndef INCCellSpacingh
 #define INCCellSpacingh
 
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
-
 struct cell_spacing_d {
-    char   cell_spacing_des[4]; /* Identifier for a cell spacing descriptor
+    char   cell_spacing_des[4]; /* Identifier for a cell spacing descriptor */
 				/* (ascii characters CSPD). */
     long   cell_spacing_des_len; /* Cell Spacing descriptor length in bytes. */
     short  num_segments;	/* Number of segments that contain cells of */
@@ -44,14 +37,8 @@ struct cell_spacing_d {
     short  num_cells[6];	/* Number of cells in each segment. */
 };				/* End of Structure */
 
-#ifdef OK_RPC
-
 typedef struct cell_spacing_d cell_spacing_d;
 typedef struct cell_spacing_d CELLSPACING;
-
-bool_t xdr_cell_spacing_d(XDR *, cell_spacing_d *);
-
-#endif /* OK_RPC */
 
 #endif /* INCCellSpacingh */
 

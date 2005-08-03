@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/10/07  14:30:29  thor
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/07/28  17:23:46  thor
  * Initial revision
  *
@@ -20,41 +23,30 @@
 #ifndef INCMiniRIMSh
 #define INCMiniRIMSh
 
-#ifdef OK_RPC
-
-#if defined(UNIX) && defined(sun)
-#include <rpc/rpc.h>
-#else if defined(WRS)
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
-
 struct minirims_data {
     char  minirims_data_id[4];	/* Identifier = MINI. */
     long  minirims_data_len;	/* Block size in bytes. */
+    short second;
+    short millisecond;
     short command;		/* Current command latch setting. */
     short status;		/* Current status. */
     float temperature;		/* Degrees C. */
-    float x_axis_gyro[128];	/* Roll axis gyro position. */
-    float y_axis_gyro[128];	/* Pitch axis gyro position. */
-    float z_axis_gyro[128];	/* Yaw axis gyro position. */
-    float xr_axis_gyro[128];	/* Roll axis redundate gyro position. */
-    float x_axis_vel[128];	/* Longitudinal axis velocity. */
-    float y_axis_vel[128];	/* Lateral axis velocity. */
-    float z_axis_vel[128];	/* Vertical axis velocity. */
-    float x_axis_pos[128];	/* Roll axis gimbal. */
+    short x_axis_gyro_up[128];	/* Roll axis gyro up counts. */
+    short x_axis_gyro_dn[128];	/* Roll axis gyro down counts. */
+    short y_axis_gyro_up[128];	/* Pitch axis gyro up counts. */
+    short y_axis_gyro_dn[128];	/* Pitch axis gyro down counts. */
+    short z_axis_gyro_up[128];	/* Yaw axis gyro up counts. */
+    short z_axis_gyro_dn[128];	/* Yaw axis gyro down counts. */
+    short xr_axis_gyro_up[128];	/* Roll axis redundate gyro up counts. */
+    short xr_axis_gyro_dn[128];	/* Roll axis redundate gyro down counts. */
+    short x_axis_acc[128];	/* Longitudinal axis accelerometer counts. */
+    short y_axis_acc[128];	/* Lateral axis accelerometer counts. */
+    short z_axis_acc[128];	/* Vertical axis accelerometer counts. */
+    float x_axis_pos[128];	/* Roll axis gimbal angle. */
 };
-
-#ifdef OK_RPC
 
 typedef struct minirims_data minirims_data;
 typedef struct minirims_data MINIRIMS_DATA;
 
-#if defined(sun) || defined(WRS)
-extern bool_t xdr_minirims_data(XDR *, minirims_data *);
-#endif
-
-#endif /* OK_RPC */
 #endif /* INCMiniRIMSh */
 

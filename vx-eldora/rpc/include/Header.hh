@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  1994/08/30  15:19:31  thor
+ * Lots of bug fixes & changes.
+ *
  * Revision 1.9  1992/09/24  13:32:10  thor
  * Added stream I/O, new Send method.
  *
@@ -54,19 +57,15 @@
 #ifndef INCHeaderhh
 #define INCHeaderhh
 
-#ifndef OK_RPC
-#define OK_RPC
-#endif
-
 extern "C" {
 #include "Header.h"
 #include "TapeHeader.h"
 };
 
-#include <iostream.h>
+#include <fstream.h>
 
 class Header {
-  private:
+  protected:
     TAPEHEADER *th;		// Working copy of tape header.
 
     int numParams;		// How many parameters in use.
@@ -77,6 +76,8 @@ class Header {
     Header(TAPEHEADER *t);	// Exisiting header.
 
     Header(void *t);		// Make one from a real tape header.
+
+    Header(const char *file);	// Read in from a file.
 
     int Parameter(PARAMETER &param, int paramNum);
     PARAMETER *Parameter(int paramNum);
@@ -105,6 +106,8 @@ class Header {
     TAPEHEADER *GetRpcHeader(void) { return(th); }
 
     int GetRealHeader(void *header);
+
+    int readFile(const char *file);
 
     Header &operator=(Header &in);
 

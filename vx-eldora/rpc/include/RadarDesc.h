@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1992/07/28  17:32:30  thor
+ * Removed fixed_angle.
+ *
  * Revision 1.4  1992/04/20  17:18:31  thor
  * Latest Eldora/Asterea revisions included.
  *
@@ -28,16 +31,6 @@
  */
 #ifndef INCRadarDesch
 #define INCRadarDesch
-
-#ifdef OK_RPC
-
-#ifdef UNIX
-#include <rpc/rpc.h>
-#else
-#include "rpc/rpc.h"
-#endif /* UNIX */
-
-#endif /* OK_RPC */
 
 struct radar_d {
     char  radar_des[4];		/* Identifier for a radar descriptor */
@@ -105,14 +98,7 @@ struct radar_d {
     float interpulse_per5;	/* Interpulse period 5. */
 }; /* End of Structure */
 
-
-#ifdef OK_RPC
-
 typedef struct radar_d radar_d;
 typedef struct radar_d RADARDESC;
-
-bool_t xdr_radar_d(XDR *, RADARDESC *);
-
-#endif /* OK_RPC */
 
 #endif /* INCRadarDesch */
