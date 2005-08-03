@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1995/02/14  16:14:50  thor
+ * Fixed things to make it meet ANSI specs.
+ *
  * Revision 1.4  1994/09/02  18:20:32  thor
  * Major rewrite.
  *

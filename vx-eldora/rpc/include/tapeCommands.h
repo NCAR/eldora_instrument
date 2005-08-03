@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1995/02/14  16:14:09  thor
+ * Added LOAD_TAPE command.
+ *
  * Revision 1.4  1994/09/02  18:21:48  thor
  * major rewrite.
  *
@@ -37,7 +40,8 @@
 #define REWIND    0x100
 #define EJECT     0x200
 #define LOAD_TAPE 0x400
-
+#define INIT_UNIT 0x800
+#define USE_OTHER_UNIT 0x1000
 
 #endif /* INCtapeCommandsh */
 

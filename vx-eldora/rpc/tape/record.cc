@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.5  1994/09/13  16:50:46  thor
+// Fixed call to clnt_destroy().
+//
 // Revision 1.4  1994/09/07  15:43:12  thor
 // Added missing clnt_destroy().
 //

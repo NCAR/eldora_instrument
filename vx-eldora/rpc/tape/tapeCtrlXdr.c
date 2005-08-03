@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/09/02  18:20:32  thor
+ * Major rewrite.
+ *
  * Revision 1.2  1992/01/14  15:22:07  thor
  * Added code for data reduction.
  *

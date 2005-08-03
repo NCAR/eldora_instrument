@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1994/09/06  18:50:58  thor
+ * Changed name of sendcommand_1 due to name space clashes.
+ *
  * Revision 1.6  1994/09/02  18:17:41  thor
  * Major rewrite.
  *
