@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/02  13:28:43  thor
+ * Made changes to compile under gcc.
+ *
  * Revision 2.0  1992/11/02  20:46:22  thor
  * First offical ELDORA release!
  *
