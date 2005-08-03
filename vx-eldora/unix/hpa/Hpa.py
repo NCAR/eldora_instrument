@@ -10,6 +10,9 @@
 # revision history
 # ----------------
 # $Log$
+# Revision 1.1  1996/04/08  21:47:51  thor
+# Initial revision
+#
 #
 #   This implements 2 simple classes that are nothing but constants &
 # the 'real' Hpa class. The latter sends control info to the selected
@@ -108,7 +111,7 @@ class Hpa:
 
 		while s[len(s) - 1] != '\003':
 			s = s + self.serialport.read(1)
-
+			
 		s = s + self.serialport.read(1)
 
 		as = s[1:5] # We want the 4 status bytes.
@@ -150,8 +153,10 @@ class Hpa:
 		if (state):
 			self.faulted = 1
 			self.faults = self.faults | (state << 8)
+			
 		state = ord(stat[3])
 		state = state & HPA_STATES.byte4
 		if (state):
 			self.faulted = 1
 			self.faults = self.faults | state
+

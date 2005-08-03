@@ -10,6 +10,9 @@
 # revision history
 # ----------------
 # $Log$
+# Revision 1.1  1996/04/08  21:48:06  thor
+# Initial revision
+#
 #
 #   This class controls a serial line for comm to an HPA.
 

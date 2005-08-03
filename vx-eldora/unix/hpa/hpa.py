@@ -10,6 +10,9 @@
 # revision history
 # ----------------
 # $Log$
+# Revision 1.2  1996/12/18  19:17:47  thor
+# Added code to generate pid file.
+#
 # Revision 1.1  1996/04/08  21:47:51  thor
 # Initial revision
 #
@@ -23,6 +26,8 @@ from IconWindow import *
 from Dialog import *
 
 from Hpa import *
+
+import FifoGbl
 
 import posix
 
@@ -105,7 +110,7 @@ class HpaGui(Tk,Hpa):
 		self.msg = StaticEntry(self.msgframe,TOP)
 		self.msg.setLabel('Current Status for HPA ' + self.unit)
 		self.msg.text()
-		self.msg.setData('unknown')
+		self.msg.setData('unknown status for HPA at this time')
 
 		self.loadframe = Frame(self,frame_cnf)
 		self.loadlabel = Label(self.loadframe,text='Load Position:')
@@ -138,6 +143,13 @@ class HpaGui(Tk,Hpa):
 		f = open(file,"w")
 		f.write(`posix.getpid()`)
 		f.close()
+
+		#
+		# Open fifos.
+		if self.unit == 0:
+			self.fifo = open(FifoGbl.FifoName.one,'r')
+		else:
+			self.fifo = open(FifoGbl.FifoName.two,'r')
 		
 	def __del__(self):
 		print 'bye'
@@ -194,12 +206,34 @@ class HpaGui(Tk,Hpa):
 		if self.tmo > 0:
 			self.after(self.tmo,self.periodic,None)
 
+	def periodic2(self,junk):
+		self.fifoCheck()
+		# Run every 10 seconds.
+		self.after(10000,self.periodic2,None)
+
+	def fifoCheck(self):
+		line = self.fifo.readline()
+		if line == '':
+			return
+
+		# If the message is from the radar control, go to operate mode
+		# else go to standby. However, if we are already at that state
+		# or in one of the others, like cooldown, ignore this.
+		if line == '1\n':
+			if self.current_status == HPA_STATES.standby:
+				self.sendcmd(HPA.operate)
+		else if self.current_status == HPA_STATES.operate:
+			self.sendcmd(HPA.standby)
+
 	def set_tmo(self,tmo = 0):
 		self.tmo = tmo * 1000
 
 	def update(self):
 		if self.faulted:
-			self.msg.setData('Faulted - %#x' % self.faults )
+			if self.faults == 0:
+				self.msg.setData('Unknown fault')
+			else:
+				self.msg.setData('%#x' % self.faults )
 			self.bad()
 		else:
 			self.msg.setData(self.state_dict[self.current_status])
@@ -208,13 +242,13 @@ class HpaGui(Tk,Hpa):
 
 	def bad(self):
 		self.msg.setLabelBackground('red')
-		self.msg.setEntryBackground('red')
+##		self.msg.setEntryBackground('red')
 		self.icon.set_image(image=self.errimage)
 		self.icon.background('red')
 
 	def good(self):
 		self.msg.setLabelBackground('aquamarine')
-		self.msg.setEntryBackground('aquamarine')
+##		self.msg.setEntryBackground('aquamarine')
 		if self.icon == None:
 			self.icon = IconWindow(self,image=self.okimage)
 		else:
@@ -269,6 +303,7 @@ def go():
 	if not testing:
 		hpa.periodic(None)	# This forces a status check.
 
+	hpa.periodic2()
 	hpa.mainloop()
 
 	del hpa
