@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/07/18  20:06:28  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -29,6 +32,16 @@ bool_t xdr_MinirimsCommand(register XDR *xdrs, MinirimsCommand *objp)
   register long *buf;
 
   if (!xdr_u_long(xdrs, &objp->cmd))
+    return (FALSE);
+  return (TRUE);
+}
+
+
+bool_t xdr_MinirimsStatus(register XDR *xdrs, MinirimsStatus *objp)
+{
+  register long *buf;
+
+  if (!xdr_u_long(xdrs, &objp->status))
     return (FALSE);
   return (TRUE);
 }

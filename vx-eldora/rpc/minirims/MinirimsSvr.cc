@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/07/18  20:06:28  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -19,6 +22,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define OK_RPC
 
 #include "MinirimsRpc.hh"
+#include <iostream.h>
 
 static void minirimscontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -39,6 +43,12 @@ static void minirimscontrol_1(struct svc_req *rqstp, register SVCXPRT *transp)
       _xdr_argument = (xdrproc_t) xdr_MinirimsCommand;
       _xdr_result = (xdrproc_t) xdr_int;
       local = (char *(*)(char *, struct svc_req *)) sendminirimscommand_1_svc;
+      break;
+
+    case statusMinirims:
+      _xdr_argument = (xdrproc_t) xdr_void;
+      _xdr_result = (xdrproc_t) xdr_MinirimsStatus;
+      local = (char *(*)(char *, struct svc_req *)) statusminirims_1_svc;
       break;
 
     default:

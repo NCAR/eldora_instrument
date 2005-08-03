@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1996/07/18  20:06:28  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -38,4 +41,19 @@ int *sendminirimscommand_1(struct MinirimsCommand *argp, CLIENT *clnt)
       return (NULL);
     }
   return (&clnt_res);
+}
+
+struct MinirimsStatus *statusminirims_1(FAST void *argp, FAST CLIENT *clnt)
+{
+  static struct MinirimsStatus clnt_res;
+
+  memset((char *)&clnt_res,0,sizeof(clnt_res));
+  if (clnt_call(clnt,statusMinirims,
+                (xdrproc_t) xdr_void,(caddr_t) argp,
+                (xdrproc_t) xdr_MinirimsStatus,(caddr_t)&clnt_res,
+                TIMEOUT) != RPC_SUCCESS)
+    {
+      return (NULL);
+    }
+  return(&clnt_res);
 }
