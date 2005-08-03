@@ -10,6 +10,9 @@
 | revision history
 | ----------------
 | $Log$
+ * Revision 1.1  1993/03/24  20:14:43  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/10  19:58:37  eric
  * Initial revision
  *
@@ -38,7 +41,7 @@
 #define ELDORA	/* "define ELDORA" or "define MHR" or "define CBAND" */
 #ifdef ELDORA	/* ELDORA assembler switches */
 /* Simulator definition */
-#define UNIX_SIMULATOR_TESTS    /* Sets up defines to run code on simulator */
+#define NO_UNIX_SIMULATOR_TESTS    /* Sets up defines to run code on simulator */
 /* try defining these from the preprocessor */
 /* #define MASTER */			/* Set for MASTER (DSP0) */
 /* #define no_SLAVE  */		/* Set for SLAVE  (DSP1-3) */
