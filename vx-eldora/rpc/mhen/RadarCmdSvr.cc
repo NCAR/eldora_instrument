@@ -15,6 +15,11 @@
 #include "rpcLib.h"
 #include "stdlib.h"
 #include "taskLib.h"
+#include "HeaderRpc.h"
+#include "CellSpacing.h"
+#include "RadarGbls.h"
+#include "RDPGlobals.h"
+#include "mcpl_gbl.h"
 #endif // UNIX
 
 static void radarcontrol_1(struct svc_req *,SVCXPRT *);
@@ -97,17 +102,30 @@ struct RadarStatus *sendradarcommand_1_svc(FAST struct RadarCommand *cmdBlk,
 {
     FAST u_long cmd = cmdBlk->cmd;
 
+    cs = GetCellSpacing(inHeader,1);
+    wvfm = GetWaveform(inHeader);
     if(cmd & LOAD)
       load = 1;
 
     if(cmd & START)
       {
+          
 /*	  cmd &= !STOP; */      /* clear out stop flag in case STOP was hit twice */
-	  semGive(exec_sem);
-	  semGive(real_sem);
+          if(!Run_flag)
+              {
+                  semGive(exec_sem);
+                  Run_flag = 1;
+              }
       }
     if(cmd & STOP)
-      stop = 1;
+        {
+            stop = 1;
+            Run_flag = 0;
+        }
+    if(cmd & TSGATE)
+      {
+	TS_gate = (volatile long)((cmdBlk->dist * 1000.0 - (double)(cs->distToFirst))/(double)(wvfm -> gate_dist1[1]*2.5) + 0.5);
+      }
     if(cmd & REBOOT)
       reboot = 1;
     if(cmd & RELOAD)
@@ -115,7 +133,6 @@ struct RadarStatus *sendradarcommand_1_svc(FAST struct RadarCommand *cmdBlk,
 	  stop = 1;
 	  taskDelay(10); /* add short delay to allow coll_data_xfer to finish */
 	  semGive(exec_sem);
-	  semGive(real_sem);
       }
     if(cmd & DC_REMOVAL)
       {    

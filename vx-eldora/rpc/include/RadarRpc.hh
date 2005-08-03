@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1994/09/07  14:35:01  thor
+ * Renamed sendcommand.
+ *
  * Revision 1.7  1994/09/06  16:09:47  thor
  * Updated to use TLIRPC.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/09/06  16:14:10  thor
+ * Many changes.
+ *
  * Revision 1.1  1992/06/25  17:39:01  thor
  * Initial revision
  *
@@ -34,6 +37,7 @@
 #define RESYNC     0x8000
 #define FAST_CAL   0x10000
 #define LOAD       0x20000
+#define TSGATE     0x40000
 #define DC_NULL    0xFFFFFC0F
 #define FFT_NULL   0xFFFFC7FF
 

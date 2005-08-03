@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.2  1994/09/13  16:57:35  thor
+// Protected clnt_destroy() from bad pointer.
+//
 // Revision 1.1  1994/09/06  16:08:08  thor
 // Initial revision
 //
@@ -108,10 +111,10 @@ void messanger::getClients()
 {
     if ((client1 = clnt_create(target1,RadarControl,RadarCtrlVers,"udp"))
         == NULL)
-      cout << clnt_spcreateerror("recorder") << endl;
+      cout << "Command to connect to " << target1 << " failed." << endl;
     else if ((client2 = clnt_create(target2,RadarControl,RadarCtrlVers,
                                     "udp")) == NULL)
-      cout << clnt_spcreateerror("recorder") << endl;
+      cout << "Command to connect to " << target2 << " failed." << endl;
     else
       cout << "OK" << endl;
 }
@@ -119,9 +122,9 @@ void messanger::getClients()
 void messanger::getStatus()
 {
     if ((stat1 = getradarstatus_1(NULL,client1)) == NULL)
-      cout << clnt_sperror(client1,"recorder") << endl;
+      cout << "Mhen: Status call failed." << endl;
     else if ((stat2 = getradarstatus_1(NULL,client2)) == NULL)
-      cout << clnt_sperror(client2,"recorder") << endl;
+      cout << "Mhen: Status call failed." << endl;
     else
         {
             cout << "OK" << endl;

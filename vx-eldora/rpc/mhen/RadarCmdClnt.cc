@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/09/07  14:35:01  thor
+ * Renamed sendcommand.
+ *
  * Revision 1.2  1994/09/06  16:15:48  thor
  * Updated to TLIRPC, among other changes.
  *
@@ -25,7 +28,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define OK_RPC
 #define CLIENT_SIDE
 #include "RadarRpc.hh"
-#include <memory.h>
+
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };

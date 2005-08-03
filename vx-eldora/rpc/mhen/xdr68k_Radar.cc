@@ -9,9 +9,6 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.6  1994/09/06  16:15:48  thor
- * Updated to TLIRPC, among other changes.
- *
  * Revision 1.5  1993/07/23  14:56:40  thor
  * Added TASS stuff.
  * >> .
@@ -44,8 +41,6 @@ bool_t xdr_RadarCommand(XDR *xdrs, FAST RadarCommand *objp)
       {
 	  return (FALSE);
       }
-    if (!xdr_double(xdrs, &objp->dist))
-      return (FALSE);
     if (!xdr_int(xdrs,&objp->dc_points))
       {
 	  return (FALSE);

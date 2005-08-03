@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/09/10  14:03:53  thor
+ * Added new item for ts.
+ *
  * Revision 1.4  1996/09/09  22:52:19  eric
  * *** empty log message ***
  *

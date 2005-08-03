@@ -1,0 +1,124 @@
+
+Strategy:
+
+start a eldora-vx repository in /code/cvs, and start adding files directly
+as they are needed, so that RCS ,v files can be moved directly into the
+repository in the right place, preserving history
+
+call it vx-eldora until it settles down, to avoid lots of emails
+
+don't try to reconcile similar code between /net/eldora/eldora tree and
+what's already in CVS.  Get it committed and building first, in as close a
+form as the original, then reconcile.
+
+----------------------------------------------------------------
+
+organize and commit the code under /net/eldora/eldora.  The headers 
+are already committed somewhere right?  Need to use the new eldora-only
+source tree and commit the vxworks code under it, in the same style
+as for sabl
+
+kernel objects for housekeeper, rp7a, and rp7f need to be committed to CVS,
+currently the operational copies reside on the 4u linux control pc
+
+see eldora/Directory
+
+	header-maker needs to go into cvs, Eric has master copy somewhere
+
+	likewise for dsp code
+
+4u hambo redhat 6.2 in lab has most recent changes
+
+keep unix/hpa
+
+not sure if eldora/display and eldora/tape are needed
+
+makefile in newclk works, but not integrated in top-level makefile
+
+clock/newclk/incl needs to be reconciled with vx/hskp/include
+
+clk probably supercedes clock/newclk
+
+housekeeper.o is the final product
+
+the hskp and mhen directories build separate vxworks tadpole (68000?)
+binaries for separate CPUs.  the other directories are for libraries shared
+between the hskp and mhen
+
+eldora/doc needs to be checked, probably not needed
+
+keep eldora diag
+
+already removed /net/eldora/sabl
+
+ignore eldora/dsp
+
+ignore arinc_NCAR
+
+reconcile vx/minirims and hskp/src/minirims (probably the most recent)
+
+ignore vx/h2
+
+commit tape, but unused
+
+ignore ddpath
+
+ignore mhen/src/mhen_old, mhen/src/mhen
+
+mhen/src needs top-level makefile
+
+'make nu_arch' in mhen/src/nu_archit
+
+how to find unused header files and remove them from the include directory
+
+find unused source code
+
+ignore eldora/hdr_maker
+
+eldora/lib/vx may be object files that need to be preserved
+
+vx/c and vx/c++ contain object files that need to be preserved
+
+reconcile rpc/include/Header.h,hh
+
+
+================================================================
+Log of changes made to the copy of /net/eldora/eldora:
+
+removed doc/logs and doc/specs
+
+move *.skel into doc/skel
+
+remove $Log$ from the skeleton files
+
+mv Directory into doc
+
+rm -rf bin
+
+removed all *~ and *.o files, intending to copy back any .o that turn
+out to be needed
+
+remove diag/agc and diag/bin since empty
+
+rm all but *.c files from diag/datatape
+
+import RCS files from diag/mcpl/RCS
+
+remove diag/mcpl/mcpl_menu.rn
+
+rm -rf diag/mcpltst
+
+rm -rf diag/tape (empty)
+
+rm diag/vmevme/includes
+
+import RCS files from diag/vmevme
+
+import RCS files under display
+
+rm display/util/uitc/{a,q}
+
+
+rpc/include/Aircraft.h actually looks like it got overwritten with
+Parameter.h, but the copy in rpc/header still has a Aircraft structure in
+it, so I'm assuming that's correct
