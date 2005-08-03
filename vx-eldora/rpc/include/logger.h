@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.2  1994/09/07  16:43:33  thor
+ * Updated to the new TLIRPC.
+ *
  * Revision 2.1  1993/09/10  16:42:56  thor
  * New improved version!
  *
@@ -32,58 +35,45 @@
 #ifndef INCloggerh
 #define INCloggerh
 
-#ifdef OK_RPC
-
 #ifndef UNIX
 #include "vxWorks.h"
-#else
-#include <rpc/types.h>
-
 #endif /* UNIX */
-
-#include <rpc/rpc.h>
 
 #ifndef FAST
 #define FAST register
 #endif /* FAST */
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* cplusplus */
-#endif /* OK_RPC */
-
 enum LOGSOURCE {
-	FORE_LOG = 0,
-	AFT_LOG = 1,
-	DISP1_LOG = 2,
-	DISP2_LOG = 3,
-	RECORD_LOG = 4,
-	HSKP_LOG = 5,
+  FORE_LOG = 0,
+  AFT_LOG = 1,
+  DISP1_LOG = 2,
+  DISP2_LOG = 3,
+  RECORD_LOG = 4,
+  HSKP_LOG = 5,
 };
 
 struct LOGMSG {
-	enum LOGSOURCE src;
-	char message[81];
-	int items[10];
+  enum LOGSOURCE src;
+  char message[81];
+  int items[10];
 };
 
-#ifdef OK_RPC
-
 typedef enum LOGSOURCE LOGSOURCE;
-bool_t xdr_LOGSOURCE(XDR *xdrs, LOGSOURCE *objp);
-
 typedef struct LOGMSG LOGMSG;
-bool_t xdr_LOGMSG(XDR *xdrs, LOGMSG *objp);
+static const int loggerPort = 3001;
 
-#define Logger ((u_long)0x30002000)
-#define LoggerVers ((u_long)1)
-#define LogMessage ((u_long)1)
+#ifdef CLIENT_SID
 
-#ifdef CLIENT_SIDE
+#ifdef __cplusplus
+extern "C" {
+#endif /* cplusplus */E
 
-extern void logmessage_1(LOGMSG *argp);
 extern void loggerEvent(char *message, int *ip, int num);
 extern int loggerInit(int src);
+
+#ifdef __cplusplus
+};
+#endif /* cplusplus */
 
 #define LOGGER_PRI 2
 
@@ -93,25 +83,7 @@ extern int loggerInit(int src);
 
 LOGGER_SCOPE STATUS LoggerError;
 
-#ifdef __cplusplus
-};
-#endif /* cplusplus */
-
-#else
-extern void *logmessage_1_svc(LOGMSG *argp, struct svc_req *);
-extern void logger_1(struct svc_req *rqstp, SVCXPRT *transp);
-
 #endif /* CLIENT_SIDE */
-
-#else
-
-program Logger {
-    version LoggerVers {
-	void LogMessage(struct LOGMSG) = 1;
-    } = 1;
-} = 0x30002000;
-
-#endif /* OK_RPC */
 
 #endif /* INCloggerh */
 

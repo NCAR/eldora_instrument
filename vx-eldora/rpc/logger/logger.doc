@@ -1,0 +1,21 @@
+
+
+			Using the Logger functions
+
+	To simplify logging, there is a set of routines to perform all
+needed logging operations. They are:
+
+void loggerInit(char *host);
+void loggerError(char *message);
+void loggerEvent(char *message);
+
+	loggerInit prepares needed data structures for logging.
+
+	loggerError & loggerEvent write to the respective log file.
+
+	To use these functions use the include file logger.h, found in
+/ELDORA/rpc/include and add the file /ELDORA/rpc/bin/vxlogger.o to your link
+step.
+
+	NOTE: These routines do not do any formatting for you. The
+format is still under development.
