@@ -10,6 +10,9 @@
 | revision history
 | ----------------
 | $Log$
+ * Revision 1.2  1992/11/10  19:41:52  eric
+ * removed explicit path names from #includes.
+ *
  * Revision 1.1  1992/11/10  19:32:27  eric
  * Initial revision
  *
