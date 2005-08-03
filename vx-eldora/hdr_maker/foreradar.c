@@ -71,7 +71,7 @@ initialize_foreradar_descriptor(foresensordescriptor)
 
 
 /****************************************************************************/
-/*                     EDIT AFT RADAR DESCRIPTOR                            */
+/*                     EDIT FORE RADAR DESCRIPTOR                            */
 /****************************************************************************/
 edit_foreradar_descriptor(foresensordescriptor)
     struct sensorDes *foresensordescriptor;
@@ -387,7 +387,15 @@ edit_foreradar_descriptor(foresensordescriptor)
     printf("RADAR DESCRIPTOR     : %s \n",foresensordescriptor->radar.radar_des);
     printf("RADAR DESCRIPTOR SIZE: %d\n",
                     foresensordescriptor->radar.radar_des_length);
-    printf("RADAR NAME           : %s\n",foresensordescriptor->radar.radar_name);
+    printf("RADAR NAME           : %c%c%c%c%c%c%c%c\n",
+	   foresensordescriptor->radar.radar_name[0],
+	   foresensordescriptor->radar.radar_name[1],
+	   foresensordescriptor->radar.radar_name[2],
+	   foresensordescriptor->radar.radar_name[3],
+	   foresensordescriptor->radar.radar_name[4],
+	   foresensordescriptor->radar.radar_name[5],
+	   foresensordescriptor->radar.radar_name[6],
+	   foresensordescriptor->radar.radar_name[7]);
     printf("RADAR CONSTANT       : %f\n",foresensordescriptor->radar.radar_const);
     printf("PEAK POWER           : %f\n",foresensordescriptor->radar.peak_power);
     printf("NOISE POWER          : %f\n",foresensordescriptor->radar.noise_power);
@@ -442,7 +450,7 @@ edit_foreradar_descriptor(foresensordescriptor)
 
                  
 /**************************************************************************/
-/*               SUBROUTINE PRINT RADAR DESCRIPTOR TO PERINTER            */
+/*               SUBROUTINE PRINT RADAR DESCRIPTOR TO PRINTER            */
 /**************************************************************************/
 
   fprint_foreradar_descriptor(foresensordescriptor)

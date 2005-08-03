@@ -46,13 +46,13 @@
   edit_waveform_descriptor(vheader)
     struct volume_header *vheader;
   {
-    char string[80],sequence[256],input[80];
+    char string[80],input[80];
     int choice;
     short numchip,chipoffset,chipwidth,i;
     float nummilliseconds;
     short dwell,totalpcp,numgates,gatedist;
     float urpcp,uvpcp;
-    
+    char blank;
     
     for(;;){
       do{
@@ -112,13 +112,13 @@
 		     } while( i < 6);
                      break;
 	    case 3:
-                     do{
-                        printf("ENTER SEQUENCE : \n");
-                        gets(sequence);
-                        if(strlen(sequence) >  256) 
-                           printf("SEQUENCE IS TOO LONG\n");
-		      } while(strlen(sequence) > 256);
-                        strcpy(vheader->waveform.blank_chip,sequence);
+                     for(i=0; i<vheader->waveform.total_pcp; i++)
+		       {
+                        printf("\nBlanking Ram number %d : ",i);
+                        gets(input);
+			blank = atof(input);
+			vheader->waveform.blank_chip[i] = blank;
+		    }
                         break;
 	     case 4:  
                       printf("ENTER MILLISECONDS:\n");
@@ -253,7 +253,7 @@
     struct volume_header *vheader;
 
   {
-    int i;
+    int i,k;
           printf("*****************WAVEFORM DESCRIPTOR*******************\n");
           printf("WAVEFORM IDENTIFIER        : %s\n",vheader->waveform.
                                                      waveform_des);
@@ -265,8 +265,17 @@
           for(i = 0; i< 6; i++) 
              printf(" %d",vheader->waveform.num_chips[i]);
           printf("\nBLANKING RAM SEQUENCE      :\n");
-          for(i=0; i<256; i++) 
-             printf(" %c",vheader->waveform.blank_chip[i]);
+          k = 0;
+          do{
+             printf("%3d: ",k);      
+             for(i=0; i<10; i++)
+	       {
+		   printf("%2x ",vheader->waveform.blank_chip[k]);
+		   k++;
+	       }
+	     printf("\n");
+	 }while(k < vheader->waveform.total_pcp);
+
           printf("\nNUMBER OF MILLISECONDS PER REPEAT : %f\n",vheader->
                                                        waveform.repeat_seq);
           printf("NUMBER OF REPEAT SEQUENCES IN A DWELL TIME: %d\n",
@@ -312,7 +321,7 @@
     struct volume_header *vheader;
 
   {
-    int i;
+    int i,k;
     FILE *printer,*popen();
 
     if((printer = popen("lpr -Pnec","w")) == NULL){
@@ -332,8 +341,17 @@
      for(i = 0; i< 6; i++) 
         fprintf(printer," %d",vheader->waveform.num_chips[i]);
       fprintf(printer,"\nBLANKING RAM SEQUENCE      :\n");
-      for(i=0; i<256; i++) 
-        fprintf(printer,"%c",vheader->waveform.blank_chip[i]);
+         k = 0;
+          do{
+             fprintf(printer,"%3d: ",k);      
+             for(i=0; i<10; i++)
+	       {
+		   fprintf(printer,"%2x ",vheader->waveform.blank_chip[k]);
+		   k++;
+	       }
+	     fprintf(printer,"\n");
+	 }while(k < vheader->waveform.total_pcp);
+
       fprintf(printer,"\nNUMBER OF MILLISECONDS PER REPEAT : %f\n",
               vheader->waveform.repeat_seq);
       fprintf(printer,"NUMBER OF REPEAT SEQUENCES IN A DWELL TIME: %d\n",
