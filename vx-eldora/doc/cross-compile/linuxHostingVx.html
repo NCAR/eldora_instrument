@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]"><title>vxWorks Under Linux</title></head>
+
+<body>
+
+<h1>
+VxWorks Under Linux</h1>
+Here are step-by-step instructions to build a linux gcc cross compiler
+for m68k (Motorola 680x0) targets running vxWorks. The instructions specifically
+apply to the following system:
+<ul>
+<ul>
+<li>
+<tt>original host:&nbsp; sunOS 5.6 or Solaris 2.6</tt></li>
+
+<li>
+<tt>new host:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; linux redhat 6.2</tt></li>
+
+<li>
+<tt>target chipset: motorola 68040</tt></li>
+
+<li>
+<tt>target OS:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vxWorks 5.3.1</tt></li>
+
+<li>
+<tt>gcc:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.95.3</tt></li>
+
+<li>
+<tt>binutils:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.9.1</tt></li>
+</ul>
+</ul>
+If one or more of the above are different in your system (especially the
+target OS), these instructions should still be useful in showing the main
+steps to building a cross compiler, but you probably have to improvise
+when it comes to details.
+<p>There are some additional shell scripts, source files, and binaries
+mentioned in the instructions below. You may find all of them in
+</p><blockquote><tt><a href="http://chard.tuc.noao.edu/mpg/vxworks/linuxHostingVx.tgz">http://cahrd.tuc.noao.edu/mpg/vxworks/linuxHostingVx.tgz</a></tt></blockquote>
+I will refer to this location as <tt>UtilDir.</tt>
+<p>To simplify the instructions, I assume that the entire vxWorks 5.3.1
+distribution resides in directory<tt> Tornado </tt>somewhere on the original
+host. I also install things in specific directories; feel free to rearrange
+things when you build your own system.&nbsp; Here we go:
+</p><ul>
+<li>
+copy the entire vxWorks distribution from the original host to <tt>/Tornado</tt>
+on the linux host</li>
+
+<li>
+create a <tt>linux</tt> directory in <tt>/Tornado/&lt;HOST&gt;,</tt> where
+<tt>&lt;HOST&gt;</tt>
+is where the other host directories are; e.g.,</li>
+
+<br><tt>mkdir /Tornado/host/linux</tt>
+<li>
+install binutils</li>
+
+<ul>
+<li>
+<tt>cd /</tt></li>
+
+<li>
+<tt>tar xzf binutils-2.9.1.tgz</tt></li>
+
+<li>
+<tt>cd binutils-2.9.1</tt></li>
+
+<li>
+<tt>mkdir vx68k</tt></li>
+
+<br><i>note: we build things in vx68k for convenience; e.g., if anything
+goes wrong we just zap the contents of vx68k and start over; or we can
+create another directory for a different type of target chipset.</i>
+<br>&nbsp;
+<li>
+<tt>cd vx68k</tt></li>
+
+<li>
+<tt>../configure --target=m68k-wrs-vxworks --prefix=/Tornado/host/linux
+--exec-prefix=/Tornado/host/linux &gt; zap.log</tt></li>
+
+<br><i>note: piping stdout to a log file allows you to see the stderr of
+<tt>configure,</tt>
+which otherwise may go unnoticed.</i>
+<br>&nbsp;
+<li>
+<tt>make</tt></li>
+
+<li>
+<tt>make install</tt></li>
+</ul>
+
+<li>
+install gcc</li>
+
+<ul>
+<li>
+<tt>cd /</tt></li>
+
+<li>
+<tt>tar xzf gcc-2.95.3.tgz</tt></li>
+
+<li>
+<tt>cd gcc-2.95.3</tt></li>
+
+<li>
+<tt>mkdir vx68k</tt></li>
+
+<li>
+<tt>cd vx68k</tt></li>
+
+<li>
+<tt>../configure --target=m68k-wrs-vxworks --prefix=/Tornado/host/linux
+--exec-prefix=/Tornado/host/linux \</tt></li>
+
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+--with-headers=/Tornado/target/h --with-libs=/Tornado/target/lib &gt; zap.log</tt>
+<br><i>note: the <tt>/Tornado/target/h</tt> and <tt>/Tornado/target/lib</tt>
+are where all the target-specific headers and libraries are located, respectively.</i>
+<br>&nbsp;
+<li>
+in <tt>/Tornado/host/linux/m68k-wrs-vxworks/sys-include/sys/stat.h,</tt>
+somewhere on top, before the first occurrence of <tt>ULONG,</tt> add:</li>
+
+<br><tt>#include "../types/vxTypesOld.h"</tt>
+<br><i>I had to do this to get gcc to compile; it still baffles me though,
+because under Solaris <tt>ULONG</tt> somehow is in scope without the <tt>#include</tt>!
+By the way, this is more than likely a 5.3.1-specific detail.</i>
+<br>&nbsp;
+<li>
+<tt>make LANGUAGES=c</tt></li>
+
+<li>
+<tt>make LANGUAGES=c install</tt></li>
+
+<br><i>some other languages may be problematic (e.g., the link below reports
+a problem with Objective C).</i></ul>
+
+<li>
+in <tt>/Tornado/host/linux/bin,</tt> for all the executables create soft
+links like this:</li>
+
+<br><tt>ln -s m68k-wrs-vxworks-gcc cc68k</tt>
+<br><i>for 5.3.1 you can use the <tt>softlinker</tt> script in <tt>UtilDir.</tt></i>
+<br>&nbsp;
+<li>
+throw in some additional utilities from here and there</li>
+
+<ul>
+<li>
+grab <tt>xsym.c</tt> from <tt>UtilDir,</tt> and:</li>
+
+<ul>
+<li>
+<tt>gcc -o xsym xsym.c</tt></li>
+
+<li>
+<tt>cp xsym /Tornado/host/linux/bin</tt></li>
+</ul>
+
+<li>
+find the <tt>vxsize</tt> shell script in your vxWorks distribution (e.g.,
+<tt>/Tornado/host/sun4-solaris2/bin/vxsize</tt>)
+and copy it to <tt>/Tornado/host/linux/bin
+</tt>(for 5.3.1 you will also
+find it in <tt>DirUtil</tt>).</li>
+
+<li>
+grab <tt>munch</tt> from UtilDir and copy it <tt>/Tornado/host/linux/bin</tt></li>
+
+<li>
+<i>note: this part could be the messiest part, especially if the tools
+are binaries and you have to somehow put together the proper source code;
+also, the tools missing could vary from one version of vxWorks to another.
+Always check and see if the tool is a shell script, in which case you just
+copy it over. If it's a binary, search the entire vxWorks distribution
+tree; chances are you'll find the source code right there.&nbsp; If that
+fails, you have to search the web and enter the underworld of newsgroups
+:-) For this project I was lucky to find Trebisky's webpage (see acknowledgment
+below).</i></li>
+</ul>
+
+<li>
+set the vxWorks environment variables. e.g., for 5.3.1:</li>
+
+<ul>
+<li>
+<tt>export WIND_BASE=/Tornado</tt></li>
+
+<li>
+<tt>export WIND_HOST_TYPE=linux</tt></li>
+
+<li>
+<tt>export GCC_EXEC_PREFIX=/Tornado/host/linux/lib/gcc-lib/</tt></li>
+</ul>
+
+<li>
+create proper linux files in the make directory of the target. e.g., for
+5.3.1:</li>
+
+<ul>
+<li>
+<tt>cd /Tornado/target/h/make</tt></li>
+
+<li>
+<tt>cp defs.sun4-solaris2 defs.linux</tt></li>
+
+<li>
+<tt>cp rules-lib.sun4-sunos4 rules-lib.linux</tt></li>
+
+<br><i>note: luckily here we didn't have to modify the files; but in other
+cases there may be some host-specific issues that require modifying these
+files.</i></ul>
+</ul>
+We are done! Now the best way to test things is to make a clean build of
+the kernel.
+<br>&nbsp;
+<br>&nbsp;
+<h2>
+Acknowledgment</h2>
+I was lucky to come across <a href="http://chard.tuc.noao.edu/mpg/vxworks/trebisky.html">this document</a> by
+T. Trebisky. The <tt>munch</tt> binary used here is from his archive, and
+so is the <tt>xsym.c,</tt> which I had to modify slightly to get it to
+compile. You will find his archive (<tt>trebisky.tgz</tt>) in <tt>UtilDir.</tt>
+<h4>
+
+<hr width="100%"></h4>
+
+<h4>
+Last update: 18 June 2001</h4>
+
+<pre>http://chard.tuc.noao.edu/mpg/vxworks/linuxHostingVx.html</pre>
+
+<address>
+behzad@noao.edu</address>
+
+</body></html>

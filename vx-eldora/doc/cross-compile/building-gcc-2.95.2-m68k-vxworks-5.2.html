@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML//EN">
+<html><head><!-- MHonArc v2.4.6 --><!--X-Subject: Notes on building gcc&#45;2.95.2 for VxWorks 5.2, 68k --><!--X-From-R13: Fbal Tneeryy <gwsNnnbrcc.nnb.UAH.OG> --><!--X-Date: 20 Jul 2000 05:38:31 &#45;0000 --><!--X-Message-Id: SIMEON.10007201545.G5393@aaoepp2.aaoepp.aao.gov.au --><!--X-Content-Type: text/plain --><!--X-Head-End--><title>Notes on building gcc-2.95.2 for VxWorks 5.2, 68k</title></head>
+
+
+
+
+
+
+
+
+<body>
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--htdig_noindex-->
+<p>This is the mail archive of the 
+<tt>crossgcc@sources.redhat.com</tt>
+mailing list for the <a href="ftp://sources.redhat.com/pub/crossgcc/">crossgcc project</a>.
+
+</p><p>See the <a href="http://www.objsw.com/CrossGCC">CrossGCC FAQ</a> for lots
+more infromation.
+
+<!--/htdig_noindex-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<!--htdig_noindex-->
+</p><hr>
+<table border="0">
+  <tbody><tr><th align="left">Index Nav:</th>
+      <td colspan="2">
+        [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/index.html#00112">Date&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/subjects.html#00112">Subject&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/authors.html#00112">Author&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/threads.html#00112">Thread&nbsp;Index</a>]
+      </td>
+  </tr>
+  <tr><th align="left">Message Nav:</th>
+      <td>[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Date&nbsp;Prev</a>]&nbsp;[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00113.html">Date&nbsp;Next</a>]</td>
+      <td>[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Thread&nbsp;Prev</a>]&nbsp;[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Thread&nbsp;Next</a>]</td>
+  </tr>
+</tbody></table>
+<!--/htdig_noindex-->
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Notes on building gcc-2.95.2 for VxWorks 5.2, 68k</h1>
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<ul>
+<li><em>To</em>: crossgcc at sourceware dot cygnus dot com</li>
+<li><em>Subject</em>: Notes on building gcc-2.95.2 for VxWorks 5.2, 68k</li>
+<li><em>From</em>: Tony Farrell &lt;tjf at aaoepp dot aao dot GOV dot AU&gt;</li>
+<li><em>Date</em>: Thu, 20 Jul 2000 15:37:45 +1000 (EST)</li>
+<li><em>Reply-To</em>: tjf at aaoepp dot aao dot GOV dot AU</li>
+</ul>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+<hr>
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>I have just managed to get everything I need working with gcc 2.95.2 
+targeting VxWorks on a 68k.  The final thing was c++ exceptions, which 
+I know somebody else was looking for at some stage.
+
+So I thought I would forward my notes for anybody who is interested.  
+They may also be of use for other VxWorks targets, particularly for 
+VxWorks 5.2.
+ 
+They highlight a couple of problems in the standard release which it 
+should be possible to fix, but am not sure enough about the reasons 
+behind some past decisions to prepare the relevant patches.
+
+
+Cheers,
+Tony.
+
+---------------------------------------------
+Reference - CrossGCC Frequently Ask Questions (Version 1.0.1, Dec 3, 1999)
+        <a href="http://www.objsw.com/CrossGCC">http://www.objsw.com/CrossGCC</a>
+
+1.  Fetch all components (as per section 2 in CrossGCC FAQ) into 
+    the directory (tars), don't bother unpacking.
+
+2.  Fetch the scripts
+
+        <a href="ftp://ftp.objsw.com/pub/crossgcc/build-cross.sh">ftp://ftp.objsw.com/pub/crossgcc/build-cross.sh</a>
+        <a href="ftp://ftp.objsw.com/pub/crossgcc/one-tree-1.6.sh">ftp://ftp.objsw.com/pub/crossgcc/one-tree-1.6.sh</a>
+
+
+
+3.  Ensure you have gnu make in path before any other make.
+
+4.  Run one-tree-1.6.sh.  (Assumes a directory called "tars" has all
+        the required tar.gz files - binutils-2.9.1.tar.gz   
+        gcc-2.95.2.tar.gz   gdb-4.18.tar.gz newlib-1.8.2.tar.gz
+
+
+5.  Edit build-cross.  
+
+    5.a.  Change the install prefix appropriately.  In my case
+
+            prefix=/prog/tjf/gcc_vxworks/release
+
+          You will also want to create that directory if it does
+          not exist.
+
+    5.b   Change the configure line to add --with-headers and
+          --with-newlib.     --with-headers should point to your
+          existing VxWorks include files.   In my case, the line became.
+
+          ./src/configure --target=$target --prefix=$prefix -v --with-headers=/opt/VxWorks/vw/h --with-newlib
+
+6.  Edit gcc-2.95.2/libio/gen-params
+
+    To ensure HAVE_PRINTF_FP and HAVE_LONG_DOUBLE_IO are always 0.  
+    (I think this should actually be conditional on use of newlib, but
+     I don't know how to do this).
+
+
+7.  In c++ I/O include files.  Replace occurrences of NULL by 0.   NULL was
+    giving compilation errors due to invalid pointer types.  
+
+    I only did this in these files - 
+
+        gcc-2.95.2/libio/iostream.h
+        gcc-2.95.2/libio/streambuf.h
+
+    I didn't do the other files as these were the only two where I
+    had a problem, but I suspect that was because I didn't use the other
+    files that used NULL.  I only hit this problem once I started to compile
+    my C++ software, not when I was building the compiler.
+
+    I would recommend not using NULL as you can never
+    be sure what its definition is, I would suggest just plain
+    0 (zero) or using a constant with a different name. 
+
+8.  Changes to make exceptions and global contructors work properly.
+
+    By default, gcc is running "collect2" with the -r option.  It is
+    also complied with USE_COLLECT2 undefined.  The result of this
+    combination is that the constructor stuff of collect2 is not being
+    run (in fact, collect2 is doing little if anything).   
+
+    To fix this perform the following modifications to
+     gcc-2.95.2/gcc/config/m68k/vxm68k.h  
+
+        8A.  Change LINK_SPEC to "-Ur"
+        9B.  Add the following lines
+
+                #ifndef USE_COLLECT2
+                #define USE_COLLECT2
+                #endif
+
+
+        
+9.  Start the build.  The command to build is
+
+        ./build-cross.sh  m68k-wrs-vxworks
+
+    This will fail with
+
+
+../../../src/libiberty/fdmatch.c: In function `fdmatch':
+../../../src/libiberty/fdmatch.c:59: storage size of `sbuf1' isn't known
+../../../src/libiberty/fdmatch.c:60: storage size of `sbuf2' isn't known
+
+    
+    At this point, you should edit the supposedly fixed include file
+        
+        $(prefix)/m68k-wrs-vxworks/sys-include/sys/stat.h
+
+    (Where prefix is defined to be your installation directory above).
+
+      
+    Insert the line
+
+#include &lt;types/vxTypesOld.h&gt;
+
+    early in the file, say about line 33.
+
+
+    This should done by fixincludes, and there is already reference to this 
+    in gcc-2.95.2/gcc/fixincludes, but this does not appear to work.
+
+10.  Restart the build
+
+        ./build-cross.sh  m68k-wrs-vxworks
+
+    Should now work.
+
+11.  Install
+
+        ./build-cross.sh  m68k-wrs-vxworks install
+
+
+12.  Create a dummy libm.a  since the default g++ link stage tries to bring
+     this in but is does not exist (the functionallity is part of the
+     VxWorks kernel)
+
+     cd ./release
+     echo "void ___junk() {}" &gt; j.c
+     ./bin/m68k-wrs-vxworks-gcc -c j.c
+     ./bin/m68k-wrs-vxworks-ar -crv ./lib/gcc-lib/m68k-wrs-vxworks/2.95.2/libm.a
+     ./bin/m68k-wrs-vxworks-ranlib ./lib/gcc-lib/m68k-wrs-vxworks/2.95.2/libm.a
+
+     There should be some way of saying this is not needed, but I couldn't find it.
+     
+
+For me, that was it, except that sometimes I did not get clear rebuilds for
+reasons which are not clear.
+
+
+
+--------------------------------------------------------------------------
+
+Using the system
+----------------
+Some things to note.  
+
+You must explicitly invoke the global constructors and destructors
+by calling "__do_global_ctor()" for the constructors and
+"__do_global_dtors()" for the destructors.  Both of these have C rather
+then C++ linkage.  You will have to choose the best time to do this, probably
+the constructors should be invoked as part of the boot up on a production 
+system, but by hand in a development system.    This should be done once for
+each program loaded, by having a routine in that program to do it (say the
+equivalent of main()).
+
+If your routines have C++ linkage, it may be quite hard
+to call them from the VxWorks shell.  For example, the C++ routine named
+"foo" may be known as "_foo__Fv" in VxWorks and if it has arguments, things
+get far more complicated.  If you are intending on calling a routine from
+the VxWorks shell, consider giving it C linkage, using 'extern "C"'.
+
+Below is a test program I wrote.  It tests in a very basic way, 
+constructors/destructors, templates and optionally C++ I/O, STL and 
+Exceptions.  A routine called "init" can be used to run the global
+constructors whilst "bye" is used to run the destructors.  The routine
+"foo_cpp" is the core, but it is called by "foo" - just to demo the
+difference between C and C++ linkage.  foo_cpp() creates a couple of objects 
+of type test which has a static counter which records the number of objects
+created - allowing us to work out if the global constructors/destructors
+are run etc.
+
+
+--------------------------------------------------------------------------
+
+/*
+ *  A simple program to test some features of a C++ compiler.  
+ * 
+ *  Entry point is "foo"
+ *  Under Vxworks, you should invoke "init" before running the program
+ *  to run global constructors etc.  Similary "bye" to run
+ *  global destructors.
+ */
+
+
+/*  Simple bourne shell script to build this program
+
+
+# Compiler tree
+RELEASE=/prog/tjf/gcc_vxworks/release
+# Compiler command
+COMP=$RELEASE/bin/m68k-wrs-vxworks-g++ 
+# Prefix for compiler
+BPREFIX=-B${RELEASE}/lib/gcc-lib/
+# The defines I want.
+DEFINES="-DCPU=MC68020 -DHOST_SUN -DVxWorks -DVersion=5_2 -DVxWorks_5_2 -Uunix -U__unix__ -Usun -U__sun__"
+# Compile the object
+echo $COMP $BPREFIX -c -g  $DEFINES  testit.C
+eval $COMP $BPREFIX -c -g  $DEFINES  testit.C
+
+# Linker command and the libraries we need
+echo $COMP $BPREFIX -o testit testit.o
+eval $COMP $BPREFIX -o testit testit.o
+
+
+ */
+
+/*
+ * Macros to select testing of particular features
+ *   Exceptions (do not work)
+ *   C++ I/O    (works)
+ *   STL        (works).
+ */
+#define TEST_EXCEPTIONS
+#define TEST_CPPIO
+#define TEST_STL
+
+#include &lt;stdio.h&gt;
+#include &lt;iostream&gt;
+#include &lt;map&gt; 
+#include &lt;string&gt; 
+
+/*
+ *  A simple template test, returns the maximum of two arguments.
+ */
+template&lt;class T&gt;
+T maxit(T a, T b)
+{
+    if (a &gt; b)
+        return a;
+    else
+        return b;
+}
+
+/*
+ *  This class has a static object used to count how many times the
+ *  constructor and destructor have been called.  This is used to
+ *  check that constructors and destructors are being called appropiately.
+ * 
+ *  printf is used since this is provided by VxWorks.
+ */
+class test {
+    public:
+        void testit() { printf("Foo testit\n"); }
+
+        test() {
+            printf("testit default constructor, variable at %lx, count = %d\n",
+                (long int)this,++counter);
+        }
+        ~test() {
+            printf("testit destructor, variable at %lx, count = %d\n",
+                (long int)this,--counter);
+        }
+    private:
+         static int counter;
+};
+
+/*
+ * Initialise the static object in the test class.
+ */
+int test::counter = 0;
+
+
+/*
+ * Declare a global object of the test class.
+ */
+test globalvar;
+
+ 
+/*
+ * Function to test standard template library functionality.
+ */
+#ifdef TEST_STL
+int stl_test (void) 
+{ 
+    printf("Trying STL stuff\n");
+
+    map&lt;string,int&gt; days; 
+    
+    days["Jan"] = 31;  days["Feb"] = 28; 
+    days["Mar"] = 31;  days["Apr"] = 30; 
+    days["May"] = 31;  days["Jun"] = 30; 
+    days["Jul"] = 31;  days["Aug"] = 31; 
+    days["Sep"] = 30;  days["Oct"] = 31; 
+    days["Nov"] = 30;  days["Dec"] = 31; 
+   
+    map&lt;string,int&gt;::iterator d = days.begin(); 
+    while (d != days.end()) 
+    { 
+        if (d-&gt;second == 30) printf ("%s\n",(d-&gt;first).c_str()); 
+        d++; 
+    }
+    printf("STL test complete\n");
+}
+
+#endif /* TEST_STL */
+
+
+/*
+ *  Functions to test exceptions.
+ */
+#ifdef TEST_EXCEPTIONS
+class MyException{};
+void exception_throw()
+{
+    printf("About to throw exception\n");
+    throw MyException();
+    printf("Exception did not throw correctly\n");
+}
+
+void exception_test()
+{
+    printf("Trying exceptions\n");
+    try {
+        exception_throw();
+    }
+    catch (...) {
+        printf("Caught exception\n");
+    }
+/*  Alternative test.  Comment out the above and add this  */
+  /*
+    catch (MyException e) {
+        printf("Caught exception, throwing again, this should be it\n");
+        throw e;
+    }
+    printf("Normal functinon exit, re-throw did not work\n");
+        */
+    
+}
+#endif /* TEST_EXCEPTIONS */
+
+/*
+ * May test program - c++ calling semanitics.
+ */
+extern  void foo_cpp()
+{
+/*
+ *  Declare variable of type myvar, we should see the contructor message
+ *  output.
+ */
+    test myvar;
+/*
+ *  Declare a pointer to a test variable.
+ */
+    test *myvar2;
+    printf("Should have seen two calls of testit contructor (one by init())\n");
+/*
+ *  Invoke function of testit
+ */
+    myvar.testit();
+
+/*
+ *  Create a dynamic test object, we should see the contructor and
+ *  destructor invoked
+ */
+    printf("About to do dynamic object, should see another contructor call\n");
+    myvar2 = new test;
+    myvar2-&gt;testit();
+    delete myvar2;
+
+/*
+ *  Test templates using the maxit function.
+ */
+    double a=1.0, b = 2.0;
+    printf("Testing templates - Max of %g and %g is %g\n",
+                a,b,maxit(a,b));
+
+/*
+ *  Test standard template library.
+ */
+#ifdef TEST_STL
+    stl_test();
+#endif
+
+
+/*
+ *  TEST C++ I/O functions
+ */
+#ifdef TEST_CPPIO
+    printf("Trying C++ I/O\n");
+    cout &lt;&lt; "Hello from C++ I/O\n";
+#endif
+
+/*
+ *  Test exception handling.
+ */
+#   ifdef TEST_EXCEPTIONS
+    exception_test();
+#   endif
+
+    printf("Foo function normal exit, should see 1 testit destructor\n");
+    printf("  And then one more from \"bye()\"\n");
+
+}
+
+/*
+ *  C semanitics call to foo.  This is required so that we can run the
+ *  test easily from the VxWorks shell.  C++ function names are mangled
+ *  and hence hard to call from the VxWorks shell.
+ */
+extern "C" void foo()
+{
+    foo_cpp();
+}
+
+/*
+ *  Function declaratilons
+ */ 
+extern "C" {
+        void __do_global_ctors();
+        void __do_global_dtors();
+
+}
+
+/*
+ *  init() can be called to run the global contructors and should be called
+ *  once before foo is invoked.
+ */
+
+extern "C" void init()
+{
+    __do_global_ctors();
+}
+
+/*
+ *  bye() can be called to run the global destructors and should be called
+ *  once after running foo.
+ */
+extern "C" void bye()
+{
+    __do_global_dtors();
+}
+
+
+
+
+
+-------------------------------------------------------
+Tony Farrell                  Phone +61 2 9372 4826
+Software Group Leader         Fax   +61 2 9372 4880
+Anglo-Australian Observatory  Email tjf@aaoepp.aao.gov.au
+
+
+
+------
+Want more information?  See the CrossGCC FAQ, <a href="http://www.objsw.com/CrossGCC/">http://www.objsw.com/CrossGCC/</a>
+Want to unsubscribe? Send a note to crossgcc-unsubscribe@sourceware.cygnus.com
+
+</pre>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+<hr>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<!--htdig_noindex-->
+<table border="0">
+  <tbody><tr><th align="left">Index Nav:</th>
+      <td colspan="2">
+        [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/index.html#00112">Date&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/subjects.html#00112">Subject&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/authors.html#00112">Author&nbsp;Index</a>] [<a href="http://sources.redhat.com/ml/crossgcc/2000-07/threads.html#00112">Thread&nbsp;Index</a>]
+      </td>
+  </tr>
+  <tr><th align="left">Message Nav:</th>
+      <td>[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Date&nbsp;Prev</a>]&nbsp;[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00113.html">Date&nbsp;Next</a>]</td>
+      <td>[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Thread&nbsp;Prev</a>]&nbsp;[<a href="http://sources.redhat.com/ml/crossgcc/2000-07/msg00111.html">Thread&nbsp;Next</a>]</td>
+  </tr>
+</tbody></table>
+<!--/htdig_noindex-->
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+</body></html>
