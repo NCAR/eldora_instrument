@@ -1,0 +1,39 @@
+  
+AS = /bin/as
+ASFLAGS = 
+LD = /bin/ld
+LDOPTS = -L$(SYSSRC)/lib -m -x -o aout.cosa -e start_a  ldi.cosa
+NM = /bin/nm
+NMFLAGS = -x -v -e
+CUT = /usr/bin/cut
+CUTOPTS = -f1,2 -d"|" -s
+CC = /usr/bin/gcc
+CCFLAGS = -O -20 -X98 -X130 -X22 -X37 -X153
+SUF	= cosa
+DFSUF	= df_$(SUF)
+CFSUF	= cf_$(SUF)
+SYSSRC	= /usr/ironics/easi
+INCLUDE	= -I$(SYSSRC)/include
+CFLAGS = $(CCFLAGS) $(INCLUDE)
+CPP = /lib/cpp
+CPPFLAGS = -P $(INCLUDE)
+ 
+UINS	=
+USROBJ	= co1.o msup.o bcast.o valsup.o /usr/mcpl/lib/mcpllib.a
+ 
+SFILES =	$(DFSUF).s $(CFSUF).s 
+OFILES =	$(DFSUF).o $(CFSUF).o 
+ 
+aout.cosa:	UOBJS $(OFILES) \
+	$(USROBJ) 
+	$(LD) $(LDOPTS) > ldm.cosa
+	@$(NM) $(NMFLAGS) aout.cosa > syms.cosa
+	@$(CUT) $(CUTOPTS) syms.cosa | $(SYSSRC)/util/ramcheck
+ 
+UOBJS:	
+	$(UINS)
+ 
+$(SFILES):	c.cosa
+	@$(SYSSRC)/util/mkpdev c.cosa cosa /usr/ironics/easi
+ 
+$(OFILES):	$(SFILES)

@@ -1,0 +1,79 @@
+	ivhanchip = 0x20000+0xfc400000; igorchip = 0x30000+0xfc400000;
+	INIT_VBASE = 0x60;
+	cputype = rtcfreq+2;
+	VRTC_CPU = (10<<16)+2;
+	maxramend1 = 0x0fff00-257;
+	initial_ssp = 0x0fff00-257+1;
+	valramend1 = 0x0fff00-257;
+	cpuclk = 16000000;
+	V_WAITSEMA = 0;
+	V_RTCCO = 0;
+	V_BAERR = 0;
+	CONSADR = 0xfc460001;
+	HOSTADR = 0xfc460011;
+	DEBUGBAUD = 0xbb;
+	DUDELAY = 10;
+	ticks_per_sec = rtcfreq;
+	SCGSYSTAB = 0;
+	V_BOOTCO = main;
+	scgvec = bRoKeN;
+	manstart = bRoKeN;
+	scginit = bRoKeN;
+	V_DGSPCO = 0;
+	V_IPRISMCO = 0;
+	V_MBXCO = 0;
+	V_DIP = 0;
+	VIC_DIP = 0;
+	V_PTRWSEMA = 0x800;
+	V_PTRSTATUS = 0x804;
+MEMORY
+{
+rammem : o = 0, l = 0x0fff00
+}
+SECTIONS
+{
+    
+    
+    GROUP 0x2000:
+    {
+	kernel :
+	{
+	    /usr/ironics/easi/startup/sys_a.o
+	    /usr/ironics/easi/startup/sys_data.o
+	    df_cosa.o
+	    /usr/ironics/easi/startup/sys_c.o
+	    
+	    /usr/ironics/easi/hdw/init3220.o /usr/ironics/easi/hdw/ivhan.o
+	    /usr/ironics/easi/hdw/rtc3220.o /usr/ironics/easi/hdw/igor.o
+	    /usr/ironics/easi/debugio/debugstd.o
+	    
+	    /usr/ironics/easi/debugio/p68681io.o
+	    
+	    
+	    
+	    
+	}
+	.text :
+	{
+	    co1.o (.text)
+	    msup.o (.text)
+	    bcast.o (.text)
+	    valsup.o (.text)
+	    /usr/mcpl/lib/mcpllib.a (.text)
+	    -lm -lstd -lc
+	    
+	}
+	.data :
+	{
+	}
+	.bss :
+	{
+	}
+	
+	mem1 (NOLOAD) :
+	{
+	    /usr/ironics/easi/startup/ramavail1.o
+	    minramend1 = .; . += 256;
+	}
+    }
+}

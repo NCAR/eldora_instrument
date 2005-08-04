@@ -1,0 +1,65 @@
+/*
+ * @(#)c.cosa
+ * Kevin Lynch, MCPL Exercisor
+ *
+ * EASI-RT 5/25/89
+ * AUTHOR: DAVID F. MASON
+ *
+ * Copyright(c) 1988,  Ironics, Inc.
+ * ALL RIGHTS RESERVED
+ *
+ */
+
+/*
+ * Config file for MCPL validation program
+ */
+
+/********************************************************************/
+/* EASI-RT Software Specification Section                           */
+/********************************************************************/
+#define	UFILES  co1.o msup.o bcast.o valsup.o \
+		/usr/mcpl/lib/mcpllib.a
+
+/* DLIST - device description list (must be within comment):
+ * (Major device number 0 is reserved for System servers).
+
+dev_major_num						- decimal (1-16, 0)
+.	language					- 'C' or 'a'
+.	.	prefix					- 4 chars or less
+.	.	.	i or -				- procedures present
+.	.	.	.	.			  '-' if ISP only
+.	.	.	.	vector[, ...]		- one per minor device
+.	.	.	.	.			  '0' if no interrupts
+.	.	.	.	.			  '*' for wildcard
+
+0	C	BC	-	0x66
+0	C	abo_	-	0x67
+0	C	t1_	-	0x75
+
+
+**	DO NOT put any device descriptors outside of this comment!
+**/
+
+#define	BOOTCO		main
+#define	RTCCO		0
+#define	BUSERR		0
+#define	WAITSEMA	0
+#define DEBUGUTIL
+#define ANSI
+
+
+/********************************************************************/
+/* EASI-RT Hardware Specification Section                           */
+/********************************************************************/
+/* BOARDTYPE - define one of:                                       */
+/*   IV3204A, IV3201A, IV3204, IV3201, IV1624A, IV1624, IV1602,     */
+/*   IV9001,  IV3220,  IV3230                                       */
+#define	BOARDTYPE	IV3220
+#define MEMSIZE		0x0fff00
+#define CPUCLK		CPU16MHz
+#define RTCFREQ		10
+/* DEBUGPORT - define one of:                                       */
+/*   P3273IO, P1624IO, P1625IO, P1602IO, PRCONIO,                   */
+/*   P9001IO, P3220IO, P3230IO, NULLIO                              */
+#define	DEBUGPORT	P3220IO
+#define	BAUDRATE	0
