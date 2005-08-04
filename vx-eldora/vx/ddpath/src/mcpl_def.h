@@ -9,11 +9,16 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/06/24  15:51:12  thor
+ * Initial revision
+ *
  *
  * description:  Contains global definitions for the Multi Crate
  *               Pipeline (MCPL)
  *
  */
+#ifndef INCmcpldefh
+#define INCmcpldefh
 /* The basic Mailbox, address and data structure */
 
 struct MAD {
@@ -78,14 +83,12 @@ unsigned long  mailbox_address;
 #define GRID_MEM_SIZE_0 0x0     /* Memory size for MAD #0 Data Gridding proc */
 #define GRID_MEM_SIZE_1 0x0     /* Memory size for MAD #1 Data Gridding proc */
 
+/* Error returns */
+static const int MCPL_BUSY     = -1;
+static const int MCPL_NOACK    = -2;
+static const int MCPL_BADTRANS = -3;
+static const int MCPL_BADXFER  = -4;
 
+extern int mad_xfer(int cells, int params, int binary);
 
-
-
-
-
-
-
-
-
-
+#endif /* INCmcpldefh */
