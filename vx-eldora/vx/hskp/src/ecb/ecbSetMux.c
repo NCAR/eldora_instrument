@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/30  01:19:34  shawn
+ * Initial revision
+ *
  *
  * description: Write "Set Trigger Mux Value" command into ECB MASTER IN FIFO
  *        

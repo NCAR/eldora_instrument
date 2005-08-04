@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/20  20:21:01  shawn
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/06/19  01:07:25  shawn
  * removed writes to 68040 board (tp41) CIO1 register.  These were moved to
  * hskpIntInit.

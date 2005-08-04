@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/12/09  20:05:50  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/09/24  01:20:00  shawn
  * added unsigned char nr as a parmeter to make parametric the selection of
  * noise reduction

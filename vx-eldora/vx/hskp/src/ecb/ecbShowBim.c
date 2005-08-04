@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/06/26  00:29:49  shawn
+ * Initial revision
+ *
  *
  * description: Read registers of BIM on ECB MASTER card and print results.
  *        

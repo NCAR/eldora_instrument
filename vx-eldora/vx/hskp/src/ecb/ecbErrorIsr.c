@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1992/09/21  21:57:37  shawn
+ * Now sets/resets global over-temp bits in the rpc global status struct
+ * "currstatus".
+ *
  * Revision 1.3  1992/09/17  23:41:50  shawn
  * Writes to rpc global status structure "currStatus" now.  Will set
  * the appropriate "slave dead" bit.

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/20  20:25:26  shawn
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/06/19  01:03:24  shawn
  * Does error checking for appropriate ecbadr.  Checks for empty IN and
  * OUT FIFO's and returns an error code if non-empty.

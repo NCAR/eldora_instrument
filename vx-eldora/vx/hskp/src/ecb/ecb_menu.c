@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/09/20  20:23:26  shawn
+ * Initial revision
+ *
  * Revision 1.4  1992/09/24  22:28:01  shawn
  * Does DDS out-of-lock checking, display.
  *

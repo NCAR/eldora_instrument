@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/09/20  20:25:29  shawn
+ * *** empty log message ***
+ *
  * Revision 1.2  1992/06/18  19:59:47  shawn
  * uses proper include files (ecbFunc.h and ecbStat.h)
  *

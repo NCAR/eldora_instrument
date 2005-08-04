@@ -30,9 +30,9 @@ short ldsrec(tfile)
   strcpy(S9,"S9");
   
   /* build the mounted file system name */
-  i = 28;
+  i = 80;
   mnt_pnt = (char *) malloc(i);
-  mnt_pnt = "/vxbin/hskp/bin";
+  mnt_pnt = "/usr/local/vxbin/hskp/bin";
   i = strlen(mnt_pnt) + strlen(tfile) + 2;
   fname = (char *) malloc(i);
   sprintf(fname, "%s/%s", mnt_pnt, tfile);

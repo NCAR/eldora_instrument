@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  1992/09/24  22:27:14  shawn
+ * Does DDS out-of-lock commands, with setting/resetting of appropriate
+ * bits in the global rpc status structure 'currStatus'.
+ *
  * Revision 1.6  1992/09/17  23:40:40  shawn
  * writes to rpc global status structure "currStatus" now.  Will set
  * the appropriate "slave dead" bit to zero, and will set or clear
