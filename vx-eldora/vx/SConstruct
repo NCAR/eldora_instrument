@@ -1,0 +1,25 @@
+# -*- python -*-
+# $Id$
+
+import os,os.path, sys
+sys.path.insert(0, os.path.join(os.getcwd(),'config'))
+import atd_scons
+import SCons
+
+atd_scons.SConsignFile()
+
+options = atd_scons.Pkg_Options()
+
+env = atd_scons.Pkg_Environment(tools = ["default", "gcc68k"])
+# env.GlobalSetup ([(lambda env: env.Tool("gcc68k"))])
+Export('env')
+
+dirs = Split(
+"""
+hskp/src/
+""")
+    
+SConscript(dirs = dirs)
+
+options.Update(env)
+Help(options.GenerateHelpText(env))
