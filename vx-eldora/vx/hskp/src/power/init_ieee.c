@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  2000/05/15  18:39:33  eric
+ * Modified to no longer initialize GPIB , just globals and semaphores.
+ *
  * Revision 1.3  1999/09/27  16:22:49  eric
  * turned off diagnostic messages; disable SRQ for underflow.
  *

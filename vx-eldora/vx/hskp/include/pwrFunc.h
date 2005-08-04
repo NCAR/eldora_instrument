@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1999/09/27  15:49:07  thor
+ * Fix prototypes.
+ *
  * Revision 1.2  1993/09/01 20:07:20  craig
  * *** empty log message ***
  *
@@ -33,10 +36,14 @@ void testp_err_isr(void);
 void flt_pt(int);
 void init_ptrs(void);
 void init_isr_vecs(void);
-void send_cmnd_string(char,char *);
+int send_cmnd_string(char,char *);
 void init_gpib(int);
 void init_dma(int,int);
 void listener(int);
+void talk(int);
+unsigned char ReadStatusByte(int);
+unsigned char * ReceiveData(int,int);
+void Return_to_Local(int);
 void xmit_rt(void);
 void testp_rt(void);
 

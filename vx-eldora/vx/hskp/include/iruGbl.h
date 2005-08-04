@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1997/08/26  21:25:30  craig
+ * *** empty log message ***
+ *
  *
  * description: These are the global variables used to handle the
  *              Inertial Reference Unit (IRU) interface.

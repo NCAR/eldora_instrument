@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  2003/10/02  15:31:41  kapoor
+ * added a set time functionality
+ *
  * Revision 1.3  2003/09/25  22:15:24  kapoor
  * Needed to define OK_RPC
  *

@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2000/05/15  18:45:04  eric
+ * Removed need to reset GPIB between listen and talk transitions, also added
+ * sync semaphore support for cleaner stops.
+ *
  * Revision 1.1  1999/09/27  16:35:45  eric
  * Initial revision
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/10/01  20:53:12  kapoor
+ * Initial revision
+ *
  * Revision 1.2  2003/09/23  22:58:15  kapoor
  * changed include to "hskpAll.h"
  *
@@ -41,42 +44,45 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "hskpAll.h"
 
 
-void set_time(int nhour,int nminute,int nsecond,
-	      int nmonth,int nday,int nyear, char *string)
+void set_time(short nhour,short nminute,short nsecond,
+	      short nmonth,short nday,short nyear)
 {
     int ones,tens;
 
-    *string++ = 'L';    /* The set the real time clock command */
+    *time_date++ = 'L';    /* The set the real time clock command */
 
     tens = nyear/10;
     ones = nyear - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
 
     tens = nmonth/10;
     ones = nmonth - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
 
     tens = nday/10;
     ones = nday - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
 
     tens = nhour/10;
     ones = nhour - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
 
     tens = nminute/10;
     ones = nminute - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
 
     tens = nsecond/10;
     ones = nsecond - tens * 10;
-    *string++ = tens + 0x30;
-    *string++ = ones + 0x30;
+    *time_date++ = tens + 0x30;
+    *time_date++ = ones + 0x30;
+
+    clkstart = 0;
+    start_clock();
 
 return;
 }

@@ -4,24 +4,24 @@
 #	Date: 8/19/92
 #
 # GNU C 
-CC= gcc68
+CC= gcc68k
 CCC = $(CC)
 #
 # Totally agressive optimization.
 #OPT= -O -fstrength-reduce -fforce-mem -finline-functions -fcombine-regs \
 #	-fomit-frame-pointer
-OPT= -O -fvolatile
+OPT= -O -fvolatile -fno-builtin -nostdinc -m68040
 #
 DEFINES= -DUSE_ANSI
 #
 # Drag in includes from here.
-INCLUDES= -I/vw/h -I. -I/ELDORA/rpc/header2 -I/ELDORA/vx/hskp/include\
+INCLUDES= -I/vx/h -I. -I/ELDORA/rpc/header2 -I/ELDORA/vx/hskp/include\
 		-I/ELDORA/vx/c++/include
 #
-CFLAGS= $(DEFINES) $(INCLUDES)
+CFLAGS= $(OPT) $(DEFINES) $(INCLUDES)
 CCFLAGS= $(CFLAGS)
 #
-LIBS= /ELDORA/rpc/bin/vxheader.o /ELDORA/vx/c++/bin/builtin++.o\
+LIBS= /ELDORA/rpc/lib/libVxHeader.a /ELDORA/vx/c++/bin/builtin++.o\
 	/ELDORA/vx/c++/ctor_dummy.o
 #
 OBJS= hskpIntInit.o
@@ -39,7 +39,8 @@ BIN= /ELDORA/vx/hskp/bin
 .KEEP_STATE:
 
 compile: $(OBJS)
-	 install -m 774 $(OBJS) $(BIN)
+
+#	 bsdinst -m 774 $(OBJS) $(BIN)
 
 update:
 	-for i in $(HEADERS); \
@@ -75,8 +76,11 @@ put_rcs:
 # Modify this to include an access list if desired.
 set_rcs:
 	for i in $(SRCS); \
-		do (echo "rcs -c\" * \" -L $$i";rcs -acraig,shawn,rich,eric,reif -c" * " -L $$i); \
+		do (echo "rcs -c\" * \" -L $$i";rcs -aericloew,granger,martinc -c" * " -L $$i); \
 	done;
+
+copyem:
+	cp *.o /ELDORA/vx/hskp/bin/.
 
 clean:
 	rm -f *.o *~ core

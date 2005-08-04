@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2000/05/15  18:58:13  eric
+ * Removed GPIB reset.
+ *
  * Revision 1.2  1999/09/27  16:42:27  eric
  * added code to restart testpulse power meter if interrupts failed.
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  2003/10/01  20:32:10  kapoor
+ * Initial revision
+ *
  * Revision 1.2  2003/09/23  22:58:15  kapoor
  * changed include to "hskpAll.h"
  *
@@ -38,8 +41,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define scope extern
 #include "hskpAll.h"
 
-void start_clock(char *time_date)
+void start_clock(void)
 {
+
+  if(clkstart)  /* If for TOD card, do nothing */
+    return;
+
 
 *clk_intstat = 0x08;                 /* Clear the 1 PPS bit */
 while(!(*clk_intstat & 0x08));       /* wait for next second to roll around */
@@ -47,3 +54,7 @@ send_packet(time_date);
 
 return;
 }
+
+
+
+

@@ -1,0 +1,38 @@
+# -*- python -*-
+# script to build eldora library
+
+Import('env')
+env = env.Create("vx.hskp", tools = ['default', 'gcc68k'])
+env.Require (["PKG_VXWORKS"])
+
+dirs = "arinc429 clk gps motor vmevme power main ecb tp41 minirims"
+
+sources = [ "arinc429/" + p for p in
+            Split("init_iru.c convert_iru.c start_iru.c iru_menu.c") ]
+
+sources += [ "clk/"+p for p in
+             Split("""get_time.c init_clock.c clock_menu.c set_time.c
+             start_clock.c send_packet.c get_year.c""") ]
+
+env.Append (CCFLAGS = Split("-O -fvolatile -m68040"))
+env.Append (DEFINES = "-DUSE_ANSI")
+env.Append (CPPPATH = Split("""
+#/../rpc/header
+#/hskp/include
+#/c++/include
+#/../rpc/include
+"""))
+
+objs = env.StaticObject(sources)
+
+env['COMM_DIR'] = "/net/projects"
+env.Append (LIBPATH = ["$COMM_DIR/common/lib/vxworks",
+            "/usr/local/lib/gcc-lib/m68k-wrs-vxworks/current"])
+# env.Append (LIBS = ["Net", "stdc++", "gcc"])
+env.Append (LIBS = ["Net"])
+objs += ["/net/eldora/eldora/rpc/lib/libVxHeader.a",
+         "/net/eldora/eldora/vx/vmevme_int/sendInt.o"]
+
+t = env.Command ("../bin/housekeeper.o", objs,
+                 "$LD -X -Ur -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS")
+Default(t)

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  2000/05/15  18:48:32  eric
+ * Fixed ability to send power meters commands from the keyboard.
+ *
  * Revision 1.5  1999/09/27  16:47:35  eric
  * switched power meter triggers from aft to fore
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/09/25  17:26:52  kapoor
+ * change of variable year to yr
+ *
  * Revision 1.1  2003/09/24  20:47:28  kapoor
  * Initial revision
  *
@@ -48,13 +51,20 @@ void get_year()
     send_packet("O4");         /* send request year packet */
     while(!(*clk_ack & 0x04)); /* wait to receive packet */
 
+  
     dumb = *clk_fifo;          /*read back the packet */
     dumb = *clk_fifo;
     dumb = *clk_fifo;
     tens = *clk_fifo & 0x00FF;
     ones = *clk_fifo & 0x00FF;
     dumb = *clk_fifo;
+   
 
-    yr = (tens - 0x30) * 10 + (ones - 0x30);
+    yr = (tens - 0x30) * 10 + (ones - 0x30); 
 
 }
+
+
+
+
+

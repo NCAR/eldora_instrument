@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1999/09/27  15:55:14  eric
+ * added support for slow cal.
+ *
  * Revision 1.3  1993/09/01  20:07:18  craig
  * *** empty log message ***
  *
@@ -142,6 +145,7 @@ scope SEM_ID xmit_data_sem;
 scope SEM_ID xmit_err_sem;
 scope SEM_ID testp_data_sem;
 scope SEM_ID testp_err_sem;
+scope SEM_ID cal_sync_sem;
 scope volatile int isr_count,freq_count,fore_aft,tp_cnt,New_tp;
 scope int pgm,xmit,testp, Avg, Debug;
 scope float fore_xmit_pwr,aft_xmit_pwr;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  2003/03/21  23:22:09  ericloew
+ * junk checkin
+ *
  * Revision 1.7  2000/05/15  18:31:55  eric
  * Added sync semaphore support to synchronize the programming of the
  * xmit power meter.
@@ -68,7 +71,7 @@ if(!Firstime)
 dbz = (((fore_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
 /* log_power = dbz + fore_lna_radar_const - log_testpulse_range2; */ 
  log_power = dbz + fraddes->radar_const - log_testpulse_range2;  /* Fixed in IHOP 2002 */
-received_lna_pwr = log_power;
+received_lna_pwr = log_power + ffrad->x_band_gain;
 /* injected_lna_pwr = fore_tp_level - fore_vmehndshk->tpulse_atten + ffrad->test_pulse_offset + 0.3; */
 injected_lna_pwr = fore_tp_level - fore_vmehndshk->tpulse_atten + ffrad->test_pulse_offset; /* Fixed in IHOP 2002 */ 
 
@@ -94,7 +97,7 @@ if(diff > MAX_TP_VEL_DIFF) printf("FV%d %1.2f",tp_freq_count+1,diff);
 dbz = (((aft_dbz_sum / tp_sum_count)) - 280.0) / 8.0;
 /* log_power = dbz + aft_lna_radar_const - log_testpulse_range2; */
 log_power = dbz + araddes->radar_const - log_testpulse_range2;  /* Fixed in IHOP 2002 */
-received_lna_pwr = log_power;
+received_lna_pwr = log_power + afrad->x_band_gain;
 /* injected_lna_pwr = aft_tp_level - aft_vmehndshk->tpulse_atten + afrad->test_pulse_offset + 0.4; */
 injected_lna_pwr = aft_tp_level - aft_vmehndshk->tpulse_atten + afrad->test_pulse_offset; /* Fixed in IHOP 2002 */
 tdiff = diff = received_lna_pwr - injected_lna_pwr;

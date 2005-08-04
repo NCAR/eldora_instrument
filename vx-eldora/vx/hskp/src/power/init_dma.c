@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12  19:37:39  eric
+ * modified to use Graph Mode for xmit pulse.
+ *
  * Revision 1.1  1993/09/20  17:35:59  reif
  * Initial revision
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12  19:41:26  eric
+ * Added VME memory addresses for DMA.
+ *
  * Revision 1.1  1993/09/20  17:35:51  reif
  * Initial revision
  *

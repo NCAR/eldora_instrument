@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.18  2003/10/02  15:14:30  kapoor
+ * Changed back to normal TOD function calls, will also work Bancomm clock.
+ *
  * Revision 1.14  2000/05/15  18:30:25  eric
  * Revised power meter stop routine and added firstime flag so
  * that stop_ieee is not called upon powerup.

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2003/10/02  15:30:07  kapoor
+ * change of parameters to fit TOD board style
+ *
  * Revision 1.2  2003/09/25  17:26:10  kapoor
  * change of gbl variable names, time_reg variable
  *

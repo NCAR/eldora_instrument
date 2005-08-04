@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/10/29  22:53:02  eric
+ * Corrected to reflect proper minirims addressing.
+ *
  * Revision 1.3  1996/02/21  17:21:19  craig
  * *** empty log message ***
  *

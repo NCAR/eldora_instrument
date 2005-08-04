@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1999/09/27  15:42:49  eric
+ * modified to fix slow cal
+ *
  * Revision 1.1  1996/09/12  17:21:56  craig
  * Initial revision
  *

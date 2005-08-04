@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2000/05/15  18:41:55  eric
+ * Added new semaphore, cal_sync_sem, for stop synchronization.
+ *
  * Revision 1.2  1997/11/12  19:38:33  eric
  * Added semaphore support.
  *

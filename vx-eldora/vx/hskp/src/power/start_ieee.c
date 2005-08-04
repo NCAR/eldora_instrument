@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  2000/05/15  18:49:50  eric
+ * Moved much of the functionality of init_ieee.c to here. Now initializes
+ * GPIB interface and DMA and also performs initial programming of powermeters.
+ * This improves startup.
+ *
  * Revision 1.4  1999/09/27  16:36:56  eric
  * widened testpulse; used fore as trigger.
  *
@@ -154,7 +159,7 @@ void start_ieee()
     }
 
   strncpy(string_array,"WDLA\0",5);  /* Select Window size */
-  sprintf(number_array,"%7.2f",10.0); /* fore xmit power meter */
+  sprintf(number_array,"%7.2f",6.0); /* fore xmit power meter */
   strncat(string_array,number_array,strlen(number_array));
   cmnd_stat = send_cmnd_string(XMIT,string_array);
   if(cmnd_stat == -1)
@@ -174,7 +179,7 @@ void start_ieee()
     }
 
   strncpy(string_array,"WDLB\0",5);  /* Select Window size */
-  sprintf(number_array,"%7.2f",10.0); /* aft xmit power meter */
+  sprintf(number_array,"%7.2f",6.0); /* aft xmit power meter */
   strncat(string_array,number_array,strlen(number_array));
   cmnd_stat = send_cmnd_string(XMIT,string_array);
   if(cmnd_stat == -1)

@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1999/09/27  15:42:20  eric
+ * modified to fix slow cal.
+ *
  * Revision 1.4  1996/10/29  22:53:33  craig
  * *** empty log message ***
  *
@@ -35,15 +38,19 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void start_testpulse()
 {
 long distance, width;
-double temp;
 float lambda;
+unsigned char B, nr;
+unsigned long T;
+double frequency, temp;
+unsigned char unitnum, ecbaddr,test,attenuation, foraft;
+int timeout;
 
 /* First reset all of the global variables that keep track of where we
    are in a given test pulse sequence */
 
 Firstime = 1;
 tp_atten_start = 0;
-tp_atten = 0;
+tp_atten = TP_ATTEN_ST;
 tp_freq_count = 0;
 tp_freq_offset_count = 0;
 tp_sum_count = 0;
@@ -155,6 +162,75 @@ testpulse_max_count = 10000.0/dwelltime_msec; /*New Calibration every 10 sec */
 tp_dwell_count = testpulse_max_count;
 
 /* Set the starting and ending dwell count to sum over */
-tp_sum_start = 2000.0/dwelltime_msec; /* start 2 seconds into calibration */
-tp_sum_end = 9000.0/dwelltime_msec; /* end 9 seconds into calibration */
+/* tp_sum_start = 2000.0/dwelltime_msec; *//* start 2 seconds into calibration */
+/* tp_sum_end = 9000.0/dwelltime_msec; *//* end 9 seconds into calibration */
+
+/* See if delaying testpulse sum makes forward tp more stable */
+tp_sum_start = 3000.0/dwelltime_msec; /* start 3 seconds into calibration */
+tp_sum_end = 9000.0/dwelltime_msec; /* end 8 seconds into calibration */
+
+/* Program Testpulse DDS's to be way out of band for dc removal to work correctly */
+
+frequency = 9310000000;
+attenuation = 110;
+
+/* Set the fore test pulse frequency */
+
+ecbaddr = ECBRFFOR;
+B = (unsigned char)(361 - (int)(frequency / 30.0e6));
+temp = 15445.3333333333333 - (frequency / 703125.0);
+temp = (16777216.0 / (B+1)) * temp;
+T = (unsigned long)(temp + 0.5);
+unitnum = 6;
+nr = 1;
+timeout = 0;
+do
+  {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+  }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0) &&
+	 timeout < 30);
+
+/* Set the fore testpulse attenuation level */
+
+ecbaddr = ECBATTEN;
+foraft = 1;
+timeout=0;
+do
+  {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+  }while((test = ecbSetAtten(ecbaddr, foraft, attenuation) != 0) &&
+	  timeout < 30);  
+
+/* Set the aft test pulse frequency */
+
+ecbaddr = ECBRFAFT;
+B = (unsigned char)(361 - (int)(frequency / 30.0e6));
+temp = 15445.3333333333333 - (frequency / 703125.0);
+temp = (16777216.0 / (B+1)) * temp;
+T = (unsigned long)(temp + 0.5);
+unitnum = 6;
+nr = 1;
+timeout = 0;
+do
+  {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+  }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0) &&
+	 timeout < 30);
+
+/* Set the aft testpulse attenuation level */
+
+ecbaddr = ECBATTEN;
+foraft = 0;
+timeout = 0;
+
+do
+  {
+      if(timeout > 0)taskDelay(1);
+      timeout++;
+  }while((test = ecbSetAtten(ecbaddr, foraft, attenuation) != 0) &&
+	 timeout < 30);  
+
 }

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2000/05/15  18:53:45  eric
+ * Removed code to reset GPIB interface. Added sync semaphore support and call o return powermeters to local control.
+ *
  * Revision 1.2  1999/09/27  16:38:10  eric
  * added support for separate pgm task.
  *

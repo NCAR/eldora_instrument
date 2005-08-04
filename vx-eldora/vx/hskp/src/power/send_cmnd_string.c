@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2000/05/15  18:46:39  eric
+ * Added GPIB handshaking and timeout to improve reliability.
+ *
  * Revision 1.1  1993/09/20  17:35:55  reif
  * Initial revision
  *

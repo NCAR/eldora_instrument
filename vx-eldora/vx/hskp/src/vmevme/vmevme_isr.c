@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  1997/08/27 16:50:02  craig
+ * *** empty log message ***
+ *
  * Revision 1.10  1996/02/09  18:29:26  craig
  * *** empty log message ***
  *
@@ -35,6 +38,11 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 void vmevme_isr()
 {
 
+/* This services the the middle of beam interrupt caused by the fore radar
+   processor but handles both processors, first clear the interrupts. */
+
+*fore_remote_command = 0x40; 
+*aft_remote_command = 0x40;
 
 
 /* Check to see if it is OK to let the other radar processor use the
@@ -51,8 +59,7 @@ if(aft_vmehndshk->mcpl_hndshk == 0 && mcpl_xfer_processor == 1)
     mcpl_xfer_processor = 0;
   }
 
-/* This services the the middle of beam interrupt caused by the fore radar
-   processor but handles both processors, first clear the interrupts. */
+/* Now, clear the interrupts one more time to make sure. */
 
 *fore_remote_command = 0x40; 
 *aft_remote_command = 0x40;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1997/08/26  21:25:25  craig
+ * *** empty log message ***
+ *
  *
  * description: These are the definitions used to handle the Inertial Reference
  *              Unit (IRU) interface.  This interface was designed by VMIC

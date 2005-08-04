@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.10  2003/10/02  15:15:21  kapoor
+ * Modified to work with both TOD and Bancomm function calls
+ *
  * Revision 1.9  2003/09/25  17:30:51  kapoor
  * updated for bancomm clock use - change of get_time, julian day, sync_ir
  * and start_clock

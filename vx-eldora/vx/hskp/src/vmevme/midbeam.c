@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  2003/10/01  19:31:31  kapoor
+ * *** empty log message ***
+ *
  * Revision 1.6  2002/03/21 00:17:18  thor
  * Useless attempt to fix fake_angles & elevation.
  *
@@ -193,10 +196,10 @@ semTake(vmeSem,WAIT_FOREVER);
 Determine delay between Radar Processor data interrupt and Hskp "midbeam" interrupt and set current_index accordingly 
 */
 
+    Intr_cnt += 1;
 if(Proc_dly_sync)
   {
-    Intr_cnt += 1;
-    if(Intr_cnt == 10)
+    if(Intr_cnt > 10)
       {
 /*	delta_f = Intr_cnt - fore_vmehndshk->radar_proc_idx; */
 	delta_f = current_index - fore_vmehndshk->radar_proc_idx;
@@ -218,12 +221,29 @@ if(ERR_CHK)
 	  delta_f += NUM_RADAR_HNDSHK;
 	if(delta_a < 0)
 	  delta_a += NUM_RADAR_HNDSHK;
-	if(delta_f > proc_offset_f) 
-      printf("ERROR: Missed FORE INTERRUPT!;%d\n",delta_f);
-	if(delta_a > proc_offset_a) 
-	  printf("ERROR: Missed AFT INTERRUPT!;%d\n",delta_a);
 	if(delta_f < (proc_offset_f - 1) || delta_a < (proc_offset_a - 1))
-	  printf("ERROR: Got Extra INTERRUPT!;%d %d\n",delta_f,delta_a);
+	  {
+	    
+	    printf("ERROR: Got Extra INTERRUPT!;%d %d %d\n",delta_f,delta_a,Intr_cnt);
+	    proc_offset_f = delta_f;
+	    proc_offset_a = delta_a;
+	  }
+	else
+	  {
+	    if(delta_f > proc_offset_f) 
+	      {
+		printf("ERROR: Missed FORE INTERRUPT!;%d %d\n",delta_f,Intr_cnt);
+		proc_offset_f = delta_f;
+	      }
+	    if(delta_a > proc_offset_a)
+	      {
+		printf("ERROR: Missed AFT INTERRUPT!;%d %d\n",delta_a,Intr_cnt);
+		proc_offset_a = delta_a;
+	      }
+	  }
+	/*
+    printf("Track: %d %d %d %d\n",delta_f,delta_a,fore_vmehndshk->radar_proc_idx,aft_vmehndshk->radar_proc_idx);
+	*/
       }
   }
     fore_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE +

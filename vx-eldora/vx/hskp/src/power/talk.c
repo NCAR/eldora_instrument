@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  2000/05/15  18:56:02  eric
+ * Added GPIB handshake and timeout.
+ *
  * Revision 1.2  1997/11/12  19:49:55  eric
  * Added code to handle channels independently.
  *

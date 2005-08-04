@@ -1,6 +1,6 @@
 stop11
 dpclr
-ldsrec "mstrvme5.sre"
+ldsrec "mstrvme8.sre"
 ecbIntInit(1000000)
 hskpIntInit
 go11

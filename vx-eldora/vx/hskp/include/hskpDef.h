@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1999/09/27  15:57:00  eric
+ * changed error limits on slow cal.
+ *
  * Revision 1.8  1997/08/20 20:05:30  eric
  * set new limits on test pulse power and velocity based on
  * statistics from fastex.
@@ -50,7 +53,8 @@ struct DATARAY
 
 /* Definitions to handle the test pulse */
 #define TP_ATTEN_STEP  10
-#define TP_ATTEN_MAX   40
+#define TP_ATTEN_MAX   70                  /* was 40 before tp amps added */
+#define TP_ATTEN_ST    0
 #define MAX_TP_VEL_DIFF 0.25               /* In m/s */
 #define MAX_TP_PWR_DIFF 1.25               /* In dbm */
 

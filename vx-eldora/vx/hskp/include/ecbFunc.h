@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/09/20  17:05:12  shawn
+ * *** empty log message ***
+ *
  * Revision 1.1  1992/06/24  20:45:29  shawn
  * Initial revision
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1994/06/30  17:58:27  craig
+ * Fixed names.
+ *
  * Revision 1.3  1994/05/20  20:36:39  craig
  * *** empty log message ***
  *

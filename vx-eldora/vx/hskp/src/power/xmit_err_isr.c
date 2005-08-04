@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1997/11/12  19:49:28  eric
+ * Added semaphore passing and error status.
+ *
  * Revision 1.1  1993/09/20  17:35:46  reif
  * Initial revision
  *

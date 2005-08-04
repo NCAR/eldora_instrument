@@ -13,6 +13,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  2003/09/25  21:00:22  kapoor
+ * added more global variables forgotten in the last rev.
+ *
  * Revision 1.4  2003/09/25  18:30:31  kapoor
  * Needed to add in old Gbl vars - trying to get housekeeper to run.  May
  * delete these after testing and discovering where old variables are being
@@ -80,6 +83,10 @@ scope unsigned char hr;
 scope unsigned char day;
 scope unsigned char mon;
 scope unsigned char yr;
+
+scope char *time_date;    /* date array in which time data format for 
+			    RTC is entered. */
+
 
 /******** THESE Addl Gbl vars need to be here to make housekeeper happy **/
 /****************Testing*****************/

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2003/09/25  17:25:13  kapoor
+ * change of time global variable names
+ *
  * Revision 1.1  2003/09/24  20:52:51  kapoor
  * Initial revision
  *
@@ -54,10 +57,11 @@
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
+#define OK_RPC
 #define scope extern
 #include "hskpAll.h"
 
-void init_clock(void) 
+void init_clock(short div_525) 
 {
 
 timereq = (short *)(SHORT_BASE + BASE_CLOCK + TIMEREQ);
@@ -102,3 +106,9 @@ if(((int)(yr/4))*4 == yr)
 
 return;
 }
+
+
+
+
+
+
