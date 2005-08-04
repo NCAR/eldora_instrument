@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/07/28  16:54:13  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 1.1  1991/10/31  15:10:58  thor
  * Initial revision
  *

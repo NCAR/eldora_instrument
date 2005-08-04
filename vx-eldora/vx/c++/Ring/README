@@ -1,0 +1,8 @@
+This is a class for ring buffers. It is faster then the WRS version - at least
+on my MVME-133A.
+
+They require c++builtin.shar if you use g++. 
+
+ringtst.cc is a simple comparative timing test of WRS' rngBuffers vs. Ring.
+The script file testcase will run some differently sized elements 
+through the test.

@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/11/19 00:04:31  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -28,7 +31,7 @@ FreeStore::FreeStore(void *address, int length, int mode, void *data,
       {
           int srcSink;          // Default is user hasn't given us one.
 
-          FAST void *tst = address;
+          FAST char *tst = (char *)address;
 
           FAST void *ss;
 
@@ -39,7 +42,7 @@ FreeStore::FreeStore(void *address, int length, int mode, void *data,
 
           FAST size_t bytes = 0; // How many bytes available.
           
-          while (vxMemProbe((char *)tst,mode,length,(char *)ss) == OK)
+          while (vxMemProbe(tst,mode,length,(char *)ss) == OK)
             {
                 tst += size;
                 bytes += size;

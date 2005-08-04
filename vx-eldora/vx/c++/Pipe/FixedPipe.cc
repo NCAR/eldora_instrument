@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/10/31  18:59:57  thor
+ * Initial revision
+ *
  *
  *
  * description:
@@ -26,7 +29,7 @@ int FixedPipe::Read(FAST void *ptr, FAST int timeout)
     if (semTake(rs,timeout) == ERROR)
       return(0);
 
-    FAST int bytes = Get(ptr);
+    FAST int bytes = Ring::Get(ptr);
 
     semGive(ws);
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1991/03/01  18:16:59  thor
+ * Changed to print message on new failure.
+ *
  * Revision 1.1  1991/02/11  18:37:27  thor
  * Initial revision
  *

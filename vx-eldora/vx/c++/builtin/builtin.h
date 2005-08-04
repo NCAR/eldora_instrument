@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/11  18:38:38  thor
+ * Initial revision
+ *
  *
  * description:
  *      This is the header for g++ stdlib stuff that must be reworked

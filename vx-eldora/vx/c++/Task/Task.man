@@ -1,0 +1,101 @@
+.TH Task l "02 October 1991" "Eldora Addition"
+.SH NAME
+Task \- C++ task control class
+.SH SYNOPSIS
+.nf
+Task(FUNCPTR entry, int *args, int argsize, int pri = 100,
+     int stacksize = 3000, int options = VX_FP_TASK | VX_STDIO,
+      int go = 1);
+
+    STATUS Delete(void) { return(taskDelete(taskId)); }
+
+    STATUS DeleteForce(void) { return(taskDeleteForce(taskId)); }
+
+    STATUS Terminate(void) { return(taskTerminate(taskId)); }
+
+    STATUS Suspend(void) { return(taskSuspend(taskId)); }
+
+    STATUS Resume(void) { return(taskResume(taskId)); }
+
+    STATUS Restart(void) { return(taskRestart(taskId)); }
+
+    int Priority(void);
+
+    STATUS Priority(FAST int pri) { return(taskPrioritySet(taskId,pri)); }
+
+    STATUS Options(FAST int mask, FAST int newOpt)
+      { return(taskOptionsSet(taskId, mask, newOpt)); }
+
+    int Options(void);
+
+    char *Name(void) { return(taskName(taskId)); }
+
+    int Tid(void) { return(taskId); }
+
+    BOOL IsReady(void) { return(taskIsReady(taskId)); }
+
+    BOOL IsSuspended(void) { return(taskIsSuspended(taskId)); }
+
+    TASK_DESC *InfoGet(void);
+
+    WIND_TCB *Tcb(void) { return(taskTcb(taskId)); }
+
+    char *StatusString(void);
+
+    int Status(void);
+
+    STATUS Exists(void) { return(taskIdVerify(taskId)); }
+
+    int Go(void);
+
+    STATUS SigRaise(int signal, int code = 0) 
+      { return(sigRaise(taskId,signal,code)); }
+
+    STATUS Kill(int signal) { return(SigRaise(signal)); }
+
+    STATUS FlagsInit(void);
+
+    void SetFlags(unsigned int mask);
+
+    void ClearFlags(void);
+
+    unsigned int WaitOnFlags(unsigned int mask, int type,
+			     int tmo = WAIT_FOREVER);
+
+    unsigned int QueryFlags(void);
+
+.fi
+.SH DESCRIPTION
+The Task class provides an interface to most VxWorks task manipulation
+and control routines. It also allows one to either spawn the task
+immediately or later. Support is also provided for local event flags.
+These allow the task to wait on outside tasks/events. They are not
+enabled by default. To use them one must call FlagsInit().
+.sp
+WARNING! Never call WaitOnFlags except from the spawned task or the
+wrong party will block.
+.sp
+It is very important to know that routines used as entry points must
+specify a reference to their Task as the first arguement passed them.
+This of course limits called tasks to nine user arguements. Thus a
+task should be declared like this:
+.nf
+	int mytask(Task &self [any other args])
+.fi
+.SH RETURNS
+In most cases the methods return the same values as the VxWorks
+routine it wraps. The flag routines return -1 if the flags where not
+initialized, so it is not possible to use all flags at once in a mask.
+.SH COMMENTS AND REQUIREMENTS
+You must have loaded or linked in your own builtin_new and
+builtin_delete routines if your C++ compiler does not have them.
+.SH CURRENT REVISION
+1.1
+.SH FLAMES AND PRAISE
+Send them to:
+.nf
+Richard Neitzel
+National Center for Atmospheric Research
+Box 3000
+Boulder, CO 80307
+thor@thor.atd.ucar.edu

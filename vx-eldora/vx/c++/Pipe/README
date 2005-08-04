@@ -1,0 +1,9 @@
+These are classes for pipes. The Pipe class is able to handle messages
+of any size, while the class FixedPipe only handles fixed message sizes.
+
+They are faster then the WRS version - at least on my MVME-133A.
+
+The Ring class is required to build these. 
+
+They require c++builtin.shar if you use g++. 
+

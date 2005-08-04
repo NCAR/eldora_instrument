@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/07/29  18:30:37  thor
+ * Fixed type of code to match new prototype.
+ *
  * Revision 1.2  1993/07/28  17:09:20  thor
  * Upgraded tp VxWorks 5.1.
  *

@@ -1,0 +1,5 @@
+This is a class for local events flags. It requires c++builtin.shar if
+you use g++. The makefile uses my local modification to
+/usr/include/make/default.mk for g++ rules. This can be had from the
+archive in g++.rules.patch. DO NOT run the make install target, it is
+for my local use, unless you modify its behavior.

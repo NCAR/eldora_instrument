@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+Revision 1.4  1993/07/28  16:47:53  thor
+Moved to VxWorks 5.1.
+
 Revision 1.3  1991/09/25  20:40:34  thor
 Really want binary semaphore.
 

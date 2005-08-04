@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/07/28  17:07:11  thor
+ * Upgraded to latest ANSI spec.
+ *
  * Revision 1.2  1992/06/25  20:45:38  thor
  * Removed unneeded semTakes, added task(un)Lock.
  *

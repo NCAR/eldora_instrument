@@ -9,6 +9,9 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.1  1994/11/19 00:04:34  thor
+// Initial revision
+//
 //
 //
 // description:
@@ -38,6 +41,12 @@
 
 #include <memLib.h>
 #include <vxLib.h>
+
+extern "C"
+{
+void *memPartAlignedAlloc(PART_ID partId, unsigned nBytes,
+			  unsigned alignment);
+};
 
 class FreeStore {
   public:

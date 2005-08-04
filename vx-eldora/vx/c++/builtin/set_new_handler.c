@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/11  18:37:53  thor
+ * Initial revision
+ *
  *
  * description:
  *       This routine allows the user to insert their own handler code

@@ -1,0 +1,84 @@
+.TH Pipe l "31 October 1991" "Eldora Addition"
+.SH NAME
+Pipe, FixedPipe - Pipe classes.
+.SH SYNOPSIS
+.nf
+Pipe pipe(int msg_size, int num_msgs);
+FixedPipe pipe(int msg_size, int num_msgs);
+
+(int) pipe.Read(void *ptr, int count = 1);
+(int) pipe.Write(void *ptr, int count = 1);
+(int) pipe.QueryRead(void *ptr, int count = 1);
+(int) pipe.QueryWrite(void *ptr, int count = 1);
+(int) pipe.Msgs(void);
+(int) pipe.Size(void);
+(int) pipe.Free(void);
+(void) pipe.Flush(void);
+
+.fi
+.SH DESCRIPTION
+The
+.I Pipe
+class allows one to read/write data in discrete chunks. The chunk size
+is specified at creation as
+.I msg_size
+bytes and the pipe can hold
+.I num_msgs
+messages. 
+.I Write
+moves the data pointed to by
+.I ptr
+into the pipe. If not enough space is available in the pipe it blocks.
+On completion the number of bytes moved is returned.
+.I Read
+moves data from the pipe into the area pointed to by
+.I ptr.
+If not enough data is available it blocks. The number of bytes moved
+is returned.
+.I QueryRead 
+acts like 
+.I read
+except that it will move as many messages as are in pipe, not blocking
+if the requested number are not available. Likewise,
+.I QueryWrite
+will put as many messages as possible into the pipe without blocking.
+.I Flush
+empties the pipe of data, being considerate enough to wait until all
+tasks blocked for reads/writes have completed.
+.I Msgs
+returns the maximum number of messages that can be put into the pipe.
+.I Size
+returns the size of the pipe in bytes, while
+.I Free
+returns the number of unused messages remaining.
+.sp
+All the Pipe read/write operations take a value,
+.I count,
+that specifies how many messages are to be transfered. This allows one
+to move multiple messages with one call. The default count is 1.
+.sp
+The 
+.I FixedPipe
+class is identical to the
+.I Pipe
+class except for one feature. In its case, the number of messages
+transfered is fixed to one per read/write. This allows it to be
+somewhat faster.
+.SH INCLUDES
+Pipe.hh
+.sp
+FixedPipe.hh
+.SH COMMENTS AND REQUIREMENTS
+You must have loaded or linked in your own builtin_new and
+builtin_delete routines if your C++ compiler does not have them.
+.sp
+The Ring class must be loaded/linked with these classes.
+.SH FLAMES AND PRAISE
+Send them to:
+.nf
+Richard Neitzel
+National Center for Atmospheric Research
+Box 3000
+Boulder, CO 80307
+thor@thor.atd.ucar.edu
+

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/11  18:38:05  thor
+ * Initial revision
+ *
  *
  * description:
  *        These two functions allow the use of global

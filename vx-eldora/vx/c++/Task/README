@@ -1,0 +1,5 @@
+The Task class provides a nice interface to VxWorks' task routines. It
+also incorporates local event flags. (So you must get flags_class.shar
+to compile this.) To build, modify the Makefile to suit your
+environment and go. The file Test.cc has a simple test case to verify
+things are working. 

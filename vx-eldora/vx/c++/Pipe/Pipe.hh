@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1993/07/28  17:07:11  thor
+ * Upgraded to VxWorks 5.1.
+ *
  * Revision 1.2  1991/10/31  20:13:30  thor
  * Added Full & Empty methods.
  *
@@ -28,7 +31,7 @@
 #include "semLib.h"
 #include "taskLib.h"
 
-class Pipe : private Ring {
+class Pipe : public Ring {
 
   protected:
     SEM_ID read_sem;
@@ -62,6 +65,7 @@ class Pipe : private Ring {
 
     int Size();
 
+    int Used() { return(Ring::Used()); }
     ~Pipe() 
       {
 	  semFlush(write_sem);

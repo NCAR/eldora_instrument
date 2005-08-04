@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1991/09/25  20:42:22  thor
+ * Change of rcs versions!
+ *
+ * Revision 1.5  1991/09/25  20:42:22  thor
+ * Change of rcs versions!
+ *
  * Revision 1.4  90/12/27  09:48:00  thor
  * Modified to use new semaphore syntax.
  * 

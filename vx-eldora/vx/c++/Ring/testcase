@@ -1,0 +1,9 @@
+ring 1,1024
+ring 2,512
+ring 4,256
+ring 8,128
+ring 31,33
+ring 128,8
+ring 256,4
+ring 512,2
+ring 1024,1

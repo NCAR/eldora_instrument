@@ -1,0 +1,54 @@
+.TH Ring l "31 October 1991" "Eldora Addition"
+.SH NAME
+Ring - Ring buffer class
+.SH SYNOPSIS
+.nf
+Ring ring(int size, int items);
+
+(int) ring.Get(void *item);
+(int) ring.Put(void *item);
+(int) ring.Full(void);
+(int) ring.Empty(void);
+(int) ring.Free(void);
+(int) ring.Size(void);
+(void) ring.Flush(void);
+
+.fi
+.SH DESCRIPTION
+.I
+Ring
+is a class that implements a ring buffer. At creation one specifies
+the
+.I size
+of an item in bytes and the number of
+.I items
+in the buffer.
+.I Get
+places the data from the next item in the buffer into the memory
+pointed to by
+.I item. Put
+places the data pointed to into the next buffer location. Both return
+the number of bytes transfered, so a return value of 0 indicates error.
+.I Full
+returns TRUE is the buffer is full, while
+.I Empty
+returns TRUE is the buffer is empty.
+.I Size
+returns the maximum number of bytes that can be held.
+.I Free
+returns the number of items that can still be inserted.
+.I Flush
+resets the buffer to an empty state, losing all current data.
+.SH INCLUDES
+Ring.hh
+.SH COMMENTS AND REQUIREMENTS
+You must have loaded or linked in your own builtin_new and
+builtin_delete routines if your C++ compiler does not have them.
+.SH FLAMES AND PRAISE
+Send them to:
+.nf
+Richard Neitzel
+National Center for Atmospheric Research
+Box 3000
+Boulder, CO 80307
+thor@thor.atd.ucar.edu

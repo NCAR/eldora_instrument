@@ -1,0 +1,12 @@
+These are some simple C routines that supply GNU g++ running under
+VxWorks with routines to do new and delete as well as the
+set_new_handler, so you can do your own new. Also included are global
+constructor/destructor routines & a dummy CTOR/DTOR list. To use make
+builtin++.o and then if you have global objects, run collect over your
+object code and then link builtin++.o with the original object code
+and the object you make from the collect file. If you do not have any
+global objects, link builtin++.o with ctor_dummy.o.
+
+rich N.
+
+thor@thor.atd.ucar.edu

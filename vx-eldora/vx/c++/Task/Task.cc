@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  1993/07/28  19:18:11  thor
+ * UpGraded to VxWorks 5.1.
+ *
  * Revision 1.7  1992/12/07  17:27:51  vanandel
  * move create of flags so it occurs, whether or not the task is created
  * immediately

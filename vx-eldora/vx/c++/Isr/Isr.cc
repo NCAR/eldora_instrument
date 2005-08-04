@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/12/03  15:50:59  thor
+ * Greatly simplified things.
+ *
  * Revision 1.1  1993/11/30  17:33:31  thor
  * Initial revision
  *
@@ -22,7 +25,18 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "Isr.hh"
 #include <iv.h>
 
-Isr::Isr(FAST int vector, FAST int useSem, VOIDFUNCPTR isr)
+// OK, until I figure out how to work around this, I use my own definition of
+// intCoonect().
+
+typedef void            (*VOIDFUNCPTR) (...);
+typedef void            (*VOIDFUNCPTR_INT)(int);
+extern "C" {
+  STATUS intConnect(VOIDFUNCPTR *, VOIDFUNCPTR_INT, int);
+};
+
+static void isrGlue(int);
+
+Isr::Isr(FAST int vector, FAST int useSem)
 {
     if (useSem)
       sem = semBCreate(SEM_Q_PRIORITY,SEM_FULL);
@@ -31,23 +45,17 @@ Isr::Isr(FAST int vector, FAST int useSem, VOIDFUNCPTR isr)
     
     VOIDFUNCPTR *vec = (VOIDFUNCPTR *)INUM_TO_IVEC(vector);
 
-    if (isr == NULL)
-      isr = (VOIDFUNCPTR)&Isr::IsrFunction;
-    
-    intConnect(vec,isr,(int)this);
+    intConnect(vec,&isrGlue,(int)this);
 }
 
-Isr::Isr(void *vector, int useSem, VOIDFUNCPTR isr)
+Isr::Isr(void *vector, int useSem)
 {
     if (useSem)
       sem = semBCreate(SEM_Q_PRIORITY,SEM_FULL);
     else
       sem = NULL;
 
-    if (isr == NULL)
-      isr = (VOIDFUNCPTR)&Isr::IsrFunction;
-
-    intConnect((VOIDFUNCPTR *)vector,isr,(int)this);
+    intConnect((VOIDFUNCPTR *)vector,&isrGlue,(int)this);
 }
 
 void Isr::IsrFunction()
@@ -56,4 +64,10 @@ void Isr::IsrFunction()
 
     if (sem)
       semGive(sem);
+}
+
+static void isrGlue(int i)
+{
+  Isr *isr = (Isr *)i;
+  isr->IsrFunction();
 }

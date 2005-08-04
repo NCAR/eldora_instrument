@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1991/02/11  18:37:43  thor
+ * Initial revision
+ *
  * description:
  *       This routine frees memory allocated by a call to __builtin_new.
  */

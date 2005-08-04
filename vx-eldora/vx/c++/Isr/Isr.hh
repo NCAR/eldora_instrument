@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1993/12/03  15:50:59  thor
+ * Greatly simplified things.
+ *
  * Revision 1.1  1993/11/30  17:33:35  thor
  * Initial revision
  *
@@ -30,19 +33,19 @@
 #define INCIsr_hh
 
 #include <vxWorks.h>
-#include <intLib.h>
 #include <semLib.h>
 
 class Isr {
   public:
-    Isr(int vector, int useSem = 0, VOIDFUNCPTR isr = NULL);
-    Isr(void *vector, int useSem = 0, VOIDFUNCPTR isr = NULL);
+    Isr(int vector, int useSem = 0);
+    Isr(void *vector, int useSem = 0);
 
     STATUS IsrWait(int tmo = WAIT_FOREVER) { semTake(sem,tmo); }
+
+    virtual void IsrFunction();
+
   protected:
     SEM_ID sem;
-
-    void IsrFunction();
 };
 
 
