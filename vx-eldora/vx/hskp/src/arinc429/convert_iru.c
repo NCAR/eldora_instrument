@@ -9,20 +9,10 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.5  1994/06/30  14:10:43  craig
- * Changed defines to static floats. Time variable name changes.
- * Moved index out of bounds tests to protect against bad initial values.
- *
- * Revision 1.4  1994/05/20  20:36:33  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/09/28  23:03:55  craig
- * Initial revision
- *
  *
  * description:  This routine reads the data from the iru interface
  *               and converts it to the proper units and places it
- *               in the desired IRU data structure.        
+ *               in the last IRU data structure.        
  */
 
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -52,7 +42,7 @@ static float PRATE_SCALE =         0.0039; /* Honeywell scale for pitch
 static float HEAD_CORR =           0.0; /* Correction to heading for box
                                                   alignment */
 
-int convert_iru(long num_words, long *where_data_is, struct ins_data *goes)
+void convert_iru()
 {
 /* Define the iru latency in milliseconds, remember that the latency (called
    transport lag by Honeywell) varies from parameter to parameter, since the
@@ -62,228 +52,207 @@ int convert_iru(long num_words, long *where_data_is, struct ins_data *goes)
 */
 #define IRU_LATENCY 50
 
-long i, data, label, msecs_today, msecs_this_data;
+long i, msecs_today, msecs_this_data;
 short julday,test;
+union{
+  short sarray[2];
+  long input;
+}swp0;
+union{
+  short sarray[2];
+  long data;
+}swp1;
 
-/* Read the time from the time of day clock */
-
-goes->msec_longitude[msec_longitude_indx] = msec;
-goes->sec_longitude[msec_longitude_indx] = sec;
-msec_longitude_indx++;
-if(msec_longitude_indx >= 5) msec_longitude_indx = 0;
-last_iru_data.seconds = sec;
-last_iru_data.msec_longitude = msec;
 msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
 
+/* If main buffer pointer is different, recalculate pointers */
+
+if(rxa_buffer_offset != iru_pntr->rxa0_vmeptr)
+  {
+    printf("B");
+    calc_iru_pointers();
+  }
 
 /* Clear the ARINC errors bit from the status word */
 currStatus->iru &= (char)(~ARINC_ERRORS);
 
-/* We need to read num_words, ARINC words and convert them to the proper units
-and place them in the ins data structure pointer to by the pointer goes */
-
-for(i=0; i<num_words; i++)
-  {
-      data = *where_data_is++;
-      label = data & 0x000000FF;
-
-/* Now take the ARINC 429 word and shift it to the right the right number
+/* Now take each ARINC 429 word and shift it to the right the right number
    of places then multiply the result by the proper scale factor.
    Remember that the >> operator will sign extend a signed
    integer, the most significant bit of these words is the sign by virtue of
    how the word is passed by the ARINC 429 interface. */
 
-      if((data & (long)0x600) != 0x600) currStatus->iru |= ARINC_ERRORS;
+swp0.input = *latitude_pntr;
+if(iru_new_data_test[IRU_LATITUDE] != swp0.input)
+  {
+    iru_new_data_test[IRU_LATITUDE] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.latitude =  (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+  }
 
-/*      printf("converting word %d data= %x, label = %x\n",i,data,label); */
+swp0.input = *longitude_pntr;
+if(iru_new_data_test[IRU_LONGITUDE] != swp0.input)
+  {
+    /* Log the time of new longitude data */
 
-      switch(label)
-	{
+    last_iru_data.msec_longitude = msec;
+    last_iru_data.sec_longitude = sec;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    iru_new_data_test[IRU_LONGITUDE] = swp0.input;
+    last_iru_data.longitude = (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+  }
 
-	    case LATITUDE_LAB:
-	    last_iru_data.latitude =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-            if(latitude_indx >= 5) latitude_indx = 0;
-	    goes->latitude[latitude_indx] = last_iru_data.latitude;
-	    latitude_indx++;
-	    break;
+swp0.input = *wind_speed_pntr;
+if(iru_new_data_test[IRU_WIND_SPEED] != swp0.input)
+  {
+    iru_new_data_test[IRU_WIND_SPEED] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.wind_speed = (float)(swp1.data>>11)*(float)WKNOTS_TO_MPERSEC;
+  }
 
-	    case LONGITUDE_LAB:
-	    last_iru_data.longitude =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-            if(longitude_indx >= 5) longitude_indx = 0;
-	    goes->longitude[longitude_indx] = last_iru_data.longitude;
-	    longitude_indx++;
-	    break;
+swp0.input = *wind_direction_pntr;
+if(iru_new_data_test[IRU_WIND_DIRECTION] != swp0.input)
+  {
+    iru_new_data_test[IRU_WIND_DIRECTION] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.wind_direction = (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+    if(last_iru_data.wind_direction < 0.0) 
+      last_iru_data.wind_direction += 360.0;
+  }
 
-	    case WIND_SPEED_LAB:
-	    last_iru_data.wind_speed =
-	      (float)(data>>11)*(float)WKNOTS_TO_MPERSEC;
-            if(wind_speed_indx >= 10) wind_speed_indx = 0;
-	    goes->wind_speed[wind_speed_indx] = last_iru_data.wind_speed;
-	    wind_speed_indx++;
-	    break;
+swp0.input = *ns_velocity_pntr;
+if(iru_new_data_test[IRU_NS_VELOCITY] != swp0.input)
+  {
+    iru_new_data_test[IRU_NS_VELOCITY] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.ns_velocity =
+      (float)(swp1.data>>11)*(float)VKNOTS_TO_MPERSEC;
+  }
 
-	    case WIND_DIRECTION_LAB:
-	    last_iru_data.wind_direction =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-	    if(last_iru_data.wind_direction < 0.0)
-	      last_iru_data.wind_direction += 360.0;
-            if(wind_direction_indx >= 10) wind_direction_indx = 0;
-	    goes->wind_direction[wind_direction_indx] = 
-	      last_iru_data.wind_direction;
-	    wind_direction_indx++;
-	    break;
+swp0.input = *ew_velocity_pntr;
+if(iru_new_data_test[IRU_EW_VELOCITY] != swp0.input)
+  {
+    iru_new_data_test[IRU_EW_VELOCITY] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.ew_velocity =
+      (float)(swp1.data>>11)*(float)VKNOTS_TO_MPERSEC;
+  }
 
-	    case NS_VELOCITY_LAB:
-	    last_iru_data.ns_velocity =
-	      (float)(data>>11)*(float)VKNOTS_TO_MPERSEC;
-            if(ns_velocity_indx >= 10) ns_velocity_indx = 0;
-	    goes->ns_velocity[ns_velocity_indx] = last_iru_data.ns_velocity;
-	    ns_velocity_indx++;
-	    break;
+swp0.input = *heading_pntr;
+if(iru_new_data_test[IRU_HEADING] != swp0.input)
+  {
+    iru_new_data_test[IRU_HEADING] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.heading =
+      (float)(swp1.data>>11)*(float)PIRAD_TO_DEG + HEAD_CORR;
+    if(last_iru_data.heading < 0.0)
+      last_iru_data.heading += 360.0;
+    if(last_iru_data.heading > 360.0)
+      last_iru_data.heading -= 360.0;
+  }
 
-	    case EW_VELOCITY_LAB:
-	    last_iru_data.ew_velocity =
-	      (float)(data>>11)*(float)VKNOTS_TO_MPERSEC;
-            if(ew_velocity_indx >= 10) ew_velocity_indx = 0;
-	    goes->ew_velocity[ew_velocity_indx] = last_iru_data.ew_velocity;
-	    ew_velocity_indx++;
-	    break;
+swp0.input = *drift_pntr;
+if(iru_new_data_test[IRU_DRIFT] != swp0.input)
+  {
+    iru_new_data_test[IRU_DRIFT] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.drift =
+      (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+  }
 
-	    case HEADING_LAB:
-	    last_iru_data.heading =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG + HEAD_CORR;
-	    if(last_iru_data.heading < 0.0)
-	      last_iru_data.heading += 360.0;
-	    if(last_iru_data.heading > 360.0)
-	      last_iru_data.heading -= 360.0;
-            if(heading_indx >= 25) heading_indx = 0;
-	    goes->heading[heading_indx] = last_iru_data.heading;
-	    heading_indx++;
-	    break;
+swp0.input = *altitude_pntr;
+if(iru_new_data_test[IRU_ALTITUDE] != swp0.input)
+  {
+    iru_new_data_test[IRU_ALTITUDE] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.altitude =
+      (float)(swp1.data>>11)*(float)FEET_TO_KM;
+  }
 
-	    case DRIFT_LAB:
-	    last_iru_data.drift =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-            if(drift_indx >= 25) drift_indx = 0;
-	    goes->drift[drift_indx] = last_iru_data.drift;
-	    drift_indx++;
-	    break;
+swp0.input = *inertial_vspeed_pntr;
+if(iru_new_data_test[IRU_INERTIAL_VSPEED] != swp0.input)
+  {
+    iru_new_data_test[IRU_INERTIAL_VSPEED] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.inertial_vspeed =
+      (float)(swp1.data>>11)*(float)FTPERMIN_TO_MPERSEC;
+  }
 
-	    case ALTITUDE_LAB:
-	    last_iru_data.altitude =
-	      (float)(data>>11)*(float)FEET_TO_KM;
-            if(altitude_indx >= 25) altitude_indx = 0;
-	    goes->altitude[altitude_indx] = last_iru_data.altitude;
-	    altitude_indx++;
-	    break;
+swp0.input = *pitch_pntr;
+if(iru_new_data_test[IRU_PITCH] != swp0.input)
+  {
+    iru_new_data_test[IRU_PITCH] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.pitch =
+      (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+  }
 
-	    case INERTIAL_VSPEED_LAB:
-	    last_iru_data.inertial_vspeed =
-	      (float)(data>>11)*(float)FTPERMIN_TO_MPERSEC;
-            if(inertial_vspeed_indx >= 25) inertial_vspeed_indx = 0;
-	    goes->inertial_vspeed[inertial_vspeed_indx]
-	      = last_iru_data.inertial_vspeed;
-	    inertial_vspeed_indx++;
-	    break;
+swp0.input = *roll_pntr;
+if(iru_new_data_test[IRU_ROLL] != swp0.input)
+  {
+    iru_new_data_test[IRU_ROLL] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.roll =
+      (float)(swp1.data>>11)*(float)PIRAD_TO_DEG;
+  }
 
-	    case PITCH_LAB:
-	    last_iru_data.pitch =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-            if(pitch_indx >= 50) pitch_indx = 0;
-	    goes->pitch[pitch_indx] = last_iru_data.pitch;
-	    pitch_indx++;
-	    break;
+swp0.input = *integ_vert_acc_pntr;
+if(iru_new_data_test[IRU_INTEG_VERT_ACC] != swp0.input)
+  {
+    iru_new_data_test[IRU_INTEG_VERT_ACC] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.integ_vert_acc =
+      (float)(swp1.data>>11)*(float)FTPERSEC_TO_MPERSEC;
+  }
 
-	    case ROLL_LAB:
-	    last_iru_data.roll =
-	      (float)(data>>11)*(float)PIRAD_TO_DEG;
-            if(roll_indx >= 50) roll_indx = 0;
-	    goes->roll[roll_indx] = last_iru_data.roll;
-	    roll_indx++;
-	    break;
+swp0.input = *vert_acc_pntr;
+if(iru_new_data_test[IRU_VERT_ACC] != swp0.input)
+  {
+    iru_new_data_test[IRU_VERT_ACC] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.vert_acc =
+      (float)(swp1.data>>11)*(float)GS_TO_MPERSEC2;
+  }
 
-	    case INTEG_VERT_ACC_LAB:
-	    last_iru_data.integ_vert_acc =
-	      (float)(data>>11)*(float)FTPERSEC_TO_MPERSEC;
-            if(integ_vert_acc_indx >= 50) integ_vert_acc_indx = 0;
-	    goes->integ_vert_acc[integ_vert_acc_indx]
-	      = last_iru_data.integ_vert_acc;
-	    integ_vert_acc_indx++;
-	    break;
+swp0.input = *track_rate_pntr;
+if(iru_new_data_test[IRU_TRACK_RATE] != swp0.input)
+  {
+    iru_new_data_test[IRU_TRACK_RATE] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.track_rate =
+      (float)(swp1.data>>11)*(float)TRATE_SCALE;
+  }
 
-	    case VERT_ACC_LAB:
-	    last_iru_data.vert_acc =
-	      (float)(data>>11)*(float)GS_TO_MPERSEC2;
-            if(vert_acc_indx >= 50) vert_acc_indx = 0;
-	    goes->vert_acc[vert_acc_indx] = last_iru_data.vert_acc;
+swp0.input = *pitch_rate_pntr;
+if(iru_new_data_test[IRU_PITCH_RATE] != swp0.input)
+  {
+    iru_new_data_test[IRU_PITCH_RATE] = swp0.input;
+    swp1.sarray[0] = swp0.sarray[1]; 
+    swp1.sarray[1] = swp0.sarray[0]; 
+    last_iru_data.pitch_rate =
+      (float)(swp1.data>>11)*(float)PRATE_SCALE;
+  }
 
-	    /* Vertical acceleration is the last 50 Hertz data value, that is
-	       used, that comes out on the ARINC 429 bus.  Therefore we can
-	       assume that all of the values in the last_iru_data structure
-	       are the lastest and greatest. Also, they are back in time by
-	       20 miliseconds times the number of 50 hertz places back from
-	       our current time.  For example, if this is the third vertical
-	       acceleration label found this interrupt (i.e. vert_acc_indx =
-	       2, 12, 22, 32 or 42) then the time of the current data is:
-	       msecs_today -(9-(vert_acc_indx modulo 10)) * 20.
 
-	       We need to calculate the time of the current data and then
-	       place that data into the correct platform info block */
+/* We need to calculate the time of the current data and then
+   place that data into the correct platform info block */
 
-	    msecs_this_data = msecs_today - (9 - (vert_acc_indx % 10))
-	      * 20 - IRU_LATENCY;
-	    fill_platform(msecs_this_data);
+msecs_this_data = msecs_today - IRU_LATENCY;
+fill_platform(msecs_this_data);
 
-	    vert_acc_indx++;
-	    break;
-
-	    case TRACK_RATE_LAB:
-	    last_iru_data.track_rate =
-	      (float)(data>>11)*(float)TRATE_SCALE;
-            if(track_rate_indx >= 50) track_rate_indx = 0;
-	    goes->track_rate[track_rate_indx] = last_iru_data.track_rate;
-	    track_rate_indx++;
-	    break;
-
-	    case PITCH_RATE_LAB:
-	    last_iru_data.pitch_rate =
-	      (float)(data>>11)*(float)PRATE_SCALE;
-            if(pitch_rate_indx >= 50) pitch_rate_indx = 0;
-	    goes->pitch_rate[pitch_rate_indx] = last_iru_data.pitch_rate;
-	    pitch_rate_indx++;
-	    break;
-
-	  default:
-	    break;
-
-	} /* Switch on label */
-  } /* For loop to num_words */
-
-/* Determine that all like indexes are equal */
-
-test = msec_longitude_indx | status_indx | latitude_indx | longitude_indx;
-if(test != msec_longitude_indx) currStatus->iru |= IRU_WORDS_BAD;
-else currStatus->iru &= (char)(~IRU_WORDS_BAD);
-
-test = wind_speed_indx | wind_direction_indx | ns_velocity_indx |
-  ew_velocity_indx;
-if(test != wind_speed_indx) currStatus->iru |= IRU_WORDS_BAD;
-else currStatus->iru &= (char)(~IRU_WORDS_BAD);
-
-test = heading_indx | drift_indx | altitude_indx | inertial_vspeed_indx;
-if(test != heading_indx) currStatus->iru |= IRU_WORDS_BAD;
-else currStatus->iru &= (char)(~IRU_WORDS_BAD);
-
-test = pitch_indx | roll_indx | integ_vert_acc_indx | vert_acc_indx |
-  track_rate_indx | pitch_rate_indx;
-if(test != pitch_indx) currStatus->iru |= IRU_WORDS_BAD;
-else currStatus->iru &= (char)(~IRU_WORDS_BAD);
-
-/* If a buffer is complete, msec_longitude_indx will be zero */
-if(msec_longitude_indx == 0)
-  return(1);
-else
-  return(0);
 }

@@ -9,11 +9,9 @@
  * revision history
  * ----------------
  * $Log$
- * Revision 1.1  1992/09/28  23:03:57  craig
- * Initial revision
  *
  * description: This module set variable concerned with the iru interface to
- *              the valuse they should be at after receiving a start command. 
+ *              the values they should be at after receiving a start command. 
  *              
  */
 
@@ -26,34 +24,69 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void start_iru()
 {
-long i;
+int i;
 
-in_iru_isr = 0;
-iru_isr_count = 0;
-old_iru_interrupts = iru_rpntr->num_interrupts;
+/* calculate the pointers to the iru data */
 
+calc_iru_pointers();
 
-/***** Zero Indexes into all of the data arrays */
+/* Clear out the new data test array */
 
-msec_longitude_indx = 0;
-status_indx = 0;
-latitude_indx = 0;
-longitude_indx = 0;
-wind_speed_indx = 0;
-wind_direction_indx = 0;
-ns_velocity_indx = 0;
-ew_velocity_indx = 0;
-heading_indx = 0;
-drift_indx = 0;
-altitude_indx = 0;
-inertial_vspeed_indx = 0;
-pitch_indx = 0;
-roll_indx = 0;
-integ_vert_acc_indx = 0;
-vert_acc_indx = 0;
-track_rate_indx = 0;
-pitch_rate_indx = 0;
+for(i=0; i<16; i++)
+    iru_new_data_test[i] = 0;
+
+/* Fill the starting to parameter with the proper values */
+
+last_iru_data.ins_data_id[0] = 'I';
+last_iru_data.ins_data_id[1] = 'N';
+last_iru_data.ins_data_id[2] = 'S';
+last_iru_data.ins_data_id[3] = 'D';
+
+last_iru_data.ins_data_len = sizeof(struct ins_data);
+
 
 }
 
+void calc_iru_pointers(void)
+{
+int i;
+
+rxa_buffer_offset = iru_pntr->rxa0_vmeptr;
+
+/***** Calculate the pointers to the data */
+
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + LATITUDE_LAB*4;
+latitude_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + LONGITUDE_LAB*4;
+longitude_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + WIND_SPEED_LAB*4;
+wind_speed_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + WIND_DIRECTION_LAB*4;
+wind_direction_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + NS_VELOCITY_LAB*4;
+ns_velocity_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + EW_VELOCITY_LAB*4;
+ew_velocity_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + HEADING_LAB*4;
+heading_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + DRIFT_LAB*4;
+drift_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + ALTITUDE_LAB*4;
+altitude_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + INERTIAL_VSPEED_LAB*4;
+inertial_vspeed_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + PITCH_LAB*4;
+pitch_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + ROLL_LAB*4;
+roll_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + INTEG_VERT_ACC_LAB*4;
+integ_vert_acc_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + VERT_ACC_LAB*4;
+vert_acc_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + TRACK_RATE_LAB*4;
+track_rate_pntr = (long *)i;
+i = IRU_BASE + STANDARD_BASE + rxa_buffer_offset + PITCH_RATE_LAB*4;
+pitch_rate_pntr = (long *)i;
+
+}
 
