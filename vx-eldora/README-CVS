@@ -1,4 +1,54 @@
 
+Pending questions:
+
+What is /usr/local/include/vx++?  Where did it come from?  Is there some
+reason the g++ stdc++ library which is installed as part of the
+cross-compiler is not used?  This leads to the next question:
+
+Why -nostdinc for gcc?  The cross-compiler installs the vx system headers
+into it's sys-include directory, ie, it copied vx/h entirely and ran
+fixincludes on them, so it should be preferable to using the vx/h
+installation directly.  All that's needed from the vx system tree is the
+vx/config directory. (BTW, what is that and how careful do I need to be
+about getting the right config subdirectory on the include path?  As in
+config/eldora.tp41 versus something else.)
+
+The makefiles link vx/hskp/bin/housekeeper.o with ld instead of g++, and
+the gcc and stdc++ libraries are linked explicitly on the command line.
+Why not link with g++?
+
+There is a vx/hskp/src/minirims directory, which is supposed to be built as
+far as I can tell from vx/hskp/src/makefile.  However it requires a header
+file numinDef.h from vx/minirims/include, next to vx/minirims/src.  What is
+the difference between vx/hskp/src/minirims and vx/minirims?  Does
+vx/minirims get built anymore?  If not, then I need to move numinDef.h into
+the hskp/src/minirims and forget about vx/minirims.  I have a note from my
+conversation with Eric that vx/minirims is obsolete, but I wanted to check.
+
+What's the relation between vx/vmevme_int and vx/hskp/src/vmevme?  right
+now housekeeper.o links to vx/vmevme_int/sendInt.o.
+
+Todo:
+
+I can now build with the tools in /net/local_lnx/bin/m68k-, by putting
+/net/local_lnx/lib/gcc-lib/m68k.../2.95.2 first in the path, and linking
+m68k-wrs-vxworks-as into that directory as 'as'.  
+
+I need to figure out how to apply gcc68k scons tool to the derived
+hskp environment.  
+
+Maybe move the hskp sconscript into hskp/ instead of hskp/src, since it
+builds into hskp/bin (for now).
+
+Start adding the rest of the hskp source files.
+
+Find the undefined symbols in housekeeper.o, and try to resolve them.
+
+What does ld -X -Ur do?
+
+See new docs about building cross-compiler, and try it out.
+
+
 Strategy:
 
 start a eldora-vx repository in /code/cvs, and start adding files directly
@@ -10,6 +60,20 @@ call it vx-eldora until it settles down, to avoid lots of emails
 don't try to reconcile similar code between /net/eldora/eldora tree and
 what's already in CVS.  Get it committed and building first, in as close a
 form as the original, then reconcile.
+
+================
+scons:
+
+the pkg_environment can be used in the same way dual environments are
+used for ads3.  create two prototypes, one setup for native and one for
+the cross-compile, then pass each as the 'env' export.  The question is
+whether builddir gets propagated into the created environment.
+
+The other question is targets which are platform independent.  Should they
+not use the passed-in environment, but a default environment instead?  eg,
+targets like doxygen.  they don't need to be built for each platform, and
+they shouldn't be put into builddirs.
+
 
 ----------------------------------------------------------------
 
@@ -38,6 +102,11 @@ makefile in newclk works, but not integrated in top-level makefile
 clock/newclk/incl needs to be reconciled with vx/hskp/include
 
 clk probably supercedes clock/newclk
+
+ - remove vx/hskp/src/clock/reif
+
+ - can vx/hskp/src/clock be removed? obsoleted by clk and not built by
+   vx/hskp/src/makefile?
 
 housekeeper.o is the final product
 
@@ -69,7 +138,7 @@ mhen/src needs top-level makefile
 
 'make nu_arch' in mhen/src/nu_archit
 
-how to find unused header files and remove them from the include directory
+how to find unused header files and remove them from the include directory?
 
 find unused source code
 
@@ -89,7 +158,10 @@ removed doc/logs and doc/specs
 
 move *.skel into doc/skel
 
-remove $Log$ from the skeleton files
+remove $Log$
+remove Revision 1.1  2005/08/03 20:28:30  granger
+remove updates from /net/eldora/eldora/rpc/mhen
+remove from the skeleton files
 
 mv Directory into doc
 
