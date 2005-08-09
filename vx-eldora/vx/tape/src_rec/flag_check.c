@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/11/15 22:07:11  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1996/09/03  16:34:23  craig
  * cleaned up
  *
@@ -429,10 +432,10 @@ for(;;)
 
 		  tape_header();
 
-		  head = GetVolume(Hdr);
-		  wave = GetWaveform(Hdr);
-		  rad_dscr = GetRadar(Hdr,1);
-		  cs = GetCellSpacing(Hdr,1);
+		  head = GetVolume(inHeader);
+		  wave = GetWaveform(inHeader);
+		  rad_dscr = GetRadar(inHeader,1);
+		  cs = GetCellSpacing(inHeader,1);
 
 		  /* if needed initialize the data reduction arrays */
 		  if(rad_dscr->data_reduction == 3) reduce_init();

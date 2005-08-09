@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/08/24  16:30:01  eric
+ * added defines for SPOL and implemented "silent"
+ * mode to supress diagnostic printf's.
+ *
  * Revision 1.2  1993/12/06  23:21:03  eric
  * modified input file path so that NFS was used
  * rather than FTP.
@@ -125,6 +129,7 @@ int nu_lddsp(int rpt)
 		  {
 		      if(!Silent)
 			printf("Unable to open file  %s.\n",tfile);
+		      stat = 2;
 		  }
 		if(res == -2)
 		  {
@@ -170,7 +175,7 @@ char *tfile;
   i = 28;
   mnt_pnt = (char *)malloc(i);
 #ifdef ELDORA
-  mnt_pnt = "/vxbin/radar/dsp";
+  mnt_pnt = "/usr/local/vxbin/radar/dsp";
 #endif /* ELDORA */
 
 #ifdef SPOL

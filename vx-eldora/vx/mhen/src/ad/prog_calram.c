@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:00:28  eric
+ * Initial revision
+ *
  *
  * description: This module programs the Calibration Ram of the ADC
  *              card based on a slope and offset provided as arguments.

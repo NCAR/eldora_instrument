@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.1  1993/09/23  16:05:21  thor
+ * Changed w/rcio(), added set/getTp41VMEPage().
+ *
  * Revision 2.0  1992/11/02  20:42:08  thor
  * First offical ELDORA release!
  *

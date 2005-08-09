@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:11:07  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -20,7 +23,9 @@
  *  arg2 = f1_flag
  *  arg3 = f2_flag
  *  arg4 = f3_flag
- *  arg5 = coll_pick_gate
+ *  arg5 = f4_flag
+ *  arg6 = f5_flag
+ *  arg7 = coll_pick_gate
  *        
  */
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
@@ -28,11 +33,16 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "ctype.h"
+#ifndef NU_ARCHIT
 #include "ELDRP7.h"
+#endif
+#ifdef NU_ARCHIT
+#include "NU_ELDRP7.h"
+#endif
 #include "coll_dpramdefs.h"
 
-int coll_opflags(prt_flg, f1_flg, f2_flg, f3_flg, pick_gate) 
-unsigned int prt_flg, f1_flg, f2_flg, f3_flg, pick_gate; 
+int coll_opflags(prt_flg, f1_flg, f2_flg, f3_flg, f4_flg, f5_flg, pick_gate) 
+unsigned int prt_flg, f1_flg, f2_flg, f3_flg, f4_flg, f5_flg, pick_gate; 
 
 {
     unsigned long  bd;
@@ -119,6 +129,48 @@ unsigned int prt_flg, f1_flg, f2_flg, f3_flg, pick_gate;
     *(pio + PARE) = (0xff0000 & COL_F3_FLAG) >> 16;
     *(pio + PARL) = 0xff & COL_F3_FLAG;
     *(pio + PARH) = (0x00ff00 & COL_F3_FLAG) >> 8;
+    temp = (unsigned char *)(pio + PDRL);
+    status = *temp & 0xff;
+    temp = (unsigned char *)(pio + PDRH);
+    status += ((*temp & 0xff)<< 8);
+    if(status != val)
+      printf("PIO R/W ERROR in Collator, Processor 0 \n");
+
+    val = f4_flg;
+    pio = (unsigned char *)(bd +  DSPSEL);
+    if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
+    *(pio + PARE) = (0xff0000 & COL_F4_FLAG) >> 16;
+    *(pio + PARL) = 0xff & COL_F4_FLAG;
+    *(pio + PARH) = (0x00ff00 & COL_F4_FLAG) >> 8;
+    *(pio + PDRL) = val & 0xFF;
+    *(pio + PDRH) = (val >> 8) & 0xFF;
+    
+    /* check that correct values were written */
+    
+    *(pio + PARE) = (0xff0000 & COL_F4_FLAG) >> 16;
+    *(pio + PARL) = 0xff & COL_F4_FLAG;
+    *(pio + PARH) = (0x00ff00 & COL_F4_FLAG) >> 8;
+    temp = (unsigned char *)(pio + PDRL);
+    status = *temp & 0xff;
+    temp = (unsigned char *)(pio + PDRH);
+    status += ((*temp & 0xff)<< 8);
+    if(status != val)
+      printf("PIO R/W ERROR in Collator, Processor 0 \n");
+
+    val = f5_flg;
+    pio = (unsigned char *)(bd +  DSPSEL);
+    if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
+    *(pio + PARE) = (0xff0000 & COL_F5_FLAG) >> 16;
+    *(pio + PARL) = 0xff & COL_F5_FLAG;
+    *(pio + PARH) = (0x00ff00 & COL_F5_FLAG) >> 8;
+    *(pio + PDRL) = val & 0xFF;
+    *(pio + PDRH) = (val >> 8) & 0xFF;
+    
+    /* check that correct values were written */
+    
+    *(pio + PARE) = (0xff0000 & COL_F5_FLAG) >> 16;
+    *(pio + PARL) = 0xff & COL_F5_FLAG;
+    *(pio + PARH) = (0x00ff00 & COL_F5_FLAG) >> 8;
     temp = (unsigned char *)(pio + PDRL);
     status = *temp & 0xff;
     temp = (unsigned char *)(pio + PDRH);

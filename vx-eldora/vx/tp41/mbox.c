@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:42:08  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.1  1992/08/24  18:10:56  thor
  * Initial revision
  *
@@ -23,8 +26,6 @@
 static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "tp41Lib.h"
-
-static void enableMbox(void);
 
 STATUS createMailbox(FAST void *localAddr, FAST void *vmeAddr)
 {
@@ -76,7 +77,7 @@ STATUS connectMailbox(FAST VOIDFUNCPTR function, FAST int arg,
 		      arg));
 }
 
-static void enableMbox(void)
+void enableMbox(void)
 {
     *TP41_VME_MBOX_CLEAR = 0;	/* Clear all mailbox interrupts. */
 

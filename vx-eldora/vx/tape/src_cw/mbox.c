@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/02/09  17:41:25  craig
+ * added flushing of entire buffer when overflow encountered
+ *
  * Revision 1.3  1995/01/26  16:18:07  craig
  * Fixed flushing of buffers
  *

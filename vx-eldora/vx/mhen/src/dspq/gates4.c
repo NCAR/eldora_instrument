@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:27  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -25,14 +28,15 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "ctype.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ELDRP7.h"
  
 unsigned long getaddr();
 unsigned int  load4();
 unsigned int num_gates; 
-int gates4(va_alist)
-va_dcl
+
+int gates4(int gates)
+
 
 {
   va_list ap;
@@ -41,8 +45,8 @@ va_dcl
   unsigned int valc, vald, i, status;
   int n, na;
 
-  va_start(ap);
-  num_gates = va_arg(ap,int);    /* Read in number of gates */
+  va_start(ap,gates);
+  num_gates = gates;    /* Read in number of gates */
   valc = num_gates;
   vald = valc/4;
   valc = 4*vald;
@@ -61,6 +65,7 @@ va_dcl
 	for(i=0;i<4;i++)
 	  {
 	      pio = (unsigned char *)(bd + (DSPSEL + i * DSPOFF));
+              *(pio + PCRL) = 0x1A;           /* set up DMA and AUTO */
 	      if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
 	      *(pio + PARE) = 0x0;
 	      *(pio + PARL) = 0x50;

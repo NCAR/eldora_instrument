@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:30  eric
+ * Initial revision
+ *
  *
  *
  * description:
@@ -23,16 +26,17 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
 #include "stdioLib.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ctype.h"
 #include "ELDRP7.h"
  
 unsigned long getaddr();
 unsigned int  load4();
 unsigned int num_samples; 
-int probe(va_alist)
+int probe(rpt)
+int rpt;
 
-va_dcl
+
 {
     va_list ap;
     unsigned long  bd, frq, dspc;
@@ -40,8 +44,8 @@ va_dcl
     unsigned int val, i, status;
     int n, na;
     
-    va_start(ap);
-    n = va_arg(ap, int);
+    va_start(ap,rpt);
+    n = rpt;
     for(na=0; na < n; na++)
       {
 	  frq = va_arg(ap, int);            /* Read in Frequency */

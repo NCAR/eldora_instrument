@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.2  1994/11/14  17:50:08  craig
+// Modified for new control processor software
+//
 // Revision 1.1  1994/01/06  21:31:45  craig
 // Initial revision
 //

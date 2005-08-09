@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24 23:00:01  craig
+ * Initial revision
+ *
  *
  *
  * description: This module calculates the length in bytes
@@ -49,25 +52,25 @@ long number_of_cells, total_length;
 /* To be done for one of the radars                             */
 /****************************************************************/
 
-rad_dscr = GetRadar(Hdr,1);
+rad_dscr = GetRadar(inHeader,1);
 
 bytes_per_cell = 0;
 for(i=0; i < rad_dscr->num_parameter_des; i++)
     {
-    prm = GetParameter(Hdr,i);
+    prm = GetParameter(inHeader,i);
     bytes_per_cell += prm -> binary_format;
     }
 
 /* Calculate the number of cells */
 
-cs = GetCellSpacing(Hdr,1);
+cs = GetCellSpacing(inHeader,1);
 number_of_cells = 0;
 for (i=0; i<cs->num_segments; i++)
   number_of_cells += cs -> num_cells[i];
 
 /* Calculate the size of the independent frequency data */
 
-fldrdr = GetFieldRadar(Hdr,1);
+fldrdr = GetFieldRadar(inHeader,1);
  
 if(fldrdr->indepf_times_flg > 0)
 /*  When headers are all working with num_base_param replace line with:
@@ -79,7 +82,7 @@ else
 
 /* Calculate the size of the time series data */
 
-wave = GetWaveform(Hdr);
+wave = GetWaveform(inHeader);
 
 if(fldrdr->indepf_times_flg == 3)
   time_series_length = rad_dscr->num_freq_trans * 2 * 4 * 

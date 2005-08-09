@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/11/15  22:07:20  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1996/09/03  16:35:09  craig
  * cleaned up
  *
@@ -144,6 +147,7 @@ if(file_size >= MAX_FILE_SIZE)
 
 if(WRITE_TAPE_STATUS==1)
   {
+      WRITE_TAPE_STATUS = 0;
       drive_id = drives_to_use[0];
       tapeStatus->attempts[current_unit] = write_attempts;
 
@@ -160,11 +164,10 @@ if(WRITE_TAPE_STATUS==1)
       tapeStatus->eot_warning = (int)percent;
       tapeStatus->failures[current_unit] = err.along;
 
-      /* Has the logical end of tape been encountered, or is there less than
-         ENDING_PERCENT of the tape remaining, if so end this tape */
+      /* Is there less than ENDING_PERCENT of the tape remaining,
+	 if so end this tape */
 
-      if(((rqst_sen->sense_key & LEOT) == LEOT) || 
-	 (int)percent < ENDING_PERCENT) 
+      if((int)percent < ENDING_PERCENT) 
 	{
 	    file_size = 0;
 	    for(i=0; i<number_of_drives; i++) /* Write header, eof and unload
@@ -274,4 +277,3 @@ if(WRITE_TAPE_STATUS==1)
 
 return;
 }
-

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24  23:00:11  craig
+ * Initial revision
+ *
  * 
  * description: The purpose of reduce.c is to perform the various data
  *              reduction algorithms and return a 1 if we are to keep

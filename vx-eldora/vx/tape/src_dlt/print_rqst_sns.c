@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:14  craig
+ * Initial revision
+ *
  *
  * description: Prints out the request sence structure
  *        

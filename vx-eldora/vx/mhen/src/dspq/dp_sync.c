@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/11/16  20:54:17  eric
+ * Added case to print out EOF regardless of whether DSP
+ * is out of sync.
+ *
  * Revision 1.1  1992/11/09  22:58:34  eric
  * Initial revision
  *
@@ -29,13 +33,14 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ELDRP7.h"
 #include "dp_ramdefs.h"
   
-void dp_sync(frq,bd)
+int dp_sync(frq,bd)
 unsigned long bd,frq;
 {
     unsigned dspc;
     unsigned char *pio, scr, *temp, *led;
-    unsigned int val, i, status, parm;
+    unsigned int val, i, status, parm, flag;
 
+    flag = 0;
     frq = (frq << 24) + EXTD_BASE;     /* freq # * 10**6 + EXTD_BASE */
     bd = bd << 20;                    /* Board # * 10**5 = base addr */
     bd += frq;                        /* Full base addr of board */
@@ -44,6 +49,7 @@ unsigned long bd,frq;
 	  /* Check if out of sync flag has been set */
 
 	  pio = (unsigned char *)(bd + (DSPSEL + i * DSPOFF));
+	  *(pio + PCRL) = AUTO + DMA + ENI + REGMAP + RUN;    /* set up DMA and AUTO */
 	  if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
 	  parm = (unsigned int )DP_SYNC_FLAG;
 	  *(pio + PARE) = (0xff0000 & parm) >> 16;
@@ -55,6 +61,7 @@ unsigned long bd,frq;
 	  status += ((*temp & 0xff)<< 8);
 	  if(status != 0)
 	    {
+		flag |= 0x1;
 		printf("DP OUT OF SYNC ERROR in Board %x, Processor %d \n",bd,i);
 		/* Turn off LED on DP */
 
@@ -117,8 +124,9 @@ unsigned long bd,frq;
 		printf("EOF received = %8X \n",status);
 	    }
  
+	  *(pio + PCRL) = REGMAP + RUN + ENI;   /* Return PCR to normal operation */
       }
-    
+    return(flag);
 }
 
 

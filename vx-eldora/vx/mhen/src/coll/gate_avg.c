@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:11:10  eric
+ * Initial revision
+ *
  *
  * description:
  *
@@ -30,7 +33,12 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "ctype.h"
+#ifndef NU_ARCHIT
 #include "ELDRP7.h"
+#endif
+#ifdef NU_ARCHIT
+#include "NU_ELDRP7.h"
+#endif
 #include "coll_dpramdefs.h"
  
 int gate_avg(num_int1,num_int2,num_int3,num_int4,chip_avg1,chip_avg2,chip_avg3,chip_avg4)

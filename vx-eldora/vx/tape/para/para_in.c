@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/09/03  16:42:39  craig
+ * Initial revision
+ *
  * Revision 1.4  1995/09/25  17:45:47  martin
  * updated from Craig's current code
  *

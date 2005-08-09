@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1995/03/31  22:50:11  craig
+ * Don't know
+ *
  * Revision 1.1  1994/01/06  21:31:36  craig
  * Initial revision
  *

@@ -9,6 +9,12 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/02/15  23:34:59  eric
+ * modified frequency 1 to work correctly by enabling DMA in PCR.
+ * This version will reflect the code that functioned in the old
+ * RP7 architecture. Since there are no longer 3 Doppler Processors,
+ * This version is no longer applicaple to the new architecture.
+ *
  * Revision 1.1  1992/11/09  17:11:14  eric
  * Initial revision
  *
@@ -25,21 +31,22 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "ctype.h"
 #include "ELDRP7.h"
 #include "coll_dpramdefs.h"
-  
-void col_sync()
+#define  RP_EOF  0x7FFFFE96   /* = 0x7fffff integer */  
+int col_sync()
 {
     unsigned dspc;
     unsigned char *pio, scr, *temp;
-    unsigned int val, i, status, parm;
+    unsigned int val, i, status, parm, flag;
     unsigned long bd;
 
     bd = COL0BASE;
 
-    /* Check if F1 out of sync flag has been set */
-
+    /* Read Collator's EOF */
+    
+    flag = 0;
     pio = (unsigned char *)(bd + DSPSEL);
     if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-    *(pio + PCRL) = 0x1b; /* setup Auto incrementing */
+    *(pio + PCRL) = AUTO + DMA + ENI + REGMAP + RUN;    /* set up DMA and AUTO */
     parm = (unsigned int )COL_F1_SYNC;
     *(pio + PARE) = (0xff0000 & parm) >> 16;
     *(pio + PARL) = 0xff & parm;
@@ -53,110 +60,14 @@ void col_sync()
     temp = (unsigned char *)(pio + PDRH);
     status += ((*temp & 0xff)<< 24);
     *(pio + PCRL) = REGMAP + RUN + ENI; /* disable Auto incrementing */
-    if(status)
+    if(status != RP_EOF)
       {
-	  printf("COLLATOR SYNC ERROR CAUSED BY F1 Doppler Processor \n" );
+	  flag |= 0x1;
+	  printf("COLLATOR SYNC ERROR\n" );
 	  printf("Status = %8x \n",status);
-	  /* Reset out of F1_SYNC flag */
-	  val = 0;
-	  pio = (unsigned char *)(bd + DSPSEL);
-	  if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-	  parm = (unsigned int )COL_F1_SYNC;
-	  *(pio + PARE) = (0xff0000 & parm) >> 16;
-	  *(pio + PARL) = 0xff & parm;
-	  *(pio + PARH) = (0xff00 & parm) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  *(pio + PARE) = (0xff0000 & parm + 2) >> 16;
-	  *(pio + PARL) = 0xff & parm + 2;
-	  *(pio + PARH) = (0xff00 & parm + 2) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  
       }
-    /* Check if F2 out of sync flag has been set */
-
-    pio = (unsigned char *)(bd + DSPSEL);
-    if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-    parm = (unsigned int )COL_F2_SYNC;
-    *(pio + PARE) = (0xff0000 & parm) >> 16;
-    *(pio + PARL) = 0xff & parm;
-    *(pio + PARH) = (0xff00 & parm) >> 8;
-    temp = (unsigned char *)(pio + PDRL);
-    status = *temp & 0xff;
-    temp = (unsigned char *)(pio + PDRH);
-    status += ((*temp & 0xff)<< 8);
-    *(pio + PARE) = (0xff0000 & (parm + 2)) >> 16;
-    *(pio + PARL) = 0xff & (parm + 2);
-    *(pio + PARH) = (0xff00 & (parm + 2)) >> 8;
-    temp = (unsigned char *)(pio + PDRL);
-    status += (*temp & 0xff) << 16;
-    temp = (unsigned char *)(pio + PDRH);
-    status += ((*temp & 0xff)<< 24);
-    if(status)
-      {
-	  printf("COLLATOR SYNC ERROR CAUSED BY F2 Doppler Processor \n" );
-	  printf("Status = %8x \n",status);		
-	  /* Reset out of F2_SYNC flag */
-	  val = 0;
-	  pio = (unsigned char *)(bd + DSPSEL);
-	  if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-	  parm = (unsigned int )COL_F2_SYNC;
-	  *(pio + PARE) = (0xff0000 & parm) >> 16;
-	  *(pio + PARL) = 0xff & parm;
-	  *(pio + PARH) = (0xff00 & parm) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  *(pio + PARE) = (0xff0000 & parm + 2) >> 16;
-	  *(pio + PARL) = 0xff & parm + 2;
-	  *(pio + PARH) = (0xff00 & parm + 2) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  
-      }
-    /* Check if F3 out of sync flag has been set */
-
-    pio = (unsigned char *)(bd + DSPSEL);
-    if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-    parm = (unsigned int )COL_F3_SYNC;
-    *(pio + PARE) = (0xff0000 & parm) >> 16;
-    *(pio + PARL) = 0xff & parm;
-    *(pio + PARH) = (0xff00 & parm) >> 8;
-    temp = (unsigned char *)(pio + PDRL);
-    status = *temp & 0xff;
-    temp = (unsigned char *)(pio + PDRH);
-    status += ((*temp & 0xff)<< 8);
-    *(pio + PARE) = (0xff0000 & (parm + 2)) >> 16;
-    *(pio + PARL) = 0xff & (parm + 2);
-    *(pio + PARH) = (0xff00 & (parm + 2)) >> 8;
-    temp = (unsigned char *)(pio + PDRL);
-    status += (*temp & 0xff) << 16;
-    temp = (unsigned char *)(pio + PDRH);
-    status += ((*temp & 0xff)<< 24);
-    if(status)
-      {
-	  printf("COLLATOR SYNC ERROR CAUSED BY F3 Doppler Processor \n" );
-	  printf("Status = %8x \n",status);		
-	  /* Reset out of F3_SYNC flag */
-	  val = 0;
-	  pio = (unsigned char *)(bd + DSPSEL);
-	  if(*(pio + PCRL) != 0)scr = *(pio + PDRH);
-	  parm = (unsigned int )COL_F3_SYNC;
-	  *(pio + PARE) = (0xff0000 & parm) >> 16;
-	  *(pio + PARL) = 0xff & parm;
-	  *(pio + PARH) = (0xff00 & parm) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  *(pio + PARE) = (0xff0000 & parm + 2) >> 16;
-	  *(pio + PARL) = 0xff & parm + 2;
-	  *(pio + PARH) = (0xff00 & parm + 2) >> 8;
-	  *(pio + PDRL) = val & 0xFF;
-	  *(pio + PDRH) = (val >> 8) & 0xFF;
-	  
-      }
- 
-    
-    
+    *(pio + PCRL) = REGMAP + RUN + ENI;   /* Return PCR to normal operation */
+    return(flag);
 }
 
 

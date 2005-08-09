@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:07  craig
+ * Initial revision
+ *
  *
  * description: Initializes all of the general purpose areas of the
  *              parameter blocks;

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.1  1996/06/24  22:59:49  craig
+// Initial revision
+//
  *
  * description: This module handles both downloaded commands and requests
  *              for status. 
@@ -91,12 +94,20 @@ TapeStatus *sendcommand_1_svc(FAST TapeCommand *command, struct svc_req *req)
 		cout << "REWIND COMMAND RECEIVED" << endl;
 #endif
 	    }
-	  else if (cmd & LOAD_TAPE)
+	  else if (cmd & INIT_UNIT)
 	    {
-		cmd &= ~LOAD_TAPE;
-		LOAD_FLAG=1;
+		cmd &= ~INIT_UNIT;
+		INIT_FLAG=1;
 #ifdef PRNT
-		cout << "LOAD TAPE COMMAND RECEIVED" << endl;
+		cout << "INIT UNIT COMMAND RECEIVED" << endl;
+#endif
+	    }
+	  else if (cmd & USE_OTHER_UNIT)
+	    {
+		cmd &= ~USE_OTHER_UNIT;
+		OTHER_UNIT_FLAG=1;
+#ifdef PRNT
+		cout << "USE OTHER UNIT COMMAND RECEIVED" << endl;
 #endif
 	    }
 	  else if (cmd & EJECT)

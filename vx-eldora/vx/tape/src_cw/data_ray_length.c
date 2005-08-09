@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1995/01/26  16:19:48  craig
+ * Fixed mistake in calculating the indf block length
+ *
  * Revision 1.2  1994/11/14  17:51:08  craig
  * fixed problem that would calculate wrong with dual prf
  *

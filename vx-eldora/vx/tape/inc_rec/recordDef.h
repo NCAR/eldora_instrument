@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/10/02  17:37:40  craig
+ * Initial revision
+ *
  *
  * description: Contains definitions specific to the ELDORA tape recording
  *              software

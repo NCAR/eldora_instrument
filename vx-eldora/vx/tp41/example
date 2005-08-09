@@ -1,0 +1,45 @@
+How to use mailbox interrupts on the TP41V:
+
+
+
+1> Set up TP41V to allow dual porting:
+
+	wcio(0,"a",0xc6)
+
+   The hex value may be different if you have to address cards in extended
+   space.
+
+2> Enable level 3 interrupts:
+
+        sysIntEnable(3)
+
+3> Create the mailboxes. You must give a local address that allows  2
+   Mb of memory to be dual ported (typical value should be 0x40200000).
+
+	create[Std]Mailbox(localaddr,busAddr);
+
+4> Connect your interrupt handler to a mailbox. There are 8 mailboxes 
+   starting at 0. Arg allows you to pass an optional argruement to the
+   handler.
+
+	connectMailbox((VOIDFUNCPTR)handler,arg,mbox)
+
+5> In the handler include the following code:
+
+#define TP41LIB
+#include "tp41Lib.h"
+
+....
+    *TP41_VME_MBOX_CLEAR = 0;   /* Clear mailbox interrupts. */
+    *TP41_CIO_2_CNTRL_ADRS = ZCIO_PBCS;         /* clear pending interrupt */
+    *TP41_CIO_2_CNTRL_ADRS = ZCIO_CS_CLIPIUS;
+....
+
+6> Have either the interrupter or the TP41 write 0 to the mailbox
+used.
+
+7> When compiling the handler code add the following to the compiler
+command line:
+
+-I/ELDORA/vx/include -I/vx/h/drv -I/vx/config/tp41
+

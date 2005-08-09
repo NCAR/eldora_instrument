@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1992/09/16  19:15:53  shawn
+ * Removed floating point writes to collator.
+ *
  * Revision 1.1  1992/09/15  20:41:00  shawn
  * Initial revision
  *

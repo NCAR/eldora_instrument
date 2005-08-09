@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:02:46  craig
+ * Initial revision
+ *
  *
  *
  * description:  Issues a channel attention to the Ciprico Board.

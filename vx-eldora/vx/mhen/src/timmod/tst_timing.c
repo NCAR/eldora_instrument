@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1993/05/12  16:01:16  eric
+ * Initial revision
+ *
  * Revision 1.3  1992/07/31  02:27:20  shawn
  * made first gate twice the distance from leading edge of chip.
  *

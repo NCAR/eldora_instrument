@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1995/03/31  22:49:31  craig
+ * Modified for more blcoks
+ *
  * Revision 1.1  1994/01/06  21:31:31  craig
  * Initial revision
  *

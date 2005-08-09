@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+// Revision 1.3  1995/03/31  22:50:46  craig
+// Modified for the LOAD command
+//
 // Revision 1.2  1994/11/14  17:49:43  craig
 // mModified for new control processor software
 //

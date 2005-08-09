@@ -13,6 +13,10 @@
  *   08/21/91  Added DSPQ and Collator definitions
  *
  * $Log$
+ * Revision 1.2  1993/02/12  18:52:04  eric
+ * added conditional assembly provision for mv133 or tadpole
+ * CPU cards.
+ *
  * Revision 1.1  1991/12/09  17:37:39  eric
  * Initial revision
  *
@@ -55,9 +59,9 @@
 
 /* Base address of cards */
 
-#define TIMBASE    (0x400000 + EXTD_BASE) /* note timing module is mapped in */
+#define TIMBASE    (0x400000 + STD_BASE) /* note timing module is mapped in */
                                           /* standard vme space */
-#define TIMBASE2   (0x500000 + EXTD_BASE) /* second timing module, for debug */
+#define TIMBASE2   (0x500000 + STD_BASE) /* second timing module, for debug */
                                           /* of two-board sync only */
 #define ATOD1BASE  (0x1400000 + EXTD_BASE)
 #define ATOD2BASE  (0x2400000 + EXTD_BASE)
@@ -105,8 +109,8 @@
 #define ATOD_QL    (0x04000)
 #define ATOD_IH    (0x08000)
 #define ATOD_IL    (0x0c000)
-#define ATOD_CH    (0x10000)  /* base address of upper 64k of choice ram */
-#define ATOD_CL    (0x20000)  /* base address of lower 64k of choice ram */
+#define ATOD_CH    (0x10000)  /* base address of upper 32k of choice ram */
+#define ATOD_CL    (0x20000)  /* base address of lower 32k of choice ram */
 #define ATOD_Z     (0x30000)
 #define ATOD_DC    (0x38000)
 #define ATOD_M     (0x38800)

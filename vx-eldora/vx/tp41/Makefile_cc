@@ -1,0 +1,104 @@
+#
+#       Makefile for libCpu.a
+#       Author: Rich Neitzel
+#       Date:   Tue Sep 20 1994
+#
+# GNU C++ 
+CCC= gcc68k
+CC= ${CC}
+LD= ld68k
+AR= ar68k
+RANLIB= ranlib68k
+#
+OPT= -O2
+#
+DEFINES=
+#
+INCLUDES= -I/vx/h -I/vx/config/tp41
+#
+CCFLAGS= $(OPT) $(DEFINES) $(INCLUDES)
+CFLAGS= ${CCFLAGS}
+#
+LIBS=
+#
+OBJS= Cpu.o Tp41.o
+#
+SRCS= Cpu.cc Tp41.cc
+#
+HEADERS= Cpu.hh Tp41.hh
+#
+INC=
+#
+BIN=
+#
+LIB=
+#
+LIBNAME= libCpu.a
+#
+# This include cuts around the GNU make use of CXX.
+include /local/include/make/sun.cc.mk
+#
+.KEEP_STATE:
+
+all: lib update
+
+lib: ${OBJS}
+	${AR} crv ${LIBNAME} ${OBJS}
+
+update:
+	-for i in $(HEADERS); \
+	do (diff $$i $(INC)/$$i >tmpdiff; \
+	if test -s tmpdiff; \
+	then \
+	echo "Copying $$i";cp $$i $(INC)) \
+	fi;); \
+	rm tmpdiff; \
+	done;
+	cp ${LIBNAME} ${LIB}
+	${RANLIB} ${LIB}/${LIBNAME}
+
+asm:
+	for i in $(SRCS); \
+	do (echo "$(CCC) -S $(CCFLAGS) $$i";$(CCC) -S $(CCFLAGS) $$i); \
+	done;
+
+depend:
+	makedepend ${INCLUDES} ${SRCS}
+
+get_rcs:
+	for i in $(SRCS); \
+	do (echo "co $$i";co $$i); \
+	done;
+	for i in $(HEADERS); \
+	do (echo "co $$i";co $$i); \
+	done;
+
+get_rcs_locked:
+	for i in $(SRCS); \
+	do (echo "co -l $$i";co -l $$i); \
+	done;
+	for i in $(HEADERS); \
+	do (echo "co -l $$i";co -l $$i); \
+	done;
+
+put_rcs:
+	for i in $(SRCS); \
+	do (echo "ci $$i";ci $$i); \
+	done;
+	for i in $(HEADERS); \
+	do (echo "ci $$i";ci $$i); \
+	done;
+
+set_rcs:
+	for i in $(SRCS); \
+	do (echo "rcs -c\"// \" -L $$i";rcs -c"// " -L $$i); \
+	done;
+	for i in $(HEADERS); \
+	do (echo "rcs -c\"// \" -L $$i";rcs -c"// " -L $$i); \
+	done;
+
+clean:
+	rm -f *.o *~ core
+
+real_clean: clean
+	rm -f *.c *.h

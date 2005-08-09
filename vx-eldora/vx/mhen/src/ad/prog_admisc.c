@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:00:25  eric
+ * Initial revision
+ *
  *
  * description: This module programs severam miscellaneous ADC Carc
  *              functions. These include daisy chain, first hit or

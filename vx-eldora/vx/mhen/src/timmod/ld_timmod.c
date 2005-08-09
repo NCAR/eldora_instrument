@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.6  2002/03/12  18:33:38  eric
+ * *** empty log message ***
+ *
  * Revision 1.5  1994/04/29  17:08:14  eric
  * ensured proper rounding for float to int calculations by
  * casting ints as floats.

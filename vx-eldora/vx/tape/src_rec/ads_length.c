@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24  23:00:08  craig
+ * Initial revision
+ *
  *
  * description:  Calculates the length of an ADS record to record
  *        

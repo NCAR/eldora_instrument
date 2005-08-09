@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 2.0  1992/11/02  20:42:08  thor
+ * First offical ELDORA release!
+ *
  * Revision 1.6  1992/09/28  21:03:49  thor
  * Added missing shift to extended mode lut write.
  *

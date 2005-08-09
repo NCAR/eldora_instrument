@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/02/09  17:41:51  craig
+ * made maximum record size and integer so it could hold 32767
+ *
  * Revision 1.4  1995/03/31  22:50:59  craig
  * Modified to handle DLT's LOAD command
  *

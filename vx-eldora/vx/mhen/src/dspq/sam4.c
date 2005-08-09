@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/08/24  16:31:39  eric
+ * added "silent" mode to supress diagnostic
+ * printf's.
+ *
  * Revision 1.1  1992/11/09  22:58:28  eric
  * Initial revision
  * 

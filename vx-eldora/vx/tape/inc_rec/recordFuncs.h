@@ -10,6 +10,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/10/02  17:37:44  craig
+ * Initial revision
+ *
  *
  *
  * description:  Function prototypes for all of the ELDORA specific

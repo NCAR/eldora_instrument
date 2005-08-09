@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/11/15  22:06:52  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1996/09/03  16:40:54  craig
  * cleaned up added timed tape write, tape copy, tape read
  *
@@ -34,18 +37,23 @@ void tape_menu()
 {
 volatile unsigned short *status;
 int choice, sg_length, sg_buff;
-int i,j,k,n,m;
+int i,j,k,n,m,pp, read_id, write_id;
 int length, address, bytes_to_print;
 int cntrl_size, secs, tot_bytes;
 char response, statr, statw;
-long number, *long_pntr;
-unsigned char drv_stat, read_id, write_id;
+long number, *long_pntr, atest[32];
+unsigned char drv_stat;
 char *cntrl_addr;
 union{
   int  aint;
   char array[4];
 }sch;
 float rate;
+
+for (i=0; i<31; i++)
+  atest[i] = pow((double)2.0,(double)i);
+atest[31] = 0x80000000;
+
 
 /* Set the SCSI ID's of each of the drives */
 
@@ -89,6 +97,7 @@ do
       puts("17) LOG SENCE");
       puts("18) LOG PAGES");
       puts("19) LOG SELECT");
+      puts("20) PARALLEL RECORDING TEST");
 
       scanf(" %d",&choice);
       switch(choice)
@@ -337,17 +346,22 @@ do
 	    scanf(" %x",&address);
 	    length = 32768;
 	    number = 0;
+	    read_id -= 1;
+	    write_id -= 1;
+
 	    do{
 	      statr = read_tape((unsigned int *)address,
 			(unsigned int)length,
 			(unsigned char)BLOCKED,
-			read_id, STD_AM, EXT_AM);
+			scsi_id[read_id], STD_AM, EXT_AM);
 	      statw = write_tape((unsigned int *)address,
 			 (unsigned int)length,
 			 (unsigned char)BLOCKED,
-			 write_id, STD_AM, EXT_AM);
+			 scsi_id[write_id], STD_AM, EXT_AM);
 	      number += 1;
 	    }while(statr == 0 && statw == 0);
+	    read_id += 1;
+	    write_id += 1;
 	    printf("\n%d records copied from drive %d  to drive %d\n\n",
 		   number,read_id,write_id);
 
@@ -481,7 +495,11 @@ do
 				    fill_sg((unsigned int *)long_pntr,
 					    sg_length,sg_buff,EXT_AM);
 				    for(k=0; k<sg_length/4 + 1; k++)
-				      *long_pntr++ = j * n;
+				      {
+					*long_pntr++ = atest[pp];
+					pp++;
+					if(pp > 31) pp = 0;
+				      }
 				}
 
 
@@ -537,6 +555,55 @@ do
 		    }
 	      }
 	    break;
+
+
+	  case 20:
+	    printf("\n Enter the first scsi ID to write to: ");
+	    scanf(" %d",&read_id);
+	    printf("\n Enter the second scsi ID to write to: ");
+	    scanf(" %d",&write_id);
+	    printf("\nEnter address (in hex) where to store records");
+	    printf(" Global memory starts at 0x2000000: ");
+	    scanf(" %x",&address);
+	    printf("\nEnter the number of records to record: ");
+	    scanf(" %d",&number);
+	    length = 32768;
+	    read_id -= 1;
+	    write_id -= 1;
+	    i = 0;
+	    for(j=0; j<number; j++)
+	      {
+		long_pntr = (long *)address;
+		for(k=0; k<length/4; k++)
+		  *long_pntr++ = j;
+		statr = write_tape((unsigned int *)address,
+			   (unsigned int)length,
+			   (unsigned char)BLOCKED,
+			   scsi_id[read_id],
+			   STD_AM, EXT_AM);
+		statw = write_tape((unsigned int *)address,
+			   (unsigned int)length,
+			   (unsigned char)BLOCKED,
+			   scsi_id[write_id],
+			   STD_AM, EXT_AM);
+		i ++;
+		if(i > 100)
+		  {
+		    printf("Completed writing 100 records\n");
+		    i = 0;
+		  }
+		if(statr != 0) 
+		  printf("Error writing to drive: %d\n",read_id+1);
+		if(statw != 0) 
+		  printf("Error writing to drive: %d\n",write_id+1);
+	      }
+	    read_id += 1;
+	    write_id += 1;
+	    printf("\n%d records written to drive: %d  and  %d\n\n",
+		   number,read_id,write_id);
+
+	    break;
+
 
 
 	  default:

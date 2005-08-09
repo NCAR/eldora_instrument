@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:32  craig
+ * Initial revision
+ *
  *
  * description: prints out the diagnostic results block
  *        

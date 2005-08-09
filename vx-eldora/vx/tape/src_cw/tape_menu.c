@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1996/02/09  17:43:17  craig
+ * added repeated attempts at test unit ready
+ *
  * Revision 1.1  1995/03/31  22:51:57  craig
  * Initial revision
  *

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24 22:59:53  craig
+ * Initial revision
+ *
  *
  * description:  This module is the entry point for the recording system. All
  *               hard/software initialization is done here.

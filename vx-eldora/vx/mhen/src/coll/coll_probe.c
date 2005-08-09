@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:11:12  eric
+ * Initial revision
+ *
  * 
  *
  * description:
@@ -20,7 +23,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include "vxWorks.h"
 #include "stdioLib.h"
-#include "varargs.h"
 #include "ctype.h"
 #include "ELDRP7.h"
  

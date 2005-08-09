@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  2002/03/08  19:32:41  thor
+ * *** empty log message ***
+ *
  * Revision 1.1  1996/06/24 23:00:14  craig
  * Initial revision
  *
@@ -48,7 +51,7 @@ int offset_to_time_series, fore_aft, num_to_average, num_to_print;
 int input, fnum, mb_count; 
 double big;
 float bigdb, *flt_pntr, bigft;
-float scale_factor, if_gain;
+float scale_factor, if_gain, np_corr;
 
 fore_mb = (unsigned short *)MAIL_BOX;
 mb_ptr = fore_mb;
@@ -91,6 +94,7 @@ num_to_average = 1000;
 num_to_print = 100;
 fnum = 1;
 if_gain = 0.0;
+np_corr = 0.0;
 
 do{ /* Keeps you comming back to the menu after calculating RMS power */
 do{ /* Keeps you comming back to the menu while setting up */
@@ -104,7 +108,8 @@ do{ /* Keeps you comming back to the menu while setting up */
     printf("3) Change the number of averages to make before returning to menu: %d\n",num_to_print);
     printf("4) Change the frequency being calibrated: %2d\n",fnum);
     printf("5) Change the IF gain used  %7.4f\n",if_gain);
-    printf("6) Begin calculating the RMS values of the time series\n");
+    printf("6) Change the Noise Power correction used  %7.4f\n",np_corr);
+    printf("7) Begin calculating the RMS values of the time series\n");
     scanf(" %1d",&input);
 
     switch(input)
@@ -133,17 +138,21 @@ do{ /* Keeps you comming back to the menu while setting up */
 	  scanf(" %d",&fnum);
 	  break;
 
-
 	case 5:
 	  printf("Enter the IF gain to use: ");
 	  scanf(" %f",&if_gain);
+	  break;
+
+	case 6:
+	  printf("Enter the Noise Power Correction to use: ");
+	  scanf(" %f",&np_corr);
 	  break;
 
 	default:
 	  break;
       }
 
-}while(input != 6);
+}while(input != 7);
 
 /* Begin by Flushing out all mail boxes with zeros */
 
@@ -238,7 +247,7 @@ if( !fore_aft)
 				{
 				    num_printed++;
 				    big = big/(float)num_averaged;
-				    bigdb = 10.0 * log10(big) - scale_factor;
+				    bigdb = 10.0 * log10(big-np_corr) - scale_factor;
 				    bigft = big;
 				    printf("%d  dB = %f\n",
 					   num_printed, bigdb);
@@ -298,7 +307,7 @@ if( fore_aft )
 				{
 				    num_printed++;
 				    big = big/(float)num_averaged;
-				    bigdb = 10.0 * log10(big) - scale_factor;
+				    bigdb = 10.0 * log10(big-np_corr) - scale_factor;
 				    bigft = big;
 				    printf("%d   dB = %f\n",
 					   num_printed, bigdb);

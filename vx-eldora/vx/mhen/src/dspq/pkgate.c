@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  22:58:33  eric
+ * Initial revision
+ *
  *
  *
  *
@@ -26,13 +29,13 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "vxWorks.h"
 #include "stdioLib.h"
 #include "ctype.h"
-#include "varargs.h"
+#include "stdarg.h"
 #include "ELDRP7.h"
 unsigned int pick_gate;  
 
-int pkgate(va_alist)
 
-va_dcl
+int pkgate(int pck_gt)
+
 
 {
   va_list ap;
@@ -41,8 +44,8 @@ va_dcl
   unsigned int valc, vald, i, status;
   int n, na;
 
-  va_start(ap);
-  pick_gate = va_arg(ap,int);    /* Read in number of gates */
+  va_start(ap,pck_gt);
+  pick_gate = pck_gt;    /* Read in number of gates */
   vald = pick_gate;
   n = va_arg(ap, int);
   for(na = 0; na < n; na++)

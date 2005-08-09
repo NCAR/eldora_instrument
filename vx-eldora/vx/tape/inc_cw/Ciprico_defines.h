@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1996/02/09  17:44:40  craig
+ * made maximum buffer size 32767 instead of 32768
+ *
  * Revision 1.3  1995/01/26  16:22:24  craig
  * *** empty log message ***
  *

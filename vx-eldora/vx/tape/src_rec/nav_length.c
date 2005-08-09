@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/24 23:00:04  craig
+ * Initial revision
+ *
  *
  *
  * description:
@@ -32,7 +35,7 @@ GPS_DATA *gps;
 NAVDESC *nav_dscr;
 unsigned int nav_len;
 
-nav_dscr=GetNavDesc(Hdr);
+nav_dscr=GetNavDesc(inHeader);
 (unsigned int)nav_inform = *nav_addr;
 
 nav_len = nav_inform->nav_info_len;

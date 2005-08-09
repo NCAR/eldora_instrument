@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  17:51:32  craig
+ * fixed problem that would calculate wrong with dual prf
+ *
  * Revision 1.1  1994/01/06  21:31:51  craig
  * Initial revision
  *

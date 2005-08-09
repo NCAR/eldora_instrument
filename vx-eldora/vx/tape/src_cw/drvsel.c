@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/02/09  17:42:38  craig
+ * shortened log file messages
+ *
  * Revision 1.4  1995/03/31  22:51:15  craig
  * modified for DLT
  *

@@ -1,7 +1,7 @@
 /*
  *	$Id$
  *
- *	Module:		 tapeCtrlGbl.h
+ *	Module:		 recordGbl.h
  *	Original Author: Richard E. K. Neitzel
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
@@ -9,14 +9,17 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/10/02 17:37:42  craig
+ * Initial revision
+ *
  *
  *
  * description: These are variables that are needed throughout the
  *              recording system. 
  */
 
-#ifndef INCtapeCtrlGblh
-#define INCtapeCtrlGblh
+#ifndef INCrecordGblh
+#define INCrecordGblh
 
 #ifndef TAPE_CTRL_SCOPE
 #define TAPE_CTRL_SCOPE extern
@@ -80,7 +83,7 @@ TAPE_CTRL_SCOPE short tape_num;   /* Current tape number */
 TAPE_CTRL_SCOPE long write_attempts;   /* Current number of write attempts */
 
 
-#endif /* INCtapeCtrlGblh */
+#endif /* INCrecordGblh */
 
 
 

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1996/06/18  16:03:04  craig
+ * Initial revision
+ *
  *
  * description: Initializes the mode sense structure
  *        

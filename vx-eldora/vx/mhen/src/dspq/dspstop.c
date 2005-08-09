@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1994/08/24  16:29:16  eric
+ * added "silent" mode to supress diagnostic
+ * printf's.
+ * /
+ *
  * Revision 1.2  1993/06/07  17:38:01  eric
  * Unset DMA and AUTO bits in PCRL. This improved operation
  * of PDF flag greatly!!

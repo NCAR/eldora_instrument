@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  1993/05/12  16:41:34  eric
+ * Modified Code to map Old Timing Module to Extended VME
+ * Address Space.
+ *
  * Revision 1.3  1992/07/31  02:27:20  shawn
  * made first gate twice the distance from leading edge of chip.
  *

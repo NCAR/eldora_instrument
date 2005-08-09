@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1995/01/26  16:20:25  craig
+ * Initial revision
+ *
  *
  * description: This routine calculates the RMS value of the time
  *              series data for use when calibrating the system.

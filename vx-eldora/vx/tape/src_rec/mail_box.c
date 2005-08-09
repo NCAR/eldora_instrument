@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.3  1996/11/15  22:07:16  craig
+ * *** empty log message ***
+ *
  * Revision 1.2  1996/09/03  16:34:52  craig
  * cleaned up
  *
@@ -43,7 +46,7 @@ static unsigned int *aft_addr;
 static unsigned short *fore_mb;
 static unsigned short *aft_mb;
 unsigned short *mb_ptr;
-int i, full;
+int i, full, fore_count, aft_count;
 long mb_count;
 RAY *ray;
 PLATFORM *pltfrm;
@@ -158,9 +161,20 @@ while(*aft_mb!=0xBFFF)
 
 do
   {
+
       test_mb = *fore_mb; /* Check for error status from MCPL */
       if(*fore_mb == 0xBFFF)
 	{
+
+	  fore_count += 1;
+	  aft_count = 0;
+	  if(fore_count > 3)
+	    {
+	      printf("Aft behind, aft_mb = %x\n",aft_mb);
+	      fore_count = -10000;
+	    }
+
+
 	    *fore_mb=0x0000; /* Zero mailbox */
 	    test_mb=0; /* Clear test */
 	    (unsigned int)ray=*fore_addr; /* Make radar data pointer */
@@ -179,6 +193,10 @@ do
 		  log_ints[2]=ray->second;
 
 		  (unsigned int)fpd=*fore_addr+sizeof(RAY)+sizeof(PLATFORM);
+
+		  if(fpd->radar_name[0] != 'F')
+		    printf("Found AFT looking for FORE fore_mb = %x\n"
+			   ,fore_mb);
 
 		  if(fpd->ray_count < 5)  /* first few records have bad data */
 		    {
@@ -302,7 +320,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			rad_blk_sz = 0;
 
@@ -315,7 +332,8 @@ do
 
 		  /* Stick this ray in the scatter gather buffer */
 
-		  full = fill_sg((unsigned int *)*fore_addr,rad_rec_length,rad_buff_num,EXT_AM);
+		  full = fill_sg((unsigned int *)*fore_addr,rad_rec_length,
+				 rad_buff_num,EXT_AM);
 
 		  /* Increment amount of data gathered so far */
 		  rad_blk_sz+=rad_rec_length;
@@ -325,7 +343,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[rad_buff_num][0],
 				rad_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			rad_blk_sz = 0;
 
@@ -346,7 +363,7 @@ do
 
 	    else if(!strncmp("NAVD",nav->nav_info_id,4))
 	      {
-		  printf("NAV RECORD FOUND!!\n");
+		/* printf("NAV RECORD FOUND!!\n"); */
 		  nav_rec_length=nav_length(fore_addr);
 
 		  /* If this record takes us over maximum block size,
@@ -358,7 +375,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[nav_buff_num][0],
 				nav_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			nav_blk_sz = 0;
 
@@ -371,7 +387,8 @@ do
 
 		  /* Stick this ray in the scatter gather buffer */
 
-		  full = fill_sg((unsigned int *)*fore_addr,nav_rec_length,nav_buff_num,EXT_AM);
+		  full = fill_sg((unsigned int *)*fore_addr,nav_rec_length,
+				 nav_buff_num,EXT_AM);
 
 		  /* Increment amount of data gathered so far */
 		  nav_blk_sz+=nav_rec_length;
@@ -381,7 +398,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[nav_buff_num][0],
 				nav_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			nav_blk_sz = 0;
 
@@ -413,7 +429,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[ads_buff_num][0],
 				ads_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			ads_blk_sz = 0;
 
@@ -426,7 +441,8 @@ do
 
 		  /* Stick this ray in the scatter gather buffer */
 
-		  full = fill_sg((unsigned int *)*fore_addr,ads_rec_length,ads_buff_num,EXT_AM);
+		  full = fill_sg((unsigned int *)*fore_addr,ads_rec_length,
+				 ads_buff_num,EXT_AM);
 
 		  /* Increment amount of data gathered so far */
 		  ads_blk_sz+=ads_rec_length;
@@ -436,7 +452,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[ads_buff_num][0],
 				ads_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			ads_blk_sz = 0;
 
@@ -464,6 +479,8 @@ do
 		  fore_addr = (unsigned int *)DATA_RECS;
 	      }      
 
+
+
 	} /* END if (*fore_mb==0xBFFF) */
 
       if(test_mb!=0) /* If not 0 or BFFF then its an error */
@@ -485,9 +502,21 @@ do
 
 /******************* AFT RADAR DATA HANDLER ***********************/
 
+
+
       test_mb=*aft_mb;
       if(*aft_mb==0xbfff)
 	{
+
+	  aft_count += 1;
+	  fore_count = 0;
+	  if(aft_count > 3)
+	    {
+	      printf("Fore behind, fore_mb = %x\n",fore_mb);
+	      aft_count = -10000;
+	    }
+
+
 	    *aft_mb=0x0000; /* Zero mailbox */
 	    test_mb=0;
 
@@ -497,6 +526,11 @@ do
 	    log_ints[2]=ray->second;
 
 	    (unsigned int)fpd=*aft_addr+sizeof(RAY)+sizeof(PLATFORM);
+
+	    if(fpd->radar_name[0] != 'A')
+	      printf("Found FORE looking for AFT aft_mb = %x\n"
+		     ,aft_mb);
+
 
 	    if(fpd->ray_count < 5) /* First few rays contain bad data */
 	      {
@@ -617,7 +651,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[rad_buff_num][0],rad_blk_sz,
 				SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			rad_blk_sz = 0;
 
@@ -640,7 +673,6 @@ do
 			/* Write data out to tape */
 			drv_sel((unsigned int *)sg[rad_buff_num][0],
 				rad_blk_sz,SCATTER_GATHER);
-			WRITE_TAPE_STATUS=0;
 
 			rad_blk_sz = 0;
 
@@ -666,7 +698,8 @@ do
 		  aft_mb = (unsigned short *)MAIL_BOX + 1;
 		  aft_addr = (unsigned int *)DATA_RECS + 1;
 	      }
-	    
+	   
+
 	} /* END if (*aft_mb==0xBFFF) */
 
       if(test_mb!=0)
@@ -717,8 +750,3 @@ new_volume = 1;
 
 return; 
 }
-
-
-
-
-

@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/11/09  17:00:30  eric
+ * Initial revision
+ *
  *
  * description: This module programs the Choiceram of the ADC Card given
  *              a threshold value as an argument.
