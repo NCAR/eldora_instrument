@@ -1,0 +1,106 @@
+# -*- python -*-
+# script to build eldora library
+
+Import('env')
+env = env.Create("vx.mhen", tools = ['default'])
+env.Require (["PKG_VXWORKS"])
+
+OBJS=el.o dspq.o coll.o ad.o timmod.o
+#
+LAB_OBJS=lab.o coll.o ad.o timmod.o
+#
+TS_OBJS=ts.o lab_dspq.o coll.o ad.o timmod.o
+#
+NU_ARCH_OBJS=nu_arch.o dspq.o coll.o ad.o timmod.o eth29.o /net/eldora/eldora/vx/vmevme_int/getInt.o
+#
+SPOL_OBJS=nu_arch.o spol_dspq.o coll.o spol_ad.o timmod.o
+
+dirs = "arinc429 clk gps motor vmevme power main ecb tp41 minirims"
+
+s = {}
+
+s['arinc429'] = "init_iru.c convert_iru.c start_iru.c iru_menu.c"
+
+s['clk'] = """
+get_time.c init_clock.c clock_menu.c set_time.c
+start_clock.c send_packet.c get_year.c"""
+
+s['gps'] = """init_gps.c command_gps.c gps_isr.c gps_menu.c"""
+
+s['motor'] = """
+    go_motor.c goto_pos.c init_motor.c motor_menu.c get_pos.c read_reg.c
+    read_rpm.c stop_motor.c just_set_vel.c pos_loop.c
+    set_vel.c write_reg.c test_pos.c trap_pos.c
+    """
+
+s['vmevme'] = """
+    init_vmevme.c stop_vmevme.c start_vmevme.c fill_nav_info.c
+    vmevme_menu.c vmevme_isr.c fill_platform.c midbeam.c
+    """
+
+s['power'] = """
+fltpt.c init_dma.c init_gpib.c init_isr_vecs.c init_ptrs.c
+listen.c xmit_rt.c pwrmenu.c send_cmnd_string.c start_ieee.c
+testp_err_isr.c testp_norm_isr.c xmit_err_isr.c xmit_norm_isr.c 
+talk.c stop_ieee.c init_ieee.c testp_rt.c test_pwr.c pgm_rt.c 
+lab_test.c ReadStatusByte.c ReceiveData.c Return_to_Local.c
+"""
+
+s['main'] = """
+hskp.c startup.cc globals.c main_menu.c sum_testpulse.c
+start_testpulse.c update_testpulse.c hostStartup.c
+"""
+
+s['ecb'] = """
+ ecbClrFifos.c ecbCmpltIsr.c ecbGetBusStat.c ecbGetTsami.c
+ ecbGetTsamr.c ecbGiveSem.c ecbIntInit.c ecb_menu.c ecbSetAtten.c
+ ecbSetDDS.c ecbSetDDSfloat.c ecbSetDivN.c ecbSetIF.c ecbSetMux.c
+ ecbShowBim.c ecbShowBusStat.c ecbShowLast.c ecbShowMstat.c
+ ecbShowTempi.c ecbShowTempr.c fifotst1.c ldsrec.c dpclr.c
+ stop11.c go11.c ecbErrorIsr.c ecbGetDDSool.c ecbShowDDSool.c
+ ecbShowRpc.c"""
+
+s['tp41'] = "hskpIntInit.c"
+
+s['minirims'] = "init_mini.c mini_isr.c mini_menu.c command_mini.c"
+
+sources = []
+for k in s.keys():
+    sources += [ 'src/'+k+'/'+p for p in Split(s[k]) ]
+
+env['COMMONS'] = "/net/projects/common"
+
+env.Append (CCFLAGS = Split("-O -fvolatile -m68040"))
+OPT= -O -fstrength-reduce -fforce-mem -finline-functions -fcombine-regs \
+	-fomit-frame-pointer
+env.Append (DEFINES = "-DUSE_ANSI")
+env.Append (CPPPATH = Split("""
+#/../rpc/header
+#/hskp/include
+#/c++/include
+#/../rpc/include
+#/minirims/include
+$COMMONS/include
+$VXDIR/config/eldora.tp41
+"""))
+
+objs = env.StaticObject(sources)
+
+env.Append (LIBPATH = ["$COMMONS/lib/vxworks"])
+env.Append (LIBS = ["Net"])
+
+objs += ["/net/eldora/eldora/rpc/lib/libVxHeader.a",
+         "/net/eldora/eldora/vx/vmevme_int/sendInt.o"]
+
+# -X discards temporary locals
+# -Ur builds global constructor/destructor tables
+
+ldcmd="$LD $LDFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $LIBSTDCXX $LIBGCC"
+
+env.Command ("bin/elbig.o", objs, ldcmd, LDFLAGS="-X -Ur")
+env.Command ("bin/blab.o", lab_objs, ldcmd, LDFLAGS="-X -r")
+env.Command ("bin/bts.o", ts_objs, ldcmd, LDFLAGS="-X -r")
+env.Command ("bin/spol.o", spol_objs, ldcmd, LDFLAGS="-X -r")
+t = env.Command ("bin/bnu_arch.o", nu_arch_objs, ldcmd, LDFLAGS="-X -r")
+             
+Default(t)
