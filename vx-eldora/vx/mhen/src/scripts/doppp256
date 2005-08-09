@@ -1,0 +1,14 @@
+< allstop
+fsetcal < fsetcalstrokes
+lddsp 1,3,0,"xcollato.dmp"
+lddsp 1,4,-1,"powf.dmp"
+dsy 4,0x1111
+sam4 150
+gates4 128
+dspgo 1,3,0
+dspgo 1,4,-1
+timmod 1000,128,170,1600,0.1133333
+ld < /ELDORA/vx/mhen/bin/fi.o
+fi
+
+

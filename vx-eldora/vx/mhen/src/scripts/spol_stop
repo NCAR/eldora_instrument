@@ -1,0 +1,6 @@
+timoff
+dspstop 1,4,0,0
+dspstop 1,2,1,-1
+dspstop 1,1,1,-1
+dspstop 1,1,2,-1
+dspstop 1,1,3,-1

@@ -1,0 +1,25 @@
+cd "/ELDORA/vx/mhen/bin"
+ld <timon.o
+ld <timoff.o
+ld <load_waveform.o
+ld <load_gates.o
+ld <timmod.o
+ld <adinta.o
+ld <lddsp.o
+ld <dsy.o
+ld <dspstop.o
+ld <dspgo.o
+ld <i3e2dsp.o
+ld <atod_hexd.o
+ld <fsetcal.o
+ld <sam4.o
+ld <gates4.o
+ld < thor:/radar/rel/vxlib/libstreamsock.o
+ld <sector.o
+ld <slow.o
+ld <fi.o
+ld <cali.o
+slow 1.2
+cd "/ELDORA/vx/mhen/src/scripts"
+< doppp256
+

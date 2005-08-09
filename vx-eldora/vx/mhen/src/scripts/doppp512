@@ -1,0 +1,11 @@
+< allstop
+fsetcal < fsetcalstrokes
+lddsp 1,3,0,"xcollato.dmp"
+lddsp 1,4,-1,"powf.dmp"
+dsy 4,0x1111
+sam4 100
+gates4 512
+dspgo 1,3,0
+dspgo 1,4,-1
+timmod 500,512,300,300
+

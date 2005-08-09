@@ -1,0 +1,6 @@
+< allstop
+lddsp 1,4,-1,"itab.dmp"
+dsy 4,0x01;
+dspgo 1,4,-1
+timmod 1000,950,150,150
+

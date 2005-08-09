@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /misc/tcl/tcl.dir/fft_tool/test_data
+throttle -T baldr -n 128 -S

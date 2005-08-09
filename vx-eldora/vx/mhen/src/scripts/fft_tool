@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /misc/tcl/tcl.dir/fft_tool
+fft -target odin -file fft.tcl -samples 128 
+

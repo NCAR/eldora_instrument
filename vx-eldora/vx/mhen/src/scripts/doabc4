@@ -1,0 +1,12 @@
+< allstop
+lddsp 1,3,0,"itbc.dmp"
+lddsp 1,4,-1,"itab.dmp"
+dsy 4,0x01
+fsetcal < isetcalstrokes
+dspgo 1,3,0
+dspgo 1,4,0
+dspgo 1,4,1
+dspgo 1,4,2
+dspgo 1,4,3
+timmod 250,993,600,600
+

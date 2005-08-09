@@ -1,0 +1,10 @@
+cd "/home/shawn/master"
+ld <led.o
+ld <nvread.o
+ld <nvwrite.o
+ld <sramtoee.o
+ld <eetosram.o
+ld <loopes.o
+ld <loopse.o
+
+

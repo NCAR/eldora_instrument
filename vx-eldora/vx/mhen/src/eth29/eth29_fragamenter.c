@@ -188,6 +188,7 @@ GENERAL NOTES
 #include <string.h>					   /* memcpy, memset */
 #include "sysLib.h"				 /* system dependent library */
 #include "tickLib.h"					     /* tick library */
+#include "netinet/in.h"
 #endif	/* VXWORKS */
 
 #include "eth29.h"
@@ -435,21 +436,21 @@ typedef volatile struct eth29_addresses {
 /*
  * Internet address (a structure for historical reasons)
  */
-struct in_addr {
-  u_long s_addr;
-};
+//struct in_addr {
+//  u_long s_addr;
+//};
 
 
 
 /*
  * Socket address, internet style.
  */
-struct sockaddr_in {
-  short	sin_family;
-  u_short	sin_port;
-  struct	in_addr sin_addr;
-  char	sin_zero[8];
-};
+//struct sockaddr_in {
+//  short	sin_family;
+//  u_short	sin_port;
+//  struct	in_addr sin_addr;
+//  char	sin_zero[8];
+//};
 
 
 
@@ -718,12 +719,13 @@ This routine does the folowing:
 *----------------------------------------------------------------------------*/
 int eth29Init(char* interfaceIPaddress, int intVector, int intLevel)
 {
-  int status = 0;
+  int status;
   u_long ip_addr;					       /* IP address */
   char if_name[32];				   /* interface name */
   struct ifreq ifr;		      /* interface request structure */
   u_char *buf_p;					   /* buffer pointer */
   int i;
+  status = 0;
 
   printd("*** ETH29 initializtion %s (%s %s) ***\n",
 	 ETH29_APP_VER, __DATE__, __TIME__);
@@ -881,9 +883,31 @@ int eth29SendDgram(char* sendToIPaddress, int dest_port, unsigned char* buffer, 
 
   int i;
   u_long optval;					     /* option value */
-  int optlen = 0;					    /* option length */
-  u_long dest_addr = inet_addr(sendToIPaddress);
-  int status = 0;
+  int optlen;					    /* option length */
+  u_long dest_addr;
+  int status;
+  int remain;
+  int dataSize;
+  int totalsize;
+  int pagenum;
+  static int sequence_num = 0;
+  unsigned char* dataPtr;
+  int assemblySize;
+
+  /* a buffer that will contain a UDPHEADER folowed by the data */
+  unsigned char  assemblyBuf[MAXPACKET+sizeof(UDPHEADER)];
+
+  /* the UDPHEADER will start at the beginning of assemblyBuf */
+  UDPHEADER* udp;
+
+  /* calculate offset into the assembly buffer where the data will go */
+  unsigned char* assemblyDataPtr;
+
+  assemblyDataPtr  = assemblyBuf + sizeof(UDPHEADER);
+  udp = (UDPHEADER*) &assemblyBuf;
+  dest_addr = inet_addr(sendToIPaddress);
+  optlen = 0;
+  status = 0;
 
   if (dest_addr == ERROR) {
     logMsg("eth29SendDgram: unable to translate IP address\n");
@@ -929,42 +953,51 @@ int eth29SendDgram(char* sendToIPaddress, int dest_port, unsigned char* buffer, 
     datagramDestPort = dest_port;
   }
 
-  /* transmit data */
-  status = P_Sendto(datagramFD, buffer, length, 0, 
-		    (caddr_t)&datagramDestSa, 
-		    sizeof(datagramDestSa));
-  if (status < 0) {
-    logMsg("eth29SendDgram: unable to Sendto on socket\n");
-      return -1;
+  udp->magic = htonl(MAGIC);
+
+  totalsize = length;
+  udp->totalsize = htonl(totalsize);
+
+  udp->type = 0;
+
+  dataPtr = buffer;
+
+  pagenum = 0;
+
+  udp->pagenum = htonl(pagenum);
+  udp->pages = htonl(totalsize / MAXPACKET + 1);
+
+  for(remain=totalsize; remain>0; remain-=dataSize)
+    {
+
+      dataSize = (remain > MAXPACKET) ? MAXPACKET : remain; // data, NOT INCLUDING the header 
+      assemblySize = dataSize + sizeof(UDPHEADER);
+
+      udp->pagesize = htonl(assemblySize);
+      udp->sequence_num = htonl(sequence_num++);
+        
+      /* copy the data into the assembly buffer */
+      memcpy(assemblyDataPtr, dataPtr, dataSize);
+      dataPtr += dataSize;
+
+      /* transmit data */
+      status = P_Sendto(datagramFD, assemblyBuf, assemblySize, 0, 
+			(caddr_t)&datagramDestSa, 
+			sizeof(datagramDestSa));
+
+      if (status != assemblySize) {
+	logMsg("eth29SendDgram: unable to Sendto on socket\n");
+	return -1;
+      }
+
+      udp->pagenum = htonl(pagenum++);
     }
 
-  return(status);
+  return(length);
 
 }
 
-/*---------------------------------------------------------------------------*
-Function:	send a datagram to the specified address without checks
-Parameters:	buffer - the source buffer
-                length - the number of bytes to send
-Input:		none
-Output:		none
-Return:		0 => success 
-		!0 => error
-Comment:        Yes, this does no checking, but VxWorks needs speed.
-*----------------------------------------------------------------------------*/
-int eth29FastDgram(unsigned char *buffer, int length)
-{
-  /* transmit data */
-  int status = P_Sendto(datagramFD, buffer, length, 0, 
-		    (caddr_t)&datagramDestSa, 
-		    sizeof(datagramDestSa));
-  if (status < 0) {
-    logMsg("eth29SendDgram: unable to Sendto on socket\n");
-      return -1;
-    }
 
-  return(status);
-}
 
 /*---------------------------------------------------------------------------*
 Function:	main entry point routine
