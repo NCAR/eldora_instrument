@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:33:10  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:36  eric
  * Initial revision
  *
@@ -57,11 +60,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "dspdefs.h"
 #include "dspaddr.h"
 #include "rp7.h"
-
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern WAVEFORM *wvfm;
-extern PARAMETER *prm;
 
 init_data_xfer()
 {

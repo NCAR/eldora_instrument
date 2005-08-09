@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:37:19  eric
+ * Initial revision
+ *
  * Revision 1.2  1993/06/09  15:08:49  eric
  * Added handshaking with housekeeper during dc_removal to help
  * improve synchronization.

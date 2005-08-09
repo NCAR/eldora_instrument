@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.13  2003/05/13  15:11:53  rich
+ * Added interrupt code.
+ *
  * Revision 1.12  2003/05/08  21:26:10  ericloew
  * modified code to use eth29 more reliably.
  *
@@ -464,8 +467,7 @@ dac()
 	  Pnoise = rdsc -> noise_power;
 	  Pnoise -= rdsc -> radar_const;
 	  Pnoise -= Fudge_fac;
-	  /*	  Pn = pow(10.0,((double)(Pnoise)/10.0)); */
-	  Pn = 0.0; /* For lab testing!!! */
+	  Pn = pow(10.0,((double)(Pnoise)/10.0)); 
 	  Pnoise = Pn;
 	  printf("Pnoise = %g \n",Pnoise);
 

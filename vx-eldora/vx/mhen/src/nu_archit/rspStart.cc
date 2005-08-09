@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:37:32  eric
+ * Initial revision
+ *
  * 
  * Initial revision
  *

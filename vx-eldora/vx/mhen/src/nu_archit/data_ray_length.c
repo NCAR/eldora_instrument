@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/06/28  21:35:55  eric
+ * Modified raw data length calculation to accomodate larger FFT's.
+ *
  * Revision 1.4  1996/06/21  18:48:55  thor
  * Fixed raw data length calc.
  *

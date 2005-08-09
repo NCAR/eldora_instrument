@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.2  1994/11/14  20:09:36  craig
+ * Expand to possible 3000 rays stored in a MAD area
+ *
  * Revision 1.1  1994/07/14  20:33:14  eric
  * Initial revision
  *

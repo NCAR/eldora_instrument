@@ -1,0 +1,18 @@
+
+
+
+Discussion Topics
+-----------------
+
+GPS Integration - Kalman Filter (rate?); other approaches? References?
+GPS use in initial alignment?
+Bortz Calculations?
+Gravity Modelling?
+Gyro Compassing - can this be done w/x-axis approx. horizontal?
+Use of Kalman Filter in initial alignment, rate?
+Why periodic matrix orthogonalization (ortho.c) ?
+Can we throw away CRC Task? Is it only used for telemetry?
+Mode Definitions - specifically alignment modes.
+Spin Stabilization? => spin task, ac_soft, ac_hard, etc. -
+                       can we eliminate them?
+What kind of hardware does this run on? How much reserve performance?

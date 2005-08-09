@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.5  1996/06/28  21:33:31  eric
+ * Added raw data field for ascope diagnostics.
+ *
  * Revision 1.4  1995/01/25  17:40:54  eric
  * Initialized global Header pointers from nu_archit_dac.c to eliminate
  * conflicts.
@@ -235,7 +238,16 @@ for(j=0;j<27;j++)
       raw_d -> rd.numPoints = prm->num_samples; /* Samples as default */
   }
 
+#ifdef ETH29
+ logical_length = data_ray_length();
+ if(logical_length > NAV_LENGTH)
+   data_length = logical_length + F_FACTOR;
+ else
+   data_length = NAV_LENGTH + F_FACTOR;
+ printf("\nlogical length = %d\n",logical_length);
+#endif 
 
+#ifndef ETH29
 /* The tpb_to_proc TPB sends the receive_gmad_tpb to a processor's dispatch
    table entry one.  All of the general purpose parmeters in the TPB will be
    set now and processor specific ones will be set later */
@@ -314,6 +326,7 @@ receive_gmad->link_address = 0;        /* Linking is not performed by target */
 receive_gmad->link_attribute = 0;      /* Linking is not performed by target */
 receive_gmad->mcpl_control_word = 0;    /* MCPL to VMEBus transfer only */
 receive_gmad->mailbox_address = 0;      /* No mail Box Being used */
+
 
 /***********************************************************************/
 /* Calculate the position and size of the data areas in all processors */
@@ -445,6 +458,7 @@ for (proc=0; proc<4; proc++)
 
     } /* For loop for each MAD */
    } /* For loop for each processor */
+#endif /* ETH29 */
 return(-1);
 }
 

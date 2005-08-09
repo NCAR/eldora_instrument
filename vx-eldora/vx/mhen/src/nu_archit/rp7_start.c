@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:37:21  eric
+ * Initial revision
+ *
  * Revision 1.1  1992/11/09  16:07:52  eric
  * Initial revision
  *
@@ -32,7 +35,7 @@ int taskid;
 
 taskDelete(taskNameToId("texec"));
 taskid =
-taskSpawn("texec",10,VX_FP_TASK | VX_STDIO,8000,(FUNCPTR )dac,0,0,0,0,0,0,0,0,0,0);
+taskSpawn("texec",80,VX_FP_TASK | VX_STDIO,8000,(FUNCPTR )dac,0,0,0,0,0,0,0,0,0,0);
 if(taskid == ERROR)
   {
       printf("failed to spawn executive task! \n");
@@ -40,7 +43,7 @@ if(taskid == ERROR)
   }
 taskDelete(taskNameToId("treal"));
 taskid =
-taskSpawn("treal",5,VX_FP_TASK | VX_STDIO,3000,(FUNCPTR )coll_data_xfer,0,0,0,0,0,0,0,0,0,0);
+taskSpawn("treal",75,VX_FP_TASK | VX_STDIO,3000,(FUNCPTR )coll_data_xfer,0,0,0,0,0,0,0,0,0,0);
 if(taskid == ERROR)
   {
       printf("failed to spawn real-time task! \n");

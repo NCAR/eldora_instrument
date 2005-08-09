@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1994/07/14  20:37:35  eric
+ * Initial revision
+ *
  *
  * description: This module resets the Multi-Crate Pipeline (MCPL)
  *              node over the VME bus.
@@ -54,10 +57,6 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "dspaddr.h"
 #include "rp7.h"
 
-extern CELLSPACING *cs;
-extern RADARDESC *rdsc;
-extern WAVEFORM *wvfm;
-extern PARAMETER *prm;
 mcpl_recover()
 {
 

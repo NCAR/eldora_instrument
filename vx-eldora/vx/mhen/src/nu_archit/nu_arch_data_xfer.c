@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.9  1996/12/05 22:55:59  eric
+ * fixed raw time series data for staggered prt.
+ *
  * Revision 1.8  1996/06/28  21:35:16  eric
  * Added code to fill raw data structure with appropriate data.
  *
@@ -99,6 +102,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define FFT_PTS 128
 extern short task_sync;
 extern int int_cnt, proc_stat;
+static int First_int;
 
 coll_data_xfer()
 {
@@ -139,13 +143,14 @@ if (!(b_array = (float *)malloc(4*2000*sizeof(float))))
 if (!(av_array = (float *)malloc(4*2000*sizeof(float))))
   printf("680X0 OUT OF MEMORY; ALLOCATION FAILED \n");
 FFT_pts = FFT_PTS;  /* Initialize FFT size to 128 by default */
-
 for(;;)
   {
       sem_status = semTake(real_sem,WAIT_FOREVER); /* wait for start semaphore  */
       if(sem_status == OK)
 	{
 	    task_sync = 0;
+	    
+	    First_int = 1;   /* set first interrupt flag */
 
 /* Parse Header for required system parameters */
 
@@ -264,8 +269,15 @@ n bytes */
 		  
 		  if (sem_status == OK)
 		    {
-			*bim_cr0 = 0xdc; /* re-enable interrupt INT0* */            
-			switch(vme2_pntr -> tpulse_freq_num)
+			*bim_cr0 = 0xdc; /* re-enable interrupt INT0* */       
+
+			if(First_int)
+			  {
+			    currStatus->rp7 &= DC_BUSY_MASK; /* clear DC_BUSY */
+			    currStatus->rp7 |= DC_STAT; /* set dc_removal completion status */
+			    First_int = 0;
+			  }
+			switch(vme2_pntr -> tpulse.freq_num[0])
 			  {
 			    case 1:
 			      lgate_off = 0x0;
@@ -665,6 +677,7 @@ n bytes */
 			  }
 
 			vme2_pntr -> radar_hndshk[k] = 0;
+			vme2_pntr -> radar_proc_idx = k; /* sanity check for radar processor/housekeeper synchronization */
 			k = k<26?k+1:0;
 			if(k == 0)
 			  q++;
@@ -704,10 +717,7 @@ n bytes */
 			  {
 			      if(!fill_busy)
 				{
-				    if(dc_removal)
-				      fta_freq=(int)ad_freq;
-				    else
-				      fta_freq=ts_freq;
+				  fta_freq=ts_freq;
 				    switch(fta_freq)
 				      {
 					case 1:
