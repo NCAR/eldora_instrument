@@ -1,0 +1,70 @@
+diff --recursive -c binutils-2.9.1/libiberty/cplus-dem.c binutils-2.9.1-eldora/libiberty/cplus-dem.c
+*** binutils-2.9.1/libiberty/cplus-dem.c	Fri May  1 09:47:50 1998
+--- binutils-2.9.1-eldora/libiberty/cplus-dem.c	Fri Aug  5 15:56:55 2005
+***************
+*** 3266,3273 ****
+--- 3266,3275 ----
+    exit (1);
+  }
+  
++ #ifdef notdef
+  char * malloc ();
+  char * realloc ();
++ #endif
+  
+  char *
+  xmalloc (size)
+Only in binutils-2.9.1-eldora/libiberty: cplus-dem.c~
+diff --recursive -c binutils-2.9.1/libiberty/functions.def binutils-2.9.1-eldora/libiberty/functions.def
+*** binutils-2.9.1/libiberty/functions.def	Fri May  1 09:47:51 1998
+--- binutils-2.9.1-eldora/libiberty/functions.def	Fri Aug  5 15:46:13 2005
+***************
+*** 35,49 ****
+  DEF(strchr, char*, (s, c), CONST char *s AND int c)
+  DEF(strdup, char*, (s1), char * s1)
+  DEF(strrchr, char*, (s, c), CONST char *s AND int c)
+! DEF(strstr, char*, (), NOTHING)
+  DEF(strtod, double, (), NOTHING)
+  DEF(strtol, long, (), NOTHING)
+  DEF(strtoul, unsigned long, (), NOTHING)
+  DEF(tmpnam, char *, (s), char * s)
+  DEF(vfork, int, (), NOTHING)
+! DEF(vfprintf, int, (), NOTHING)
+! DEF(vprintf, int, (), NOTHING)
+! DEF(vsprintf, int, (), NOTHING)
+  DEF(sigsetmask, int, (), NOTHING)
+  DEF(alloca, PTR, (size), size_t size)
+  DEF(waitpid, int, (pid, statp, opts), int pid AND int* statp AND int opts )
+--- 35,51 ----
+  DEF(strchr, char*, (s, c), CONST char *s AND int c)
+  DEF(strdup, char*, (s1), char * s1)
+  DEF(strrchr, char*, (s, c), CONST char *s AND int c)
+! DEF(strstr, char*, (s1, s2), CONST PTR s1 AND CONST PTR s2)
+  DEF(strtod, double, (), NOTHING)
+  DEF(strtol, long, (), NOTHING)
+  DEF(strtoul, unsigned long, (), NOTHING)
+  DEF(tmpnam, char *, (s), char * s)
+  DEF(vfork, int, (), NOTHING)
+! #ifdef notdef
+! DEF(vfprintf, int, (f, s), FILE* f AND PTR s)
+! DEF(vprintf, int, (s), PTR s)
+! DEF(vsprintf, int, (b, s), PTR b AND PTR s)
+! #endif
+  DEF(sigsetmask, int, (), NOTHING)
+  DEF(alloca, PTR, (size), size_t size)
+  DEF(waitpid, int, (pid, statp, opts), int pid AND int* statp AND int opts )
+Only in binutils-2.9.1-eldora/libiberty: functions.def~
+diff --recursive -c binutils-2.9.1/libiberty/strerror.c binutils-2.9.1-eldora/libiberty/strerror.c
+*** binutils-2.9.1/libiberty/strerror.c	Fri May  1 09:47:54 1998
+--- binutils-2.9.1-eldora/libiberty/strerror.c	Fri Aug  5 15:55:42 2005
+***************
+*** 7,12 ****
+--- 7,13 ----
+  
+  #include "config.h"
+  
++ #undef NEED_sys_errlist
+  #ifndef NEED_sys_errlist
+  /* Note that errno.h (not sure what OS) or stdio.h (BSD 4.4, at least)
+     might declare sys_errlist in a way that the compiler might consider
+Only in binutils-2.9.1-eldora/libiberty: strerror.c~

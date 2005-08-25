@@ -1,0 +1,192 @@
+diff --recursive -c gcc-2.95.3/gcc/ch/decl.c gcc-2.95.3-eldora/gcc/ch/decl.c
+*** gcc-2.95.3/gcc/ch/decl.c	Sun Jan 31 10:46:27 1999
+--- gcc-2.95.3-eldora/gcc/ch/decl.c	Fri Aug  5 16:10:50 2005
+***************
+*** 4446,4452 ****
+  
+  tree
+  start_struct (code, name)
+!      enum chill_tree_code code;
+       tree name ATTRIBUTE_UNUSED;
+  {
+    /* If there is already a tag defined at this binding level
+--- 4446,4452 ----
+  
+  tree
+  start_struct (code, name)
+!      enum tree_code code;
+       tree name ATTRIBUTE_UNUSED;
+  {
+    /* If there is already a tag defined at this binding level
+Only in gcc-2.95.3-eldora/gcc/ch: decl.c~
+diff --recursive -c gcc-2.95.3/gcc/ch/expr.c gcc-2.95.3-eldora/gcc/ch/expr.c
+*** gcc-2.95.3/gcc/ch/expr.c	Tue Jan 19 15:32:32 1999
+--- gcc-2.95.3-eldora/gcc/ch/expr.c	Fri Aug  5 16:11:45 2005
+***************
+*** 3490,3496 ****
+  
+  int
+  compare_int_csts (op, val1, val2)
+!      enum tree_code op;
+       tree val1, val2;
+  {
+    int result;
+--- 3490,3496 ----
+  
+  int
+  compare_int_csts (op, val1, val2)
+!      enum chill_tree_code op;
+       tree val1, val2;
+  {
+    int result;
+Only in gcc-2.95.3-eldora/gcc/ch: expr.c~
+diff --recursive -c gcc-2.95.3/gcc/f/com.c gcc-2.95.3-eldora/gcc/f/com.c
+*** gcc-2.95.3/gcc/f/com.c	Mon Jun 28 20:27:42 1999
+--- gcc-2.95.3-eldora/gcc/f/com.c	Fri Aug  5 16:16:40 2005
+***************
+*** 11539,11545 ****
+    return decl;
+  }
+  
+! ffeinfoBasictype
+  ffecom_gfrt_basictype (ffecomGfrt gfrt)
+  {
+    assert (gfrt < FFECOM_gfrt);
+--- 11539,11545 ----
+    return decl;
+  }
+  
+! ffeinfoKindtype
+  ffecom_gfrt_basictype (ffecomGfrt gfrt)
+  {
+    assert (gfrt < FFECOM_gfrt);
+Only in gcc-2.95.3-eldora/gcc/f: com.c~
+diff --recursive -c gcc-2.95.3/gcc/f/lex.c gcc-2.95.3-eldora/gcc/f/lex.c
+*** gcc-2.95.3/gcc/f/lex.c	Sat Mar 27 03:23:57 1999
+--- gcc-2.95.3-eldora/gcc/f/lex.c	Fri Aug  5 16:32:00 2005
+***************
+*** 39,45 ****
+  void dwarfout_start_new_source_file (register char *);
+  void dwarfout_define (register unsigned, register char *);
+  void dwarfout_undef (register unsigned, register char *);
+! #endif DWARF_DEBUGGING_INFO
+  
+  static void ffelex_append_to_token_ (char c);
+  static int ffelex_backslash_ (int c, ffewhereColumnNumber col);
+--- 39,45 ----
+  void dwarfout_start_new_source_file (register char *);
+  void dwarfout_define (register unsigned, register char *);
+  void dwarfout_undef (register unsigned, register char *);
+! #endif /*DWARF_DEBUGGING_INFO*/
+  
+  static void ffelex_append_to_token_ (char c);
+  static int ffelex_backslash_ (int c, ffewhereColumnNumber col);
+Only in gcc-2.95.3-eldora/gcc/f: lex.c~
+diff --recursive -c gcc-2.95.3/gcc/libgcc2.c gcc-2.95.3-eldora/gcc/libgcc2.c
+*** gcc-2.95.3/gcc/libgcc2.c	Thu Jun 10 21:11:43 1999
+--- gcc-2.95.3-eldora/gcc/libgcc2.c	Fri Aug  5 16:35:45 2005
+***************
+*** 36,46 ****
+--- 36,48 ----
+     needing header files first.  */
+  /* ??? This is not a good solution, since prototypes may be required in
+     some cases for correct code.  See also frame.c.  */
++ #ifdef notdef
+  #ifndef inhibit_libc
+  /* fixproto guarantees these system headers exist. */
+  #include <stdlib.h>
+  #include <unistd.h>
+  #endif
++ #endif
+  
+  #include "machmode.h"
+  #include "defaults.h" 
+Only in gcc-2.95.3-eldora/gcc: libgcc2.c~
+diff --recursive -c gcc-2.95.3/libio/fileops.c gcc-2.95.3-eldora/libio/fileops.c
+*** gcc-2.95.3/libio/fileops.c	Mon Apr 12 12:27:49 1999
+--- gcc-2.95.3-eldora/libio/fileops.c	Mon Aug  8 10:27:55 2005
+***************
+*** 620,626 ****
+    _IO_ssize_t to_do = n;
+    while (to_do > 0)
+      {
+!       _IO_ssize_t count = write (f->_fileno, data, to_do);
+        if (count == EOF)
+  	{
+  	  f->_flags |= _IO_ERR_SEEN;
+--- 620,626 ----
+    _IO_ssize_t to_do = n;
+    while (to_do > 0)
+      {
+!       _IO_ssize_t count = write (f->_fileno, (void*)data, to_do);
+        if (count == EOF)
+  	{
+  	  f->_flags |= _IO_ERR_SEEN;
+Only in gcc-2.95.3-eldora/libio: fileops.c~
+diff --recursive -c gcc-2.95.3/libio/ioprims.c gcc-2.95.3-eldora/libio/ioprims.c
+*** gcc-2.95.3/libio/ioprims.c	Thu Feb 12 16:56:20 1998
+--- gcc-2.95.3-eldora/libio/ioprims.c	Mon Aug  8 10:28:06 2005
+***************
+*** 52,58 ****
+       const void *buf;
+       _IO_size_t nbyte;
+  {
+!   return write (fildes, buf, nbyte);
+  }
+  
+  _IO_off_t
+--- 52,58 ----
+       const void *buf;
+       _IO_size_t nbyte;
+  {
+!   return write (fildes, (void*)buf, nbyte);
+  }
+  
+  _IO_off_t
+Only in gcc-2.95.3-eldora/libio: ioprims.c~
+diff --recursive -c gcc-2.95.3/libio/iostream.cc gcc-2.95.3-eldora/libio/iostream.cc
+*** gcc-2.95.3/libio/iostream.cc	Sun Dec 10 10:45:08 2000
+--- gcc-2.95.3-eldora/libio/iostream.cc	Mon Aug  8 10:27:01 2005
+***************
+*** 36,41 ****
+--- 36,43 ----
+  #include <string.h>
+  #include <limits.h>
+  
++ #undef _G_HAVE_PRINTF_FP
++ #define _G_HAVE_PRINTF_FP 0
+  #if _G_HAVE_PRINTF_FP
+  #include <printf.h>
+  extern "C" int __printf_fp (_IO_FILE *, const struct printf_info *,
+***************
+*** 736,742 ****
+  
+  	// Do actual output.
+  	register streambuf* sbuf = rdbuf();
+! 	register i;
+  	char fill_char = fill();
+  	ios::fmtflags pad_kind =
+  	    flags() & (ios::left|ios::right|ios::internal);
+--- 738,744 ----
+  
+  	// Do actual output.
+  	register streambuf* sbuf = rdbuf();
+! 	register int i;
+  	char fill_char = fill();
+  	ios::fmtflags pad_kind =
+  	    flags() & (ios::left|ios::right|ios::internal);
+***************
+*** 761,766 ****
+--- 763,770 ----
+      return *this;
+  }
+  
++ #undef _G_HAVE_LONG_DOUBLE_IO
++ #define _G_HAVE_LONG_DOUBLE_IO 0
+  #if _G_HAVE_LONG_DOUBLE_IO
+  ostream& ostream::operator<<(long double n)
+  {
+Only in gcc-2.95.3-eldora/libio: iostream.cc~
+Only in gcc-2.95.3-eldora: runconfig~
+Only in gcc-2.95.3-eldora: vxconfig
+Only in gcc-2.95.3-eldora: vxconfig~

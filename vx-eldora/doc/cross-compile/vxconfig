@@ -1,0 +1,7 @@
+#! /bin/sh -x
+
+`dirname $0`/configure --prefix=/opt/local/m68k-wrs-vxworks \
+	--target=m68k-wrs-vxworks --enable-languages=c++ \
+	--with-headers=/code/granger/vx/h --with-libs=/code/granger/vx/lib \
+	--with-gnu-as --with-gnu-ld
+

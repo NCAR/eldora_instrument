@@ -1,0 +1,9 @@
+
+The two html files and the one-tree script were pulled off the net, but
+never used other than for basic advice.
+
+The two patches are the changes made to binutils 2.9.1 and gcc 2.95.3 to be
+able to compile the m68k-wrs-vxworks cross-compiler on RedHat Enterprise
+Linux ES release 4.  The vxconfig script includes all the options passed to
+the gcc configure script.
+
