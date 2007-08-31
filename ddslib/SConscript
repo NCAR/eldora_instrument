@@ -1,0 +1,8 @@
+import os
+
+import DDSLib
+
+env = Environment(ENV = os.environ)
+
+lib = DDSLib.DdsLibrary('EldoraDds.idl', env)
+

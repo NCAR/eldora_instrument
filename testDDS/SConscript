@@ -1,0 +1,52 @@
+import os
+
+#TAO_ROOT = os.environ['TAO_ROOT']
+#ACE_ROOT = os.environ['ACE_ROOT']
+#DDS_ROOT = os.environ['DDS_ROOT']
+
+env = Environment(ENV = os.environ)
+env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
+env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
+env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
+env.AppendUnique(CPPPATH=['$TAO_ROOT',])
+env.AppendUnique(CPPPATH=['$ACE_ROOT',])
+env.AppendUnique(CPPPATH=['$DDS_ROOT',])
+env.AppendUnique(CPPPATH=['#./ddslib',])
+
+# libraries:
+libs = Split("""
+EldoraDds
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+TAO 
+ACE
+dl
+pthread
+rt
+""")
+
+# library paths:
+libpaths=Split("""
+../ddslib
+$ACE_ROOT/lib
+$TAO_ROOT/lib
+$DDS_ROOT/lib
+""")
+
+# Build publisher
+pubsources = Split("""
+EldoraWriter.cpp
+EldoraPublisher.cpp
+""")
+publisher = env.Program('publisher', pubsources, LIBS=libs, LIBPATH=libpaths)
+
+# Build subscriber
+subsources = Split("""
+EldoraReaderListener.cpp
+EldoraSubscriber.cpp
+""")
+subscriber = env.Program('subscriber', subsources, LIBS=libs, LIBPATH=libpaths)

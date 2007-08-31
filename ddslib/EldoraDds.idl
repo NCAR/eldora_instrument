@@ -1,0 +1,15 @@
+
+module EldoraDDS {
+
+#pragma DCPS_DATA_TYPE "EldoraDDS::Pulse"
+#pragma DCPS_DATA_KEY "EldoraDDS::Pulse radarId"
+
+  enum RadarChoice {Forward, Aft};
+  typedef sequence<float> A_B_P;
+  struct Pulse {
+    long long timestamp;
+    RadarChoice radarId;
+    A_B_P abp;
+  };
+
+};
