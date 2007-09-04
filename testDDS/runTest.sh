@@ -1,13 +1,15 @@
 #! /bin/sh
 
-pkill DCPSInfoRepo
 pkill publisher
 pkill subscriber
+pkill DCPSInfoRepo
+
+sleep 1
 
 trap "pkill subscriber; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
-$DDS_ROOT/bin/DCPSInfoRepo -o repo.ior -d conf/domain_ids -ORBSvcConf conf/tcp.conf &
+$DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf conf/tcp.conf -o repo.ior -d conf/domain_ids &
 
 sleep 5
 
@@ -23,6 +25,6 @@ echo "Starting subscriber 2"
 ./subscriber -ORBSvcConf conf/tcp.conf -DCPSConfigFile conf/simpleConf.ini &
 
 echo "Starting subscriber 3"
-./subscriber -ORBSvcConf conf/tcp.conf -DCPSConfigFile conf/simpleConf.ini
+./subscriber -ORBSvcConf conf/tcp.conf -DCPSConfigFile conf/simpleConf.ini 
 
 
