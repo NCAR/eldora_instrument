@@ -1,26 +1,6 @@
 // -*- C++ -*-
-// ============================================================================
-/**
- *  @file   publisher.cpp
- *
- *  $Id: publisher.cpp 899 2007-07-05 16:36:52Z mitza $
- *
- *
- */
-// ============================================================================
 
-#include "PulseTypeSupportImpl.h"
-#include "EldoraWriter.h"
-#include <dds/DCPS/Service_Participant.h>
-#include <dds/DCPS/Marked_Default_Qos.h>
-#include <dds/DCPS/PublisherImpl.h>
-#include <dds/DCPS/transport/framework/TheTransportFactory.h>
-#include <dds/DCPS/transport/simpleTCP/SimpleTcpConfiguration.h>
-#ifdef ACE_AS_STATIC_LIBS
-#include <dds/DCPS/transport/simpleTCP/SimpleTcp.h>
-#include <dds/DCPS/transport/simpleUnreliableDgram/SimpleUnreliableDgram.h>
-#include <dds/DCPS/transport/ReliableMulticast/ReliableMulticast.h>
-#endif
+#include "EldoraPublisher.h"
 
 #include <ace/streams.h>
 #include "ace/Get_Opt.h"
@@ -30,8 +10,34 @@ using namespace EldoraDDS;
 OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 int sleepUsecs = 10000;
 
+////////////////////////////////////////////////////////////
+
+EldoraPublisher::EldoraPublisher():
+  _writer(0)
+{
+
+}
+
+////////////////////////////////////////////////////////////
+
+EldoraPublisher::~EldoraPublisher() {
+
+      // Cleanup
+      _writer->end ();
+      delete _writer;
+
+      _participant->delete_contained_entities();
+
+      _dpf->delete_participant(_participant.in ());
+
+      TheTransportFactory->release();
+      TheServiceParticipant->shutdown ();
+}
+
+////////////////////////////////////////////////////////////
+
 int
-parse_args (int argc, char *argv[])
+EldoraPublisher::parse_args (int argc, char *argv[])
 {
   ACE_Get_Opt get_opts (argc, argv, "t:u:");
   int c;
@@ -80,16 +86,18 @@ parse_args (int argc, char *argv[])
   return 0;
 }
 
-int main (int argc, char *argv[]) {
+////////////////////////////////////////////////////////////
+
+int
+EldoraPublisher::run(int argc, char *argv[]) {
   try
     {
-      DDS::DomainParticipantFactory_var dpf =
-        TheParticipantFactoryWithArgs(argc, argv);
-      DDS::DomainParticipant_var participant =
-        dpf->create_participant(411,
-                                PARTICIPANT_QOS_DEFAULT,
-                                DDS::DomainParticipantListener::_nil());
-      if (CORBA::is_nil (participant.in ())) {
+      _dpf = TheParticipantFactoryWithArgs(argc, argv);
+
+      _participant = _dpf->create_participant(411,
+					    PARTICIPANT_QOS_DEFAULT,
+					    DDS::DomainParticipantListener::_nil());
+      if (CORBA::is_nil (_participant.in ())) {
         cerr << "create_participant failed." << endl;
         return 1;
       }
@@ -100,7 +108,7 @@ int main (int argc, char *argv[]) {
 
       PulseTypeSupport_var mts = new PulseTypeSupportImpl();
 
-      if (DDS::RETCODE_OK != mts->register_type(participant.in (), "")) {
+      if (DDS::RETCODE_OK != mts->register_type(_participant.in (), "")) {
         cerr << "register_type failed." << endl;
         exit(1);
       }
@@ -108,9 +116,9 @@ int main (int argc, char *argv[]) {
       CORBA::String_var type_name = mts->get_type_name ();
 
       DDS::TopicQos topic_qos;
-      participant->get_default_topic_qos(topic_qos);
+      _participant->get_default_topic_qos(topic_qos);
       DDS::Topic_var topic =
-        participant->create_topic ("Movie Discussion List",
+        _participant->create_topic ("Movie Discussion List",
                                    type_name.in (),
                                    topic_qos,
                                    DDS::TopicListener::_nil());
@@ -124,7 +132,7 @@ int main (int argc, char *argv[]) {
                                                     ::OpenDDS::DCPS::AUTO_CONFIG);
 
       DDS::Publisher_var pub =
-        participant->create_publisher(PUBLISHER_QOS_DEFAULT,
+        _participant->create_publisher(PUBLISHER_QOS_DEFAULT,
         DDS::PublisherListener::_nil());
       if (CORBA::is_nil (pub.in ())) {
         cerr << "create_publisher failed." << endl;
@@ -172,21 +180,10 @@ int main (int argc, char *argv[]) {
         cerr << "create_datawriter failed." << endl;
         exit(1);
       }
-      EldoraWriter* writer = new EldoraWriter(dw.in(), sleepUsecs);
+      _writer = new EldoraWriter(dw.in(), sleepUsecs);
 
-      writer->start ();
-      while ( !writer->is_finished()) {
-        ACE_Time_Value small(0,250000);
-        ACE_OS::sleep (small);
-      }
+      _writer->start ();
 
-      // Cleanup
-      writer->end ();
-      delete writer;
-      participant->delete_contained_entities();
-      dpf->delete_participant(participant.in ());
-      TheTransportFactory->release();
-      TheServiceParticipant->shutdown ();
   }
   catch (CORBA::Exception& e)
     {
@@ -196,4 +193,11 @@ int main (int argc, char *argv[]) {
     }
 
   return 0;
+}
+
+////////////////////////////////////////////////////////////
+
+bool
+EldoraPublisher::isFinished() {
+  return _writer->is_finished();
 }

@@ -52,6 +52,17 @@ void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
 	_sequenceErrors[pulse.radarId]++;
       }
       _lastTimestamp[pulse.radarId] = pulse.timestamp;
+
+      //      if ((num_reads_ % 1000) == 0 ) {
+      //std::cout << "num_reads_ " 
+      //	  << num_reads_ << " "
+      //	  << pulse.timestamp << " "
+      //	  << pulse.abp[0] << " "
+      //	  << pulse.abp[1] << " "
+      //	  << pulse.abp[2] << " "
+      //	  << std::endl;
+      //}
+
     } else if (status == DDS::RETCODE_NO_DATA) {
       cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
     } else {

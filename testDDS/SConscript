@@ -39,6 +39,7 @@ $DDS_ROOT/lib
 
 # Build publisher
 pubsources = Split("""
+testPublisher.cpp
 EldoraWriter.cpp
 EldoraPublisher.cpp
 """)
