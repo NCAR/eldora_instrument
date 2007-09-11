@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: DataReaderListener.cpp 889 2007-06-29 21:55:06Z johnc $
+
 #include "EldoraReaderListener.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
@@ -8,6 +7,8 @@
 #include <ace/streams.h>
 
 using namespace EldoraDDS;
+
+////////////////////////////////////////////////////////////
 
 // Implementation skeleton constructor
 EldoraReaderListenerImpl::EldoraReaderListenerImpl()
@@ -20,12 +21,17 @@ EldoraReaderListenerImpl::EldoraReaderListenerImpl()
   _sequenceErrors[Aft] = 0;
 }
 
+////////////////////////////////////////////////////////////
+
 // Implementation skeleton destructor
 EldoraReaderListenerImpl::~EldoraReaderListenerImpl ()
 {
 }
 
-void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
   throw (CORBA::SystemException)
 {
   num_reads_ ++;
@@ -41,6 +47,7 @@ void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
     EldoraDDS::Pulse pulse;
     DDS::SampleInfo si ;
     DDS::ReturnCode_t status = pulse_dr->take_next_sample(pulse, si) ;
+
     // Alternate code to read directlty via the servant
     //EldoraReaderImpl* dr_servant =
     //  reference_to_servant<EldoraReaderImpl>(pulse_dr.in());
@@ -48,20 +55,12 @@ void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
 
     if (status == DDS::RETCODE_OK) {
       _numBytes += pulse.abp.length()*sizeof(pulse.abp[0]); 
+
       if (_lastTimestamp[pulse.radarId]+1 != pulse.timestamp) {
 	_sequenceErrors[pulse.radarId]++;
       }
-      _lastTimestamp[pulse.radarId] = pulse.timestamp;
 
-      //      if ((num_reads_ % 1000) == 0 ) {
-      //std::cout << "num_reads_ " 
-      //	  << num_reads_ << " "
-      //	  << pulse.timestamp << " "
-      //	  << pulse.abp[0] << " "
-      //	  << pulse.abp[1] << " "
-      //	  << pulse.abp[2] << " "
-      //	  << std::endl;
-      //}
+      _lastTimestamp[pulse.radarId] = pulse.timestamp;
 
     } else if (status == DDS::RETCODE_NO_DATA) {
       cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
@@ -74,53 +73,73 @@ void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
   }
 }
 
-void EldoraReaderListenerImpl::on_requested_deadline_missed (
-							     DDS::DataReader_ptr,
-							     const DDS::RequestedDeadlineMissedStatus &)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_requested_deadline_missed (
+							DDS::DataReader_ptr,
+							const DDS::RequestedDeadlineMissedStatus &)
   throw (CORBA::SystemException)
 {
   cerr << "DataReaderListenerImpl::on_requested_deadline_missed" << endl;
 }
 
-void EldoraReaderListenerImpl::on_requested_incompatible_qos (
-							      DDS::DataReader_ptr,
-							      const DDS::RequestedIncompatibleQosStatus &)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_requested_incompatible_qos (
+							 DDS::DataReader_ptr,
+							 const DDS::RequestedIncompatibleQosStatus &)
   throw (CORBA::SystemException)
 {
   cerr << "DataReaderListenerImpl::on_requested_incompatible_qos" << endl;
 }
 
-void EldoraReaderListenerImpl::on_liveliness_changed (
-						      DDS::DataReader_ptr,
-						      const DDS::LivelinessChangedStatus &)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_liveliness_changed (	
+						 DDS::DataReader_ptr,
+						 const DDS::LivelinessChangedStatus &)
   throw (CORBA::SystemException)
 {
   cerr << "DataReaderListenerImpl::on_liveliness_changed" << endl;
 }
 
-void EldoraReaderListenerImpl::on_subscription_match (
-						      DDS::DataReader_ptr,
-						      const DDS::SubscriptionMatchStatus &)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_subscription_match (	
+						 DDS::DataReader_ptr,
+						 const DDS::SubscriptionMatchStatus &)
   throw (CORBA::SystemException)
 {
   cerr << "DataReaderListenerImpl::on_subscription_match" << endl;
 }
 
-void EldoraReaderListenerImpl::on_sample_rejected(
-						  DDS::DataReader_ptr,
-						  const DDS::SampleRejectedStatus&)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_sample_rejected(		
+					     DDS::DataReader_ptr,
+					     const DDS::SampleRejectedStatus&)
   throw (CORBA::SystemException)
 {
   cerr << "EldoraReaderListenerImpl::on_sample_rejected" << endl;
 }
 
-void EldoraReaderListenerImpl::on_sample_lost(
-					      DDS::DataReader_ptr,
-					      const DDS::SampleLostStatus&)
+////////////////////////////////////////////////////////////
+
+void 
+EldoraReaderListenerImpl::on_sample_lost(
+					 DDS::DataReader_ptr,
+					 const DDS::SampleLostStatus&)
   throw (CORBA::SystemException)
 {
   cerr << "EldoraReaderListenerImpl::on_sample_lost" << endl;
 }
+
+////////////////////////////////////////////////////////////
 
 long
 EldoraReaderListenerImpl::numBytes() {
@@ -128,6 +147,8 @@ EldoraReaderListenerImpl::numBytes() {
   _numBytes = 0;
   return current;
 }
+
+////////////////////////////////////////////////////////////
 
 std::map<RadarChoice, long>
 EldoraReaderListenerImpl::sequenceErrors() {

@@ -10,6 +10,7 @@
 // ============================================================================
 
 
+#include "EldoraSubscriber.h"
 #include "EldoraReaderListener.h"
 #include "PulseTypeSupportImpl.h"
 #include <dds/DCPS/Service_Participant.h>
@@ -35,8 +36,34 @@ using namespace EldoraDDS;
 
 OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
+////////////////////////////////////////////////////////////
+
+EldoraSubscriber::EldoraSubscriber()
+{
+
+}
+
+////////////////////////////////////////////////////////////
+
+EldoraSubscriber::~EldoraSubscriber() {
+
+  if (!CORBA::is_nil (_participant.in ())) {
+    _participant->delete_contained_entities();
+  }
+  if (!CORBA::is_nil (_dpf.in ())) {
+    _dpf->delete_participant(_participant.in ());
+  }
+  ACE_OS::sleep(2);
+
+  TheTransportFactory->release();
+  TheServiceParticipant->shutdown ();
+
+}
+
+////////////////////////////////////////////////////////////
+
 int
-parse_args (int argc, char *argv[])
+EldoraSubscriber::parse_args (int argc, char *argv[])
 {
   ACE_Get_Opt get_opts (argc, argv, "t:");
   int c;
@@ -83,18 +110,18 @@ parse_args (int argc, char *argv[])
 }
 
 
-int main (int argc, char *argv[])
+////////////////////////////////////////////////////////////
+
+int 
+EldoraSubscriber::run(int argc, char *argv[])
 {
   try
     {
-      DDS::DomainParticipantFactory_var dpf;
-      DDS::DomainParticipant_var participant;
-
-      dpf = TheParticipantFactoryWithArgs(argc, argv);
-      participant = dpf->create_participant(411,
-                                            PARTICIPANT_QOS_DEFAULT,
-                                            DDS::DomainParticipantListener::_nil());
-      if (CORBA::is_nil (participant.in ())) {
+      _dpf = TheParticipantFactoryWithArgs(argc, argv);
+      _participant = _dpf->create_participant(411,
+					      PARTICIPANT_QOS_DEFAULT,
+					      DDS::DomainParticipantListener::_nil());
+      if (CORBA::is_nil (_participant.in ())) {
         cerr << "create_participant failed." << endl;
         return 1 ;
       }
@@ -105,7 +132,7 @@ int main (int argc, char *argv[])
 
       PulseTypeSupport_var mts = new PulseTypeSupportImpl();
 
-      if (DDS::RETCODE_OK != mts->register_type(participant.in (), "")) {
+      if (DDS::RETCODE_OK != mts->register_type(_participant.in (), "")) {
 	cerr << "Failed to register the MessageTypeTypeSupport." << endl;
 	exit(1);
       }
@@ -113,11 +140,11 @@ int main (int argc, char *argv[])
       CORBA::String_var type_name = mts->get_type_name ();
 
       DDS::TopicQos topic_qos;
-      participant->get_default_topic_qos(topic_qos);
-      DDS::Topic_var topic = participant->create_topic("Movie Discussion List",
-						       type_name.in (),
-						       topic_qos,
-						       DDS::TopicListener::_nil());
+      _participant->get_default_topic_qos(topic_qos);
+      DDS::Topic_var topic = _participant->create_topic("Movie Discussion List",
+							type_name.in (),
+							topic_qos,
+							DDS::TopicListener::_nil());
       if (CORBA::is_nil (topic.in ())) {
         cerr << "Failed to create_topic." << endl;
         exit(1);
@@ -131,8 +158,8 @@ int main (int argc, char *argv[])
       // Create the subscriber and attach to the corresponding
       // transport.
       DDS::Subscriber_var sub =
-        participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT,
-                                       DDS::SubscriberListener::_nil());
+        _participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT,
+					DDS::SubscriberListener::_nil());
       if (CORBA::is_nil (sub.in ())) {
         cerr << "Failed to create_subscriber." << endl;
         exit(1);
@@ -169,9 +196,8 @@ int main (int argc, char *argv[])
       }
 
       // activate the listener
-      EldoraReaderListenerImpl listener_servant;
       DDS::DataReaderListener_var listener =
-        ::OpenDDS::DCPS::servant_to_reference(&listener_servant);
+        ::OpenDDS::DCPS::servant_to_reference(&_listenerServant);
 
       if (CORBA::is_nil (listener.in ())) {
         cerr << "listener is nil." << endl;
@@ -189,41 +215,6 @@ int main (int argc, char *argv[])
         exit(1);
       }
 
-      cout << setiosflags(ios_base::fixed);
-      cout << setprecision(2);
-      cout << setw(5);
-      cout << "\n";
-
-      int i = 0;
-      ACE_Time_Value startTime = ACE_OS::gettimeofday();
-      while(1) {
- 	ACE_OS::sleep(10);
-        long numBytes = listener_servant.numBytes();
-	std::map<EldoraDDS::RadarChoice, long> seqErrors;
-	seqErrors = listener_servant.sequenceErrors();
-        ACE_Time_Value stopTime = ACE_OS::gettimeofday();
-
- 	ACE_Time_Value deltaTime = stopTime - startTime;
-	cout << i++ << "  " << deltaTime.sec() + (deltaTime.usec()/1.0e6) << "  "
-	     << numBytes/(deltaTime.sec() + deltaTime.usec()*1.0e-6)/1.0e6 << " MB/s " 
-	     << "Forward sequence errors:" << seqErrors[EldoraDDS::Forward]  
-	     << " Aft sequence errors:"    << seqErrors[EldoraDDS::Aft] 
-	     << "\n";
-
-        startTime = stopTime;
-      }
-	
-      if (!CORBA::is_nil (participant.in ())) {
-        participant->delete_contained_entities();
-      }
-      if (!CORBA::is_nil (dpf.in ())) {
-        dpf->delete_participant(participant.in ());
-      }
-      ACE_OS::sleep(2);
-
-      TheTransportFactory->release();
-      TheServiceParticipant->shutdown ();
-
     }
   catch (CORBA::Exception& e)
     {
@@ -233,3 +224,24 @@ int main (int argc, char *argv[])
 
   return 0;
 }
+
+////////////////////////////////////////////////////////////
+
+int 
+EldoraSubscriber::numBytes() {
+
+  return _listenerServant.numBytes();
+
+}
+
+////////////////////////////////////////////////////////////
+
+std::map<RadarChoice, long>
+EldoraSubscriber::sequenceErrors() {
+
+  return _listenerServant.sequenceErrors();
+
+}
+
+////////////////////////////////////////////////////////////
+

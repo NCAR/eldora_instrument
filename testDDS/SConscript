@@ -1,9 +1,5 @@
 import os
 
-#TAO_ROOT = os.environ['TAO_ROOT']
-#ACE_ROOT = os.environ['ACE_ROOT']
-#DDS_ROOT = os.environ['DDS_ROOT']
-
 env = Environment(ENV = os.environ)
 env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
 env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
@@ -47,6 +43,7 @@ publisher = env.Program('publisher', pubsources, LIBS=libs, LIBPATH=libpaths)
 
 # Build subscriber
 subsources = Split("""
+testSubscriber.cpp
 EldoraReaderListener.cpp
 EldoraSubscriber.cpp
 """)

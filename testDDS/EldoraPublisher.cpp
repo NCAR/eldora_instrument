@@ -1,5 +1,3 @@
-// -*- C++ -*-
-
 #include "EldoraPublisher.h"
 
 #include <ace/streams.h>
@@ -15,23 +13,27 @@ int sleepUsecs = 10000;
 EldoraPublisher::EldoraPublisher():
   _writer(0)
 {
-
+  _condition = new condition_t(_mutex);
 }
 
 ////////////////////////////////////////////////////////////
 
 EldoraPublisher::~EldoraPublisher() {
 
-      // Cleanup
-      _writer->end ();
-      delete _writer;
+  // Cleanup
+  _writer->end ();
 
-      _participant->delete_contained_entities();
+  delete _writer;
 
-      _dpf->delete_participant(_participant.in ());
+  _participant->delete_contained_entities();
 
-      TheTransportFactory->release();
-      TheServiceParticipant->shutdown ();
+  _dpf->delete_participant(_participant.in ());
+
+  TheTransportFactory->release();
+
+  TheServiceParticipant->shutdown ();
+
+  delete _condition;
 }
 
 ////////////////////////////////////////////////////////////
@@ -77,11 +79,11 @@ EldoraPublisher::parse_args (int argc, char *argv[])
 			     "usage:  %s "
 			     "-t <tcp/udp/default> "
 			     "-u <sleep usecs>"
-        "\n",
-        argv [0]),
-        -1);
+			     "\n",
+			     argv [0]),
+			    -1);
+	}
     }
-  }
   // Indicates sucessful parsing of the command line
   return 0;
 }
@@ -95,8 +97,8 @@ EldoraPublisher::run(int argc, char *argv[]) {
       _dpf = TheParticipantFactoryWithArgs(argc, argv);
 
       _participant = _dpf->create_participant(411,
-					    PARTICIPANT_QOS_DEFAULT,
-					    DDS::DomainParticipantListener::_nil());
+					      PARTICIPANT_QOS_DEFAULT,
+					      DDS::DomainParticipantListener::_nil());
       if (CORBA::is_nil (_participant.in ())) {
         cerr << "create_participant failed." << endl;
         return 1;
@@ -119,9 +121,9 @@ EldoraPublisher::run(int argc, char *argv[]) {
       _participant->get_default_topic_qos(topic_qos);
       DDS::Topic_var topic =
         _participant->create_topic ("Movie Discussion List",
-                                   type_name.in (),
-                                   topic_qos,
-                                   DDS::TopicListener::_nil());
+				    type_name.in (),
+				    topic_qos,
+				    DDS::TopicListener::_nil());
       if (CORBA::is_nil (topic.in ())) {
         cerr << "create_topic failed." << endl;
         exit(1);
@@ -133,7 +135,7 @@ EldoraPublisher::run(int argc, char *argv[]) {
 
       DDS::Publisher_var pub =
         _participant->create_publisher(PUBLISHER_QOS_DEFAULT,
-        DDS::PublisherListener::_nil());
+				       DDS::PublisherListener::_nil());
       if (CORBA::is_nil (pub.in ())) {
         cerr << "create_publisher failed." << endl;
         exit(1);
@@ -165,30 +167,34 @@ EldoraPublisher::run(int argc, char *argv[]) {
           break;
         }
         cerr << "Failed to attach to the transport. Status == "
-          << status_str.c_str() << endl;
+	     << status_str.c_str() << endl;
         exit(1);
       }
 
       // Create the datawriter
       DDS::DataWriterQos dw_qos;
       pub->get_default_datawriter_qos (dw_qos);
-      DDS::DataWriter_var dw =
-        pub->create_datawriter(topic.in (),
-                               dw_qos,
-                               DDS::DataWriterListener::_nil());
+      dw = pub->create_datawriter(topic.in (),
+				  dw_qos,
+				  DDS::DataWriterListener::_nil());
       if (CORBA::is_nil (dw.in ())) {
         cerr << "create_datawriter failed." << endl;
         exit(1);
       }
-      _writer = new EldoraWriter(dw.in(), sleepUsecs);
+
+      _writer = new EldoraWriter(dw.in(), 
+				 _mutex,
+				 _condition,
+				 _queue,
+				 sleepUsecs);
 
       _writer->start ();
 
-  }
+    }
   catch (CORBA::Exception& e)
     {
-       cerr << "PUB: Exception caught in main.cpp:" << endl
-         << e << endl;
+      cerr << "PUB: Exception caught in main.cpp:" << endl
+	   << e << endl;
       exit(1);
     }
 
@@ -200,4 +206,14 @@ EldoraPublisher::run(int argc, char *argv[]) {
 bool
 EldoraPublisher::isFinished() {
   return _writer->is_finished();
+}
+
+////////////////////////////////////////////////////////////
+
+void
+EldoraPublisher::newData(int i) {
+
+  guard_t guard(_mutex);
+  _queue.push_back(i);
+  _condition->broadcast();
 }
