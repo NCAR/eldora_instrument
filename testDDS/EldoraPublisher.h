@@ -17,28 +17,37 @@
 
 #include "EldoraWriter.h"
 
+typedef EldoraDDS::Pulse pulse_t;
+
 class EldoraPublisher {
-  typedef ACE_Thread_Mutex mutex_t;
-  typedef ACE_Condition_Thread_Mutex condition_t;
-  typedef ACE_Guard<mutex_t> guard_t;
 
  public:
+
   EldoraPublisher();
+
   virtual ~EldoraPublisher();
+
   int run(int argc, char* argv[]);
+
   bool isFinished();
-  void newData(int i);
+
+  void publishPulse(pulse_t* pPulse);
+
+  int pulsesAvailable();
+
+  pulse_t* getEmptyPulse();
 
  protected:
-  int parse_args (int argc, char *argv[]);
-  DDS::DomainParticipant_var _participant;
-  DDS::DomainParticipantFactory_var _dpf;
-  DDS::DataWriter_var dw;
-  EldoraWriter* _writer;
-  mutex_t _mutex;
-  condition_t* _condition;
-  std::vector<int> _queue;
 
+  int parse_args (int argc, char *argv[]);
+
+  DDS::DomainParticipant_var _participant;
+
+  DDS::DomainParticipantFactory_var _dpf;
+
+  DDS::DataWriter_var dw;
+
+  EldoraWriter* _writer;
 };
 
 #endif

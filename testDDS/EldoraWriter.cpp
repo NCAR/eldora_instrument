@@ -4,19 +4,20 @@ const int num_instances_per_writer = 1;
 
 ////////////////////////////////////////////////////////////
 
-EldoraWriter::EldoraWriter(DDS::DataWriter_ptr writer, 
-			   mutex_t& mutex, 
-			   condition_t* condition,
-			   std::vector<int>& queue,
-			   int sleepUsecs)
-  : writer_ (DDS::DataWriter::_duplicate (writer)),
-    _mutex(mutex),
-    _condition(condition),
-    _queue(queue),
-    _sleepUsecs(sleepUsecs),
-    finished_instances_ (0),
-    timeout_writes_ (0)
+EldoraWriter::EldoraWriter(DDS::DataWriter_ptr writer) :
+  writer_ (DDS::DataWriter::_duplicate (writer)),
+  _condition(_mutex),
+  finished_instances_ (0),
+  timeout_writes_ (0)
 {
+
+  _gates = 1500;
+
+  for (int i = 0; i < 100; i++) {
+    pulse_t* pPulse = new pulse_t;
+    pPulse->abp.length(3*_gates);
+    _outQueue.push_back(pPulse);
+  }
 }
 
 ////////////////////////////////////////////////////////////
@@ -71,19 +72,16 @@ EldoraWriter::svc ()
       exit(1);
     }
 
+    pulse_t pulse;
     DDS::InstanceHandle_t handle = pulse_dw->_cxx_register (pulse);
-
-    gates = 1500;
-    pulse.timestamp  = 1;
-    pulse.abp.length(3*gates);
 
     ACE_DEBUG((LM_DEBUG,
 	       ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
     int i = 0;
 
     while(1) {
-      waitForData();
-      publish(handle);
+      waitForPulse();
+      while(publish(handle)) {};
     }
   } catch (CORBA::Exception& e) {
     cerr << "Exception caught in svc:" << endl
@@ -116,62 +114,93 @@ EldoraWriter::get_timeout_writes () const
 
 ////////////////////////////////////////////////////////////
 
-void
-EldoraWriter::waitForData() {
+int
+EldoraWriter::pulsesAvailable() {
 
   guard_t guard(_mutex);
 
-  while(_queue.size() == 0)
-    _condition->wait();
+  return _outQueue.size();
 
-  _queue.erase(_queue.begin());
+}
+////////////////////////////////////////////////////////////
+
+pulse_t*
+EldoraWriter::getEmptyPulse() {
+
+  guard_t guard(_mutex);
+
+  if (_outQueue.size() == 0 )
+    return 0;
+
+  EldoraDDS::Pulse*  pPulse = _outQueue[0];
+  _outQueue.erase(_outQueue.begin());
+
+  //std:cout << "pulse removed from outQueue " << _outQueue.size() << "\n";
+
+  return pPulse;
+
+}
+////////////////////////////////////////////////////////////
+
+void
+EldoraWriter::publishPulse(pulse_t* pPulse) {
+
+  guard_t guard(_mutex);
+
+  _inQueue.push_back(pPulse);
+
+  //std::cout << "pulse added to inQueue " << _inQueue.size() << "\n";
+
+  _condition.broadcast();
 }
 
 ////////////////////////////////////////////////////////////
 
 void
-EldoraWriter::publish(DDS::InstanceHandle_t handle) {
+EldoraWriter::waitForPulse() {
 
+  guard_t guard(_mutex);
 
-  for (int n = 0; n < 3*gates; n += 3) {
-    pulse.abp[n  ] = (short)pulse.timestamp + n;
-    pulse.abp[n+1] = (short)pulse.timestamp + n+1;
-    pulse.abp[n+2] = (short)pulse.timestamp + n+2;
-  }
-
-  pulse.timestamp++;
-
-  pulse.radarId = EldoraDDS::Forward;
-
-  DDS::ReturnCode_t ret;
-
-  ret = pulse_dw->write(pulse, handle);
-    
-  if (ret != DDS::RETCODE_OK) {
-    ACE_ERROR ((LM_ERROR,
-		ACE_TEXT("(%P|%t)ERROR  EldoraWriter::svc, ")
-		ACE_TEXT ("write() returned %d.\n"),
-		ret));
-    if (ret == DDS::RETCODE_TIMEOUT) {
-      timeout_writes_ ++;
-    }
-  }
-
-  pulse.radarId = EldoraDDS::Aft;
-
-  ret = pulse_dw->write(pulse, handle);
-    
-  if (ret != DDS::RETCODE_OK) {
-    ACE_ERROR ((LM_ERROR,
-		ACE_TEXT("(%P|%t)ERROR  EldoraWriter::svc, ")
-		ACE_TEXT ("write() returned %d.\n"),
-		ret));
-    if (ret == DDS::RETCODE_TIMEOUT) {
-      timeout_writes_ ++;
-    }
-  }
+  while(_inQueue.size() == 0)
+    _condition.wait();
 
 }
 
 ////////////////////////////////////////////////////////////
 
+bool
+EldoraWriter::publish(DDS::InstanceHandle_t handle) {
+
+  guard_t guard(_mutex);
+
+  if (_inQueue.size() == 0)
+    return false;
+
+  pulse_t* pPulse = _inQueue[0];
+
+  _inQueue.erase(_inQueue.begin());
+  
+  DDS::ReturnCode_t ret;
+
+  //std::cout << "writing pulse\n";
+
+  ret = pulse_dw->write(*pPulse, handle);
+    
+  if (ret != DDS::RETCODE_OK) {
+    ACE_ERROR ((LM_ERROR,
+		ACE_TEXT("(%P|%t)ERROR  EldoraWriter::svc, ")
+		ACE_TEXT ("write() returned %d.\n"),
+		ret));
+    if (ret == DDS::RETCODE_TIMEOUT) {
+      timeout_writes_ ++;
+    }
+  }
+
+  _outQueue.push_back(pPulse);
+
+  //std::cout << "pulse returned to outQueue\n";
+
+  return( _inQueue.size() != 0);
+}
+
+////////////////////////////////////////////////////////////
