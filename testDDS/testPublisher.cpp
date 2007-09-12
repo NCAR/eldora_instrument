@@ -3,7 +3,7 @@
 int
 main(int argc, char* argv[]) {
 
-  ACE_Time_Value small(0,2000);
+  ACE_Time_Value small(0,100);
   EldoraPublisher publisher;
 
   int pubStatus = publisher.run(argc, argv);
