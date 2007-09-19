@@ -12,7 +12,7 @@ env.AppendUnique(CPPPATH=['#./eldorasvc',])
 
 # libraries:
 libs = Split("""
-eldoradds
+eldorasvc
 EldoraDds
 ReliableMulticast 
 SimpleUnreliableDgram 
@@ -30,7 +30,7 @@ rt
 # library paths:
 libpaths=Split("""
 ../ddslib
-../eldoradds
+../eldorasvc
 $ACE_ROOT/lib
 $TAO_ROOT/lib
 $DDS_ROOT/lib
