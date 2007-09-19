@@ -1,0 +1,20 @@
+import os
+
+env = Environment(ENV = os.environ)
+env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
+env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
+env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
+env.AppendUnique(CPPPATH=['$TAO_ROOT',])
+env.AppendUnique(CPPPATH=['$ACE_ROOT',])
+env.AppendUnique(CPPPATH=['$DDS_ROOT',])
+env.AppendUnique(CPPPATH=['#./ddslib',])
+
+# sources
+sources = Split("""
+EldoraWriter.cpp
+EldoraPublisher.cpp
+EldoraReaderListener.cpp
+EldoraSubscriber.cpp
+""")
+
+subscriber = env.Library('eldorasvc', sources)

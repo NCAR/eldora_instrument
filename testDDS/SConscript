@@ -8,9 +8,11 @@ env.AppendUnique(CPPPATH=['$TAO_ROOT',])
 env.AppendUnique(CPPPATH=['$ACE_ROOT',])
 env.AppendUnique(CPPPATH=['$DDS_ROOT',])
 env.AppendUnique(CPPPATH=['#./ddslib',])
+env.AppendUnique(CPPPATH=['#./eldorasvc',])
 
 # libraries:
 libs = Split("""
+eldoradds
 EldoraDds
 ReliableMulticast 
 SimpleUnreliableDgram 
@@ -28,6 +30,7 @@ rt
 # library paths:
 libpaths=Split("""
 ../ddslib
+../eldoradds
 $ACE_ROOT/lib
 $TAO_ROOT/lib
 $DDS_ROOT/lib
@@ -36,15 +39,13 @@ $DDS_ROOT/lib
 # Build publisher
 pubsources = Split("""
 testPublisher.cpp
-EldoraWriter.cpp
-EldoraPublisher.cpp
 """)
-publisher = env.Program('publisher', pubsources, LIBS=libs, LIBPATH=libpaths)
+publisher = env.Program('publisher', pubsources, 
+   LIBS=libs, LIBPATH=libpaths )
 
 # Build subscriber
 subsources = Split("""
 testSubscriber.cpp
-EldoraReaderListener.cpp
-EldoraSubscriber.cpp
 """)
-subscriber = env.Program('subscriber', subsources, LIBS=libs, LIBPATH=libpaths)
+subscriber = env.Program('subscriber', subsources, 
+   LIBS=libs, LIBPATH=libpaths)

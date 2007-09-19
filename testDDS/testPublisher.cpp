@@ -8,8 +8,11 @@ main(int argc, char* argv[]) {
 
   int pubStatus = publisher.run(argc, argv);
 
-  if (pubStatus)
+  if (pubStatus) {
+    std::cout << "Unable to run the publsher, return status from run is " 
+	      << pubStatus << std::endl;
     return pubStatus;
+  }
 
   short timestamp = 0;
   int numPulses = 0;
@@ -20,6 +23,8 @@ main(int argc, char* argv[]) {
     EldoraDDS::Pulse* pPulse;
 
     // get an available empty pulse from the publisher
+    // This polling loop would be replaced by a synchronous
+    // data source in a real application.
     while ((pPulse = publisher.getEmptyPulse()) == 0) {
       ACE_OS::sleep (small);
     }
