@@ -3,7 +3,7 @@
 int
 main(int argc, char* argv[]) {
 
-  int nWrites = 10;
+  int nWrites = 5;
 
   ACE_Time_Value small(0,100);
   EldoraPublisher publisher;
