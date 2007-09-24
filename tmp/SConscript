@@ -1,0 +1,35 @@
+import os
+
+env = Environment(ENV = os.environ)
+env['RR314_ROOT'] = os.environ.get('RR314_ROOT',None)
+env.AppendUnique(CPPPATH=['$RR314_ROOT',])
+env.AppendUnique(CCFLAGS=['-D LINUX',])
+
+libcasources = Split("""
+$RR314_ROOT/ca_functions.c
+$RR314_ROOT/ca_membuffer.c
+""")
+
+ca = env.Library('ca', libcasources)
+
+# libraries:
+libs = Split("""
+ca
+channeladapter
+pthread
+""")
+
+# library paths:
+libpaths=Split("""
+$RR314_ROOT/linux_x86-32
+#/tmp
+""")
+
+# Build tom
+sources = Split("""
+channeladapter_DDCx4.c
+""")
+
+tom = env.Program('tom', sources,
+   LIBS=libs, LIBPATH=libpaths )
+
