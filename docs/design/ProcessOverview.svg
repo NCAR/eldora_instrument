@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="990"
+   height="765"
+   id="svg2">
+  <defs
+     id="defs4">
+    <marker
+       refX="0"
+       refY="0"
+       orient="auto"
+       style="overflow:visible"
+       id="Arrow1Mend">
+      <path
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z "
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         id="path5304" />
+    </marker>
+    <linearGradient
+       id="linearGradient8047">
+      <stop
+         style="stop-color:#00fffc;stop-opacity:1"
+         offset="0"
+         id="stop8049" />
+      <stop
+         style="stop-color:#00fffc;stop-opacity:0"
+         offset="1"
+         id="stop8051" />
+    </linearGradient>
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8053"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8070"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8086"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8106"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(95.365923,-94.81213)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8130"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8146"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8166"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-222.49121,-74.812116)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8194"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(19.651644,18.759312)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8389"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(19.651644,18.759312)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8421"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(11.698895,58.205377)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8433"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(11.698895,58.205377)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8437"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(95.365923,-94.81213)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8441"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8445"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8449"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-222.49121,-74.812116)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8460"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8474"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(39.651648,57.330736)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8481"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-222.49121,-74.812116)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8507"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(305.98459,-91.794641)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8512"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8516"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(39.651648,57.330736)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8520"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-222.49121,-74.812116)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8534"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8554"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(305.98459,-91.794641)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8567"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-222.49121,-74.812116)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8571"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8573"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8587"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8603"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8630"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8634"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8682"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(106.6989,0.3482284)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8684"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.0802155,1.6164551)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8686"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+    <linearGradient
+       x1="177.85715"
+       y1="477.36218"
+       x2="202.64285"
+       y2="502.36218"
+       id="linearGradient8704"
+       xlink:href="#linearGradient8047"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(265.9846,126.7768)" />
+  </defs>
+  <g
+     id="layer1">
+    <g
+       transform="matrix(0.7752044,0,0,0.7064777,98.389937,13.703045)"
+       id="g11292" />
+    <g
+       transform="translate(146.26908,19.264688)"
+       id="g16985">
+      <rect
+         width="117.85714"
+         height="71.428574"
+         rx="10.42449"
+         ry="10.42449"
+         x="393.86758"
+         y="105.90387"
+         style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11267" />
+      <rect
+         width="39.867653"
+         height="24.222092"
+         rx="8.081111"
+         ry="7.3646698"
+         x="393.75519"
+         y="105.75712"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11269" />
+      <text
+         x="381.45074"
+         y="126.7009"
+         transform="scale(1.0475117,0.9546433)"
+         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11271"
+         xml:space="preserve"><tspan
+           x="381.45074"
+           y="126.7009"
+           id="tspan11273">State</tspan></text>
+      <rect
+         width="39.867653"
+         height="24.222092"
+         rx="8.081111"
+         ry="7.3646698"
+         x="471.79089"
+         y="105.9357"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11301" />
+      <text
+         x="460.10013"
+         y="126.85351"
+         transform="scale(1.0475117,0.9546433)"
+         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11303"
+         xml:space="preserve"><tspan
+           x="460.10013"
+           y="126.85351"
+           id="tspan11305">RPC</tspan></text>
+      <text
+         x="424.93903"
+         y="151.61816"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11297"
+         xml:space="preserve"><tspan
+           x="424.93903"
+           y="151.61816"
+           id="tspan11299">EldoraGui</tspan></text>
+    </g>
+    <g
+       transform="translate(326.38803,214.32744)"
+       id="g11356">
+      <g
+         id="g11591">
+        <rect
+           width="117.85714"
+           height="71.428574"
+           rx="10.42449"
+           ry="10.42449"
+           x="511.42856"
+           y="348.79074"
+           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11358" />
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="512.85712"
+           y="452.36218"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11360" />
+        <text
+           x="520.3634"
+           y="473.8732"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11362"
+           xml:space="preserve"><tspan
+             x="520.3634"
+             y="473.8732"
+             id="tspan11364">State</tspan></text>
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="613.52179"
+           y="452.61496"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11366" />
+        <text
+           x="626.64008"
+           y="474.07941"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11368"
+           xml:space="preserve"><tspan
+             x="626.64008"
+             y="474.07941"
+             id="tspan11370">RPC</tspan></text>
+        <text
+           x="542.5"
+           y="397.71933"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11372"
+           xml:space="preserve"><tspan
+             x="542.5"
+             y="397.71933"
+             id="tspan11374">EldoraPPI</tspan></text>
+      </g>
+    </g>
+    <g
+       transform="translate(-85.269719,218.35909)"
+       id="g11376">
+      <g
+         id="g11617">
+        <rect
+           width="117.85714"
+           height="71.428574"
+           rx="10.42449"
+           ry="10.42449"
+           x="511.42856"
+           y="348.79074"
+           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11378" />
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="512.85712"
+           y="452.36218"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11380" />
+        <text
+           x="520.3634"
+           y="473.8732"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11382"
+           xml:space="preserve"><tspan
+             x="520.3634"
+             y="473.8732"
+             id="tspan11384">State</tspan></text>
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="613.52179"
+           y="452.61496"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11386" />
+        <text
+           x="626.64008"
+           y="474.07941"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11388"
+           xml:space="preserve"><tspan
+             x="626.64008"
+             y="474.07941"
+             id="tspan11390">RPC</tspan></text>
+        <text
+           x="547.85712"
+           y="395.57648"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11392"
+           xml:space="preserve"><tspan
+             x="547.85712"
+             y="395.57648"
+             id="tspan11394">EldoraArc</tspan></text>
+      </g>
+    </g>
+    <g
+       transform="translate(111.54243,-40.839261)"
+       id="g11396">
+      <g
+         id="g11580">
+        <rect
+           width="117.85714"
+           height="71.428574"
+           rx="10.42449"
+           ry="10.42449"
+           x="511.42856"
+           y="348.79074"
+           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11398" />
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="512.85712"
+           y="452.36218"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11400" />
+        <text
+           x="520.3634"
+           y="473.8732"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11402"
+           xml:space="preserve"><tspan
+             x="520.3634"
+             y="473.8732"
+             id="tspan11404">State</tspan></text>
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="613.52179"
+           y="452.61496"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11406" />
+        <text
+           x="626.64008"
+           y="474.07941"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11408"
+           xml:space="preserve"><tspan
+             x="626.64008"
+             y="474.07941"
+             id="tspan11410">RPC</tspan></text>
+        <text
+           x="540.71429"
+           y="394.50504"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11412"
+           xml:space="preserve"><tspan
+             x="540.71429"
+             y="394.50504"
+             id="tspan11414">EldoraProd</tspan></text>
+      </g>
+    </g>
+    <g
+       transform="translate(133.2488,220.73321)"
+       id="g11416">
+      <g
+         transform="translate(-16.071429,-6.0714286)"
+         id="g11606">
+        <rect
+           width="117.85714"
+           height="71.428574"
+           rx="10.42449"
+           ry="10.42449"
+           x="511.42856"
+           y="348.79074"
+           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11418" />
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="512.85712"
+           y="452.36218"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11420" />
+        <text
+           x="520.3634"
+           y="473.8732"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11422"
+           xml:space="preserve"><tspan
+             x="520.3634"
+             y="473.8732"
+             id="tspan11424">State</tspan></text>
+        <rect
+           width="51.42857"
+           height="34.285713"
+           rx="10.42449"
+           ry="10.42449"
+           x="613.52179"
+           y="452.61496"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11426" />
+        <text
+           x="626.64008"
+           y="474.07941"
+           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11428"
+           xml:space="preserve"><tspan
+             x="626.64008"
+             y="474.07941"
+             id="tspan11430">RPC</tspan></text>
+        <text
+           x="535"
+           y="395.93362"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11432"
+           xml:space="preserve"><tspan
+             x="535"
+             y="395.93362"
+             id="tspan11434">EldoraScope</tspan></text>
+      </g>
+    </g>
+    <text
+       x="598.57141"
+       y="506.64789"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text11280"
+       xml:space="preserve"><tspan
+         x="598.57141"
+         y="506.64789"
+         id="tspan11282">  </tspan></text>
+    <text
+       x="157.5838"
+       y="416.97623"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text11650"
+       xml:space="preserve"><tspan
+         x="157.5838"
+         y="416.97623"
+         id="tspan11652"> </tspan></text>
+    <g
+       transform="translate(-439.12652,68.326645)"
+       id="g11693">
+      <rect
+         width="117.85714"
+         height="71.428574"
+         rx="10.42449"
+         ry="10.42449"
+         x="511.42856"
+         y="348.79074"
+         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11667" />
+      <rect
+         width="51.42857"
+         height="34.285713"
+         rx="10.42449"
+         ry="10.42449"
+         x="512.85712"
+         y="452.36218"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11669" />
+      <text
+         x="520.3634"
+         y="473.8732"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11671"
+         xml:space="preserve"><tspan
+           x="520.3634"
+           y="473.8732"
+           id="tspan11673">State</tspan></text>
+      <rect
+         width="51.42857"
+         height="34.285713"
+         rx="10.42449"
+         ry="10.42449"
+         x="613.52179"
+         y="452.61496"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect11675" />
+      <text
+         x="626.64008"
+         y="474.07941"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11677"
+         xml:space="preserve"><tspan
+           x="626.64008"
+           y="474.07941"
+           id="tspan11679">RPC</tspan></text>
+      <text
+         x="531.08191"
+         y="395.63773"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11681"
+         xml:space="preserve"><tspan
+           x="531.08191"
+           y="395.63773"
+           id="tspan11683">HouseKeeper</tspan></text>
+    </g>
+    <path
+       d="M 712.39838,379.88005 L 866.24634,562.6014"
+       inkscape:connection-start="#g11396"
+       inkscape:connection-end="#g11356"
+       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path11953" />
+    <path
+       d="M 682.69843,379.88005 L 686.73563,562.93574"
+       inkscape:connection-start="#g11396"
+       inkscape:connection-end="#g11416"
+       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path11957" />
+    <g
+       transform="translate(41.507577,-15.591734)"
+       id="g12017">
+      <g
+         transform="translate(79.802052,43.436558)"
+         id="g11942">
+        <rect
+           width="117.85714"
+           height="71.428574"
+           rx="10.42449"
+           ry="10.42449"
+           x="150.173"
+           y="282.27539"
+           style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11632" />
+        <rect
+           width="39.867653"
+           height="24.222092"
+           rx="8.081111"
+           ry="7.3646698"
+           x="150.06062"
+           y="282.12863"
+           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11634" />
+        <rect
+           width="39.867653"
+           height="24.222092"
+           rx="8.081111"
+           ry="7.3646698"
+           x="228.09631"
+           y="282.30719"
+           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect11640" />
+        <text
+           x="169.82635"
+           y="329.12238"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="text11646"
+           xml:space="preserve"><tspan
+             x="169.82635"
+             y="329.12238"
+             id="tspan11648">EldoraMerge</tspan></text>
+      </g>
+      <text
+         x="303.64124"
+         y="356.04691"
+         transform="scale(1.0475117,0.9546433)"
+         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11642"
+         xml:space="preserve"><tspan
+           x="303.64124"
+           y="356.04691"
+           id="tspan11644">RPC</tspan></text>
+      <text
+         x="225.95618"
+         y="355.89432"
+         transform="scale(1.0475117,0.9546433)"
+         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text11636"
+         xml:space="preserve"><tspan
+           x="225.95618"
+           y="355.89432"
+           id="tspan11638">State</tspan></text>
+    </g>
+    <g
+       transform="translate(170.38209,-128.20356)"
+       id="g12029">
+      <g
+         transform="translate(79.802052,43.436558)"
+         id="g12031" />
+    </g>
+    <path
+       d="M 654.39528,379.88005 L 512.59168,566.63305"
+       inkscape:connection-start="#g11396"
+       inkscape:connection-end="#g11376"
+       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path12051" />
+    <rect
+       width="117.85714"
+       height="71.428574"
+       rx="10.42449"
+       ry="10.42449"
+       x="271.79837"
+       y="238.22919"
+       style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect11338" />
+    <rect
+       width="39.867653"
+       height="24.222092"
+       rx="8.081111"
+       ry="7.3646698"
+       x="271.686"
+       y="238.08243"
+       style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect11340" />
+    <text
+       x="264.91815"
+       y="265.31326"
+       transform="scale(1.0475117,0.9546433)"
+       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text11342"
+       xml:space="preserve"><tspan
+         x="264.91815"
+         y="265.31326"
+         id="tspan11344">State</tspan></text>
+    <rect
+       width="39.867653"
+       height="24.222092"
+       rx="8.081111"
+       ry="7.3646698"
+       x="349.72168"
+       y="238.26102"
+       style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect11346" />
+    <text
+       x="343.56754"
+       y="265.46585"
+       transform="scale(1.0475117,0.9546433)"
+       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text11348"
+       xml:space="preserve"><tspan
+         x="343.56754"
+         y="265.46585"
+         id="tspan11350">RPC</tspan></text>
+    <text
+       x="295.99741"
+       y="280.02542"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text11352"
+       xml:space="preserve"><tspan
+         x="295.99741"
+         y="280.02542"
+         id="tspan11354">EldoraExec  </tspan></text>
+    <rect
+       width="117.38573"
+       height="23.705883"
+       rx="23.793903"
+       ry="7.2077179"
+       x="271.8446"
+       y="286.52222"
+       style="fill:#ffd700;fill-opacity:1;stroke:#6a0aff;stroke-width:1.25625241;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect12072" />
+    <text
+       x="287.79877"
+       y="314.72598"
+       transform="scale(1.0475117,0.9546433)"
+       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text12074"
+       xml:space="preserve"><tspan
+         x="287.79877"
+         y="314.72598"
+         id="tspan12076">FPGA Rx/Tx</tspan></text>
+    <g
+       transform="matrix(0.8671869,0,0,0.9618288,81.724997,10.129123)"
+       id="g15995">
+      <rect
+         width="160.19136"
+         height="204.65907"
+         x="206.58215"
+         y="206.60208"
+         style="opacity:1;fill:none;fill-opacity:1;stroke:#1353f0;stroke-width:1.15250587;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.15250583, 2.30501166;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect13078" />
+      <text
+         x="247.14285"
+         y="228.57143"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         id="text15987"
+         xml:space="preserve"><tspan
+           x="247.14285"
+           y="228.57143"
+           id="tspan15989">threaded tasks</tspan></text>
+    </g>
+    <text
+       x="310"
+       y="177.85715"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text15991"
+       xml:space="preserve"><tspan
+         x="310"
+         y="177.85715"
+         id="tspan15993"> </tspan></text>
+    <path
+       d="M 389.83977,372.37459 L 837.31659,572.27559"
+       inkscape:connection-start="#g12017"
+       inkscape:connection-end="#g11356"
+       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path16996" />
+    <path
+       d="M 381.47442,382.04879 L 636.47129,562.93574"
+       inkscape:connection-start="#g12017"
+       inkscape:connection-end="#g11416"
+       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path16998" />
+    <path
+       d="M 352.20942,382.04879 L 463.2892,566.63305"
+       inkscape:connection-start="#g12017"
+       inkscape:connection-end="#g11376"
+       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path17000" />
+    <path
+       d="M 190.65918,420.89904 L 270.98263,377.75035"
+       inkscape:connection-start="#g11693"
+       inkscape:connection-end="#g12017"
+       style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:16, 2;stroke-dashoffset:0;stroke-opacity:1"
+       id="path17004" />
+    <path
+       d="M 389.83977,345.45943 L 622.47099,344.02406"
+       inkscape:connection-start="#g12017"
+       inkscape:connection-end="#g11396"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path17008" />
+    <path
+       d="M 91.157529,654.14128 L 173.86852,654.0689"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2549" />
+    <path
+       d="M 91.428077,674.72824 L 174.35271,674.56391"
+       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:1.58611608;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2551" />
+    <path
+       d="M 91.04325,613.47568 L 173.94503,612.79375"
+       style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:1.58871269;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:19.06455273, 1.58871272;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2553" />
+    <text
+       x="187.85715"
+       y="618.57141"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text2555"
+       xml:space="preserve"><tspan
+         x="187.85715"
+         y="618.57141"
+         id="tspan2557">UDP Link</tspan></text>
+    <text
+       x="187.85715"
+       y="679.64282"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text2559"
+       xml:space="preserve"><tspan
+         x="187.85715"
+         y="679.64282"
+         id="tspan2561">DDS Links</tspan></text>
+    <path
+       d="M 93.003547,694.34912 L 175.71454,694.27674"
+       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path3532" />
+    <text
+       x="425.71234"
+       y="71.134331"
+       transform="scale(0.8901442,1.1234135)"
+       style="font-size:23.46201897px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text2339"
+       xml:space="preserve"><tspan
+         x="425.71234"
+         y="71.134331"
+         id="tspan2341">Eldora Process Overview</tspan></text>
+    <text
+       x="846.50781"
+       y="727.62439"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text2343"
+       xml:space="preserve"><tspan
+         x="846.50781"
+         y="727.62439"
+         id="tspan2345">12 July 2007</tspan></text>
+    <text
+       x="923.27942"
+       y="455.89331"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       id="text2347"
+       xml:space="preserve"><tspan
+         x="923.27942"
+         y="455.89331"
+         id="tspan2349"> </tspan></text>
+  </g>
+</svg>
