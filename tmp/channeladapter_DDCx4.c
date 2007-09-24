@@ -1,3 +1,5 @@
+#define DWORD int
+
 /*****************************************************************************************
 
  Red Rapids 
@@ -60,17 +62,16 @@
 	
 #endif
 
+DWORD ChXferDone;	       //Bit map for channels than have completed transfer	
 
-DWORD ChXferDone;		//Bit map for channels than have completed transfer	
-
-s_ChMemBuffer MemBuffer_Ch[16];		//Large memory buffers, data from DMA space will be moved here
+s_ChMemBuffer MemBuffer_Ch[16];	//Large memory buffers, data from DMA space will be moved here
 
 //Set DDC Values
 DWORD decimation = 12;
 DWORD gates	 = 1000;
 DWORD samples	 = 100;
 DWORD dprt	 = 0;
-DWORD index	 = 0;
+DWORD indx	 = 0;
 DWORD length	 = 10;
 DWORD Timers	 = TIMER0|TIMER1;
 
@@ -139,7 +140,7 @@ int main(int argc, char* argv[])
 	printf("User Logic Rev (Offset 0x800) =  %x\n", Dummy);
 	
 	//Display current board temp
-	printf("Current temp is %.2f C\n", caGetTemp(&CA0));
+	printf("Current temp is %.2f C\n", ca_GetTemp(&CA0));
 	
 	
 	/*********************Init Block **********************************************************/
@@ -204,7 +205,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	else	
-		LoadCADMASettings(&CA0);
+		ca_LoadDMASettings(&CA0);
 			
 	printf("DMA memory allocation done.\n");
 	
@@ -212,7 +213,7 @@ int main(int argc, char* argv[])
 	//Setup large storage buffer to move data to after each DMA group is done
 	for (i = 0; i < CA0.DMA.DMAChannels+1; i++) {
 		int chan = i;
-		if (caChMemBuffer_Init(&CA0, &MemBuffer_Ch[chan], chan, GrpsToCapture))
+		if (ca_MemBuffer_Init(&CA0, &MemBuffer_Ch[chan], chan, GrpsToCapture))
 		{
 			fprintf(stderr, "Could not allocate storage buffer, will now exit.\n");
 			Adapter_Close(&CA0);
@@ -248,17 +249,17 @@ int main(int argc, char* argv[])
 	Adapter_Write32(&CA0, V4, M_REG, gates);     // # of Gates
   	Adapter_Write32(&CA0, V4, N_REG, samples);   // # of Samples
   	Adapter_Write32(&CA0, V4, DPRT_REG, dprt);      // Dual Prt(Off)
-	Adapter_Write32(&CA0, V4, IQ_START_IDX, index);     // index of start of IQ capture
+	Adapter_Write32(&CA0, V4, IQ_START_IDX, indx);     // index of start of IQ capture
 	Adapter_Write32(&CA0, V4, IQ_GATE_LEN, length);    // # of Gate of IQ capture
 
 	Adapter_Read32(&CA0, V4, M_REG, &gates);
   	Adapter_Read32(&CA0, V4, N_REG, &samples);
   	Adapter_Read32(&CA0, V4, DPRT_REG, &dprt);
-	Adapter_Read32(&CA0, V4, IQ_START_IDX, &index);
+	Adapter_Read32(&CA0, V4, IQ_START_IDX, &indx);
 	Adapter_Read32(&CA0, V4, IQ_GATE_LEN, &length);
 	
   	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", gates, samples, dprt);
-	printf("IQ Index = %d, IQ Length = %d\n", index, length);
+	printf("IQ Index = %d, IQ Length = %d\n", indx, length);
   	printf("Pulse Width = %d, Decimation Factor = %d\n", gates, decimation);
 
   	//Reset Timers
@@ -355,28 +356,28 @@ int main(int argc, char* argv[])
 	//Write out the large buffer contents now that collect is done
 	
 	if ((Timers&TIMER0)>>4) {
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[0], "ChA_IQ.txt", "txt", "16bit-txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[1], "ChA_P.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[2], "ChA_A.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[3], "ChA_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[0], "ChA_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[1], "ChA_P.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[2], "ChA_A.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[3], "ChA_B.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER1)>>5) {
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[4], "ChB_IQ.txt", "txt", "16bit-txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[5], "ChB_P.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[6], "ChB_A.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[7], "ChB_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[4], "ChB_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[5], "ChB_P.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[6], "ChB_A.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[7], "ChB_B.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER2)>>6) {
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[8], "ChC_IQ.txt", "txt", "16bit-txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[9], "ChC_P.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[10], "ChC_A.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[11], "ChC_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[8], "ChC_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[9], "ChC_P.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[10], "ChC_A.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[11], "ChC_B.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER3)>>7) {
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[12], "ChD_IQ.txt", "txt", "16bit-txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[13], "ChD_P.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[14], "ChD_A.txt", "txt", "32bit_h_txt");
-	  caChMemBuffer_WriteToDisk(&MemBuffer_Ch[15], "ChD_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[12], "ChD_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[13], "ChD_P.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[14], "ChD_A.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[15], "ChD_B.txt", "txt", "32bit_h_txt");
 	}
 	
 	//Close the card and exit
@@ -405,7 +406,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x1) & (ChXferDone & 0x1)) //Ch 0 DMA Done
 		{
 			printf("Moving ChA IQ\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[0], 0);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[0], 0);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 0 , you might be falling behind.\n", GrpsDone);
 		}
@@ -413,7 +414,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
  		if((DMAStat & 0x2) & (ChXferDone & 0x2)) //Ch 1 DMA Done
  		{
  			printf("Moving ChA P\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[1], 1);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[1], 1);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 1 , you might be falling behind.\n", GrpsDone);
 		}
@@ -421,14 +422,14 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x4) & (ChXferDone & 0x4)) //Ch 2 DMA Done
 		{
 			printf("Moving ChA A\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[2], 2);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[2], 2);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 2 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x8) & (ChXferDone & 0x8)) //Ch 3 DMA Done
 		{
 			printf("Moving ChA B\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[3], 3);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[3], 3);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 3 , you might be falling behind.\n", GrpsDone);
 		}
@@ -437,7 +438,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x10) & (ChXferDone & 0x10)) //Ch 4 DMA Done
 		{
 			printf("Moving ChB IQ\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[4], 4);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[4], 4);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 4 , you might be falling behind.\n", GrpsDone);
 		}
@@ -445,7 +446,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
  		if((DMAStat & 0x20) & (ChXferDone & 0x20)) //Ch 5 DMA Done
  		{
  			printf("Moving ChB P\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[5], 5);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[5], 5);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 5 , you might be falling behind.\n", GrpsDone);
 		}
@@ -453,14 +454,14 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x40) & (ChXferDone & 0x40)) //Ch 6 DMA Done
 		{
 			printf("Moving ChB A\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[6], 6);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[6], 6);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 6 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x80) & (ChXferDone & 0x80)) //Ch 7 DMA Done
 		{
 			printf("Moving ChB B\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[7], 7);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[7], 7);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 7 , you might be falling behind.\n", GrpsDone);
 		}
@@ -469,7 +470,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x100) & (ChXferDone & 0x100)) //Ch 8 DMA Done
 		{
 			printf("Moving ChC IQ\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[8], 8);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[8], 8);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 8 , you might be falling behind.\n", GrpsDone);
 		}
@@ -477,7 +478,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
  		if((DMAStat & 0x200) & (ChXferDone & 0x200)) //Ch 9 DMA Done
  		{
  			printf("Moving ChC P\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[9], 9);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[9], 9);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 9 , you might be falling behind.\n", GrpsDone);
 		}
@@ -485,14 +486,14 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x400) & (ChXferDone & 0x400)) //Ch 10 DMA Done
 		{
 			printf("Moving ChC A\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[10], 10);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[10], 10);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 10 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x800) & (ChXferDone & 0x800)) //Ch 11 DMA Done
 		{
 			printf("Moving ChC B\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[11], 11);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[11], 11);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 11 , you might be falling behind.\n", GrpsDone);
 		}
@@ -501,7 +502,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x1000) & (ChXferDone & 0x1000)) //Ch 12 DMA Done
 		{
 			printf("Moving ChD IQ\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[12], 12);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[12], 12);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 12 , you might be falling behind.\n", GrpsDone);
 		}
@@ -509,7 +510,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
  		if((DMAStat & 0x2000) & (ChXferDone & 0x2000)) //Ch 13 DMA Done
  		{
  			printf("Moving ChD P\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[13], 13);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[13], 13);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 13 , you might be falling behind.\n", GrpsDone);
 		}
@@ -517,14 +518,14 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if((DMAStat & 0x4000) & (ChXferDone & 0x4000)) //Ch 14 DMA Done
 		{
 			printf("Moving ChD A\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[14], 14);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[14], 14);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 14 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x8000) & (ChXferDone & 0x8000)) //Ch 15 DMA Done
 		{
 			printf("Moving ChD B\n");
-			GrpsDone = caChMemBuffer_Copy(pCA,  &MemBuffer_Ch[15], 15);
+			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[15], 15);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 15 , you might be falling behind.\n", GrpsDone);
 		}
