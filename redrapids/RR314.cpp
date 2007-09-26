@@ -326,15 +326,6 @@ RR314::configureRedRiver()
 
   std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
-  //Read from the QL to test out connections
-  Adapter_Read32(&_CA0, 
-		 BRIDGE, 
-		 BRG_REV_ADR, 
-		 &Dummy);
-  printf("PCI Bridge rev is %x\n", Dummy);
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   //Load the v4 if needed
   if(_xsvfFileName.size() > 0) {
     std::cout << "Loading bitstream " << _xsvfFileName << std::endl;
