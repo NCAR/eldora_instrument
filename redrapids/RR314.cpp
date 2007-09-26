@@ -243,10 +243,6 @@ int
 RR314::configureRedRiver()
 {
 
-  std::cout << "BRIDGE is " << BRIDGE << ", BRG_FPGA_STAT is " << BRG_FPGA_STAT << std::endl;
-  
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   int GrpsToCapture = 2;
   ///////////////////////////////////////////////////////////////////////
   //
@@ -255,8 +251,6 @@ RR314::configureRedRiver()
   // install signal handler for abort signals
   struct sigaction new_action, old_action;
      
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   /* Set up the structure to specify the new action. */
   new_action.sa_handler = shutdownSignalHandler;
   sigemptyset (&new_action.sa_mask);
@@ -272,8 +266,6 @@ RR314::configureRedRiver()
   if (old_action.sa_handler != SIG_IGN)
     sigaction (SIGTERM, &new_action, NULL);
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   unsigned int Dummy;
 
   //Flags
@@ -286,29 +278,19 @@ RR314::configureRedRiver()
 
   pCA0 = &_CA0;
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   pthread_mutex_lock(&bufferMutex);
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   for (int i = 0; i < BUFFERPOOLSIZE; i++) {
     short* buf = new short[DMABLOCKSIZE*DMABLOCKSPERGROUP*4];
     freeBuffers.push_back(buf);
   }
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   pthread_mutex_unlock(&bufferMutex);
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   //Init all flags to default values
   Adapter_Zero(&_CA0);
   _CA0.DevNum = 0;
   strcpy(_CA0.Asy, "M314"); 
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   // Open channel adapter
   if(Adapter_Open(&_CA0)) {
@@ -318,15 +300,11 @@ RR314::configureRedRiver()
     printf("Opened ChannelAdapter device %d\n", _CA0.DevNum);
   }
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // Disable all interupts
   Adapter_Write32(&_CA0, 
 		  V4, 
 		  V4_MASK_ADR, 
 		  0);
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   //Load the v4 if needed
   if(_xsvfFileName.size() > 0) {
@@ -340,8 +318,6 @@ RR314::configureRedRiver()
     }
   }
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // set up the filters. Will do nothing if either of
   // the filter file paths is empty.
   if (filterSetup()) {
@@ -349,27 +325,21 @@ RR314::configureRedRiver()
     return -1;
   }
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // Disable all interupts
   Adapter_Write32(&_CA0, V4, V4_MASK_ADR, 0x0);
 	
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   //Check the V4 has a valid load.  
-  //  if(V4LoadCheck)
-  //{
-  //  Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &Dummy);
-  //  if(!(Dummy & FPGA_PROG_DONE))
-  //{
-  //  printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
-  //  Adapter_Close(&_CA0);
-  //  return -1;	
-  //}
-  //}
+  if(V4LoadCheck)
+  {
+    Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &Dummy);
+    if(!(Dummy & FPGA_PROG_DONE))
+  {
+    printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
+    Adapter_Close(&_CA0);
+    return -1;	
+  }
+  }
 	
-  //std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // get some of the rev numbers from the card 
   Adapter_Read32(&_CA0, BRIDGE, BRG_REV_ADR, &Dummy);
   printf("PCI Bridge rev is %x\n", Dummy);
@@ -378,8 +348,6 @@ RR314::configureRedRiver()
   Adapter_Read32(&_CA0, V4, V4_REV_ADR, &Dummy);  
   printf("User Logic Rev (Offset 0x800) =  %x\n", Dummy);
 	
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // Display current board temp
   printf("Current temp is %.2f C\n", ca_GetTemp(&_CA0));
 	
@@ -387,24 +355,16 @@ RR314::configureRedRiver()
   _ClkSettings.ClkSrc = SYNTH;    // can be either SYNTH or EXT
   Adapter_SampleClkSelect(&_CA0, &_ClkSettings);
 
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // Code here should reset your DCMs and allow time for them to lock,
   // then check their status
   //Adapter_uSleep(1000000);
 
-  return -1;
-
   // Soft Reset, self clearing
   Adapter_Write32(&_CA0, V4, V4_CTL_ADR, SOFT_RST); 
-
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   // Wait for DCM to Relock
   Adapter_uSleep(1000000);     
 		
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
   // Check for DCM Lock
   Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &Dummy); //Clear old status reg
   Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &Dummy);
@@ -414,10 +374,6 @@ RR314::configureRedRiver()
     return -1;
   }
 				
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
-
-  return -1;
-
   // Set M314 VRANGE mode.  This will touch the register that controls the sample
   // clk select, so it is done as RMW.
   // Set ADC range to 2Vpp 

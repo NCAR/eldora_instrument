@@ -18,6 +18,7 @@ main(int argc, char** argv)
 	      
   while(1) {
     std::cout << "sleep...\n";
+    sleep(1);
   }
 }
 
