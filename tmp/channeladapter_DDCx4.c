@@ -44,7 +44,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #include "ca_bar0_memmap.h"
 #include "ca_lb_memmap.h"
 #include "ca_diag_memmap.h"
@@ -120,6 +119,8 @@ int main(int argc, char* argv[])
 	// Disable all interupts
   	Adapter_Write32(&CA0, V4, V4_MASK_ADR, 0x0);
 	
+	printf("BRIDGE is %x, BRG_FPGA_STAT is %x\n", BRIDGE,  BRG_FPGA_STAT);
+
 	//Check the V4 has a valid load.  
  	if(V4LoadCheck)
  	{

@@ -243,6 +243,8 @@ int
 RR314::configureRedRiver()
 {
 
+  std::cout << "BRIDGE is " << BRIDGE << ", BRG_FPGA_STAT is " << BRG_FPGA_STAT << std::endl;
+  
   std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   int GrpsToCapture = 2;
@@ -355,18 +357,18 @@ RR314::configureRedRiver()
   std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   //Check the V4 has a valid load.  
-  if(V4LoadCheck)
-    {
-      Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &Dummy);
-      if(!(Dummy & FPGA_PROG_DONE))
-	{
-	  printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
-	  Adapter_Close(&_CA0);
-	  return -1;	
-	}
-    }
+  //  if(V4LoadCheck)
+  //{
+  //  Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &Dummy);
+  //  if(!(Dummy & FPGA_PROG_DONE))
+  //{
+  //  printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
+  //  Adapter_Close(&_CA0);
+  //  return -1;	
+  //}
+  //}
 	
-  std::cout << "line " << __LINE__ << std::endl; sleep(1);
+  //std::cout << "line " << __LINE__ << std::endl; sleep(1);
 
   // get some of the rev numbers from the card 
   Adapter_Read32(&_CA0, BRIDGE, BRG_REV_ADR, &Dummy);
