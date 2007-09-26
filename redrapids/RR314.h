@@ -22,7 +22,7 @@
 #include "ca_membuffer.h"
 
 #define DMANUMGROUPS      8
-#define DMABLOCKSIZE      1024
+#define DMABLOCKSIZE      128
 #define DMABLOCKSPERGROUP 16
 #define BUFFERPOOLSIZE    2*DMANUMGROUPS
 #define DMA_GROUPS_PER_INT 10

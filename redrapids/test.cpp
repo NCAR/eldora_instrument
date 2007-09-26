@@ -5,10 +5,10 @@ int
 main(int argc, char** argv) 
 {
 
-  RR314 rr314(600,
+  RR314 rr314(1000,
 	      100,
 	      0,
-	      100,
+	      0,
 	      10,
 	      50.0e6,
 	      12,

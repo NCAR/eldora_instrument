@@ -667,9 +667,8 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   Adapter_Read32(pCA, V4, DMA_INT_MASK_ADR,  &DMAMask);
   Adapter_Read32(pCA, V4, DMA_INT_STAT_ADR,  &DMAStatus);
 
-  //  printf("Adapter_ISR: Device %d, Status %x, Mask %x, Control %x, DMA Mask %x, 
-  //     DMA Status %x FifoFullInts %d sampleCout %d\n", 
-  // pCA->DevNum, Status, Mask, Control, DMAMask, DMAStatus, fifoFullInts, sampleCount);
+  printf("Adapter_ISR: Device %d, Status %x, Mask %x, Control %x, DMA Mask %x, DMA Status %x FifoFullInts %d sampleCout %d\n", 
+	 pCA->DevNum, Status, Mask, Control, DMAMask, DMAStatus, fifoFullInts, sampleCount);
 
   // see if we have a DMA interrupt
   if (Status & DMA_GRP_DONE) {
@@ -681,42 +680,45 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
     }  
   }   
 
+  // check for AD fifos full.
   int Dummy = 0;
   if((Mask & Status) & ADCA_FF_FULL)    {
-    // Flush ADC A FIFO
     Dummy |= ADCAFF_FLUSH;
+    std::cout << "ADCA fifo full\n";
     fifoFullInts++;
   }
     
   if((Mask & Status) & ADCB_FF_FULL)   {
     Dummy |= ADCBFF_FLUSH;
+    std::cout << "ADCB fifo full\n";
     fifoFullInts++;
   }
 
   if((Mask & Status) & ADCC_FF_FULL)         {
-    Dummy |= ADCDFF_FLUSH;
+    Dummy |= ADCCFF_FLUSH;
+    std::cout << "ADCC fifo full\n";
     fifoFullInts++;
   }
   
   if((Mask & Status) & ADCD_FF_FULL)    {
-    Dummy |= ADCBFF_FLUSH;
+    Dummy |= ADCDFF_FLUSH;
+    std::cout << "ADCD fifo full\n";
     fifoFullInts++;
   }
 
+  /// @todo if any of the a/ds had full fifos, then
+  /// the dma and A/Ds need to be reenabled. This is an artifact
+  /// from some old RR code, does it really need to
+  /// be doen? Does Tom's bistream observe this?
   if (Dummy) {
     Dummy |= DMA_EN;
     Adapter_Write32(pCA, V4, V4_CTL_ADR, Dummy);
 
     //  Enable FIFOs to collect ADC data
-    Dummy |= ADCA_CAP; 
+    Dummy |= ADCA_CAP |  ADCB_CAP |  ADCC_CAP |  ADCD_CAP;
     Adapter_Write32(pCA, V4, V4_CTL_ADR, Dummy);
   }
 
-  
-  if((Mask & Status) & TELAD_FF_FULL)    printf("ISR: Telem. FIFO full.\n");
-  if((Mask & Status) & ADC_DCM_UNLOCKED) printf("ISR: ADC DCM out of lock.\n");
-
- 
   //Re-enable intr
   Adapter_Write32(pCA, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN); 
  
