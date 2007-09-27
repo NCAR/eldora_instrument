@@ -85,6 +85,7 @@ RR314::RR314(unsigned int gates,
 
   std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
 
+  // initialize the byte counters
   for (int i = 0; i < 16; i++)
     _bytes[i] = 0;
 
@@ -107,6 +108,9 @@ RR314::RR314(unsigned int gates,
     shutdown();
     exit (1);
   }     
+
+  // display some board information
+  boardInfo();
 
 }
 
@@ -248,10 +252,6 @@ RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 void
 RR314::catchSignals() {
 
-  ///////////////////////////////////////////////////////////////////////
-  //
-  // Signal handling
-  //
   // install signal handler for abort signals
   struct sigaction new_action, old_action;
      
@@ -278,7 +278,7 @@ int
 RR314::configure314()
 {
 
-  unsigned int Dummy;
+  unsigned int result;
 
   //Flags
   int ProgramFPGA;                  // program fpga
@@ -342,26 +342,15 @@ RR314::configure314()
 	
   //Check the V4 has a valid load.  
   if(V4LoadCheck)
-  {
-    Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &Dummy);
-    if(!(Dummy & FPGA_PROG_DONE))
-  {
-    printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
-    Adapter_Close(&_CA0);
-    return -1;	
-  }
-  }
-	
-  // get some of the rev numbers from the card 
-  Adapter_Read32(&_CA0, BRIDGE, BRG_REV_ADR, &Dummy);
-  printf("PCI Bridge rev is %x\n", Dummy);
-  Adapter_Read32(&_CA0, V4, DMA_REV_ADR, &Dummy);  
-  printf("V4 DMA Rev (Offset 0x0) =  %x, ", Dummy);
-  Adapter_Read32(&_CA0, V4, V4_REV_ADR, &Dummy);  
-  printf("User Logic Rev (Offset 0x800) =  %x\n", Dummy);
-	
-  // Display current board temp
-  printf("Current temp is %.2f C\n", ca_GetTemp(&_CA0));
+    {
+      Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &result);
+      if(!(result & FPGA_PROG_DONE))
+	{
+	  printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
+	  Adapter_Close(&_CA0);
+	  return -1;	
+	}
+    }
 	
   // set the sample clock
   _ClkSettings.ClkSrc = SYNTH;    // can be either SYNTH or EXT
@@ -378,10 +367,10 @@ RR314::configure314()
   Adapter_uSleep(1000000);     
 		
   // Check for DCM Lock
-  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &Dummy); //Clear old status reg
-  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &Dummy);
-  if (Dummy & ADC_DCM_UNLOCKED) {
-    printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", Dummy);
+  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &result); //Clear old status reg
+  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &result);
+  if (result & ADC_DCM_UNLOCKED) {
+    printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
     Adapter_Close(&_CA0);
     return -1;
   }
@@ -389,17 +378,19 @@ RR314::configure314()
   // Set M314 VRANGE mode.  This will touch the register that controls the sample
   // clk select, so it is done as RMW.
   // Set ADC range to 2Vpp 
-  Adapter_Read32(&_CA0, BRIDGE, BRG_HWCONF_ADR, &Dummy);
-  Dummy |= ADCA_VRNG1;
-  Adapter_Write32(&_CA0, BRIDGE, BRG_HWCONF_ADR, Dummy);
+  Adapter_Read32(&_CA0, BRIDGE, BRG_HWCONF_ADR, &result);
+  result |= ADCA_VRNG1;
+  Adapter_Write32(&_CA0, BRIDGE, BRG_HWCONF_ADR, result);
 		
   // Flush FIFOs
   Adapter_Write32(&_CA0, V4, V4_CTL_ADR, ADCAFF_FLUSH);
 			
   ///////////////////////////////////////////////////////////////////////////////
   //	
-  // Allocate DMA space for each channel to trasfer data into.  Once a group has finshed an interrupt will
-  // be signaled and the data will be copied away to the large holding buffer. 
+  // Allocate DMA space for each channel. The channel 
+  // adapter library will create the scatter/gather 
+  // memory references which are then downloaded
+  // to the RR card for use by the DMA engine.
 		
   printf("Allocating DMA space...");
   // Bitstream supports 16 DMA channels, indexed to 0
@@ -411,9 +402,6 @@ RR314::configure314()
     _CA0.DMA.GrpCnt[chan]      = DMANUMGROUPS-1;  
     _CA0.DMA.BlockSizeB[chan]  = DMABLOCKSIZEBYTES; 
     _CA0.DMA.BlockCount[chan]  = DMABLOCKSPERGROUP-1;   
-    //_CA0.DMA.GrpCnt[chan]     = 7;       // 8 Groups (indexed to 0)
-    //_CA0.DMA.BlockSizeB[chan] = 1024;    // 8kB Blocks (half a FIFO)
-    //_CA0.DMA.BlockCount[chan] = 15;      // 16 Blocks (index to 0) for GrpSize of 128kB, Linux max
   }		
 			
   if(Adapter_DMABufAllocate(&_CA0))
@@ -430,8 +418,7 @@ RR314::configure314()
     }
   printf("DMA memory allocation done.\n");
 	
-  // Enable interrupt generation user logic.  
-  // Set to interrupt every group for all active channels
+  // Enable DMA interrupt on every group for all 
   for(i = 0; i < _CA0.DMA.DMAChannels+1; i++)
     Adapter_Write32(&_CA0, V4, DMA_CH0_GRPSPERINT_ADR+(0x4*i), 0x0); 
 	
@@ -444,9 +431,36 @@ RR314::configure314()
   //Allow bridge to create PCI intr
   Adapter_Write32(&_CA0, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN); 
 	
+  // initialize the timers
+  timerInit();
 
-  /////////////////////////////////////////////////////////////////////////
-  //                Timer and Pulse Pair Init Block
+  return 0;
+ 
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+void
+RR314::boardInfo() {
+
+  unsigned int result;
+
+  // get some of the rev numbers from the card 
+  Adapter_Read32(&_CA0, BRIDGE, BRG_REV_ADR, &result);
+  printf("PCI Bridge rev is %x\n", result);
+  Adapter_Read32(&_CA0, V4, DMA_REV_ADR, &result);  
+  printf("V4 DMA Rev (Offset 0x0) =  %x, ", result);
+  Adapter_Read32(&_CA0, V4, V4_REV_ADR, &result);  
+  printf("User Logic Rev (Offset 0x800) =  %x\n", result);
+  printf("Current temp is %.2f C\n", ca_GetTemp(&_CA0));
+	
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+void 
+RR314::timerInit() 
+{
   //
   //    This section initializes the timers and pulse pair processors.
 
@@ -488,7 +502,6 @@ RR314::configure314()
   Adapter_Write32(&_CA0, V4, MT_DATA, TIMER_ON);            // Enable Timer
   Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_ON);            // Turn on Write Strobes
   
-  
   // Delay Register
   Adapter_Write32(&_CA0, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
   Adapter_Write32(&_CA0, V4, MT_DATA, 0);                // Value Timer 0
@@ -524,8 +537,6 @@ RR314::configure314()
   Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
   Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_OFF);                         // Turn off Write Strobes
   
-  return 0;
- 
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -706,27 +717,27 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   //printf("\n");
 
   // check for AD fifos full.
-  int Dummy = 0;
+  int result = 0;
   if((Mask & Status) & ADCA_FF_FULL)    {
-    Dummy |= ADCAFF_FLUSH;
+    result |= ADCAFF_FLUSH;
     std::cout << "ADCA fifo full\n";
     fifoFullInts++;
   }
     
   if((Mask & Status) & ADCB_FF_FULL)   {
-    Dummy |= ADCBFF_FLUSH;
+    result |= ADCBFF_FLUSH;
     std::cout << "ADCB fifo full\n";
     fifoFullInts++;
   }
 
   if((Mask & Status) & ADCC_FF_FULL)         {
-    Dummy |= ADCCFF_FLUSH;
+    result |= ADCCFF_FLUSH;
     std::cout << "ADCC fifo full\n";
     fifoFullInts++;
   }
   
   if((Mask & Status) & ADCD_FF_FULL)    {
-    Dummy |= ADCDFF_FLUSH;
+    result |= ADCDFF_FLUSH;
     std::cout << "ADCD fifo full\n";
     fifoFullInts++;
   }
@@ -735,13 +746,13 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   /// the dma and A/Ds need to be reenabled. This is an artifact
   /// from some old RR code, does it really need to
   /// be doen? Does Tom's bistream observe this?
-  if (Dummy) {
-    Dummy |= DMA_EN;
-    Adapter_Write32(pCA, V4, V4_CTL_ADR, Dummy);
+  if (result) {
+    result |= DMA_EN;
+    Adapter_Write32(pCA, V4, V4_CTL_ADR, result);
 
     //  Enable FIFOs to collect ADC data
-    Dummy |= ADCA_CAP |  ADCB_CAP |  ADCC_CAP |  ADCD_CAP;
-    Adapter_Write32(pCA, V4, V4_CTL_ADR, Dummy);
+    result |= ADCA_CAP |  ADCB_CAP |  ADCC_CAP |  ADCD_CAP;
+    Adapter_Write32(pCA, V4, V4_CTL_ADR, result);
   }
 
   //Re-enable intr

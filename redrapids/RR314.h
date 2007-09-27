@@ -22,8 +22,8 @@
 #include "ca_membuffer.h"
 
 #define DMANUMGROUPS      8
-#define DMABLOCKSIZEBYTES 1024
-#define DMABLOCKSPERGROUP 16
+#define DMABLOCKSIZEBYTES 4008
+#define DMABLOCKSPERGROUP 10
 #define BUFFERPOOLSIZE    2*DMANUMGROUPS
 #define DMA_GROUPS_PER_INT 10
 
@@ -87,6 +87,12 @@ class RR314
   /// program the cofficients for the gaussian and
   /// kaiser filters
   bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
+
+  /// Confirure the timers
+  void timerInit();
+
+  /// get some info about the board
+  void boardInfo();
 
   /// stop the RR card and return allocated space
   void shutdown();
