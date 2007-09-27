@@ -22,7 +22,7 @@
 #include "ca_membuffer.h"
 
 #define DMANUMGROUPS      8
-#define DMABLOCKSIZE      128
+#define DMABLOCKSIZEBYTES 1024
 #define DMABLOCKSPERGROUP 16
 #define BUFFERPOOLSIZE    2*DMANUMGROUPS
 #define DMA_GROUPS_PER_INT 10
@@ -48,23 +48,38 @@ class RR314
 	     unsigned int startGateIQ,
 	     unsigned int nGatesIQ,
 	     double adcSampleRate,          ///< Clock rate of the ADC
-	     unsigned int decimationFactor,          ///< Downconvertor decimation count
-	     std::string gaussianFile,      ///< The file containing the gaussian filter coefficients
-	     std::string kaiserFile,        ///< The file containing the kaiser filter coefficients
+	     unsigned int decimationFactor, ///< Downconvertor decimation count
+	     std::string gaussianFile,      ///< The file of gaussian filter coefficients,blank if none.
+	     std::string kaiserFile,        ///< The file of kaiser filter coefficients, blank if none.
 	     std::string xsvfFileName       ///< The xsvfFile to be loaded. Blank if not to be loaded.
      );
 
   /// Destructor
   virtual ~RR314();
   
- public:
+  /// Start the data capture and processing. The 
+  /// FPGA processing is started by enabling the
+  /// kasier filter and the A/D capture, and the dma 
+  /// transfer is enabled for the V4
+  void start();
+
+  /// @return The cumulative number of bytes processed
+  int bytes();
+
+  ///@return The cumulative number of bytes processed for a given channel
+  int bytes(int chan);
+
+ protected:
 
   /// The fifo file descriptor for receiving data. 
   int _deviceFd;
 
- protected:
+  /// Configure ignal catching so that DMA operations
+  /// and memory can be cleaned up on a signal
+  void catchSignals();
 
-  int configureRedRiver();
+  /// Configure the card and DMA operations
+  int configure314();
 
   /// configure the filters and the decimation value
   int filterSetup();
@@ -122,6 +137,7 @@ class RR314
 
   /// The number of IQ gates to capture
   unsigned int _nGatesIQ;
+
 };
 
 

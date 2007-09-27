@@ -11,10 +11,6 @@
 // statics that must be accessed both by the RR314
 // objects and the C ISR routine.
 
-s_ChMemBuffer MemBuffer_Ch[16];	//Large memory buffers, data from DMA space will be moved here
-
-unsigned int ChXferDone;	       //Bit map for channels than have completed transfer	
-
 /// A mutex used to protect access to the data queues.
 pthread_mutex_t bufferMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -58,10 +54,8 @@ int totalGroups[16] = {
 /// Running total of FIFO full interrupts
 int fifoFullInts = 0;
 
-/// A running total of the data samples that have
-/// been transfered via DMA. Used to calculate
-/// the observed throughput.
-int sampleCount = 0;
+// bytes transferred per channel
+int _bytes[16];
 
 //////////////////////////////////////////////////////////////////////
 
@@ -91,6 +85,9 @@ RR314::RR314(unsigned int gates,
 
   std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
 
+  for (int i = 0; i < 16; i++)
+    _bytes[i] = 0;
+
   _deviceName = "/dev/windrvr6";
 
   _deviceFd = open(_deviceName.c_str(), O_RDONLY | O_NONBLOCK);
@@ -101,9 +98,11 @@ RR314::RR314(unsigned int gates,
     exit(1);
   }
 
-  // configure the Red River card
+  // capture signals
+  catchSignals();
 
-  if ( configureRedRiver()) {
+  // configure the card
+  if ( configure314()) {
     std::cerr << "Unable to configure the Red Rapids card" << std::endl;
     shutdown();
     exit (1);
@@ -246,12 +245,9 @@ RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 }
 
 //////////////////////////////////////////////////////////////////////
+void
+RR314::catchSignals() {
 
-int
-RR314::configureRedRiver()
-{
-
-  int GrpsToCapture = 2;
   ///////////////////////////////////////////////////////////////////////
   //
   // Signal handling
@@ -274,6 +270,14 @@ RR314::configureRedRiver()
   if (old_action.sa_handler != SIG_IGN)
     sigaction (SIGTERM, &new_action, NULL);
 
+}
+
+//////////////////////////////////////////////////////////////////////
+
+int
+RR314::configure314()
+{
+
   unsigned int Dummy;
 
   //Flags
@@ -289,7 +293,7 @@ RR314::configureRedRiver()
   pthread_mutex_lock(&bufferMutex);
 
   for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-    short* buf = new short[DMABLOCKSIZE*DMABLOCKSPERGROUP*4];
+    short* buf = new short[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
     freeBuffers.push_back(buf);
   }
 
@@ -405,7 +409,7 @@ RR314::configureRedRiver()
   for (i = 0; i < _CA0.DMA.DMAChannels+1; i++) {
     int chan = i;
     _CA0.DMA.GrpCnt[chan]      = DMANUMGROUPS-1;  
-    _CA0.DMA.BlockSizeB[chan]  = DMABLOCKSIZE*8; 
+    _CA0.DMA.BlockSizeB[chan]  = DMABLOCKSIZEBYTES; 
     _CA0.DMA.BlockCount[chan]  = DMABLOCKSPERGROUP-1;   
     //_CA0.DMA.GrpCnt[chan]     = 7;       // 8 Groups (indexed to 0)
     //_CA0.DMA.BlockSizeB[chan] = 1024;    // 8kB Blocks (half a FIFO)
@@ -425,18 +429,6 @@ RR314::configureRedRiver()
       ca_LoadDMASettings(&_CA0);
     }
   printf("DMA memory allocation done.\n");
-	
-
-  //Setup large storage buffer to move data to after each DMA group is done
-  for (i = 0; i < _CA0.DMA.DMAChannels+1; i++) {
-    int chan = i;
-    if (ca_MemBuffer_Init(&_CA0, &MemBuffer_Ch[chan], chan, GrpsToCapture))
-      {
-	fprintf(stderr, "Could not allocate storage buffer, will now exit.\n");
-	Adapter_Close(&_CA0);
-	return 0;
-      }
-  }
 	
   // Enable interrupt generation user logic.  
   // Set to interrupt every group for all active channels
@@ -532,16 +524,21 @@ RR314::configureRedRiver()
   Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
   Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_OFF);                         // Turn off Write Strobes
   
+  return 0;
+ 
+}
+
+////////////////////////////////////////////////////////////////////////
+
+void 
+RR314::start() 
+{
+
   Adapter_Write32(&_CA0, V4, KAISER_ADDR, 0); 	// Start the DDC
 		
-  // Set a bit for each active ch.  Will be cleared by ISR as channels finish
-  ChXferDone = 0xFFFF;
-
   // Allow DMAs to start
   Adapter_Write32(&_CA0, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP); 
 
-  return 0;
- 
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -587,6 +584,24 @@ RR314::filterSetup()
   return 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+int
+RR314::bytes() 
+{
+  int sum = 0;
+  for (int i = 0; i < 16; i++) {
+    sum += _bytes[i];
+  }
+
+  return sum;
+}
+
+//////////////////////////////////////////////////////////////////////
+int
+RR314::bytes(int chan ) 
+{
+  return _bytes[chan];
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -599,7 +614,7 @@ dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group) {
     MaxGrpsPerCh = 1024;
 
   UINT32* src = (UINT32*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
-  memcpy(dest, src, DMABLOCKSPERGROUP * DMABLOCKSIZE * 8);
+  memcpy(dest, src, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES);
 
   return;
 }
@@ -627,16 +642,15 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
     pthread_mutex_lock(&bufferMutex);
 
     while (lastGroup[chan] != (int)currentGroup) {
-      // every group that is available counts as data that 
-      // has been transferred, even if we can't use it.
-      sampleCount += DMABLOCKSPERGROUP*DMABLOCKSIZE*2;
-
       // check for group number wrap around
       lastGroup[chan]++ ;
       if (lastGroup[chan] == DMANUMGROUPS) 
 	lastGroup[chan] = 0;
 
+      // update number of groups for this channel
       totalGroups[chan]++;
+      // sum the number of bytes for this channel
+      _bytes[chan] += DMABLOCKSPERGROUP*DMABLOCKSIZEBYTES;
 
       // add the data from the group to the buffer pool, if possible
       // otherwise ignore that group
@@ -675,10 +689,6 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   Adapter_Read32(pCA, V4, DMA_INT_MASK_ADR,  &DMAMask);
   Adapter_Read32(pCA, V4, DMA_INT_STAT_ADR,  &DMAStatus);
 
-  //  printf("Adapter_ISR: Device %d, Status %x, Mask %x, Control %x, DMA Mask %x, DMA Status %x FifoFullInts %d sampleCout %d\n", 
-  // pCA->DevNum, Status, Mask, Control, DMAMask, DMAStatus, fifoFullInts, sampleCount);
-  //  printf("DMA status %08x   %d\n", DMAStatus, sampleCount);
-
   // see if we have a DMA interrupt
   if (Status & DMA_GRP_DONE) {
     // yes, process groups for each DMA channel
@@ -689,10 +699,11 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
     }  
   }   
 
-  for (int c = 0 ; c < 16; c++) {
-    printf ("%04d ", totalGroups[c]);
-  }
-  printf("\n");
+  // print the running total of groups transferred
+  //  for (int c = 0 ; c < 16; c++) {
+  //  printf ("%04d ", totalGroups[c]);
+  //}
+  //printf("\n");
 
   // check for AD fifos full.
   int Dummy = 0;
