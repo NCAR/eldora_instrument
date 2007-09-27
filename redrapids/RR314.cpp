@@ -12,15 +12,6 @@
 // statics that must be accessed both by the RR314
 // objects and the C ISR routine.
 
-/// A mutex used to protect access to the data queues.
-pthread_mutex_t bufferMutex = PTHREAD_MUTEX_INITIALIZER;
-
-/// A queue of available empty buffers
-std::deque<short*> freeBuffers;
-
-/// A queue of buffers with data to be processed.
-std::deque<short*> fullBuffers;
-
 /// The ISR that is called by windrvr6
 void Adapter_ISR(s_ChannelAdapter *pCA);
 
@@ -67,6 +58,8 @@ RR314::RR314(unsigned int gates,
   _dmaAllocated(false)
 {
 
+  pthread_mutex_init(&bufferMutex, NULL);
+
   std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
 
   // save a reference to our instance so that the isr
@@ -109,10 +102,16 @@ RR314::RR314(unsigned int gates,
 
 ////////////////////////////////////////////////////////////////////////
 
-
 RR314::~RR314() 
 {
+  for (unsigned int i = 0; i < freeBuffers.size(); i++ )
+    delete [] freeBuffers[i];
+
+  for (unsigned int i = 0; i < fullBuffers.size(); i++ )
+    delete [] fullBuffers[i];
+
   shutdown();
+
   std::cout << "RR314 deleted\n";
 }
 
@@ -438,6 +437,20 @@ RR314::configure314()
 
 /////////////////////////////////////////////////////////////////////////
 
+void 
+RR314::fifoFullInts(int n) {
+  _fifoFullInts = n;
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+int 
+RR314::fifoFullInts() {
+  return _fifoFullInts;
+}
+
+/////////////////////////////////////////////////////////////////////////
+
 void
 RR314::boardInfo() {
 
@@ -674,7 +687,7 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314)
   if (currentGroup >= 0 && currentGroup < DMANUMGROUPS) {
 
     // lock access to the buffer pool
-    pthread_mutex_lock(&bufferMutex);
+    pthread_mutex_lock(&(pRR314->bufferMutex));
 
     while (pRR314->lastGroup(chan) != (int)currentGroup) {
 
@@ -689,11 +702,11 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314)
 
       // add the data from the group to the buffer pool, if possible
       // otherwise ignore that group
-      if (freeBuffers.size() > 0) {
+      if (pRR314->freeBuffers.size() > 0) {
 	// move a buffer from the free list to the filled list
-	short int* pBuf = freeBuffers[0];
-	//fullBuffers.push_back(freeBuffers[0]);
-	//freeBuffers.pop_front();
+	short int* pBuf = pRR314->freeBuffers[0];
+	//fullBuffers.push_back(pRR314->freeBuffers[0]);
+	//pRR314->freeBuffers.pop_front();
 	// copy dma region into that buffer
 	dmaCopy((UINT32*)pBuf, pCA, chan, pRR314->lastGroup(chan));
       } else {
@@ -702,7 +715,7 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314)
     } 
 
     // release lock on the buffer pool
-    pthread_mutex_unlock(&bufferMutex);
+    pthread_mutex_unlock(&(pRR314->bufferMutex));
 
   } else {
     std::cout << "BOGUS GROUP COUNT: " << currentGroup << "\n";
@@ -742,25 +755,25 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   if((Mask & Status) & ADCA_FF_FULL)    {
     result |= ADCAFF_FLUSH;
     std::cout << "ADCA fifo full\n";
-    fifoFullInts++;
+    pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
   }
     
   if((Mask & Status) & ADCB_FF_FULL)   {
     result |= ADCBFF_FLUSH;
     std::cout << "ADCB fifo full\n";
-    fifoFullInts++;
+    pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
   }
 
   if((Mask & Status) & ADCC_FF_FULL)         {
     result |= ADCCFF_FLUSH;
     std::cout << "ADCC fifo full\n";
-    fifoFullInts++;
+    pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
   }
   
   if((Mask & Status) & ADCD_FF_FULL)    {
     result |= ADCDFF_FLUSH;
     std::cout << "ADCD fifo full\n";
-    fifoFullInts++;
+    pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
   }
 
   /// @todo if any of the a/ds had full fifos, then
@@ -790,12 +803,6 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 //////////////////////////////////////////////////////////////////////
 void
 shutdownSignalHandler(int signo){
-
-  for (unsigned int i = 0; i < freeBuffers.size(); i++ )
-    delete [] freeBuffers[i];
-
-  for (unsigned int i = 0; i < fullBuffers.size(); i++ )
-    delete [] fullBuffers[i];
 
   Adapter_Write32(pCA0, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
   Adapter_Write32(pCA0, V4, V4_CTL_ADR, 0x0);

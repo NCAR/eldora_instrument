@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +64,12 @@ class RR314
   /// transfer is enabled for the V4
   void start();
 
+  /// @return The cumulative number of bytes processed
+  int bytes();
+
+  ///@return The cumulative number of bytes processed for a given channel
+  int bytes(int chan);
+
   /// accumlate byte counts
   /// @param chan The channel
   /// @param bytes Add these bytes
@@ -77,14 +84,23 @@ class RR314
   /// @param chan The channel
   int lastGroup(int chan);
 
-  /// @return The cumulative number of bytes processed
-  int bytes();
+  /// set the number of fifofull interrupts
+  void fifoFullInts(int n);
 
-  ///@return The cumulative number of bytes processed for a given channel
-  int bytes(int chan);
+  /// 2retun The number of fifoFull interrupts
+  int fifoFullInts();
 
   /// get some info about the board
   void boardInfo();
+
+  /// A mutex used to protect access to the data queues.
+  pthread_mutex_t bufferMutex;
+
+  /// A queue of available empty buffers
+  std::deque<short*> freeBuffers;
+
+  /// A queue of buffers with data to be processed.
+  std::deque<short*> fullBuffers;
 
  protected:
 
@@ -164,6 +180,8 @@ class RR314
   /// The number of IQ gates to capture
   unsigned int _nGatesIQ;
 
+  /// The number of fifo full interrupts 
+  int _fifoFullInts;
 };
 
 
