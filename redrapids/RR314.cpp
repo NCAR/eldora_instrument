@@ -47,6 +47,14 @@ int lastGroup[16] = {
   -1,-1,-1,-1
 };
 
+/// The number of groups fetched for each DMA channel.
+int totalGroups[16] = {
+  0,0,0,0,
+  0,0,0,0,
+  0,0,0,0,
+  0,0,0,0
+};
+
 /// Running total of FIFO full interrupts
 int fifoFullInts = 0;
 
@@ -593,8 +601,6 @@ dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group) {
   UINT32* src = (UINT32*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
   memcpy(dest, src, DMABLOCKSPERGROUP * DMABLOCKSIZE * 8);
 
-  std::cout << "chan " << chan << ",  group " << group << std::endl;
-
   return;
 }
 
@@ -609,7 +615,7 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
   Adapter_Read32(pCA, V4, DMA_CH0_CURGRP_ADR+(0x4*chan), &cg);
 
   int currentGroup = cg;
-  
+
   // loop through the groups. Recall that lastGroup is the 
   // index of the last group that we processed. currentGroup
   // is the index of the most recent group that is available to be processed.
@@ -626,17 +632,19 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
       sampleCount += DMABLOCKSPERGROUP*DMABLOCKSIZE*2;
 
       // check for group number wrap around
-      lastGroup[chan]++;
+      lastGroup[chan]++ ;
       if (lastGroup[chan] == DMANUMGROUPS) 
 	lastGroup[chan] = 0;
+
+      totalGroups[chan]++;
 
       // add the data from the group to the buffer pool, if possible
       // otherwise ignore that group
       if (freeBuffers.size() > 0) {
 	// move a buffer from the free list to the filled list
 	short int* pBuf = freeBuffers[0];
-	fullBuffers.push_back(freeBuffers[0]);
-	freeBuffers.pop_front();
+	//fullBuffers.push_back(freeBuffers[0]);
+	//freeBuffers.pop_front();
 	// copy dma region into that buffer
 	dmaCopy((UINT32*)pBuf, pCA, chan, lastGroup[chan]);
       } else {
@@ -667,8 +675,9 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   Adapter_Read32(pCA, V4, DMA_INT_MASK_ADR,  &DMAMask);
   Adapter_Read32(pCA, V4, DMA_INT_STAT_ADR,  &DMAStatus);
 
-  printf("Adapter_ISR: Device %d, Status %x, Mask %x, Control %x, DMA Mask %x, DMA Status %x FifoFullInts %d sampleCout %d\n", 
-	 pCA->DevNum, Status, Mask, Control, DMAMask, DMAStatus, fifoFullInts, sampleCount);
+  //  printf("Adapter_ISR: Device %d, Status %x, Mask %x, Control %x, DMA Mask %x, DMA Status %x FifoFullInts %d sampleCout %d\n", 
+  // pCA->DevNum, Status, Mask, Control, DMAMask, DMAStatus, fifoFullInts, sampleCount);
+  //  printf("DMA status %08x   %d\n", DMAStatus, sampleCount);
 
   // see if we have a DMA interrupt
   if (Status & DMA_GRP_DONE) {
@@ -679,6 +688,11 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
       } 
     }  
   }   
+
+  for (int c = 0 ; c < 16; c++) {
+    printf ("%04d ", totalGroups[c]);
+  }
+  printf("\n");
 
   // check for AD fifos full.
   int Dummy = 0;
