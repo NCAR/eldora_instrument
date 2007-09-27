@@ -63,11 +63,28 @@ class RR314
   /// transfer is enabled for the V4
   void start();
 
+  /// accumlate byte counts
+  /// @param chan The channel
+  /// @param bytes Add these bytes
+  void addBytes(int chan, int bytes);
+
+  /// set the last DMA transfer group
+  /// @param chan The channel
+  /// @param group The group
+  void lastGroup(int chan, int group);
+
+  /// @return The last DMA transfer group
+  /// @param chan The channel
+  int lastGroup(int chan);
+
   /// @return The cumulative number of bytes processed
   int bytes();
 
   ///@return The cumulative number of bytes processed for a given channel
   int bytes(int chan);
+
+  /// get some info about the board
+  void boardInfo();
 
  protected:
 
@@ -91,9 +108,6 @@ class RR314
   /// Confirure the timers
   void timerInit();
 
-  /// get some info about the board
-  void boardInfo();
-
   /// stop the RR card and return allocated space
   void shutdown();
 
@@ -115,6 +129,12 @@ class RR314
   /// The path to a RR bitstream file, if it will be
   /// loaded
   std::string _xsvfFileName;
+
+  /// the number of bytes captured for each channel
+  int _bytes[16];
+
+  /// the last DMA group transferred
+  int _lastGroup[16];
 
   /// The channel adapter, used in RR interfaces
   s_ChannelAdapter _CA0;

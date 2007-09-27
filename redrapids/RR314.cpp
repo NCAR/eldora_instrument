@@ -7,6 +7,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <deque>
+#include <map>
 
 // statics that must be accessed both by the RR314
 // objects and the C ISR routine.
@@ -35,28 +36,11 @@ void shutdownSignalHandler(int signo);
 /// data
 s_ChannelAdapter* pCA0;
 
-/// The last group fetched for each DMA channel.
-int lastGroup[16] = {
-  -1,-1,-1,-1,
-  -1,-1,-1,-1,
-  -1,-1,-1,-1,
-  -1,-1,-1,-1
-};
-
-/// The number of groups fetched for each DMA channel.
-int totalGroups[16] = {
-  0,0,0,0,
-  0,0,0,0,
-  0,0,0,0,
-  0,0,0,0
-};
-
 /// Running total of FIFO full interrupts
 int fifoFullInts = 0;
 
-// bytes transferred per channel
-int _bytes[16];
-
+std::map<s_ChannelAdapter*, RR314*> rr314Instances;
+ 
 //////////////////////////////////////////////////////////////////////
 
 RR314::RR314(unsigned int gates,
@@ -85,9 +69,18 @@ RR314::RR314(unsigned int gates,
 
   std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
 
-  // initialize the byte counters
-  for (int i = 0; i < 16; i++)
-    _bytes[i] = 0;
+  // save a reference to our instance so that the isr
+  // can locate us
+  std::cout << "this is " << this << std::endl;
+
+  rr314Instances[&_CA0] = this;
+
+  // initialize the byte counters and last groups
+  for (int c = 0; c < 16; c++) {
+    _bytes[c] = 0;
+    lastGroup(c, -1);
+  }
+
 
   _deviceName = "/dev/windrvr6";
 
@@ -301,8 +294,13 @@ RR314::configure314()
 
   //Init all flags to default values
   Adapter_Zero(&_CA0);
+
+  // The device number
   _CA0.DevNum = 0;
+
+  // set assembly information, whatever that is
   strcpy(_CA0.Asy, "M314"); 
+
 
   // Open channel adapter
   if(Adapter_Open(&_CA0)) {
@@ -596,6 +594,12 @@ RR314::filterSetup()
 }
 
 //////////////////////////////////////////////////////////////////////
+void
+RR314::addBytes(int chan, int bytes) {
+  _bytes[chan] += bytes;
+}
+
+//////////////////////////////////////////////////////////////////////
 int
 RR314::bytes() 
 {
@@ -613,6 +617,25 @@ RR314::bytes(int chan )
 {
   return _bytes[chan];
 }
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+void
+RR314::lastGroup(int chan, int group) {
+  _lastGroup[chan] = group;
+}
+
+//////////////////////////////////////////////////////////////////////
+int
+RR314::lastGroup(int chan)
+{
+  return _lastGroup[chan];
+}
+
+//////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -632,7 +655,8 @@ dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group) {
 
 //////////////////////////////////////////////////////////////////////
 
-void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
+void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) 
+{
 
   int groupsDropped = 0;
 
@@ -652,16 +676,16 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
     // lock access to the buffer pool
     pthread_mutex_lock(&bufferMutex);
 
-    while (lastGroup[chan] != (int)currentGroup) {
-      // check for group number wrap around
-      lastGroup[chan]++ ;
-      if (lastGroup[chan] == DMANUMGROUPS) 
-	lastGroup[chan] = 0;
+    while (pRR314->lastGroup(chan) != (int)currentGroup) {
 
-      // update number of groups for this channel
-      totalGroups[chan]++;
+      // update the last group index
+      pRR314->lastGroup(chan, pRR314->lastGroup(chan)+1);
+      // handle the wrap around
+      if (pRR314->lastGroup(chan) == DMANUMGROUPS) 
+	pRR314->lastGroup(chan, 0);
+
       // sum the number of bytes for this channel
-      _bytes[chan] += DMABLOCKSPERGROUP*DMABLOCKSIZEBYTES;
+      pRR314->addBytes(chan, DMABLOCKSPERGROUP*DMABLOCKSIZEBYTES);
 
       // add the data from the group to the buffer pool, if possible
       // otherwise ignore that group
@@ -671,7 +695,7 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan) {
 	//fullBuffers.push_back(freeBuffers[0]);
 	//freeBuffers.pop_front();
 	// copy dma region into that buffer
-	dmaCopy((UINT32*)pBuf, pCA, chan, lastGroup[chan]);
+	dmaCopy((UINT32*)pBuf, pCA, chan, pRR314->lastGroup(chan));
       } else {
 	groupsDropped++;
       }
@@ -694,6 +718,9 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   unsigned int DMAMask;
   unsigned int DMAStatus;
 
+  // find out the RR314 instances associated with this interrupt.
+  RR314* pRR314 = rr314Instances[pCA];
+
   Adapter_Read32(pCA, V4, V4_STAT_ADR,       &Status);
   Adapter_Read32(pCA, V4, V4_MASK_ADR,       &Mask);
   Adapter_Read32(pCA, V4, V4_CTL_ADR,        &Control);
@@ -705,16 +732,10 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
     // yes, process groups for each DMA channel
     for (int chan = 0; chan < 16; chan++) {
       if ((1 << chan) & DMAStatus) {
-	processDMAGroups(pCA, chan);
+	processDMAGroups(pCA, chan, pRR314);
       } 
     }  
   }   
-
-  // print the running total of groups transferred
-  //  for (int c = 0 ; c < 16; c++) {
-  //  printf ("%04d ", totalGroups[c]);
-  //}
-  //printf("\n");
 
   // check for AD fifos full.
   int result = 0;
