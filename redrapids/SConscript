@@ -5,28 +5,29 @@ env['RR314_ROOT'] = os.environ.get('RR314_ROOT',None)
 env.AppendUnique(CPPPATH=['$RR314_ROOT',])
 env.AppendUnique(CCFLAGS=['-D LINUX',])
 
+# The library sources
+sources = Split("""
+FilterSpec.cpp
+RR314.cpp
+RR314isr.cpp
+$RR314_ROOT/ca_functions.c
+$RR314_ROOT/ca_membuffer.c
+""")
+
+librr314 = env.Library('rr314', sources )
+
 # libraries:
 libs = Split("""
-ca
 channeladapter
+rr314
 pthread
 """)
 
 # library paths:
 libpaths=Split("""
 $RR314_ROOT/linux_x86-32
-#/tmp
+#/redrapids
 """)
-
-# The sources
-sources = Split("""
-FilterSpec.cpp
-RR314.cpp
-RR314isr.cpp
-""")
-
-librr314 = env.Library('rr314', sources,
-   LIBS=libs, LIBPATH=libpaths )
 
 # build test
-testrr314 = env.Program('testrr314', 'test.cpp', LIBS=[librr314,libs], LIBPATH=libpaths)
+testrr314 = env.Program('testrr314', 'test.cpp', LIBS=libs, LIBPATH=libpaths)

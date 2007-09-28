@@ -1,5 +1,7 @@
-#include "RR314.h"
+#include "RR314isr.h"
 #include <iostream>
+
+using namespace RedRapids;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -145,26 +147,3 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   return;
 }
 
-//////////////////////////////////////////////////////////////////////
-void
-shutdownSignalHandler(int signo){
-
-  // stop all RR314 cards amd free their DMA allocations
-  // iterate through all instances of RR314
-
-  std::map<s_ChannelAdapter*, RR314*>::iterator  p;
-  for (p = RR314::rr314Instances.begin(); p != RR314::rr314Instances.end(); p++) {
-    
-    s_ChannelAdapter* pCA = p->first;
-
-    std::cout << "Stopping RR314 device " << pCA->DevNum << std::endl;
-
-    Adapter_Write32(pCA, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
-    Adapter_Write32(pCA, V4, V4_CTL_ADR, 0x0);
-    Adapter_DMABufFree(pCA);
-    Adapter_Close(pCA); 
-  }
-
-  std::cout << "caught signal; exiting...\n";
-  exit(1);
-}

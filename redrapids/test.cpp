@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <ios>
 
+using namespace RedRapids;
+
 int
 main(int argc, char** argv) 
 {
