@@ -1,18 +1,6 @@
 #include "RR314.h"
 #include <iostream>
 
-// statics that must be accessed both by the RR314
-// objects and the C ISR routine.
-
-/// The ISR that is called by windrvr6
-void Adapter_ISR(s_ChannelAdapter *pCA);
-
-/// A handler that is called for varoiuos shutdown signals.
-/// It's job is to force windrvr6 to return memory.
-/// It appears that this doesn't really work. After
-/// successively running RRSnarfer, Linux runs out of memory.
-void shutdownSignalHandler(int signo);
-
 /// The pointer to the channel adapter. It is needed in
 /// RRSnarfer to configure the channel adapter, and
 /// then in the ISR to access the adapter for fetching
