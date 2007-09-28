@@ -1,13 +1,5 @@
-#include <signal.h>
 #include "RR314.h"
 #include <iostream>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <math.h>
-#include <pthread.h>
-#include <deque>
-#include <map>
 
 // statics that must be accessed both by the RR314
 // objects and the C ISR routine.
