@@ -29,6 +29,10 @@
 #define BUFFERPOOLSIZE    2*DMANUMGROUPS
 #define DMA_GROUPS_PER_INT 10
 
+/// A handler that is called for varoiuos shutdown signals.
+/// It's job is to force windrvr6 to return memory.
+/// It appears that this doesn't really work. After
+/// successively running RRSnarfer, Linux runs out of memory.
 void shutdownSignalHandler(int signo);
 
 namespace RedRapids {

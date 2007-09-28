@@ -49,10 +49,3 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RedRapids::RR314* pRR314)
 /// @param chan The channel number.
 /// @param group The group number.
 void dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group);
-
-/// A handler that is called for varoiuos shutdown signals.
-/// It's job is to force windrvr6 to return memory.
-/// It appears that this doesn't really work. After
-/// successively running RRSnarfer, Linux runs out of memory.
-void shutdownSignalHandler(int signo);
-
