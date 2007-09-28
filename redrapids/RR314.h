@@ -63,7 +63,7 @@ class RR314
 	     std::string gaussianFile,      ///< The file of gaussian filter coefficients,blank if none.
 	     std::string kaiserFile,        ///< The file of kaiser filter coefficients, blank if none.
 	     std::string xsvfFileName       ///< The xsvfFile to be loaded. Blank if not to be loaded.
-     );
+	) throw (std::string);
 
   /// Destructor
   virtual ~RR314();

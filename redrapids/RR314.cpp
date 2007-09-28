@@ -26,7 +26,7 @@ RR314::RR314(int devNum,
 	     unsigned int decimationFactor, 
 	     std::string gaussianFile,
 	     std::string kaiserFile,
-	     std::string xsvfFileName):
+	     std::string xsvfFileName) throw(std::string):
   _devNum(devNum),
   _gates(gates),
   _samples(samples),
@@ -60,9 +60,9 @@ RR314::RR314(int devNum,
   _deviceFd = open(_deviceName.c_str(), O_RDONLY | O_NONBLOCK);
 
   if (_deviceFd < 0) {
-    std::cerr << "cannot access " << _deviceName << "\n";
-    perror("");
-    exit(1);
+    std::string e("cannot access ");
+    e += _deviceName;
+    throw(e);
   }
 
   // capture signals
@@ -70,9 +70,8 @@ RR314::RR314(int devNum,
 
   // configure the card
   if ( configure314()) {
-    std::cerr << "Unable to configure the Red Rapids card" << std::endl;
-    shutdown();
-    exit (1);
+    std::string e("Unable to configure the Red Rapids card ");
+    throw(e);
   }     
 
   // display some board information
@@ -565,7 +564,7 @@ RR314::filterSetup()
 
   if (!loadFilters(gaussian, kaiser)) {
     std::cerr << "Unable to load filters\n";
-    exit(1);
+    return -1;
   }
 
   // for Tom's bitstream:
