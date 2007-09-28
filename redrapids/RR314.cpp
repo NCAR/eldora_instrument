@@ -9,27 +9,8 @@
 #include <deque>
 #include <map>
 
-// statics that must be accessed both by the RR314
-// objects and the C ISR routine.
-
-/// The ISR that is called by windrvr6
-void Adapter_ISR(s_ChannelAdapter *pCA);
-
-/// A handler that is called for varoiuos shutdown signals.
-/// It's job is to force windrvr6 to return memory.
-/// It appears that this doesn't really work. After
-/// successively running RRSnarfer, Linux runs out of memory.
-void shutdownSignalHandler(int signo);
-
-/// The pointer to the channel adapter. It is needed in
-/// RRSnarfer to configure the channel adapter, and
-/// then in the ISR to access the adapter for fetching
-/// data
-s_ChannelAdapter* pCA0;
-
-/// Running total of FIFO full interrupts
-int fifoFullInts = 0;
-
+// instantiate the map which will record all instances
+// of the RR314 class.
 std::map<s_ChannelAdapter*, RR314*> RR314::rr314Instances;
  
 //////////////////////////////////////////////////////////////////////
@@ -64,8 +45,6 @@ RR314::RR314(unsigned int gates,
 
   // save a reference to our instance so that the isr
   // can locate us
-  std::cout << "this is " << this << std::endl;
-
   rr314Instances[&_CA0] = this;
 
   // initialize the byte counters and last groups
@@ -73,7 +52,6 @@ RR314::RR314(unsigned int gates,
     _bytes[c] = 0;
     lastGroup(c, -1);
   }
-
 
   _deviceName = "/dev/windrvr6";
 
@@ -267,8 +245,7 @@ RR314::catchSignals() {
 //////////////////////////////////////////////////////////////////////
 
 int
-RR314::configure314()
-{
+RR314::configure314() {
 
   unsigned int result;
 
@@ -279,8 +256,6 @@ RR314::configure314()
   int V4LoadCheck;                  // if set, verify that V4 has been loaded
   V4LoadCheck         = _xsvfFileName.size()>0; 
   V4LoadCheck         = 0;
-
-  pCA0 = &_CA0;
 
   pthread_mutex_lock(&bufferMutex);
 

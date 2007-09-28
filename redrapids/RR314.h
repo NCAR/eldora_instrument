@@ -114,6 +114,8 @@ class RR314
   /// Destructor
   virtual ~RR314();
   
+  /// A map of our instances, indexed by the channel adapter
+  /// variabble pointer. Use by C routines to find our instance.
   static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
 
   /// Start the data capture and processing. The 

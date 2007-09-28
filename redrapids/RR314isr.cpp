@@ -1,12 +1,6 @@
 #include "RR314.h"
 #include <iostream>
 
-/// The pointer to the channel adapter. It is needed in
-/// RRSnarfer to configure the channel adapter, and
-/// then in the ISR to access the adapter for fetching
-/// data
-extern s_ChannelAdapter* pCA0;
-
 //////////////////////////////////////////////////////////////////////
 
 /// Copy one group to the destination
@@ -25,8 +19,7 @@ dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group) {
 
 //////////////////////////////////////////////////////////////////////
 
-void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) 
-{
+void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
 
   int groupsDropped = 0;
 
@@ -156,11 +149,22 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 void
 shutdownSignalHandler(int signo){
 
-  Adapter_Write32(pCA0, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
-  Adapter_Write32(pCA0, V4, V4_CTL_ADR, 0x0);
-  Adapter_DMABufFree(pCA0);
-  Adapter_Close(pCA0); 
-  std::cout << "caught signal; exiting...\n";
+  // stop all RR314 cards amd free their DMA allocations
+  // iterate through all instances of RR314
 
+  std::map<s_ChannelAdapter*, RR314*>::iterator  p;
+  for (p = RR314::rr314Instances.begin(); p != RR314::rr314Instances.end(); p++) {
+    
+    s_ChannelAdapter* pCA = p->first;
+
+    std::cout << "Stopping RR314 device " << pCA->DevNum << std::endl;
+
+    Adapter_Write32(pCA, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
+    Adapter_Write32(pCA, V4, V4_CTL_ADR, 0x0);
+    Adapter_DMABufFree(pCA);
+    Adapter_Close(pCA); 
+  }
+
+  std::cout << "caught signal; exiting...\n";
   exit(1);
 }
