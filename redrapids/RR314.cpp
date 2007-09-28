@@ -532,9 +532,10 @@ void
 RR314::start() 
 {
 
-  Adapter_Write32(&_CA0, V4, KAISER_ADDR, 0); 	// Start the DDC
+  // Start the DDC
+  Adapter_Write32(&_CA0, V4, KAISER_ADDR, 0);
 		
-  // Allow DMAs to start
+  // Enable the DMAs and turn on the ADCs
   Adapter_Write32(&_CA0, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP); 
 
 }
