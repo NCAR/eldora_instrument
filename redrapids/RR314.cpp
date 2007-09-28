@@ -17,22 +17,22 @@ std::map<s_ChannelAdapter*, RR314*> RedRapids::RR314::rr314Instances;
  
 //////////////////////////////////////////////////////////////////////
 
-RR314::RR314(unsigned int gates,
+RR314::RR314(int devNum,
+	     unsigned int gates,
 	     unsigned int samples,
 	     unsigned int dualPrt,
 	     unsigned int startGateIQ,
 	     unsigned int nGatesIQ,
-	     double adcSampleRate, 
 	     unsigned int decimationFactor, 
 	     std::string gaussianFile,
 	     std::string kaiserFile,
 	     std::string xsvfFileName):
+  _devNum(devNum),
   _gates(gates),
   _samples(samples),
   _dualPrt(dualPrt),
   _startGateIQ(startGateIQ),
   _nGatesIQ(nGatesIQ),
-  _adcSampleRate(adcSampleRate),
   _decimationFactor(decimationFactor),
   _gaussianFile(gaussianFile),
   _kaiserFile(kaiserFile),
@@ -272,7 +272,7 @@ RR314::configure314() {
   Adapter_Zero(&_CA0);
 
   // The device number
-  _CA0.DevNum = 0;
+  _CA0.DevNum = _devNum;
 
   // set assembly information, whatever that is
   strcpy(_CA0.Asy, "M314"); 

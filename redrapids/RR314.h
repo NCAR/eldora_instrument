@@ -53,12 +53,12 @@ class RR314
     public:
 
   /// Constructor
-  RR314(unsigned int gates,
+  RR314(int devNum,
+	unsigned int gates,
 	     unsigned int samples,
 	     unsigned int dualPrt,
 	     unsigned int startGateIQ,
 	     unsigned int nGatesIQ,
-	     double adcSampleRate,          ///< Clock rate of the ADC
 	     unsigned int decimationFactor, ///< Downconvertor decimation count
 	     std::string gaussianFile,      ///< The file of gaussian filter coefficients,blank if none.
 	     std::string kaiserFile,        ///< The file of kaiser filter coefficients, blank if none.
@@ -144,10 +144,7 @@ class RR314
   /// The device node for the RR card.
   std::string _deviceName;
 
-  /// the sample rate of the ADC (Hz)
-  double _adcSampleRate;
-
-  /// The decimation factor (1-127)
+  /// The gaussian filter decimation factor (1-127)
   unsigned int _decimationFactor;
 
   /// The path to the file containing the gaussian filter definitions
@@ -178,6 +175,9 @@ class RR314
   /// points to the next location in an incoming data buffer
   /// to retrieve data from.
   int _bufferNext; 
+
+  /// The RR314 device number, starting at 0.
+  int _devNum;
 
   /// The number of gates
   unsigned int _gates;

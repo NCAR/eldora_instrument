@@ -10,16 +10,17 @@ main(int argc, char** argv)
 {
 
   // create an RR314 card
-  RR314 rr314(1000,
-	      100,
-	      0,
-	      0,
-	      10,
-	      50.0e6,
-	      12,
-	      std::string(""),
-	      std::string(""),
-	      std::string(""));
+  RR314 rr314(0,     // device number 
+	      1000,  // gates
+	      100,   // samples (nci)
+	      0,     // dual prt (0 or 1)
+	      0,     // starting IQ gate
+	      10,    // number of IQ gates
+	      12,    // decimation factor for the gaussian filter
+	      std::string(""), // path to xsvf bitstream file
+	      std::string(""), // path to kaiser filter coeeficients file
+	      std::string("")  // path to gaussian filter coeeficients file
+	      );
 	      
   // start the processing
   rr314.start();
