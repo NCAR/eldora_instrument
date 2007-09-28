@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <map>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +59,8 @@ class RR314
   /// Destructor
   virtual ~RR314();
   
+  static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
+
   /// Start the data capture and processing. The 
   /// FPGA processing is started by enabling the
   /// kasier filter and the A/D capture, and the dma 
