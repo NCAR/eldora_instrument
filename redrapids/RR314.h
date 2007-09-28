@@ -88,9 +88,7 @@ void dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group);
 void shutdownSignalHandler(int signo);
 
 //////////////////////////////////////////////////////////////////////
-
-
-
+///
 /// Representation of the Red Rapids 314 4 channel receiver.
 /// The class manages the configuration of the receiver card,
 /// allocation of the DMA buffers, and responding to DMA buffer
