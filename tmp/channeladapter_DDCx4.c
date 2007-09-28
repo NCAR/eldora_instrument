@@ -72,7 +72,7 @@ DWORD samples	 = 100;
 DWORD dprt	 = 0;
 DWORD indx	 = 0;
 DWORD length	 = 10;
-DWORD Timers	 = TIMER0|TIMER1;
+DWORD Timers	 = TIMER0|TIMER1|TIMER2|TIMER3;
 
 int main(int argc, char* argv[]) 
 {
@@ -132,7 +132,6 @@ int main(int argc, char* argv[])
  			return -1;	
  		}
  	}
-	
 	Adapter_Read32(&CA0, BRIDGE, BRG_REV_ADR, &Dummy);
 	printf("PCI Bridge rev is %x\n", Dummy);
 	Adapter_Read32(&CA0, V4, DMA_REV_ADR, &Dummy);  
