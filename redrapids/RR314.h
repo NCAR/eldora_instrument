@@ -31,6 +31,9 @@
 
 class RR314;
 
+//////////////////////////////////////////////////////////////////////
+/// @section RR314 C routines
+///
 /// The interrupt service routine that is called by windrvr6. It will
 /// be called on any interrupt that the RR314 has been configured
 /// to generate. Usually these will be the DMA group transfer complete
@@ -83,6 +86,10 @@ void dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group);
 /// It appears that this doesn't really work. After
 /// successively running RRSnarfer, Linux runs out of memory.
 void shutdownSignalHandler(int signo);
+
+//////////////////////////////////////////////////////////////////////
+
+
 
 /// Representation of the Red Rapids 314 4 channel receiver.
 /// The class manages the configuration of the receiver card,
