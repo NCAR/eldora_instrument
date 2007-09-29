@@ -131,9 +131,6 @@ class RR314
 
  protected:
 
-  /// The fifo file descriptor for receiving data. 
-  int _deviceFd;
-
   /// Configure ignal catching so that DMA operations
   /// and memory can be cleaned up on a signal
   void catchSignals();
@@ -148,16 +145,13 @@ class RR314
   /// kaiser filters
   bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
-  /// Confirure the timers
+  /// Configure the timers
   void timerInit();
 
   /// stop the RR card and return allocated space
   void shutdown();
 
-  /// The device node for the RR card.
-  std::string _deviceName;
 
-  /// A mutex used to protect access to the buffer queues.
   pthread_mutex_t _bufferMutex;
 
   /// The condition variable used to trigger the 
@@ -193,7 +187,7 @@ class RR314
   int _lastGroup[16];
 
   /// The channel adapter, used in RR interfaces
-  s_ChannelAdapter _CA0;
+  s_ChannelAdapter _chanAdapter;
 
   /// Clock setting for the M314, used in RR interfaces.
   s_ClkSettings _ClkSettings;

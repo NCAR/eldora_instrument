@@ -49,7 +49,7 @@ RR314::RR314(int devNum,
 
   // save a reference to our instance so that the isr
   // can locate us
-  rr314Instances[&_CA0] = this;
+  rr314Instances[&_chanAdapter] = this;
 
   // initialize the byte counters and last groups
   for (int c = 0; c < 16; c++) {
@@ -57,13 +57,13 @@ RR314::RR314(int devNum,
     lastGroup(c, -1);
   }
 
-  _deviceName = "/dev/windrvr6";
+  std::string deviceName = "/dev/windrvr6";
 
-  _deviceFd = open(_deviceName.c_str(), O_RDONLY | O_NONBLOCK);
+  int deviceFd = open(deviceName.c_str(), O_RDONLY | O_NONBLOCK);
 
-  if (_deviceFd < 0) {
+  if (deviceFd < 0) {
     std::string e("cannot access ");
-    e += _deviceName;
+    e += deviceName;
     throw(e);
   }
 
@@ -101,15 +101,15 @@ RR314::~RR314()
 void
 RR314::shutdown() {
 
-  Adapter_Write32(&_CA0, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
-  Adapter_Write32(&_CA0, V4, V4_CTL_ADR, 0x0);
+  Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
+  Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 
   if (_dmaAllocated) {
-    Adapter_DMABufFree(&_CA0);
+    Adapter_DMABufFree(&_chanAdapter);
     std::cout << "DMA buffers returned\n";
   }
 
-  Adapter_Close(&_CA0); 
+  Adapter_Close(&_chanAdapter); 
   
   for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
     delete [] _freeBuffers[i];
@@ -142,19 +142,19 @@ RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
       int addr      = 0x1000 | ramSelect | ramAddr;
 
       // set the address
-      Adapter_Write32(&_CA0, V4, 0x934, addr);
+      Adapter_Write32(&_chanAdapter, V4, 0x934, addr);
 
       // write the value
-      Adapter_Write32(&_CA0, V4, 0x938, kaiser[i]);
+      Adapter_Write32(&_chanAdapter, V4, 0x938, kaiser[i]);
 
       // enable writing
-      Adapter_Write32(&_CA0, V4, 0x94C, 1);
+      Adapter_Write32(&_chanAdapter, V4, 0x94C, 1);
 
       // disable writing (kaiser readback only succeeds if we do this)
-      Adapter_Write32(&_CA0, V4, 0x94C, 0);
+      Adapter_Write32(&_chanAdapter, V4, 0x94C, 0);
 
       // read back the programmed value
-      Adapter_Read32(&_CA0, V4, 0x93c, &readBack);
+      Adapter_Read32(&_chanAdapter, V4, 0x93c, &readBack);
 
       if (readBack != kaiser[i]) {
 	std::cout << "kaiser readback failed for coefficient " << std::dec << i 
@@ -186,19 +186,19 @@ RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
       int addr      = ramSelect | ramAddr;
 
       // set the address
-      Adapter_Write32(&_CA0, V4, 0x940, addr);
+      Adapter_Write32(&_chanAdapter, V4, 0x940, addr);
 
       // write the value
-      Adapter_Write32(&_CA0, V4, 0x944, gaussian[i]);
+      Adapter_Write32(&_chanAdapter, V4, 0x944, gaussian[i]);
 
       // enable writing
-      Adapter_Write32(&_CA0, V4, 0x950, 1);     
+      Adapter_Write32(&_chanAdapter, V4, 0x950, 1);     
 
       //disable writing
-      Adapter_Write32(&_CA0, V4, 0x950, 0);
+      Adapter_Write32(&_chanAdapter, V4, 0x950, 0);
 
       // read back the programmed value
-      Adapter_Read32(&_CA0, V4, 0x948, &readBack);
+      Adapter_Read32(&_chanAdapter, V4, 0x948, &readBack);
 
       if (readBack != gaussian[i]) {
 	std::cout << "gaussian readback failed for coefficient " 
@@ -270,25 +270,25 @@ RR314::configure314() {
   pthread_mutex_unlock(&_bufferMutex);
 
   //Init all flags to default values
-  Adapter_Zero(&_CA0);
+  Adapter_Zero(&_chanAdapter);
 
   // The device number
-  _CA0.DevNum = _devNum;
+  _chanAdapter.DevNum = _devNum;
 
   // set assembly information, whatever that is
-  strcpy(_CA0.Asy, "M314"); 
+  strcpy(_chanAdapter.Asy, "M314"); 
 
 
   // Open channel adapter
-  if(Adapter_Open(&_CA0)) {
-    fprintf(stderr, "Failed to find and/or open card. (%x)\n", _CA0.ReturnStatus);
+  if(Adapter_Open(&_chanAdapter)) {
+    fprintf(stderr, "Failed to find and/or open card. (%x)\n", _chanAdapter.ReturnStatus);
     return -1;
   } else {
-    printf("Opened ChannelAdapter device %d\n", _CA0.DevNum);
+    printf("Opened ChannelAdapter device %d\n", _chanAdapter.DevNum);
   }
 
   // Disable all interupts
-  Adapter_Write32(&_CA0, 
+  Adapter_Write32(&_chanAdapter, 
 		  V4, 
 		  V4_MASK_ADR, 
 		  0);
@@ -298,9 +298,9 @@ RR314::configure314() {
     std::cout << "Loading bitstream " << _xsvfFileName << std::endl;
     char name[_xsvfFileName.size()+1];
     strcpy(name, _xsvfFileName.c_str());
-    if(Adapter_LoadXSVF(&_CA0, name, 1)) {
+    if(Adapter_LoadXSVF(&_chanAdapter, name, 1)) {
       printf("V4 and / or PROM failed to load, will now exit...\n");
-      Adapter_Close(&_CA0);
+      Adapter_Close(&_chanAdapter);
       return -1; 
     }
   }
@@ -313,52 +313,52 @@ RR314::configure314() {
   }
 
   // Disable all interupts
-  Adapter_Write32(&_CA0, V4, V4_MASK_ADR, 0x0);
+  Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
 	
   //Check the V4 has a valid load.  
   if(V4LoadCheck)
     {
-      Adapter_Read32(&_CA0, BRIDGE, BRG_FPGA_STAT, &result);
+      Adapter_Read32(&_chanAdapter, BRIDGE, BRG_FPGA_STAT, &result);
       if(!(result & FPGA_PROG_DONE))
 	{
 	  printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
-	  Adapter_Close(&_CA0);
+	  Adapter_Close(&_chanAdapter);
 	  return -1;	
 	}
     }
 	
   // set the sample clock
   _ClkSettings.ClkSrc = SYNTH;    // can be either SYNTH or EXT
-  Adapter_SampleClkSelect(&_CA0, &_ClkSettings);
+  Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
 
   // Code here should reset your DCMs and allow time for them to lock,
   // then check their status
   //Adapter_uSleep(1000000);
 
   // Soft Reset, self clearing
-  Adapter_Write32(&_CA0, V4, V4_CTL_ADR, SOFT_RST); 
+  Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, SOFT_RST); 
 
   // Wait for DCM to Relock
   Adapter_uSleep(1000000);     
 		
   // Check for DCM Lock
-  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &result); //Clear old status reg
-  Adapter_Read32(&_CA0, V4, V4_STAT_ADR, &result);
+  Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
+  Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
   if (result & ADC_DCM_UNLOCKED) {
     printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
-    Adapter_Close(&_CA0);
+    Adapter_Close(&_chanAdapter);
     return -1;
   }
 				
   // Set M314 VRANGE mode.  This will touch the register that controls the sample
   // clk select, so it is done as RMW.
   // Set ADC range to 2Vpp 
-  Adapter_Read32(&_CA0, BRIDGE, BRG_HWCONF_ADR, &result);
+  Adapter_Read32(&_chanAdapter, BRIDGE, BRG_HWCONF_ADR, &result);
   result |= ADCA_VRNG1;
-  Adapter_Write32(&_CA0, BRIDGE, BRG_HWCONF_ADR, result);
+  Adapter_Write32(&_chanAdapter, BRIDGE, BRG_HWCONF_ADR, result);
 		
   // Flush FIFOs
-  Adapter_Write32(&_CA0, V4, V4_CTL_ADR, ADCAFF_FLUSH);
+  Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
 			
   ///////////////////////////////////////////////////////////////////////////////
   //	
@@ -369,42 +369,42 @@ RR314::configure314() {
 		
   printf("Allocating DMA space...");
   // Bitstream supports 16 DMA channels, indexed to 0
-  _CA0.DMA.DMAChannels = 15;				
+  _chanAdapter.DMA.DMAChannels = 15;				
 			
   unsigned int i;
-  for (i = 0; i < _CA0.DMA.DMAChannels+1; i++) {
+  for (i = 0; i < _chanAdapter.DMA.DMAChannels+1; i++) {
     int chan = i;
-    _CA0.DMA.GrpCnt[chan]      = DMANUMGROUPS-1;  
-    _CA0.DMA.BlockSizeB[chan]  = DMABLOCKSIZEBYTES; 
-    _CA0.DMA.BlockCount[chan]  = DMABLOCKSPERGROUP-1;   
+    _chanAdapter.DMA.GrpCnt[chan]      = DMANUMGROUPS-1;  
+    _chanAdapter.DMA.BlockSizeB[chan]  = DMABLOCKSIZEBYTES; 
+    _chanAdapter.DMA.BlockCount[chan]  = DMABLOCKSPERGROUP-1;   
   }		
 			
-  if(Adapter_DMABufAllocate(&_CA0))
+  if(Adapter_DMABufAllocate(&_chanAdapter))
     {
       // unable to allocate DMA space
       fprintf(stderr, "Failure allocating DMA memory\n");
-      Adapter_Close(&_CA0);
+      Adapter_Close(&_chanAdapter);
       return -1;
     }
   else	
     {
       // DMA allocated, load to card
-      ca_LoadDMASettings(&_CA0);
+      ca_LoadDMASettings(&_chanAdapter);
     }
   printf("DMA memory allocation done.\n");
 	
   // Enable DMA interrupt on every group for all 
-  for(i = 0; i < _CA0.DMA.DMAChannels+1; i++)
-    Adapter_Write32(&_CA0, V4, DMA_CH0_GRPSPERINT_ADR+(0x4*i), 0x0); 
+  for(i = 0; i < _chanAdapter.DMA.DMAChannels+1; i++)
+    Adapter_Write32(&_chanAdapter, V4, DMA_CH0_GRPSPERINT_ADR+(0x4*i), 0x0); 
 	
   //Enable DMA group done interrupt after each group transfer 
-  Adapter_Write32(&_CA0, V4, DMA_INT_MASK_ADR, 0xFFFF);
+  Adapter_Write32(&_chanAdapter, V4, DMA_INT_MASK_ADR, 0xFFFF);
 			
   //Enable V4 interrupts, 
-  Adapter_Write32(&_CA0, V4, V4_MASK_ADR, DMA_GRP_DONE | INTR_EN);
+  Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, DMA_GRP_DONE | INTR_EN);
 
   //Allow bridge to create PCI intr
-  Adapter_Write32(&_CA0, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN); 
+  Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN); 
 	
   // initialize the timers
   timerInit();
@@ -489,13 +489,13 @@ RR314::boardInfo() {
   unsigned int result;
 
   // get some of the rev numbers from the card 
-  Adapter_Read32(&_CA0, BRIDGE, BRG_REV_ADR, &result);
+  Adapter_Read32(&_chanAdapter, BRIDGE, BRG_REV_ADR, &result);
   printf("PCI Bridge rev is %x\n", result);
-  Adapter_Read32(&_CA0, V4, DMA_REV_ADR, &result);  
+  Adapter_Read32(&_chanAdapter, V4, DMA_REV_ADR, &result);  
   printf("V4 DMA Rev (Offset 0x0) =  %x, ", result);
-  Adapter_Read32(&_CA0, V4, V4_REV_ADR, &result);  
+  Adapter_Read32(&_chanAdapter, V4, V4_REV_ADR, &result);  
   printf("User Logic Rev (Offset 0x800) =  %x\n", result);
-  printf("Current temp is %.2f C\n", ca_GetTemp(&_CA0));
+  printf("Current temp is %.2f C\n", ca_GetTemp(&_chanAdapter));
 	
 }
 
@@ -509,72 +509,72 @@ RR314::timerInit()
 
   // Decimation Setup
   unsigned int Dec_Factor = _decimationFactor*2 - 1;
-  Adapter_Write32(&_CA0, V4, DEC_REG, Dec_Factor);// Decimation Register
+  Adapter_Write32(&_chanAdapter, V4, DEC_REG, Dec_Factor);// Decimation Register
 	
   //Pulse Pair Setup
-  Adapter_Write32(&_CA0, V4, M_REG, _gates);               // # of Gates
-  Adapter_Write32(&_CA0, V4, N_REG, _samples);             // # of Samples
-  Adapter_Write32(&_CA0, V4, DPRT_REG, _dualPrt);          // Dual Prt(Off)
-  Adapter_Write32(&_CA0, V4, IQ_START_IDX, _startGateIQ);  // index of start of IQ capture
-  Adapter_Write32(&_CA0, V4, IQ_GATE_LEN, _nGatesIQ);      // # of Gate of IQ capture
+  Adapter_Write32(&_chanAdapter, V4, M_REG, _gates);               // # of Gates
+  Adapter_Write32(&_chanAdapter, V4, N_REG, _samples);             // # of Samples
+  Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _dualPrt);          // Dual Prt(Off)
+  Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ);  // index of start of IQ capture
+  Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _nGatesIQ);      // # of Gate of IQ capture
 
-  Adapter_Read32(&_CA0, V4, M_REG, &_gates);
-  Adapter_Read32(&_CA0, V4, N_REG, &_samples);
-  Adapter_Read32(&_CA0, V4, DPRT_REG, &_dualPrt);
-  Adapter_Read32(&_CA0, V4, IQ_START_IDX, &_startGateIQ);
-  Adapter_Read32(&_CA0, V4, IQ_GATE_LEN, &_nGatesIQ);
+  Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
+  Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
+  Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
+  Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
+  Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_nGatesIQ);
 	
   printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
   printf("IQ Index = %d, IQ Length = %d\n", _startGateIQ, _nGatesIQ);
   printf("Pulse Width = %d, Decimation Factor = %d\n", _gates, _decimationFactor);
 
   // Reset Timers
-  Adapter_Write32(&_CA0, V4, MT_DATA, 0x0);                                     // Enable Timer
-  Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_ON);                                // Turn on Write Strobes
-  Adapter_Write32(&_CA0, V4, MT_ADDR, CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Control Register
-  Adapter_Write32(&_CA0, V4, MT_ADDR, DELAY_REG|TIMER0|TIMER1|TIMER2|TIMER3);   // Address Timer 0
-  Adapter_Write32(&_CA0, V4, MT_ADDR, WIDTH_REG|TIMER0|TIMER1|TIMER2|TIMER3);   // Address Timer 0
-  Adapter_Write32(&_CA0, V4, MT_ADDR, PERIOD_REG|TIMER0|TIMER1|TIMER2|TIMER3);  // Address Timer 0
-  Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|TIMER0|TIMER1|TIMER2|TIMER3);     // Mult PRT Register Timer 0
-  Adapter_Write32(&_CA0, V4, MT_WR, WRITE_OFF);                                 // Turn on Write Strobes
+  Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0);                                     // Enable Timer
+  Adapter_Write32(&_chanAdapter, V4, MT_WR,   WRITE_ON);                                // Turn on Write Strobes
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Control Register
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG|TIMER0|TIMER1|TIMER2|TIMER3);   // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG|TIMER0|TIMER1|TIMER2|TIMER3);   // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|TIMER0|TIMER1|TIMER2|TIMER3);  // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG|TIMER0|TIMER1|TIMER2|TIMER3);     // Mult PRT Register Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF);                                 // Turn on Write Strobes
 	
   // Gating Timer Setup
   unsigned int Timers = TIMER0|TIMER1|TIMER2|TIMER3;
   printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
-  Adapter_Write32(&_CA0, V4, MT_ADDR, CONTROL_REG|Timers);  // Control Register
-  Adapter_Write32(&_CA0, V4, MT_DATA, TIMER_ON);            // Enable Timer
-  Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_ON);            // Turn on Write Strobes
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG|Timers);  // Control Register
+  Adapter_Write32(&_chanAdapter, V4, MT_DATA, TIMER_ON);            // Enable Timer
+  Adapter_Write32(&_chanAdapter, V4, MT_WR,   WRITE_ON);            // Turn on Write Strobes
   
   // Delay Register
-  Adapter_Write32(&_CA0, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
-  Adapter_Write32(&_CA0, V4, MT_DATA, 0);                // Value Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0);                // Value Timer 0
   
   
   // Pulse Width Register
-  Adapter_Write32(&_CA0, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
-  Adapter_Write32(&_CA0, V4, MT_DATA, _gates);            // Value Timer 0 (Testing Purposes)
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates);            // Value Timer 0 (Testing Purposes)
 
   // Period Register
-  Adapter_Write32(&_CA0, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
   if (_dualPrt == 0) {
-    // Adapter_Write32(&_CA0, V4, MT_DATA, 1000);  // Single PRT @ 1kHz PRF
-    Adapter_Write32(&_CA0, V4, MT_DATA, 5000);     // For Power Curve Measurements
+    // Adapter_Write32(&_chanAdapter, V4, MT_DATA, 1000);  // Single PRT @ 1kHz PRF
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, 5000);     // For Power Curve Measurements
   }
   else {
-    Adapter_Write32(&_CA0, V4, MT_DATA, 250);      // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, 250);      // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
   }
 	
   //Multiple PRT Register
-  Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|Timers); // Mult PRT Register Timer 0
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG|Timers); // Mult PRT Register Timer 0
   if (_dualPrt) {
-    Adapter_Write32(&_CA0, V4, MT_DATA, 0x0054);   // Mult PRT Value Timer 0
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0054);   // Mult PRT Value Timer 0
   }
   else {
-    Adapter_Write32(&_CA0, V4, MT_DATA, 0x0000);   // Mult PRT Value Timer 0
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0000);   // Mult PRT Value Timer 0
   }
 	
-  Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
-  Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_OFF);                         // Turn off Write Strobes
+  Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
+  Adapter_Write32(&_chanAdapter, V4, MT_WR,   WRITE_OFF);                         // Turn off Write Strobes
   
 }
 
@@ -585,10 +585,10 @@ RR314::start()
 {
 
   // Start the DDC
-  Adapter_Write32(&_CA0, V4, KAISER_ADDR, 0);
+  Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
 		
   // Enable the DMAs and turn on the ADCs
-  Adapter_Write32(&_CA0, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP); 
+  Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP); 
 
 }
 
@@ -628,9 +628,9 @@ RR314::filterSetup()
   Dec_Factor = Decimation*2 - 1;
 
   //Decimation Setup
-  Adapter_Write32(&_CA0, V4, 0x958, 0x1); // Turn on Write Strobe
-  Adapter_Write32(&_CA0, V4, 0x954, Dec_Factor);// Decimation Register
-  Adapter_Write32(&_CA0, V4, 0x958, 0x0);  // Turn off Write Strobe
+  Adapter_Write32(&_chanAdapter, V4, 0x958, 0x1); // Turn on Write Strobe
+  Adapter_Write32(&_chanAdapter, V4, 0x954, Dec_Factor);// Decimation Register
+  Adapter_Write32(&_chanAdapter, V4, 0x958, 0x0);  // Turn off Write Strobe
 
   return 0;
 }
