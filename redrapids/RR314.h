@@ -100,16 +100,20 @@ class RR314
   /// @param buf The buffer to be returned.
   void returnBuffer(int* buf);
 
+  /// @return The number of free buffers
+  int numFreeBuffers();
+
   /// @return The cumulative number of bytes processed
-  int bytes();
+  unsigned long bytes();
 
   ///@return The cumulative number of bytes processed for a given channel
-  int bytes(int chan);
+  unsigned long bytes(int chan);
 
-  /// accumlate byte counts
-  /// @param chan The channel
-  /// @param bytes Add these bytes
-  void addBytes(int chan, int bytes);
+  /// @return The number of fifoFull interrupts
+  int fifoFullInts();
+
+  /// get some info about the board
+  void boardInfo();
 
   /// set the last DMA transfer group
   /// @param chan The channel
@@ -123,11 +127,10 @@ class RR314
   /// set the number of fifofull interrupts
   void fifoFullInts(int n);
 
-  /// 2retun The number of fifoFull interrupts
-  int fifoFullInts();
-
-  /// get some info about the board
-  void boardInfo();
+  /// accumluate byte counts
+  /// @param chan The channel
+  /// @param bytes Add these bytes
+  void addBytes(int chan, int bytes);
 
  protected:
 
@@ -151,15 +154,12 @@ class RR314
   /// stop the RR card and return allocated space
   void shutdown();
 
-
+  /// mutex that protects access to _freeBuffers and _fullBuffers
   pthread_mutex_t _bufferMutex;
 
   /// The condition variable used to trigger the 
   /// data available condition
   pthread_cond_t _dataAvailCond;
-
-  /// A mutex used with the dataAvailCondition 
-  pthread_mutex_t _dataAvailMutex;
 
   /// A queue of available empty buffers
   std::deque<int*> _freeBuffers;
@@ -181,7 +181,7 @@ class RR314
   std::string _xsvfFileName;
 
   /// the number of bytes captured for each channel
-  int _bytes[16];
+  unsigned long  _bytes[16];
 
   /// the last DMA group transferred
   int _lastGroup[16];

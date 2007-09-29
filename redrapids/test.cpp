@@ -28,11 +28,11 @@ main(int argc, char** argv)
   try {
     RR314 rr314(0,     // device number 
 		1000,  // gates
-		100,   // samples (nci)
+		10,    // samples (nci)
 		0,     // dual prt (0 or 1)
 		0,     // starting IQ gate
 		10,    // number of IQ gates
-		12,    // decimation factor for the gaussian filter
+		1,     // decimation factor for the gaussian filter
 		std::string(""), // path to xsvf bitstream file
 		std::string(""), // path to kaiser filter coeeficients file
 		std::string("")  // path to gaussian filter coeeficients file
@@ -47,11 +47,13 @@ main(int argc, char** argv)
 
     // peridically display the card activity.
     while(1) {
-      std::cout << std::setw(8);
-      std::cout << rr314.bytes() << " ";
+      std::cout << std::setw(4);
+      std::cout << rr314.numFreeBuffers() << " ";
+      std::cout << std::setw(6);
+      std::cout << rr314.bytes()/1000000 << " ";
       for (int c = 0; c < 16; c++) {
-	std::cout << std::setw(7);
-	std::cout << rr314.bytes(c) << " ";
+	std::cout << std::setw(6);
+	std::cout << rr314.bytes(c)/1000000 << " ";
       }
       std::cout << "\n";
       sleep(10);

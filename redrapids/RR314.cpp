@@ -41,11 +41,11 @@ RR314::RR314(int devNum,
   _dmaAllocated(false)
 {
 
+  // initalize threading constructs
   pthread_mutex_init(&_bufferMutex, NULL);
-  pthread_mutex_init(&_dataAvailMutex, NULL);
   pthread_cond_init(&_dataAvailCond, NULL);
 
-  std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
+  std::cout << "*** This version of RR314 works with CA_DDC_4.xsvf\n";
 
   // save a reference to our instance so that the isr
   // can locate us
@@ -466,6 +466,18 @@ RR314::returnBuffer(int* buf) {
 
   pthread_mutex_unlock(&_bufferMutex);
 }
+////////////////////////////////////////////////////////////////////////
+
+int
+RR314::numFreeBuffers() {
+  pthread_mutex_lock(&_bufferMutex);
+
+  int result = _freeBuffers.size();
+
+  pthread_mutex_unlock(&_bufferMutex);
+  
+  return result;
+}
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -642,7 +654,7 @@ RR314::addBytes(int chan, int bytes) {
 }
 
 //////////////////////////////////////////////////////////////////////
-int
+unsigned long
 RR314::bytes() 
 {
   int sum = 0;
@@ -654,7 +666,7 @@ RR314::bytes()
 }
 
 //////////////////////////////////////////////////////////////////////
-int
+unsigned long
 RR314::bytes(int chan ) 
 {
   return _bytes[chan];
