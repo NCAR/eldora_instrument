@@ -29,7 +29,7 @@
 #define DMABLOCKSIZEBYTES 4008
 /// The number of DMA blocks per DMA groups.
 #define DMABLOCKSPERGROUP 10
-
+/// The number of buffers preallocated in the buffer pool.
 #define BUFFERPOOLSIZE  1000
 
 /// A handler that is called for varoiuos shutdown signals.
@@ -103,13 +103,16 @@ class RR314
   /// @param buf The buffer to be returned.
   void returnBuffer(int* buf);
 
+  /// Return The number of free buffers
   /// @return The number of free buffers
   int numFreeBuffers();
 
+  /// Get the cumulative number of bytes processed. 
   /// @return The cumulative number of bytes processed since 
   /// the last call to this function.
   std::vector<unsigned long> bytes();
 
+  /// Return The number of fifoFull interrupts.
   /// @return The number of fifoFull interrupts.
   int fifoFullInts();
 
@@ -121,6 +124,7 @@ class RR314
   /// @param group The group
   void lastGroup(int chan, int group);
 
+  /// Get the last DMA group processed for a channel.
   /// @return The last DMA transfer group
   /// @param chan The channel
   int lastGroup(int chan);
@@ -128,7 +132,7 @@ class RR314
   /// Set the number of fifofull interrupts.
   void fifoFullInts(int n);
 
-  /// Accumluate byte counts.
+  /// Accumlulate byte counts.
   /// @param chan The channel
   /// @param bytes Add these bytes
   void addBytes(int chan, int bytes);
