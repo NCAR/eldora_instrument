@@ -23,10 +23,12 @@
 #include "ca_functions.h"
 #include "ca_membuffer.h"
 
+/// The number of groups in a DMA transfer.
 #define DMANUMGROUPS      8
+/// The size of each DMA block.
 #define DMABLOCKSIZEBYTES 4008
+/// The number of DMA blocks per DMA groups.
 #define DMABLOCKSPERGROUP 10
-#define DMA_GROUPS_PER_INT 10
 
 #define BUFFERPOOLSIZE  1000
 
