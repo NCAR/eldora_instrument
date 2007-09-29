@@ -5,6 +5,21 @@
 
 using namespace RedRapids;
 
+// a task which just consumes the data from the
+// rr314 as it becomes available
+void *
+dataTask(void* threadArg) {
+  RR314* pRR314 = (RR314*) threadArg;
+  
+  while (1) {
+    // loop while waiting for new buffers
+    int* pBuf = pRR314->nextBuffer();
+    pRR314->returnBuffer(pBuf);
+  }
+}
+
+// The main routine creates the card, starts it, and then just
+// monitors the card activity.
 int
 main(int argc, char** argv) 
 {
@@ -23,19 +38,23 @@ main(int argc, char** argv)
 		std::string("")  // path to gaussian filter coeeficients file
 		);
 	      
+    // create the data reading thread
+    pthread_t dataThread;
+    pthread_create(&dataThread, NULL, dataTask, (void*) &rr314);
+
     // start the processing
     rr314.start();
 
+    // peridically display the card activity.
     while(1) {
-      sleep(10);
-      int bytes[16];
       std::cout << std::setw(8);
       std::cout << rr314.bytes() << " ";
       for (int c = 0; c < 16; c++) {
-	std::cout << std::setw(8);
+	std::cout << std::setw(7);
 	std::cout << rr314.bytes(c) << " ";
       }
       std::cout << "\n";
+      sleep(10);
     }
   }
   catch (std::string e) {

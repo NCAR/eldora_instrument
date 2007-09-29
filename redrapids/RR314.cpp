@@ -41,7 +41,9 @@ RR314::RR314(int devNum,
   _dmaAllocated(false)
 {
 
-  pthread_mutex_init(&bufferMutex, NULL);
+  pthread_mutex_init(&_bufferMutex, NULL);
+  pthread_mutex_init(&_dataAvailMutex, NULL);
+  pthread_cond_init(&_dataAvailCond, NULL);
 
   std::cout << "*** This version of RRSnarfer works with CA_DDC_4.xsvf\n";
 
@@ -83,11 +85,11 @@ RR314::RR314(int devNum,
 
 RR314::~RR314() 
 {
-  for (unsigned int i = 0; i < freeBuffers.size(); i++ )
-    delete [] freeBuffers[i];
+  for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
+    delete [] _freeBuffers[i];
 
-  for (unsigned int i = 0; i < fullBuffers.size(); i++ )
-    delete [] fullBuffers[i];
+  for (unsigned int i = 0; i < _fullBuffers.size(); i++ )
+    delete [] _fullBuffers[i];
 
   shutdown();
 
@@ -109,11 +111,11 @@ RR314::shutdown() {
 
   Adapter_Close(&_CA0); 
   
-  for (unsigned int i = 0; i < freeBuffers.size(); i++ )
-    delete [] freeBuffers[i];
+  for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
+    delete [] _freeBuffers[i];
 
-  for (unsigned int i = 0; i < fullBuffers.size(); i++ )
-    delete [] fullBuffers[i];
+  for (unsigned int i = 0; i < _fullBuffers.size(); i++ )
+    delete [] _fullBuffers[i];
 
 }
 
@@ -258,14 +260,14 @@ RR314::configure314() {
   V4LoadCheck         = _xsvfFileName.size()>0; 
   V4LoadCheck         = 0;
 
-  pthread_mutex_lock(&bufferMutex);
+  pthread_mutex_lock(&_bufferMutex);
 
   for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-    short* buf = new short[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
-    freeBuffers.push_back(buf);
+    int* buf = new int[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
+    _freeBuffers.push_back(buf);
   }
 
-  pthread_mutex_unlock(&bufferMutex);
+  pthread_mutex_unlock(&_bufferMutex);
 
   //Init all flags to default values
   Adapter_Zero(&_CA0);
@@ -412,6 +414,60 @@ RR314::configure314() {
 }
 
 /////////////////////////////////////////////////////////////////////////
+void
+RR314::newData(unsigned int* src, int chan, int n) {
+
+  pthread_mutex_lock(&_bufferMutex);
+
+  if (_freeBuffers.size()) {
+    int* pBuf = _freeBuffers[0];
+    _fullBuffers.push_back(pBuf);
+    _freeBuffers.pop_front();
+    for (int i = 0; i < n; i++) {
+      pBuf[i] = src[i];
+    }
+    // signal that new data is available
+    pthread_cond_broadcast(&_dataAvailCond);
+  } else {
+    /// @todo add dropped buffer accounting here
+  }
+
+  pthread_mutex_unlock(&_bufferMutex);
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+int*
+RR314::nextBuffer() {
+  int* pBuf = 0;
+
+  pthread_mutex_lock(&_bufferMutex);
+
+  while (_fullBuffers.size() == 0 ) {
+    pthread_cond_wait(&_dataAvailCond, &_bufferMutex);
+  }
+
+  pBuf = _fullBuffers[0];
+
+  _fullBuffers.pop_front();
+
+  pthread_mutex_unlock(&_bufferMutex);
+
+  return pBuf;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+void
+RR314::returnBuffer(int* buf) {
+  pthread_mutex_lock(&_bufferMutex);
+
+  _freeBuffers.push_back(buf);
+
+  pthread_mutex_unlock(&_bufferMutex);
+}
+
+/////////////////////////////////////////////////////////////////////////
 
 void 
 RR314::fifoFullInts(int n) {
@@ -517,10 +573,6 @@ RR314::timerInit()
     Adapter_Write32(&_CA0, V4, MT_DATA, 0x0000);   // Mult PRT Value Timer 0
   }
 	
-  //Adapter_Write32(&_CA0, V4, 0xA60, 0x0);   // DC I Removal
-  //Adapter_Write32(&_CA0, V4, 0xA64, 0x0);   // DC Q Removal
-  
-  printf("ENABLING: %x\n", PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
   Adapter_Write32(&_CA0, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
   Adapter_Write32(&_CA0, V4, MT_WR,   WRITE_OFF);                         // Turn off Write Strobes
   

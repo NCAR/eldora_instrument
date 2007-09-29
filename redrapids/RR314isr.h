@@ -43,9 +43,8 @@ void Adapter_ISR(s_ChannelAdapter *pCA);
 /// @param pRR314 The RR314 instance associated with pCA
 void processDMAGroups(s_ChannelAdapter *pCA, int chan, RedRapids::RR314* pRR314);
 
-/// Transfer one DMA group to a destination.
-/// @param dest Destination.
+/// Transfer one DMA group to RR314
 /// @param pCA The channel adapter.
 /// @param chan The channel number.
-/// @param group The group number.
-void dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group);
+/// @param pRR314 The RR314 instance associated with pCA
+void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, int group);

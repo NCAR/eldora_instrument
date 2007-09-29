@@ -5,16 +5,18 @@ using namespace RedRapids;
 
 //////////////////////////////////////////////////////////////////////
 
-/// Copy one group to the destination
 void
-dmaCopy(UINT32* dest, s_ChannelAdapter* pCA, int chan, int group) {
+sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
+
+  int group = pRR314->lastGroup(chan);
 
   int MaxGrpsPerCh = 2048 / (pCA->DMA.DMAChannels + 1); 
   if(MaxGrpsPerCh > 1024) //1024 is max groups per channel
     MaxGrpsPerCh = 1024;
 
-  UINT32* src = (UINT32*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
-  memcpy(dest, src, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES);
+  unsigned int* src = (unsigned int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
+  // send it to RR314
+  pRR314->newData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (unsigned int)));
 
   return;
 }
@@ -38,9 +40,6 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
       
   if (currentGroup >= 0 && currentGroup < DMANUMGROUPS) {
 
-    // lock access to the buffer pool
-    pthread_mutex_lock(&(pRR314->bufferMutex));
-
     while (pRR314->lastGroup(chan) != (int)currentGroup) {
 
       // update the last group index
@@ -52,23 +51,9 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
       // sum the number of bytes for this channel
       pRR314->addBytes(chan, DMABLOCKSPERGROUP*DMABLOCKSIZEBYTES);
 
-      // add the data from the group to the buffer pool, if possible
-      // otherwise ignore that group
-      if (pRR314->freeBuffers.size() > 0) {
-	// move a buffer from the free list to the filled list
-	short int* pBuf = pRR314->freeBuffers[0];
-	//fullBuffers.push_back(pRR314->freeBuffers[0]);
-	//pRR314->freeBuffers.pop_front();
-	// copy dma region into that buffer
-	dmaCopy((UINT32*)pBuf, pCA, chan, pRR314->lastGroup(chan));
-      } else {
-	groupsDropped++;
-      }
+      // send the group to our RR314 class
+      sendGroupToRR314(pCA, chan, pRR314);
     } 
-
-    // release lock on the buffer pool
-    pthread_mutex_unlock(&(pRR314->bufferMutex));
-
   } else {
     std::cout << "BOGUS GROUP COUNT: " << currentGroup << "\n";
   } 

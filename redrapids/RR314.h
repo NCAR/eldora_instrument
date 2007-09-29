@@ -26,8 +26,9 @@
 #define DMANUMGROUPS      8
 #define DMABLOCKSIZEBYTES 4008
 #define DMABLOCKSPERGROUP 10
-#define BUFFERPOOLSIZE    2*DMANUMGROUPS
 #define DMA_GROUPS_PER_INT 10
+
+#define BUFFERPOOLSIZE  1000
 
 /// A handler that is called for varoiuos shutdown signals.
 /// It's job is to force windrvr6 to return memory.
@@ -78,6 +79,27 @@ class RR314
   /// transfer is enabled for the V4
   void start();
 
+  /// Accept new data for this class. This function
+  /// may be called from other threads. It will 
+  /// copy the data into a free buffer, and signal
+  /// the data availability with a broadcast on
+  /// _dataAvailCond.
+  /// @param src The source of the data
+  /// @param chan The channel of this data
+  /// @param n The number of data elements in src to be transferred
+  void newData(unsigned int* src, int chan, int n);
+
+  /// Return the next available data buffer. If there
+  /// is no data available, wait until there is.
+  /// The caller must return the buffer when finished
+  /// by calling returnBuffer().
+  /// @return A buffer of data
+  int* nextBuffer();
+
+  /// Return the used buffer to the pool.
+  /// @param buf The buffer to be returned.
+  void returnBuffer(int* buf);
+
   /// @return The cumulative number of bytes processed
   int bytes();
 
@@ -107,15 +129,6 @@ class RR314
   /// get some info about the board
   void boardInfo();
 
-  /// A mutex used to protect access to the data queues.
-  pthread_mutex_t bufferMutex;
-
-  /// A queue of available empty buffers
-  std::deque<short*> freeBuffers;
-
-  /// A queue of buffers with data to be processed.
-  std::deque<short*> fullBuffers;
-
  protected:
 
   /// The fifo file descriptor for receiving data. 
@@ -143,6 +156,22 @@ class RR314
 
   /// The device node for the RR card.
   std::string _deviceName;
+
+  /// A mutex used to protect access to the buffer queues.
+  pthread_mutex_t _bufferMutex;
+
+  /// The condition variable used to trigger the 
+  /// data available condition
+  pthread_cond_t _dataAvailCond;
+
+  /// A mutex used with the dataAvailCondition 
+  pthread_mutex_t _dataAvailMutex;
+
+  /// A queue of available empty buffers
+  std::deque<int*> _freeBuffers;
+
+  /// A queue of buffers with data to be processed.
+  std::deque<int*> _fullBuffers;
 
   /// The gaussian filter decimation factor (1-127)
   unsigned int _decimationFactor;
