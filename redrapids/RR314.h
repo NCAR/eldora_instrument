@@ -76,7 +76,7 @@ class RR314
   /// Start the data capture and processing. The 
   /// FPGA processing is started by enabling the
   /// kasier filter and the A/D capture, and the dma 
-  /// transfer is enabled for the V4
+  /// transfer is enabled for the V4.
   void start();
 
   /// Accept new data for this class. This function
@@ -89,7 +89,8 @@ class RR314
   /// @param n The number of data elements in src to be transferred
   void newData(unsigned int* src, int chan, int n);
 
-  /// Return the next available data buffer. If there
+  /// Return the next available data buffer. 
+  /// If there
   /// is no data available, wait until there is.
   /// The caller must return the buffer when finished
   /// by calling returnBuffer().
@@ -110,7 +111,7 @@ class RR314
   /// @return The number of fifoFull interrupts
   int fifoFullInts();
 
-  /// get some info about the board
+  /// get some info about the board.
   void boardInfo();
 
   /// set the last DMA transfer group
