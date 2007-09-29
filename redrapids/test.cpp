@@ -32,7 +32,7 @@ main(int argc, char** argv)
 		0,     // dual prt (0 or 1)
 		0,     // starting IQ gate
 		10,    // number of IQ gates
-		1,     // decimation factor for the gaussian filter
+		12,    // decimation factor for the gaussian filter
 		std::string(""), // path to xsvf bitstream file
 		std::string(""), // path to kaiser filter coeeficients file
 		std::string("")  // path to gaussian filter coeeficients file
