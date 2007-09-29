@@ -52,6 +52,7 @@ RR314::RR314(int devNum,
   rr314Instances[&_chanAdapter] = this;
 
   // initialize the byte counters and last groups
+  _bytes.resize(16);
   for (int c = 0; c < 16; c++) {
     _bytes[c] = 0;
     lastGroup(c, -1);
@@ -654,25 +655,15 @@ RR314::addBytes(int chan, int bytes) {
 }
 
 //////////////////////////////////////////////////////////////////////
-unsigned long
+std::vector<unsigned long>
 RR314::bytes() 
 {
-  int sum = 0;
-  for (int i = 0; i < 16; i++) {
-    sum += _bytes[i];
-  }
+  std::vector<unsigned long> result = _bytes;
+  for (int i = 0; i < 16; i++)
+    _bytes[i] = 0;
 
-  return sum;
+  return result;
 }
-
-//////////////////////////////////////////////////////////////////////
-unsigned long
-RR314::bytes(int chan ) 
-{
-  return _bytes[chan];
-}
-
-
 
 //////////////////////////////////////////////////////////////////////
 

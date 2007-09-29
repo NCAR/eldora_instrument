@@ -103,11 +103,9 @@ class RR314
   /// @return The number of free buffers
   int numFreeBuffers();
 
-  /// @return The cumulative number of bytes processed
-  unsigned long bytes();
-
-  ///@return The cumulative number of bytes processed for a given channel
-  unsigned long bytes(int chan);
+  /// @return The cumulative number of bytes processed since 
+  /// the last call to this function
+  std::vector<unsigned long> bytes();
 
   /// @return The number of fifoFull interrupts
   int fifoFullInts();
@@ -181,7 +179,7 @@ class RR314
   std::string _xsvfFileName;
 
   /// the number of bytes captured for each channel
-  unsigned long  _bytes[16];
+  std::vector<unsigned long>  _bytes;
 
   /// the last DMA group transferred
   int _lastGroup[16];

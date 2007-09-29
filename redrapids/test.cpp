@@ -47,15 +47,19 @@ main(int argc, char** argv)
 
     // peridically display the card activity.
     while(1) {
+      std::vector<unsigned long> bytes = rr314.bytes();
+
       std::cout << std::setw(4);
       std::cout << rr314.numFreeBuffers() << " ";
-      std::cout << std::setw(6);
-      std::cout << rr314.bytes()/1000000 << " ";
-      for (int c = 0; c < 16; c++) {
+      unsigned long sum = 0;
+      for (int c = 0; c < bytes.size(); c++) {
 	std::cout << std::setw(6);
-	std::cout << rr314.bytes(c)/1000000 << " ";
+	std::cout << bytes[c] << " ";
+	sum += bytes[c];
       }
+      std::cout << sum;
       std::cout << "\n";
+      
       sleep(10);
     }
   }
