@@ -37,8 +37,7 @@ RR314::RR314(int devNum,
   _gaussianFile(gaussianFile),
   _kaiserFile(kaiserFile),
   _xsvfFileName(xsvfFileName),
-  _bufferNext(0),
-  _dmaAllocated(false)
+  _bufferNext(0)
 {
 
   // initalize threading constructs
@@ -105,10 +104,7 @@ RR314::shutdown() {
   Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
   Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 
-  if (_dmaAllocated) {
-    Adapter_DMABufFree(&_chanAdapter);
-    std::cout << "DMA buffers returned\n";
-  }
+  Adapter_DMABufFree(&_chanAdapter);
 
   Adapter_Close(&_chanAdapter); 
   

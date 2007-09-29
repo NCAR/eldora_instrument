@@ -70,7 +70,7 @@ class RR314
   virtual ~RR314();
   
   /// A map of our instances, indexed by the channel adapter
-  /// variabble pointer. Use by C routines to find our instance.
+  /// variable pointer. Use by C routines to find our instance.
   static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
 
   /// Start the data capture and processing. The 
@@ -105,16 +105,16 @@ class RR314
   int numFreeBuffers();
 
   /// @return The cumulative number of bytes processed since 
-  /// the last call to this function
+  /// the last call to this function.
   std::vector<unsigned long> bytes();
 
-  /// @return The number of fifoFull interrupts
+  /// @return The number of fifoFull interrupts.
   int fifoFullInts();
 
-  /// get some info about the board.
+  /// Get some info about the board.
   void boardInfo();
 
-  /// set the last DMA transfer group
+  /// Set the last DMA transfer group.
   /// @param chan The channel
   /// @param group The group
   void lastGroup(int chan, int group);
@@ -123,10 +123,10 @@ class RR314
   /// @param chan The channel
   int lastGroup(int chan);
 
-  /// set the number of fifofull interrupts
+  /// Set the number of fifofull interrupts.
   void fifoFullInts(int n);
 
-  /// accumluate byte counts
+  /// Accumluate byte counts.
   /// @param chan The channel
   /// @param bytes Add these bytes
   void addBytes(int chan, int bytes);
@@ -134,89 +134,89 @@ class RR314
  protected:
 
   /// Configure ignal catching so that DMA operations
-  /// and memory can be cleaned up on a signal
+  /// and memory can be cleaned up on a signal.
   void catchSignals();
 
-  /// Configure the card and DMA operations
+  /// Configure the card and DMA operations.
   int configure314();
 
-  /// configure the filters and the decimation value
+  /// Configure the filters and the decimation value.
   int filterSetup();
 
-  /// program the cofficients for the gaussian and
-  /// kaiser filters
+  /// Program the cofficients for the gaussian and
+  /// kaiser filters.
   bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
-  /// Configure the timers
+  /// Configure the timers.
   void timerInit();
 
-  /// stop the RR card and return allocated space
+  /// Stop the RR card and return DMA allocated space.
   void shutdown();
 
-  /// mutex that protects access to _freeBuffers and _fullBuffers
+  /// Mutex that protects access to _freeBuffers and _fullBuffers.
   pthread_mutex_t _bufferMutex;
 
   /// The condition variable used to trigger the 
-  /// data available condition
+  /// data available condition.
   pthread_cond_t _dataAvailCond;
 
-  /// A queue of available empty buffers
+  /// A queue of available empty buffers.
   std::deque<int*> _freeBuffers;
 
   /// A queue of buffers with data to be processed.
   std::deque<int*> _fullBuffers;
 
-  /// The gaussian filter decimation factor (1-127)
+  /// The gaussian filter decimation factor (1-127).
   unsigned int _decimationFactor;
 
-  /// The path to the file containing the gaussian filter definitions
+  /// The path to the file containing the gaussian filter definitions.
   std::string _gaussianFile;
 
-  /// The path to the file containing the kaiser filter coefficients
+  /// The path to the file containing the kaiser filter coefficients.
   std::string _kaiserFile;
 
   /// The path to a RR bitstream file, if it will be
-  /// loaded
+  /// loaded.
   std::string _xsvfFileName;
 
-  /// the number of bytes captured for each channel
+  /// The number of bytes captured for each channel.
   std::vector<unsigned long>  _bytes;
 
-  /// the last DMA group transferred
+  /// The last DMA group transferred.
   int _lastGroup[16];
 
-  /// The channel adapter, used in RR interfaces
+  /// The channel adapter, used in RR interfaces.
   s_ChannelAdapter _chanAdapter;
 
   /// Clock setting for the M314, used in RR interfaces.
   s_ClkSettings _ClkSettings;
 
-  /// set true if the DMA allocation has been made
-  bool _dmaAllocated;
+  /// Set true if the DMA allocation has been made.
+  //  bool _dmaAllocated;
 
-  /// points to the next location in an incoming data buffer
+  /// Points to the next location in an incoming data buffer
   /// to retrieve data from.
   int _bufferNext; 
 
   /// The RR314 device number, starting at 0.
   int _devNum;
 
-  /// The number of gates
+  /// The number of gates.
   unsigned int _gates;
 
-  /// The number of samples
+  /// The number of samples.
   unsigned int _samples;
 
-  /// dual prt true or false
+  /// Dual prt true or false.
   unsigned int _dualPrt;
 
-  /// the start gate number of IQ capture
+  /// The start gate number of IQ capture.
   unsigned int _startGateIQ;
 
-  /// The number of IQ gates to capture
+  /// The number of IQ gates to capture.
   unsigned int _nGatesIQ;
 
-  /// The number of fifo full interrupts 
+  /// The number of fifo full interrupts. 
   int _fifoFullInts;
 };
 }
