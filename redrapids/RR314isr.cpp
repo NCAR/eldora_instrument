@@ -48,9 +48,6 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
       if (pRR314->lastGroup(chan) == DMANUMGROUPS) 
 	pRR314->lastGroup(chan, 0);
 
-      // sum the number of bytes for this channel
-      pRR314->addBytes(chan, DMABLOCKSPERGROUP*DMABLOCKSIZEBYTES);
-
       // send the group to our RR314 class
       sendGroupToRR314(pCA, chan, pRR314);
     } 

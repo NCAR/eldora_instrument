@@ -12,6 +12,7 @@ $RR314_ROOT/ca_membuffer.c
 FilterSpec.cpp
 RR314.cpp
 RR314isr.cpp
+RR314sim.cpp
 """)
 
 librr314 = env.Library('rr314', sources )

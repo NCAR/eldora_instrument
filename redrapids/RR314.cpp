@@ -1,11 +1,11 @@
 #include <signal.h>
 #include "RR314.h"
+#include "RR314sim.h"
 #include <iostream>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <math.h>
-#include <pthread.h>
 #include <deque>
 #include <map>
 
@@ -26,7 +26,8 @@ RR314::RR314(int devNum,
 	     unsigned int decimationFactor, 
 	     std::string gaussianFile,
 	     std::string kaiserFile,
-	     std::string xsvfFileName) throw(std::string):
+	     std::string xsvfFileName,
+	     bool simulate) throw(std::string):
   _devNum(devNum),
   _gates(gates),
   _samples(samples),
@@ -37,7 +38,8 @@ RR314::RR314(int devNum,
   _gaussianFile(gaussianFile),
   _kaiserFile(kaiserFile),
   _xsvfFileName(xsvfFileName),
-  _bufferNext(0)
+  _bufferNext(0),
+  _simulate(simulate)
 {
 
   // initalize threading constructs
@@ -55,6 +57,19 @@ RR314::RR314(int devNum,
   for (int c = 0; c < 16; c++) {
     _bytes[c] = 0;
     lastGroup(c, -1);
+  }
+
+  // allocate the buffers
+  pthread_mutex_lock(&_bufferMutex);
+  for (int i = 0; i < BUFFERPOOLSIZE; i++) {
+    int* buf = new int[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
+    _freeBuffers.push_back(buf);
+  }
+  pthread_mutex_unlock(&_bufferMutex);
+
+  if (_simulate) {
+    _simulator = new RedRapids::RR314sim(this);
+    return;
   }
 
   std::string deviceName = "/dev/windrvr6";
@@ -85,13 +100,27 @@ RR314::RR314(int devNum,
 
 RR314::~RR314() 
 {
+  // disable the hardware
+  if (!_simulate) {
+      RR314shutdown();
+  } else {
+    /// @todo Need to add thread termination for RR314sim
+    /// during class destruction
+    delete _simulator;
+  }
+
+
   for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
     delete [] _freeBuffers[i];
 
   for (unsigned int i = 0; i < _fullBuffers.size(); i++ )
     delete [] _fullBuffers[i];
 
-  shutdown();
+  for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
+    delete [] _freeBuffers[i];
+
+  for (unsigned int i = 0; i < _fullBuffers.size(); i++ )
+    delete [] _fullBuffers[i];
 
   std::cout << "RR314 deleted\n";
 }
@@ -99,7 +128,7 @@ RR314::~RR314()
 //////////////////////////////////////////////////////////////////////
 
 void
-RR314::shutdown() {
+RR314::RR314shutdown() {
 
   Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
   Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
@@ -108,12 +137,6 @@ RR314::shutdown() {
 
   Adapter_Close(&_chanAdapter); 
   
-  for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
-    delete [] _freeBuffers[i];
-
-  for (unsigned int i = 0; i < _fullBuffers.size(); i++ )
-    delete [] _fullBuffers[i];
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -256,15 +279,6 @@ RR314::configure314() {
   int V4LoadCheck;                  // if set, verify that V4 has been loaded
   V4LoadCheck         = _xsvfFileName.size()>0; 
   V4LoadCheck         = 0;
-
-  pthread_mutex_lock(&_bufferMutex);
-
-  for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-    int* buf = new int[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
-    _freeBuffers.push_back(buf);
-  }
-
-  pthread_mutex_unlock(&_bufferMutex);
 
   //Init all flags to default values
   Adapter_Zero(&_chanAdapter);
@@ -423,6 +437,7 @@ RR314::newData(unsigned int* src, int chan, int n) {
     for (int i = 0; i < n; i++) {
       pBuf[i] = src[i];
     }
+    addBytes(chan, n*sizeof(*src));
     // signal that new data is available
     pthread_cond_broadcast(&_dataAvailCond);
   } else {
@@ -494,6 +509,9 @@ RR314::fifoFullInts() {
 
 void
 RR314::boardInfo() {
+
+  if (_simulate)
+    return;
 
   unsigned int result;
 
@@ -592,6 +610,10 @@ RR314::timerInit()
 void 
 RR314::start() 
 {
+  if (_simulate) {
+    _simulator->start();
+    return;
+  }
 
   // Start the DDC
   Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
@@ -690,11 +712,8 @@ shutdownSignalHandler(int signo){
     s_ChannelAdapter* pCA = p->first;
 
     std::cout << "Stopping RR314 device " << pCA->DevNum << std::endl;
+    p->second->RR314shutdown();
 
-    Adapter_Write32(pCA, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
-    Adapter_Write32(pCA, V4, V4_CTL_ADR, 0x0);
-    Adapter_DMABufFree(pCA);
-    Adapter_Close(pCA); 
   }
 
   std::cout << "caught signal; exiting...\n";

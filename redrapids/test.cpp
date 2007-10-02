@@ -35,7 +35,8 @@ main(int argc, char** argv)
 		12,    // decimation factor for the gaussian filter
 		std::string(""), // path to xsvf bitstream file
 		std::string(""), // path to kaiser filter coeeficients file
-		std::string("")  // path to gaussian filter coeeficients file
+		std::string(""), // path to gaussian filter coeeficients file
+		true
 		);
 	      
     // create the data reading thread
