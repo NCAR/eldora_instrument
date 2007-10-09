@@ -33,7 +33,7 @@ parseOptions(int argc, char** argv) {
   descripts.add_options()
     ("help", "describe options")
     ("simulate", "run in simulation mode")
-    ("gates",     po::value<int>(&params.gates)->default_value(10),      "number of gates")
+    ("gates",     po::value<int>(&params.gates)->default_value(1000),    "number of gates")
     ("nci",       po::value<int>(&params.nci)->default_value(100),       "number of coherent integrations")
     ("startiq",   po::value<int>(&params.startiq)->default_value(0),     "start gate for iq capture")
     ("numiq",     po::value<int>(&params.numiq)->default_value(100),     "number of gates for iq capture")
