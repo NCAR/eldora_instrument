@@ -24,6 +24,12 @@ int
 main(int argc, char** argv) 
 {
 
+  bool simulate = false;
+  if (argc > 1) {
+    if (!strcmp(argv[1], "-s")) {
+	  simulate = true;
+	}
+  }
   // create an RR314 card
   try {
     RR314 rr314(0,     // device number 
@@ -36,7 +42,7 @@ main(int argc, char** argv)
 		std::string(""), // path to xsvf bitstream file
 		std::string(""), // path to kaiser filter coeeficients file
 		std::string(""), // path to gaussian filter coeeficients file
-		true
+	        simulate  // simulation mode?
 		);
 	      
     // create the data reading thread

@@ -46,7 +46,11 @@ RR314::RR314(int devNum,
   pthread_mutex_init(&_bufferMutex, NULL);
   pthread_cond_init(&_dataAvailCond, NULL);
 
-  std::cout << "*** This version of RR314 works with CA_DDC_4.xsvf\n";
+  if (simulate) {
+    std::cout << "*** RR314 operating in simulation mode, without hardware\n";
+  } else {
+    std::cout << "*** This version of RR314 works with CA_DDC_4.xsvf\n";
+  }
 
   // save a reference to our instance so that the isr
   // can locate us
