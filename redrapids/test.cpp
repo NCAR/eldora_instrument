@@ -17,6 +17,9 @@ struct runParams {
   int numiq;
   int decimation;
   bool simulate;
+  std::string xsvf;
+  std::string kaiser;
+  std::string gaussian;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -38,6 +41,9 @@ parseOptions(int argc, char** argv) {
     ("startiq",   po::value<int>(&params.startiq)->default_value(0),     "start gate for iq capture")
     ("numiq",     po::value<int>(&params.numiq)->default_value(100),     "number of gates for iq capture")
     ("decimation",po::value<int>(&params.decimation)->default_value(10), "decimation factor")
+    ("xsvf",      po::value<std::string>(&params.xsvf)->default_value(""),"path to xsvf file")
+    ("kaiser",    po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
+    ("gaussian",  po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
     ;
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, descripts), vm);
@@ -90,10 +96,10 @@ main(int argc, char** argv)
 		0,     // dual prt (0 or 1)
 		params.startiq,
 		params.numiq,
-		12,    // decimation factor for the gaussian filter
-		std::string(""), // path to xsvf bitstream file
-		std::string(""), // path to kaiser filter coeeficients file
-		std::string(""), // path to gaussian filter coeeficients file
+		params.decimation,
+		params.xsvf,
+		params.kaiser,
+		params.gaussian,
 	        params.simulate  // simulation mode?
 		);
 	      
