@@ -2,9 +2,63 @@
 #include <iostream>
 #include <iomanip>
 #include <ios>
+#include "boost/program_options.hpp"
 
 using namespace RedRapids;
+namespace po = boost::program_options;
 
+//////////////////////////////////////////////////////////////////////
+//
+
+struct runParams {
+  int gates;
+  int nci;
+  int startiq;
+  int numiq;
+  int decimation;
+  bool simulate;
+};
+
+//////////////////////////////////////////////////////////////////////
+//
+
+struct runParams
+parseOptions(int argc, char** argv) {
+
+  runParams params;
+  params.simulate = false;
+
+  // get the options
+  po::options_description descripts ("Options");
+  descripts.add_options()
+    ("help", "describe options")
+    ("simulate", "run in simulation mode")
+    ("gates",     po::value<int>(&params.gates)->default_value(10),      "number of gates")
+    ("nci",       po::value<int>(&params.nci)->default_value(100),       "number of coherent integrations")
+    ("startiq",   po::value<int>(&params.startiq)->default_value(0),     "start gate for iq capture")
+    ("numiq",     po::value<int>(&params.numiq)->default_value(100),     "number of gates for iq capture")
+    ("decimation",po::value<int>(&params.decimation)->default_value(10), "decimation factor")
+    ;
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, descripts), vm);
+  po::notify(vm);
+
+  if (vm.count("gates")) {
+    params.gates = vm["gates"].as<int>();
+  }
+  if (vm.count("simulate")) {
+    params.simulate = true;
+  }
+  if (vm.count("help")) {
+    std::cout << descripts << "\n";
+    exit (1);
+  }
+
+  return params;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // a task which just consumes the data from the
 // rr314 as it becomes available
 void *
@@ -18,31 +72,29 @@ dataTask(void* threadArg) {
   }
 }
 
+//////////////////////////////////////////////////////////////////////
+//
 // The main routine creates the card, starts it, and then just
 // monitors the card activity.
 int
 main(int argc, char** argv) 
 {
 
-  bool simulate = false;
-  if (argc > 1) {
-    if (!strcmp(argv[1], "-s")) {
-	  simulate = true;
-	}
-  }
+  runParams params = parseOptions(argc, argv);
+
   // create an RR314 card
   try {
     RR314 rr314(0,     // device number 
-		1000,  // gates
-		10,    // samples (nci)
+		params.gates,
+		params.nci,
 		0,     // dual prt (0 or 1)
-		0,     // starting IQ gate
-		10,    // number of IQ gates
+		params.startiq,
+		params.numiq,
 		12,    // decimation factor for the gaussian filter
 		std::string(""), // path to xsvf bitstream file
 		std::string(""), // path to kaiser filter coeeficients file
 		std::string(""), // path to gaussian filter coeeficients file
-	        simulate  // simulation mode?
+	        params.simulate  // simulation mode?
 		);
 	      
     // create the data reading thread
