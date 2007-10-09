@@ -36,27 +36,22 @@ parseOptions(int argc, char** argv) {
   po::options_description descripts ("Options");
   descripts.add_options()
     ("help", "describe options")
-    ("simulate", "run in simulation mode")
-    ("device",    po::value<int>(&params.device)->default_value(0),    "device number")
-    ("gates",     po::value<int>(&params.gates)->default_value(1000),    "number of gates")
-    ("nci",       po::value<int>(&params.nci)->default_value(100),       "number of coherent integrations")
-    ("startiq",   po::value<int>(&params.startiq)->default_value(0),     "start gate for iq capture")
-    ("numiq",     po::value<int>(&params.numiq)->default_value(100),     "number of gates for iq capture")
-    ("decimation",po::value<int>(&params.decimation)->default_value(10), "decimation factor")
-    ("xsvf",      po::value<std::string>(&params.xsvf)->default_value(""),"path to xsvf file")
-    ("kaiser",    po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
+    ("simulate",  po::value<bool>(&params.simulate)->default_value(false),    "run in simulation mode")
+    ("device",    po::value<int>(&params.device)->default_value(0),           "device number")
+    ("gates",     po::value<int>(&params.gates)->default_value(1000),         "number of gates")
+    ("nci",       po::value<int>(&params.nci)->default_value(100),            "number of coherent integrations")
+    ("startiq",   po::value<int>(&params.startiq)->default_value(0),          "start gate for iq capture")
+    ("numiq",     po::value<int>(&params.numiq)->default_value(100),          "number of gates for iq capture")
+    ("decimation",po::value<int>(&params.decimation)->default_value(10),      "decimation factor")
+    ("xsvf",      po::value<std::string>(&params.xsvf)->default_value(""),    "path to xsvf file")
+    ("kaiser",    po::value<std::string>(&params.kaiser)->default_value(""),  "path to kaiser coefficient file")
     ("gaussian",  po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
     ;
+
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, descripts), vm);
   po::notify(vm);
 
-  if (vm.count("gates")) {
-    params.gates = vm["gates"].as<int>();
-  }
-  if (vm.count("simulate")) {
-    params.simulate = true;
-  }
   if (vm.count("help")) {
     std::cout << descripts << "\n";
     exit (1);
