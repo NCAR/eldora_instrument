@@ -11,6 +11,7 @@ namespace po = boost::program_options;
 //
 
 struct runParams {
+  int device;
   int gates;
   int nci;
   int startiq;
@@ -36,6 +37,7 @@ parseOptions(int argc, char** argv) {
   descripts.add_options()
     ("help", "describe options")
     ("simulate", "run in simulation mode")
+    ("device",    po::value<int>(&params.device)->default_value(0),    "device number")
     ("gates",     po::value<int>(&params.gates)->default_value(1000),    "number of gates")
     ("nci",       po::value<int>(&params.nci)->default_value(100),       "number of coherent integrations")
     ("startiq",   po::value<int>(&params.startiq)->default_value(0),     "start gate for iq capture")
@@ -90,7 +92,7 @@ main(int argc, char** argv)
 
   // create an RR314 card
   try {
-    RR314 rr314(0,     // device number 
+    RR314 rr314(params.device,
 		params.gates,
 		params.nci,
 		0,     // dual prt (0 or 1)
