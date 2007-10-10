@@ -76,8 +76,6 @@ createFiles(runParams& params) {
     s.fill('0');
     s << i;
     params.ofstreams[i] = new std::ofstream(s.str().c_str(), std::ios::trunc);
-    *params.ofstreams[i] << "beam 0\n";
-
     params.sampleCounts[i] = 0;
   }
 
@@ -108,7 +106,7 @@ dataTask(void* threadArg) {
       if ((channel %4)) {
 	// add a beam indicator for ABP channels
 	if (  (pParams->sampleCounts[channel] % (gates+2)) == 0) {
-	  *pStream << "beam " << (pParams->sampleCounts[channel]/(gates+2)) + 1 << std::endl;
+	  *pStream << "beam " << (pParams->sampleCounts[channel]/(gates+2)) << std::endl;
 	} 
 
       }	// write the data to the chennel file
