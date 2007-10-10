@@ -282,7 +282,7 @@ RR314::configure314() {
 
   int V4LoadCheck;                  // if set, verify that V4 has been loaded
   V4LoadCheck         = _xsvfFileName.size()>0; 
-  V4LoadCheck         = 0;
+  V4LoadCheck         = 1;
 
   //Init all flags to default values
   Adapter_Zero(&_chanAdapter);
