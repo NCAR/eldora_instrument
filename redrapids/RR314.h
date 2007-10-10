@@ -42,6 +42,10 @@ void shutdownSignalHandler(int signo);
 namespace RedRapids {
 
   class RR314sim;
+  struct RRbuffer {
+    std::vector<int> _data;
+    int channel;
+  };
 
   //////////////////////////////////////////////////////////////////////
   ///
@@ -111,11 +115,11 @@ namespace RedRapids {
     /// The caller must return the buffer when finished
     /// by calling returnBuffer().
     /// @return A buffer of data
-    int* nextBuffer();
+    RRbuffer* nextBuffer();
 
     /// Return the used buffer to the pool.
     /// @param buf The buffer to be returned.
-    void returnBuffer(int* buf);
+    void returnBuffer(RRbuffer* buf);
 
     /// Return The number of free buffers
     /// @return The number of free buffers
@@ -181,10 +185,10 @@ namespace RedRapids {
     pthread_cond_t _dataAvailCond;
 
     /// A queue of available empty buffers.
-    std::deque<int*> _freeBuffers;
+    std::deque<RRbuffer*> _freeBuffers;
 
     /// A queue of buffers with data to be processed.
-    std::deque<int*> _fullBuffers;
+    std::deque<RRbuffer*> _fullBuffers;
 
     /// The gaussian filter decimation factor (1-127).
     unsigned int _decimationFactor;

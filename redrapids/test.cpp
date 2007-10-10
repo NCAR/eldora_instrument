@@ -1,5 +1,7 @@
 #include "RR314.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <ios>
 #include "boost/program_options.hpp"
@@ -21,6 +23,9 @@ struct runParams {
   std::string xsvf;
   std::string kaiser;
   std::string gaussian;
+  RR314* pRR314;
+  std::ofstream* ofstreams[16];
+  unsigned long sampleCounts[16];
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -62,15 +67,57 @@ parseOptions(int argc, char** argv) {
 
 //////////////////////////////////////////////////////////////////////
 //
+void
+createFiles(runParams& params) {
+  for (int i = 0; i < 16; i++) {
+    std::stringstream s;
+    s << "data";
+    s.width(2);
+    s.fill('0');
+    s << i;
+    params.ofstreams[i] = new std::ofstream(s.str().c_str(), std::ios::trunc);
+    *params.ofstreams[i] << "beam 0\n";
+
+    params.sampleCounts[i] = 0;
+  }
+
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // a task which just consumes the data from the
 // rr314 as it becomes available
 void *
 dataTask(void* threadArg) {
-  RR314* pRR314 = (RR314*) threadArg;
-  
+  runParams* pParams = (runParams*) threadArg;
+  RR314*     pRR314  = pParams->pRR314;
+  int        gates   = pParams->gates;
+
+  // loop while waiting for new buffers
   while (1) {
-    // loop while waiting for new buffers
-    int* pBuf = pRR314->nextBuffer();
+    
+    RRbuffer*         pBuf = pRR314->nextBuffer();
+
+    // get the details of this buffer
+    int            channel = pBuf->channel;
+    std::ofstream* pStream = pParams->ofstreams[channel];
+    std::vector<int>&  buf = pBuf->_data;
+
+    /// write buffer to stream
+    for (int i = 0; i < pBuf->_data.size(); i++) {
+      if ((channel %4)) {
+	// add a beam indicator for ABP channels
+	if (  (pParams->sampleCounts[channel] % (gates+2)) == 0) {
+	  *pStream << "beam " << (pParams->sampleCounts[channel]/(gates+2)) + 1 << std::endl;
+	} 
+
+      }	// write the data to the chennel file
+      *pStream << buf[i] << std::endl;
+
+      // bump the sample count
+      pParams->sampleCounts[channel]++;
+    }
+      
     pRR314->returnBuffer(pBuf);
   }
 }
@@ -83,7 +130,11 @@ int
 main(int argc, char** argv) 
 {
 
+  // parse command line options
   runParams params = parseOptions(argc, argv);
+
+  // create data save files and initialize other params fields
+  createFiles(params);
 
   // create an RR314 card
   try {
@@ -97,12 +148,15 @@ main(int argc, char** argv)
 		params.xsvf,
 		params.kaiser,
 		params.gaussian,
-	        params.simulate  // simulation mode?
+		params.simulate  // simulation mode?
 		);
 	      
+    // pass rr324 instance to data reading thread.
+    params.pRR314 = &rr314;
+
     // create the data reading thread
     pthread_t dataThread;
-    pthread_create(&dataThread, NULL, dataTask, (void*) &rr314);
+    pthread_create(&dataThread, NULL, dataTask, (void*) &params);
 
     // start the processing
     rr314.start();

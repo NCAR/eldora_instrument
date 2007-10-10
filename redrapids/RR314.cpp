@@ -66,7 +66,8 @@ RR314::RR314(int devNum,
   // allocate the buffers
   pthread_mutex_lock(&_bufferMutex);
   for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-    int* buf = new int[DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP];
+    RRbuffer* buf = new RRbuffer;
+    buf->_data.resize(DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP/sizeof(int));
     _freeBuffers.push_back(buf);
   }
   pthread_mutex_unlock(&_bufferMutex);
@@ -112,7 +113,6 @@ RR314::~RR314()
     /// during class destruction
     delete _simulator;
   }
-
 
   for (unsigned int i = 0; i < _freeBuffers.size(); i++ )
     delete [] _freeBuffers[i];
@@ -435,12 +435,13 @@ RR314::newData(unsigned int* src, int chan, int n) {
   pthread_mutex_lock(&_bufferMutex);
 
   if (_freeBuffers.size()) {
-    int* pBuf = _freeBuffers[0];
+    RRbuffer* pBuf = _freeBuffers[0];
     _fullBuffers.push_back(pBuf);
     _freeBuffers.pop_front();
     for (int i = 0; i < n; i++) {
-      pBuf[i] = src[i];
+      pBuf->_data[i] = src[i];
     }
+    pBuf->channel = chan;
     addBytes(chan, n*sizeof(*src));
     // signal that new data is available
     pthread_cond_broadcast(&_dataAvailCond);
@@ -453,9 +454,9 @@ RR314::newData(unsigned int* src, int chan, int n) {
 
 /////////////////////////////////////////////////////////////////////////
 
-int*
+RRbuffer*
 RR314::nextBuffer() {
-  int* pBuf = 0;
+  RRbuffer* pBuf = 0;
 
   pthread_mutex_lock(&_bufferMutex);
 
@@ -475,7 +476,7 @@ RR314::nextBuffer() {
 ////////////////////////////////////////////////////////////////////////
 
 void
-RR314::returnBuffer(int* buf) {
+RR314::returnBuffer(RRbuffer* buf) {
   pthread_mutex_lock(&_bufferMutex);
 
   _freeBuffers.push_back(buf);
