@@ -2,6 +2,8 @@
 #include <iostream>
 
 using namespace RedRapids;
+std::vector<unsigned int> RR314sim::_abp;
+std::vector<unsigned int> RR314sim::_iq;
 
 //////////////////////////////////////////////////////////////////////
 void*
@@ -75,6 +77,7 @@ RR314sim::simulate() {
   while(1) {
     for (int i = 0; i < _iqChans.size(); i++) {
       _iq[1] = _iqChans[i];
+      std::cout << "iq[3] is " << _iq[3] << std::endl;
       _pRR314->newData(&_iq[0], _iqChans[i], _iq.size());
     }
     for (int i = 0; i < _abpChans.size(); i++) {
