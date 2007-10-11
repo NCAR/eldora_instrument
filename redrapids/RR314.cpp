@@ -73,7 +73,11 @@ RR314::RR314(int devNum,
   pthread_mutex_unlock(&_bufferMutex);
 
   if (_simulate) {
-    _simulator = new RedRapids::RR314sim(this, _gates, _startGateIQ, _nGatesIQ);
+    _simulator = new RedRapids::RR314sim(this, 
+					 _gates, 
+					 _startGateIQ, 
+					 _nGatesIQ,
+					 _samples);
     return;
   }
 

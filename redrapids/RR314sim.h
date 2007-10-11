@@ -25,7 +25,12 @@ namespace RedRapids {
     /// @param gates The number of gates
     /// @param startiq The starting gate for iq data.
     /// @param numiq The number of iq gates.
-    RR314sim(RedRapids::RR314* pRR314, int gates, int startiq, int numiq);
+    /// @param nci The number of IQs that go into each ABP
+    RR314sim(RedRapids::RR314* pRR314, 
+	     int gates, 
+	     int startiq, 
+	     int numiq, 
+	     int nci);
     /// Destructor.
     virtual ~RR314sim();
     /// Start the simulation thread. 
@@ -53,6 +58,8 @@ namespace RedRapids {
     int _startiq;
     /// The number of iqgates
     int _numiq;
-  };
+    /// The number of coherent integrations
+    int _nci;
+};
 }
 #endif
