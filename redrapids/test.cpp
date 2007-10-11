@@ -112,12 +112,13 @@ dataTask(void* threadArg) {
 	// write the data to the channel file
 	*pStream << buf[i] << std::endl;
       } else {
-	// IQ channel, break into I and Q
+	// IQ channel
+	// break into I and Q
 	int iq = buf[i];
 	short i = (buf[i] & 0xffff0000) >> 16;
 	short q = buf[i] & 0xffff;
 	// write the data to the channel file
-	*pStream << i << " " << q << std::endl;
+	*pStream << iq << i << " " << q << std::endl;
       }
 
       // bump the sample count
