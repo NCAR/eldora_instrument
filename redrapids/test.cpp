@@ -104,13 +104,21 @@ dataTask(void* threadArg) {
     /// write buffer to stream
     for (int i = 0; i < pBuf->nSamples; i++) {
       if ((channel %4)) {
-	// add a beam indicator for ABP channels
+	// ABP channel
 	if (  (pParams->sampleCounts[channel] % (gates+2)) == 0) {
+	  // add a beam indicator for ABP channels
 	  *pStream << "beam " << (pParams->sampleCounts[channel]/(gates+2)) << std::endl;
 	} 
-
-      }	// write the data to the chennel file
-      *pStream << buf[i] << std::endl;
+	// write the data to the channel file
+	*pStream << buf[i] << std::endl;
+      } else {
+	// IQ channel, break into I and Q
+	int iq = buf[i];
+	short i = (buf[i] & 0xffff0000) >> 16;
+	short q = buf[i] & 0xffff;
+	// write the data to the channel file
+	*pStream << i << " " << q << std::endl;
+      }
 
       // bump the sample count
       pParams->sampleCounts[channel]++;
