@@ -102,7 +102,7 @@ dataTask(void* threadArg) {
     std::vector<int>&  buf = pBuf->_data;
 
     /// write buffer to stream
-    for (int i = 0; i < pBuf->_data.size(); i++) {
+    for (int i = 0; i < pBuf->nSamples; i++) {
       if ((channel %4)) {
 	// add a beam indicator for ABP channels
 	if (  (pParams->sampleCounts[channel] % (gates+2)) == 0) {

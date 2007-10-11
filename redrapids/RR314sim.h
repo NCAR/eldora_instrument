@@ -22,7 +22,10 @@ namespace RedRapids {
     /// Constructor. 
     /// @param pRR314 The RR314 device that we want to provide 
     /// simulated data for.
-    RR314sim(RedRapids::RR314* pRR314);
+    /// @param gates The number of gates
+    /// @param startiq The starting gate for iq data.
+    /// @param numiq The number of iq gates.
+    RR314sim(RedRapids::RR314* pRR314, int gates, int startiq, int numiq);
     /// Destructor.
     virtual ~RR314sim();
     /// Start the simulation thread. 
@@ -44,7 +47,12 @@ namespace RedRapids {
     std::vector<unsigned int> _abp;
     /// A buffer used as the source of IQ data.
     std::vector<unsigned int> _iq;
-
+    /// The number of gates
+    int _gates;
+    /// The starting iq gate
+    int _startiq;
+    /// The number of iqgates
+    int _numiq;
   };
 }
 #endif

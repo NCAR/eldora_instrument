@@ -45,6 +45,7 @@ namespace RedRapids {
   struct RRbuffer {
     std::vector<int> _data;
     int channel;
+    int nSamples;
   };
 
   //////////////////////////////////////////////////////////////////////

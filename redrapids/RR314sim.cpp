@@ -14,13 +14,16 @@ RR314sim::simThread(void* threadArgs) {
 
 //////////////////////////////////////////////////////////////////////
 
-RR314sim::RR314sim(RR314* pRR314):
-  _pRR314(pRR314)
+RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq):
+  _pRR314(pRR314),
+  _gates(gates),
+  _startiq(startiq),
+  _numiq(numiq)
 {
   // establish the ABP data size
-  _abp.resize(1000);
+  _abp.resize(_gates+2);
   // establish the IQ data size
-  _iq.resize(200);
+  _iq.resize(_numiq+2);
 
   // configure the channel numbers which
   // will receive the IQ and ABP data
@@ -64,12 +67,14 @@ RR314sim::simulate() {
   
   while(1) {
     for (int i = 0; i < _iqChans.size(); i++) {
+      _iq[1] = _iqChans[i];
       _pRR314->newData(&_iq[0], _iqChans[i], _iq.size());
     }
     for (int i = 0; i < _abpChans.size(); i++) {
+      _abp[1] = _abpChans[i];
       _pRR314->newData(&_abp[0], _abpChans[i], _abp.size());
     }
-    usleep(10000);
+    usleep(100000);
   }
 }
 

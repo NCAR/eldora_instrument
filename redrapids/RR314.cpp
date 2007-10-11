@@ -73,7 +73,7 @@ RR314::RR314(int devNum,
   pthread_mutex_unlock(&_bufferMutex);
 
   if (_simulate) {
-    _simulator = new RedRapids::RR314sim(this);
+    _simulator = new RedRapids::RR314sim(this, _gates, _startGateIQ, _nGatesIQ);
     return;
   }
 
@@ -438,10 +438,15 @@ RR314::newData(unsigned int* src, int chan, int n) {
     RRbuffer* pBuf = _freeBuffers[0];
     _fullBuffers.push_back(pBuf);
     _freeBuffers.pop_front();
+    /// @todo A smarter scheme needs to be formulated
+    /// for variable buffer sizes.
+    if (pBuf->_data.size() < n)
+      pBuf->_data.resize(n);
     for (int i = 0; i < n; i++) {
       pBuf->_data[i] = src[i];
     }
     pBuf->channel = chan;
+    pBuf->nSamples = n;
     addBytes(chan, n*sizeof(*src));
     // signal that new data is available
     pthread_cond_broadcast(&_dataAvailCond);
