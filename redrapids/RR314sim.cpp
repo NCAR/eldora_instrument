@@ -25,6 +25,12 @@ RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq, int nci):
   _abp.resize(_gates+2);
   // establish the IQ data size
   _iq.resize(_nci*_numiq+2);
+  for (int i = 2; i < _iq.size(); i++) {
+	  // create Is and Qs
+	  short i = -1;
+	  short q = 1;
+	  _iq[i] = (i << 16) | (q);
+  }
 
   // configure the channel numbers which
   // will receive the IQ and ABP data
