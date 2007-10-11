@@ -47,7 +47,7 @@ parseOptions(int argc, char** argv) {
     ("nci",       po::value<int>(&params.nci)->default_value(100),            "number of coherent integrations")
     ("startiq",   po::value<int>(&params.startiq)->default_value(0),          "start gate for iq capture")
     ("numiq",     po::value<int>(&params.numiq)->default_value(100),          "number of gates for iq capture")
-    ("decimation",po::value<int>(&params.decimation)->default_value(10),      "decimation factor")
+    ("decimation",po::value<int>(&params.decimation)->default_value(12),      "decimation factor")
     ("xsvf",      po::value<std::string>(&params.xsvf)->default_value(""),    "path to xsvf file")
     ("kaiser",    po::value<std::string>(&params.kaiser)->default_value(""),  "path to kaiser coefficient file")
     ("gaussian",  po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
