@@ -5,6 +5,7 @@ env['RR314_ROOT'] = os.environ.get('RR314_ROOT',None)
 env.AppendUnique(CPPPATH=['$RR314_ROOT',])
 env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
 env.AppendUnique(CCFLAGS=['-D LINUX',])
+env.AppendUnique(CCFLAGS=['-g',])
 
 # The library sources
 sources = Split("""
