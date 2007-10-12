@@ -49,9 +49,9 @@ namespace RedRapids {
     /// The channel numbers which receive ABP data.
     std::vector<int> _abpChans;
     /// A buffer used as the source of ABP data.
-    static std::vector<unsigned int> _abp;
+    std::vector<unsigned int> _abp;
     /// A buffer used as the source of IQ data.
-    static std::vector<unsigned int> _iq;
+    std::vector<unsigned int> _iq;
     /// The number of gates
     int _gates;
     /// The starting iq gate
@@ -60,6 +60,10 @@ namespace RedRapids {
     int _numiq;
     /// The number of coherent integrations
     int _nci;
+    /// The pulse number
+    int _pulseNum;
+    /// The beam number
+    int _beamNum;
 };
 }
 #endif

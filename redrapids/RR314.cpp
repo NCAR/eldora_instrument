@@ -435,7 +435,7 @@ RR314::configure314() {
 /////////////////////////////////////////////////////////////////////////
 void
 RR314::newData(unsigned int* src, int chan, int n) {
-
+	
   pthread_mutex_lock(&_bufferMutex);
 
   if (_freeBuffers.size()) {
