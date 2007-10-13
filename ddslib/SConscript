@@ -3,6 +3,7 @@ import os
 import DDSLib
 
 env = Environment(ENV = os.environ)
+env.AppendUnique(CCFLAGS=['-g',])
 
 lib = DDSLib.DdsLibrary('EldoraDds.idl', env)
 
