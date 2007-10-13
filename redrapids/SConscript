@@ -2,10 +2,21 @@ import os
 
 env = Environment(ENV = os.environ)
 env['RR314_ROOT'] = os.environ.get('RR314_ROOT',None)
-env.AppendUnique(CPPPATH=['$RR314_ROOT',])
-env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
+env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
+env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
+env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
+
 env.AppendUnique(CCFLAGS=['-D LINUX',])
 env.AppendUnique(CCFLAGS=['-g',])
+
+env.AppendUnique(CPPPATH=['$RR314_ROOT',])
+env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
+
+env.AppendUnique(CPPPATH=['$TAO_ROOT',])
+env.AppendUnique(CPPPATH=['$ACE_ROOT',])
+env.AppendUnique(CPPPATH=['$DDS_ROOT',])
+env.AppendUnique(CPPPATH=['#./ddslib',])
+env.AppendUnique(CPPPATH=['#./eldorasvc',])
 
 # The library sources
 sources = Split("""
@@ -27,6 +38,19 @@ rr314
 channeladapter
 pthread
 boost_program_options-gcc41-1_34_1.a
+eldorasvc
+EldoraDds
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+TAO 
+ACE
+dl
+pthread
+rt
 """)
 
 # library paths:
@@ -34,6 +58,11 @@ libpaths=Split("""
 $RR314_ROOT/linux_x86-32
 /usr/local/lib/
 .
+../ddslib
+../eldorasvc
+$ACE_ROOT/lib
+$TAO_ROOT/lib
+$DDS_ROOT/lib
 """)
 
 # build test
