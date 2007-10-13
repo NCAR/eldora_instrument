@@ -9,6 +9,7 @@ env.AppendUnique(CPPPATH=['$ACE_ROOT',])
 env.AppendUnique(CPPPATH=['$DDS_ROOT',])
 env.AppendUnique(CPPPATH=['#./ddslib',])
 env.AppendUnique(CPPPATH=['#./eldorasvc',])
+env.AppendUnique(CCFLAGS=['-g',])
 
 # libraries:
 libs = Split("""
