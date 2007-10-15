@@ -43,19 +43,20 @@ struct runParams parseOptions(int argc, char** argv) {
 
 	// get the options
 	po::options_description descripts("Options");
-	descripts.add_options() ("help", "describe options") 
-		("simulate",po::value<bool>(&params.simulate)->default_value(false),"run in simulation mode") 
-		("device", po::value<int>(&params.device)->default_value(0), "device number") 
-		("gates",po::value<int>(&params.gates)->default_value(1000), "number of gates") 
-		("nci", po::value<int>(&params.nci)->default_value(100),"number of coherent integrations") 
-		("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
-		("numiq", po::value<int>(&params.numiq)->default_value(100),"number of gates for iq capture") 
-		("decimation", po::value<int>(&params.decimation)->default_value(12), "decimation factor") 
-		("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
-		("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file") 
-		("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file") 
-		("capture",po::value<bool>(&params.capture)->default_value(false),"capture data to files")
-		("publish",po::value<bool>(&params.publish)->default_value(false),"publish data");
+	descripts.add_options() ("help", "describe options") ("simulate",
+			po::value<bool>(&params.simulate)->default_value(false),
+			"run in simulation mode") ("device", po::value<int>(&params.device)->default_value(0), "device number") ("gates",
+			po::value<int>(&params.gates)->default_value(1000), "number of gates") (
+			"nci", po::value<int>(&params.nci)->default_value(100),
+			"number of coherent integrations") ("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture") (
+			"numiq", po::value<int>(&params.numiq)->default_value(100),
+			"number of gates for iq capture") ("decimation", po::value<int>(&params.decimation)->default_value(12), "decimation factor") (
+			"xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file") (
+			"kaiser", po::value<std::string>(&params.kaiser)->default_value(""),
+			"path to kaiser coefficient file") ("gaussian",
+			po::value<std::string>(&params.gaussian)->default_value(""),
+			"path to gaussian coefficient file") ("capture", po::value<bool>(&params.capture)->default_value(false), "capture data to files") (
+			"publish", po::value<bool>(&params.publish)->default_value(false), "publish data");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
@@ -94,7 +95,7 @@ void * dataTask(void* threadArg) {
 	int gates = pParams->gates;
 	bool publish = pParams->publish;
 	bool capture = pParams->capture;
-	
+
 	ArgvParams argv("testrr314");
 	argv["-ORBSvcConf"] = "/home/eldora/eldora/conf/tcp.conf";
 	argv["-DCPSConfigFile"] = "/home/eldora/eldora/conf/simpleConf.ini";
@@ -107,8 +108,9 @@ void * dataTask(void* threadArg) {
 		int pubStatus = publisher.run(argv.argc(), argv.argv());
 
 		if (pubStatus) {
-			std::cout << "Unable to run the publsher, return status from run is "
-			<< pubStatus << std::endl;
+			std::cout
+					<< "Unable to run the publsher, return status from run is "
+					<< pubStatus << std::endl;
 		}
 	}
 
@@ -129,44 +131,46 @@ void * dataTask(void* threadArg) {
 				// ABP channel
 				if (capture) {
 					if ( (pParams->sampleCounts[channel] % (gates+2)) == 0) {
-					// add a beam indicator for ABP channels
-					*pStream << "beam " << (pParams->sampleCounts[channel]
-							/(gates+2)) << std::endl;
+						// add a beam indicator for ABP channels
+						*pStream << "beam " << (pParams->sampleCounts[channel]
+								/(gates+2)) << std::endl;
 					}
 					// write the data to the channel file
 					*pStream << buf[i] << std::endl;
 				}
 
-				if (publish) {
-					if (pParams->sampleCounts[channel] == (gates+1)) {
-					// send the plse to the publisher					
-					EldoraDDS::Pulse* pPulse = publisher.getEmptyPulse();
-					if (pPulse) {
-						// set the timestamp
-						//pPulse->timestamp = timestamp;
 
-						// alternate the radar id between forward and aft
-						pPulse->radarId = (pulses++ % 2) ? EldoraDDS::Forward
-								: EldoraDDS::Aft;
-
-						// send the pulse to the publisher
-						publisher.publishPulse(pPulse);
-					} else {
-						std::cout << "can't get publisher pulse\n";
-					}
-					}
-				}
 			} else {
 				// IQ channel
 				if (capture) {
-				// break into I and Q
-				int iq = buf[i];
-				short I = (buf[i] & 0xffff0000) >> 16;
-				short Q = buf[i] & 0xffff;
-				// write the data to the channel file
-				*pStream << I << " " << Q << std::endl;
-			}
-			}
+					// break into I and Q
+					int iq = buf[i];
+					short I = (buf[i] & 0xffff0000) >> 16;
+					short Q = buf[i] & 0xffff;
+					// write the data to the channel file
+					*pStream << I << " " << Q << std::endl;
+				}
+				
+				if (publish) {
+					if (pParams->sampleCounts[channel] == (gates+1)) {
+						// send the plse to the publisher					
+						EldoraDDS::Pulse* pPulse = publisher.getEmptyPulse();
+						if (pPulse) {
+							// set the timestamp
+							//pPulse->timestamp = timestamp;
+
+							// alternate the radar id between forward and aft
+							pPulse->radarId
+									= (pulses++ % 2) ? EldoraDDS::Forward
+											: EldoraDDS::Aft;
+
+							// send the pulse to the publisher
+							publisher.publishPulse(pPulse);
+						} else {
+							std::cout << "can't get publisher pulse\n";
+						}
+					}
+				}			}
 
 			// bump the sample count
 			pParams->sampleCounts[channel]++;
@@ -187,7 +191,7 @@ int main(int argc, char** argv) {
 
 	// create data capture files
 	if (params.capture) {
-		createFiles(params);		
+		createFiles(params);
 	}
 
 	for (int i = 0; i < 16; i++) {

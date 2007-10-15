@@ -34,6 +34,8 @@ public:
 	char** argv();
 	
 protected:
+	/// The argument which will go in argv[0]
+	std::string _argv0;
 	/// The vector of arguments to be passed to applications needing argv.
 	std::vector<char*> _argv;
 };

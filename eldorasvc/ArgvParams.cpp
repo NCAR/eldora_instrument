@@ -2,8 +2,9 @@
 
 /////////////////////////////////////////////////////////////////////
 
-ArgvParams::ArgvParams(std::string appName) {
-	(*this)[appName] = "";
+ArgvParams::ArgvParams(std::string appName):
+_argv0(appName)
+{
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -19,7 +20,7 @@ ArgvParams::~ArgvParams() {
 /////////////////////////////////////////////////////////////////////
 
 int ArgvParams::argc() {
-	int n = 0;
+	int n = 1;
 	std::map<std::string, std::string>::iterator it;
 	for (it = this->begin(); it != this->end(); it++) {
 		if (!it->second.compare("")) {
@@ -45,6 +46,15 @@ ArgvParams::argv() {
 	_argv.clear();
 
 	// build a new one
+	
+	// put in argv0 so that it always appears at the front
+	_argv.push_back(new char[_argv0.size()+1]);
+	for (int i = 0; i < _argv0.size(); i++)
+		_argv[0][i] = _argv0[i];
+	_argv[0][_argv0.size()] = 0;
+	
+	// add the other args. They will be ordered by the order of the map.
+	
 	std::map<std::string, std::string>::iterator it;
 	for (it = this->begin(); it != this->end(); it++) {
 		// save the argument name
@@ -57,7 +67,7 @@ ArgvParams::argv() {
 			// save the argument value, if specified
 			char* pC = new char[it->second.size()+1];
 			for (int i = 0; i < it->second.size(); i++)
-			pC[i] = it->first[i];
+			pC[i] = it->second[i];
 			pC[it->second.size()] = 0;
 			_argv.push_back(pC);
 		}

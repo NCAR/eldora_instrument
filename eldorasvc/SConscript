@@ -8,6 +8,7 @@ env.AppendUnique(CPPPATH=['$TAO_ROOT',])
 env.AppendUnique(CPPPATH=['$ACE_ROOT',])
 env.AppendUnique(CPPPATH=['$DDS_ROOT',])
 env.AppendUnique(CPPPATH=['#./ddslib',])
+env.AppendUnique(CCFLAGS=['-g',])
 
 # sources
 sources = Split("""

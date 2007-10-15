@@ -149,7 +149,7 @@ EldoraWriter::publishPulse(pulse_t* pPulse) {
 
   _inQueue.push_back(pPulse);
 
-  //std::cout << "pulse added to inQueue " << _inQueue.size() << "\n";
+  std::cout << __FILE__ << "pulse added to inQueue " << _inQueue.size() << "\n";
 
   _condition.broadcast();
 }
@@ -182,10 +182,12 @@ EldoraWriter::publish(DDS::InstanceHandle_t handle) {
   
   DDS::ReturnCode_t ret;
 
-  //std::cout << "writing pulse\n";
+  std::cout << __FILE__ << " writing pulse\n";
 
   ret = pulse_dw->write(*pPulse, handle);
     
+  std::cout << __FILE__ << " returned from writing pulse\n";
+
   if (ret != DDS::RETCODE_OK) {
     ACE_ERROR ((LM_ERROR,
 		ACE_TEXT("(%P|%t)ERROR  EldoraWriter::svc, ")
