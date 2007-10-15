@@ -1,10 +1,24 @@
 module EldoraDDS {
 
-#pragma DCPS_DATA_TYPE "EldoraDDS::Pulse"
-#pragma DCPS_DATA_KEY "EldoraDDS::Pulse radarId"
+enum RadarChoice {Forward, Aft};
+typedef sequence<float> A_B_P;
+typedef sequence<float> Product;
+typedef sequence<short> TS;
+  
+#pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
+#pragma DCPS_DATA_KEY  "EldoraDDS::TimeSeries radarId"
 
-  enum RadarChoice {Forward, Aft};
-  typedef sequence<float> A_B_P;
+  struct TimeSeries {
+    RadarChoice radarId;
+    long long timestamp;
+    float prfSeconds;
+    float azDegrees;
+    TS tsdata;
+  };
+
+#pragma DCPS_DATA_TYPE "EldoraDDS::Pulse"
+#pragma DCPS_DATA_KEY  "EldoraDDS::Pulse radarId"
+
   struct Pulse {
     RadarChoice radarId;
     long long timestamp;
@@ -15,9 +29,8 @@ module EldoraDDS {
   };
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::Beam"
-#pragma DCPS_DATA_KEY "EldoraDDS::Beam radarId"
+#pragma DCPS_DATA_KEY  "EldoraDDS::Beam radarId"
 
-  typedef sequence<float> Product;
   struct Beam {
     RadarChoice radarId;
     long long timestamp;
@@ -28,7 +41,7 @@ module EldoraDDS {
   };
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::HouseKeeping"
-#pragma DCPS_DATA_KEY "EldoraDDS::HouseKeeping radarId"
+#pragma DCPS_DATA_KEY  "EldoraDDS::HouseKeeping radarId"
 
   struct HouseKeeping {
     RadarChoice radarId;
