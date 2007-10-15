@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 /// A class to provide argv parameter functionality. Use this when
 /// you wish to prgramatically construct argv, or you can't 
