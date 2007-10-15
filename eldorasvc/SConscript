@@ -15,6 +15,7 @@ EldoraWriter.cpp
 EldoraPublisher.cpp
 EldoraReaderListener.cpp
 EldoraSubscriber.cpp
+ArgvParams.cpp
 """)
 
 subscriber = env.Library('eldorasvc', sources)
