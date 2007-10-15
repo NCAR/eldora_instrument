@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <ios>
 #include "boost/program_options.hpp"
+#include "ArgvParams.h"
 
 #include "EldoraPublisher.h"
 
@@ -94,18 +95,16 @@ void * dataTask(void* threadArg) {
 	bool publish = pParams->publish;
 	bool capture = pParams->capture;
 	
-	char* argv[] = { "testrr314", "-ORBSvcConf",
-			"/home/martinc/workspace/Eldora/redrapids/conf/tcp.conf",
-			"-DCPSConfigFile",
-			"/home/martinc/workspace/Eldora/redrapids/conf/simpleConf.ini" };
-	int argc = 5;
+	ArgvParams argv("testrr314");
+	argv["-ORBSvcConf"] = "/home/eldora/eldora/conf/tcp.conf";
+	argv["-DCPSConfigFile"] = "/home/eldora/eldora/conf/simpleConf.ini";
 
 	// create the publisher
 	ACE_Time_Value small(0, 100);
 	EldoraPublisher publisher;
 
 	if (publish) {
-		int pubStatus = publisher.run(argc, argv);
+		int pubStatus = publisher.run(argv.argc(), argv.argv());
 
 		if (pubStatus) {
 			std::cout << "Unable to run the publsher, return status from run is "
