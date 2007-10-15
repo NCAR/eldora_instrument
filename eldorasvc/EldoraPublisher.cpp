@@ -8,7 +8,8 @@ OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 ////////////////////////////////////////////////////////////
 
 EldoraPublisher::EldoraPublisher() :
-	_writer(0) {
+	_writer(0) 
+{
 }
 
 ////////////////////////////////////////////////////////////
@@ -163,7 +164,7 @@ int EldoraPublisher::run(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		_writer = new EldoraWriter(dw.in());
+		_writer = new EldoraWriter<EldoraDDS::Beam>(dw.in());
 
 		_writer->start ();
 
@@ -188,7 +189,7 @@ bool EldoraPublisher::isFinished() {
 
 int EldoraPublisher::pulsesAvailable() {
 
-	return _writer->pulsesAvailable();
+	return _writer->itemsAvailable();
 
 }
 
@@ -196,17 +197,15 @@ int EldoraPublisher::pulsesAvailable() {
 
 pulse_t* EldoraPublisher::getEmptyPulse() {
 
-	return _writer->getEmptyPulse();
+	return _writer->getEmptyItem();
 
 }
 
 ////////////////////////////////////////////////////////////
 
 void EldoraPublisher::publishPulse(pulse_t* pPulse) {
-	
-	std::cout << __FILE__ << " received a pulse\n";
 
-	_writer->publishPulse(pPulse);
+	_writer->publishItem(pPulse);
 
 }
 

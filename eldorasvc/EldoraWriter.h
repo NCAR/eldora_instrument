@@ -13,54 +13,51 @@
 typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
-typedef EldoraDDS::Pulse pulse_t;
 
-class EldoraWriter : public ACE_Task_Base
-{
+template <class OURDDSTYPE>
+class EldoraWriter : public ACE_Task_Base {
 
- public:
+public:
 
-  EldoraWriter (DDS::DataWriter_ptr writer);
+	EldoraWriter(DDS::DataWriter_ptr writer);
 
-  void start ();
+	void start();
 
-  void end();
+	void end();
 
-  virtual int svc ();
+	virtual int svc();
 
-  bool is_finished () const;
+	bool is_finished() const;
 
-  int get_timeout_writes () const;
+	int get_timeout_writes() const;
 
-  void publishPulse(pulse_t* pPulse);
+	void publishItem(OURDDSTYPE* pPulse);
 
-  int pulsesAvailable();
+	int itemsAvailable();
 
-  pulse_t* getEmptyPulse();
+	OURDDSTYPE* getEmptyItem();
 
- private:
+private:
 
-  void waitForPulse();
+	void waitForItem();
 
-  bool publish(::DDS::InstanceHandle_t handle);
+	bool publish(::DDS::InstanceHandle_t handle);
 
-  DDS::DataWriter_var writer_;
+	DDS::DataWriter_var writer_;
 
-  EldoraDDS::PulseDataWriter_var pulse_dw;
+	EldoraDDS::PulseDataWriter_var item_dw;
 
-  ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> finished_instances_;
+	ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> finished_instances_;
 
-  ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> timeout_writes_;
+	ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> timeout_writes_;
 
-  mutex_t _mutex;
+	mutex_t _mutex;
 
-  condition_t _condition;
+	condition_t _condition;
 
-  std::vector<pulse_t*> _inQueue;
+	std::vector<OURDDSTYPE*> _inQueue;
 
-  std::vector<pulse_t*> _outQueue;
-
-  int _gates;
+	std::vector<OURDDSTYPE*> _outQueue;
 
 };
 

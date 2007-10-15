@@ -47,7 +47,7 @@ class EldoraPublisher {
 
   DDS::DataWriter_var dw;
 
-  EldoraWriter* _writer;
+  EldoraWriter<EldoraDDS::Beam>* _writer;
 };
 
 #endif
