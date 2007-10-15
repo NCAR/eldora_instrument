@@ -55,13 +55,21 @@ struct runParams parseOptions(int argc, char** argv) {
 			"kaiser", po::value<std::string>(&params.kaiser)->default_value(""),
 			"path to kaiser coefficient file") ("gaussian",
 			po::value<std::string>(&params.gaussian)->default_value(""),
-			"path to gaussian coefficient file") ("capture", po::value<bool>(&params.capture)->default_value(false), "capture data to files") (
-			"publish", po::value<bool>(&params.publish)->default_value(false), "publish data");
+			"path to gaussian coefficient file") ("capture", "capture data to files") (
+			"publish", "publish data");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
 	po::notify(vm);
 
+	params.publish = false;
+	
+	if (vm.count("publish"))
+		params.publish = true;
+	params.capture = false;
+	
+	if (vm.count("capture"))
+		params.capture = true;
 	if (vm.count("help")) {
 		std::cout << descripts << "\n";
 		exit(1);
@@ -117,8 +125,10 @@ void * dataTask(void* threadArg) {
 	int pulses = 0;
 	// loop while waiting for new buffers
 	while (1) {
-
+		std::cout <<"requesting a buffer from RR314\n";
 		RRbuffer* pBuf = pRR314->nextBuffer();
+		std::cout << "got a buffer for channel " << 
+		pBuf->channel << " from RR314 with " << pBuf->nSamples << " samples\n";
 
 		// get the details of this buffer
 		int channel = pBuf->channel;
@@ -139,7 +149,6 @@ void * dataTask(void* threadArg) {
 					*pStream << buf[i] << std::endl;
 				}
 
-
 			} else {
 				// IQ channel
 				if (capture) {
@@ -150,11 +159,14 @@ void * dataTask(void* threadArg) {
 					// write the data to the channel file
 					*pStream << I << " " << Q << std::endl;
 				}
-				
+
 				if (publish) {
 					if (pParams->sampleCounts[channel] == (gates+1)) {
-						// send the plse to the publisher					
+						// send the pulse to the publisher		
+						std::cout
+								<< "requesting an empty buffer from publisher\n";
 						EldoraDDS::Pulse* pPulse = publisher.getEmptyPulse();
+						std::cout << "got an empty buffer from publisher\n";
 						if (pPulse) {
 							// set the timestamp
 							//pPulse->timestamp = timestamp;
@@ -165,12 +177,16 @@ void * dataTask(void* threadArg) {
 											: EldoraDDS::Aft;
 
 							// send the pulse to the publisher
+							std::cout << "sending a pulse to publisher\n";
 							publisher.publishPulse(pPulse);
+							std::cout
+									<< "back from sending a pulse to publsher\n";
 						} else {
 							std::cout << "can't get publisher pulse\n";
 						}
 					}
-				}			}
+				}
+			}
 
 			// bump the sample count
 			pParams->sampleCounts[channel]++;
