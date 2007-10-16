@@ -110,24 +110,23 @@ void * dataTask(void* threadArg) {
 	argv["-ORBSvcConf"] = "/home/eldora/eldora/conf/tcp.conf";
 	argv["-DCPSConfigFile"] = "/home/eldora/eldora/conf/simpleConf.ini";
 
-	// create the publisher
 	ACE_Time_Value small(0, 100);
-	EldoraPublisher publisher;
-	// create the pulse writer
-	EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var> writer(publisher);
+
+	EldoraPublisher* publisher;
+	EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var>
+			* writer;
 
 	if (publish) {
-		int pubStatus = publisher.run(argv.argc(), argv.argv());
+		// create the publisher
+		publisher = new EldoraPublisher(argv.argc(), argv.argv());
 
-		if (pubStatus) {
-			std::cout
-					<< "Unable to run the publsher, return status from run is "
-					<< pubStatus << std::endl;
-		}
+		// create the pulse writer
+		writer
+				= new EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var>(*publisher);
 	}
 
 	int buffers = 0;
-	
+
 	// loop while waiting for new buffers
 	while (1) {
 		RRbuffer* pBuf = pRR314->nextBuffer();
@@ -138,12 +137,12 @@ void * dataTask(void* threadArg) {
 
 		if (publish) {
 			// send the pulse to the publisher		
-			EldoraDDS::Pulse* pPulse = writer.getEmptyItem();
+			EldoraDDS::Pulse* pPulse = writer->getEmptyItem();
 			if (pPulse) {
-				
+
 				// set the size
 				pPulse->abp.length(3000);
-				
+
 				// set the timestamp
 				pPulse->timestamp = buffers++;
 
@@ -151,10 +150,10 @@ void * dataTask(void* threadArg) {
 				pPulse->radarId = EldoraDDS::Aft;
 
 				// send the pulse to the publisher
-				writer.publishItem(pPulse);
+				writer->publishItem(pPulse);
 			} else {
 				std::cout << "can't get publisher pulse\n";
-			    ACE_OS::sleep (small);
+				ACE_OS::sleep(small);
 			}
 		}
 
