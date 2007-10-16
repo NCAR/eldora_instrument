@@ -1,5 +1,5 @@
-#ifndef WRITER_H
-#define WRITER_H
+#ifndef ELDORAWRITER_H
+#define ELDORAWRITER_H
 
 #include <ace/OS_NS_unistd.h>
 #include <ace/streams.h>
@@ -10,16 +10,22 @@
 #include <ace/Synch.h>
 #include <vector>
 
+#include "EldoraPublisher.h"
+
 typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
-template <class OURDDSTYPE>
+#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR
+#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR
+
+template <TEMPSIG1>
 class EldoraWriter : public ACE_Task_Base {
 
 public:
 
-	EldoraWriter(DDS::DataWriter_ptr writer);
+	
+	EldoraWriter(EldoraPublisher& eldoraPub);
 
 	void start();
 
@@ -31,14 +37,14 @@ public:
 
 	int get_timeout_writes() const;
 
-	void publishItem(OURDDSTYPE* pPulse);
+	void publishItem(DDSTYPE* pItem);
 
 	int itemsAvailable();
 
-	OURDDSTYPE* getEmptyItem();
+	DDSTYPE* getEmptyItem();
 
 private:
-
+	
 	void waitForItem();
 
 	bool publish(::DDS::InstanceHandle_t handle);
@@ -55,11 +61,10 @@ private:
 
 	condition_t _condition;
 
-	std::vector<OURDDSTYPE*> _inQueue;
+	std::vector<DDSTYPE*> _inQueue;
 
-	std::vector<OURDDSTYPE*> _outQueue;
+	std::vector<DDSTYPE*> _outQueue;
 
 };
 
 #endif
-

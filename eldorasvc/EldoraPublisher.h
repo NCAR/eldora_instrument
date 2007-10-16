@@ -15,10 +15,6 @@
 
 #include <ace/Synch.h>
 
-#include "EldoraWriter.h"
-
-typedef EldoraDDS::Pulse pulse_t;
-
 class EldoraPublisher {
 
  public:
@@ -29,25 +25,20 @@ class EldoraPublisher {
 
   int run(int argc, char* argv[]);
 
-  bool isFinished();
+  DDS::DomainParticipant_var& getParticipant() { return _participant; };
+  
+  DDS::Publisher_var& getPublisher() { return _publisher;} ;
 
-  void publishPulse(pulse_t* pPulse);
-
-  int pulsesAvailable();
-
-  pulse_t* getEmptyPulse();
 
  protected:
 
   int parse_args (int argc, char *argv[]);
 
-  DDS::DomainParticipant_var _participant;
-
   DDS::DomainParticipantFactory_var _dpf;
 
-  DDS::DataWriter_var dw;
+  DDS::Publisher_var _publisher;
 
-  EldoraWriter<EldoraDDS::Beam>* _writer;
+  DDS::DomainParticipant_var _participant;
 };
 
 #endif

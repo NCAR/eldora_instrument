@@ -8,6 +8,7 @@
 #include "ArgvParams.h"
 
 #include "EldoraPublisher.h"
+#include "EldoraWriter.h"
 
 using namespace RedRapids;
 namespace po = boost::program_options;
@@ -55,21 +56,22 @@ struct runParams parseOptions(int argc, char** argv) {
 			"kaiser", po::value<std::string>(&params.kaiser)->default_value(""),
 			"path to kaiser coefficient file") ("gaussian",
 			po::value<std::string>(&params.gaussian)->default_value(""),
-			"path to gaussian coefficient file") ("capture", "capture data to files") (
-			"publish", "publish data");
+			"path to gaussian coefficient file") ("capture",
+			"capture data to files") ("publish", "publish data");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
 	po::notify(vm);
 
 	params.publish = false;
-	
+
 	if (vm.count("publish"))
 		params.publish = true;
+
 	params.capture = false;
-	
 	if (vm.count("capture"))
 		params.capture = true;
+
 	if (vm.count("help")) {
 		std::cout << descripts << "\n";
 		exit(1);
@@ -111,6 +113,8 @@ void * dataTask(void* threadArg) {
 	// create the publisher
 	ACE_Time_Value small(0, 100);
 	EldoraPublisher publisher;
+	// create the pulse writer
+	EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var> writer(publisher);
 
 	if (publish) {
 		int pubStatus = publisher.run(argv.argc(), argv.argv());
@@ -122,18 +126,37 @@ void * dataTask(void* threadArg) {
 		}
 	}
 
-	int pulses = 0;
+	int buffers = 0;
+	
 	// loop while waiting for new buffers
 	while (1) {
-		std::cout <<"requesting a buffer from RR314\n";
 		RRbuffer* pBuf = pRR314->nextBuffer();
-		std::cout << "got a buffer for channel " << 
-		pBuf->channel << " from RR314 with " << pBuf->nSamples << " samples\n";
-
 		// get the details of this buffer
 		int channel = pBuf->channel;
 		std::ofstream* pStream = pParams->ofstreams[channel];
 		std::vector<int>& buf = pBuf->_data;
+
+		if (publish) {
+			// send the pulse to the publisher		
+			EldoraDDS::Pulse* pPulse = writer.getEmptyItem();
+			if (pPulse) {
+				
+				// set the size
+				pPulse->abp.length(3000);
+				
+				// set the timestamp
+				pPulse->timestamp = buffers++;
+
+				// alternate the radar id between forward and aft
+				pPulse->radarId = EldoraDDS::Aft;
+
+				// send the pulse to the publisher
+				writer.publishItem(pPulse);
+			} else {
+				std::cout << "can't get publisher pulse\n";
+			    ACE_OS::sleep (small);
+			}
+		}
 
 		// process buffer
 		for (int i = 0; i < pBuf->nSamples; i++) {
@@ -160,32 +183,6 @@ void * dataTask(void* threadArg) {
 					*pStream << I << " " << Q << std::endl;
 				}
 
-				if (publish) {
-					if (pParams->sampleCounts[channel] == (gates+1)) {
-						// send the pulse to the publisher		
-						std::cout
-								<< "requesting an empty buffer from publisher\n";
-						EldoraDDS::Pulse* pPulse = publisher.getEmptyPulse();
-						std::cout << "got an empty buffer from publisher\n";
-						if (pPulse) {
-							// set the timestamp
-							//pPulse->timestamp = timestamp;
-
-							// alternate the radar id between forward and aft
-							pPulse->radarId
-									= (pulses++ % 2) ? EldoraDDS::Forward
-											: EldoraDDS::Aft;
-
-							// send the pulse to the publisher
-							std::cout << "sending a pulse to publisher\n";
-							publisher.publishPulse(pPulse);
-							std::cout
-									<< "back from sending a pulse to publsher\n";
-						} else {
-							std::cout << "can't get publisher pulse\n";
-						}
-					}
-				}
 			}
 
 			// bump the sample count

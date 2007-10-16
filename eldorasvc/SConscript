@@ -12,8 +12,8 @@ env.AppendUnique(CCFLAGS=['-g',])
 
 # sources
 sources = Split("""
-EldoraWriter.cpp
 EldoraPublisher.cpp
+EldoraWriter.cpp
 EldoraReaderListener.cpp
 EldoraSubscriber.cpp
 ArgvParams.cpp

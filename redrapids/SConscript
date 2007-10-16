@@ -19,7 +19,7 @@ env.AppendUnique(CPPPATH=['#./ddslib',])
 env.AppendUnique(CPPPATH=['#./eldorasvc',])
 
 # The library sources
-sources = Split("""
+libsources = Split("""
 $RR314_ROOT/ca_functions.c
 $RR314_ROOT/ca_membuffer.c
 FilterSpec.cpp
@@ -28,7 +28,7 @@ RR314isr.cpp
 RR314sim.cpp
 """)
 
-librr314 = env.Library('rr314', sources )
+librr314 = env.Library('rr314', libsources )
 
 # libraries:
 libs = Split("""
@@ -65,5 +65,9 @@ $TAO_ROOT/lib
 $DDS_ROOT/lib
 """)
 
+testsources = Split("""
+test.cpp
+""")
+
 # build test
-testrr314 = env.Program('testrr314', 'test.cpp', LIBS=libs, LIBPATH=libpaths)
+testrr314 = env.Program('testrr314', testsources, LIBS=libs, LIBPATH=libpaths)

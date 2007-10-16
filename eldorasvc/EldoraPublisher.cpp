@@ -7,8 +7,7 @@ OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
 ////////////////////////////////////////////////////////////
 
-EldoraPublisher::EldoraPublisher() :
-	_writer(0) 
+EldoraPublisher::EldoraPublisher()
 {
 }
 
@@ -17,10 +16,6 @@ EldoraPublisher::EldoraPublisher() :
 EldoraPublisher::~EldoraPublisher() {
 
 	// Cleanup
-	_writer->end();
-
-	delete _writer;
-
 	_participant->delete_contained_entities();
 
 	_dpf->delete_participant(_participant.in());
@@ -90,42 +85,20 @@ int EldoraPublisher::run(int argc, char *argv[]) {
 			return -1;
 		}
 
-		EldoraDDS::PulseTypeSupport_var mts = new EldoraDDS::PulseTypeSupportImpl();
-
-		if (DDS::RETCODE_OK != mts->register_type(_participant.in (), "")) {
-			cerr << "register_type failed." << endl;
-			exit(1);
-		}
-
-		CORBA::String_var type_name = mts->get_type_name ();
-
-		DDS::TopicQos topic_qos;
-		_participant->get_default_topic_qos(topic_qos);
-		DDS::Topic_var topic =
-		_participant->create_topic ("Movie Discussion List",
-				type_name.in (),
-				topic_qos,
-				DDS::TopicListener::_nil());
-		if (CORBA::is_nil (topic.in ())) {
-			cerr << "create_topic failed." << endl;
-			exit(1);
-		}
-
 		OpenDDS::DCPS::TransportImpl_rch tcp_impl =
 		TheTransportFactory->create_transport_impl (transport_impl_id,
 				::OpenDDS::DCPS::AUTO_CONFIG);
 
-		DDS::Publisher_var pub =
-		_participant->create_publisher(PUBLISHER_QOS_DEFAULT,
+		_publisher = _participant->create_publisher(PUBLISHER_QOS_DEFAULT,
 				DDS::PublisherListener::_nil());
-		if (CORBA::is_nil (pub.in ())) {
+		if (CORBA::is_nil (_publisher.in ())) {
 			cerr << "create_publisher failed." << endl;
 			exit(1);
 		}
 
 		// Attach the publisher to the transport.
 		OpenDDS::DCPS::PublisherImpl* pub_impl =
-		OpenDDS::DCPS::reference_to_servant<OpenDDS::DCPS::PublisherImpl> (pub.in ());
+		OpenDDS::DCPS::reference_to_servant<OpenDDS::DCPS::PublisherImpl> (_publisher.in ());
 		if (0 == pub_impl) {
 			cerr << "Failed to obtain publisher servant" << endl;
 			exit(1);
@@ -153,21 +126,6 @@ int EldoraPublisher::run(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		// Create the datawriter
-		DDS::DataWriterQos dw_qos;
-		pub->get_default_datawriter_qos (dw_qos);
-		dw = pub->create_datawriter(topic.in (),
-				dw_qos,
-				DDS::DataWriterListener::_nil());
-		if (CORBA::is_nil (dw.in ())) {
-			cerr << "create_datawriter failed." << endl;
-			exit(1);
-		}
-
-		_writer = new EldoraWriter<EldoraDDS::Beam>(dw.in());
-
-		_writer->start ();
-
 	}
 	catch (CORBA::Exception& e)
 	{
@@ -180,32 +138,4 @@ int EldoraPublisher::run(int argc, char *argv[]) {
 }
 
 ////////////////////////////////////////////////////////////
-
-bool EldoraPublisher::isFinished() {
-	return _writer->is_finished();
-}
-
-////////////////////////////////////////////////////////////
-
-int EldoraPublisher::pulsesAvailable() {
-
-	return _writer->itemsAvailable();
-
-}
-
-////////////////////////////////////////////////////////////
-
-pulse_t* EldoraPublisher::getEmptyPulse() {
-
-	return _writer->getEmptyItem();
-
-}
-
-////////////////////////////////////////////////////////////
-
-void EldoraPublisher::publishPulse(pulse_t* pPulse) {
-
-	_writer->publishItem(pPulse);
-
-}
 
