@@ -1,7 +1,6 @@
 #ifndef ELDORAPUBLISHERINC_
 #define ELDORAPUBLISHERINC_
 
-#include "PulseTypeSupportImpl.h"
 #include <dds/DCPS/Service_Participant.h>
 #include <dds/DCPS/Marked_Default_Qos.h>
 #include <dds/DCPS/PublisherImpl.h>

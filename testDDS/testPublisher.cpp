@@ -20,23 +20,23 @@ int main(int argc, char* argv[]) {
 		return pubStatus;
 	}
 
-	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>
-			writer(publisher);
+	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
+			pulseWriter(publisher, "testtopic");
 
 	short timestamp = 0;
 	int numPulses = 0;
 	int gates = 1500;
 
-	while ( !writer.is_finished()) {
+	while ( !pulseWriter.is_finished()) {
 
-		while ((writer.itemsAvailable()) < nWrites) {
+		while ((pulseWriter.itemsAvailable()) < nWrites) {
 			ACE_OS::sleep(small);
 		}
 		for (int i = 0; i < nWrites; i++) {
 			EldoraDDS::Pulse* pPulse;
 
 			// get an available empty pulse from the publisher
-			pPulse = writer.getEmptyItem();
+			pPulse = pulseWriter.getEmptyItem();
 			pPulse->abp.length(3*gates);
 
 			// bump the timestamp on alternating pulses
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 					: EldoraDDS::Aft;
 
 			// send the pulse to the publisher
-			writer.publishItem(pPulse);
+			pulseWriter.publishItem(pPulse);
 
 		}
 		ACE_OS::sleep(small);

@@ -114,16 +114,22 @@ void * dataTask(void* threadArg) {
 	ACE_Time_Value small(0, 100);
 
 	EldoraPublisher* publisher;
-	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>
-			* writer;
+	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
+			* pulseWriter;
+	EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>
+			* tsWriter;
 
 	if (publish) {
 		// create the publisher
 		publisher = new EldoraPublisher(argv.argc(), argv.argv());
 
 		// create the pulse writer
-		writer
-				= new EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>(*publisher);
+		pulseWriter
+				= new EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "testtopic");
+
+		// create the time series writer
+		tsWriter
+				= new EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "testtopic");
 	}
 
 	int buffers = 0;
@@ -138,11 +144,11 @@ void * dataTask(void* threadArg) {
 
 		if (publish) {
 			// send the pulse to the publisher		
-			EldoraDDS::Pulse* pPulse = writer->getEmptyItem();
+			EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
 			if (pPulse) {
 
 				// set the size
-				pPulse->abp.length(3000);
+				pPulse->abp.length(2000);
 
 				// set the timestamp
 				pPulse->timestamp = buffers++;
@@ -151,7 +157,7 @@ void * dataTask(void* threadArg) {
 				pPulse->radarId = EldoraDDS::Aft;
 
 				// send the pulse to the publisher
-				writer->publishItem(pPulse);
+				pulseWriter->publishItem(pPulse);
 			} else {
 				std::cout << "can't get publisher pulse\n";
 				ACE_OS::sleep(small);

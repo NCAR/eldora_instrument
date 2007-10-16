@@ -1,5 +1,4 @@
 #include "EldoraWriter.h"
-#include "PulseTypeSupportC.h"
 
 using namespace EldoraDDS;
 
@@ -9,7 +8,8 @@ const int num_instances_per_writer = 1;
 
 template<TEMPSIG1>
 EldoraWriter<TEMPSIG2>::EldoraWriter(
-		EldoraPublisher& eldoraPublisher) :
+		EldoraPublisher& eldoraPublisher,
+		std::string topicName) :
 _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
 	// reserve the space in the queues
@@ -34,7 +34,7 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 		DDS::TopicQos topic_qos;
 		participant->get_default_topic_qos(topic_qos);
 		DDS::Topic_var topic =
-		participant->create_topic ("testtopic",
+		participant->create_topic (topicName.c_str(),
 				type_name.in (),
 				topic_qos,
 				DDS::TopicListener::_nil());
@@ -247,4 +247,5 @@ EldoraWriter<TEMPSIG2>::publish(
 	return (_inQueue.size() != 0);
 }
 
-template class EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>;
+template class EldoraWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
+template class EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;

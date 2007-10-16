@@ -4,20 +4,23 @@
 #include <ace/OS_NS_unistd.h>
 #include <ace/streams.h>
 #include <unistd.h>
-#include "PulseTypeSupportC.h"
 #include <dds/DdsDcpsPublicationC.h>
 #include <ace/Task.h>
 #include <ace/Synch.h>
 #include <vector>
 
 #include "EldoraPublisher.h"
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
 
 typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
-#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER
-#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER
+#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER, class DDSDATAWRITER_VAR
+#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
 
 template <TEMPSIG1>
 class EldoraWriter : public ACE_Task_Base {
@@ -25,7 +28,7 @@ class EldoraWriter : public ACE_Task_Base {
 public:
 
 	
-	EldoraWriter(EldoraPublisher& eldoraPub);
+	EldoraWriter(EldoraPublisher& eldoraPub, std::string topicName);
 
 	void start();
 
@@ -51,7 +54,7 @@ private:
 
 	DDS::DataWriter_var _basicDw;
 
-	EldoraDDS::PulseDataWriter_var item_dw;
+	DDSDATAWRITER_VAR item_dw;
 
 	ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> finished_instances_;
 
