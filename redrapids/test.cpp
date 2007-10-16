@@ -11,6 +11,7 @@
 #include "EldoraWriter.h"
 
 using namespace RedRapids;
+using namespace EldoraDDS;
 namespace po = boost::program_options;
 
 //////////////////////////////////////////////////////////////////////
@@ -113,7 +114,7 @@ void * dataTask(void* threadArg) {
 	ACE_Time_Value small(0, 100);
 
 	EldoraPublisher* publisher;
-	EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var>
+	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>
 			* writer;
 
 	if (publish) {
@@ -122,7 +123,7 @@ void * dataTask(void* threadArg) {
 
 		// create the pulse writer
 		writer
-				= new EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var>(*publisher);
+				= new EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>(*publisher);
 	}
 
 	int buffers = 0;

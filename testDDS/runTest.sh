@@ -18,10 +18,10 @@ $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $
 
 sleep 2
 
-echo "Starting publisher"
-./publisher -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini &
+#echo "Starting publisher"
+#./publisher -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini &
 
-sleep 2
+#sleep 2
 
 echo "Starting subscriber 1"
 ./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini  &

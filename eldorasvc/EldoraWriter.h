@@ -16,8 +16,8 @@ typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
-#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR
-#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR
+#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER
+#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER
 
 template <TEMPSIG1>
 class EldoraWriter : public ACE_Task_Base {

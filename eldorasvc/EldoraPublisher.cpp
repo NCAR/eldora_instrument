@@ -7,10 +7,9 @@ OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
 ////////////////////////////////////////////////////////////
 
-EldoraPublisher::EldoraPublisher(int argc, char* argv[])
-{
-	
-	run(argc, argv);
+EldoraPublisher::EldoraPublisher(int argc, char* argv[]) {
+
+	_runStatus = run(argc, argv);
 }
 
 ////////////////////////////////////////////////////////////
@@ -26,6 +25,12 @@ EldoraPublisher::~EldoraPublisher() {
 
 	TheServiceParticipant->shutdown();
 
+}
+
+////////////////////////////////////////////////////////////
+
+int EldoraPublisher::status() {
+	return _runStatus;
 }
 
 ////////////////////////////////////////////////////////////

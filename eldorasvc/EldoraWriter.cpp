@@ -1,6 +1,8 @@
 #include "EldoraWriter.h"
 #include "PulseTypeSupportC.h"
 
+using namespace EldoraDDS;
+
 const int num_instances_per_writer = 1;
 
 ////////////////////////////////////////////////////////////
@@ -107,7 +109,7 @@ EldoraWriter<TEMPSIG2>::svc() {
 			ACE_OS::sleep(ACE_Time_Value(0,200000));
 		}
 
-		item_dw = ::EldoraDDS::PulseDataWriter::_narrow(writer_.in());
+		item_dw = DDSDATAWRITER::_narrow(writer_.in());
 		if (CORBA::is_nil (item_dw.in ())) {
 			cerr << "Data Writer could not be narrowed"<< endl;
 			exit(1);
@@ -246,4 +248,4 @@ EldoraWriter<TEMPSIG2>::publish(
 	return (_inQueue.size() != 0);
 }
 
-template class EldoraWriter<EldoraDDS::Pulse, EldoraDDS::PulseTypeSupportImpl, EldoraDDS::PulseTypeSupport_var>;
+template class EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter>;

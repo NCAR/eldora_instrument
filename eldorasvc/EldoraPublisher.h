@@ -22,6 +22,8 @@ class EldoraPublisher {
   EldoraPublisher(int argc, char* argv[]);
 
   virtual ~EldoraPublisher();
+  
+  int status();
 
   DDS::DomainParticipant_var& getParticipant() { return _participant; };
   
@@ -39,6 +41,8 @@ class EldoraPublisher {
   DDS::Publisher_var _publisher;
 
   DDS::DomainParticipant_var _participant;
+  
+  int _runStatus;
 };
 
 #endif
