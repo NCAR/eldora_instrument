@@ -19,11 +19,9 @@ class EldoraPublisher {
 
  public:
 
-  EldoraPublisher();
+  EldoraPublisher(int argc, char* argv[]);
 
   virtual ~EldoraPublisher();
-
-  int run(int argc, char* argv[]);
 
   DDS::DomainParticipant_var& getParticipant() { return _participant; };
   
@@ -31,6 +29,8 @@ class EldoraPublisher {
 
 
  protected:
+
+  int run(int argc, char* argv[]);
 
   int parse_args (int argc, char *argv[]);
 

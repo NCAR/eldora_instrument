@@ -7,8 +7,10 @@ OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
 ////////////////////////////////////////////////////////////
 
-EldoraPublisher::EldoraPublisher()
+EldoraPublisher::EldoraPublisher(int argc, char* argv[])
 {
+	
+	run(argc, argv);
 }
 
 ////////////////////////////////////////////////////////////
