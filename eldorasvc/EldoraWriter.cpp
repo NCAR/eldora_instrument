@@ -7,10 +7,10 @@ const int num_instances_per_writer = 1;
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
+template<TEMPSIG1>
 EldoraWriter<TEMPSIG2>::EldoraWriter(
 		EldoraPublisher& eldoraPublisher) :
-	_condition(_mutex), finished_instances_(0), timeout_writes_(0) {
+_condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
 	// reserve the space in the queues
 	for (int i = 0; i < 100; i++) {
@@ -46,10 +46,10 @@ EldoraWriter<TEMPSIG2>::EldoraWriter(
 		// Create the datawriter
 		DDS::DataWriterQos dw_qos;
 		publisher->get_default_datawriter_qos (dw_qos);
-		DDS::DataWriter_var dw = publisher->create_datawriter(topic.in (),
+		_basicDw = publisher->create_datawriter(topic.in (),
 				dw_qos,
 				DDS::DataWriterListener::_nil());
-		if (CORBA::is_nil (dw.in ())) {
+		if (CORBA::is_nil (_basicDw.in ())) {
 			cerr << "create_datawriter failed." << endl;
 			exit(1);
 		}
@@ -61,16 +61,17 @@ EldoraWriter<TEMPSIG2>::EldoraWriter(
 		<< e << endl;
 		exit(1);
 	}
-	
+
 	// start the writer
 	start();
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-void 
+template<TEMPSIG1>
+void
 EldoraWriter<TEMPSIG2>::start() {
+
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::start \n")));
 	// Lanuch num_instances_per_writer threads.
 	// Each thread writes one instance which uses the thread id as the
@@ -83,8 +84,8 @@ EldoraWriter<TEMPSIG2>::start() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-void 
+template<TEMPSIG1>
+void
 EldoraWriter<TEMPSIG2>::end() {
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::end \n")));
 	wait();
@@ -92,8 +93,8 @@ EldoraWriter<TEMPSIG2>::end() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-int 
+template<TEMPSIG1>
+int
 EldoraWriter<TEMPSIG2>::svc() {
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::svc begins.\n")));
 
@@ -102,14 +103,14 @@ EldoraWriter<TEMPSIG2>::svc() {
 
 		while (1)
 		{
-			writer_->get_matched_subscriptions(handles);
+			_basicDw->get_matched_subscriptions(handles);
 			if (handles.length() > 0)
 			break;
 			else
 			ACE_OS::sleep(ACE_Time_Value(0,200000));
 		}
 
-		item_dw = DDSDATAWRITER::_narrow(writer_.in());
+		item_dw = DDSDATAWRITER::_narrow(_basicDw.in());
 		if (CORBA::is_nil (item_dw.in ())) {
 			cerr << "Data Writer could not be narrowed"<< endl;
 			exit(1);
@@ -140,24 +141,24 @@ EldoraWriter<TEMPSIG2>::svc() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-bool 
+template<TEMPSIG1>
+bool
 EldoraWriter<TEMPSIG2>::is_finished() const {
 	return finished_instances_ == num_instances_per_writer;
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-int 
+template<TEMPSIG1>
+int
 EldoraWriter<TEMPSIG2>::get_timeout_writes() const {
 	return timeout_writes_.value();
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-int 
+template<TEMPSIG1>
+int
 EldoraWriter<TEMPSIG2>::itemsAvailable() {
 
 	guard_t guard(_mutex);
@@ -167,19 +168,17 @@ EldoraWriter<TEMPSIG2>::itemsAvailable() {
 }
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-DDSTYPE* 
+template<TEMPSIG1>
+DDSTYPE*
 EldoraWriter<TEMPSIG2>::getEmptyItem() {
 
 	guard_t guard(_mutex);
 
 	if (_outQueue.size() == 0)
-		return 0;
+	return 0;
 
 	DDSTYPE* pItem = _outQueue[0];
 	_outQueue.erase(_outQueue.begin());
-
-	//std:cout << "pulse removed from outQueue " << _outQueue.size() << "\n";
 
 	return pItem;
 
@@ -187,7 +186,7 @@ EldoraWriter<TEMPSIG2>::getEmptyItem() {
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1>
-void 
+void
 EldoraWriter<TEMPSIG2>::publishItem(
 		DDSTYPE* pItem) {
 
@@ -200,28 +199,28 @@ EldoraWriter<TEMPSIG2>::publishItem(
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-void 
+template<TEMPSIG1>
+void
 EldoraWriter<TEMPSIG2>::waitForItem() {
 
 	guard_t guard(_mutex);
 
 	while (_inQueue.size() == 0)
-		_condition.wait();
+	_condition.wait();
 
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> 
-bool 
+template<TEMPSIG1>
+bool
 EldoraWriter<TEMPSIG2>::publish(
 		DDS::InstanceHandle_t handle) {
 
 	guard_t guard(_mutex);
 
 	if (_inQueue.size() == 0)
-		return false;
+	return false;
 
 	DDSTYPE* pItem = _inQueue[0];
 

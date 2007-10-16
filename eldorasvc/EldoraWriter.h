@@ -49,7 +49,7 @@ private:
 
 	bool publish(::DDS::InstanceHandle_t handle);
 
-	DDS::DataWriter_var writer_;
+	DDS::DataWriter_var _basicDw;
 
 	EldoraDDS::PulseDataWriter_var item_dw;
 

@@ -141,7 +141,7 @@ EldoraSubscriber::run(int argc, char *argv[])
 
       DDS::TopicQos topic_qos;
       _participant->get_default_topic_qos(topic_qos);
-      DDS::Topic_var topic = _participant->create_topic("Movie Discussion List",
+      DDS::Topic_var topic = _participant->create_topic("testtopic",
 							type_name.in (),
 							topic_qos,
 							DDS::TopicListener::_nil());
