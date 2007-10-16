@@ -1,35 +1,47 @@
 #! /bin/sh
 
+# location of DDS configurtion files
+CONF=~/eldora/conf
+
+# where to save the IOR
+REPOFILE=~/eldoraRepo.ior
+
+# The publisher invocation
+publish="./publisher -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini"
+
+# The subscriber invocation
+subscribe="./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini"
+
+# kill existing jobs
 pkill publisher
 pkill subscriber
 pkill DCPSInfoRepo
 
-CONF=~/eldora/conf
-REPOFILE=~/eldoraRepo.ior
-
+# Remove existing IOR
 rm -f $REPOFILE
 
-sleep 1
-
-trap "pkill subscriber; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
+# trap the signals on this script, and kill the jobs
+trap "echo \"killing jobs\"; pkill subscriber; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
 $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $REPOFILE &
-
 sleep 2
 
 echo "Starting publisher"
-./publisher -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini &
-
+$publish &
 sleep 2
 
 echo "Starting subscriber 1"
-./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini  &
+$subscribe &
 
 echo "Starting subscriber 2"
-./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini  &
+$subscribe &
 
 echo "Starting subscriber 3"
-./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini
+$subscribe
+
+
+
+
 
 
