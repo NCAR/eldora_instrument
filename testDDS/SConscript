@@ -15,7 +15,7 @@ env.AppendUnique(CCFLAGS=['-g',])
 # libraries:
 libs = Split("""
 boost_program_options-gcc41-1_34_1.a
-ddssssvc
+ddssvc
 EldoraDds
 ReliableMulticast 
 SimpleUnreliableDgram 
