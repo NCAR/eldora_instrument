@@ -8,7 +8,7 @@ env.AppendUnique(CPPPATH=['$TAO_ROOT',])
 env.AppendUnique(CPPPATH=['$ACE_ROOT',])
 env.AppendUnique(CPPPATH=['$DDS_ROOT',])
 env.AppendUnique(CPPPATH=['#./ddslib',])
-env.AppendUnique(CPPPATH=['#./eldorasvc',])
+env.AppendUnique(CPPPATH=['#./ddssvc',])
 env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
 env.AppendUnique(CCFLAGS=['-g',])
 
@@ -33,7 +33,7 @@ rt
 # library paths:
 libpaths=Split("""
 ../ddslib
-../eldorasvc
+../ddssvc
 /usr/local/lib/
 $ACE_ROOT/lib
 $TAO_ROOT/lib

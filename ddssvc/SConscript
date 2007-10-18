@@ -19,4 +19,4 @@ EldoraSubscriber.cpp
 ArgvParams.cpp
 """)
 
-subscriber = env.Library('eldorasvc', sources)
+subscriber = env.Library('ddssvc', sources)
