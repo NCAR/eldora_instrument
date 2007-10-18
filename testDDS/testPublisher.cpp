@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	int nWrites = 5;
 
 	ACE_Time_Value small(0, 100);
-	EldoraPublisher publisher(argc, argv);
+	DDSPublisher publisher(argc, argv);
 
 	int pubStatus = publisher.status();
 
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 		return pubStatus;
 	}
 
-	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
+	DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
 			pulseWriter(publisher, "testtopic");
 
 	short timestamp = 0;

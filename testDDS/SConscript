@@ -9,10 +9,12 @@ env.AppendUnique(CPPPATH=['$ACE_ROOT',])
 env.AppendUnique(CPPPATH=['$DDS_ROOT',])
 env.AppendUnique(CPPPATH=['#./ddslib',])
 env.AppendUnique(CPPPATH=['#./eldorasvc',])
+env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
 env.AppendUnique(CCFLAGS=['-g',])
 
 # libraries:
 libs = Split("""
+boost_program_options-gcc41-1_34_1.a
 eldorasvc
 EldoraDds
 ReliableMulticast 
@@ -32,6 +34,7 @@ rt
 libpaths=Split("""
 ../ddslib
 ../eldorasvc
+/usr/local/lib/
 $ACE_ROOT/lib
 $TAO_ROOT/lib
 $DDS_ROOT/lib

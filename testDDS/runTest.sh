@@ -10,7 +10,7 @@ REPOFILE=~/eldoraRepo.ior
 publish="./publisher -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini"
 
 # The subscriber invocation
-subscribe="./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini"
+subscribe="./subscriber -ORBSvcConf $CONF/tcp.conf -DCPSConfigFile $CONF/simpleConf.ini -topic Eldora\ Pulses"
 
 # kill existing jobs
 pkill publisher

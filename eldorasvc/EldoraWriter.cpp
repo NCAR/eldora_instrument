@@ -1,4 +1,5 @@
 #include "EldoraWriter.h"
+#include "EldoraPublisher.h"
 
 using namespace EldoraDDS;
 
@@ -7,8 +8,8 @@ const int num_instances_per_writer = 1;
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1>
-EldoraWriter<TEMPSIG2>::EldoraWriter(
-		EldoraPublisher& eldoraPublisher,
+DDSWriter<TEMPSIG2>::DDSWriter(
+		DDSPublisher& eldoraPublisher,
 		std::string topicName) :
 _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
@@ -70,7 +71,7 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
 template<TEMPSIG1>
 void
-EldoraWriter<TEMPSIG2>::start() {
+DDSWriter<TEMPSIG2>::start() {
 
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::start \n")));
 	// Lanuch num_instances_per_writer threads.
@@ -86,7 +87,7 @@ EldoraWriter<TEMPSIG2>::start() {
 
 template<TEMPSIG1>
 void
-EldoraWriter<TEMPSIG2>::end() {
+DDSWriter<TEMPSIG2>::end() {
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::end \n")));
 	wait();
 }
@@ -95,7 +96,7 @@ EldoraWriter<TEMPSIG2>::end() {
 
 template<TEMPSIG1>
 int
-EldoraWriter<TEMPSIG2>::svc() {
+DDSWriter<TEMPSIG2>::svc() {
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::svc begins.\n")));
 
 	DDS::InstanceHandleSeq handles;
@@ -143,7 +144,7 @@ EldoraWriter<TEMPSIG2>::svc() {
 
 template<TEMPSIG1>
 bool
-EldoraWriter<TEMPSIG2>::is_finished() const {
+DDSWriter<TEMPSIG2>::is_finished() const {
 	return finished_instances_ == num_instances_per_writer;
 }
 
@@ -151,7 +152,7 @@ EldoraWriter<TEMPSIG2>::is_finished() const {
 
 template<TEMPSIG1>
 int
-EldoraWriter<TEMPSIG2>::get_timeout_writes() const {
+DDSWriter<TEMPSIG2>::get_timeout_writes() const {
 	return timeout_writes_.value();
 }
 
@@ -159,7 +160,7 @@ EldoraWriter<TEMPSIG2>::get_timeout_writes() const {
 
 template<TEMPSIG1>
 int
-EldoraWriter<TEMPSIG2>::itemsAvailable() {
+DDSWriter<TEMPSIG2>::itemsAvailable() {
 
 	guard_t guard(_mutex);
 
@@ -170,7 +171,7 @@ EldoraWriter<TEMPSIG2>::itemsAvailable() {
 
 template<TEMPSIG1>
 DDSTYPE*
-EldoraWriter<TEMPSIG2>::getEmptyItem() {
+DDSWriter<TEMPSIG2>::getEmptyItem() {
 
 	guard_t guard(_mutex);
 
@@ -187,7 +188,7 @@ EldoraWriter<TEMPSIG2>::getEmptyItem() {
 
 template<TEMPSIG1>
 void
-EldoraWriter<TEMPSIG2>::publishItem(
+DDSWriter<TEMPSIG2>::publishItem(
 		DDSTYPE* pItem) {
 
 	guard_t guard(_mutex);
@@ -201,7 +202,7 @@ EldoraWriter<TEMPSIG2>::publishItem(
 
 template<TEMPSIG1>
 void
-EldoraWriter<TEMPSIG2>::waitForItem() {
+DDSWriter<TEMPSIG2>::waitForItem() {
 
 	guard_t guard(_mutex);
 
@@ -214,7 +215,7 @@ EldoraWriter<TEMPSIG2>::waitForItem() {
 
 template<TEMPSIG1>
 bool
-EldoraWriter<TEMPSIG2>::publish(
+DDSWriter<TEMPSIG2>::publish(
 		DDS::InstanceHandle_t handle) {
 
 	guard_t guard(_mutex);
@@ -247,5 +248,5 @@ EldoraWriter<TEMPSIG2>::publish(
 	return (_inQueue.size() != 0);
 }
 
-template class EldoraWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
-template class EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;
+template class DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
+template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;

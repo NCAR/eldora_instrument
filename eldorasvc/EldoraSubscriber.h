@@ -14,11 +14,13 @@
 #include <dds/DCPS/transport/ReliableMulticast/ReliableMulticast.h>
 #endif
 
+#include <string>
+
 class EldoraSubscriber {
 
  public:
 
-  EldoraSubscriber();
+  EldoraSubscriber(std::string topicName);
 
   virtual ~EldoraSubscriber();
 
@@ -37,6 +39,8 @@ class EldoraSubscriber {
   DDS::DomainParticipantFactory_var _dpf;
 
   EldoraReaderListenerImpl _listenerServant;
+  
+  std::string _topicName;
 
 };
 

@@ -1,11 +1,30 @@
 #include <iostream>
 #include <iomanip>
 #include "EldoraSubscriber.h"
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
-int
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
-  EldoraSubscriber subscriber;
+	std::string topicName;
+
+	// get the options
+	po::options_description descripts("Options");
+	descripts.add_options() ("help", "describe options") ("topic", po::value<std::string>(&topicName), "DDS topic") 
+	("ORBSvcConf", "service configuration file") 
+	("DCPSConfigFile", "DCPS configuration file") 
+	;
+
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, descripts), vm);
+	po::notify(vm);
+
+	if (vm.count("help")) {
+		std::cout << descripts << "\n";
+		exit(1);
+	}
+
+	EldoraSubscriber subscriber(topicName);
 
   int subStatus = subscriber.run(argc, argv);
 

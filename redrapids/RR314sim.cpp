@@ -85,7 +85,7 @@ void RR314sim::simulate() {
 			_abp[1] = _abpChans[i];
 			_pRR314->newData(&_abp[0], _abpChans[i], _abp.size());
 		}
-		usleep(300000);
+		usleep(500000);
 		_beamNum++;
 	}
 }

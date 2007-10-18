@@ -14,13 +14,13 @@
 
 #include <ace/Synch.h>
 
-class EldoraPublisher {
+class DDSPublisher {
 
  public:
 
-  EldoraPublisher(int argc, char* argv[]);
+  DDSPublisher(int argc, char* argv[]);
 
-  virtual ~EldoraPublisher();
+  virtual ~DDSPublisher();
   
   int status();
 

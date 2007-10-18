@@ -111,25 +111,25 @@ void * dataTask(void* threadArg) {
 	argv["-ORBSvcConf"] = "/home/eldora/eldora/conf/tcp.conf";
 	argv["-DCPSConfigFile"] = "/home/eldora/eldora/conf/simpleConf.ini";
 
-	ACE_Time_Value small(0, 100);
+	ACE_Time_Value small(0, 100000);
 
-	EldoraPublisher* publisher;
-	EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
+	DDSPublisher* publisher;
+	DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>
 			* pulseWriter;
-	EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>
+	DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>
 			* tsWriter;
 
 	if (publish) {
 		// create the publisher
-		publisher = new EldoraPublisher(argv.argc(), argv.argv());
+		publisher = new DDSPublisher(argv.argc(), argv.argv());
 
 		// create the pulse writer
 		pulseWriter
-				= new EldoraWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "testtopic");
+				= new DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "Eldora Pulses");
 
 		// create the time series writer
 		tsWriter
-				= new EldoraWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "testtopic");
+				= new DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "Eldora Time Series");
 	}
 
 	int buffers = 0;
@@ -159,7 +159,7 @@ void * dataTask(void* threadArg) {
 				// send the pulse to the publisher
 				pulseWriter->publishItem(pPulse);
 			} else {
-				std::cout << "can't get publisher pulse\n";
+				//std::cout << "can't get publisher pulse\n";
 				ACE_OS::sleep(small);
 			}
 		}

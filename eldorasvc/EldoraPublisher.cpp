@@ -7,14 +7,14 @@ OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
 ////////////////////////////////////////////////////////////
 
-EldoraPublisher::EldoraPublisher(int argc, char* argv[]) {
+DDSPublisher::DDSPublisher(int argc, char* argv[]) {
 
 	_runStatus = run(argc, argv);
 }
 
 ////////////////////////////////////////////////////////////
 
-EldoraPublisher::~EldoraPublisher() {
+DDSPublisher::~DDSPublisher() {
 
 	// Cleanup
 	_participant->delete_contained_entities();
@@ -29,13 +29,13 @@ EldoraPublisher::~EldoraPublisher() {
 
 ////////////////////////////////////////////////////////////
 
-int EldoraPublisher::status() {
+int DDSPublisher::status() {
 	return _runStatus;
 }
 
 ////////////////////////////////////////////////////////////
 
-int EldoraPublisher::parse_args(int argc, char *argv[]) {
+int DDSPublisher::parse_args(int argc, char *argv[]) {
 	ACE_Get_Opt get_opts(argc, argv, "t:u:");
 	int c;
 
@@ -75,7 +75,7 @@ int EldoraPublisher::parse_args(int argc, char *argv[]) {
 
 ////////////////////////////////////////////////////////////
 
-int EldoraPublisher::run(int argc, char *argv[]) {
+int DDSPublisher::run(int argc, char *argv[]) {
 	try
 	{
 		_dpf = TheParticipantFactoryWithArgs(argc, argv);

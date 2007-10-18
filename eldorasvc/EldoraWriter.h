@@ -23,12 +23,12 @@ typedef ACE_Guard<mutex_t> guard_t;
 #define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
 
 template <TEMPSIG1>
-class EldoraWriter : public ACE_Task_Base {
+class DDSWriter : public ACE_Task_Base {
 
 public:
 
 	
-	EldoraWriter(EldoraPublisher& eldoraPub, std::string topicName);
+	DDSWriter(DDSPublisher& eldoraPub, std::string topicName);
 
 	void start();
 
