@@ -38,7 +38,7 @@ rr314
 channeladapter
 pthread
 boost_program_options-gcc41-1_34_1.a
-eldorasvc
+ddssvc
 EldoraDds
 ReliableMulticast 
 SimpleUnreliableDgram 
