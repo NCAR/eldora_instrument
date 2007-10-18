@@ -1,5 +1,5 @@
-#include "EldoraWriter.h"
-#include "EldoraPublisher.h"
+#include "DDSWriter.h"
+#include "DDSPublisher.h"
 
 using namespace EldoraDDS;
 

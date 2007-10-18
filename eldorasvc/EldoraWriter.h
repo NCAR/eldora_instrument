@@ -9,7 +9,7 @@
 #include <ace/Synch.h>
 #include <vector>
 
-#include "EldoraPublisher.h"
+#include "DDSPublisher.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"

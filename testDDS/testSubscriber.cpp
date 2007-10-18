@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include "EldoraSubscriber.h"
+#include "DDSSubscriber.h"
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 

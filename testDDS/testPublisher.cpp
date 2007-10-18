@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "EldoraPublisher.h"
-#include "EldoraWriter.h"
+#include "DDSPublisher.h"
+#include "DDSWriter.h"
 
 using namespace EldoraDDS;
 
