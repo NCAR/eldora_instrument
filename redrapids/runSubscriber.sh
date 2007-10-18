@@ -7,7 +7,7 @@ CONF=~/eldora/conf
 REPOFILE=~/eldoraRepo.ior
 
 # The subscriber invocation
-subscribe="/home/eldora/eldora/testDDS/subscriber --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --topic EldoraPulses"
+subscribe="/home/eldora/eldora/testDDS/subscriber --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini "
 
 # kill existing jobs
 pkill subscriber
@@ -24,10 +24,7 @@ $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $
 sleep 2
 
 echo "Starting subscriber 1"
-$subscribe &
+$subscribe --topic EldoraPulses &
 
 echo "Starting subscriber 2"
-$subscribe &
-
-echo "Starting subscriber 3"
-$subscribe
+$subscribe --topic EldoraTimeSeries

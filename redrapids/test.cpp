@@ -120,16 +120,18 @@ void * dataTask(void* threadArg) {
 			* tsWriter;
 
 	if (publish) {
+		
+		std::cout << "creating DDS services\n";
 		// create the publisher
 		publisher = new DDSPublisher(argv.argc(), argv.argv());
 
 		// create the pulse writer
 		pulseWriter
-				= new DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "Eldora Pulses");
+				= new DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "EldoraPulses");
 
 		// create the time series writer
 		tsWriter
-				= new DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "Eldora Time Series");
+				= new DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "EldoraTimeSeries");
 	}
 
 	int buffers = 0;

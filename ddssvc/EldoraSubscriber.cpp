@@ -130,12 +130,13 @@ int EldoraSubscriber::run(int argc, char *argv[]) {
 
 		DDS::TopicQos topic_qos;
 		_participant->get_default_topic_qos(topic_qos);
+		
 		DDS::Topic_var topic = _participant->create_topic(_topicName.c_str(),
 				type_name.in (),
 				topic_qos,
 				DDS::TopicListener::_nil());
 		if (CORBA::is_nil (topic.in ())) {
-			cerr << "Failed to create_topic." << endl;
+			std::cerr << "Failed to create_topic " << _topicName << std::endl;
 			exit(1);
 		}
 

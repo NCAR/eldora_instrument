@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
 	po::notify(vm);
 
-	if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS")) {
+	if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS") || !vm.count("topic")) {
 		std::cout << descripts << "\n";
 		exit(1);
 	}
