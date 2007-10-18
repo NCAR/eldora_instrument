@@ -2,31 +2,44 @@
 #include <iomanip>
 #include "EldoraSubscriber.h"
 #include <boost/program_options.hpp>
+#include "ArgvParams.h"
 namespace po = boost::program_options;
 
 int main(int argc, char* argv[]) {
 
 	std::string topicName;
+	std::string ORB;
+	std::string DCPS;
 
 	// get the options
 	po::options_description descripts("Options");
-	descripts.add_options() ("help", "describe options") ("topic", po::value<std::string>(&topicName), "DDS topic") 
-	("ORBSvcConf", "service configuration file") 
-	("DCPSConfigFile", "DCPS configuration file") 
+	
+	descripts.add_options() 
+	("help", "describe options") 
+	("topic", po::value<std::string>(&topicName), "DDS topic") 
+	("ORB",   po::value<std::string>(&ORB),       "ORB service configuration file (Corba ORBSvcConf arg)") 
+	("DCPS",  po::value<std::string>(&DCPS),      "DCPS configuration file (OpenDDS DCPSConfigFile arg)") 
 	;
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
 	po::notify(vm);
 
-	if (vm.count("help")) {
+	if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS")) {
 		std::cout << descripts << "\n";
 		exit(1);
 	}
+	
+	// we have to do this bit of translation since the 
+	// DDS routines want arguments starting with a single dash,
+	// whereas boost::program_options uses double dashes.
+	ArgvParams subParams(argv[0]);
+	subParams["-ORBSvcConf"] = ORB;
+	subParams["-DCPSConfigFile"] = DCPS;
 
 	EldoraSubscriber subscriber(topicName);
 
-  int subStatus = subscriber.run(argc, argv);
+  int subStatus = subscriber.run(subParams.argc(), subParams.argv());
 
   if (subStatus)
     return subStatus;
