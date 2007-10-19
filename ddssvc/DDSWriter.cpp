@@ -1,5 +1,4 @@
 #include "DDSWriter.h"
-#include "DDSPublisher.h"
 
 using namespace DDS;
 using namespace CORBA;
@@ -246,6 +245,10 @@ DDSWriter<TEMPSIG2>::publish(
 }
 
 /// @todo These instantiations really belong somewhere else
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
 template class DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
 template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;

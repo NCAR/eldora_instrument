@@ -10,6 +10,11 @@
 #include "DDSPublisher.h"
 #include "DDSWriter.h"
 
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
+
 using namespace RedRapids;
 using namespace EldoraDDS;
 namespace po = boost::program_options;

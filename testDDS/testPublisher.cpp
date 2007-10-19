@@ -6,6 +6,10 @@
 #include "ArgvParams.h"
 namespace po = boost::program_options;
 
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
 
 int main(int argc, char* argv[]) {

@@ -10,10 +10,6 @@
 #include <vector>
 
 #include "DDSPublisher.h"
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
-#include "TimeSeriesTypeSupportC.h"
-#include "TimeSeriesTypeSupportImpl.h"
 
 typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;

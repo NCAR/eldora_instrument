@@ -13,19 +13,33 @@
 #endif
 
 #include <string>
-
+/// A generic DDS subscriber. It is paired with DDSReader 
+/// to subscribe to a specific topic. Multiple DDSReaders can
+/// use the same DDSSubscriber to access multiple topics.
+/// DDSSubscriber creates the domain participant, the subscriber,
+/// and the transport.
+/// @todo Encapsulate functions which require access to 
+/// the participant and the subscriber. These really should not
+/// be accessed outside of the class.
 class DDSSubscriber {
 
 public:
 
+	/// Constructor. Command line standard OpenDDS arguments 
+	/// are passed to the constructor.
+	/// @param argc The number of arguments.
+	/// @param argv The arguments
 	DDSSubscriber(int argc, char* argv[]);
 
 	virtual ~DDSSubscriber();
 
 	int status();
 
+	/// @return The participant. It is required for
+	/// creation of topics
 	DDS::DomainParticipant_var& getParticipant();
 
+	/// @return The subscriber.
 	DDS::Subscriber_var& getSubscriber();
 
 protected:

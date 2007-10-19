@@ -15,6 +15,7 @@ sources = Split("""
 DDSPublisher.cpp
 DDSWriter.cpp
 DDSSubscriber.cpp
+DDSReader.cpp
 EldoraReaderListener.cpp
 EldoraSubscriber.cpp
 ArgvParams.cpp
