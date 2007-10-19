@@ -40,6 +40,8 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0)
 		
 		// create our topic, using our type name and the default qos. 
 		// We will not be using a listener.
+		std::cout << "Creating topic " << topicName.c_str() 
+			<< " for type name " << type_name << std::endl;
 		Topic_var topic =
 		participant->create_topic (topicName.c_str(),
 				type_name.in (),
