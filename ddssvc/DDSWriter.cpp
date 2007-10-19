@@ -34,6 +34,9 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
 		DDS::TopicQos topic_qos;
 		participant->get_default_topic_qos(topic_qos);
+		
+		std::cout << "Creating topic " << topicName.c_str() 
+			<< " for type name " << type_name << std::endl;
 		DDS::Topic_var topic =
 		participant->create_topic (topicName.c_str(),
 				type_name.in (),
