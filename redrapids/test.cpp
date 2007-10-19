@@ -41,12 +41,9 @@ struct runParams {
 struct runParams parseOptions(int argc, char** argv) {
 
 	runParams params;
-	params.simulate = false;
-
 	// get the options
 	po::options_description descripts("Options");
 	descripts.add_options() ("help", "describe options") ("simulate",
-			po::value<bool>(&params.simulate)->default_value(false),
 			"run in simulation mode") ("device", po::value<int>(&params.device)->default_value(0), "device number") ("gates",
 			po::value<int>(&params.gates)->default_value(1000), "number of gates") (
 			"nci", po::value<int>(&params.nci)->default_value(100),
@@ -64,14 +61,9 @@ struct runParams parseOptions(int argc, char** argv) {
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
 	po::notify(vm);
 
-	params.publish = false;
-
-	if (vm.count("publish"))
-		params.publish = true;
-
-	params.capture = false;
-	if (vm.count("capture"))
-		params.capture = true;
+	params.publish = vm.count("publish") != 0;
+	params.capture = vm.count("capture") != 0;
+	params.simulate = vm.count("simulate") != 0;
 
 	if (vm.count("help")) {
 		std::cout << descripts << "\n";
@@ -104,6 +96,7 @@ void * dataTask(void* threadArg) {
 	runParams* pParams = (runParams*) threadArg;
 	RR314* pRR314 = pParams->pRR314;
 	int gates = pParams->gates;
+	int numiq = pParams->numiq;
 	bool publish = pParams->publish;
 	bool capture = pParams->capture;
 
@@ -120,7 +113,7 @@ void * dataTask(void* threadArg) {
 			* tsWriter;
 
 	if (publish) {
-		
+
 		std::cout << "creating DDS services\n";
 		// create the publisher
 		publisher = new DDSPublisher(argv.argc(), argv.argv());
@@ -145,24 +138,39 @@ void * dataTask(void* threadArg) {
 		std::vector<int>& buf = pBuf->_data;
 
 		if (publish) {
-			// send the pulse to the publisher		
-			EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
-			if (pPulse) {
-
-				// set the size
-				pPulse->abp.length(2000);
-
-				// set the timestamp
-				pPulse->timestamp = buffers++;
-
-				// alternate the radar id between forward and aft
-				pPulse->radarId = EldoraDDS::Aft;
-
-				// send the pulse to the publisher
-				pulseWriter->publishItem(pPulse);
+			// send the buffer to the appropriate writer
+			if (channel %4) {
+				// an abp channel
+				EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
+				if (pPulse) {
+					// set the size
+					pPulse->abp.length(gates*3);
+					// set the timestamp
+					pPulse->timestamp = buffers++;
+					// alternate the radar id between forward and aft
+					pPulse->radarId = EldoraDDS::Aft;
+					// send the pulse to the pulde publisher
+					pulseWriter->publishItem(pPulse);
+				} else {
+					//std::cout << "can't get publisher pulse\n";
+					ACE_OS::sleep(small);
+				}
 			} else {
-				//std::cout << "can't get publisher pulse\n";
-				ACE_OS::sleep(small);
+				// a time series channel
+				EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
+				if (pTS) {
+					// set the size
+					pTS->tsdata.length(numiq*2);
+					// set the timestamp
+					pTS->timestamp = buffers++;
+					// alternate the radar id between forward and aft
+					pTS->radarId = EldoraDDS::Aft;
+					// send the pulse to the pulde publisher
+					tsWriter->publishItem(pTS);
+				} else {
+					//std::cout << "can't get publisher pulse\n";
+					ACE_OS::sleep(small);
+				}
 			}
 		}
 
