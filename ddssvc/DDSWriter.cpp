@@ -9,7 +9,7 @@ const int num_instances_per_writer = 1;
 
 template<TEMPSIG1>
 DDSWriter<TEMPSIG2>::DDSWriter(
-		DDSPublisher& eldoraPublisher,
+		DDSPublisher& ddsPublisher,
 		std::string topicName) :
 _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 
@@ -19,9 +19,9 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 		_outQueue.push_back(pItem);
 	}
 
-	DDS::Publisher_var& publisher = eldoraPublisher.getPublisher();
+	DDS::Publisher_var& publisher = ddsPublisher.getPublisher();
 
-	DDS::DomainParticipant_var& participant = eldoraPublisher.getParticipant();
+	DDS::DomainParticipant_var& participant = ddsPublisher.getParticipant();
 
 	try {
 		DDSTYPESUPPORT_VAR mts = new DDSTYPESUPPORTIMPL();
