@@ -13,16 +13,16 @@
 
 using namespace EldoraDDS;
 
-//Class EldoraReaderListenerImpl
-class EldoraReaderListenerImpl
+//Class EldoraReaderListener
+class EldoraReaderListener
   : public virtual OpenDDS::DCPS::LocalObject<DDS::DataReaderListener>
 {
 public:
   //Constructor
-  EldoraReaderListenerImpl ();
+  EldoraReaderListener ();
 
   //Destructor
-  virtual ~EldoraReaderListenerImpl (void);
+  virtual ~EldoraReaderListener (void);
 
   virtual void on_requested_deadline_missed (
 					     DDS::DataReader_ptr reader,

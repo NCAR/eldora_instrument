@@ -38,7 +38,7 @@ class EldoraSubscriber {
 
   DDS::DomainParticipantFactory_var _dpf;
 
-  EldoraReaderListenerImpl _listenerServant;
+  EldoraReaderListener _listenerServant;
   
   std::string _topicName;
 
