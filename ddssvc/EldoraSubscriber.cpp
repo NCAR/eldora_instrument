@@ -126,7 +126,7 @@ int EldoraSubscriber::run(int argc, char *argv[]) {
 		// use this hardwired hack to switch between EldoraPulses
 		// and EldoraTimeseries. This will all be replaced by
 		// a generic DDSReader soon enough.
-		if (!_topicName.compare("EldoraPulses"))
+		if (!_topicName.compare("EldoraPulses") || !_topicName.compare("testtopic"))
 			pulsemts = new PulseTypeSupportImpl();
 		else
 			tsmts = new TimeSeriesTypeSupportImpl();
