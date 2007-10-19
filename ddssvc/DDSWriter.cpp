@@ -3,7 +3,7 @@
 
 using namespace EldoraDDS;
 
-const int num_instances_per_writer = 1;
+//const int num_instances_per_writer = 1;
 
 ////////////////////////////////////////////////////////////
 
@@ -66,21 +66,9 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 		exit(1);
 	}
 
-	// start the writer
-	start();
-}
-
-////////////////////////////////////////////////////////////
-
-template<TEMPSIG1>
-void
-DDSWriter<TEMPSIG2>::start() {
-
+	// start the writer thread!
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::start \n")));
-	// Lanuch num_instances_per_writer threads.
-	// Each thread writes one instance which uses the thread id as the
-	// key value.
-	if (activate(THR_NEW_LWP | THR_JOINABLE, num_instances_per_writer) == -1) {
+	if (activate(THR_NEW_LWP | THR_JOINABLE, 1) == -1) {
 		cerr << "Writer::start(): activate failed" << endl;
 		exit(1);
 	}
@@ -148,7 +136,7 @@ DDSWriter<TEMPSIG2>::svc() {
 template<TEMPSIG1>
 bool
 DDSWriter<TEMPSIG2>::is_finished() const {
-	return finished_instances_ == num_instances_per_writer;
+	return finished_instances_ == 1;
 }
 
 ////////////////////////////////////////////////////////////
