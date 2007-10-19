@@ -13,6 +13,7 @@
 #include "EldoraSubscriber.h"
 #include "EldoraReaderListener.h"
 #include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportImpl.h"
 #include <dds/DCPS/Service_Participant.h>
 #include <dds/DCPS/Marked_Default_Qos.h>
 #include <dds/DCPS/SubscriberImpl.h>
@@ -119,18 +120,38 @@ int EldoraSubscriber::run(int argc, char *argv[]) {
 			return -1;
 		}
 
-		PulseTypeSupport_var mts = new PulseTypeSupportImpl();
+		PulseTypeSupport_var pulsemts = 0;
+		TimeSeriesTypeSupport_var tsmts = 0;
 
-		if (DDS::RETCODE_OK != mts->register_type(_participant.in (), "")) {
-			cerr << "Failed to register the MessageTypeTypeSupport." << endl;
-			exit(1);
+		// use this hardwired hack to switch between EldoraPulses
+		// and EldoraTimeseries. This will all be replaced by
+		// a generic DDSReader soon enough.
+		if (!_topicName.compare("EldoraPulses"))
+			pulsemts = new PulseTypeSupportImpl();
+		else
+			tsmts = new TimeSeriesTypeSupportImpl();
+
+		CORBA::String_var type_name;
+
+		if (pulsemts) {
+			if (DDS::RETCODE_OK != pulsemts->register_type(_participant.in (), "")) {
+				cerr << "Failed to register the MessageTypeTypeSupport." << endl;
+				exit(1);
+			}
+			type_name = pulsemts->get_type_name ();
+		} else {
+			if (DDS::RETCODE_OK != tsmts->register_type(_participant.in (), "")) {
+				cerr << "Failed to register the MessageTypeTypeSupport." << endl;
+				exit(1);
+			}
+			type_name = tsmts->get_type_name ();
 		}
-
-		CORBA::String_var type_name = mts->get_type_name ();
 
 		DDS::TopicQos topic_qos;
 		_participant->get_default_topic_qos(topic_qos);
-		
+
+		std::cout << "Creating topic " << _topicName.c_str() 
+			<< " for type " << type_name << std::endl;
 		DDS::Topic_var topic = _participant->create_topic(_topicName.c_str(),
 				type_name.in (),
 				topic_qos,

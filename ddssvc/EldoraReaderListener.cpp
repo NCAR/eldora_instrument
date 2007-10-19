@@ -3,6 +3,8 @@
 #include "EldoraReaderListener.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
 #include <dds/DCPS/Service_Participant.h>
 #include <ace/streams.h>
 
@@ -29,38 +31,78 @@ EldoraReaderListenerImpl::~EldoraReaderListenerImpl() {
 
 void EldoraReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
 		throw (CORBA::SystemException) {
+
 	num_reads_ ++;
 
 	try {
-		::EldoraDDS::PulseDataReader_var pulse_dr
-		= ::EldoraDDS::PulseDataReader::_narrow(reader);
+		::EldoraDDS::PulseDataReader_var pulse_dr;
+		::EldoraDDS::TimeSeriesDataReader_var ts_dr;
+
+		pulse_reader_ = true;
+		pulse_dr = ::EldoraDDS::PulseDataReader::_narrow(reader);
 		if (CORBA::is_nil (pulse_dr.in ())) {
-			cerr << "read: _narrow failed." << endl;
-			exit(1);
+			ts_dr = ::EldoraDDS::TimeSeriesDataReader::_narrow(reader);
+			if (CORBA::is_nil (ts_dr.in ())) {
+				cerr << "read: _narrow failed for both PulseDataReader and TimeSeriesDataReader" << endl;
+				exit(1);
+			}
+			pulse_reader_ = false;
 		}
 
-		EldoraDDS::Pulse pulse;
 		DDS::SampleInfo si;
-		DDS::ReturnCode_t status = pulse_dr->take_next_sample(pulse, si);
+		DDS::ReturnCode_t status;
+		if (pulse_reader_) {
+			EldoraDDS::Pulse pulse;
+			status = pulse_dr->take_next_sample(pulse, si);
 
-		// Alternate code to read directlty via the servant
-		//EldoraReaderImpl* dr_servant =
-		//  reference_to_servant<EldoraReaderImpl>(pulse_dr.in());
-		//DDS::ReturnCode_t status = dr_servant->take_next_sample(pulse, si) ;
+			// Alternate code to read directlty via the servant
+			//EldoraReaderImpl* dr_servant =
+			//  reference_to_servant<EldoraReaderImpl>(pulse_dr.in());
+			//DDS::ReturnCode_t status = dr_servant->take_next_sample(pulse, si) ;
 
-		if (status == DDS::RETCODE_OK) {
-			_numBytes += pulse.abp.length()*sizeof(pulse.abp[0]);
+			if (status == DDS::RETCODE_OK) {
+				_numBytes += pulse.abp.length()*sizeof(pulse.abp[0]);
 
-			if (_lastTimestamp[pulse.radarId]+1 != pulse.timestamp) {
-				_sequenceErrors[pulse.radarId]++;
+				if (_lastTimestamp[pulse.radarId]+1 != pulse.timestamp) {
+					_sequenceErrors[pulse.radarId]++;
+				}
+
+				_lastTimestamp[pulse.radarId] = pulse.timestamp;
+
+			} else {
+				if (status == DDS::RETCODE_NO_DATA) {
+
+					cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
+				} else {
+					cerr << "ERROR: read Message: Error: " << status << endl;
+				}
 			}
-
-			_lastTimestamp[pulse.radarId] = pulse.timestamp;
-
-		} else if (status == DDS::RETCODE_NO_DATA) {
-			cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
 		} else {
-			cerr << "ERROR: read Message: Error: " << status << endl;
+			EldoraDDS::TimeSeries ts;
+			status = ts_dr->take_next_sample(ts, si);
+
+			// Alternate code to read directlty via the servant
+			//EldoraReaderImpl* dr_servant =
+			//  reference_to_servant<EldoraReaderImpl>(pulse_dr.in());
+			//DDS::ReturnCode_t status = dr_servant->take_next_sample(pulse, si) ;
+
+			if (status == DDS::RETCODE_OK) {
+				_numBytes += ts.tsdata.length()*sizeof(ts.tsdata[0]);
+
+				if (_lastTimestamp[ts.radarId]+1 != ts.timestamp) {
+					_sequenceErrors[ts.radarId]++;
+				}
+
+				_lastTimestamp[ts.radarId] = ts.timestamp;
+
+			} else {
+				if (status == DDS::RETCODE_NO_DATA) {
+
+					cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
+				} else {
+					cerr << "ERROR: read Message: Error: " << status << endl;
+				}
+			}
 		}
 	} catch (CORBA::Exception& e) {
 		cerr << "Exception caught in read:" << endl << e << endl;
