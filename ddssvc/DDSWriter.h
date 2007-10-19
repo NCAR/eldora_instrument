@@ -76,17 +76,17 @@ public:
 	DDSTYPE* getEmptyItem();
 
 private:
-	/// Start the writer thread.
-	void start();
 	/// block on _condition until the _inQueue is not empty.
 	void waitForItem();
 	/// Take the next item on the _inQueue, send it to the 
 	/// _publisher, and then return the item to the _outQueue.
 	bool publish(::DDS::InstanceHandle_t handle);
 
-	DDS::DataWriter_var _basicDw;
+	/// The initial writer, not specialized for a data type
+	DDS::DataWriter_var _genericWriter;
 
-	DDSDATAWRITER_VAR item_dw;
+	/// The data writer specialized for our specific data type.
+	DDSDATAWRITER_VAR _specificWriter;
 
 	ACE_Atomic_Op<ACE_SYNCH_MUTEX, int> finished_instances_;
 
@@ -96,8 +96,10 @@ private:
 
 	condition_t _condition;
 
+	/// A queue of incoming items, waiting to be published.
 	std::vector<DDSTYPE*> _inQueue;
 
+	/// A queue of empty items, available for clients to use.
 	std::vector<DDSTYPE*> _outQueue;
 
 };

@@ -1,9 +1,8 @@
 #include "DDSWriter.h"
 #include "DDSPublisher.h"
 
-using namespace EldoraDDS;
-
-//const int num_instances_per_writer = 1;
+using namespace DDS;
+using namespace CORBA;
 
 ////////////////////////////////////////////////////////////
 
@@ -11,7 +10,8 @@ template<TEMPSIG1>
 DDSWriter<TEMPSIG2>::DDSWriter(
 		DDSPublisher& ddsPublisher,
 		std::string topicName) :
-_condition(_mutex), finished_instances_(0), timeout_writes_(0) {
+_condition(_mutex), finished_instances_(0), timeout_writes_(0) 
+{
 
 	// reserve the space in the queues
 	for (int i = 0; i < 100; i++) {
@@ -19,50 +19,55 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0) {
 		_outQueue.push_back(pItem);
 	}
 
-	DDS::Publisher_var& publisher = ddsPublisher.getPublisher();
+	Publisher_var& publisher = ddsPublisher.getPublisher();
 
-	DDS::DomainParticipant_var& participant = ddsPublisher.getParticipant();
+	DomainParticipant_var& participant = ddsPublisher.getParticipant();
 
 	try {
-		DDSTYPESUPPORT_VAR mts = new DDSTYPESUPPORTIMPL();
-		if (DDS::RETCODE_OK != mts->register_type(participant.in (), "")) {
+		// register our type
+		DDSTYPESUPPORT_VAR typeSupport = new DDSTYPESUPPORTIMPL();
+		if (RETCODE_OK != typeSupport->register_type(participant.in (), "")) {
 			cerr << "register_type failed." << endl;
 			exit(1);
 		}
+		
+		// get the type name
+		String_var type_name = typeSupport->get_type_name ();
 
-		CORBA::String_var type_name = mts->get_type_name ();
-
-		DDS::TopicQos topic_qos;
+		// get the default quality of service
+		TopicQos topic_qos;
 		participant->get_default_topic_qos(topic_qos);
 		
-		std::cout << "Creating topic " << topicName.c_str() 
-			<< " for type name " << type_name << std::endl;
-		DDS::Topic_var topic =
+		// create our topic, using our type name and the default qos. 
+		// We will not be using a listener.
+		Topic_var topic =
 		participant->create_topic (topicName.c_str(),
 				type_name.in (),
 				topic_qos,
 				DDS::TopicListener::_nil());
-		if (CORBA::is_nil (topic.in ())) {
-			cerr << "create_topic failed." << endl;
+		if (is_nil (topic.in ())) {
+			cerr << "create_topic failed for topic " << topicName.c_str() 
+				<< " for type name " << type_name << std::endl;
 			exit(1);
 		}
 
-		// Create the datawriter
-		DDS::DataWriterQos dw_qos;
+		// Create the generic datawriter for our topic
+		DataWriterQos dw_qos;
 		publisher->get_default_datawriter_qos (dw_qos);
-		_basicDw = publisher->create_datawriter(topic.in (),
+		_genericWriter = publisher->create_datawriter(topic.in (),
 				dw_qos,
-				DDS::DataWriterListener::_nil());
-		if (CORBA::is_nil (_basicDw.in ())) {
-			cerr << "create_datawriter failed." << endl;
+				DataWriterListener::_nil());
+		if (is_nil (_genericWriter.in ())) {
+			cerr << "create_datawriter failed for topic " << topicName.c_str() 
+				<< " for type name " << type_name << std::endl;
 			exit(1);
 		}
-
 	}
-	catch (CORBA::Exception& e)
+	catch (Exception& e)
 	{
-		cerr << "PUB: Exception caught in main.cpp:" << endl
-		<< e << endl;
+		cerr << "Exception caught in " << __FILE__ 
+			<< " line:" << __LINE__
+			<< e << endl;
 		exit(1);
 	}
 
@@ -90,26 +95,26 @@ int
 DDSWriter<TEMPSIG2>::svc() {
 	ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::svc begins.\n")));
 
-	DDS::InstanceHandleSeq handles;
+	InstanceHandleSeq handles;
 	try {
 
 		while (1)
 		{
-			_basicDw->get_matched_subscriptions(handles);
+			_genericWriter->get_matched_subscriptions(handles);
 			if (handles.length() > 0)
 			break;
 			else
 			ACE_OS::sleep(ACE_Time_Value(0,200000));
 		}
 
-		item_dw = DDSDATAWRITER::_narrow(_basicDw.in());
-		if (CORBA::is_nil (item_dw.in ())) {
+		_specificWriter = DDSDATAWRITER::_narrow(_genericWriter.in());
+		if (is_nil (_specificWriter.in ())) {
 			cerr << "Data Writer could not be narrowed"<< endl;
 			exit(1);
 		}
 
 		DDSTYPE item;
-		DDS::InstanceHandle_t handle = item_dw->_cxx_register (item);
+		InstanceHandle_t handle = _specificWriter->_cxx_register (item);
 
 		ACE_DEBUG((LM_DEBUG,
 						ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
@@ -119,7 +124,7 @@ DDSWriter<TEMPSIG2>::svc() {
 			waitForItem();
 			while(publish(handle)) {};
 		}
-	} catch (CORBA::Exception& e) {
+	} catch (Exception& e) {
 		cerr << "Exception caught in svc:" << endl
 		<< e << endl;
 	}
@@ -207,7 +212,7 @@ DDSWriter<TEMPSIG2>::waitForItem() {
 template<TEMPSIG1>
 bool
 DDSWriter<TEMPSIG2>::publish(
-		DDS::InstanceHandle_t handle) {
+		InstanceHandle_t handle) {
 
 	guard_t guard(_mutex);
 
@@ -220,11 +225,11 @@ DDSWriter<TEMPSIG2>::publish(
 
 	DDS::ReturnCode_t ret;
 
-	ret = item_dw->write(*pItem, handle);
+	ret = _specificWriter->write(*pItem, handle);
 
 	if (ret != DDS::RETCODE_OK) {
 		ACE_ERROR ((LM_ERROR,
-						ACE_TEXT("(%P|%t)ERROR  EldoraWriter::svc, ")
+						ACE_TEXT("(%P|%t)ERROR  EldoraWriter::publish, ")
 						ACE_TEXT ("write() returned %d.\n"),
 						ret));
 		if (ret == DDS::RETCODE_TIMEOUT) {
@@ -232,12 +237,13 @@ DDSWriter<TEMPSIG2>::publish(
 		}
 	}
 
+	// put the item back on the avalable queue
 	_outQueue.push_back(pItem);
-
-	//std::cout << "pulse returned to outQueue\n";
 
 	return (_inQueue.size() != 0);
 }
 
+/// @todo These instantiations really belong somewhere else
+using namespace EldoraDDS;
 template class DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
 template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;
