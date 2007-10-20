@@ -7,7 +7,7 @@ CONF=~/eldora/conf
 REPOFILE=~/eldoraRepo.ior
 
 # The publisher invocation
-publish="./publisher --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 10000 --topic testtopic"
+publish="./publisher --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 5000 --topic testtopic"
 
 # The subscriber invocation
 subscribe="./subscriber --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --topic testtopic"
