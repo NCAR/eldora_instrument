@@ -36,11 +36,11 @@ public:
 	int itemsAvailable();
 	
 	/// Get the next full item from the _outQueue. 
-	DDSTYPE* getFullItem();
+	DDSTYPE* getNextItem();
 	
 	/// Return an item to be placed back on the _inQueue.
 	/// @param pItem The item to be returned.
-	void returnEmptyItem(DDSTYPE* pItem);
+	void returnItem(DDSTYPE* pItem);
 
 	virtual void on_requested_deadline_missed(DDS::DataReader_ptr reader,
 			const DDS::RequestedDeadlineMissedStatus & status)
@@ -72,6 +72,10 @@ public:
 	/// last call to numSamples()
 	unsigned int numSamples();
 
+	/// @return The total number of samples dropped since the
+	/// last call to droppedSamples()
+	unsigned int droppedSamples();
+
 private:
 
 	DDS::DataReader_var _genericReader;
@@ -89,6 +93,9 @@ private:
 	
 	/// Count of samples received. Zeroed after each call to numSamples();
 	unsigned int _numSamples;
+	
+	/// number of dropped items. Zeroed when numDropped is called
+	unsigned int _droppedSamples;;
 };
 
 #endif /* DATAREADER_LISTENER_IMPL  */

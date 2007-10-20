@@ -8,7 +8,10 @@ using namespace CORBA;
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber, std::string topicName) {
+template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber, std::string topicName):
+_numSamples(0),
+_droppedSamples(0)
+{
 
 	// reserve the space in the queues
 	for (int i = 0; i < 100; i++) {
@@ -100,12 +103,10 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 			exit(1);
 		}
 
-		_numSamples++;
-
 		DDS::SampleInfo si;
 		DDS::ReturnCode_t status;
 
-		if (_outQueue.size()) {
+		if (_inQueue.size()) {
 			// we have an available item. read it and place
 			// on the queue
 			DDSTYPE* pItem = _inQueue[0];
@@ -117,6 +118,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 			///@todo There must be a call which throws a sample away.
 			DDSTYPE item;
 			status = _specificReader->take_next_sample(item, si);
+			_droppedSamples++;
 		}
 		// Alternate code to read directlty via the servant
 		//EldoraReaderImpl* dr_servant =
@@ -150,10 +152,16 @@ template<TEMPSIG1> int DDSReader<TEMPSIG2>::itemsAvailable()
 ////////////////////////////////////////////////////////////
 
 /// Get the next full item from the _outQueue. 
-template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getFullItem() {
+template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getNextItem() {
 	guard_t guard(_queueMutex);
-	DDSTYPE* pItem = _outQueue[0];
+	DDSTYPE* pItem;
+	if (_outQueue.size()) {
+		pItem = _outQueue[0];
 	_outQueue.erase(_outQueue.begin());
+	} else { 
+		pItem = 0;
+	}
+	
 	return pItem;
 }
 
@@ -161,9 +169,11 @@ template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getFullItem() {
 
 /// Return an item to be placed back on the _inQueue.
 /// @param pItem The item to be returned.
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnEmptyItem(DDSTYPE* pItem) {
+template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnItem(DDSTYPE* pItem) {
 	guard_t guard(_queueMutex);
-	_inQueue.push_back(pItem);
+	
+	if (pItem)
+		_inQueue.push_back(pItem);
 }
 
 ////////////////////////////////////////////////////////////
@@ -214,9 +224,19 @@ throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_sample_lost" << endl;
 }
 
+////////////////////////////////////////////////////////////
+
 template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::numSamples() {
 	unsigned int n = _numSamples;
 	_numSamples = 0;
+	return n;
+}
+
+////////////////////////////////////////////////////////////
+
+template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::droppedSamples() {
+	unsigned int n = _droppedSamples;
+	_droppedSamples = 0;
 	return n;
 }
 
