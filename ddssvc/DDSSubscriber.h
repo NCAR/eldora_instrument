@@ -36,10 +36,11 @@ public:
 	int status();
 
 	/// @return The participant. It is required for
-	/// creation of topics
+	/// type registration and creation of topics
 	DDS::DomainParticipant_var& getParticipant();
 
-	/// @return The subscriber.
+	/// @return The subscriber. It is required because the
+	/// subscriber creates readers.
 	DDS::Subscriber_var& getSubscriber();
 
 protected:

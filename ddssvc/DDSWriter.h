@@ -63,7 +63,7 @@ public:
 	/// be consumed for publishing. Ownership
 	/// of pItem is transferred to DDSWriter.
 	void publishItem(DDSTYPE* pItem);
-	// 2return The number of empty items available
+	// @return The number of empty items available
 	/// on the _outQueue.
 	int itemsAvailable();
 	/// Get the next empty item from the _outQueue. If the

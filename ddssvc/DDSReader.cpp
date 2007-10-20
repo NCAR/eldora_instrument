@@ -90,6 +90,9 @@ template<TEMPSIG1> DDSReader<TEMPSIG2>::~DDSReader() {
 
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		DDS::DataReader_ptr reader) throw (CORBA::SystemException) {
+
+	guard_t guard(_queueMutex);
+
 	try {
 		_specificReader = DDSDATAREADER::_narrow(reader);
 		if (CORBA::is_nil (_specificReader.in ())) {
@@ -98,12 +101,23 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		}
 
 		_numSamples++;
-		
+
 		DDS::SampleInfo si;
 		DDS::ReturnCode_t status;
-		DDSTYPE item;
-		status = _specificReader->take_next_sample(item, si);
 
+		if (_outQueue.size()) {
+			// we have an available item. read it and place
+			// on the queue
+			DDSTYPE* pItem = _inQueue[0];
+			_inQueue.erase(_inQueue.begin());
+			status = _specificReader->take_next_sample(*pItem, si);
+			_outQueue.push_back(pItem);
+		} else {
+			// no available items, so just read it
+			///@todo There must be a call which throws a sample away.
+			DDSTYPE item;
+			status = _specificReader->take_next_sample(item, si);
+		}
 		// Alternate code to read directlty via the servant
 		//EldoraReaderImpl* dr_servant =
 		//  reference_to_servant<EldoraReaderImpl>(pulse_dr.in());
@@ -123,6 +137,33 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		cerr << "Exception caught in read:" << endl << e << endl;
 		exit(1);
 	}
+}
+
+////////////////////////////////////////////////////////////
+
+template<TEMPSIG1> int DDSReader<TEMPSIG2>::itemsAvailable()
+{
+	guard_t guard(_queueMutex);
+	return _outQueue.size();
+}
+
+////////////////////////////////////////////////////////////
+
+/// Get the next full item from the _outQueue. 
+template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getFullItem() {
+	guard_t guard(_queueMutex);
+	DDSTYPE* pItem = _outQueue[0];
+	_outQueue.erase(_outQueue.begin());
+	return pItem;
+}
+
+////////////////////////////////////////////////////////////
+
+/// Return an item to be placed back on the _inQueue.
+/// @param pItem The item to be returned.
+template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnEmptyItem(DDSTYPE* pItem) {
+	guard_t guard(_queueMutex);
+	_inQueue.push_back(pItem);
 }
 
 ////////////////////////////////////////////////////////////

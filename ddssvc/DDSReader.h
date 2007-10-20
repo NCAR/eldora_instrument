@@ -4,6 +4,9 @@
 #include <dds/DdsDcpsSubscriptionS.h>
 #include <ace/Task.h>
 #include <ace/Synch.h>
+typedef ACE_Thread_Mutex mutex_t;
+typedef ACE_Condition_Thread_Mutex condition_t;
+typedef ACE_Guard<mutex_t> guard_t;
 
 #include "DDSSubscriber.h"
 
@@ -27,6 +30,17 @@ public:
 
 	//Destructor
 	virtual ~DDSReader(void);
+
+	// @return The number of full items available
+	/// on the _outQueue.
+	int itemsAvailable();
+	
+	/// Get the next full item from the _outQueue. 
+	DDSTYPE* getFullItem();
+	
+	/// Return an item to be placed back on the _inQueue.
+	/// @param pItem The item to be returned.
+	void returnEmptyItem(DDSTYPE* pItem);
 
 	virtual void on_requested_deadline_missed(DDS::DataReader_ptr reader,
 			const DDS::RequestedDeadlineMissedStatus & status)
@@ -69,6 +83,9 @@ private:
 
 	/// A queue of empty items, available to receive new data.
 	std::vector<DDSTYPE*> _outQueue;
+	
+	/// A mutex that protects acces to the queues
+	mutex_t _queueMutex;
 	
 	/// Count of samples received. Zeroed after each call to numSamples();
 	unsigned int _numSamples;
