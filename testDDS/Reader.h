@@ -1,13 +1,19 @@
-#ifndef TESTREADER_H_
-#define TESTREADER_H_
+#ifndef READER_H_
+#define READER_H_
 
 #include "DDSReader.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
 using namespace EldoraDDS;
 
+/// A templatized class derived from DDSreader based
+/// classes such as PulseReader and TSReader. This
+/// class simply collects and reports statistics 
+/// about the received sample stream from the given
+/// topic.
+template <class T>
 class TestReader :
-	public DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var> {
+	public T {
 public:
 	TestReader(DDSSubscriber& subscriber, std::string topicName);
 	virtual ~TestReader();
@@ -24,4 +30,4 @@ protected:
 	unsigned long _numBytes;
 
 };
-#endif /*TESTREADER_H_*/
+#endif /*READER_H_*/

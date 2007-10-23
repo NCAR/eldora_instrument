@@ -7,38 +7,38 @@ CONF=~/eldora/conf
 REPOFILE=~/eldoraRepo.ior
 
 # The publisher invocation
-publish="./publisher --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 5000 --topic testtopic"
+producer="./producer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 5000 --topic EldoraPulses"
 
-# The subscriber invocation
-subscribe="./subscriber --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --topic testtopic"
+# The consumer invocation
+consume="./consumer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
 
 # kill existing jobs
-pkill publisher
-pkill subscriber
+pkill producer
+pkill consumer
 pkill DCPSInfoRepo
 
 # Remove existing IOR
 rm -f $REPOFILE
 
 # trap the signals on this script, and kill the jobs
-trap "echo \"killing jobs\"; pkill subscriber; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
+trap "echo \"killing jobs\"; pkill consumer; pkill producer; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
 $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $REPOFILE &
 sleep 2
 
-echo "Starting publisher"
-$publish &
+echo "Starting producer"
+$producer &
 sleep 2
 
-echo "Starting subscriber 1"
-$subscribe &
+echo "Starting consumer 1"
+$consume &
 
-echo "Starting subscriber 2"
-$subscribe &
+echo "Starting consumer 2"
+$consume &
 
-echo "Starting subscriber 3"
-$subscribe
+echo "Starting consumer 3"
+$consume
 
 
 

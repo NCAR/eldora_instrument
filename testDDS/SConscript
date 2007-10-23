@@ -42,15 +42,15 @@ $DDS_ROOT/lib
 
 # Build publisher
 pubsources = Split("""
-testPublisher.cpp
+producer.cpp
 """)
-publisher = env.Program('publisher', pubsources, 
+producer = env.Program('producer', pubsources, 
    LIBS=libs, LIBPATH=libpaths )
 
 # Build subscriber
 subsources = Split("""
-testSubscriber.cpp
-TestReader.cpp
+consumer.cpp
+Reader.cpp
 """)
-subscriber = env.Program('subscriber', subsources, 
+consumer = env.Program('consumer', subsources, 
    LIBS=libs, LIBPATH=libpaths)
