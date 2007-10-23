@@ -40,17 +40,10 @@ $TAO_ROOT/lib
 $DDS_ROOT/lib
 """)
 
-# Build publisher
-pubsources = Split("""
-producer.cpp
-""")
-producer = env.Program('producer', pubsources, 
+# Build the producer
+producer = env.Program('producer', 'producer.cpp', 
    LIBS=libs, LIBPATH=libpaths )
 
-# Build subscriber
-subsources = Split("""
-consumer.cpp
-Reader.cpp
-""")
-consumer = env.Program('consumer', subsources, 
+# Build the consumer
+consumer = env.Program('consumer', ['consumer.cpp', 'Reader.cpp'], 
    LIBS=libs, LIBPATH=libpaths)
