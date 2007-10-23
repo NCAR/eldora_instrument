@@ -19,8 +19,10 @@
 /// DDSSubscriber creates the domain participant, the subscriber,
 /// and the transport.
 /// @todo Encapsulate functions which require access to 
-/// the participant and the subscriber. These really should not
-/// be accessed outside of the class.
+/// the participant and the subscriber. Currently, references
+/// to the participant   and the subscriber are made available
+/// and are used by DDSReaader for some registration functions.
+/// These really should not be visible outside of the class.
 class DDSSubscriber {
 
 public:

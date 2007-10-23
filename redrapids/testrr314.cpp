@@ -136,12 +136,12 @@ void * dataTask(void* threadArg) {
 
 	// loop while waiting for new buffers
 	while (1) {
+		// next buffer will block until a new buffer is ready.
 		RRbuffer* pBuf = pRR314->nextBuffer();
 		// get the details of this buffer
 		int channel = pBuf->channel;
-		std::ofstream* pStream = pParams->ofstreams[channel];
-		std::vector<int>& buf = pBuf->_data;
 
+		// Are we publishing?
 		if (publish) {
 			// send the buffer to the appropriate writer
 			if (channel %4) {
@@ -179,23 +179,28 @@ void * dataTask(void* threadArg) {
 			}
 		}
 
-		// process buffer
-		for (int i = 0; i < pBuf->nSamples; i++) {
-			if ((channel %4)) {
-				// ABP channel
-				if (capture) {
+		// Are we capturing?
+		if (capture) {
+			// get the file  that this channel is saved to.
+			std::ofstream* pStream = pParams->ofstreams[channel];
+			// and the pointer to the data. Note that each beam
+			// and each gate collection is preceeded by 4 bytes
+			// containing identifing information.
+			std::vector<int>& buf = pBuf->_data;
+			
+			// save all of the samples
+			for (int i = 0; i < pBuf->nSamples; i++) {
+				if ((channel %4)) {
+					// ABP channel
 					if ( (pParams->sampleCounts[channel] % (gates+2)) == 0) {
-						// add a beam indicator for ABP channels
+						// add a beam counter for ABP channels
 						*pStream << "beam " << (pParams->sampleCounts[channel]
-								/(gates+2)) << std::endl;
+								/(gates +2)) << std::endl;
 					}
 					// write the data to the channel file
 					*pStream << buf[i] << std::endl;
-				}
-
-			} else {
-				// IQ channel
-				if (capture) {
+				} else {
+					// IQ channel
 					// break into I and Q
 					int iq = buf[i];
 					short I = (buf[i] & 0xffff0000) >> 16;
@@ -203,12 +208,11 @@ void * dataTask(void* threadArg) {
 					// write the data to the channel file
 					*pStream << I << " " << Q << std::endl;
 				}
-
 			}
-
-			// bump the sample count
-			pParams->sampleCounts[channel]++;
 		}
+
+		// bump the sample count
+		pParams->sampleCounts[channel]++;
 
 		pRR314->returnBuffer(pBuf);
 	}
@@ -256,11 +260,16 @@ int main(int argc, char** argv) {
 		// start the processing
 		rr314.start();
 
-		// peridically display the card activity.
+		// periodically display the card activity.
 		while(1) {
+			// get the current byte count for each channel
+			// from rr314. This call causes the byte counters
+			// in r314 to be reset to zero.
 			std::vector<unsigned long> bytes = rr314.bytes();
 
 			std::cout << std::setw(4);
+			// Print the number of free buffers in the rr314 buffer
+			// pool. If 0, rr314 is being overrun
 			std::cout << rr314.numFreeBuffers() << " ";
 			unsigned long sum = 0;
 			for (int c = 0; c < bytes.size(); c++) {

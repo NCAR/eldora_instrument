@@ -50,6 +50,7 @@ publisher = env.Program('publisher', pubsources,
 # Build subscriber
 subsources = Split("""
 testSubscriber.cpp
+TestReader.cpp
 """)
 subscriber = env.Program('subscriber', subsources, 
    LIBS=libs, LIBPATH=libpaths)

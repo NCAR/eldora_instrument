@@ -8,7 +8,8 @@ using namespace CORBA;
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber, std::string topicName):
+template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber,
+		std::string topicName):
 _numSamples(0),
 _droppedSamples(0)
 {
@@ -16,7 +17,7 @@ _droppedSamples(0)
 	// reserve the space in the queues
 	for (int i = 0; i < 100; i++) {
 		DDSTYPE* pItem = new DDSTYPE;
-		_outQueue.push_back(pItem);
+		_inQueue.push_back(pItem);
 	}
 
 	Subscriber_var& subscriber = ddsSubscriber.getSubscriber();
@@ -94,25 +95,36 @@ template<TEMPSIG1> DDSReader<TEMPSIG2>::~DDSReader() {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		DDS::DataReader_ptr reader) throw (CORBA::SystemException) {
 
-	guard_t guard(_queueMutex);
-
+	// this will be set true if we need to send a notify
+	// after the mutex has been released.
+	bool sendNotify = false;
 	try {
+
+		/// @todo Is it really necessary to narrow the reader on every entry
+		/// to on_data_available? Could this be done once during the setup?
 		_specificReader = DDSDATAREADER::_narrow(reader);
 		if (CORBA::is_nil (_specificReader.in ())) {
 			cerr << "read: _narrow failed in on_data_avaiable()" << endl;
 			exit(1);
 		}
 
+		// place the mutex capture inside of the try block so that the mutex 
+		// is released before we send the a notify() which could lead to
+		// the client trying to access the queus.
+		guard_t guard(_queueMutex);
+
 		DDS::SampleInfo si;
 		DDS::ReturnCode_t status;
 
 		if (_inQueue.size()) {
+			/// @todo we should read all available items
 			// we have an available item. read it and place
 			// on the queue
 			DDSTYPE* pItem = _inQueue[0];
 			_inQueue.erase(_inQueue.begin());
 			status = _specificReader->take_next_sample(*pItem, si);
 			_outQueue.push_back(pItem);
+			sendNotify = true;
 		} else {
 			// no available items, so just read it
 			///@todo There must be a call which throws a sample away.
@@ -139,6 +151,10 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		cerr << "Exception caught in read:" << endl << e << endl;
 		exit(1);
 	}
+
+	if (sendNotify) {
+		notify();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -157,11 +173,11 @@ template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getNextItem() {
 	DDSTYPE* pItem;
 	if (_outQueue.size()) {
 		pItem = _outQueue[0];
-	_outQueue.erase(_outQueue.begin());
-	} else { 
+		_outQueue.erase(_outQueue.begin());
+	} else {
 		pItem = 0;
 	}
-	
+
 	return pItem;
 }
 
@@ -171,9 +187,9 @@ template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getNextItem() {
 /// @param pItem The item to be returned.
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnItem(DDSTYPE* pItem) {
 	guard_t guard(_queueMutex);
-	
+
 	if (pItem)
-		_inQueue.push_back(pItem);
+	_inQueue.push_back(pItem);
 }
 
 ////////////////////////////////////////////////////////////
@@ -238,6 +254,12 @@ template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::droppedSamples() {
 	unsigned int n = _droppedSamples;
 	_droppedSamples = 0;
 	return n;
+}
+
+////////////////////////////////////////////////////////////
+
+template<TEMPSIG1> void DDSReader<TEMPSIG2>::notify() {
+	return;
 }
 
 /// @todo These instantiations really belong somewhere else

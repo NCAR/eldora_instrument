@@ -1,36 +1,12 @@
 #include <iostream>
 #include <iomanip>
-#include "DDSReader.h"
 #include <boost/program_options.hpp>
-#include "ArgvParams.h"
 
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
-using namespace EldoraDDS;
+#include "ArgvParams.h"
+#include "DDSReader.h"
+#include "TestReader.h"
 
 namespace po = boost::program_options;
-///////////////////////////////////////////////////////////////////////////////
-///
-/// A thread which just loops, polling the subscriber and 
-/// removing avaiable samples.
-unsigned int readSamples = 0;
-void * dataTask(void* threadArg) {
-	DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var>
-			* reader =
-					(DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var>*) threadArg;
-
-	ACE_Time_Value small(0, 100000);
-	while (1) {
-		while (reader->itemsAvailable()) {
-			Pulse* pItem = reader->getNextItem();
-			if (pItem) {
-				reader->returnItem(pItem);
-				readSamples++;
-			}
-		}
-		ACE_OS::sleep(small);
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -80,21 +56,16 @@ int main(int argc, char* argv[]) {
 		return subStatus;
 
 	// create the reader
-	DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var>
-			reader(subscriber, topicName);
-
-	// create the data reading thread
-	pthread_t dataThread;
-	pthread_create(&dataThread, NULL, dataTask, (void*) &reader);
+	TestReader reader(subscriber, topicName);
 
 	// loop, and print status every 10 seconds
 	int i = 0;
 	ACE_Time_Value startTime = ACE_OS::gettimeofday();
 	while (1) {
+		// sleep for ten
 		ACE_OS::sleep(10);
-
+		// figure the elapsed time
 		ACE_Time_Value stopTime = ACE_OS::gettimeofday();
-
 		ACE_Time_Value deltaTime = stopTime - startTime;
 
 		std::cout << setiosflags(std::ios_base::fixed);
@@ -102,10 +73,10 @@ int main(int argc, char* argv[]) {
 		std::cout << std::setw(5);
 
 		std::cout << i++ << "  " << deltaTime.sec() + (deltaTime.usec()/1.0e6)
-				<< "   DDSreader samples:" << reader.numSamples() << "   Our samples:" << readSamples 
-				<< "   DDSReader dropped samples:"
-				<< reader.droppedSamples() << "\n";
-		readSamples = 0;
+				<< "  Samples:" << reader.numSamples()
+				<< "  Dropped samples:" << reader.droppedSamples()
+				<< "  Throughput:" << (reader.numBytes()/(deltaTime.sec()
+				+ deltaTime.usec()/1.0e6))/1.0e6 << " MB/s\n";
 
 		startTime = stopTime;
 	}

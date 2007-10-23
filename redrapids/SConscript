@@ -65,9 +65,5 @@ $TAO_ROOT/lib
 $DDS_ROOT/lib
 """)
 
-testsources = Split("""
-test.cpp
-""")
-
 # build test
-testrr314 = env.Program('testrr314', testsources, LIBS=libs, LIBPATH=libpaths)
+testrr314 = env.Program('testrr314', 'testrr314.cpp', LIBS=libs, LIBPATH=libpaths)

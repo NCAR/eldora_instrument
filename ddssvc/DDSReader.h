@@ -15,7 +15,25 @@ typedef ACE_Guard<mutex_t> guard_t;
 /// Template signatures for class instantiations.
 #define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAREADER, DDSDATAREADER_VAR
 
-/// A generic reader class.  However, it is really derived from a DataReaderListener.
+/// A generic data reader class which is templated on the DDS data type. Instantiate
+/// this class with the desired data type to create a reader for a particular
+/// topic. It requires and works with an existing DDSSubscriber. 
+///
+/// Newly arrived data are placed on a queue. They are removed from the
+/// queue with getNextItem(). The item must be returned when no longer 
+/// needed with returnItem().
+///
+/// New data can be detected either by polling or by a notification scheme.
+/// For polling, use itemsAvailable() to ask how many items are available, 
+/// or just verify that getNextItem() returns a non-null. To use the notification
+/// scheme, derive from this class and subclass the notify() method. It
+/// will be called whenever new data arrives and is placed on the queue,
+/// which can tehn be retrieved with getNextItem().
+/// 
+/// This class is actually derived from a DDS::DataReaderListener, so that it
+/// can receive the asynchronous notifications via the on_data_available()
+/// function. The class creates and contains a DDS:DataReader for accessing
+/// the delivered data.
 template<TEMPSIG1>
 class DDSReader: public virtual OpenDDS::DCPS::LocalObject<DDS::DataReaderListener> 
 {
@@ -35,12 +53,19 @@ public:
 	/// on the _outQueue.
 	int itemsAvailable();
 	
-	/// Get the next full item from the _outQueue. 
+	/// Get the next full item from the _outQueue. If
+	/// nothing is avaiable, a null is returned.
 	DDSTYPE* getNextItem();
 	
 	/// Return an item to be placed back on the _inQueue.
 	/// @param pItem The item to be returned.
 	void returnItem(DDSTYPE* pItem);
+	
+	/// This function will be called after each on_data_available()
+	/// notification, when samples have been added to the queue.
+	/// Subclass DDSReader and implement notify() in order to
+	/// respond to new data. Call getNextItem() to fetch new data.
+	virtual void notify();
 
 	virtual void on_requested_deadline_missed(DDS::DataReader_ptr reader,
 			const DDS::RequestedDeadlineMissedStatus & status)
@@ -95,7 +120,8 @@ private:
 	unsigned int _numSamples;
 	
 	/// number of dropped items. Zeroed when numDropped is called
-	unsigned int _droppedSamples;;
+	unsigned int _droppedSamples;
+	
 };
 
 #endif /* DATAREADER_LISTENER_IMPL  */
