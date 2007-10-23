@@ -100,4 +100,15 @@ private:
 
 };
 
+// create typedefs for our common types. 
+/// @todo These typedefs really belong somewhere else.
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
+
+using namespace EldoraDDS;
+typedef DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var> PulseWriter;
+typedef DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var> TSWriter;
+
 #endif
