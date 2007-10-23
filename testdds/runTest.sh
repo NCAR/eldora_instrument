@@ -7,7 +7,7 @@ CONF=~/eldora/conf
 REPOFILE=~/eldoraRepo.ior
 
 # The publisher invocation
-producer="./producer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 5000 --topic EldoraPulses"
+producer="./producer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 15000 --pulse EldoraPulses --ts EldoraTS"
 
 # The consumer invocation
 consume="./consumer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
@@ -31,10 +31,10 @@ echo "Starting producer"
 $producer &
 sleep 2
 
-echo "Starting consumer 1"
+#echo "Starting consumer 1"
 $consume &
 
-echo "Starting consumer 2"
+#echo "Starting consumer 2"
 $consume &
 
 echo "Starting consumer 3"
