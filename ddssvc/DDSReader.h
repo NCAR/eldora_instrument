@@ -10,6 +10,7 @@ typedef ACE_Guard<mutex_t> guard_t;
 
 #include "DDSSubscriber.h"
 
+
 /// Template signature for class definitions.
 #define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAREADER, class DDSDATAREADER_VAR
 /// Template signatures for class instantiations.
@@ -123,5 +124,14 @@ private:
 	unsigned int _droppedSamples;
 	
 };
+
+#include "PulseTypeSupportC.h"
+#include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
+
+using namespace EldoraDDS;
+typedef DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var> PulseReader;
+typedef DDSReader<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataReader, TimeSeriesDataReader_var> TSReader;
 
 #endif /* DATAREADER_LISTENER_IMPL  */
