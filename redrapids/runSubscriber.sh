@@ -24,7 +24,7 @@ $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $
 sleep 2
 
 echo "Starting consumer 1"
-$consume --topic EldoraPulses &
+$consume &
 
 echo "Starting consumer 2"
-$consume --topic EldoraTimeSeries
+$consume
