@@ -124,12 +124,10 @@ void * dataTask(void* threadArg) {
 		publisher = new DDSPublisher(argv.argc(), argv.argv());
 
 		// create the pulse writer
-		pulseWriter
-				= new DDSWriter<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataWriter, PulseDataWriter_var>(*publisher, "EldoraPulses");
+		pulseWriter = new PulseWriter(*publisher, "EldoraPulses");
 
 		// create the time series writer
-		tsWriter
-				= new DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>(*publisher, "EldoraTimeSeries");
+		tsWriter = new TSWriter(*publisher, "EldoraTS");
 	}
 
 	int buffers = 0;

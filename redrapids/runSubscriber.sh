@@ -6,25 +6,25 @@ CONF=~/eldora/conf
 # where to save the IOR
 REPOFILE=~/eldoraRepo.ior
 
-# The subscriber invocation
-subscribe="/home/eldora/eldora/testDDS/subscriber --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini "
+# The consumer invocation
+consume="/home/eldora/eldora/testdds/consumer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
 
 # kill existing jobs
-pkill subscriber
+pkill consumer
 pkill DCPSInfoRepo
 
 # Remove existing IOR
 rm -f $REPOFILE
 
 # trap the signals on this script, and kill the jobs
-trap "echo \"killing jobs\"; pkill subscriber; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
+trap "echo \"killing jobs\"; pkill consumer; pkill publisher; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
 $DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $REPOFILE &
 sleep 2
 
-echo "Starting subscriber 1"
-$subscribe --topic EldoraPulses &
+echo "Starting consumer 1"
+$consume --topic EldoraPulses &
 
-echo "Starting subscriber 2"
-$subscribe --topic EldoraTimeSeries
+echo "Starting consumer 2"
+$consume --topic EldoraTimeSeries
