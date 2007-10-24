@@ -60,9 +60,12 @@ void RR314sim::start() {
 
 //////////////////////////////////////////////////////////////////////
 void RR314sim::simulate() {
-	// establish the ABP data size
-	_abp.resize(_gates+2);
-	// establish the IQ data size
+	// establish the ABP data size. Each apb is three signed ints,
+	// plus the two identifier words.
+	_abp.resize(3*_gates+2);
+	// establish the IQ data size. numiq sets the number of iq pairs.
+	// each iq is 2 bytes, but the interface to RR314 expects signed ints,
+	// so resize it for the _numiq plus the 2 identifier words.
 	_iq.resize(_numiq+2);
 	for (int k = 2; k < _iq.size(); k++) {
 		// create Is and Qs

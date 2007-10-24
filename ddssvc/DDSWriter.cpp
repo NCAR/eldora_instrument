@@ -36,6 +36,8 @@ _condition(_mutex), finished_instances_(0), timeout_writes_(0)
 		// get the default quality of service
 		TopicQos topic_qos;
 		participant->get_default_topic_qos(topic_qos);
+		// specify reliable reliability. What a concept.
+		topic_qos.reliability.kind = DDS::RELIABLE_RELIABILITY_QOS;
 		
 		// create our topic, using our type name and the default qos. 
 		// We will not be using a listener.

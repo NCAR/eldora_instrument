@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
 		std::cout << setiosflags(std::ios_base::fixed);
 		std::cout << std::setprecision(2);
-		std::cout << std::setw(5);
+		std::cout << std::setw(6);
 
 		std::cout << "TimeSeries " << i << "  " << deltaTime.sec()
 				+ (deltaTime.usec()/1.0e6) << "  Samples:"

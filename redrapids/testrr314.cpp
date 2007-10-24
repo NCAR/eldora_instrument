@@ -150,6 +150,8 @@ void * dataTask(void* threadArg) {
         RRbuffer* pBuf = pRR314->nextBuffer();
         // get the details of this buffer
         int channel = pBuf->channel;
+        // bump the sample count
+        pParams->sampleCounts[channel]++;
 
         // Are we publishing?
         if (publish) {
@@ -159,7 +161,9 @@ void * dataTask(void* threadArg) {
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
                     // set the size
-                    pPulse->abp.length(gates*3);
+                    pPulse->abp.length(pBuf->nSamples);
+                    for (int p = 0; p < pBuf->nSamples; p++)
+                    	pPulse->abp[p] = pBuf->_data[p];
                     // set the timestamp
                     pPulse->timestamp = buffers++;
                     // alternate the radar id between forward and aft
@@ -175,7 +179,12 @@ void * dataTask(void* threadArg) {
                 EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
                 if (pTS) {
                     // set the size
-                    pTS->tsdata.length(numiq*2);
+                    pTS->tsdata.length(2*pBuf->nSamples);
+                    for (int t = 0; t < pBuf->nSamples; t = t + 2) {
+                    	// unpack the 16 bit i and q into the TimeSeries::tsdata
+                    	pTS->tsdata[t] = (pBuf->_data[t] >> 16) & 0xffff;
+                    	pTS->tsdata[t] = (pBuf->_data[t]      ) & 0xffff;
+                    }
                     // set the timestamp
                     pTS->timestamp = buffers++;
                     // alternate the radar id between forward and aft
@@ -221,8 +230,6 @@ void * dataTask(void* threadArg) {
             }
         }
 
-        // bump the sample count
-        pParams->sampleCounts[channel]++;
 
         pRR314->returnBuffer(pBuf);
     }
@@ -279,7 +286,8 @@ int main(int argc, char** argv) {
             // in r314 to be reset to zero.
             std::vector<unsigned long> bytes = rr314.bytes();
 
-            std::cout << std::setw(4);
+            std::cout << std::setw(8);
+    		std::cout << std::setprecision(2);
             // Print the number of free buffers in the rr314 buffer
             // pool. If 0, rr314 is being overrun
             std::cout << rr314.numFreeBuffers() << " ";
@@ -290,8 +298,18 @@ int main(int argc, char** argv) {
                 std::cout << bytes[c] << " ";
                 sum += bytes[c];
             }
-            std::cout << sum;
+            std::cout << sum << " ";
+            std::cout << sum/10.0e6 << "MB/s";
             std::cout << "\n";
+            
+            std::cout << "samples ";
+            for (int i = 0; i < 16; i++) {
+            	std::cout << std::setw(8) 
+            	<< params.sampleCounts[i];
+            	params.sampleCounts[i] = 0;
+            }
+            std::cout << "\n";
+            
 
             sleep(10);
         }
