@@ -208,7 +208,7 @@ namespace RedRapids {
     std::vector<unsigned long>  _bytes;
 
     /// The last DMA group transferred.
-    int _lastGroup[16];
+    int _lastGroup[8];
 
     /// The channel adapter, used in RR interfaces.
     s_ChannelAdapter _chanAdapter;

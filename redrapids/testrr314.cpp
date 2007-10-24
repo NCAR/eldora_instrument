@@ -34,8 +34,8 @@ struct runParams {
         std::string kaiser;
         std::string gaussian;
         RR314* pRR314;
-        std::ofstream* ofstreams[16];
-        unsigned long sampleCounts[16];
+        std::ofstream* ofstreams[8];
+        unsigned long sampleCounts[8];
         bool publish;
         bool capture;
 };
@@ -91,7 +91,7 @@ struct runParams parseOptions(int argc, char** argv) {
 //////////////////////////////////////////////////////////////////////
 //
 void createFiles(runParams& params) {
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 8; i++) {
         std::stringstream s;
         s << "data";
         s.width(2);
@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
         createFiles(params);
     }
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 8; i++) {
         params.sampleCounts[i] = 0;
     }
     // create an RR314 card
@@ -303,7 +303,7 @@ int main(int argc, char** argv) {
             std::cout << "\n";
             
             std::cout << "samples ";
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 8; i++) {
             	std::cout << std::setw(8) 
             	<< params.sampleCounts[i];
             	params.sampleCounts[i] = 0;

@@ -57,8 +57,8 @@ RR314::RR314(int devNum,
   rr314Instances[&_chanAdapter] = this;
 
   // initialize the byte counters and last groups
-  _bytes.resize(16);
-  for (int c = 0; c < 16; c++) {
+  _bytes.resize(8);
+  for (int c = 0; c < 8; c++) {
     _bytes[c] = 0;
     lastGroup(c, -1);
   }
@@ -387,7 +387,7 @@ RR314::configure314() {
   // to the RR card for use by the DMA engine.
 		
   printf("Allocating DMA space...");
-  // Bitstream supports 16 DMA channels, indexed to 0
+  // Bitstream supports 8 DMA channels, indexed to 0
   _chanAdapter.DMA.DMAChannels = 15;				
 			
   unsigned int i;
@@ -693,7 +693,7 @@ std::vector<unsigned long>
 RR314::bytes() 
 {
   std::vector<unsigned long> result = _bytes;
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < 8; i++)
     _bytes[i] = 0;
 
   return result;

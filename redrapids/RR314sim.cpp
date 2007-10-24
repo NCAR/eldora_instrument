@@ -27,20 +27,12 @@ RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq, int nci) :
 	// will receive the IQ and ABP data
 	_iqChans.push_back(0);
 	_abpChans.push_back(1);
-	_abpChans.push_back(2);
+	_iqChans.push_back(2);
 	_abpChans.push_back(3);
 	_iqChans.push_back(4);
 	_abpChans.push_back(5);
-	_abpChans.push_back(6);
+	_iqChans.push_back(6);
 	_abpChans.push_back(7);
-	_iqChans.push_back(8);
-	_abpChans.push_back(9);
-	_abpChans.push_back(10);
-	_abpChans.push_back(11);
-	_iqChans.push_back(12);
-	_abpChans.push_back(13);
-	_abpChans.push_back(14);
-	_abpChans.push_back(15);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -62,12 +54,12 @@ void RR314sim::start() {
 void RR314sim::simulate() {
 	// establish the ABP data size. Each apb is three signed ints,
 	// plus the two identifier words.
-	_abp.resize(3*_gates+2);
+	_abp.resize(3*_gates+3);
 	// establish the IQ data size. numiq sets the number of iq pairs.
 	// each iq is 2 bytes, but the interface to RR314 expects signed ints,
 	// so resize it for the _numiq plus the 2 identifier words.
-	_iq.resize(_numiq+2);
-	for (int k = 2; k < _iq.size(); k++) {
+	_iq.resize(_numiq+3);
+	for (int k = 3; k < _iq.size(); k++) {
 		// create Is and Qs
 		short I = -1;
 		short Q = 1;
