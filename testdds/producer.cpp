@@ -59,73 +59,76 @@ int main(int argc, char* argv[])
         TSWriter tsWriter(publisher, tsTopic);
 
         // number of ts writes per pulse writes
-        int tsWrites = 100;
+        int tsWrites = 1;
         // pulse counter
         int numPulses = 0;
         // gates in each pulse
         int gates = 1000;
         // iq pairs in each timeseries
-        int numiq = 200;
+        int numiq = 1000;
         // a timestamp
         unsigned long timestamp;
 
         while ( !pulseWriter.is_finished())
           {
-            /////////// Pulses //////////////
-
+            for (int i = 0; i < 5; i++)
               {
-                while (!pulseWriter.itemsAvailable())
+                /////////// Pulses //////////////
+
                   {
-                    ACE_OS::sleep(small);
-                  }
-
-                EldoraDDS::Pulse* pPulse;
-                // get an available empty pulse from the publisher
-                pPulse = pulseWriter.getEmptyItem();
-                pPulse->abp.length(3*gates);
-
-                // bump the timestamp on alternating pulses
-                // so that forward and aft share a common timestamp
-                timestamp += (numPulses % 2);
-                numPulses++;
-
-                for (int n = 0; n < 3*gates; n += 3)
-                  {
-                    pPulse->abp[n ] = timestamp + n;
-                    pPulse->abp[n+1] = timestamp + n+1;
-                    pPulse->abp[n+2] = timestamp + n+2;
-                  }
-
-                // set the timestamp
-                pPulse->timestamp = timestamp;
-                // alternate the radar id between forward and aft
-                pPulse->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
-                // send the pulse to the PulseWriter
-                pulseWriter.publishItem(pPulse);
-              }
-
-            /////////// TimeSeries //////////////
-
-              {
-                for (int j = 0; j < tsWrites; j++)
-                  {
-                    while (!tsWriter.itemsAvailable())
+                    while (!pulseWriter.itemsAvailable())
                       {
                         ACE_OS::sleep(small);
                       }
-                    EldoraDDS::TimeSeries* pTS;
-                    // get an available empty pulse from the publisher
-                    pTS = tsWriter.getEmptyItem();
-                    pTS->tsdata.length(2*numiq);
 
-                    // don't set any data values right now
+                    EldoraDDS::Pulse* pPulse;
+                    // get an available empty pulse from the publisher
+                    pPulse = pulseWriter.getEmptyItem();
+                    pPulse->abp.length(3*gates);
+
+                    // bump the timestamp on alternating pulses
+                    // so that forward and aft share a common timestamp
+                    timestamp += (numPulses % 2);
+                    numPulses++;
+
+                    for (int n = 0; n < 3*gates; n += 3)
+                      {
+                        pPulse->abp[n ] = timestamp + n;
+                        pPulse->abp[n+1] = timestamp + n+1;
+                        pPulse->abp[n+2] = timestamp + n+2;
+                      }
 
                     // set the timestamp
-                    pTS->timestamp = timestamp;
+                    pPulse->timestamp = timestamp;
                     // alternate the radar id between forward and aft
-                    pTS->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
+                    pPulse->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
                     // send the pulse to the PulseWriter
-                    tsWriter.publishItem(pTS);
+                    pulseWriter.publishItem(pPulse);
+                  }
+
+                /////////// TimeSeries //////////////
+
+                  {
+                    for (int j = 0; j < tsWrites; j++)
+                      {
+                        while (!tsWriter.itemsAvailable())
+                          {
+                            ACE_OS::sleep(small);
+                          }
+                        EldoraDDS::TimeSeries* pTS;
+                        // get an available empty pulse from the publisher
+                        pTS = tsWriter.getEmptyItem();
+                        pTS->tsdata.length(2*numiq);
+
+                        // don't set any data values right now
+
+                        // set the timestamp
+                        pTS->timestamp = timestamp;
+                        // alternate the radar id between forward and aft
+                        pTS->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
+                        // send the pulse to the PulseWriter
+                        tsWriter.publishItem(pTS);
+                      }
                   }
               }
             ACE_OS::sleep(small);

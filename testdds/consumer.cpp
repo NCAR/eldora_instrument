@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 		std::cout << std::setprecision(2);
 		std::cout << std::setw(5);
 
-		std::cout << "TimeSeries " << i++ << "  " << deltaTime.sec()
+		std::cout << "TimeSeries " << i << "  " << deltaTime.sec()
 				+ (deltaTime.usec()/1.0e6) << "  Samples:"
 				<< tsReader.numSamples() << "  Dropped samples:"
 				<< tsReader.droppedSamples() << "  Throughput:"
