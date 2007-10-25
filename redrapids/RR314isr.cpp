@@ -64,7 +64,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   unsigned int Control;
   unsigned int DMAMask;
   unsigned int DMAStatus;
-
+   
   // find out the RR314 instances associated with this interrupt.
   RR314* pRR314 = RR314::rr314Instances[pCA];
 
@@ -77,7 +77,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
   // see if we have a DMA interrupt
   if (Status & DMA_GRP_DONE) {
     // yes, process groups for each DMA channel
-    for (int chan = 0; chan < 16; chan++) {
+    for (int chan = 0; chan < 8; chan++) {
       if ((1 << chan) & DMAStatus) {
 	processDMAGroups(pCA, chan, pRR314);
       } 

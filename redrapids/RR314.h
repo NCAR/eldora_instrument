@@ -27,9 +27,9 @@
 /// The number of groups in a DMA transfer.
 #define DMANUMGROUPS      8
 /// The size of each DMA block.
-#define DMABLOCKSIZEBYTES 4008
+#define DMABLOCKSIZEBYTES 1024
 /// The number of DMA blocks per DMA groups.
-#define DMABLOCKSPERGROUP 10
+#define DMABLOCKSPERGROUP 16
 /// The number of buffers preallocated in the buffer pool.
 #define BUFFERPOOLSIZE  1000
 
