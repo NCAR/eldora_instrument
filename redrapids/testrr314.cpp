@@ -60,7 +60,7 @@ struct runParams parseOptions(int argc, char** argv) {
             "start gate for iq capture") ("numiq",
             po::value<int>(&params.numiq)->default_value(11),
             "number of gates for iq capture") ("decimation",
-            po::value<int>(&params.decimation)->default_value(12),
+            po::value<int>(&params.decimation)->default_value(8),
             "decimation factor") ("xsvf",
             po::value<std::string>(&params.xsvf)->default_value(""),
             "path to xsvf file") ("kaiser",
@@ -156,7 +156,7 @@ void * dataTask(void* threadArg) {
         // Are we publishing?
         if (publish) {
             // send the buffer to the appropriate writer
-            if (channel %4) {
+            if (channel %2) {
                 // an abp channel
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
