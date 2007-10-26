@@ -92,9 +92,11 @@ def DdsLibrary(idlFile, env):
 	# Collect all of the cpp files, which will be compiled for the
 	# library
 	sources = target1[0] + target2[0] + target4
-	ddsLib = env.Library('EldoraDds', sources)
-	#
-	return ddsLib
+	# library name is the same as the IDL file base name, with the
+	# .idl extension removed
+	libName = os.path.splitext(os.path.basename(idlFile))[0]
+
+	return env.Library(libName, sources)
 
 # -------- DDS support functions -----------
 #
