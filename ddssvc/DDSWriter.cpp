@@ -6,10 +6,9 @@ using namespace CORBA;
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1>
-DDSWriter<TEMPSIG2>::DDSWriter(
-		DDSPublisher& ddsPublisher,
-		std::string topicName) :
-_condition(_mutex), finished_instances_(0), timeout_writes_(0) 
+DDSWriter<TEMPSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
+			       std::string topicName) :
+  finished_instances_(0), timeout_writes_(0), _condition(_mutex)
 {
 
 	// reserve the space in the queues
@@ -121,7 +120,6 @@ DDSWriter<TEMPSIG2>::svc() {
 
 		ACE_DEBUG((LM_DEBUG,
 						ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
-		int i = 0;
 
 		while(1) {
 			waitForItem();
@@ -252,5 +250,9 @@ DDSWriter<TEMPSIG2>::publish(
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
-template class DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var>;
-template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var>;
+template class DDSWriter<Pulse, PulseTypeSupportImpl, 
+			 PulseTypeSupport_var, PulseDataWriter, 
+			 PulseDataWriter_var>;
+template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, 
+			 TimeSeriesTypeSupport_var, TimeSeriesDataWriter, 
+			 TimeSeriesDataWriter_var>;
