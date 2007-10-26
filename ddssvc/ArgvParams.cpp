@@ -11,7 +11,7 @@ _argv0(appName)
 
 ArgvParams::~ArgvParams() {
 	// erase the current list
-	for (int i = 0; i < _argv.size(); i++) {
+	for (unsigned int i = 0; i < _argv.size(); i++) {
 		delete [] _argv[i];
 	}
 	_argv.clear();
@@ -40,7 +40,7 @@ char**
 ArgvParams::argv() {
 
 	// erase the current list
-	for (int i = 0; i < _argv.size(); i++) {
+	for (unsigned int i = 0; i < _argv.size(); i++) {
 		delete [] _argv[i];
 	}
 	_argv.clear();
@@ -49,7 +49,7 @@ ArgvParams::argv() {
 	
 	// put in argv0 so that it always appears at the front
 	_argv.push_back(new char[_argv0.size()+1]);
-	for (int i = 0; i < _argv0.size(); i++)
+	for (unsigned int i = 0; i < _argv0.size(); i++)
 		_argv[0][i] = _argv0[i];
 	_argv[0][_argv0.size()] = 0;
 	
@@ -59,14 +59,14 @@ ArgvParams::argv() {
 	for (it = this->begin(); it != this->end(); it++) {
 		// save the argument name
 		char* pC = new char[it->first.size()+1];
-		for (int i = 0; i < it->first.size(); i++)
+		for (unsigned int i = 0; i < it->first.size(); i++)
 			pC[i] = it->first[i];
 		pC[it->first.size()] = 0;
 		_argv.push_back(pC);
 		if (it->second.compare("")) {
 			// save the argument value, if specified
 			char* pC = new char[it->second.size()+1];
-			for (int i = 0; i < it->second.size(); i++)
+			for (unsigned int i = 0; i < it->second.size(); i++)
 			pC[i] = it->second[i];
 			pC[it->second.size()] = 0;
 			_argv.push_back(pC);
