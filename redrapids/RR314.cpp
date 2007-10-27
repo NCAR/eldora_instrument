@@ -53,9 +53,12 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 	// allocate the buffers
 	pthread_mutex_lock(&_bufferMutex);
 	for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-		RRbuffer* buf = new RRbuffer;
-		buf->_data.resize(DMABLOCKSIZEBYTES*DMABLOCKSPERGROUP/sizeof(int));
-		_freeBuffers.push_back(buf);
+		RRBeamBuffer* beamBuf = new RRBeamBuffer;
+		beamBuf->_data.resize(3*_gates);
+		_freeBeamBuffers.push_back(beamBuf);
+		RRIQBuffer* iqBuf = new RRIQBuffer;
+		iqBuf->_data.resize(2*_nGatesIQ);
+		_freeIQBuffers.push_back(iqBuf);
 	}
 	pthread_mutex_unlock(&_bufferMutex);
 
@@ -104,17 +107,14 @@ RR314::~RR314() {
 		delete _simulator;
 	}
 
-	for (unsigned int i = 0; i < _freeBuffers.size(); i++)
-		delete [] _freeBuffers[i];
-
 	for (unsigned int i = 0; i < _fullBuffers.size(); i++)
 		delete [] _fullBuffers[i];
 
-	for (unsigned int i = 0; i < _freeBuffers.size(); i++)
-		delete [] _freeBuffers[i];
+	for (unsigned int i = 0; i < _freeIQBuffers.size(); i++)
+		delete [] _freeIQBuffers[i];
 
-	for (unsigned int i = 0; i < _fullBuffers.size(); i++)
-		delete [] _fullBuffers[i];
+	for (unsigned int i = 0; i < _freeBeamBuffers.size(); i++)
+		delete [] _freeBeamBuffers[i];
 
 	std::cout << "RR314 deleted\n";
 }
@@ -424,24 +424,39 @@ void RR314::newData(unsigned int* src, int chan, int n) {
 
 	pthread_mutex_lock(&_bufferMutex);
 
-	if (_freeBuffers.size()) {
-		RRbuffer* pBuf = _freeBuffers[0];
-		_fullBuffers.push_back(pBuf);
-		_freeBuffers.pop_front();
-		/// @todo A smarter scheme needs to be formulated
-		/// for variable buffer sizes.
-		if (pBuf->_data.size() < n)
-			pBuf->_data.resize(n);
-		for (int i = 0; i < n; i++) {
-			pBuf->_data[i] = src[i];
+	if (chan % 1) {
+		// an ABP channel
+		if (_freeBeamBuffers.size()){
+			RRBeamBuffer* pBuf = _freeBeamBuffers[0];
+			_fullBuffers.push_back(pBuf);
+			_freeBeamBuffers.pop_front();
+			for (int i = 0; i < n; i++) {
+				pBuf->_data[i] = src[i];
+			}
+			pBuf->channel = chan;
+			addBytes(chan, n*sizeof(*src));
+			// signal that new data is available
+			pthread_cond_broadcast(&_dataAvailCond);			
+		} else {
+			///@todo Add error handling for Beam buffer starvation
 		}
-		pBuf->channel = chan;
-		pBuf->nSamples = n;
-		addBytes(chan, n*sizeof(*src));
-		// signal that new data is available
-		pthread_cond_broadcast(&_dataAvailCond);
 	} else {
-		/// @todo add dropped buffer accounting here
+		// an IQ channel
+		if (_freeIQBuffers.size()){
+				RRIQBuffer* pBuf = _freeIQBuffers[0];
+				_fullBuffers.push_back(pBuf);
+				_freeIQBuffers.pop_front();
+				for (int i = 0; i < n; i++) {
+					pBuf->_data[i] = src[i];
+				}
+				pBuf->channel = chan;
+				addBytes(chan, n*sizeof(*src));
+				// signal that new data is available
+				pthread_cond_broadcast(&_dataAvailCond);			
+			
+		} else {
+			/// @todo Add error handling for IQ buffer starvation
+		}
 	}
 
 	pthread_mutex_unlock(&_bufferMutex);
@@ -449,8 +464,8 @@ void RR314::newData(unsigned int* src, int chan, int n) {
 
 /////////////////////////////////////////////////////////////////////////
 
-RRbuffer* RR314::nextBuffer() {
-	RRbuffer* pBuf = 0;
+RRBuffer* RR314::nextBuffer() {
+	RRBuffer* pBuf = 0;
 
 	pthread_mutex_lock(&_bufferMutex);
 
@@ -469,19 +484,37 @@ RRbuffer* RR314::nextBuffer() {
 
 ////////////////////////////////////////////////////////////////////////
 
-void RR314::returnBuffer(RRbuffer* buf) {
+void RR314::returnBuffer(RRBuffer* buf) {
 	pthread_mutex_lock(&_bufferMutex);
 
-	_freeBuffers.push_back(buf);
+	if (buf->channel % 2) {
+		RRBeamBuffer * pBuf = dynamic_cast<RRBeamBuffer*>(buf);
+		_freeBeamBuffers.push_back(pBuf);
+	} else {
+		RRIQBuffer * pBuf = dynamic_cast<RRIQBuffer*>(buf);
+		_freeIQBuffers.push_back(pBuf);		
+	}
 
 	pthread_mutex_unlock(&_bufferMutex);
 }
 ////////////////////////////////////////////////////////////////////////
 
-int RR314::numFreeBuffers() {
+int RR314::numFreeABPBuffers() {
 	pthread_mutex_lock(&_bufferMutex);
 
-	int result = _freeBuffers.size();
+	int result = _freeBeamBuffers.size();
+
+	pthread_mutex_unlock(&_bufferMutex);
+
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+int RR314::numFreeIQBuffers() {
+	pthread_mutex_lock(&_bufferMutex);
+
+	int result = _freeIQBuffers.size();
 
 	pthread_mutex_unlock(&_bufferMutex);
 

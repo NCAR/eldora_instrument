@@ -147,7 +147,7 @@ void * dataTask(void* threadArg) {
     // loop while waiting for new buffers
     while (1) {
         // next buffer will block until a new buffer is ready.
-        RRbuffer* pBuf = pRR314->nextBuffer();
+        RRBuffer* pBuf = pRR314->nextBuffer();
         // get the details of this buffer
         int channel = pBuf->channel;
         // bump the sample count
@@ -160,12 +160,13 @@ void * dataTask(void* threadArg) {
                 // an abp channel
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
+                	RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
                     // set the size
-                    pPulse->abp.length(pBuf->nSamples);
-                    for (int p = 0; p < pBuf->nSamples; p++)
-                    	pPulse->abp[p] = pBuf->_data[p];
+                    pPulse->abp.length(pABP->_data.size());
+                    for (int p = 0; p < pABP->_data.size(); p++)
+                    	pPulse->abp[p] = pABP->_data[p];
                     // set the timestamp
-                    pPulse->timestamp = buffers++;
+                    pPulse->timestamp = pABP->timetag;
                     // alternate the radar id between forward and aft
                     pPulse->radarId = EldoraDDS::Aft;
                     // send the pulse to the pulde publisher
@@ -178,15 +179,13 @@ void * dataTask(void* threadArg) {
                 // a time series channel
                 EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
                 if (pTS) {
+                	RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
                     // set the size
-                    pTS->tsdata.length(2*pBuf->nSamples);
-                    for (int t = 0; t < pBuf->nSamples; t = t + 2) {
-                    	// unpack the 16 bit i and q into the TimeSeries::tsdata
-                    	pTS->tsdata[t] = (pBuf->_data[t] >> 16) & 0xffff;
-                    	pTS->tsdata[t] = (pBuf->_data[t]      ) & 0xffff;
-                    }
+                    pTS->tsdata.length(pIQ->_data.size());
+                    for (int p = 0; p < pIQ->_data.size(); p++)
+                    	pTS->tsdata[p] = pIQ->_data[p];
                     // set the timestamp
-                    pTS->timestamp = buffers++;
+                    pTS->timestamp = pIQ->timetag;
                     // alternate the radar id between forward and aft
                     pTS->radarId = EldoraDDS::Aft;
                     // send the pulse to the pulde publisher
@@ -229,7 +228,6 @@ void * dataTask(void* threadArg) {
                 }
             }
         }
-
 
         pRR314->returnBuffer(pBuf);
     }
@@ -290,7 +288,8 @@ int main(int argc, char** argv) {
     		std::cout << std::setprecision(2);
             // Print the number of free buffers in the rr314 buffer
             // pool. If 0, rr314 is being overrun
-            std::cout << rr314.numFreeBuffers() << " ";
+            std::cout << rr314.numFreeIQBuffers() << " ";
+            << rr314.numFreeABPBuffers() << " ";
             unsigned long sum = 0;
             for (int c = 0; c < bytes.size(); c++)
             {

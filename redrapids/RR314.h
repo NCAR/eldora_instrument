@@ -39,216 +39,236 @@
 /// this routine when some signals are received.
 void shutdownSignalHandler(int signo);
 
+
 namespace RedRapids {
 
-  class RR314sim;
-  struct RRbuffer {
-    std::vector<int> _data;
-    int channel;
-    int nSamples;
-  };
+class RR314sim;
 
-  //////////////////////////////////////////////////////////////////////
-  ///
-  /// Representation of the Red Rapids 314 4 channel receiver.
-  /// The class manages the configuration of the receiver card,
-  /// allocation of the DMA buffers, and responding to DMA buffer
-  /// full interrupts.
-  ///
-  /// The filled DMA buffers are passed to a holding buffer. These
-  /// buffers are delivered to a client when the client calls the
-  /// nextBuffer() function. A condition variable in nextBuffer()
-  /// allows the reading thread to suspend while waiting for 
-  /// a new holding buffer to become filled. Buffers that are
-  /// passed to the consumer must be returned to RR314 via returnBuffer()
-  /// when the consumer is finshed with them.
-  ///
-  class RR314
-  {
+struct RRBuffer {
+	int channel;
+	unsigned long timetag;
+	virtual ~RRBuffer() {};
+};
+/// A buffer type used to collect an incoming abp sample stream and 
+/// for deliver to consumers. The buffer will always contain a
+/// complete beam.
+struct RRBeamBuffer : RRBuffer {
+	std::vector<int> _data;
+};
 
-  public:
+/// A buffer type used to collect an incoming iq sample stream and 
+/// for deliver to consumers. The buffer will always contain a
+/// complete iq pulse.
+struct RRIQBuffer : RRBuffer {
+	std::vector<short> _data;
+};
 
-    /// Constructor
-    /// @param decimationFactor Downconvertor decimation count
-    /// @param gausianFile The file of gaussian filter coefficients,blank if none.
-    /// @param kaiserFile The file of kaiser filter coefficients, blank if none.
-    /// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
-    /// @param simulate Set true if simulation instead of real hardware
-    RR314(int devNum,
-	  unsigned int gates,
-	  unsigned int samples,
-	  unsigned int dualPrt,
-	  unsigned int startGateIQ,
-	  unsigned int nGatesIQ,
-	  unsigned int decimationFactor, 
-	  std::string gaussianFile,      
-	  std::string kaiserFile, 
-	  std::string xsvfFile,
-	  bool simulate = false
-	  ) throw (std::string);
+//////////////////////////////////////////////////////////////////////
+///
+/// Representation of the Red Rapids 314 4 channel receiver.
+/// The class manages the configuration of the receiver card,
+/// allocation of the DMA buffers, and the response to DMA buffer
+/// full interrupts.
+///
+/// Two types of data are handled: beam data, which consists of
+/// abp values for all gates, and iq data, which consists of 
+/// i and q values for a selected series of gates within one pulse.
+/// These data are accumulated in the corresponding buffer types
+/// RRBeamBuffer and RRIQBuffer.
+///
+/// The filled DMA buffers are placed in holding queue. These
+/// buffers are delivered to a client when the client calls the
+/// nextBuffer() function. A condition variable in nextBuffer()
+/// allows the reading thread to suspend while waiting for 
+/// a new holding buffer to become filled. Buffers that are
+/// passed to the consumer must be returned to RR314 via returnBuffer()
+/// when the consumer is finshed with them.
+///
+class RR314 {
 
-    /// Destructor
-    virtual ~RR314();
-  
-    /// A map of our instances, indexed by the channel adapter
-    /// variable pointer. Use by C routines to find our instance.
-    static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
+public:
 
-    /// Start the data capture and processing. The 
-    /// FPGA processing is started by enabling the
-    /// kasier filter and the A/D capture, and the dma 
-    /// transfer is enabled for the V4.
-    void start();
+	/// Constructor
+	/// @param decimationFactor Downconvertor decimation count
+	/// @param gausianFile The file of gaussian filter coefficients,blank if none.
+	/// @param kaiserFile The file of kaiser filter coefficients, blank if none.
+	/// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
+	/// @param simulate Set true if simulation instead of real hardware
+	RR314(int devNum, unsigned int gates, unsigned int samples,
+			unsigned int dualPrt, unsigned int startGateIQ,
+			unsigned int nGatesIQ, unsigned int decimationFactor,
+			std::string gaussianFile, std::string kaiserFile,
+			std::string xsvfFile, bool simulate = false) throw (std::string);
 
-    /// Accept new data for this class. This function
-    /// may be called from other threads. It will 
-    /// copy the data into a free buffer, and signal
-    /// the data availability with a broadcast on
-    /// _dataAvailCond.
-    /// @param src The source of the data
-    /// @param chan The channel of this data
-    /// @param n The number of data elements in src to be transferred
-    void newData(unsigned int* src, int chan, int n);
+	/// Destructor
+	virtual ~RR314();
 
-    /// Return the next available data buffer. 
-    /// If there
-    /// is no data available, wait until there is.
-    /// The caller must return the buffer when finished
-    /// by calling returnBuffer().
-    /// @return A buffer of data
-    RRbuffer* nextBuffer();
+	/// A map of our instances, indexed by the channel adapter
+	/// variable pointer. Use by C routines to find our instance.
+	static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
 
-    /// Return the used buffer to the pool.
-    /// @param buf The buffer to be returned.
-    void returnBuffer(RRbuffer* buf);
+	/// Start the data capture and processing. The 
+	/// FPGA processing is started by enabling the
+	/// kasier filter and the A/D capture, and the dma 
+	/// transfer is enabled for the V4.
+	void start();
 
-    /// Return The number of free buffers
-    /// @return The number of free buffers
-    int numFreeBuffers();
+	/// Accept new data for this class. This function
+	/// may be called from other threads. It will 
+	/// copy the data into a free buffer, and signal
+	/// the data availability with a broadcast on
+	/// _dataAvailCond.
+	/// @param src The source of the data
+	/// @param chan The channel of this data
+	/// @param n The number of data elements in src to be transferred
+	void newData(unsigned int* src, int chan, int n);
 
-    /// Get the cumulative number of bytes processed. 
-    /// @return The cumulative number of bytes processed since 
-    /// the last call to this function.
-    std::vector<unsigned long> bytes();
+	/// Return the next available data buffer. 
+	/// If there
+	/// is no data available, wait until there is.
+	/// The caller must return the buffer when finished
+	/// by calling returnBuffer().
+	/// @return A buffer of data
+	RRBuffer* nextBuffer();
 
-    /// Return The number of fifoFull interrupts.
-    /// @return The number of fifoFull interrupts.
-    int fifoFullInts();
+	/// Return the used buffer to the pool.
+	/// @param buf The buffer to be returned.
+	void returnBuffer(RRBuffer* buf);
 
-    /// Get some info about the board.
-    void boardInfo();
+	/// Return The number of free ABP buffers
+	/// @return The number of free buffers
+	int numFreeABPBuffers();
 
-    /// Set the last DMA transfer group.
-    /// @param chan The channel
-    /// @param group The group
-    void lastGroup(int chan, int group);
+	/// Return The number of free iq buffers
+	/// @return The number of free buffers
+	int numFreeIQBuffers();
 
-    /// Get the last DMA group processed for a channel.
-    /// @return The last DMA transfer group
-    /// @param chan The channel
-    int lastGroup(int chan);
+	/// Get the cumulative number of bytes processed. 
+	/// @return The cumulative number of bytes processed since 
+	/// the last call to this function.
+	std::vector<unsigned long> bytes();
 
-    /// Set the number of fifofull interrupts.
-    void fifoFullInts(int n);
+	/// Return The number of fifoFull interrupts.
+	/// @return The number of fifoFull interrupts.
+	int fifoFullInts();
 
-    /// Stop the RR card and return DMA allocated space.
-    void RR314shutdown();
+	/// Get some info about the board.
+	void boardInfo();
 
-  protected:
+	/// Set the last DMA transfer group.
+	/// @param chan The channel
+	/// @param group The group
+	void lastGroup(int chan, int group);
 
-    /// Configure ignal catching so that DMA operations
-    /// and memory can be cleaned up on a signal.
-    void catchSignals();
+	/// Get the last DMA group processed for a channel.
+	/// @return The last DMA transfer group
+	/// @param chan The channel
+	int lastGroup(int chan);
 
-    /// Configure the card and DMA operations.
-    int configure314();
+	/// Set the number of fifofull interrupts.
+	void fifoFullInts(int n);
 
-    /// Configure the filters and the decimation value.
-    int filterSetup();
+	/// Stop the RR card and return DMA allocated space.
+	void RR314shutdown();
 
-    /// Program the cofficients for the gaussian and
-    /// kaiser filters.
-    bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
+protected:
 
-    /// Configure the timers.
-    void timerInit();
+	/// Configure ignal catching so that DMA operations
+	/// and memory can be cleaned up on a signal.
+	void catchSignals();
 
-    /// Accumlulate byte counts.
-    /// @param chan The channel
-    /// @param bytes Add these bytes
-    void addBytes(int chan, int bytes);
+	/// Configure the card and DMA operations.
+	int configure314();
 
-    /// Mutex that protects access to _freeBuffers and _fullBuffers.
-    pthread_mutex_t _bufferMutex;
+	/// Configure the filters and the decimation value.
+	int filterSetup();
 
-    /// The condition variable used to trigger the 
-    /// data available condition.
-    pthread_cond_t _dataAvailCond;
+	/// Program the cofficients for the gaussian and
+	/// kaiser filters.
+	bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
-    /// A queue of available empty buffers.
-    std::deque<RRbuffer*> _freeBuffers;
+	/// Configure the timers.
+	void timerInit();
 
-    /// A queue of buffers with data to be processed.
-    std::deque<RRbuffer*> _fullBuffers;
+	/// Accumlulate byte counts.
+	/// @param chan The channel
+	/// @param bytes Add these bytes
+	void addBytes(int chan, int bytes);
 
-    /// The gaussian filter decimation factor (1-127).
-    unsigned int _decimationFactor;
+	/// Mutex that protects access to _freeBuffers and _fullBuffers.
+	pthread_mutex_t _bufferMutex;
 
-    /// The path to the file containing the gaussian filter definitions.
-    std::string _gaussianFile;
+	/// The condition variable used to trigger the 
+	/// data available condition.
+	pthread_cond_t _dataAvailCond;
 
-    /// The path to the file containing the kaiser filter coefficients.
-    std::string _kaiserFile;
+	/// A queue of buffers with data to be processed.
+	std::deque<RRBuffer*> _fullBuffers;
 
-    /// The path to a RR bitstream file, if it will be
-    /// loaded.
-    std::string _xsvfFileName;
+	/// A queue of available empty iq buffers.
+	std::deque<RRIQBuffer*> _freeIQBuffers;
 
-    /// The number of bytes captured for each channel.
-    std::vector<unsigned long>  _bytes;
+	/// A queue of available empty buffers.
+	std::deque<RRBeamBuffer*> _freeBeamBuffers;
 
-    /// The last DMA group transferred.
-    int _lastGroup[8];
+	/// The gaussian filter decimation factor (1-127).
+	unsigned int _decimationFactor;
 
-    /// The channel adapter, used in RR interfaces.
-    s_ChannelAdapter _chanAdapter;
+	/// The path to the file containing the gaussian filter definitions.
+	std::string _gaussianFile;
 
-    /// Clock setting for the M314, used in RR interfaces.
-    s_ClkSettings _ClkSettings;
+	/// The path to the file containing the kaiser filter coefficients.
+	std::string _kaiserFile;
 
-    /// Set true if the DMA allocation has been made.
-    //  bool _dmaAllocated;
+	/// The path to a RR bitstream file, if it will be
+	/// loaded.
+	std::string _xsvfFileName;
 
-    /// Points to the next location in an incoming data buffer
-    /// to retrieve data from.
-    int _bufferNext; 
+	/// The number of bytes captured for each channel.
+	std::vector<unsigned long> _bytes;
 
-    /// The RR314 device number, starting at 0.
-    int _devNum;
+	/// The last DMA group transferred.
+	int _lastGroup[8];
 
-    /// The number of gates.
-    unsigned int _gates;
+	/// The channel adapter, used in RR interfaces.
+	s_ChannelAdapter _chanAdapter;
 
-    /// The number of samples.
-    unsigned int _samples;
+	/// Clock setting for the M314, used in RR interfaces.
+	s_ClkSettings _ClkSettings;
 
-    /// Dual prt true or false.
-    unsigned int _dualPrt;
+	/// Set true if the DMA allocation has been made.
+	//  bool _dmaAllocated;
 
-    /// The start gate number of IQ capture.
-    unsigned int _startGateIQ;
+	/// Points to the next location in an incoming data buffer
+	/// to retrieve data from.
+	int _bufferNext;
 
-    /// The number of IQ gates to capture.
-    unsigned int _nGatesIQ;
+	/// The RR314 device number, starting at 0.
+	int _devNum;
 
-    /// The number of fifo full interrupts. 
-    int _fifoFullInts;
+	/// The number of gates.
+	unsigned int _gates;
 
-    /// Set true if simulate
-    bool _simulate;
+	/// The number of samples.
+	unsigned int _samples;
 
-    /// The simulator
-    RedRapids::RR314sim* _simulator;
-  };
+	/// Dual prt true or false.
+	unsigned int _dualPrt;
+
+	/// The start gate number of IQ capture.
+	unsigned int _startGateIQ;
+
+	/// The number of IQ gates to capture.
+	unsigned int _nGatesIQ;
+
+	/// The number of fifo full interrupts. 
+	int _fifoFullInts;
+
+	/// Set true if simulate
+	bool _simulate;
+
+	/// The simulator
+	RedRapids::RR314sim* _simulator;
+};
 }
 #endif
