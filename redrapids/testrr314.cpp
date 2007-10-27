@@ -160,11 +160,12 @@ void * dataTask(void* threadArg) {
                 // an abp channel
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
-                	RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
+                    RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
                     // set the size
-                    pPulse->abp.length(pABP->_data.size());
-                    for (int p = 0; p < pABP->_data.size(); p++)
-                    	pPulse->abp[p] = pABP->_data[p];
+                    pPulse->abp.length(pABP->_abp.size());
+                    for (int p = 0; p < pABP->_abp.size(); p++) {
+                        pPulse->abp[p] = pABP->_abp[p];
+                    }
                     // set the timestamp
                     pPulse->timestamp = pABP->timetag;
                     // alternate the radar id between forward and aft
@@ -179,11 +180,11 @@ void * dataTask(void* threadArg) {
                 // a time series channel
                 EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
                 if (pTS) {
-                	RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
+                    RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
                     // set the size
-                    pTS->tsdata.length(pIQ->_data.size());
-                    for (int p = 0; p < pIQ->_data.size(); p++)
-                    	pTS->tsdata[p] = pIQ->_data[p];
+                    pTS->tsdata.length(pIQ->_iq.size());
+                    for (int p = 0; p < pIQ->_iq.size(); p++)
+                    pTS->tsdata[p] = pIQ->_iq[p];
                     // set the timestamp
                     pTS->timestamp = pIQ->timetag;
                     // alternate the radar id between forward and aft
@@ -201,30 +202,24 @@ void * dataTask(void* threadArg) {
         if (capture) {
             // get the file  that this channel is saved to.
             std::ofstream* pStream = pParams->ofstreams[channel];
-            // and the pointer to the data. Note that each beam
-            // and each gate collection is preceeded by 4 bytes
-            // containing identifing information.
-            std::vector<int>& buf = pBuf->_data;
-
-            // save all of the samples
-            for (int i = 0; i < pBuf->nSamples; i++) {
-                if ((channel %4)) {
-                    // ABP channel
-                    if ( (pParams->sampleCounts[channel] % (gates+2)) == 0) {
-                        // add a beam counter for ABP channels
-                        *pStream << "beam " << (pParams->sampleCounts[channel]
-                                /(gates +2)) << std::endl;
-                    }
-                    // write the data to the channel file
-                    *pStream << buf[i] << std::endl;
-                } else {
-                    // IQ channel
-                    // break into I and Q
-                    int iq = buf[i];
-                    short I = (buf[i] & 0xffff0000) >> 16;
-                    short Q = buf[i] & 0xffff;
-                    // write the data to the channel file
-                    *pStream << I << " " << Q << std::endl;
+            if (channel %2) {
+                // ABP buffer
+                RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
+                for (int i = 0; i < pABP->_abp.size(); i += 3) {
+                    *pStream
+                    << pABP->_abp[i] << " "
+                    << pABP->_abp[i+1] << " "
+                    << pABP->_abp[i+2] << " "
+                    << std::endl;
+                }
+            } else {
+                // IQ buffer
+                RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
+                for (int i = 0; i < pIQ->_iq.size(); i += 2) {
+                    *pStream
+                    << pIQ->_iq[i] << " "
+                    << pIQ->_iq[i+1] << " "
+                    << std::endl;
                 }
             }
         }
@@ -285,10 +280,10 @@ int main(int argc, char** argv) {
             std::vector<unsigned long> bytes = rr314.bytes();
 
             std::cout << std::setw(8);
-    		std::cout << std::setprecision(2);
+            std::cout << std::setprecision(2);
             // Print the number of free buffers in the rr314 buffer
             // pool. If 0, rr314 is being overrun
-            std::cout << rr314.numFreeIQBuffers() << " ";
+            std::cout << rr314.numFreeIQBuffers() << " "
             << rr314.numFreeABPBuffers() << " ";
             unsigned long sum = 0;
             for (int c = 0; c < bytes.size(); c++)
@@ -300,15 +295,14 @@ int main(int argc, char** argv) {
             std::cout << sum << " ";
             std::cout << sum/10.0e6 << "MB/s";
             std::cout << "\n";
-            
+
             std::cout << "samples ";
             for (int i = 0; i < 8; i++) {
-            	std::cout << std::setw(8) 
-            	<< params.sampleCounts[i];
-            	params.sampleCounts[i] = 0;
+                std::cout << std::setw(8)
+                << params.sampleCounts[i];
+                params.sampleCounts[i] = 0;
             }
             std::cout << "\n";
-            
 
             sleep(10);
         }

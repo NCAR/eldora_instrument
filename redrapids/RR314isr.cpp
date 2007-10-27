@@ -14,9 +14,16 @@ sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
   if(MaxGrpsPerCh > 1024) //1024 is max groups per channel
     MaxGrpsPerCh = 1024;
 
-  unsigned int* src = (unsigned int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
   // send it to RR314
-  pRR314->newData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (unsigned int)));
+  if (chan %1) {
+      // abp channel
+      int* src = (int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
+      pRR314->newABPData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int)));
+  } else {
+      // iq channel
+      short* src = (short*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
+      pRR314->newIQData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short)));
+  }
 
   return;
 }
