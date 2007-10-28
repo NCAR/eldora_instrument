@@ -15,7 +15,7 @@ sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
     MaxGrpsPerCh = 1024;
 
   // send it to RR314
-  if (chan %1) {
+  if (chan % 2) {
       // abp dmaChan
       int* src = (int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
       pRR314->newABPData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int)));
