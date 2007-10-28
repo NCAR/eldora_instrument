@@ -23,7 +23,7 @@ RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq, int nci) :
 	_beamNum(0)
 {
 
-	// configure the channel numbers which
+	// configure the dmaChan numbers which
 	// will receive the IQ and ABP data
 	_iqChans.push_back(0);
 	_abpChans.push_back(1);
@@ -86,7 +86,7 @@ void RR314sim::simulate() {
 			_abp[2] = 0;
 			_pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
 		}
-		usleep(50000);
+		usleep(8000);
 		_beamNum++;
 	}
 }

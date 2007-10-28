@@ -44,9 +44,9 @@ namespace RedRapids {
     void simulate();
     /// The RR314 object that receives the simulation data.
     RedRapids::RR314* _pRR314;
-    /// The channel numbers which receive IQ data
+    /// The dmaChan numbers which receive IQ data
     std::vector<int> _iqChans;
-    /// The channel numbers which receive ABP data.
+    /// The dmaChan numbers which receive ABP data.
     std::vector<int> _abpChans;
     /// A buffer used as the source of ABP data.
     std::vector<int> _abp;

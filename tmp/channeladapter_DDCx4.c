@@ -14,13 +14,13 @@
  Desc: This program shows how to capture data from the ChannelAdapter LocalBus interface.
    The example assumes the 4 ch LB interface is used.  This program is only for use 
    with the CA Example FPGA code.  When the DMA Go bit (0x0 of 0x80C) is set to 1, 
-   each channel will move a sythentic data set across the bus as fast as the bus will
-   allow.  Each 32bit word will consist of a channel ID on [31:27] and a count on
+   each dmaChan will move a sythentic data set across the bus as fast as the bus will
+   allow.  Each 32bit word will consist of a dmaChan ID on [31:27] and a count on
    [26:0].
 
    As each DMA groups is done it will be copied from the DMA buffer to a seperate 
    holding buffer so that the DMA buffer can be reused.  When the progam is done 
-   collecting data it will write each channel out to a txt file.   
+   collecting data it will write each dmaChan out to a txt file.   
  
  Rev History 
     
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 	/***************End Init Blcok***************************************************************/
 	
 	
-	//Allocate DMA space for each channel to trasfer data into.  Once a group has finshed an interrupt will
+	//Allocate DMA space for each dmaChan to trasfer data into.  Once a group has finshed an interrupt will
 	//be signaled and the data will be copied away to the large holding buffer. 
 		
 	printf("Allocating DMA space...");

@@ -16,7 +16,7 @@
 #include "FilterSpec.h"
 #include "DDCregisters.h"
 
-// RR channel adapter includes
+// RR dmaChan adapter includes
 #include "ca_bar0_memmap.h"
 #include "ca_diag_memmap.h"
 #include "ca_lb_memmap.h"
@@ -44,22 +44,40 @@ namespace RedRapids {
 class RR314sim;
 
 struct RRBuffer {
-        int channel;
-        unsigned long timetag;
+        /// The DMA channel number
+        int dmaChan;
+        /// The channel id delivered by the RR314
+        unsigned int chanId;
+        /// The prt id delivered by the R314
+        unsigned int prtId;
+        /// The pulse count delivered by the RR314
+        unsigned int pulseCount;
+        /// A cyclic counter that counts the housekeeping
+        /// and data items for a single iq or abp set. Used 
+        /// for blocking the iqs.
+        unsigned int dataIn;
+        /// The next location to store a data value
+        /// in the data buffer.
+        unsigned int nextData;
+        /// The type of derived class
+        enum {IQtype, ABPtype} type;
+        /// A virtual member is required in order for dynamic_cast
+        /// to work.
         virtual ~RRBuffer() {
         }
         ;
 };
 /// A buffer type used to collect an incoming abp sample stream and 
-/// for deliver to consumers. The buffer will always contain a
-/// complete beam.
-struct RRBeamBuffer : RRBuffer {
+/// for deliver to consumers. The buffer will always contain one
+/// complete set of ABP values for all gates.
+struct RRABPBuffer : RRBuffer {
         std::vector<int> _abp;
 };
 
 /// A buffer type used to collect an incoming iq sample stream and 
-/// for deliver to consumers. The buffer will always contain a
-/// complete iq pulse.
+/// for deliver to consumers. _samples number of iq sequences,
+/// each sequence covering the range of iq gates, are aggregated
+/// into one RRIQBuffer.
 struct RRIQBuffer : RRBuffer {
         std::vector<short> _iq;
 };
@@ -71,13 +89,22 @@ struct RRIQBuffer : RRBuffer {
 /// allocation of the DMA buffers, and the response to DMA buffer
 /// full interrupts.
 ///
-/// Two types of data are handled: beam data, which consists of
+/// Two types of data are handled: abp data, which consists of
 /// abp values for all gates, and iq data, which consists of 
 /// i and q values for a selected series of gates within one pulse.
 /// These data are accumulated in the corresponding buffer types
-/// RRBeamBuffer and RRIQBuffer.
+/// RRABPBuffer and RRIQBuffer. The IQ data are delivered from the RR314 on
+/// DMA channels 0,2, 4 and 6. The ABP data are delivered from the RR314 on 
+/// DMA chanels 1, 3, 5 and 7.
 ///
-/// The filled DMA buffers are placed in holding queue. These
+/// The data are collected in buffers, derived from RRBuffer. The ABP
+/// values for one set of gates, which cover measurements made over 
+/// one coherent integration period, are placed into an indivdual RRABPBuffer. 
+/// 'Samples' number of timeseries i and q values are aggregated into 
+/// one RRIQBuffer. Thus the ABP and IQ buffers will be produced at the same
+/// rate.
+///
+/// The filled buffers are placed in holding queue. These
 /// buffers are delivered to a client when the client calls the
 /// nextBuffer() function. A condition variable in nextBuffer()
 /// allows the reading thread to suspend while waiting for 
@@ -235,7 +262,21 @@ class RR314 {
         std::deque<RRIQBuffer*> _freeIQBuffers;
 
         /// A queue of available empty buffers.
-        std::deque<RRBeamBuffer*> _freeBeamBuffers;
+        std::deque<RRABPBuffer*> _freeABPBuffers;
+
+        /// The current IQ buffers being filled, one per
+        /// DMA channel. Once the 
+        /// buffer for a channel is filled, it is transfered
+        /// to the _fullBuffer list and the condition
+        /// variable is signalled.
+        std::map<int, RRIQBuffer*> _currentIQBuffer;
+
+        /// The current ABP buffers being filled, one per
+        /// DMA channel. Once the 
+        /// buffer for a channel is filled, it is transfered
+        /// to the _fullBuffer list and the condition
+        /// variable is signalled.
+        std::map<int, RRABPBuffer*> _currentABPBuffer;
 
         /// The gaussian filter decimation factor (1-127).
         unsigned int _decimationFactor;

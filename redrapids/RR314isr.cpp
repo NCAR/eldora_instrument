@@ -11,16 +11,16 @@ sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
   int group = pRR314->lastGroup(chan);
 
   int MaxGrpsPerCh = 2048 / (pCA->DMA.DMAChannels + 1); 
-  if(MaxGrpsPerCh > 1024) //1024 is max groups per channel
+  if(MaxGrpsPerCh > 1024) //1024 is max groups per dmaChan
     MaxGrpsPerCh = 1024;
 
   // send it to RR314
   if (chan %1) {
-      // abp channel
+      // abp dmaChan
       int* src = (int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
       pRR314->newABPData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int)));
   } else {
-      // iq channel
+      // iq dmaChan
       short* src = (short*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
       pRR314->newIQData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short)));
   }
@@ -83,7 +83,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 
   // see if we have a DMA interrupt
   if (Status & DMA_GRP_DONE) {
-    // yes, process groups for each DMA channel
+    // yes, process groups for each DMA dmaChan
     for (int chan = 0; chan < 8; chan++) {
       if ((1 << chan) & DMAStatus) {
 	processDMAGroups(pCA, chan, pRR314);

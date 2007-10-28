@@ -149,25 +149,25 @@ void * dataTask(void* threadArg) {
         // next buffer will block until a new buffer is ready.
         RRBuffer* pBuf = pRR314->nextBuffer();
         // get the details of this buffer
-        int channel = pBuf->channel;
+        int channel = pBuf->dmaChan;
         // bump the sample count
         pParams->sampleCounts[channel]++;
 
         // Are we publishing?
         if (publish) {
             // send the buffer to the appropriate writer
-            if (channel %2) {
-                // an abp channel
+            if (pBuf->type == RRBuffer::ABPtype) {
+                // an abp dmaChan
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
-                    RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
+                    RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
                     pPulse->abp.length(pABP->_abp.size());
                     for (int p = 0; p < pABP->_abp.size(); p++) {
                         pPulse->abp[p] = pABP->_abp[p];
                     }
                     // set the timestamp
-                    pPulse->timestamp = pABP->timetag;
+                    pPulse->timestamp = pABP->pulseCount;
                     // alternate the radar id between forward and aft
                     pPulse->radarId = EldoraDDS::Aft;
                     // send the pulse to the pulde publisher
@@ -177,7 +177,7 @@ void * dataTask(void* threadArg) {
                     ACE_OS::sleep(small);
                 }
             } else {
-                // a time series channel
+                // a time series dmaChan
                 EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
                 if (pTS) {
                     RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
@@ -186,7 +186,7 @@ void * dataTask(void* threadArg) {
                     for (int p = 0; p < pIQ->_iq.size(); p++)
                     pTS->tsdata[p] = pIQ->_iq[p];
                     // set the timestamp
-                    pTS->timestamp = pIQ->timetag;
+                    pTS->timestamp = pIQ->pulseCount;
                     // alternate the radar id between forward and aft
                     pTS->radarId = EldoraDDS::Aft;
                     // send the pulse to the pulde publisher
@@ -200,11 +200,11 @@ void * dataTask(void* threadArg) {
 
         // Are we capturing?
         if (capture) {
-            // get the file  that this channel is saved to.
+            // get the file  that this dmaChan is saved to.
             std::ofstream* pStream = pParams->ofstreams[channel];
             if (channel %2) {
                 // ABP buffer
-                RRBeamBuffer* pABP = dynamic_cast<RRBeamBuffer*>(pBuf);
+                RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                 for (int i = 0; i < pABP->_abp.size(); i += 3) {
                     *pStream
                     << pABP->_abp[i] << " "
@@ -274,7 +274,7 @@ int main(int argc, char** argv) {
         // periodically display the card activity.
         while(1)
         {
-            // get the current byte count for each channel
+            // get the current byte count for each dmaChan
             // from rr314. This call causes the byte counters
             // in r314 to be reset to zero.
             std::vector<unsigned long> bytes = rr314.bytes();
