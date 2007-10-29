@@ -4,6 +4,16 @@
 
 **********************************************************************************************/
 
+//PulseWidths for Decimation
+  #define _0_25us 2
+  #define _0_50us 4
+  #define _0_75us 6
+  #define _1_00us 8
+  #define _1_25us 10
+  #define _1_50us 12
+  #define _1_75us 14
+  #define _2_00us 16
+
 
 //Kaiser Filter Registers
   #define KAISER_ADDR 0xA00
@@ -88,12 +98,3 @@
   #define PRT3 (0x0<<8)
   #define PRT4 (0x0<<12)
 
-//PulseWidths for Decimation
-  #define _0_25us 2
-  #define _0_50us 4
-  #define _0_75us 6
-  #define _1_00us 8
-  #define _1_25us 10
-  #define _1_50us 12
-  #define _1_75us 14
-  #define _2_00us 16
