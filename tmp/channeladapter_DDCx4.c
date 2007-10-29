@@ -1,5 +1,3 @@
-#define DWORD int
-
 /*****************************************************************************************
 
  Red Rapids 
@@ -43,6 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ca_bar0_memmap.h"
 #include "ca_lb_memmap.h"
@@ -61,18 +60,18 @@
 	
 #endif
 
-DWORD ChXferDone;	       //Bit map for channels than have completed transfer	
+UINT32 ChXferDone;	       //Bit map for channels than have completed transfer	
 
 s_ChMemBuffer MemBuffer_Ch[16];	//Large memory buffers, data from DMA space will be moved here
 
 //Set DDC Values
-DWORD decimation = 12;
-DWORD gates	 = 1000;
-DWORD samples	 = 100;
-DWORD dprt	 = 0;
-DWORD indx	 = 0;
-DWORD length	 = 10;
-DWORD Timers	 = TIMER0|TIMER1|TIMER2|TIMER3;
+UINT32 decimation = 12;
+UINT32 gates	 = 1000;
+UINT32 samples	 = 100;
+UINT32 dprt	 = 0;
+UINT32 indx	 = 0;
+UINT32 length	 = 10;
+UINT32 Timers	 = TIMER0|TIMER1|TIMER2|TIMER3;
 
 int main(int argc, char* argv[]) 
 {
@@ -80,7 +79,7 @@ int main(int argc, char* argv[])
 	s_ChannelAdapter CA0;		/*Handle to ChannelAdapter device*/
 	s_ClkSettings ClkSettings;	/*Struct of sample clk setttings*/
 	
-	DWORD Dummy;
+	UINT32 Dummy;
 	
 	//Flags to set from command line
 	int GrpsToCapture;	
@@ -242,7 +241,7 @@ int main(int argc, char* argv[])
 		*/
 
   	//Decimation Setup
-	DWORD Dec_Factor = decimation*2 - 1;
+	UINT32 Dec_Factor = decimation*2 - 1;
 	Adapter_Write32(&CA0, V4, DEC_REG, Dec_Factor);// Decimation Register
 	
 	//Pulse Pair Setup
@@ -388,7 +387,7 @@ int main(int argc, char* argv[])
 
 void Adapter_ISR(s_ChannelAdapter *pCA)
 {
-	DWORD Status, Mask, DMAStat, DMAMask;
+	UINT32 Status, Mask, DMAStat, DMAMask;
 	int GrpsDone;
 
 	//printf("Adapter_ISR: Entered....\n");
