@@ -1,49 +1,22 @@
-import os
-
-env = Environment(ENV = os.environ)
-env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
-env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
-env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
-env.AppendUnique(CPPPATH=['$TAO_ROOT',])
-env.AppendUnique(CPPPATH=['$ACE_ROOT',])
-env.AppendUnique(CPPPATH=['$DDS_ROOT',])
-env.AppendUnique(CPPPATH=['#./ddslib',])
-env.AppendUnique(CPPPATH=['#./ddssvc',])
-env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
-env.AppendUnique(CCFLAGS=['-g',])
+tools = ['default', 'ddssvc']
+env = Environment(tools = tools)
 
 # libraries:
 libs = Split("""
-boost_program_options-gcc41-1_34_1.a
-ddssvc
-EldoraDds
+boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
 OpenDDS_Dcps
 TAO_PortableServer
 TAO_AnyTypeCode
-TAO 
-ACE
 dl
-pthread
 rt
 """)
-
-# library paths:
-libpaths=Split("""
-../ddslib
-../ddssvc
-/usr/local/lib/
-$ACE_ROOT/lib
-$TAO_ROOT/lib
-$DDS_ROOT/lib
-""")
+env.AppendUnique(LIBS = libs)
 
 # Build the producer
-producer = env.Program('producer', 'producer.cpp', 
-   LIBS=libs, LIBPATH=libpaths )
+producer = env.Program('producer', 'producer.cpp')
 
 # Build the consumer
-consumer = env.Program('consumer', ['consumer.cpp', 'Reader.cpp'], 
-   LIBS=libs, LIBPATH=libpaths)
+consumer = env.Program('consumer', ['consumer.cpp', 'Reader.cpp'])

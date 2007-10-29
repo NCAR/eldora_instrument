@@ -1,69 +1,55 @@
 import os
+tools = ['ddssvc']
+env = Environment(tools = ['default'] + tools)
 
-env = Environment(ENV = os.environ)
-env['RR314_ROOT'] = os.environ.get('RR314_ROOT',None)
-env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
-env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
-env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
+# disable warnings that are triggered by Red Rapids development code
+env.AppendUnique(CCFLAGS = ['-Wno-sign-compare', '-Wno-int-to-pointer-cast'])
 
-env.AppendUnique(CCFLAGS=['-D LINUX',])
-env.AppendUnique(CCFLAGS=['-g',])
+redRapidsDevelDir = os.path.join('#', 'redrapids', 
+                                 'DSK-320-002-R05 (CA C API and Sample Code)',
+                                 'channeladapterlib', 'R05')
+redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
 
-env.AppendUnique(CPPPATH=['$RR314_ROOT',])
-env.AppendUnique(CPPPATH=['/usr/local/include/boost-1_34_1',])
+env.AppendUnique(CPPPATH=[redRapidsDevelDir,])
+env.AppendUnique(CPPDEFINES = ['LINUX',])
 
-env.AppendUnique(CPPPATH=['$TAO_ROOT',])
-env.AppendUnique(CPPPATH=['$ACE_ROOT',])
-env.AppendUnique(CPPPATH=['$DDS_ROOT',])
-env.AppendUnique(CPPPATH=['#./ddslib',])
-env.AppendUnique(CPPPATH=['#./ddssvc',])
+# The redrapids and library sources
 
-# The library sources
+rrsources = [os.path.join(redRapidsDevelDir, 'ca_functions.c'),
+             os.path.join(redRapidsDevelDir, 'ca_membuffer.c')]
+
 libsources = Split("""
-$RR314_ROOT/ca_functions.c
-$RR314_ROOT/ca_membuffer.c
 FilterSpec.cpp
 RR314.cpp
 RR314isr.cpp
 RR314sim.cpp
 """)
 
-librr314 = env.Library('rr314', libsources )
+librr314 = env.Library('rr314', rrsources + libsources)
 
 # libraries:
+# Note that rr314 is linked before channeladapter, since it uses the
+# channeladapter library, but also linked after, since the channeladapter
+# library needs symbol Adapter_ISR which is in the rr314 library.  Nice
+# circular dependency...
 libs = Split("""
 rr314
 channeladapter
 rr314
-channeladapter
-pthread
-boost_program_options-gcc41-1_34_1.a
-ddssvc
-EldoraDds
+boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
 OpenDDS_Dcps
 TAO_PortableServer
 TAO_AnyTypeCode
-TAO 
-ACE
 dl
-pthread
 rt
 """)
+env.Append(LIBS = libs)
 
 # library paths:
-libpaths=Split("""
-$RR314_ROOT/linux_x86-32
-/usr/local/lib/
-.
-../ddslib
-../ddssvc
-$ACE_ROOT/lib
-$TAO_ROOT/lib
-$DDS_ROOT/lib
-""")
+env.AppendUnique(LIBPATH = [redRapidsDevelLibDir, '.'])
 
 # build test
-testrr314 = env.Program('testrr314', 'testrr314.cpp', LIBS=libs, LIBPATH=libpaths)
+testrr314 = env.Program('testrr314', 'testrr314.cpp')

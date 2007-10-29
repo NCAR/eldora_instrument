@@ -1,9 +1,12 @@
-import os
+tools = ['ace', 'tao', 'opendds']
+env = Environment(tools = ['default'] + tools)
 
-import DDSLib
+def ddslib(env):
+    env.AppendLibrary('EldoraDds')
+    env.AppendUnique(CPPPATH = ['#/ddslib',])
+    env.Require(tools)
 
-env = Environment(ENV = os.environ)
-env.AppendUnique(CCFLAGS=['-g',])
+Export('ddslib')
 
-lib = DDSLib.DdsLibrary('EldoraDds.idl', env)
+libEldoraDds = env.DdsLibrary('EldoraDds.idl', env)
 

@@ -1,14 +1,15 @@
 import os
 
-env = Environment(ENV = os.environ)
-env['TAO_ROOT'] = os.environ.get('TAO_ROOT',None)
-env['ACE_ROOT'] = os.environ.get('ACE_ROOT',None)
-env['DDS_ROOT'] = os.environ.get('DDS_ROOT',None)
-env.AppendUnique(CPPPATH=['$TAO_ROOT',])
-env.AppendUnique(CPPPATH=['$ACE_ROOT',])
-env.AppendUnique(CPPPATH=['$DDS_ROOT',])
-env.AppendUnique(CPPPATH=['#./ddslib',])
-env.AppendUnique(CCFLAGS=['-g',])
+tools = ['ddslib']
+env = Environment(tools = ['default'] + tools)
+
+def ddssvc(env):
+    env.AppendLibrary('ddssvc')
+    env.AppendUnique(CPPPATH = ['#/ddssvc',])
+    env.Require(tools)
+
+Export('ddssvc')
+
 
 # sources
 sources = Split("""
