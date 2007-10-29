@@ -30,11 +30,18 @@ RR314::RR314(
             std::string kaiserFile,
             std::string xsvfFileName,
             bool simulate) throw(std::string) :
-    _devNum(devNum), _gates(gates), _samples(samples), _dualPrt(dualPrt),
-            _startGateIQ(startGateIQ), _numIQ(nGatesIQ),
-            _decimationFactor(decimationFactor), _gaussianFile(gaussianFile),
-            _kaiserFile(kaiserFile), _xsvfFileName(xsvfFileName),
-            _bufferNext(0), _simulate(simulate) {
+      _decimationFactor(decimationFactor), 
+      _gaussianFile(gaussianFile), 
+      _kaiserFile(kaiserFile), 
+      _xsvfFileName(xsvfFileName), 
+      _bufferNext(0), 
+      _devNum(devNum), 
+      _gates(gates), 
+      _samples(samples), 
+      _dualPrt(dualPrt), 
+      _startGateIQ(startGateIQ), 
+      _numIQ(nGatesIQ), 
+      _simulate(simulate) {
 
     // initalize threading constructs
     pthread_mutex_init(&_bufferMutex, NULL);
