@@ -142,8 +142,6 @@ void * dataTask(void* threadArg) {
         tsWriter = new TSWriter(*publisher, "EldoraTS");
     }
 
-    int buffers = 0;
-
     // loop while waiting for new buffers
     while (1) {
         // next buffer will block until a new buffer is ready.

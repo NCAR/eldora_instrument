@@ -32,8 +32,6 @@ sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
 
 void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
 
-  int groupsDropped = 0;
-
   // get the DMA current group value
   unsigned int cg;
   Adapter_Read32(pCA, V4, DMA_CH0_CURGRP_ADR+(0x4*chan), &cg);
