@@ -202,7 +202,7 @@ void * dataTask(void* threadArg) {
         if (capture) {
             // get the file  that this dmaChan is saved to.
             std::ofstream* pStream = pParams->ofstreams[channel];
-            if (channel %2) {
+            if (channel == RRBuffer::ABPtype) {
                 // ABP buffer
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                 for (int i = 0; i < pABP->_abp.size(); i += 3) {
