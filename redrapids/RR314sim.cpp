@@ -6,9 +6,9 @@ using namespace RedRapids;
 //////////////////////////////////////////////////////////////////////
 void* RR314sim::simThread(void* threadArgs) {
 
-	RR314sim* pRR314sim = (RR314sim*)threadArgs;
-	pRR314sim->simulate();
-
+  RR314sim* pRR314sim = (RR314sim*)threadArgs;
+  pRR314sim->simulate();
+  return((void*)1);
 }
 
 //////////////////////////////////////////////////////////////////////
