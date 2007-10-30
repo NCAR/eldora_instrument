@@ -149,9 +149,13 @@ void RR314::RR314shutdown() {
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 
+	// sleep to allow dma transfers to finish.
+	sleep(1);
+
 	Adapter_DMABufFree(&_chanAdapter);
 
 	Adapter_Close(&_chanAdapter);
+	
 
 }
 
@@ -517,9 +521,6 @@ void RR314::newIQData(short* src, int chan, int n) {
 				pthread_mutex_unlock(&_bufferMutex);
 			}
 			break;
-		}
-		if (pBuf->dataIn == _numIQ*2 + 6) {
-			pBuf->dataIn = 0;
 		}
 	}
 }
