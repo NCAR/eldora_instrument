@@ -1,12 +1,14 @@
-tools = ['ace', 'tao', 'opendds']
+tools = ['ace', 'tao', 'opendds', 'doxygen']
 env = Environment(tools = ['default'] + tools)
 
 def ddslib(env):
     env.AppendLibrary('EldoraDds')
+    env.AppendDoxref('EldoraDds')
     env.AppendUnique(CPPPATH = ['#/ddslib',])
     env.Require(tools)
 
 Export('ddslib')
 
-libEldoraDds = env.DdsLibrary('EldoraDds.idl', env)
+libEldoraDds, sources, headers = env.DdsLibrary('EldoraDds.idl', env)
 
+html = env.Apidocs(sources + headers, DOXYFILE_FILE = "#/Doxyfile")
