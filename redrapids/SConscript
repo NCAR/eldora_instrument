@@ -2,9 +2,6 @@ import os
 tools = ['ddssvc']
 env = Environment(tools = ['default'] + tools)
 
-# disable warnings that are triggered by Red Rapids development code
-env.AppendUnique(CCFLAGS = ['-Wno-sign-compare', '-Wno-int-to-pointer-cast'])
-
 redRapidsDevelDir = os.path.join('#', 'redrapids', 
                                  'DSK-320-002-R05 (CA C API and Sample Code)',
                                  'channeladapterlib', 'R05')
