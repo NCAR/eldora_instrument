@@ -39,7 +39,7 @@ RR314::RR314(
       _gates(gates), 
       _samples(samples), 
       _dualPrt(dualPrt), 
-      _startGateIQ(startGateIQ), 
+      _startGateIQ(startGateIQ),
       _numIQ(nGatesIQ), 
       _simulate(simulate) {
 
@@ -292,6 +292,8 @@ void RR314::catchSignals() {
     sigaction(SIGTERM, NULL, &old_action);
     if (old_action.sa_handler != SIG_IGN)
         sigaction(SIGTERM, &new_action, NULL);
+    if (old_action.sa_handler != SIG_IGN)
+        sigaction(SIGSEGV, &new_action, NULL);
 
 }
 
