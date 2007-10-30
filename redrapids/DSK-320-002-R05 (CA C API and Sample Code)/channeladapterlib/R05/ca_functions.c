@@ -143,7 +143,7 @@ void ca_LoadDMASettings(
 				
 				if(Adr != 0x0)  //Clear DMA space
 				{	
-					ptr = pCA->DMA.dVirtDMAAdr[(DMAChCntr*DMAAdrPerCh)+GrpCntr];
+					ptr = (UINT32*)pCA->DMA.dVirtDMAAdr[(DMAChCntr*DMAAdrPerCh)+GrpCntr];
 					memset(ptr, 0, pCA->DMA.BlockSizeB[DMAChCntr]);
 				}
 
@@ -223,7 +223,7 @@ void ca_PrintDMAChannel(
 	GrpSize32 = (pCA->DMA.BlockSizeB[Ch] * (pCA->DMA.BlockCount[Ch] + 1)) / 4;
 	while(GrpsLeft)
 	{
-		pUINT32 = pCA->DMA.dVirtDMAAdr[(Ch*DMAAdrPerCh)+CurGrp];
+		pUINT32 = (UINT32*)pCA->DMA.dVirtDMAAdr[(Ch*DMAAdrPerCh)+CurGrp];
 		
 		if(TxtBinN)	//In ascii mode
 		{

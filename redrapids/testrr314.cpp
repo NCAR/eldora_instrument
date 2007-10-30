@@ -163,7 +163,7 @@ void * dataTask(void* threadArg) {
                     RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
                     pPulse->abp.length(pABP->_abp.size());
-                    for (int p = 0; p < pABP->_abp.size(); p++) {
+                    for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
                         pPulse->abp[p] = pABP->_abp[p];
                     }
                     // set the timestamp
@@ -183,7 +183,7 @@ void * dataTask(void* threadArg) {
                     RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
                     // set the size
                     pTS->tsdata.length(pIQ->_iq.size());
-                    for (int p = 0; p < pIQ->_iq.size(); p++)
+                    for (unsigned int p = 0; p < pIQ->_iq.size(); p++)
                     pTS->tsdata[p] = pIQ->_iq[p];
                     // set the timestamp
                     pTS->timestamp = pIQ->pulseCount;
@@ -206,7 +206,7 @@ void * dataTask(void* threadArg) {
                 // ABP buffer
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                 assert (pABP != 0);
-                for (int i = 0; i < pABP->_abp.size(); i += 3) {
+                for (unsigned int i = 0; i < pABP->_abp.size(); i += 3) {
                     *pStream
                     << pABP->_abp[i] << " "
                     << pABP->_abp[i+1] << " "
@@ -217,7 +217,7 @@ void * dataTask(void* threadArg) {
                 // IQ buffer
                 RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
                 assert(pIQ != 0);
-                for (int i = 0; i < pIQ->_iq.size(); i += 2) {
+                for (unsigned int i = 0; i < pIQ->_iq.size(); i += 2) {
                     *pStream
                     << pIQ->_iq[i] << " "
                     << pIQ->_iq[i+1] << " "
@@ -288,7 +288,7 @@ int main(int argc, char** argv) {
             std::cout << rr314.numFreeIQBuffers() << " "
             << rr314.numFreeABPBuffers() << " ";
             unsigned long sum = 0;
-            for (int c = 0; c < bytes.size(); c++)
+            for (unsigned int c = 0; c < bytes.size(); c++)
             {
                 std::cout << std::setw(6);
                 std::cout << bytes[c] << " ";

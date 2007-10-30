@@ -1,4 +1,4 @@
-
+#include <string.h>
 #if defined(WIN32)
 	#include <windows.h>
 #elif defined(LINUX)
@@ -78,7 +78,7 @@ int ca_MemBuffer_Copy(
 	while((pMemBuf->LastGrp != CurGrp) & (pMemBuf->TotalGrpsCaptured != pMemBuf->GrpsToCapture))
 	{
 		//Copy the group to the large memory buffer
-		src  = pCA->DMA.dVirtDMAAdr[(Ch*pMemBuf->MaxGrpsPerCh)+pMemBuf->LastGrp];
+		src  = (UINT32*)pCA->DMA.dVirtDMAAdr[(Ch*pMemBuf->MaxGrpsPerCh)+pMemBuf->LastGrp];
 		dest =  pMemBuf->pDataBuffer + (pMemBuf->GrpSize32 * pMemBuf->TotalGrpsCaptured);
 		memcpy(dest, src, pMemBuf->GrpSize32*4);
 		
@@ -124,9 +124,6 @@ int ca_MemBuffer_WriteToDisk(
 	FILE * fp;
 	int x;
 	short Hi1,Low1, Hi0,Low0;
-	unsigned int ChID, PulseCount;
-
-	UINT32 Dummy;
 	UINT32 dwHi, dwLow;	//For 32bit samples
 	
 	
@@ -167,8 +164,8 @@ int ca_MemBuffer_WriteToDisk(
 			dwHi  = *(pMemBuf->pDataBuffer+x+1);
 			dwLow = *(pMemBuf->pDataBuffer+x);
 
-			fprintf(fp, "%x\t%8x\n", dwLow);
-			fprintf(fp, "%x\t%8x\n", dwHi);
+			fprintf(fp, "%8x\n", dwLow);
+			fprintf(fp, "%8x\n", dwHi);
 
 		}
 		else if(EQUAL(dataMode, "16bit-txt"))

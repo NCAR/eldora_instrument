@@ -59,7 +59,7 @@ void RR314sim::simulate() {
 	// each iq is 2 bytes, but the interface to RR314 expects signed ints,
 	// so resize it for the _numiq plus the 2 identifier words.
 	_iq.resize(2*_numiq+6);
-	for (int k = 6; k < _iq.size(); k += 2) {
+	for (unsigned int k = 6; k < _iq.size(); k += 2) {
 		// create Is and Qs
 		_iq[k] = -1;
 		_iq[k+1] = 1;
@@ -67,7 +67,7 @@ void RR314sim::simulate() {
 
 	while (1) {
 		for (int p = 0; p < _nci; p++) {
-			for (int i = 0; i < _iqChans.size(); i++) {
+			for (unsigned int i = 0; i < _iqChans.size(); i++) {
                 /// @todo This needs to be fixed to use to use int
 			    /// values
 			    _iq[0] = 0;
@@ -80,7 +80,7 @@ void RR314sim::simulate() {
 			}
 			_pulseNum++;
 		}
-		for (int i = 0; i < _abpChans.size(); i++) {
+		for (unsigned int i = 0; i < _abpChans.size(); i++) {
 			_abp[0] = _beamNum;
 			_abp[1] = _abpChans[i];
 			_abp[2] = 0;
