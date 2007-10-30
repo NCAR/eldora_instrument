@@ -16,29 +16,30 @@ void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
 	if (MaxGrpsPerCh > 1024) //1024 is max groups per dmaChan
 		MaxGrpsPerCh = 1024;
 
-	//std::cout << "chan " << chan << "\n";
 	// send it to RR314
 	if (chan % 2) {
 		// abp dmaChan
 		int* src = (int*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
-		//for (int i = 0; i < DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (src[0])); i ++){
-		//std::cout << chan << std::setw(5) << i << " " << std::setw(9) << src[i] << "\n";
+		//for (int i = 0; i < DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (src[0])); i ++) {
+		//	std::cout << chan << std::setw(5) << i << " " << std::setw(9)
+		//			<< src[i] << "\n";
 		//}
 		pRR314->newABPData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int)));
 	} else {
 		// iq dmaChan
 		short* src = (short*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
+		//std::cout << "chan " << chan << "\n";
 		//for (int i = 0; i < DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (src[0])); i ++) {
 		//	std::cout << chan << std::setw(5) << i << " " << std::setw(6)
 		//			<< src[i] << "\n";
 		//}
 		if (chanFirst[chan]) {
-			pRR314->newIQData(src+2, chan,
-					DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short))-2);
+			pRR314->newIQData(src+2, chan, 
+			DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short))-2);
 			chanFirst[chan] = false;
 		} else {
-			pRR314->newIQData(src, chan,
-					DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short)));
+			pRR314->newIQData(src, chan, 
+			DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short)));
 		}
 	}
 
