@@ -116,10 +116,8 @@ void * dataTask(void* threadArg) {
     bool capture = pParams->capture;
 
     ArgvParams argv("testrr314");
-    argv["-ORBSvcConf"]
-            = "/home/eldora/eldora/conf/tcp.conf";
-    argv["-DCPSConfigFile"]
-            = "/home/eldora/eldora/conf/simpleConf.ini";
+    argv["-ORBSvcConf"] = ELDORA_ROOT "/conf/tcp.conf";
+    argv["-DCPSConfigFile"] = ELDORA_ROOT "/conf/simpleConf.ini";
 
     ACE_Time_Value small(0, 100000);
 
