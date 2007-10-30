@@ -205,6 +205,7 @@ void * dataTask(void* threadArg) {
             if (channel == RRBuffer::ABPtype) {
                 // ABP buffer
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
+                assert (pABP != 0);
                 for (int i = 0; i < pABP->_abp.size(); i += 3) {
                     *pStream
                     << pABP->_abp[i] << " "
@@ -215,6 +216,7 @@ void * dataTask(void* threadArg) {
             } else {
                 // IQ buffer
                 RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
+                assert(pIQ != 0);
                 for (int i = 0; i < pIQ->_iq.size(); i += 2) {
                     *pStream
                     << pIQ->_iq[i] << " "
