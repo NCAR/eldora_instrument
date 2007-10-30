@@ -488,9 +488,12 @@ void RR314::newIQData(short* src, int chan, int n) {
 			pBuf->dataIn++;
 			break;
 		default:
+			//std::cout << "chan:"<<chan<<"  i:" <<i<<"  dataIn:"<< pBuf->dataIn << "  nextData:"<<pBuf->nextData<<"  src[i]:"<<src[i]<<"\n";
 			pBuf->_iq[pBuf->nextData] = src[i];
 			pBuf->nextData++;
 			pBuf->dataIn++;
+			if (pBuf->dataIn == (2*_numIQ+6))
+				pBuf->dataIn = 0;
 			if (pBuf->nextData == pBuf->_iq.size()) {
 				// current buffer has been filled
 				// lock access to the queues
@@ -516,6 +519,7 @@ void RR314::newIQData(short* src, int chan, int n) {
 					/// @todo Add error handling for IQ buffer starvation. If
 					/// this branch is ever taken as currently coded, it will 
 					/// completely hose the data stream. 
+					std::cout << "buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
 				}
 				// unlock queue acess
 				pthread_mutex_unlock(&_bufferMutex);
