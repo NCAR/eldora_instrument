@@ -60,7 +60,7 @@ struct runParams parseOptions(int argc, char** argv) {
             "start gate for iq capture") ("numiq",
             po::value<int>(&params.numiq)->default_value(11),
             "number of gates for iq capture") ("decimation",
-            po::value<int>(&params.decimation)->default_value(8),
+            po::value<int>(&params.decimation)->default_value(6),
             "decimation factor") ("xsvf",
             po::value<std::string>(&params.xsvf)->default_value(""),
             "path to xsvf file") ("kaiser",
@@ -146,6 +146,8 @@ void * dataTask(void* threadArg) {
     while (1) {
         // next buffer will block until a new buffer is ready.
         RRBuffer* pBuf = pRR314->nextBuffer();
+//	std::cout << (pBuf->type == RRBuffer::IQtype ? "IQ  ":"ABP ") <<
+//	  pBuf->dmaChan << " " << pBuf->chanId << " " << pBuf->pulseCount << "\n";
         // get the details of this buffer
         int channel = pBuf->dmaChan;
         // bump the sample count

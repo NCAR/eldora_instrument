@@ -471,26 +471,34 @@ void RR314::newIQData(short* src, int chan, int n) {
         // fill the current buffer from the source
         switch (pBuf->dataIn) {
             case 0:
+	      pBuf->dmaChan = chan;
                 pBuf->chanId = (pBuf->chanId & 0xffff0000)|src[i];
+        pBuf->dataIn++;
             break;
             case 1:
                 pBuf->chanId = (pBuf->chanId & 0x0000ffff)|src[i] << 16;
+        pBuf->dataIn++;
             break;
             case 2:
                 pBuf->prtId = (pBuf->prtId & 0xffff0000)|src[i];
+        pBuf->dataIn++;
             break;
             case 3:
                 pBuf->prtId = (pBuf->prtId & 0x0000ffff)|src[i] << 16;
+        pBuf->dataIn++;
             break;
             case 4:
                 pBuf->pulseCount = (pBuf->pulseCount & 0xffff0000)|src[i];
+        pBuf->dataIn++;
             break;
             case 5:
                 pBuf->pulseCount=(pBuf->pulseCount & 0x0000ffff)|src[i]<<16;
+        pBuf->dataIn++;
             break;
             default:
                 pBuf->_iq[pBuf->nextData] = src[i];
                 pBuf->nextData++;
+        pBuf->dataIn++;
                 if (pBuf->nextData == pBuf->_iq.size()) {
                     // current buffer has been filled
                     // lock access to the queues
@@ -522,7 +530,6 @@ void RR314::newIQData(short* src, int chan, int n) {
                 }
             break;
         }
-        pBuf->dataIn++;
         if (pBuf->dataIn == _numIQ*2 + 6) {
             pBuf->dataIn = 0;
         }
@@ -535,6 +542,7 @@ void RR314::newABPData(int* src, int chan, int n) {
     // verify that we got an abp channel
     assert((chan & 1) && (chan < 8));
 
+    // std::cout << "newABPData chan " << chan << ", n:" << n << "\n";
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
     // loop through all src samples
     for (int i = 0; i < n; i++) {
@@ -542,21 +550,34 @@ void RR314::newABPData(int* src, int chan, int n) {
         // fill the current buffer from the source
         switch (pBuf->dataIn) {
             case 0:
+	        pBuf->dmaChan = chan;
                 pBuf->chanId = src[i];
+		pBuf->dataIn++;
             break;
             case 1:
                 pBuf->prtId = src[i];
+		pBuf->dataIn++;
             break;
             case 2:
                 pBuf->pulseCount = src[i];
+		pBuf->dataIn++;
             break;
             default:
                 pBuf->_abp[pBuf->nextData] = src[i];
                 pBuf->nextData++;
+		pBuf->dataIn++;
                 if (pBuf->nextData == pBuf->_abp.size()) {
                     // current buffer has been filled
                     // lock access to the queues
                     pthread_mutex_lock(&_bufferMutex);
+                    
+		    // std::cout << "dmaChan:" << pBuf->dmaChan 
+		    // << " chanId:" << pBuf->chanId << " prtId:" 
+		    // << pBuf->prtId << " pulse:" << pBuf->pulseCount;
+                    // for (int k = 0; k < pBuf->_abp.size(); k++)
+		    //std::cout << " " << pBuf->_abp[k];
+                    //std::cout << "\n";
+                    
                     // put it in the full queue
                     _fullBuffers.push_back(pBuf);
                     // update the accounting
@@ -568,7 +589,6 @@ void RR314::newABPData(int* src, int chan, int n) {
                         pBuf = _freeABPBuffers[0];
                         pBuf->nextData = 0;
                         pBuf->dataIn = 0;
-                        pBuf->dmaChan = chan;
                         // save it as the current buffer being filled
                         _currentABPBuffer[chan] = pBuf;
                         // remove from the free list
@@ -577,13 +597,13 @@ void RR314::newABPData(int* src, int chan, int n) {
                         /// @todo Add error handling for IQ buffer starvation. If
                         /// this branch is ever taken as currently coded, it will 
                         /// completely hose the data stream. 
+		      std::cout << "buffer unavailable " << __FILE__ << ":" << __LINE__ << "\n";
                     }
                     // unlock queue acess
                     pthread_mutex_unlock(&_bufferMutex);
                 }
             break;
         }
-        pBuf->dataIn++;
     }
 }
 
@@ -765,8 +785,7 @@ void RR314::timerInit() {
     MT_ADDR, 
     PERIOD_REG|Timers); // Address Timer 0
     if (_dualPrt == 0) {
-        // Adapter_Write32(&_chanAdapter, V4, MT_DATA, 1000);  // Single PRT @ 1kHz PRF
-        Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates *2); // For Power Curve Measurements
+        Adapter_Write32(&_chanAdapter, V4, MT_DATA, 392);
     } else {
         Adapter_Write32(&_chanAdapter, V4, MT_DATA, 250); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
     }
