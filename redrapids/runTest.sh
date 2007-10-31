@@ -8,7 +8,7 @@ REPOFILE=~/eldoraRepo.ior
 
 # The consumer invocation
 consume="/home/eldora/eldora/testdds/consumer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
-produce="./testrr314 --gates 391 --pub"
+produce="./testrr314 --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pub"
 # kill existing jobs
 pkill consumer
 pkill DCPSInfoRepo
