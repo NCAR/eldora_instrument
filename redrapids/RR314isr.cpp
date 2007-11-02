@@ -4,13 +4,12 @@
 
 using namespace RedRapids;
 
-bool chanFirst[8] = { true, true, true, true, true, true, true, true };
-
 //////////////////////////////////////////////////////////////////////
 
-void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
+#define NUMSHORTS  DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short))
+#define NUMINTS    DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int))
 
-	int group = pRR314->lastGroup(chan);
+void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314, int group) {
 
 	int MaxGrpsPerCh = 2048 / (pCA->DMA.DMAChannels + 1);
 	if (MaxGrpsPerCh > 1024) //1024 is max groups per dmaChan
@@ -24,25 +23,33 @@ void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314) {
 		//	std::cout << chan << std::setw(5) << i << " " << std::setw(9)
 		//			<< src[i] << "\n";
 		//}
-		pRR314->newABPData(src, chan, DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (int)));
+
+		// send the abp dma buffer to the RR314 class.
+		pRR314->newABPData(src, chan, NUMINTS);
 	} else {
 		// iq dmaChan
 		short* src = (short*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
 		//std::cout << "chan " << chan << "\n";
-		//for (int i = 0; i < DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (src[0])); i ++) {
+		//for (int i = 0; i < NUMSHORTS; i ++) {
 		//	std::cout << chan << std::setw(5) << i << " " << std::setw(6)
 		//			<< src[i] << "\n";
 		//}
-		if (chanFirst[chan]) {
-			pRR314->newIQData(src+2, chan, 
-			DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short))-2);
-			chanFirst[chan] = false;
-		} else {
-			pRR314->newIQData(src, chan, 
-			DMABLOCKSPERGROUP * DMABLOCKSIZEBYTES/(sizeof (short)));
-		}
-	}
 
+		// reorder the IQ data stream, since it is packed oddly due to either
+		// the FPGA code or the RR interface.
+		short srcReordered[NUMSHORTS];
+		for (unsigned int i = 0; i < NUMSHORTS; i += 4) {
+			srcReordered[i+0] = src[i+2];
+			srcReordered[i+1] = src[i+3];
+			srcReordered[i+2] = src[i+0];
+			srcReordered[i+3] = src[i+1];
+		}
+		//		if (chan == 0)
+		//		std::cout.write((char*)srcReordered, 2*NUMSHORTS);
+
+		// send the iq dma buffer to the RR314 class.
+		pRR314->newIQData(srcReordered, chan, NUMSHORTS);
+	}
 	return;
 }
 
@@ -65,14 +72,18 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
 
 		while (pRR314->lastGroup(chan) != (int)currentGroup) {
 
-			// update the last group index
-			pRR314->lastGroup(chan, pRR314->lastGroup(chan)+1);
-			// handle the wrap around
-			if (pRR314->lastGroup(chan) == DMANUMGROUPS)
-				pRR314->lastGroup(chan, 0);
-
 			// send the group to our RR314 class
-			sendGroupToRR314(pCA, chan, pRR314);
+			sendGroupToRR314(pCA, chan, pRR314, pRR314->lastGroup(chan));
+
+			// update the last group index to indicated the next
+			// group that is available.
+			if (pRR314->lastGroup(chan) < pCA->DMA.GrpCnt[chan]) {
+				pRR314->lastGroup(chan, pRR314->lastGroup(chan)+1);
+			} else {
+				// handle the wrap around
+				pRR314->lastGroup(chan, 0);
+			}
+
 		}
 	} else {
 		std::cout << "BOGUS GROUP COUNT: " << currentGroup << "\n";

@@ -48,7 +48,7 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 	_bytes.resize(8);
 	for (int c = 0; c < 8; c++) {
 		_bytes[c] = 0;
-		lastGroup(c, -1);
+		lastGroup(c, 0);
 	}
 
 	// allocate the buffers
@@ -402,7 +402,7 @@ int RR314::configure314() {
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	
-	// Allocate DMA space for each dmaChan. The dmaChan 
+	// Allocate DMA space for each channel. The channel 
 	// adapter library will create the scatter/gather 
 	// memory references which are then downloaded
 	// to the RR card for use by the DMA engine.
@@ -771,7 +771,7 @@ void RR314::timerInit() {
 	MT_ADDR, 
 	PERIOD_REG|Timers); // Address Timer 0
 	if (_dualPrt == 0) {
-		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 392);
+		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 1000);
 	} else {
 		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 250); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
 	}

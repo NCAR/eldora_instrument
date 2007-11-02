@@ -30,7 +30,7 @@
 #define DMABLOCKSIZEBYTES 1024
 /// The number of DMA blocks per DMA groups.
 #define DMABLOCKSPERGROUP 16
-/// The number of buffers preallocated in the buffer pool.
+/// The number of buffers preallocated in each (iq and abp) buffer pool.
 #define BUFFERPOOLSIZE  1000
 
 /// shutdownSignalHandler is a handler that is called for 
