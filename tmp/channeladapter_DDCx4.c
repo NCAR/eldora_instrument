@@ -12,16 +12,16 @@
  Desc: This program shows how to capture data from the ChannelAdapter LocalBus interface.
    The example assumes the 4 ch LB interface is used.  This program is only for use 
    with the CA Example FPGA code.  When the DMA Go bit (0x0 of 0x80C) is set to 1, 
-   each dmaChan will move a sythentic data set across the bus as fast as the bus will
-   allow.  Each 32bit word will consist of a dmaChan ID on [31:27] and a count on
+   each channel will move a sythentic data set across the bus as fast as the bus will
+   allow.  Each 32bit word will consist of a channel ID on [31:27] and a count on
    [26:0].
 
    As each DMA groups is done it will be copied from the DMA buffer to a seperate 
    holding buffer so that the DMA buffer can be reused.  When the progam is done 
-   collecting data it will write each dmaChan out to a txt file.   
- 
+   collecting data it will write each channel out to a txt file.   
+
  Rev History 
-    
+
     1.2 - Release against R05 of API
     1.1 - Released against R04 of API
     1.0 - [28 August 2006 ASB (abixby@redrapids.com) & PTJ (jennings@redrapids.com)
@@ -41,7 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
 
 #include "ca_bar0_memmap.h"
 #include "ca_lb_memmap.h"
@@ -60,18 +60,21 @@
 	
 #endif
 
-UINT32 ChXferDone;	       //Bit map for channels than have completed transfer	
+#define DWORD int
+	
+DWORD ChXferDone;		//Bit map for channels than have completed transfer	
 
-s_ChMemBuffer MemBuffer_Ch[16];	//Large memory buffers, data from DMA space will be moved here
+s_ChMemBuffer MemBuffer_Ch[16];		//Large memory buffers, data from DMA space will be moved here
+
 
 //Set DDC Values
-UINT32 decimation = 12;
-UINT32 gates	 = 1000;
-UINT32 samples	 = 100;
-UINT32 dprt	 = 0;
-UINT32 indx	 = 0;
-UINT32 length	 = 10;
-UINT32 Timers	 = TIMER0|TIMER1|TIMER2|TIMER3;
+DWORD decimation = _0_75us;
+DWORD gates      = 391;        //MUST BE AT LEAST 3 > LENGTH
+DWORD samples    = 25;
+DWORD dprt       = 0;
+DWORD index      = 0;
+DWORD length     = 21;         
+DWORD Timers     = TIMER0|TIMER1|TIMER2|TIMER3;
 
 int main(int argc, char* argv[]) 
 {
@@ -79,7 +82,7 @@ int main(int argc, char* argv[])
 	s_ChannelAdapter CA0;		/*Handle to ChannelAdapter device*/
 	s_ClkSettings ClkSettings;	/*Struct of sample clk setttings*/
 	
-	UINT32 Dummy;
+	DWORD Dummy;
 	
 	//Flags to set from command line
 	int GrpsToCapture;	
@@ -87,7 +90,7 @@ int main(int argc, char* argv[])
 
 	//Set default values
 	V4LoadCheck   = 1;
-	GrpsToCapture = 2;
+	GrpsToCapture = 4;
 	
 	printf("Red Rapids\n");
 	printf("ChannelAdapter LocalBus Demo Program v %x.%x.%x\n", MAJ_REV, MIN_REV, SUB_REV);
@@ -118,8 +121,6 @@ int main(int argc, char* argv[])
 	// Disable all interupts
   	Adapter_Write32(&CA0, V4, V4_MASK_ADR, 0x0);
 	
-	printf("BRIDGE is %x, BRG_FPGA_STAT is %x\n", BRIDGE,  BRG_FPGA_STAT);
-
 	//Check the V4 has a valid load.  
  	if(V4LoadCheck)
  	{
@@ -131,6 +132,7 @@ int main(int argc, char* argv[])
  			return -1;	
  		}
  	}
+	
 	Adapter_Read32(&CA0, BRIDGE, BRG_REV_ADR, &Dummy);
 	printf("PCI Bridge rev is %x\n", Dummy);
 	Adapter_Read32(&CA0, V4, DMA_REV_ADR, &Dummy);  
@@ -166,6 +168,10 @@ int main(int argc, char* argv[])
     			Adapter_Close(&CA0);
     			return -1;
   		}
+		
+		//Reset Decimated Clocks
+  		Adapter_Write32(&CA0, V4, DEC_RST_REG, RST_ACT);
+  		Adapter_Write32(&CA0, V4, DEC_RST_REG, RST_CLR);
 				
 		/*
 		Set M314 VRANGE mode.  This will touch the register that controls the sample
@@ -178,16 +184,24 @@ int main(int argc, char* argv[])
 		
 		// Flush FIFOs
 		Adapter_Write32(&CA0, V4, V4_CTL_ADR, ADCAFF_FLUSH);
+		
+		// Reset Pulse Pair Processor
+  		Adapter_Write32(&CA0, V4, PP_RST, PP_RST_ACT);
+  		Adapter_uSleep(1000000);
+  		Adapter_Write32(&CA0, V4, PP_RST, PP_RST_CLR);
+
+  		//Enable GPIO
+  		Adapter_Write32(&CA0, BRIDGE, BRG_GPIO_ADR, BRG_M314GPIO_EN);
 			
 	/***************End Init Blcok***************************************************************/
 	
 	
-	//Allocate DMA space for each dmaChan to trasfer data into.  Once a group has finshed an interrupt will
+	//Allocate DMA space for each channel to trasfer data into.  Once a group has finshed an interrupt will
 	//be signaled and the data will be copied away to the large holding buffer. 
 		
 	printf("Allocating DMA space...");
 	//Allocate DMA Memory
-	CA0.DMA.DMAChannels = 15;				//Firmware supports 4 DMA channels, indexed to 0
+	CA0.DMA.DMAChannels = 7;				//Firmware supports 4 DMA channels, indexed to 0
 			
 	unsigned int i;
 	for (i = 0; i < CA0.DMA.DMAChannels+1; i++) {
@@ -241,34 +255,33 @@ int main(int argc, char* argv[])
 		*/
 
   	//Decimation Setup
-	UINT32 Dec_Factor = decimation*2 - 1;
-	Adapter_Write32(&CA0, V4, DEC_REG, Dec_Factor);// Decimation Register
+	Adapter_Write32(&CA0, V4, DEC_REG, decimation);// Decimation Register
 	
 	//Pulse Pair Setup
 	Adapter_Write32(&CA0, V4, M_REG, gates);     // # of Gates
   	Adapter_Write32(&CA0, V4, N_REG, samples);   // # of Samples
   	Adapter_Write32(&CA0, V4, DPRT_REG, dprt);      // Dual Prt(Off)
-	Adapter_Write32(&CA0, V4, IQ_START_IDX, indx);     // index of start of IQ capture
+	Adapter_Write32(&CA0, V4, IQ_START_IDX, index);     // index of start of IQ capture
 	Adapter_Write32(&CA0, V4, IQ_GATE_LEN, length);    // # of Gate of IQ capture
 
 	Adapter_Read32(&CA0, V4, M_REG, &gates);
   	Adapter_Read32(&CA0, V4, N_REG, &samples);
   	Adapter_Read32(&CA0, V4, DPRT_REG, &dprt);
-	Adapter_Read32(&CA0, V4, IQ_START_IDX, &indx);
+	Adapter_Read32(&CA0, V4, IQ_START_IDX, &index);
 	Adapter_Read32(&CA0, V4, IQ_GATE_LEN, &length);
 	
   	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", gates, samples, dprt);
-	printf("IQ Index = %d, IQ Length = %d\n", indx, length);
+	printf("IQ Index = %d, IQ Length = %d\n", index, length);
   	printf("Pulse Width = %d, Decimation Factor = %d\n", gates, decimation);
 
   	//Reset Timers
-	Adapter_Write32(&CA0, V4, MT_DATA, 0x0);    	   // Enable Timer
-  	Adapter_Write32(&CA0, V4, MT_WR, WRITE_ON);                // Turn on Write Strobes
-	Adapter_Write32(&CA0, V4, MT_ADDR, CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3);    // Control Register
-  	Adapter_Write32(&CA0, V4, MT_ADDR, DELAY_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&CA0, V4, MT_ADDR, WIDTH_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&CA0, V4, MT_ADDR, PERIOD_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&CA0, V4, MT_ADDR, PRT_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Mult PRT Register Timer 0
+	Adapter_Write32(&CA0, V4, MT_DATA, 0x0);    	            // Enable Timer
+  	Adapter_Write32(&CA0, V4, MT_WR, WRITE_ON);                 // Turn on Write Strobes
+	Adapter_Write32(&CA0, V4, MT_ADDR, CONTROL_REG|Timers);     // Control Register
+  	Adapter_Write32(&CA0, V4, MT_ADDR, DELAY_REG|Timers);       // Address Timer 0
+	Adapter_Write32(&CA0, V4, MT_ADDR, WIDTH_REG|Timers);       // Address Timer 0
+	Adapter_Write32(&CA0, V4, MT_ADDR, PERIOD_REG|Timers);      // Address Timer 0
+	Adapter_Write32(&CA0, V4, MT_ADDR, PRT_REG|Timers);         // Mult PRT Register Timer 0
 	Adapter_Write32(&CA0, V4, MT_WR, WRITE_OFF);                // Turn on Write Strobes
 	
 	//Gating Timer Setup
@@ -276,13 +289,13 @@ int main(int argc, char* argv[])
 	Adapter_Write32(&CA0, V4, MT_ADDR, CONTROL_REG|Timers);    // Control Register
   	Adapter_Write32(&CA0, V4, MT_DATA, TIMER_ON);    	   // Enable Timer
   	Adapter_Write32(&CA0, V4, MT_WR, WRITE_ON);                // Turn on Write Strobes
-  
-  
+
+
   	//Delay Register
 	Adapter_Write32(&CA0, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
   	Adapter_Write32(&CA0, V4, MT_DATA, 0);      // Value Timer 0
-  
-  
+
+
   	//Pulse Width Register
 	Adapter_Write32(&CA0, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
   	Adapter_Write32(&CA0, V4, MT_DATA, gates); // Value Timer 0 (Testing Purposes)
@@ -292,7 +305,7 @@ int main(int argc, char* argv[])
   	Adapter_Write32(&CA0, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
   	if (dprt == 0) {
 		//Adapter_Write32(&CA0, V4, MT_DATA, 1000);  // Single PRT @ 1kHz PRF
-		Adapter_Write32(&CA0, V4, MT_DATA, 5000);  // For Power Curve Measurements
+		Adapter_Write32(&CA0, V4, MT_DATA, 392);  // For Power Curve Measurements
 	}
 	else {
 		Adapter_Write32(&CA0, V4, MT_DATA, 250);  // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
@@ -307,21 +320,20 @@ int main(int argc, char* argv[])
   		Adapter_Write32(&CA0, V4, MT_DATA, 0x0000);   // Mult PRT Value Timer 0
 	}
 	
-	//Adapter_Write32(&CA0, V4, 0xA60, 0x0);   // DC I Removal
-	//Adapter_Write32(&CA0, V4, 0xA64, 0x0);   // DC Q Removal
-  
+	Adapter_Write32(&CA0, V4, KAISER_ADDR, 0); 	// Start the DDC
+	
 	printf("ENABLING: %x\n", PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
 	Adapter_Write32(&CA0, V4, MT_ADDR, PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
   	Adapter_Write32(&CA0, V4, MT_WR, WRITE_OFF);    // Turn off Write Strobes
-  
-  
- 	Adapter_Write32(&CA0, V4, KAISER_ADDR, 0); 	// Start the DDC
+
+
+ 	
 		
 	/*********************End of Timer and Pulse Pair Init Block **********************************************************/	
 	
 	
 	//Set a bit for each active ch.  Will be cleared by ISR as channels finish
-	ChXferDone = 0xFFFF;
+	ChXferDone = 0xFF;
 
 	//printf("Press Any Key to Begin Data Capture and Transfer.\n");
 	//getchar();
@@ -356,27 +368,19 @@ int main(int argc, char* argv[])
 	
 	if ((Timers&TIMER0)>>4) {
 	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[0], "ChA_IQ.txt", "txt", "16bit-txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[1], "ChA_P.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[2], "ChA_A.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[3], "ChA_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[1], "ChA_PP.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER1)>>5) {
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[4], "ChB_IQ.txt", "txt", "16bit-txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[5], "ChB_P.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[6], "ChB_A.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[7], "ChB_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[2], "ChB_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[3], "ChB_PP.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER2)>>6) {
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[8], "ChC_IQ.txt", "txt", "16bit-txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[9], "ChC_P.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[10], "ChC_A.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[11], "ChC_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[4], "ChC_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[5], "ChC_PP.txt", "txt", "32bit_h_txt");
 	}
 	if ((Timers&TIMER3)>>7) {
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[12], "ChD_IQ.txt", "txt", "16bit-txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[13], "ChD_P.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[14], "ChD_A.txt", "txt", "32bit_h_txt");
-	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[15], "ChD_B.txt", "txt", "32bit_h_txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[6], "ChD_IQ.txt", "txt", "16bit-txt");
+	  ca_MemBuffer_WriteToDisk(&MemBuffer_Ch[7], "ChD_PP.txt", "txt", "32bit_h_txt");
 	}
 	
 	//Close the card and exit
@@ -387,7 +391,7 @@ int main(int argc, char* argv[])
 
 void Adapter_ISR(s_ChannelAdapter *pCA)
 {
-	UINT32 Status, Mask, DMAStat, DMAMask;
+	DWORD Status, Mask, DMAStat, DMAMask;
 	int GrpsDone;
 
 	//printf("Adapter_ISR: Entered....\n");
@@ -412,31 +416,32 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 
  		if((DMAStat & 0x2) & (ChXferDone & 0x2)) //Ch 1 DMA Done
  		{
- 			printf("Moving ChA P\n");
+ 			printf("Moving ChA PP\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[1], 1);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 1 , you might be falling behind.\n", GrpsDone);
 		}
 		
+		// Channel B
 		if((DMAStat & 0x4) & (ChXferDone & 0x4)) //Ch 2 DMA Done
 		{
-			printf("Moving ChA A\n");
+			printf("Moving ChB IQ\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[2], 2);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 2 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x8) & (ChXferDone & 0x8)) //Ch 3 DMA Done
 		{
-			printf("Moving ChA B\n");
+			printf("Moving ChB PP\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[3], 3);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 3 , you might be falling behind.\n", GrpsDone);
 		}
 		
-		// Channel B
+		// Channel C
 		if((DMAStat & 0x10) & (ChXferDone & 0x10)) //Ch 4 DMA Done
 		{
-			printf("Moving ChB IQ\n");
+			printf("Moving ChC IQ\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[4], 4);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 4 , you might be falling behind.\n", GrpsDone);
@@ -444,91 +449,29 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 
  		if((DMAStat & 0x20) & (ChXferDone & 0x20)) //Ch 5 DMA Done
  		{
- 			printf("Moving ChB P\n");
+ 			printf("Moving ChC PP\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[5], 5);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 5 , you might be falling behind.\n", GrpsDone);
 		}
 		
+		// Channel D
 		if((DMAStat & 0x40) & (ChXferDone & 0x40)) //Ch 6 DMA Done
 		{
-			printf("Moving ChB A\n");
+			printf("Moving ChD IQ\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[6], 6);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 6 , you might be falling behind.\n", GrpsDone);
 		}
 		if((DMAStat & 0x80) & (ChXferDone & 0x80)) //Ch 7 DMA Done
 		{
-			printf("Moving ChB B\n");
+			printf("Moving ChD PP\n");
 			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[7], 7);
 			if(GrpsDone > 2)
 				fprintf(stderr, "Multiple groups (%d) were ready for Ch 7 , you might be falling behind.\n", GrpsDone);
 		}
 		
-		// Channel C
-		if((DMAStat & 0x100) & (ChXferDone & 0x100)) //Ch 8 DMA Done
-		{
-			printf("Moving ChC IQ\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[8], 8);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 8 , you might be falling behind.\n", GrpsDone);
-		}
-
- 		if((DMAStat & 0x200) & (ChXferDone & 0x200)) //Ch 9 DMA Done
- 		{
- 			printf("Moving ChC P\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[9], 9);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 9 , you might be falling behind.\n", GrpsDone);
-		}
-		
-		if((DMAStat & 0x400) & (ChXferDone & 0x400)) //Ch 10 DMA Done
-		{
-			printf("Moving ChC A\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[10], 10);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 10 , you might be falling behind.\n", GrpsDone);
-		}
-		if((DMAStat & 0x800) & (ChXferDone & 0x800)) //Ch 11 DMA Done
-		{
-			printf("Moving ChC B\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[11], 11);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 11 , you might be falling behind.\n", GrpsDone);
-		}
-		
-		// Channel D
-		if((DMAStat & 0x1000) & (ChXferDone & 0x1000)) //Ch 12 DMA Done
-		{
-			printf("Moving ChD IQ\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[12], 12);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 12 , you might be falling behind.\n", GrpsDone);
-		}
-
- 		if((DMAStat & 0x2000) & (ChXferDone & 0x2000)) //Ch 13 DMA Done
- 		{
- 			printf("Moving ChD P\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[13], 13);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 13 , you might be falling behind.\n", GrpsDone);
-		}
-		
-		if((DMAStat & 0x4000) & (ChXferDone & 0x4000)) //Ch 14 DMA Done
-		{
-			printf("Moving ChD A\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[14], 14);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 14 , you might be falling behind.\n", GrpsDone);
-		}
-		if((DMAStat & 0x8000) & (ChXferDone & 0x8000)) //Ch 15 DMA Done
-		{
-			printf("Moving ChD B\n");
-			GrpsDone = ca_MemBuffer_Copy(pCA,  &MemBuffer_Ch[15], 15);
-			if(GrpsDone > 2)
-				fprintf(stderr, "Multiple groups (%d) were ready for Ch 15 , you might be falling behind.\n", GrpsDone);
-		}
-		
+			
 		if(MemBuffer_Ch[0].GrpsToCapture == MemBuffer_Ch[0].TotalGrpsCaptured)		ChXferDone &= ~0x1;
 		if(MemBuffer_Ch[1].GrpsToCapture == MemBuffer_Ch[1].TotalGrpsCaptured)		ChXferDone &= ~0x2;
 		if(MemBuffer_Ch[2].GrpsToCapture == MemBuffer_Ch[2].TotalGrpsCaptured)		ChXferDone &= ~0x4;
@@ -539,39 +482,21 @@ void Adapter_ISR(s_ChannelAdapter *pCA)
 		if(MemBuffer_Ch[6].GrpsToCapture == MemBuffer_Ch[6].TotalGrpsCaptured)		ChXferDone &= ~0x40;
 		if(MemBuffer_Ch[7].GrpsToCapture == MemBuffer_Ch[7].TotalGrpsCaptured)		ChXferDone &= ~0x80;
 		
-		if(MemBuffer_Ch[8].GrpsToCapture == MemBuffer_Ch[8].TotalGrpsCaptured)		ChXferDone &= ~0x100;
-		if(MemBuffer_Ch[9].GrpsToCapture == MemBuffer_Ch[9].TotalGrpsCaptured)		ChXferDone &= ~0x200;
-		if(MemBuffer_Ch[10].GrpsToCapture == MemBuffer_Ch[10].TotalGrpsCaptured)	ChXferDone &= ~0x400;
-		if(MemBuffer_Ch[11].GrpsToCapture == MemBuffer_Ch[11].TotalGrpsCaptured)	ChXferDone &= ~0x800;
-		
-		if(MemBuffer_Ch[12].GrpsToCapture == MemBuffer_Ch[12].TotalGrpsCaptured)	ChXferDone &= ~0x1000;
-		if(MemBuffer_Ch[13].GrpsToCapture == MemBuffer_Ch[13].TotalGrpsCaptured)	ChXferDone &= ~0x2000;
-		if(MemBuffer_Ch[14].GrpsToCapture == MemBuffer_Ch[14].TotalGrpsCaptured)	ChXferDone &= ~0x4000;
-		if(MemBuffer_Ch[15].GrpsToCapture == MemBuffer_Ch[15].TotalGrpsCaptured)	ChXferDone &= ~0x8000;
-		
  		if((Timers&TIMER0)>>4 == 0)  {
  		  ChXferDone &= ~0x1;
 		  ChXferDone &= ~0x2;
+		}
+		if((Timers&TIMER1)>>5 == 0)  {
 		  ChXferDone &= ~0x4;
 		  ChXferDone &= ~0x8;
 		}
-		if((Timers&TIMER1)>>5 == 0)  {
+		if((Timers&TIMER2)>>6 == 0)  {
 		  ChXferDone &= ~0x10;
 		  ChXferDone &= ~0x20;
-		  ChXferDone &= ~0x40;
-		  ChXferDone &= ~0x80;
-		}
-		if((Timers&TIMER2)>>6 == 0)  {
-		  ChXferDone &= ~0x100;
-		  ChXferDone &= ~0x200;
-		  ChXferDone &= ~0x400;
-		  ChXferDone &= ~0x800;
 		}
 		if((Timers&TIMER3)>>7 == 0)  {
-		  ChXferDone &= ~0x1000;
-		  ChXferDone &= ~0x2000;
-		  ChXferDone &= ~0x4000;
-		  ChXferDone &= ~0x8000;
+		  ChXferDone &= ~0x40;
+		  ChXferDone &= ~0x80;
 		}
  	}			
 	

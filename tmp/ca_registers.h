@@ -4,11 +4,15 @@
 
 **********************************************************************************************/
 
+
 //Kaiser Filter Registers
   #define KAISER_ADDR 0xA00
   #define KAISER_DATA 0xA04
   #define KAISER_READ 0xA08
   #define KAISER_WR   0xA0C
+//Values
+  #define DDC_START 0x0
+
 
 //Gaussian Filter Registers
   #define GAUSSIAN_ADDR 0xA10
@@ -16,14 +20,21 @@
   #define GAUSSIAN_READ 0xA18
   #define GAUSSIAN_WR   0xA1C
 
-//Clock Decimation Register
-  #define DEC_REG 0xA20
+//Clock Decimation Registers
+  #define DEC_REG     0xA20
+  #define DEC_RST_REG 0xA24
+  #define RST_ACT     0x1
+  #define RST_CLR     0x0
 
 //Pulse Pair Processor Registers
   #define M_REG        0xA40
   #define N_REG        0xA44
   #define IQ_START_IDX 0xA48
   #define IQ_GATE_LEN  0xA4C
+  #define PP_RST       0xA54
+//Values
+  #define PP_RST_ACT   0x1
+  #define PP_RST_CLR   0x0
 
 //Gate Splitter Register
   #define DPRT_REG 0xA50
@@ -45,7 +56,7 @@
   #define WIDTH_REG   0xA
   #define PERIOD_REG  0xB
   #define PRT_REG     0xC
-  
+
   #define TIMER0 (0x01<<4)
   #define TIMER1 (0x02<<4)
   #define TIMER2 (0x04<<4)
@@ -76,4 +87,14 @@
   #define PRT2 (0x0<<4)
   #define PRT3 (0x0<<8)
   #define PRT4 (0x0<<12)
-  
+
+//PulseWidths for Decimation
+  #define _0_25us 2
+  #define _0_50us 4
+  #define _0_75us 6
+  #define _1_00us 8
+  #define _1_25us 10
+  #define _1_50us 12
+  #define _1_75us 14
+  #define _2_00us 16
+
