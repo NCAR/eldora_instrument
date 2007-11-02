@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #include "ca_bar0_memmap.h"
@@ -60,7 +61,7 @@
 	
 #endif
 
-#define DWORD int
+#define DWORD unsigned int
 	
 DWORD ChXferDone;		//Bit map for channels than have completed transfer	
 
@@ -68,13 +69,13 @@ s_ChMemBuffer MemBuffer_Ch[16];		//Large memory buffers, data from DMA space wil
 
 
 //Set DDC Values
-DWORD decimation = _0_75us;
-DWORD gates      = 391;        //MUST BE AT LEAST 3 > LENGTH
-DWORD samples    = 25;
-DWORD dprt       = 0;
-DWORD index      = 0;
-DWORD length     = 21;         
-DWORD Timers     = TIMER0|TIMER1|TIMER2|TIMER3;
+DWORD Decimation  = _0_75us;
+DWORD NGates      = 391;        //MUST BE AT LEAST 3 > LENGTH
+DWORD NSamples    = 25;
+DWORD UseDualPort = 0;
+DWORD IQStartGate = 0;
+DWORD IQGateCount = 21;         
+DWORD Timers      = TIMER0|TIMER1|TIMER2|TIMER3;
 
 int main(int argc, char* argv[]) 
 {
@@ -255,30 +256,31 @@ int main(int argc, char* argv[])
 		*/
 
   	//Decimation Setup
-	Adapter_Write32(&CA0, V4, DEC_REG, decimation);// Decimation Register
+	Adapter_Write32(&CA0, V4, DEC_REG, Decimation);// Decimation Register
 	
 	//Pulse Pair Setup
-	Adapter_Write32(&CA0, V4, M_REG, gates);     // # of Gates
-  	Adapter_Write32(&CA0, V4, N_REG, samples);   // # of Samples
-  	Adapter_Write32(&CA0, V4, DPRT_REG, dprt);      // Dual Prt(Off)
-	Adapter_Write32(&CA0, V4, IQ_START_IDX, index);     // index of start of IQ capture
-	Adapter_Write32(&CA0, V4, IQ_GATE_LEN, length);    // # of Gate of IQ capture
+	Adapter_Write32(&CA0, V4, M_REG, NGates);     // # of Gates
+  	Adapter_Write32(&CA0, V4, N_REG, NSamples);   // # of Samples
+  	Adapter_Write32(&CA0, V4, DPRT_REG, UseDualPort);   // Dual Prt(Off)
+	Adapter_Write32(&CA0, V4, IQ_START_IDX, IQStartGate); // index of start of IQ capture
+	Adapter_Write32(&CA0, V4, IQ_GATE_LEN, IQGateCount);  // # of Gate of IQ capture
 
-	Adapter_Read32(&CA0, V4, M_REG, &gates);
-  	Adapter_Read32(&CA0, V4, N_REG, &samples);
-  	Adapter_Read32(&CA0, V4, DPRT_REG, &dprt);
-	Adapter_Read32(&CA0, V4, IQ_START_IDX, &index);
-	Adapter_Read32(&CA0, V4, IQ_GATE_LEN, &length);
+	Adapter_Read32(&CA0, V4, M_REG, &NGates);
+  Adapter_Read32(&CA0, V4, N_REG, &NSamples);
+  Adapter_Read32(&CA0, V4, DPRT_REG, &UseDualPort);
+	Adapter_Read32(&CA0, V4, IQ_START_IDX, &IQStartGate);
+	Adapter_Read32(&CA0, V4, IQ_GATE_LEN, &IQGateCount);
 	
-  	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", gates, samples, dprt);
-	printf("IQ Index = %d, IQ Length = %d\n", index, length);
-  	printf("Pulse Width = %d, Decimation Factor = %d\n", gates, decimation);
+  printf("Gates = %d, Samples = %d, Dual Prt = %d\n", NGates, NSamples, 
+         UseDualPort);
+	printf("IQ Index = %d, IQ Length = %d\n", IQStartGate, IQGateCount);
+  printf("Pulse Width = %d, Decimation Factor = %d\n", NGates, Decimation);
 
   	//Reset Timers
 	Adapter_Write32(&CA0, V4, MT_DATA, 0x0);    	            // Enable Timer
-  	Adapter_Write32(&CA0, V4, MT_WR, WRITE_ON);                 // Turn on Write Strobes
+  Adapter_Write32(&CA0, V4, MT_WR, WRITE_ON);                 // Turn on Write Strobes
 	Adapter_Write32(&CA0, V4, MT_ADDR, CONTROL_REG|Timers);     // Control Register
-  	Adapter_Write32(&CA0, V4, MT_ADDR, DELAY_REG|Timers);       // Address Timer 0
+  Adapter_Write32(&CA0, V4, MT_ADDR, DELAY_REG|Timers);       // Address Timer 0
 	Adapter_Write32(&CA0, V4, MT_ADDR, WIDTH_REG|Timers);       // Address Timer 0
 	Adapter_Write32(&CA0, V4, MT_ADDR, PERIOD_REG|Timers);      // Address Timer 0
 	Adapter_Write32(&CA0, V4, MT_ADDR, PRT_REG|Timers);         // Mult PRT Register Timer 0
@@ -298,12 +300,12 @@ int main(int argc, char* argv[])
 
   	//Pulse Width Register
 	Adapter_Write32(&CA0, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
-  	Adapter_Write32(&CA0, V4, MT_DATA, gates); // Value Timer 0 (Testing Purposes)
+  	Adapter_Write32(&CA0, V4, MT_DATA, NGates); // Value Timer 0 (Testing Purposes)
 	
   	
 	//Period Register
   	Adapter_Write32(&CA0, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
-  	if (dprt == 0) {
+  	if (UseDualPort == 0) {
 		//Adapter_Write32(&CA0, V4, MT_DATA, 1000);  // Single PRT @ 1kHz PRF
 		Adapter_Write32(&CA0, V4, MT_DATA, 392);  // For Power Curve Measurements
 	}
@@ -313,7 +315,7 @@ int main(int argc, char* argv[])
 	
 	//Multiple PRT Register
 	Adapter_Write32(&CA0, V4, MT_ADDR, PRT_REG|Timers); // Mult PRT Register Timer 0
-  	if (dprt == 1) {
+  	if (UseDualPort == 1) {
 		Adapter_Write32(&CA0, V4, MT_DATA, 0x0054);   // Mult PRT Value Timer 0
 	}
 	else {
