@@ -1,16 +1,29 @@
 #! /bin/sh
 
+#
+# Find the Eldora top directory (one directory up from where this script lives), 
+# so that we can find the config files
+#
+topdir="${0%/*}/.."
+# If we weren't run using an absolute path, the prepend the working directory
+# to get an absolute path
+if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
+
 # location of DDS configurtion files
-CONF=~/eldora/conf
+CONF=$topdir/conf
 
 # where to save the IOR
-REPOFILE=~/eldoraRepo.ior
+REPOFILE=/tmp/eldoraRepo.ior
 
-# The publisher invocation
-producer="./producer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --delta 10000 --pulse EldoraPulses --ts EldoraTS"
+# The producer ivocation
+producer="$topdir/testdds/producer --ORB $CONF/tcp.conf \
+        --DCPS $CONF/simpleConf.ini --delta 10000 \
+        --pulse EldoraPulses --ts EldoraTS"
 
 # The consumer invocation
-consume="./consumer --ORB $CONF/tcp.conf --DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
+consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
+         --DCPS $CONF/simpleConf.ini \
+         --pulse EldoraPulses --ts EldoraTS"
 
 # kill existing jobs
 pkill producer
