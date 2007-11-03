@@ -15,9 +15,17 @@ CONF=$topdir/conf
 # where to save the IOR
 REPOFILE=/tmp/eldoraRepo.ior
 
-# The producer ivocation
-producer="$topdir/testdds/producer --ORB $CONF/tcp.conf \
-        --DCPS $CONF/simpleConf.ini --delta 10000 \
+# The DCPSInforRepo invocation
+dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
+   -ORBSvcConf $CONF/tcp.conf \
+   -d $CONF/domain_ids  \
+   -o $REPOFILE"
+
+# The producer invocation
+producer="$topdir/testdds/producer \
+        --ORB $CONF/tcp.conf \
+        --DCPS $CONF/simpleConf.ini \
+        --delta 10000 \
         --pulse EldoraPulses --ts EldoraTS"
 
 # The consumer invocation
@@ -37,7 +45,7 @@ rm -f $REPOFILE
 trap "echo \"killing jobs\"; pkill consumer; pkill producer; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
-$DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $REPOFILE &
+$dcpsinforepo &
 sleep 2
 
 echo "Starting producer"
