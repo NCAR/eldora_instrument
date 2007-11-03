@@ -12,9 +12,6 @@ if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 # location of DDS configurtion files
 CONF=$topdir/conf
 
-# where to save the IOR
-REPOFILE=/tmp/eldoraRepo.ior
-
 # The consumer invocation
 consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
          --DCPS $CONF/simpleConf.ini \
