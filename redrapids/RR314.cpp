@@ -771,7 +771,7 @@ void RR314::timerInit() {
 	MT_ADDR, 
 	PERIOD_REG|Timers); // Address Timer 0
 	if (_dualPrt == 0) {
-		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 1000);
+		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 391);
 	} else {
 		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 250); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
 	}

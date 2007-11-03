@@ -18,8 +18,8 @@ REPOFILE=/tmp/eldoraRepo.ior
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -ORBSvcConf $CONF/tcp.conf \
-   -d $CONF/domain_ids  \
-   -o $REPOFILE"
+   -ORBListenEndpoints iiop://192.168.2.2:50000 \
+   -d $CONF/domain_ids"
 
 # The producer invocation
 producer="$topdir/testdds/producer \
@@ -37,9 +37,6 @@ consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
 pkill producer
 pkill consumer
 pkill DCPSInfoRepo
-
-# Remove existing IOR
-rm -f $REPOFILE
 
 # trap the signals on this script, and kill the jobs
 trap "echo \"killing jobs\"; pkill consumer; pkill producer; pkill DCPSInfoRepo" SIGINT SIGTERM

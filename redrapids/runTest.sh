@@ -18,11 +18,23 @@ CONF=$topdir/conf
 # where to save the IOR
 REPOFILE=/tmp/eldoraRepo.ior
 
+# The DCPSInforRepo invocation
+dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo \
+   -ORBSvcConf $CONF/tcp.conf \
+   -d $CONF/domain_ids  \
+   -o $REPOFILE"
+
 # The consumer invocation
-consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
-	--DCPS $CONF/simpleConf.ini --pulse EldoraPulses --ts EldoraTS"
-produce="$topdir/redrapids/testrr314 --ORB $CONF/tcp.conf --DCPS \
-	$CONF/simpleConf.ini --pub $*"
+consume="$topdir/testdds/consumer \
+   --ORB $CONF/tcp.conf \
+   --DCPS $CONF/simpleConf.ini \
+   --pulse EldoraPulses \
+   --ts EldoraTS"
+
+produce="$topdir/redrapids/testrr314 \
+   --ORB $CONF/tcp.conf \
+   --DCPS $CONF/simpleConf.ini \
+   --pub $*"
 
 # kill existing jobs
 pkill consumer
@@ -36,7 +48,7 @@ trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
 	pkill consumer; pkill publisher; pkill DCPSInfoRepo' ERR SIGINT SIGTERM
 	
 echo "Starting DCPSInfoRepo"
-$DDS_ROOT/bin/DCPSInfoRepo  -ORBSvcConf $CONF/tcp.conf -d $CONF/domain_ids  -o $REPOFILE &
+$dcpsinforepo &
 
 sleep 2
 echo "Starting consumer 1"
