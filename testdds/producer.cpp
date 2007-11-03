@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
         ArgvParams pubParams(argv[0]);
         pubParams["-ORBSvcConf"] = ORB;
         pubParams["-DCPSConfigFile"] = DCPS;
-
+ 
         ACE_Time_Value small(0, delta);
         DDSPublisher publisher(pubParams.argc(), pubParams.argv());
 
