@@ -20,13 +20,6 @@ consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
          --DCPS $CONF/simpleConf.ini \
          --pulse EldoraPulses --ts EldoraTS"
 
-# kill existing jobs
-pkill consumer
-
-
-# trap the signals on this script, and kill the jobs
-trap "echo \"killing jobs\"; pkill consumer; pkill producer; pkill DCPSInfoRepo" SIGINT SIGTERM
-
 echo "Starting consumer 1"
 $consume 
 
