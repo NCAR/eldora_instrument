@@ -19,23 +19,23 @@ CONF=$topdir/conf
 REPOFILE=/tmp/eldoraRepo.ior
 
 # The DCPSInforRepo invocation
-dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo \
+dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
+   -NOBITS \
+   -DCPSConfigFile $CONF/DCPSconf.ini \
    -ORBSvcConf $CONF/tcp.conf \
-   -d $CONF/domain_ids  \
-   -o $REPOFILE"
+   -ORBListenEndpoints iiop://192.168.2.2:50000 \
+   -d $CONF/domain_ids"
 
 # The consumer invocation
-consume="$topdir/testdds/consumer \
-   --ORB $CONF/tcp.conf \
-   --DCPS $CONF/simpleConf.ini \
-   --pulse EldoraPulses \
-   --ts EldoraTS"
+consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
+         --DCPS $CONF/consumer.ini \
+         --pulse EldoraPulses --ts EldoraTS"
 
 produce="$topdir/redrapids/testrr314 \
    --ORB $CONF/tcp.conf \
-   --DCPS $CONF/simpleConf.ini \
+   --DCPS $CONF/producer.ini \
    --pub $*"
-
+ 
 # kill existing jobs
 pkill consumer
 pkill DCPSInfoRepo
