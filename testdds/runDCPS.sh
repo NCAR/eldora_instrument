@@ -14,6 +14,8 @@ CONF=$topdir/conf
 
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
+   -NOBITS \
+   -DCPSConfigFile $CONF/DCPSconf.ini \
    -ORBSvcConf $CONF/tcp.conf \
    -ORBListenEndpoints iiop://192.168.2.2:50000 \
    -d $CONF/domain_ids"
