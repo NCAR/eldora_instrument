@@ -33,8 +33,6 @@ class DDSPublisher {
 
   int run(int argc, char* argv[]);
 
-  int parse_args (int argc, char *argv[]);
-
   DDS::DomainParticipantFactory_var _dpf;
 
   DDS::Publisher_var _publisher;

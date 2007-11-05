@@ -49,8 +49,6 @@ protected:
 
 	int run(int argc, char* argv[]);
 
-	int parse_args(int argc, char *argv[]);
-
 	DDS::DomainParticipant_var _participant;
 
 	DDS::DomainParticipantFactory_var _dpf;

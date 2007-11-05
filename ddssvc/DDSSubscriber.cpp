@@ -56,47 +56,6 @@ int DDSSubscriber::status() {
 
 ////////////////////////////////////////////////////////////
 
-int DDSSubscriber::parse_args(int argc, char *argv[]) {
-	ACE_Get_Opt get_opts(argc, argv, "t:");
-	int c;
-
-	while ((c = get_opts()) != -1) {
-		switch (c) {
-		case 't':
-			if (ACE_OS::strcmp(get_opts.opt_arg(), "udp") == 0) {
-				transport_impl_id = 2;
-			} else if (ACE_OS::strcmp(get_opts.opt_arg(), "mcast") == 0) {
-				transport_impl_id = 3;
-			} else if (ACE_OS::strcmp(get_opts.opt_arg(), "reliable_mcast")
-					== 0) {
-				transport_impl_id = 4;
-			}
-			// test with DEFAULT_SIMPLE_TCP_ID.
-			else if (ACE_OS::strcmp(get_opts.opt_arg(), "default_tcp") == 0) {
-				transport_impl_id = OpenDDS::DCPS::DEFAULT_SIMPLE_TCP_ID;
-			}
-			// test with DEFAULT_SIMPLE_UDP_ID.
-			else if (ACE_OS::strcmp(get_opts.opt_arg(), "default_udp") == 0) {
-				transport_impl_id = OpenDDS::DCPS::DEFAULT_SIMPLE_UDP_ID;
-			} else if (ACE_OS::strcmp(get_opts.opt_arg(), "default_mcast_sub")
-					== 0) {
-				transport_impl_id = OpenDDS::DCPS::DEFAULT_SIMPLE_MCAST_SUB_ID;
-			}
-			break;
-		case '?':
-		default:
-			ACE_ERROR_RETURN((LM_ERROR, "usage:  %s "
-				"-t <tcp/udp/default> "
-				"-u <sleep usecs>"
-				"\n", argv [0]), -1);
-		}
-	}
-	// Indicates sucessful parsing of the command line
-	return 0;
-}
-
-////////////////////////////////////////////////////////////
-
 int DDSSubscriber::run(int argc, char *argv[]) {
 	try
 	{
@@ -107,10 +66,6 @@ int DDSSubscriber::run(int argc, char *argv[]) {
 		if (CORBA::is_nil (_participant.in ())) {
 			cerr << "create_participant failed." << endl;
 			return 1;
-		}
-
-		if (parse_args (argc, argv) == -1) {
-			return -1;
 		}
 
 		// Initialize the transport
