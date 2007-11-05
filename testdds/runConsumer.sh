@@ -14,7 +14,7 @@ CONF=$topdir/conf
 
 # The consumer invocation
 consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
-         --DCPS $CONF/simpleConf.ini \
+         --DCPS $CONF/consumer.ini \
          --pulse EldoraPulses --ts EldoraTS"
 
 echo "Starting consumer"
