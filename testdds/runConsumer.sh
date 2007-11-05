@@ -17,7 +17,7 @@ consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
          --DCPS $CONF/simpleConf.ini \
          --pulse EldoraPulses --ts EldoraTS"
 
-echo "Starting consumer 1"
+echo "Starting consumer"
 $consume 
 
 
