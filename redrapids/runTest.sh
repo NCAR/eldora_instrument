@@ -15,9 +15,6 @@ if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 # location of DDS configurtion files
 CONF=$topdir/conf
 
-# where to save the IOR
-REPOFILE=/tmp/eldoraRepo.ior
-
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -NOBITS \
