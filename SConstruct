@@ -19,6 +19,10 @@ def Eldora(env):
 
 env = Environment(tools = ['default'], GLOBAL_TOOLS = [Eldora])
 
+Export('env')
+
+SConscript('sdrscope/SConscript')
+SConscript('eldorascope/SConscript')
 SConscript('ddslib/SConscript')
 SConscript('ddssvc/SConscript')
 SConscript('tmp/SConscript')

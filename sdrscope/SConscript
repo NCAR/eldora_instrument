@@ -1,0 +1,34 @@
+# -*- python -*-
+
+import os
+
+tools = ['default', 'qt4', 'fftw']
+env = Environment(tools = tools, ENV=os.environ)
+
+env['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
+env['QWTDIR'] = os.environ.get('QWTDIR', None)
+
+# set the include paths
+env.AppendUnique(CPPPATH = ['$QTTOOLBOXDIR',])
+env.AppendUnique(CPPPATH = ['$QTTOOLBOXDIR/ScopePlot',])
+env.AppendUnique(CPPPATH = ['$QWTDIR/include',])
+
+# add library path for the QtToolbox
+env.Append(LIBPATH = ["$QTTOOLBOXDIR/ScopePlot",])
+
+# and add the QtToolbox scopeplot library
+env.Append(LIBS = ['scopeplot',])
+
+# enable the qt4 modules
+env.EnableQt4Modules(['QtCore','QtGui','QtOpenGL', 'QtXml',])
+
+# This will create ui_SdrScope.h
+env.Uic4(['SdrScope.ui',])
+
+sources = Split("""
+SdrScope.cpp
+""")
+
+sdrscopelib = env.Library('sdrscope', sources)
+
+Default(sdrscopelib)
