@@ -3,16 +3,16 @@ tools = ['ddssvc']
 env = Environment(tools = ['default'] + tools)
 
 redRapidsDevelDir = os.path.join('#', 'redrapids', 
-                                 'DSK-320-002-R05 (CA C API and Sample Code)',
+                                 'DSK-320-002-R05 (CA C API and Sample Code)', 
                                  'channeladapterlib', 'R05')
 redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
 
-env.AppendUnique(CPPPATH=[redRapidsDevelDir,])
-env.AppendUnique(CPPDEFINES = ['LINUX',])
+env.AppendUnique(CPPPATH=[redRapidsDevelDir, ])
+env.AppendUnique(CPPDEFINES = ['LINUX', ])
 
 # The redrapids and library sources
 
-rrsources = [os.path.join(redRapidsDevelDir, 'ca_functions.c'),
+rrsources = [os.path.join(redRapidsDevelDir, 'ca_functions.c'), 
              os.path.join(redRapidsDevelDir, 'ca_membuffer.c')]
 
 libsources = Split("""
