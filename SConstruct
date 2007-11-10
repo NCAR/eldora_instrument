@@ -21,6 +21,7 @@ env = Environment(tools = ['default'], GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
+SConscript('qttoolbox/SConscript')
 SConscript('sdrscope/SConscript')
 SConscript('eldorascope/SConscript')
 SConscript('ddslib/SConscript')
