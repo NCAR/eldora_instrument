@@ -20,3 +20,8 @@ producer = env.Program('producer', 'producer.cpp')
 
 # Build the consumer
 consumer = env.Program('consumer', ['consumer.cpp', 'Reader.cpp'])
+
+Default(producer)
+
+Default(consumer)
+
