@@ -21,3 +21,5 @@ ArgvParams.cpp
 """)
 
 subscriber = env.Library('ddssvc', sources)
+
+Default(subscriber)

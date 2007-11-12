@@ -1,6 +1,7 @@
 import os
 
 tools = ['default','qt4',]
+
 env = Environment(tools = tools, ENV=os.environ)
 
 env['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)

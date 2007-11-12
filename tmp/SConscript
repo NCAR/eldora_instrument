@@ -26,3 +26,4 @@ channeladapter_DDCx4.c
 
 tom = env.Program('tom', sources, LIBS=libs, LIBPATH=libpaths )
 
+Default(tom)

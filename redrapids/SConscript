@@ -50,3 +50,5 @@ env.AppendUnique(LIBPATH = [redRapidsDevelLibDir, '.'])
 
 # build test
 testrr314 = env.Program('testrr314', 'testrr314.cpp')
+
+Default(testrr314)
