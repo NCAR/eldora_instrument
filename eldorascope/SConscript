@@ -7,14 +7,13 @@ env['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
 env['QWTDIR'] = os.environ.get('QWTDIR', None)
 
 # set the include paths
-env.AppendUnique(CPPPATH = ['$QTTOOLBOXDIR',])
-env.AppendUnique(CPPPATH = ['$QTTOOLBOXDIR/ScopePlot',])
+env.AppendUnique(CPPPATH = ['#/qttoolbox','#/qttoolbox/ScopePlot'])
 env.AppendUnique(CPPPATH = ['$QWTDIR/include',])
 
 env.AppendUnique(CPPPATH=['#/sdrscope',])
 
 env.Append(LIBPATH = [
-	'$QTTOOLBOXDIR/ScopePlot',
+	'#/qttoolbox/ScopePlot',
 	'#/sdrscope',
 	'$QWTDIR/lib',
 	'/usr/local/lib'])

@@ -8,8 +8,8 @@ env = Environment(tools = tools, ENV=os.environ)
 env['QWTDIR'] = os.environ.get('QWTDIR', None)
 
 # set the include paths
-env.AppendUnique(CPPPATH = ['../qttoolbox',])
-env.AppendUnique(CPPPATH = ['../qttoolbox/ScopePlot',])
+env.AppendUnique(CPPPATH = ['#/qttoolbox',])
+env.AppendUnique(CPPPATH = ['#/qttoolbox/ScopePlot',])
 env.AppendUnique(CPPPATH = ['$QWTDIR/include',])
 
 # add library path for the QtToolbox
