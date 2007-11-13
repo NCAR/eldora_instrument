@@ -13,12 +13,12 @@
 
 #include <fftw3.h>
 
-#include <qobject.h>
-#include <qstring.h>
-#include <qsocketnotifier.h>
+#include <QObject>
+#include <QString>
+#include <QSocketNotifier>
 #include <deque>
-#include <qdatetime.h>
-#include <qtimer.h>
+#include <QDateTime>
+#include <QTimer>
 
 /// Render Sdr time series data as:
 /// <ul>
