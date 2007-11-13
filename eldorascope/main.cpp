@@ -1,11 +1,16 @@
-#include "SdrScope.h"
-
-#include <qapplication.h>
-#include <qstring.h>
+#include <QApplication>
+#include <QString>
+#include <QDialog>
 #include <iostream>
 #include <boost/program_options.hpp>
 
+#include "SdrScope.h"
+
+// To get the DDSSubscriber definition
 #include "DDSReader.h"
+// To get the EldoraScopeReader definiton.
+#include "EldoraScopeReader.h"
+
 #include "ArgvParams.h"
 
 namespace po = boost::program_options;
@@ -61,8 +66,8 @@ int main(int argc, char** argv) {
         return subStatus;
 
     // create the readers
-    PulseReader pulseReader(subscriber, pulseTopic);
-    TSReader tsReader(subscriber, tsTopic);
+    EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic);
+    EldoraScopeReader<TSReader> tsReader(subscriber, tsTopic);
 
     QApplication app(argc, argv);
     QDialog* dialog = new QDialog;

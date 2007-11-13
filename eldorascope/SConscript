@@ -40,7 +40,7 @@ env.AppendUnique(LIBS = libs)
 # enable the qt4 modules
 env.EnableQt4Modules(['QtCore','QtGui','QtOpenGL', 'QtXml',])
 
-sources = ['main.cpp',]
+sources = ['main.cpp','EldoraScope.cpp']
 
 eldorascope = env.Program(
 	'eldorascope', sources
