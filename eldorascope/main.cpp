@@ -1,8 +1,12 @@
+#include <QObject>
+#include <QMetaType>
 #include <QApplication>
 #include <QString>
 #include <QDialog>
 #include <iostream>
 #include <boost/program_options.hpp>
+
+    Q_DECLARE_METATYPE(std::vector<double>)
 
 #include "SdrScope.h"
 
@@ -66,14 +70,32 @@ int main(int argc, char** argv) {
         return subStatus;
 
     QApplication app(argc, argv);
+    
+    qRegisterMetaType<std::vector<double> >();
     QDialog* dialog = new QDialog;
 
     // create our test dialog. It will contain an SdrScope
     SdrScope s(dialog);
 
     // create the readers
-    EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic, s);
-    EldoraScopeReader<TSReader> tsReader(subscriber, tsTopic, s);
+    //EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic, s);
+    EldoraScopeReader reader(subscriber, pulseTopic);
+
+    QObject::connect(&reader, 
+    SIGNAL(
+            newData(std::vector<double>,
+                    std::vector<double>,
+                    double,
+                    double)
+    ), &s, 
+    SLOT(
+            addDataSlot(std::vector<double>,
+                    std::vector<double>,
+                    double,
+                    double)
+    ));
+
+    //sleep(5);
 
     // if we don't show() the dialog, nothing appears!
     dialog->show();

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1013</width>
-    <height>954</height>
+    <width>897</width>
+    <height>703</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -45,7 +45,7 @@
            <string>Time Series</string>
           </property>
           <property name="checked" >
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -62,7 +62,7 @@
            <string>Spectrum Analyzer</string>
           </property>
           <property name="checked" >
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -70,7 +70,16 @@
       </widget>
      </item>
      <item>
-      <widget class="ScopePlot" name="scopePlot" />
+      <widget class="ScopePlot" native="1" name="scopePlot" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>3</hsizetype>
+         <vsizetype>3</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -86,6 +95,9 @@
       <widget class="QPushButton" name="pushButtonPause" >
        <property name="text" >
         <string>Pause</string>
+       </property>
+       <property name="checkable" >
+        <bool>true</bool>
        </property>
        <property name="flat" >
         <bool>false</bool>

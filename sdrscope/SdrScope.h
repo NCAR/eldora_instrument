@@ -53,7 +53,7 @@
 /// block of time series data. If the block size is changed, these vectors
 /// are reallocated.
 ///
-class SdrScope : public QDialog, private Ui::SdrScope
+class SdrScope : public QObject, private Ui::SdrScope
 {
 
   /// The scope display type
@@ -71,6 +71,12 @@ class SdrScope : public QDialog, private Ui::SdrScope
   SdrScope(QDialog* parent);
 
   virtual ~SdrScope();
+  
+  /// @returns true if the scope is currently accepting data. This
+  /// allows the scope to throttle the data delivery, and to 
+  /// prevent delivery until the scope has been  completely
+  /// initialized.
+  bool acceptingData();
 
   public slots:
     
@@ -82,8 +88,8 @@ class SdrScope : public QDialog, private Ui::SdrScope
   /// @param Q Q data
   /// @param sampleRateHz The sample rate in Hz
   /// @param tuningFreqHz The tuning frequency in Hz
-  void addDataSlot(std::vector<double>& I, 
-		   std::vector<double>& Q, 
+  void addDataSlot(std::vector<double> I, 
+		   std::vector<double> Q, 
 		   double sampleRateHz,
 		   double tuningFreqHz);
 
@@ -204,5 +210,8 @@ class SdrScope : public QDialog, private Ui::SdrScope
 
   /// The tuning frequency in Hz
   double _tuningFreqHz;
+  
+  /// True if the scope is currently accepting data
+  bool _acceptingData;
 };
 #endif

@@ -20,8 +20,8 @@
 
 /////////////////////////////////////////////////////////////////////////
 SdrScope::SdrScope(QDialog* parent):
-    QDialog(parent),
-  _scopeType(SPECTRUM),
+    QObject(parent),
+  _scopeType(TIMESERIES),
   _timeSeriesGain(0),
   _iqGain(0),
   _spectrumGain(0),
@@ -34,7 +34,8 @@ SdrScope::SdrScope(QDialog* parent):
   _scaleMax(1.0),
   _pause(false),
   _sampleRateHz(1.0),
-  _tuningFreqHz(1.0)
+  _tuningFreqHz(1.0),
+  _acceptingData(false)
 {
 
     setupUi(parent);
@@ -51,7 +52,7 @@ SdrScope::SdrScope(QDialog* parent):
   plotTypeButtonGroup->addButton(tsButton, TIMESERIES);
   plotTypeButtonGroup->addButton(iqButton, IVSQ);
   plotTypeButtonGroup->addButton(tsButton, SPECTRUM);
-  connect(plotTypeButtonGroup, SIGNAL(buttonRelease(int)),
+  connect(plotTypeButtonGroup, SIGNAL(buttonReleased(int)),
           this, SLOT(scopeTypeSlot(int)));
   
   
@@ -74,7 +75,12 @@ SdrScope::SdrScope(QDialog* parent):
 
   setScales();
 
+  connect(qwtKnobGain, SIGNAL(valueChanged(double)), this, SLOT(gainSlot(double)));
+  connect(qwtKnobOffset, SIGNAL(valueChanged(double)), this, SLOT(offsetSlot(double)));
+
+  connect(pushButtonPause, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
   pushButtonPause->setChecked(true);
+  pauseSlot(true);
 
 }
 
@@ -86,16 +92,16 @@ SdrScope::~SdrScope()
 
 /////////////////////////////////////////////////////////////////////////
 void 
-SdrScope::addDataSlot(std::vector<double>& I, 
-		      std::vector<double>& Q,
+SdrScope::addDataSlot(std::vector<double> I, 
+		      std::vector<double> Q,
 		      double sampleRateHz,
 		      double tuningFreqHz)
 {
 
   if (_pause)
     return;
-
-  if (tuningFreqHz != _tuningFreqHz || _sampleRateHz != sampleRateHz) {
+  
+   if (tuningFreqHz != _tuningFreqHz || _sampleRateHz != sampleRateHz) {
     _tuningFreqHz = tuningFreqHz;
     _sampleRateHz = sampleRateHz;
     setScales();
@@ -247,7 +253,9 @@ SdrScope::pauseSlot(bool doPause )
 
   _pause = doPause;
   pushButtonPause->setText(_pause? "Paused":"Pause");
-
+  
+  _acceptingData = !_pause;
+  
 //  if (_pause)
 //    pushButtonPause->setPaletteForegroundColor(QColor("red"));
 //  else
@@ -406,6 +414,8 @@ SdrScope::setScales() {
 
  }
 
+  return;
+  
   // now update some diagnostic information
   double freqSpan = _sampleRateHz/2.0;
   double freqResolution = 2*freqSpan/_blockSize;
@@ -435,5 +445,12 @@ void
 SdrScope::progressSlot(int current, int max)
 {
 
+}
+
+////////////////////////////////////////////////////////////////////////
+bool
+SdrScope::acceptingData()
+{
+    return _acceptingData;
 }
 
