@@ -1,6 +1,7 @@
 #ifndef ELDORASCOPEREADER_H_
 #define ELDORASCOPEREADER_H_
 
+#include "SdrScope.h"
 #include "DDSReader.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
@@ -15,7 +16,7 @@ template <class T>
 class EldoraScopeReader :
     public T {
 public:
-    EldoraScopeReader(DDSSubscriber& subscriber, std::string topicName);
+    EldoraScopeReader(DDSSubscriber& subscriber, std::string topicName, SdrScope& scope);
     virtual ~EldoraScopeReader();
     /// Subclass DDSReader::notify(), which wil be called
     /// whenever new samples are added to the DDSReader available
@@ -26,6 +27,7 @@ public:
     unsigned long numBytes();
 
 protected:
+    SdrScope& _scope;
     unsigned int _readSamples;
     unsigned long _numBytes;
 

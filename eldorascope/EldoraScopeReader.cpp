@@ -5,9 +5,11 @@
 using namespace EldoraDDS;
 
 ////////////////////////////////////////////////////////
-template<class T> EldoraScopeReader<T>::EldoraScopeReader(DDSSubscriber& subscriber,
-        std::string topicName) :
-    T(subscriber, topicName), _readSamples(0), _numBytes(0) {
+template<class T> EldoraScopeReader<T>::EldoraScopeReader(
+        DDSSubscriber& subscriber,
+            std::string topicName,
+            SdrScope& scope) :
+    T(subscriber, topicName), _scope(scope), _readSamples(0), _numBytes(0) {
 
 }
 

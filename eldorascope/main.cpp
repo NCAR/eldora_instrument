@@ -65,15 +65,15 @@ int main(int argc, char** argv) {
     if (subStatus)
         return subStatus;
 
-    // create the readers
-    EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic);
-    EldoraScopeReader<TSReader> tsReader(subscriber, tsTopic);
-
     QApplication app(argc, argv);
     QDialog* dialog = new QDialog;
 
     // create our test dialog. It will contain an SdrScope
     SdrScope s(dialog);
+
+    // create the readers
+    EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic, s);
+    EldoraScopeReader<TSReader> tsReader(subscriber, tsTopic, s);
 
     // if we don't show() the dialog, nothing appears!
     dialog->show();
