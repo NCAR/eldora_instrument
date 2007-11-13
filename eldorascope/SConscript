@@ -2,7 +2,7 @@ import os
 
 tools = ['default', 'ddssvc', 'qt4']
 
-env = Environment(tools = tools, ENV=os.environ)
+env = Environment(tools = tools)
 
 env['QWTDIR'] = os.environ.get('QWTDIR', None)
 
@@ -24,6 +24,15 @@ sdrscope
 qwt
 fftw3
 scopeplot
+boost_program_options
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
 """)
 
 env.AppendUnique(LIBS = libs)
