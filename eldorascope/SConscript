@@ -1,6 +1,6 @@
 import os
 
-tools = ['default','qt4',]
+tools = ['default', 'ddssvc', 'qt4']
 
 env = Environment(tools = tools, ENV=os.environ)
 

@@ -3,10 +3,15 @@
 #include <qapplication.h>
 #include <qstring.h>
 #include <iostream>
+#include "Reader.h"
 
 int
 main(int argc, char** argv)
 {
+
+    // create the readers
+    TestReader<PulseReader> pulseReader(subscriber, pulseTopic);
+    TestReader<TSReader> tsReader(subscriber, tsTopic);
 
    QApplication app(argc, argv);
    QDialog* dialog = new QDialog;
