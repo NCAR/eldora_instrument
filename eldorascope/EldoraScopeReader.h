@@ -7,11 +7,16 @@
 #include "PulseTypeSupportImpl.h"
 using namespace EldoraDDS;
 
-/// A templatized class derived from DDSreader based
-/// classes such as PulseReader and TSReader. This
-/// class simply collects and reports statistics 
-/// about the received sample stream from the given
-/// topic.
+/// A subscriber for Eldora data which can feed Qt applications.
+/// It is derived from both an EldoraDDS::DDSReader and QObject.
+/// When the data notification is received via the notify()
+/// method, a Qt signal is emitted in order to deliver the
+/// data to other Qt components. Note that this scheme is utilizing 
+/// Qt4's capabilty to send signals between threads. See the 
+/// Qt4 docuentation on threading and QObjects.
+/// @todo Add a throttling mechanism: Use a timer to analyze the
+/// incoming samle rate, and from this calcuate a decimation rate 
+/// and use this to send the signals with data at a preferred rate.
 class EldoraScopeReader : public QObject , public PulseReader{
     Q_OBJECT
     public:
@@ -36,6 +41,9 @@ class EldoraScopeReader : public QObject , public PulseReader{
     protected:
         unsigned int _readSamples;
         unsigned long _numBytes;
+        
+        /// Hardwired decimation rate for the moment.
+        int _decimation;
 
 };
 
