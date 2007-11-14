@@ -40,6 +40,8 @@ SdrScope::SdrScope(QDialog* parent):
 
     setupUi(parent);
     
+    _plot = scopePlot;
+    
   // set up the acceptable block sizes
   int s = 32;
   for (int i=0; i<12; i++) {
