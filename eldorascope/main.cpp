@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
     // create the readers
     //EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic, s);
-    EldoraScopeReader reader(subscriber, pulseTopic);
+    EldoraScopeReader reader(subscriber, tsTopic);
 
     QObject::connect(&reader, 
     SIGNAL(

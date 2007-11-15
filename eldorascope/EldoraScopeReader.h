@@ -5,6 +5,8 @@
 #include "DDSReader.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
+#include "TimeSeriesTypeSupportC.h"
+#include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
 
 /// A subscriber for Eldora data which can feed Qt applications.
@@ -17,7 +19,7 @@ using namespace EldoraDDS;
 /// @todo Add a throttling mechanism: Use a timer to analyze the
 /// incoming samle rate, and from this calcuate a decimation rate 
 /// and use this to send the signals with data at a preferred rate.
-class EldoraScopeReader : public QObject , public PulseReader{
+class EldoraScopeReader : public QObject , public TSReader{
     Q_OBJECT
     public:
         EldoraScopeReader(

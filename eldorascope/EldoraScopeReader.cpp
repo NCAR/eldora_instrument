@@ -9,7 +9,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 EldoraScopeReader::EldoraScopeReader(
         DDSSubscriber& subscriber,
         std::string topicName) :
-PulseReader(subscriber, topicName),
+TSReader(subscriber, topicName),
 _readSamples(0),
 _numBytes(0),
 _decimation(100) {
@@ -24,17 +24,17 @@ EldoraScopeReader::~EldoraScopeReader() {
 }
 
 void EldoraScopeReader::notify() {
-    while (Pulse* pItem = getNextItem()) {
+    while (TimeSeries* pItem = getNextItem()) {
         _readSamples++;
-        _numBytes += pItem->abp.length()*sizeof(pItem->abp[0]);
+        _numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
         if (!(_readSamples % _decimation)) {
             std::vector<double> I;
             std::vector<double> Q;
-            I.resize(pItem->abp.length()/3);
-            Q.resize(pItem->abp.length()/3);
-            for (int i = 0; i < pItem->abp.length()/3; i++) {
-                I[i] = pItem->abp[3*i];
-                Q[i] = pItem->abp[3*i+1];
+            I.resize(pItem->tsdata.length()/2);
+            Q.resize(pItem->tsdata.length()/2);
+            for (int i = 0; i < pItem->tsdata.length()/2; i++) {
+                I[i] = pItem->tsdata[2*i];
+                Q[i] = pItem->tsdata[2*i+1];
             }
             emit newData(I, Q, 1.0, 100.0);
         }
