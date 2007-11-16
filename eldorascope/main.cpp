@@ -24,7 +24,8 @@ void parseArgs(
             std::string& pulseTopic,
             std::string& tsTopic,
             std::string& ORB,
-            std::string& DCPS) {
+            std::string& DCPS,
+            int& outputRate) {
 
     // get the options
     po::options_description descripts("Options");
@@ -34,6 +35,7 @@ void parseArgs(
     ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("rate", po::value<int>(&outputRate)->default_value(25), "Sample update rate (hz) for the display")
     ;
 
     po::variables_map vm;
@@ -53,8 +55,9 @@ int main(int argc, char** argv) {
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
+    int rate;
 
-    parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS);
+    parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS, rate);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -78,8 +81,7 @@ int main(int argc, char** argv) {
     SdrScope s(dialog);
 
     // create the readers
-    //EldoraScopeReader<PulseReader> pulseReader(subscriber, pulseTopic, s);
-    EldoraScopeReader reader(subscriber, tsTopic);
+    EldoraScopeReader reader(subscriber, tsTopic, rate);
 
     QObject::connect(&reader, 
     SIGNAL(

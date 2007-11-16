@@ -25,7 +25,8 @@ class EldoraScopeReader : public QObject , public TSReader{
     public:
         EldoraScopeReader(
                 DDSSubscriber& subscriber,
-                    std::string topicName);
+                    std::string topicName,
+                    int outputRate=20);
         virtual ~EldoraScopeReader();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
