@@ -59,12 +59,14 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 		abpBuf->nextData = 0;
 		abpBuf->dataIn = 0;
 		abpBuf->type = RRBuffer::ABPtype;
+		abpBuf->nci = _samples;
 		_freeABPBuffers.push_back(abpBuf);
 		RRIQBuffer* iqBuf = new RRIQBuffer;
 		iqBuf->_iq.resize(2*_numIQ*_samples);
 		iqBuf->nextData = 0;
 		iqBuf->dataIn = 0;
 		iqBuf->type = RRBuffer::IQtype;
+		iqBuf->nci = _samples;
 		_freeIQBuffers.push_back(iqBuf);
 	}
 

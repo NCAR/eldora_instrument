@@ -13,6 +13,7 @@ typedef sequence<short> TS;
     long long timestamp;
     float prfSeconds;
     float azDegrees;
+    long nci;
     TS tsdata;
   };
 
@@ -25,6 +26,7 @@ typedef sequence<short> TS;
     float prfSeconds;
     float azDegrees;
     float powerDbm;
+    long nci;
     A_B_P abp;
   };
 

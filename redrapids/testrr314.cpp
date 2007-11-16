@@ -159,6 +159,7 @@ void * dataTask(void* threadArg) {
 					RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
 					// set the size
 					pPulse->abp.length(pABP->_abp.size());
+					pPulse->nci = pABP->nci;
 					for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
 						pPulse->abp[p] = pABP->_abp[p];
 					}
@@ -179,6 +180,7 @@ void * dataTask(void* threadArg) {
 					RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
 					// set the size
 					pTS->tsdata.length(pIQ->_iq.size());
+					pTS->nci = pIQ->nci;
 					for (unsigned int p = 0; p < pIQ->_iq.size(); p++)
 					pTS->tsdata[p] = pIQ->_iq[p];
 					// set the timestamp

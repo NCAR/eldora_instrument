@@ -61,6 +61,8 @@ struct RRBuffer {
         unsigned int nextData;
         /// The type of derived class
         enum {IQtype, ABPtype} type;
+        /// the number of coherent integrations
+        int nci;
         /// A virtual member is required in order for dynamic_cast
         /// to work.
         virtual ~RRBuffer() {
