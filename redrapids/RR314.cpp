@@ -490,7 +490,6 @@ void RR314::newIQData(short* src, int chan, int n) {
 			pBuf->dataIn++;
 			break;
 		default:
-			//std::cout << "chan:"<<chan<<"  i:" <<i<<"  dataIn:"<< pBuf->dataIn << "  nextData:"<<pBuf->nextData<<"  src[i]:"<<src[i]<<"\n";
 			pBuf->_iq[pBuf->nextData] = src[i];
 			pBuf->nextData++;
 			pBuf->dataIn++;
@@ -500,14 +499,14 @@ void RR314::newIQData(short* src, int chan, int n) {
 				// current buffer has been filled
 				// lock access to the queues
 				pthread_mutex_lock(&_bufferMutex);
-				// put it in the full queue
-				_fullBuffers.push_back(pBuf);
 				// update the accounting
 				addBytes(chan, pBuf->_iq.size()*sizeof(src[0]));
-				// signal that new data is available
-				pthread_cond_broadcast(&_dataAvailCond);
-				// reset the current buffer
 				if (_freeIQBuffers.size() > 0) {
+	                // if we have more available free buffers, 
+	                // put it in the full queue
+	                _fullBuffers.push_back(pBuf);
+	                // signal that new data is available
+	                pthread_cond_broadcast(&_dataAvailCond);
 					// get a new buffer empty buffer from the free list
 					pBuf = _freeIQBuffers[0];
 					pBuf->nextData = 0;
@@ -518,9 +517,13 @@ void RR314::newIQData(short* src, int chan, int n) {
 					// remove from the free list
 					_freeIQBuffers.pop_front();
 				} else {
-					/// @todo Add error handling for IQ buffer starvation. If
-					/// this branch is ever taken as currently coded, it will 
-					/// completely hose the data stream. 
+				    // no empty buffers available, so just reuse this 
+				    // one. For right now, print out an error complaint.
+				    // Later on we may need to add some accounting and 
+				    // notification scheme.
+                    pBuf->nextData = 0;
+                    pBuf->dataIn = 0;
+                    pBuf->dmaChan = chan;
 					std::cout << "buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
 				}
 				// unlock queue acess
