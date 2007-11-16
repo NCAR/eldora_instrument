@@ -12,10 +12,19 @@ EldoraScopeReader::EldoraScopeReader(
 TSReader(subscriber, topicName),
 _readSamples(0),
 _numBytes(0),
-_decimation(100) {
+_intervalMS(1000),
+_rate(0.0),
+_lastSampleCount(0.0),
+_outputRate(5),
+_downCounter(0)
+{
 
     qRegisterMetaType<std::vector<double> >();
-
+    
+    connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
+    
+    _rateTimer.setSingleShot(false);
+    _rateTimer.start(_intervalMS);
 }
 
 ////////////////////////////////////////////////////////
@@ -27,7 +36,9 @@ void EldoraScopeReader::notify() {
     while (TimeSeries* pItem = getNextItem()) {
         _readSamples++;
         _numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
-        if (!(_readSamples % _decimation)) {
+        _downCounter--;
+        if (_downCounter < 0) {
+            _downCounter = _rate/_outputRate;
             std::vector<double> I;
             std::vector<double> Q;
             I.resize(pItem->tsdata.length()/2);
@@ -50,6 +61,12 @@ unsigned long EldoraScopeReader::numBytes() {
 }
 
 ////////////////////////////////////////////////////////////
+void EldoraScopeReader::rateTimeoutSlot(){
+    long delta = _readSamples - _lastSampleCount;
+    _lastSampleCount = _readSamples;
+    _rate = delta/(_intervalMS/1000.0);
+    std::cout << "rate is " << _rate << " samples per second\n";
+}
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////

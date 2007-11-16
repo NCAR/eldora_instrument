@@ -2,6 +2,7 @@
 #define ELDORASCOPEREADER_H_
 
 #include <QObject>
+#include <QTimer>
 #include "DDSReader.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
@@ -39,13 +40,36 @@ class EldoraScopeReader : public QObject , public TSReader{
            std::vector<double> Q, 
            double sampleRateHz,
            double tuningFreqHz);
+       
+   public slots:
+       void rateTimeoutSlot();
 
     protected:
+        /// The number of samples received so far.
         unsigned int _readSamples;
+        
+        /// The number of data bytes received.
         unsigned long _numBytes;
         
-        /// Hardwired decimation rate for the moment.
-        int _decimation;
+        /// Output rate, samples per second.
+        int _outputRate;
+        
+        /// sample downcounter, used to establish
+        /// the output rate. It is initialzed to
+        /// _rate/_outputRate
+        int _downCounter;
+                
+        /// Timer to use for sample rate measurement
+        QTimer _rateTimer;
+        
+        /// timer interval, ms
+        int _intervalMS;
+        
+        /// The currently calculated rate, hz
+        double _rate;
+        
+        /// The last sample count when the rate timer signalled
+        unsigned long _lastSampleCount;
 
 };
 
