@@ -160,6 +160,7 @@ void * dataTask(void* threadArg) {
 					// set the size
 					pPulse->abp.length(pABP->_abp.size());
 					pPulse->nci = pABP->nci;
+					pPulse->chan = pABP->chanId;
 					for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
 						pPulse->abp[p] = pABP->_abp[p];
 					}
@@ -181,6 +182,7 @@ void * dataTask(void* threadArg) {
 					// set the size
 					pTS->tsdata.length(pIQ->_iq.size());
 					pTS->nci = pIQ->nci;
+					pTS->chan = pIQ->chanId;
 					for (unsigned int p = 0; p < pIQ->_iq.size(); p++)
 					pTS->tsdata[p] = pIQ->_iq[p];
 					// set the timestamp
