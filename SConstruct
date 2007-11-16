@@ -21,8 +21,6 @@ env = Environment(tools = ['default'], GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
-SConscript('ddslib/SConscript')
-SConscript('ddssvc/SConscript')
 SConscript('tmp/SConscript')
 SConscript('testdds/SConscript')
 SConscript('redrapids/SConscript')

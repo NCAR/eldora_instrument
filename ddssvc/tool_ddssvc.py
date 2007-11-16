@@ -1,3 +1,6 @@
+#
+# Rules to build ddssvc and export it as a SCons tool
+#
 import os
 
 tools = ['ddslib']

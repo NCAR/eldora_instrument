@@ -1,4 +1,7 @@
-tools = ['ace', 'tao', 'opendds', 'doxygen']
+#
+# Rules to build ddslib and export it as a SCons tool
+#
+tools = ['opendds', 'doxygen']
 env = Environment(tools = ['default'] + tools)
 
 def ddslib(env):
