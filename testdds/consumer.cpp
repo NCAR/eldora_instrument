@@ -71,8 +71,8 @@ int main(int argc, char* argv[]) {
 	int i = 0;
 	ACE_Time_Value startTime = ACE_OS::gettimeofday();
 	while (1) {
-		// sleep for ten
-		ACE_OS::sleep(10);
+		// sleep 
+		ACE_OS::sleep(2);
 		// figure the elapsed time
 		ACE_Time_Value stopTime = ACE_OS::gettimeofday();
 		ACE_Time_Value deltaTime = stopTime - startTime;
