@@ -41,6 +41,8 @@ struct runParams {
 	bool textcapture;
 	std::string ORB;
 	std::string DCPS;
+	unsigned long* droppedTS;
+	unsigned long* droppedPulse;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -51,21 +53,19 @@ struct runParams parseOptions(int argc, char** argv) {
 	runParams params;
 	// get the options
 	po::options_description descripts("Options");
-	descripts.add_options() 
-	("help", "describe options") 
-	("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
+	descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
 	("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
-	("simulate", "run in simulation mode") 
-	("device", po::value<int>(&params.device)->default_value(0), "device number") 
-	("gates",po::value<int>(&params.gates)->default_value(391), "number of gates") 
+	("simulate", "run in simulation mode")
+	("device", po::value<int>(&params.device)->default_value(0), "device number")
+	("gates",po::value<int>(&params.gates)->default_value(391), "number of gates")
 	("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
-	("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture") 
-	("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture") 
-	("decimation", po::value<int>(&params.decimation)->default_value(6), "decimation factor") 
-	("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file") 
-	("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file") 
-	("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file") 
-	("binary", "binary capture") 
+	("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
+	("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture")
+	("decimation", po::value<int>(&params.decimation)->default_value(6), "decimation factor")
+	("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
+	("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
+	("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
+	("binary", "binary capture")
 	("text", "text capture") ("publish", "publish data");
 
 	po::variables_map vm;
@@ -171,6 +171,7 @@ void * dataTask(void* threadArg) {
 					// send the pulse to the pulde publisher
 					pulseWriter->publishItem(pPulse);
 				} else {
+					pParams->droppedPulse++;
 					//std::cout << "can't get publisher pulse\n";
 				}
 			} else {
@@ -191,6 +192,7 @@ void * dataTask(void* threadArg) {
 					// send the pulse to the pulde publisher
 					tsWriter->publishItem(pTS);
 				} else {
+					pParams->droppedTS++;
 					//std::cout << "can't get publisher TS\n";
 				}
 			}
@@ -264,6 +266,11 @@ int main(int argc, char** argv) {
 
 		// pass rr324 instance to data reading thread.
 		params.pRR314 = &rr314;
+		// also tell it where to put dropped dds counters
+		unsigned long droppedPulse;
+		unsigned long droppedTS;
+		params.droppedPulse = &droppedPulse;
+		params.droppedTS = &droppedTS;
 
 		// create the data reading thread
 		pthread_t dataThread;
@@ -282,10 +289,9 @@ int main(int argc, char** argv) {
 
 			std::cout << std::setw(8);
 			std::cout << std::setprecision(2);
+			std::cout << "bytes processed ";
 			// Print the number of free buffers in the rr314 buffer
 			// pool. If 0, rr314 is being overrun
-			std::cout << rr314.numFreeIQBuffers() << " "
-			<< rr314.numFreeABPBuffers() << " ";
 			unsigned long sum = 0;
 			for (unsigned int c = 0; c < bytes.size(); c++)
 			{
@@ -297,13 +303,19 @@ int main(int argc, char** argv) {
 			std::cout << sum/10.0e6 << "MB/s";
 			std::cout << "\n";
 
-			std::cout << "samples ";
+			std::cout << "samples      ";
 			for (int i = 0; i < 8; i++) {
 				std::cout << std::setw(8)
 				<< params.sampleCounts[i];
 				params.sampleCounts[i] = 0;
 			}
 			std::cout << "\n";
+			std::cout << rr314.numFreeIQBuffers() << " "
+			<< rr314.numFreeABPBuffers()
+			<< "    dropped output pulses:" << droppedPulse <<
+			"       dropped output TS:" << droppedTS << "\n";
+			droppedPulse = 0;
+			droppedTS = 0;
 
 			sleep(10);
 		}
