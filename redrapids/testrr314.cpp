@@ -172,7 +172,6 @@ void * dataTask(void* threadArg) {
 					pulseWriter->publishItem(pPulse);
 				} else {
 					//std::cout << "can't get publisher pulse\n";
-					ACE_OS::sleep(small);
 				}
 			} else {
 				// a time series dmaChan
@@ -192,8 +191,7 @@ void * dataTask(void* threadArg) {
 					// send the pulse to the pulde publisher
 					tsWriter->publishItem(pTS);
 				} else {
-					//std::cout << "can't get publisher pulse\n";
-					ACE_OS::sleep(small);
+					//std::cout << "can't get publisher TS\n";
 				}
 			}
 		}
