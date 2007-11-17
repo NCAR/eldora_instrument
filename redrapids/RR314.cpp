@@ -534,7 +534,7 @@ void RR314::newIQData(
                     // notification scheme.
                     pBuf->nextData = 0;
                     pBuf->dataIn = 0;
-                    std::cout << "iq buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
+                    // std::cout << "iq buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
                 }
                 // unlock queue acess
                 pthread_mutex_unlock(&_bufferMutex);
@@ -600,7 +600,7 @@ void RR314::newABPData(
                     // notification scheme.
                     pBuf->nextData = 0;
                     pBuf->dataIn = 0;
-                    std::cout << "abp buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
+                    // std::cout << "abp buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
                 }
                 // unlock queue acess
                 pthread_mutex_unlock(&_bufferMutex);
