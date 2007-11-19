@@ -7,13 +7,24 @@ env = Environment(tools = tools)
 env['QWTDIR'] = os.environ.get('QWTDIR', None)
 
 # set the include paths
-env.AppendUnique(CPPPATH = ['#/qttoolbox','#/qttoolbox/ScopePlot'])
+
+# QtToolbox items
+env.AppendUnique(CPPPATH = [
+'#/qttoolbox',
+'#/qttoolbox/ScopePlot',
+'#/qttoolbox/Knob',
+'#/qttoolbox/QtConfig'])
+
+# QWT
 env.AppendUnique(CPPPATH = ['$QWTDIR/include',])
 
+# sdr scope
 env.AppendUnique(CPPPATH=['#/sdrscope',])
 
 env.Append(LIBPATH = [
 	'#/qttoolbox/ScopePlot',
+	'#/qttoolbox/Knob',
+	'#/qttoolbox/QtConfig',
 	'#/sdrscope',
 	'$QWTDIR/lib',
 	'/usr/local/lib'])
@@ -24,6 +35,8 @@ sdrscope
 qwt
 fftw3
 scopeplot
+knob
+qtconfig
 boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
@@ -47,3 +60,15 @@ eldorascope = env.Program(
 	)
 	
 Default(eldorascope)
+
+# This will create ui_EldoraScope.h
+env.Uic4(['EldoraScope.ui',])
+
+sources = ['newmain.cpp','EldoraScope.cpp', 'EldoraScopeReader.cpp', 'PlotInfo.cpp']
+
+neweldorascope = env.Program(
+	'neweldorascope', sources
+	)
+	
+Default(neweldorascope)
+
