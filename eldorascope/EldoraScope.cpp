@@ -34,7 +34,7 @@ QDialog(parent),
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _statsUpdateInterval(5),
-_pulsePlot(TRUE),
+__timeSeriesPlot(TRUE),
 _performAutoScale(false),
 _config("NCAR", "EldoraScope")
 {
@@ -57,7 +57,7 @@ _config("NCAR", "EldoraScope")
 	}
 
 	// The initial plot type will be Sband I and Q
-	_pulsePlotType = TS_TIMESERIES_PLOT;
+	_tsPlotType = TS_TIMESERIES_PLOT;
 
 	// connect the controls
 	connect(_autoScale, SIGNAL(released()),           this, SLOT(autoScaleSlot()));
@@ -133,9 +133,9 @@ EldoraScope::newProductSlot()
 
 //////////////////////////////////////////////////////////////////////
 void 
-EldoraScope::newPulseSlot()
+EldoraScope::newTimeSeriesSlot()
 {
-//					processPulse(pPulse);
+//					processTimeSeries(pPulse);
 //									_chan0led->setPalette(_redPalette);
 }
 //////////////////////////////////////////////////////////////////////
@@ -165,9 +165,9 @@ EldoraScope::saveImageSlot() {
 }
 //////////////////////////////////////////////////////////////////////
 void
-EldoraScope::processPulse() 
+EldoraScope::processTimeSeries() 
 {
-	if (!_pulsePlot)
+	if (!__timeSeriesPlot)
 		return;
 
 //	int chan = pPulse->header.channel;
@@ -182,7 +182,7 @@ EldoraScope::processPulse()
 
 //	float* data = &(pPulse->data[0]);
 
-	PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+	PlotInfo* pi = &_pulsePlotInfo[_tsPlotType];
 	switch (pi->getDisplayType()) 
 	{
 	case ScopePlot::SPECTRUM:
@@ -235,7 +235,7 @@ void
 EldoraScope::processProduct() 
 {
 	// if we are displaying a raw plot, just ignore
-	if (_pulsePlot) 
+	if (__timeSeriesPlot) 
 		return;
 
 	PRODUCT_PLOT_TYPES prodType;// = pProduct->header.prodType;
@@ -262,8 +262,8 @@ EldoraScope::displayData()
 {
 	double yBottom = _xyGraphCenter - _xyGraphRange;
 	double yTop =    _xyGraphCenter + _xyGraphRange;
-	if (_pulsePlot) {
-		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+	if (__timeSeriesPlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_tsPlotType];
 
 		switch (pi->getDisplayType()) 
 		{
@@ -404,8 +404,8 @@ EldoraScope::plotTypeChange(PlotInfo* pi,
 
 	// save the gain and offset of the current plot type
 	PlotInfo* currentPi;
-	if (_pulsePlot) {
-		currentPi = &_pulsePlotInfo[_pulsePlotType];
+	if (__timeSeriesPlot) {
+		currentPi = &_pulsePlotInfo[_tsPlotType];
 	} else {
 		currentPi = &_prodPlotInfo[_productPlotType];
 	}
@@ -422,18 +422,18 @@ EldoraScope::plotTypeChange(PlotInfo* pi,
 
 	// change the plot type
 	if (pulsePlot) {
-		_pulsePlotType = newPlotType;
+		_tsPlotType = newPlotType;
 	} else {
 		_productPlotType = newProductType;
 	}
 
-	_pulsePlot = pulsePlot;
+	__timeSeriesPlot = pulsePlot;
 
 	// select the piraq discriminator based
 	// on the plot type.
-	if (_pulsePlot) {
+	if (__timeSeriesPlot) {
 		// change data channel if necessary
-		switch(_pulsePlotType) 
+		switch(_tsPlotType) 
 		{
 		case TS_TIMESERIES_PLOT:	
 			break;
@@ -647,8 +647,8 @@ void
 EldoraScope::upSlot()	{
 	bool spectrum = false;
 
-	if (_pulsePlot) {
-		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+	if (__timeSeriesPlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_tsPlotType];
 		if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
 			spectrum = true;
 		} 
@@ -666,8 +666,8 @@ EldoraScope::dnSlot()	{
 
 	bool spectrum = false;
 
-	if (_pulsePlot) {
-		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+	if (__timeSeriesPlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_tsPlotType];
 		if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
 			spectrum = true;
 		} 

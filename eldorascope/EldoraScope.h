@@ -1,7 +1,14 @@
 /** @page eldorascope-overview The EldoraScope Program
 
-EldoraScope provides a traditional real-time Ascope display of CP2 pulse
-and beam data. Both of thes products are read from the network.
+EldoraScope provides a traditional real-time Ascope display of 
+eldora time series data and computed products. Data are delivered
+to EldoraScope via newTimeSeriesSlot() and newProductSlot().
+
+The display uses the QtToolbox ScopePlot component. The time series
+data are displayed by either the timerseries, i versus q, or power
+spectrum mode of the ScopePlot. The computed products are displayed
+by the product mode of ScopePlot.
+
 EldoraScope is configured via EldoraScope.ini.
 **/
 
@@ -73,8 +80,8 @@ public:
 	~EldoraScope();
 
 public slots:
-	/// Call when data is available on the pulse data socket.
-	void newPulseSlot();
+	/// Call when new timeseries data is available.
+	void newTimeSeriesSlot();
 	/// Call when data is available on the product data socket.
 	void newProductSlot();
 	/// Call when the plot type is changed. This function 
@@ -157,42 +164,37 @@ protected:
 	std::vector<double> _ProductData;
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
-	/// Set true if raw plots are selected, false for product type plots
-	bool _pulsePlot;
+	/// Set true if time series plots are selected, false for product type plots
+	bool __timeSeriesPlot;
 	/// The current selected plot type.
-	TS_PLOT_TYPES        _pulsePlotType;
+	TS_PLOT_TYPES        _tsPlotType;
 	/// The current selected product type.
 	PRODUCT_PLOT_TYPES   _productPlotType;
-
 	// The builtin timer will be used to calculate beam statistics.
 	void timerEvent(QTimerEvent*);
-
 	/// The hamming window coefficients
 	std::vector<double> _hammingCoefs;
-
 	///	The fftw plan. This is a handle used by
 	///	the fftw routines.
 	fftw_plan _fftwPlan;
-
 	///	The fftw data array. The fft will
 	//	be performed in place, so both input data 
 	///	and results are stored here.
 	fftw_complex* _fftwData;
-
-	//	fixed block size for initial cut: 
+	///	fixed block size for initial cut
+	/// @todo implement selectable or automatic
+	/// fft size specification. Perhaps can choose the
+	/// largest power of two less than the delivered data size?
+	/// Would required pre- or dynamic creation of multiple
+	/// fftw plans.
 	unsigned int _fftBlockSize;
-
 	//	power correction factor applied to (uncorrected) powerSpectrum() output
-	double	_powerCorrection;	///< approximate power correction to dBm 
-
+	double	_powerCorrection;
 	/// Set true if the Hamming window should be applied
 	bool _doHamming;
-
 	double _az;
-
-	/// Process pulse data.
-	void processPulse();
-
+	/// Process time series data.
+	void processTimeSeries();
 	/// Process product data
 	void processProduct();
 	/// Counter of time series, used for decimating 
@@ -202,36 +204,27 @@ protected:
 	/// Counter of product cacluations, used
 	/// for decimating the product display updates.
 	int _productDisplayCount; 
-
 	/// Compute the power spectrum. The input values will come
 	/// I[]and Q[], the power spectrum will be written to 
 	/// _spectrum[]
 	/// @return The zero moment
 	double powerSpectrum();
-
 	/// For each TS_PLOT_TYPES, there will be an entry in this map.
 	std::map<TS_PLOT_TYPES, PlotInfo> _pulsePlotInfo;
-
 	/// For each PRODUCT_PLOT_TYPES, there will be an entry in this map.
 	std::map<PRODUCT_PLOT_TYPES, PlotInfo> _prodPlotInfo;
-
 	/// This set contains PLOTTYPEs for all timeseries plots
 	std::set<TS_PLOT_TYPES> _timeSeriesPlots;
-
 	/// This set contains PLOTTYPEs for all raw data plots
 	std::set<TS_PLOT_TYPES> _pulsePlots;
-
 	/// This set contains PLOTTYPEs for all S band moments plots
 	std::set<PRODUCT_PLOT_TYPES> _sMomentsPlots;
-
 	/// This set contains PLOTTYPEs for all X band moments plots
 	std::set<PRODUCT_PLOT_TYPES> _xMomentsPlots;
-
 	/// save the button group for each tab,
 	/// so that we can find the selected button
 	/// and change the plot type when tabs are switched.
 	std::vector<QButtonGroup*> _tabButtonGroups;
-
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
@@ -261,7 +254,6 @@ protected:
 	QPalette _greenPalette;
 	/// Platette for making the leds red
 	QPalette _redPalette;
-
 };
 
 #endif
