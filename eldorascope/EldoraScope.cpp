@@ -33,7 +33,7 @@ EldoraScope::EldoraScope(
     QDialog(parent), _tsDisplayCount(0), _productDisplayCount(0),
             _statsUpdateInterval(5), __timeSeriesPlot(TRUE),
             _performAutoScale(false), _config("NCAR", "EldoraScope"),
-            _paused(false), _gateMode(ALONG_BEAM), _gateModeCounter(0) {
+            _paused(false), _gateMode(ALONG_BEAM) {
     // Set up our form
     setupUi(parent);
 
@@ -213,24 +213,12 @@ void EldoraScope::processTimeSeries(
     }
     case SCOPE_PLOT_TIMESERIES:
     case SCOPE_PLOT_IVSQ: {
-        if (_gateMode == ALONG_BEAM) {
-            I.resize(Idata.size());
-            Q.resize(Qdata.size());
-            I = Idata;
-            Q = Qdata;
-            displayData();
-        } else {
-            if (_gateModeCounter != 100) {
-                I[_gateModeCounter] = Idata[0];
-                Q[_gateModeCounter] = Qdata[0];
-                _gateModeCounter++;
-            } else {
-                displayData();
-                I.resize(100);
-                Q.resize(100);
-                _gateModeCounter = 0;
-            }
-        }
+        I.resize(Idata.size());
+        Q.resize(Qdata.size());
+        I = Idata;
+        Q = Qdata;
+        displayData();
+        break;
     }
     default:
         // ignore others
@@ -922,9 +910,9 @@ void EldoraScope::gateModeSlot(
         int m) {
     _gateMode = (GATE_MODE)m;
     if (_gateMode == ONE_GATE) {
-        _gateModeCounter = 0;
-        I.resize(100);
-        Q.resize(100);
+       emit         oneGateSignal(0, 256);
+    } else {
+       emit         alongBeamSignal();
     }
 }
 

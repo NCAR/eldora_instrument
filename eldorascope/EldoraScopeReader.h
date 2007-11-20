@@ -1,6 +1,7 @@
 #ifndef ELDORASCOPEREADER_H_
 #define ELDORASCOPEREADER_H_
 
+#include <vector>
 #include <QObject>
 #include <QTimer>
 #include "DDSReader.h"
@@ -22,6 +23,14 @@ using namespace EldoraDDS;
 /// and use this to send the signals with data at a preferred rate.
 class EldoraScopeReader : public QObject , public TSReader{
     Q_OBJECT
+    
+    /// The display can either show all gates along a beam, or
+    /// values in time for a selected gate.
+    enum GATE_MODE {
+        ALONG_BEAM, ///< Display all gates along a beam
+        ONE_GATE    ///< Display values in time for a selected gate
+    };
+
     public:
         EldoraScopeReader(
                 DDSSubscriber& subscriber,
@@ -43,7 +52,16 @@ class EldoraScopeReader : public QObject , public TSReader{
            double tuningFreqHz);
        
    public slots:
+   /// Called when the rate timer times out.
        void rateTimeoutSlot();
+       
+       /// Set the gate mode to ONE_GATE.
+       /// @param gate The gate to send in
+       /// @param n The number of points
+       void oneGateSlot(int gate, int n);
+       
+       /// Set the gate mode to along beam.
+       void alongBeamSlot();
 
     protected:
         /// The number of samples received so far.
@@ -71,6 +89,25 @@ class EldoraScopeReader : public QObject , public TSReader{
         
         /// The last sample count when the rate timer signalled
         unsigned long _lastSampleCount;
+        
+        /// The current mode of data delivery.
+        GATE_MODE _gateMode;
+        
+        /// The number of points when in ONE_GATE mode
+        int _pointsPerGate;
+        
+        /// The next data point to be filled in the I and Q vectors.
+        int _pointCounter;
+        
+        /// The gate of choice in ONE_GATE mode.
+        int _gateChoice;
+        
+        /// Buffer for saving one gate of I data over successive pulses
+        std::vector<double> I;
+        
+        /// Buffer for saving one gate of Q data over successive pulses
+        std::vector<double> Q;
+        
 
 };
 

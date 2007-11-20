@@ -89,6 +89,15 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                 QDialog* parent = 0);
         ~EldoraScope();
 
+        signals:
+        
+        /// Emitted to announce that data should be delivered in ONE_GATE mode.
+        /// @param gate The selected gate
+        /// @param n The number of points to deliver for the selected gate
+        void oneGateSignal(int gate, int n);
+        /// emmited to indicate that data should be delivered for 
+        /// all gates along a beam
+        void alongBeamSignal();
     public slots:
         /// Call when new timeseries data is available.
         void timeSeriesSlot(
@@ -294,8 +303,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         bool _paused;
         /// The selected gate mode
         GATE_MODE _gateMode;
-        /// running index into points being collected during ONE_GATE mode.
-        int _gateModeCounter;
 };
 
 #endif
