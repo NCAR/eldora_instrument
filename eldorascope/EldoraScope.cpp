@@ -32,7 +32,8 @@ EldoraScope::EldoraScope(
         QDialog* parent) :
     QDialog(parent), _tsDisplayCount(0), _productDisplayCount(0),
             _statsUpdateInterval(5), __timeSeriesPlot(TRUE),
-            _performAutoScale(false), _config("NCAR", "EldoraScope") {
+            _performAutoScale(false), _config("NCAR", "EldoraScope"),
+            _paused(false), _gateMode(ALONG_BEAM), _gateModeCounter(0) {
     // Set up our form
     setupUi(parent);
 
@@ -50,8 +51,16 @@ EldoraScope::EldoraScope(
         _lastPulseNum[i] = 0;
     }
 
-    // The initial plot type will be Sband I and Q
+    // The initial plot type will be I and Q timeseries
     _tsPlotType = TS_TIMESERIES_PLOT;
+
+    // configure the gate mode selection
+    _alongBeam->setChecked(true);
+    _oneGate->setChecked(false);
+    QButtonGroup* gateModeButtonGroup = new QButtonGroup();
+    gateModeButtonGroup->addButton(_alongBeam, ALONG_BEAM);
+    gateModeButtonGroup->addButton(_oneGate, ONE_GATE);
+    connect(gateModeButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(gateModeSlot(int)));
 
     // connect the controls
     connect(_autoScale, SIGNAL(released()), this, SLOT(autoScaleSlot()));
@@ -59,6 +68,9 @@ EldoraScope::EldoraScope(
     connect(_up, SIGNAL(released()), this, SLOT(upSlot()));
     connect(_dn, SIGNAL(released()), this, SLOT(dnSlot()));
     connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
+    connect(pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
+
+    pauseButton->setChecked(false);
 
     // initialize the book keeping for the plots.
     // This also sets up the radio buttons 
@@ -121,6 +133,8 @@ EldoraScope::~EldoraScope() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::productSlot() {
+    if (_paused)
+        return;
     //				processProduct(pProduct);
 }
 
@@ -130,6 +144,9 @@ void EldoraScope::timeSeriesSlot(
             std::vector<double> Q,
             double sampleRateHz,
             double tuningFreqHz) {
+    if (_paused)
+        return;
+
     processTimeSeries(I, Q);
 }
 
@@ -166,14 +183,6 @@ void EldoraScope::processTimeSeries(
     if (!__timeSeriesPlot)
         return;
 
-    // look for pulse number errors
-    //	if (_lastPulseNum[chan]) {
-    //		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
-    //			_errorCount[chan]++;
-    //		}
-    //	}
-    //	_lastPulseNum[chan] = pPulse->header.pulse_num;
-
     PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
     switch (pi->getDisplayType()) {
     case ScopePlot::SPECTRUM: {
@@ -200,18 +209,28 @@ void EldoraScope::processTimeSeries(
             _spectrum[j] += _powerCorrection;
         }
         displayData();
-        _tsDisplayCount = 0;
-        //			}
         break;
     }
     case SCOPE_PLOT_TIMESERIES:
     case SCOPE_PLOT_IVSQ: {
-        I.resize(Idata.size());
-        Q.resize(Qdata.size());
-        I = Idata;
-        Q = Qdata;
-        displayData();
-        _tsDisplayCount = 0;
+        if (_gateMode == ALONG_BEAM) {
+            I.resize(Idata.size());
+            Q.resize(Qdata.size());
+            I = Idata;
+            Q = Qdata;
+            displayData();
+        } else {
+            if (_gateModeCounter != 100) {
+                I[_gateModeCounter] = Idata[0];
+                Q[_gateModeCounter] = Qdata[0];
+                _gateModeCounter++;
+            } else {
+                displayData();
+                I.resize(100);
+                Q.resize(100);
+                _gateModeCounter = 0;
+            }
+        }
     }
     default:
         // ignore others
@@ -890,5 +909,22 @@ void EldoraScope::adjustGainOffset(
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScaleSlot() {
     _performAutoScale = true;
+}
+
+//////////////////////////////////////////////////////////////////////
+void EldoraScope::pauseSlot(
+        bool p) {
+    _paused = p;
+}
+
+//////////////////////////////////////////////////////////////////////
+void EldoraScope::gateModeSlot(
+        int m) {
+    _gateMode = (GATE_MODE)m;
+    if (_gateMode == ONE_GATE) {
+        _gateModeCounter = 0;
+        I.resize(100);
+        Q.resize(100);
+    }
 }
 

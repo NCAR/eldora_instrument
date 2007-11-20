@@ -8,6 +8,9 @@
  data are displayed by either the timerseries, i versus q, or power
  spectrum mode of the ScopePlot. The computed products are displayed
  by the product mode of ScopePlot.
+ 
+ Data may be displayed either for all gates in a beam,
+ or a timeseries of data for a selected gate.
 
  EldoraScope is configured via EldoraScope.ini.
  **/
@@ -74,6 +77,13 @@ enum PRODUCT_PLOT_TYPES {
 /// and would use up the cpu anyway.
 class EldoraScope : public QDialog, public Ui::EldoraScope {
     Q_OBJECT
+    /// The display can either show all gates along a beam, or
+    /// values in time for a selected gate.
+    enum GATE_MODE {
+        ALONG_BEAM, ///< Display all gates along a beam
+        ONE_GATE    ///< Display values in time for a selected gate
+    };
+    
     public:
         EldoraScope(
                 QDialog* parent = 0);
@@ -120,6 +130,12 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         virtual void autoScaleSlot();
         /// Save the scope display to a PNG file.
         void saveImageSlot();
+        /// Pause the plotting. Any received data are ignored.
+        /// @param p True to enable pause.
+        void pauseSlot(bool p);
+        /// Set the gate display mode
+        /// @param m The gate mode, either ALONG_BEAM or ONE_GATE
+        void gateModeSlot(int m);
 
     protected:
         /// Send the data for the current plot type to the ScopePlot.
@@ -274,6 +290,12 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         QPalette _greenPalette;
         /// Platette for making the leds red
         QPalette _redPalette;
+        /// Set true if the plot graphics are paused
+        bool _paused;
+        /// The selected gate mode
+        GATE_MODE _gateMode;
+        /// running index into points being collected during ONE_GATE mode.
+        int _gateModeCounter;
 };
 
 #endif

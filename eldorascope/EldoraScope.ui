@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1093</width>
-    <height>747</height>
+    <width>1147</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -141,6 +141,43 @@
            </property>
            <property name="checked" >
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="_alongBeam" >
+           <property name="toolTip" >
+            <string>Display for all gates along a beam.</string>
+           </property>
+           <property name="text" >
+            <string>Along Beam</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="_oneGate" >
+           <property name="toolTip" >
+            <string>Display values for one gate over time</string>
+           </property>
+           <property name="text" >
+            <string>One Gate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="gateNumber" >
+           <property name="toolTip" >
+            <string>Select the gate for the one gate display.</string>
            </property>
           </widget>
          </item>
@@ -960,14 +997,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ScopePlot</class>
-   <extends>QWidget</extends>
-   <header>ScopePlot.h</header>
-  </customwidget>
-  <customwidget>
    <class>Knob</class>
    <extends>QWidget</extends>
    <header>Knob.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScopePlot</class>
+   <extends>QWidget</extends>
+   <header>ScopePlot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
