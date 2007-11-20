@@ -19,7 +19,7 @@ EldoraScopeReader::EldoraScopeReader(
 
     connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
 
-_rateTimer.setSingleShot(false);
+    _rateTimer.setSingleShot(false);
     _rateTimer.start(_intervalMS);
 }
 
@@ -53,7 +53,7 @@ void EldoraScopeReader::notify() {
                         // we multiply the sampe rate by numci, because there are actually
                         // nci time series in each DDS sample
                         _downCounter = (int) ((_rate*nci)/_outputRate);
-                       // resize the vectors to carry the beam of IQ data
+                        // resize the vectors to carry the beam of IQ data
                         I.resize(tsLen/2);
                         Q.resize(tsLen/2);
                         // extract IQ for the seleced time series within the block of IQ data
@@ -62,7 +62,7 @@ void EldoraScopeReader::notify() {
                             Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
                         }
                         // send the IQ beam to our client.
-emit                                                                         newData(I, Q, 1.0, 100.0);
+emit                                                                                                 newData(I, Q, 1.0, 100.0);
                     }
                 }
                 break;
@@ -81,7 +81,7 @@ emit                                                                         new
                         if (_pointCounter == _pointsPerGate) {
                             // a set of I/Q points have been collected.
                             // send the IQ beam to our client.
-emit                                                         newData(I, Q, 1.0, 100.0);
+emit                                                                                     newData(I, Q, 1.0, 100.0);
                             _pointCounter = 0;
                             // downCounter counts down while we are skipping
                             // pulses. when it goes negative, we start collecting 
@@ -112,7 +112,7 @@ void EldoraScopeReader::rateTimeoutSlot() {
     long delta = _readSamples - _lastSampleCount;
     _lastSampleCount = _readSamples;
     _rate = delta/(_intervalMS/1000.0);
-    
+
     std::cout << "rate is " << _rate << "\n";
 }
 
