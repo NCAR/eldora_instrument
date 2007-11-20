@@ -29,7 +29,7 @@
 
 //////////////////////////////////////////////////////////////////////
 EldoraScope::EldoraScope(
-        QDialog* parent):
+        QDialog* parent) :
     QDialog(parent), _tsDisplayCount(0), _productDisplayCount(0),
             _statsUpdateInterval(5), __timeSeriesPlot(TRUE),
             _performAutoScale(false), _config("NCAR", "EldoraScope") {
@@ -174,21 +174,26 @@ void EldoraScope::processTimeSeries(
     //	}
     //	_lastPulseNum[chan] = pPulse->header.pulse_num;
 
-    //	float* data = &(pPulse->data[0]);
-
     PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
     switch (pi->getDisplayType()) {
     case ScopePlot::SPECTRUM: {
-        //			if (pPulse->header.channel != _dataChannel)
-        //				break;
-        //			_tsDisplayCount++;
-        //			if	(_tsDisplayCount >= _pulseDecimation)	{	
-        _spectrum.resize(_fftBlockSize); //	probably belongs somewhere else
-        for (int j = 0; j < _fftBlockSize; j++) {
-            // transfer the data to the fftw input space
-            //					_fftwData[j][0] = pPulse->data[2*j]*PIRAQ3D_SCALE;
-            //					_fftwData[j][1] = pPulse->data[2*j+1]*PIRAQ3D_SCALE;
+        _spectrum.resize(_fftBlockSize);
+        int n = I.size();
+        if (_fftBlockSize < n) {
+            n = _fftBlockSize;
         }
+        for (int j = 0; j < n; j++) {
+            // transfer the data to the fftw input space
+            _fftwData[j][0] = Idata[j];
+            _fftwData[j][1] = Qdata[j];
+        }
+        // zero pad for now
+        for (int j = n; j < _fftBlockSize; j++) {
+            _fftwData[j][0] = 0;
+            _fftwData[j][1] = 0;
+
+        }
+
         double zeroMoment = powerSpectrum();
         // correct unscaled power data using knob setting: 
         for (int j = 0; j < _fftBlockSize; j++) {
