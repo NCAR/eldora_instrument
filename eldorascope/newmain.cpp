@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
                     double)
     ), &scope, 
     SLOT(
-            addDataSlot(std::vector<double>,
+            timeSeriesSlot(std::vector<double>,
                     std::vector<double>,
                     double,
                     double)
