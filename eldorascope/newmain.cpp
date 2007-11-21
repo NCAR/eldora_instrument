@@ -6,7 +6,8 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 
-    Q_DECLARE_METATYPE(std::vector<double>)
+Q_DECLARE_METATYPE(std::vector<double>)
+Q_DECLARE_METATYPE(std::vector<int>)
 
 #include "EldoraScope.h"
 
@@ -75,6 +76,7 @@ int main(int argc, char** argv) {
     QApplication app(argc, argv);
     
     qRegisterMetaType<std::vector<double> >();
+    qRegisterMetaType<std::vector<int> >();
     QDialog* dialog = new QDialog;
 
     // create our test dialog. It will contain an SdrScope
@@ -87,10 +89,16 @@ int main(int argc, char** argv) {
     QObject::connect(&scope, SIGNAL(oneGateSignal(int, int, int)),
              &reader, SLOT(oneGateSlot(int, int,int)));
      
-    QObject::connect(&scope, SIGNAL(alongBeamSignal()),
-             &reader, SLOT(alongBeamSlot()));
+    QObject::connect(&scope, SIGNAL(alongBeamSignal(int)),
+             &reader, SLOT(alongBeamSlot(int)));
      
     // connect the reader to the scope
+    
+    // first the gate list
+    QObject::connect(&reader, SIGNAL(gateList(std::vector<int>)),
+            &scope, SLOT(gateListSlot(std::vector<int>)));
+    
+    // now the data supply
     QObject::connect(&reader, 
     SIGNAL(
             newData(std::vector<double>,

@@ -109,6 +109,9 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                     double tuningFreqHz);
         /// Call when data is available on the product data socket.
         void productSlot();
+        /// Call to set the list of available gates in the timeseries.
+        /// @param gates A list of possible gates in the timeseries.
+        void gateListSlot(std::vector<int> gates);
         /// Call when the plot type is changed. This function 
         /// must determine which of the two families of
         /// plots, _tsPlotInfo, or _prodPlotInfo, the
@@ -305,6 +308,9 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         bool _paused;
         /// The selected gate mode
         GATE_MODE _gateMode;
+        /// A list of available gates. This is set via the 
+        /// gateList slot.
+        std::vector<int> _gates;
 };
 
 #endif

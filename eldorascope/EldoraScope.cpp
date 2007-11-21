@@ -916,4 +916,10 @@ void EldoraScope::gateModeSlot(
        emit         alongBeamSignal(1);
     }
 }
+//////////////////////////////////////////////////////////////////////
+void EldoraScope::gateListSlot(std::vector<int> gates) {
+    _gates = gates;
+    std::cout << "we have " << _gates.size() << " gate choies\n";
+}
+
 

@@ -4,6 +4,7 @@
 using namespace EldoraDDS;
 
 Q_DECLARE_METATYPE(std::vector<double>)
+Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
 EldoraScopeReader::EldoraScopeReader(
@@ -24,6 +25,7 @@ _capture(false), _channel(1)
 
     _intervalMS = (int)(1000.0/_outputRate);
     qRegisterMetaType<std::vector<double> >();
+    qRegisterMetaType<std::vector<int> >();
 
     connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
 
@@ -42,7 +44,7 @@ void EldoraScopeReader::notify() {
 
         _readSamples++;
         _numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
-        std::cout << "channel " << (int)pItem->chan << "\n";
+
         if (pItem->chan == _channel) {
             // the number of individual timer series in each dds sample
 
@@ -51,6 +53,16 @@ void EldoraScopeReader::notify() {
             // the length of each individual time series in the sample. This
             // includs both I and Q.
             int tsLen = (pItem->tsdata.length())/nci;
+
+            // check to see if the number of gates has changed
+            if (tsLen/2 != _gates.size()) {
+                _gates.resize(tsLen/2);
+                for (int g = 0; g < tsLen/2; g++) {
+                    _gates[g] = g;
+                    emit gateList(
+                            _gates);
+                }
+            }
 
             switch (_gateMode) {
 
@@ -66,7 +78,7 @@ void EldoraScopeReader::notify() {
                             Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
                         }
                         // send the IQ beam to our client.
-emit                         newData(I, Q, 1.0, 100.0);
+                        emit newData(I, Q, 1.0, 100.0);
                         _capture = false;
                     }
                 }
@@ -74,16 +86,14 @@ emit                         newData(I, Q, 1.0, 100.0);
             case ONE_GATE:
                 for (int s = 0; s < nci; s++) {
                     if (_capture) {
-                        I[_pointCounter]
-                                = pItem->tsdata[s*tsLen + 2*_gate ];
-                        Q[_pointCounter]
-                                = pItem->tsdata[s*tsLen + 2*_gate+1];
+                        I[_pointCounter] = pItem->tsdata[s*tsLen + 2*_gate ];
+                        Q[_pointCounter] = pItem->tsdata[s*tsLen + 2*_gate+1];
                         _pointCounter++;
                         if (_pointCounter == _pointsPerGate) {
                             // a set of I/Q points have been collected.
                             // send the IQ beam to our client.
                             _pointCounter = 0;
-emit                             newData(I, Q, 1.0, 100.0);
+                            emit newData(I, Q, 1.0, 100.0);
                             _capture = false;
                         }
                     }
@@ -112,7 +122,7 @@ void EldoraScopeReader::rateTimeoutSlot() {
 ////////////////////////////////////////////////////////////
 void EldoraScopeReader::oneGateSlot(
         int channel,
-        int gate,
+            int gate,
             int n) {
     _gate = gate;
     _channel = channel;
@@ -128,7 +138,8 @@ void EldoraScopeReader::oneGateSlot(
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeReader::alongBeamSlot(int channel) {
+void EldoraScopeReader::alongBeamSlot(
+        int channel) {
     _gateMode = ALONG_BEAM;
     _channel = channel;
     // cause the next pulse to be be sent to the client
