@@ -150,6 +150,9 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Set the gate display mode
         /// @param m The gate mode, either ALONG_BEAM or ONE_GATE
         void gateModeSlot(int m);
+        /// Select the channel
+        /// @param c The channel (1-4)
+        void channelSlot(int c);
 
     protected:
         /// Send the data for the current plot type to the ScopePlot.
@@ -311,6 +314,8 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// A list of available gates. This is set via the 
         /// gateList slot.
         std::vector<int> _gates;
+        /// The choice of channels (1-4)
+        int _channel;
 };
 
 #endif

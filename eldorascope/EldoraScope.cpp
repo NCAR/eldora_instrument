@@ -33,7 +33,8 @@ EldoraScope::EldoraScope(
     QDialog(parent), _tsDisplayCount(0), _productDisplayCount(0),
             _statsUpdateInterval(5), __timeSeriesPlot(TRUE),
             _performAutoScale(false), _config("NCAR", "EldoraScope"),
-            _paused(false), _gateMode(ALONG_BEAM) {
+            _paused(false), _gateMode(ALONG_BEAM),
+            _channel(1){
     // Set up our form
     setupUi(parent);
 
@@ -61,6 +62,19 @@ EldoraScope::EldoraScope(
     gateModeButtonGroup->addButton(_alongBeam, ALONG_BEAM);
     gateModeButtonGroup->addButton(_oneGate, ONE_GATE);
     connect(gateModeButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(gateModeSlot(int)));
+
+    // configure the channel selection
+    _chan1->setChecked(true);
+    _chan2->setChecked(false);
+    _chan3->setChecked(false);
+    _chan4->setChecked(false);
+    QButtonGroup* channelButtonGroup = new QButtonGroup();
+    channelButtonGroup->addButton(_chan1, 1);
+    channelButtonGroup->addButton(_chan2, 2);
+    channelButtonGroup->addButton(_chan3, 3);
+    channelButtonGroup->addButton(_chan4, 4);
+    connect(channelButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(channelSlot(int)));
+
 
     // connect the controls
     connect(_autoScale, SIGNAL(released()), this, SLOT(autoScaleSlot()));
@@ -911,15 +925,27 @@ void EldoraScope::gateModeSlot(
     _gateMode = (GATE_MODE)m;
 
     if (_gateMode == ONE_GATE) {
-       emit         oneGateSignal(1, 0, 256);
+       emit         oneGateSignal(_channel, 0, 256);
     } else {
-       emit         alongBeamSignal(1);
+       emit         alongBeamSignal(_channel);
     }
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::gateListSlot(std::vector<int> gates) {
     _gates = gates;
     std::cout << "we have " << _gates.size() << " gate choies\n";
+}
+
+//////////////////////////////////////////////////////////////////////
+void EldoraScope::channelSlot(int c) {
+	_channel = c;
+	// tell the data source about our decision
+    if (_gateMode == ONE_GATE) {
+       emit         oneGateSignal(_channel, 0, 256);
+    } else {
+       emit         alongBeamSignal(_channel);
+    }
 }
 
 
