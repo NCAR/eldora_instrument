@@ -128,20 +128,12 @@ void EldoraScopeReader::oneGateSlot(int channel, int gate, int n) {
 	// start timeseries collection immediately
 	I.resize(n);
 	Q.resize(n);
-	std::cout << "ONE_GATE mode selected, " << n << " points for gate " << gate
-			<< "\n";
-
 }
 
 ////////////////////////////////////////////////////////////
 void EldoraScopeReader::alongBeamSlot(int channel) {
 	_gateMode = ALONG_BEAM;
 	_channel = channel;
-	// cause the next pulse to be be sent to the client
-	std::cout << "ALONG_BEAM mode selected\n";
 }
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
