@@ -11,8 +11,8 @@ EldoraScopeReader::EldoraScopeReader(
             std::string topicName,
             int outputRate) :
     TSReader(subscriber, topicName), _readSamples(0), _numBytes(0),
-            _outputRate(outputRate), _downCounter(0), _intervalMS(1000),
-            _rate(1000000.0), _lastSampleCount(0), _gateMode(ALONG_BEAM),
+            _outputRate(outputRate), _downCounter(10), _intervalMS(1000),
+            _rate(0.0), _lastSampleCount(0), _gateMode(ALONG_BEAM),
             _pointsPerGate(0), _gateChoice(0) {
 
     qRegisterMetaType<std::vector<double> >();
@@ -35,7 +35,7 @@ void EldoraScopeReader::notify() {
         _readSamples++;
         _numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
 
-        if (pItem->chan == 0) {
+        if (pItem->chan == 1) {
             // the number of individual timer series in each dds sample
 
             int nci = pItem->nci;/// The current mode of data deliver.
@@ -53,6 +53,8 @@ void EldoraScopeReader::notify() {
                         // we multiply the sampe rate by numci, because there are actually
                         // nci time series in each DDS sample
                         _downCounter = (int) ((_rate*nci)/_outputRate);
+                        if (_downCounter < 10)
+                        	_downCounter = 10;
                         // resize the vectors to carry the beam of IQ data
                         I.resize(tsLen/2);
                         Q.resize(tsLen/2);
@@ -81,13 +83,15 @@ emit                                                                            
                         if (_pointCounter == _pointsPerGate) {
                             // a set of I/Q points have been collected.
                             // send the IQ beam to our client.
-emit                                                                                     newData(I, Q, 1.0, 100.0);
                             _pointCounter = 0;
                             // downCounter counts down while we are skipping
                             // pulses. when it goes negative, we start collecting 
                             // a timeseries for one gate. Reset the counter to skip the
                             // next dead interval.
-                            _downCounter = _rate*nci/_outputRate;
+                            _downCounter = (_rate*nci-_pointsPerGate)/_outputRate;
+                            if (_downCounter < 10)
+                            	_downCounter = 10;
+ emit                                                                                     newData(I, Q, 1.0, 100.0);
                         }
                     }
                 }
