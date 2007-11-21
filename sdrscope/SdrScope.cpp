@@ -50,10 +50,13 @@ SdrScope::SdrScope(QDialog* parent):
     s *= 2;
   }
 
+  tsButton->setChecked(true);
+  iqButton->setChecked(false);
+  spectrumButton->setChecked(false);
   QButtonGroup* plotTypeButtonGroup = new QButtonGroup();
   plotTypeButtonGroup->addButton(tsButton, TIMESERIES);
   plotTypeButtonGroup->addButton(iqButton, IVSQ);
-  plotTypeButtonGroup->addButton(tsButton, SPECTRUM);
+  plotTypeButtonGroup->addButton(spectrumButton, SPECTRUM);
   connect(plotTypeButtonGroup, SIGNAL(buttonReleased(int)),
           this, SLOT(scopeTypeSlot(int)));
   

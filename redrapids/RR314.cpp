@@ -499,6 +499,7 @@ void RR314::newIQData(
         case 5:
             pBuf->pulseCount = pBuf->pulseCount | src[pBuf->dataIn];
             pBuf->dataIn++;
+            //std::cout << "chan " << pBuf->chanId << "  pulse " << pBuf->pulseCount << "\n";
             break;
         default:
             pBuf->_iq[pBuf->nextData] = src[i];
