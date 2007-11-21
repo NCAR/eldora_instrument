@@ -84,8 +84,8 @@ int main(int argc, char** argv) {
     EldoraScopeReader reader(subscriber, tsTopic, rate);
 
     // connect the scope gate mode changes to the reader
-    QObject::connect(&scope, SIGNAL(oneGateSignal(int, int)),
-             &reader, SLOT(oneGateSlot(int,int)));
+    QObject::connect(&scope, SIGNAL(oneGateSignal(int, int, int)),
+             &reader, SLOT(oneGateSlot(int, int,int)));
      
     QObject::connect(&scope, SIGNAL(alongBeamSignal()),
              &reader, SLOT(alongBeamSlot()));

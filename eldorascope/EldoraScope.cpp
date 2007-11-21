@@ -909,10 +909,11 @@ void EldoraScope::pauseSlot(
 void EldoraScope::gateModeSlot(
         int m) {
     _gateMode = (GATE_MODE)m;
+
     if (_gateMode == ONE_GATE) {
-       emit         oneGateSignal(0, 256);
+       emit         oneGateSignal(1, 0, 256);
     } else {
-       emit         alongBeamSignal();
+       emit         alongBeamSignal(1);
     }
 }
 

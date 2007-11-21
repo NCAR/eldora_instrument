@@ -35,7 +35,7 @@ class EldoraScopeReader : public QObject , public TSReader{
         EldoraScopeReader(
                 DDSSubscriber& subscriber,
                     std::string topicName,
-                    int outputRate=20);
+                    double outputRate=20.0);
         virtual ~EldoraScopeReader();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
@@ -58,10 +58,10 @@ class EldoraScopeReader : public QObject , public TSReader{
        /// Set the gate mode to ONE_GATE.
        /// @param gate The gate to send in
        /// @param n The number of points
-       void oneGateSlot(int gate, int n);
+       void oneGateSlot(int channel, int gate, int n);
        
        /// Set the gate mode to along beam.
-       void alongBeamSlot();
+       void alongBeamSlot(int channel);
 
     protected:
         /// The number of samples received so far.
@@ -70,25 +70,11 @@ class EldoraScopeReader : public QObject , public TSReader{
         /// The number of data bytes received.
         unsigned long _numBytes;
         
-        /// Output rate, samples per second.
-        int _outputRate;
-        
-        /// sample downcounter, used to establish
-        /// the output rate. It is initialzed to
-        /// _rate/_outputRate
-        int _downCounter;
-                
-        /// Timer to use for sample rate measurement
+        /// Timer to use for managing output rate
         QTimer _rateTimer;
         
         /// timer interval, ms
         int _intervalMS;
-        
-        /// The currently calculated rate, hz
-        double _rate;
-        
-        /// The last sample count when the rate timer signalled
-        unsigned long _lastSampleCount;
         
         /// The current mode of data delivery.
         GATE_MODE _gateMode;
@@ -100,8 +86,18 @@ class EldoraScopeReader : public QObject , public TSReader{
         int _pointCounter;
         
         /// The gate of choice in ONE_GATE mode.
-        int _gateChoice;
+        int _gate;
         
+        /// Set true by the rate timer timeout, which
+        /// enables capturing the next block of data
+        int _capture;
+        
+        /// the rate at which to deliver data blocks to the client
+        double _outputRate;
+        
+        /// The selected channel to send to the client
+        int _channel;
+                
         /// Buffer for saving one gate of I data over successive pulses
         std::vector<double> I;
         
