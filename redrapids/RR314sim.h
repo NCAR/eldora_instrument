@@ -61,9 +61,9 @@ namespace RedRapids {
     /// The number of coherent integrations
     int _nci;
     /// The pulse number
-    int _pulseNum;
+    unsigned int _pulseNum;
     /// The beam number
-    int _beamNum;
+    unsigned int _beamNum;
 };
 }
 #endif

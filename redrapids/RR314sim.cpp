@@ -58,28 +58,32 @@ void RR314sim::simulate() {
     while (1) {
         for (int p = 0; p < _nci; p++) {
             for (unsigned int i = 0; i < _iqChans.size(); i++) {
-                /// @todo This needs to be fixed to use to use int
-                /// values
+                // The firmware assigns channel numbers 1-4, 
+                // corresponding to the receiver channels
                 _iq[0] = 0;
-                _iq[1] = _pulseNum;
+                _iq[1] = i + 1;
+                // prt id
                 _iq[2] = 0;
-                _iq[3] = _iqChans[i];
-                _iq[4] = 0;
-                _iq[5] = 0;
+                _iq[3] = 0;
+                // pulse number
+                _iq[4] = (_pulseNum >> 16) & 0xffff;
+                _iq[5] = _pulseNum & 0xffff;
                 for (unsigned int k = 6; k < _iq.size(); k += 2) {
                     // create Is and Qs
                     _iq[k] = rand() - RAND_MAX/2;
                     _iq[k+1] = rand() - RAND_MAX/2;
                 }
-                _pRR314->newIQData(&_iq[0], _iqChans[i], _iq.size());
+                 _pRR314->newIQData(&_iq[0], _iqChans[i], _iq.size());
             }
             _pulseNum++;
         }
         for (unsigned int i = 0; i < _abpChans.size(); i++) {
-            _abp[0] = _beamNum;
-            _abp[1] = _abpChans[i];
-            _abp[2] = 0;
-            for (unsigned int a = 3; a < _abp.size(); a += 3) {
+             /// The firmware assigns channel numbers 1-4, 
+            /// corresponding to the receiver channels
+            _abp[0] = i + 1;
+            _abp[1] = 0;
+            _abp[2] = _beamNum;
+             for (unsigned int a = 3; a < _abp.size(); a += 3) {
                 _abp[a+0] = rand() - RAND_MAX/2;
                 _abp[a+1] = rand() - RAND_MAX/2;
                 _abp[a+2] = rand();

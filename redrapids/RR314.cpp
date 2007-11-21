@@ -477,27 +477,27 @@ void RR314::newIQData(
         switch (pBuf->dataIn) {
         case 0:
             pBuf->dmaChan = chan;
-            pBuf->chanId = (pBuf->chanId & 0xffff0000)|src[i];
+            pBuf->chanId = src[pBuf->dataIn] << 16;
             pBuf->dataIn++;
             break;
-        case 1:
-            pBuf->chanId = (pBuf->chanId & 0x0000ffff)|src[i] << 16;
+        case 1: 
+            pBuf->chanId = pBuf->chanId | src[pBuf->dataIn];
             pBuf->dataIn++;
             break;
         case 2:
-            pBuf->prtId = (pBuf->prtId & 0xffff0000)|src[i];
+            pBuf->prtId = src[pBuf->dataIn] << 16;
             pBuf->dataIn++;
             break;
         case 3:
-            pBuf->prtId = (pBuf->prtId & 0x0000ffff)|src[i] << 16;
+            pBuf->prtId = pBuf->prtId | src[pBuf->dataIn];
             pBuf->dataIn++;
             break;
         case 4:
-            pBuf->pulseCount = (pBuf->pulseCount & 0xffff0000)|src[i];
+            pBuf->pulseCount = src[pBuf->dataIn] << 16;
             pBuf->dataIn++;
             break;
         case 5:
-            pBuf->pulseCount=(pBuf->pulseCount & 0x0000ffff)|src[i]<<16;
+            pBuf->pulseCount = pBuf->pulseCount | src[pBuf->dataIn];
             pBuf->dataIn++;
             break;
         default:
