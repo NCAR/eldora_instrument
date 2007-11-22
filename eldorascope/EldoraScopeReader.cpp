@@ -63,6 +63,7 @@ void EldoraScopeReader::notify() {
 				for (unsigned int g = 0; g < tsLen/2; g++) {
 					_gates[g] = g;
 				}
+				// announce the list of gates
 emit 				gateList(_gates);
 			}
 
