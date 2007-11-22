@@ -70,8 +70,10 @@ void RR314sim::simulate() {
                 _iq[5] = _pulseNum & 0xffff;
                 for (unsigned int k = 6; k < _iq.size(); k += 2) {
                     // create Is and Qs
-                    _iq[k] = rand() - RAND_MAX/2;
-                    _iq[k+1] = rand() - RAND_MAX/2;
+                    _iq[k  ] = (rand() - RAND_MAX/2);
+                    _iq[k] /= k*1.0;
+                    _iq[k+1] = (rand() - RAND_MAX/2);
+                    _iq[k+1] /= k*1.0;
                 }
                  _pRR314->newIQData(&_iq[0], _iqChans[i], _iq.size());
             }
