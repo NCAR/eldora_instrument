@@ -477,12 +477,15 @@ void RR314::newIQData(
         switch (pBuf->dataIn) {
         case 0:
             pBuf->dmaChan = chan;
-            pBuf->chanId = src[pBuf->dataIn] << 16;
-            pBuf->dataIn++;
+            pBuf->chanId = (src[pBuf->dataIn]<< 16) & 0xffff0000;
+             pBuf->dataIn++;
             break;
         case 1: 
-            pBuf->chanId = pBuf->chanId | src[pBuf->dataIn];
-            pBuf->dataIn++;
+            pBuf->chanId = pBuf->chanId | (src[pBuf->dataIn]  & 0xffff);
+             pBuf->dataIn++;
+             /// @todo A hack for the moment; for some reason the channel ID from
+             /// the card is all fouled up. Map the DMA channel (0, 2, 4, 6) to (1,2,3,4)
+             pBuf->chanId = chan/2 + 1;
             break;
         case 2:
             pBuf->prtId = src[pBuf->dataIn] << 16;
