@@ -19,7 +19,7 @@
 #include <QPalette>
 #include <QDateTime>
 #include <QFileDialog>
-
+#include <string>
 #include <algorithm>
 
 #include <iostream>
@@ -250,11 +250,13 @@ void EldoraScope::displayData() {
 	if (_timeSeriesPlot) {
 		PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
+		std::string xlabel;
 		switch (pi->getDisplayType()) {
 		case ScopePlot::TIMESERIES:
 			if (_performAutoScale)
 				autoScale(I, Q);
-			_scopePlot->TimeSeries(I, Q, yBottom, yTop, 1, "Gate", "I - Q (V)");
+			xlabel = ((_gateMode == ONE_GATE) ? std::string("Time") : std::string("Gate"));
+			_scopePlot->TimeSeries(I, Q, yBottom, yTop, 1, xlabel, "I - Q (V)");
 			break;
 		case ScopePlot::IVSQ:
 			if (_performAutoScale)
