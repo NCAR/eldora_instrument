@@ -171,7 +171,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         double _xyGraphCenter;
         double _specGraphRange;
         double _specGraphCenter;
-        double _xFullScale;
         /// Set true to cause an autoscale 
         /// to take place on the next data series
         bool _performAutoScale;
@@ -209,7 +208,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         // how often to update the statistics (in seconds)
         int _statsUpdateInterval;
         /// Set true if time series plots are selected, false for product type plots
-        bool __timeSeriesPlot;
+        bool _timeSeriesPlot;
         /// The current selected plot type.
         TS_PLOT_TYPES _tsPlotType;
         /// The current selected product type.
@@ -246,13 +245,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                     std::vector<double>& Qdata);
         /// Process product data
         void processProduct();
-        /// Counter of time series, used for decimating 
-        /// the timeseries (and I/Q and Spectrum)
-        /// display updates.
-        int _tsDisplayCount;
-        /// Counter of product cacluations, used
-        /// for decimating the product display updates.
-        int _productDisplayCount;
         /// Compute the power spectrum. The input values will come
         /// I[]and Q[], the power spectrum will be written to 
         /// _spectrum[]

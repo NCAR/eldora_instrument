@@ -30,11 +30,15 @@
 //////////////////////////////////////////////////////////////////////
 EldoraScope::EldoraScope(
         QDialog* parent) :
-    QDialog(parent), _tsDisplayCount(0), _productDisplayCount(0),
-            _statsUpdateInterval(5), __timeSeriesPlot(TRUE),
-            _performAutoScale(false), _config("NCAR", "EldoraScope"),
-            _paused(false), _gateMode(ALONG_BEAM),
-            _channel(1){
+    QDialog(parent),
+            _performAutoScale(false),
+            _statsUpdateInterval(5), 
+            _timeSeriesPlot(TRUE),
+            _config("NCAR", "EldoraScope"),
+            _paused(false), 
+            _gateMode(ALONG_BEAM),
+            _channel(1)
+            {
     // Set up our form
     setupUi(parent);
 
@@ -122,10 +126,6 @@ EldoraScope::EldoraScope(
     // set the intial plot type
     plotTypeSlot(TS_TIMESERIES_PLOT);
 
-    _xFullScale = 1000;
-    I.resize(_xFullScale); //	default timeseries array size full range at 1KHz
-    Q.resize(_xFullScale);
-
     //	set up fft for power calculations: 
     _fftBlockSize = 256; //	temp constant for initial proving 
     // allocate the data space for fftw
@@ -194,32 +194,32 @@ void EldoraScope::saveImageSlot() {
 void EldoraScope::processTimeSeries(
         std::vector<double>& Idata,
             std::vector<double>& Qdata) {
-    if (!__timeSeriesPlot)
+    if (!_timeSeriesPlot)
         return;
 
     PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
     switch (pi->getDisplayType()) {
     case ScopePlot::SPECTRUM: {
         _spectrum.resize(_fftBlockSize);
-        int n = I.size();
+        unsigned int n = I.size();
         if (_fftBlockSize < n) {
             n = _fftBlockSize;
         }
-        for (int j = 0; j < n; j++) {
+        for (unsigned int j = 0; j < n; j++) {
             // transfer the data to the fftw input space
             _fftwData[j][0] = Idata[j];
             _fftwData[j][1] = Qdata[j];
         }
         // zero pad for now
-        for (int j = n; j < _fftBlockSize; j++) {
+        for (unsigned int j = n; j < _fftBlockSize; j++) {
             _fftwData[j][0] = 0;
             _fftwData[j][1] = 0;
 
         }
 
-        double zeroMoment = powerSpectrum();
+        //double zeroMoment = powerSpectrum();
         // correct unscaled power data using knob setting: 
-        for (int j = 0; j < _fftBlockSize; j++) {
+        for (unsigned int j = 0; j < _fftBlockSize; j++) {
             _spectrum[j] += _powerCorrection;
         }
         displayData();
@@ -243,23 +243,12 @@ void EldoraScope::processTimeSeries(
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::processProduct() {
     // if we are displaying a raw plot, just ignore
-    if (__timeSeriesPlot)
+    if (_timeSeriesPlot)
         return;
 
     PRODUCT_PLOT_TYPES prodType;// = pProduct->header.prodType;
 
     if (prodType == _productPlotType) {
-        _productDisplayCount++;
-        //		if	(_productDisplayCount < _productDecimation)	{
-        //			return;
-        //		}
-        _productDisplayCount = 0;
-        // this is the product that we are currntly displaying
-        // extract the data and display it.
-        //		_ProductData.resize(pProduct->header.gates);
-        //		for (int i = 0; i < pProduct->header.gates; i++) {
-        //			_ProductData[i] = pProduct->data[i];
-        //		}
         displayData();
     }
 }
@@ -268,7 +257,7 @@ void EldoraScope::processProduct() {
 void EldoraScope::displayData() {
     double yBottom = _xyGraphCenter - _xyGraphRange;
     double yTop = _xyGraphCenter + _xyGraphRange;
-    if (__timeSeriesPlot) {
+    if (_timeSeriesPlot) {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
         switch (pi->getDisplayType()) {
@@ -352,9 +341,6 @@ double EldoraScope::powerSpectrum() {
 ////////////////////////////////////////////////////////////////////
 void EldoraScope::plotTypeSlot(
         int plotType) {
-    // reset the product display counts
-    _tsDisplayCount = 0;
-    _productDisplayCount = 0;
 
     // find out the index of the current page
     int pageNum = _typeTab->currentIndex();
@@ -415,7 +401,7 @@ void EldoraScope::plotTypeChange(
 
     // save the gain and offset of the current plot type
     PlotInfo* currentPi;
-    if (__timeSeriesPlot) {
+    if (_timeSeriesPlot) {
         currentPi = &_tsPlotInfo[_tsPlotType];
     } else {
         currentPi = &_prodPlotInfo[_productPlotType];
@@ -437,11 +423,11 @@ void EldoraScope::plotTypeChange(
         _productPlotType = newProductType;
     }
 
-    __timeSeriesPlot = pulsePlot;
+    _timeSeriesPlot = pulsePlot;
 
     // select the piraq discriminator based
     // on the plot type.
-    if (__timeSeriesPlot) {
+    if (_timeSeriesPlot) {
         // change data channel if necessary
         switch (_tsPlotType) {
         case TS_TIMESERIES_PLOT:
@@ -779,11 +765,11 @@ QButtonGroup* EldoraScope::addProductTypeTab(
 void EldoraScope::timerEvent(
         QTimerEvent*) {
 
-    int rate[3];
-    for (int i = 0; i < 3; i++) {
+    //int rate[3];
+    //for (int i = 0; i < 3; i++) {
         //		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/(double)_statsUpdateInterval;
         //		_prevPulseCount[i] = _pulseCount[i];
-    }
+    //}
     //	_chan0pulseCount->setNum(_pulseCount[0]/1000);
     //	_chan0pulseRate->setNum(rate[0]);
     //	_chan0errors->setNum(_errorCount[0]);
@@ -820,7 +806,7 @@ void EldoraScope::gainChangeSlot(
 void EldoraScope::upSlot() {
     bool spectrum = false;
 
-    if (__timeSeriesPlot) {
+    if (_timeSeriesPlot) {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
         if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
             spectrum = true;
@@ -838,7 +824,7 @@ void EldoraScope::dnSlot() {
 
     bool spectrum = false;
 
-    if (__timeSeriesPlot) {
+    if (_timeSeriesPlot) {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
         if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
             spectrum = true;
@@ -860,7 +846,7 @@ void EldoraScope::autoScale(
     }
     double min = data[0];
     double max = data[0];
-    for (int i = 0; i < data.size(); i++) {
+    for (unsigned int i = 0; i < data.size(); i++) {
         if (data[i] > max)
             max = data[i];
         else if (data[i] < min)
@@ -880,14 +866,14 @@ void EldoraScope::autoScale(
 
     double min = 1.0e10;
     double max = -1.0e10;
-    for (int i = 0; i < data1.size(); i++) {
+    for (unsigned int i = 0; i < data1.size(); i++) {
         if (data1[i] > max)
             max = data1[i];
         else if (data1[i] < min)
             min = data1[i];
     }
 
-    for (int i = 0; i < data2.size(); i++) {
+    for (unsigned int i = 0; i < data2.size(); i++) {
         if (data2[i] > max)
             max = data2[i];
         else if (data2[i] < min)

@@ -11,11 +11,14 @@ EldoraScopeReader::EldoraScopeReader(
 		DDSSubscriber& subscriber,
 		std::string topicName,
 		double outputRate) :
-TSReader(subscriber, topicName), _readSamples(0), _numBytes(0),
-_outputRate(outputRate),
+TSReader(subscriber, topicName), 
+_readSamples(0), 
+_numBytes(0),
 _gateMode(ALONG_BEAM),
 _pointsPerGate(0), _gate(0),
-_capture(false), _channel(1)
+_capture(false), 
+_outputRate(outputRate),
+_channel(1)
 {
 
 	// determine the timer interval. Don't support
@@ -52,12 +55,12 @@ void EldoraScopeReader::notify() {
 
 			// the length of each individual time series in the sample. This
 			// includs both I and Q.
-			int tsLen = (pItem->tsdata.length())/nci;
+			unsigned int tsLen = (pItem->tsdata.length())/nci;
 
 			// check to see if the number of gates has changed
 			if (tsLen/2 != _gates.size()) {
 				_gates.resize(tsLen/2);
-				for (int g = 0; g < tsLen/2; g++) {
+				for (unsigned int g = 0; g < tsLen/2; g++) {
 					_gates[g] = g;
 				}
 emit 				gateList(_gates);
@@ -72,7 +75,7 @@ emit 				gateList(_gates);
 						I.resize(tsLen/2);
 						Q.resize(tsLen/2);
 						// extract IQ for the seleced time series within the block of IQ data
-						for (int i = 0; i < tsLen/2; i++) {
+						for (unsigned int i = 0; i < tsLen/2; i++) {
 							I[i] = pItem->tsdata[s*tsLen + 2*i ];
 							Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
 						}
