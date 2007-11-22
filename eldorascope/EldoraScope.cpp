@@ -80,8 +80,12 @@ EldoraScope::EldoraScope(QDialog* parent) :
 	connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
 	connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
 	connect(_gateNumber, SIGNAL(activated(int)), this, SLOT(gateChoiceSlot(int)));
+    connect(_xGrid, SIGNAL(toggled(bool)), _scopePlot, SLOT(enableXgrid(bool)));
+    connect(_yGrid, SIGNAL(toggled(bool)), _scopePlot, SLOT(enableYgrid(bool)));
 
 	_pauseButton->setChecked(false);
+	_xGrid->setChecked(true);
+	_yGrid->setChecked(true);
 
 	// initialize the book keeping for the plots.
 	// This also sets up the radio buttons 
