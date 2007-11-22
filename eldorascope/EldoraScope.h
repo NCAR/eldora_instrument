@@ -153,8 +153,16 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Select the channel
         /// @param c The channel (1-4)
         void channelSlot(int c);
+        /// Select the gate
+        /// @param g The index from the combo box of the selected gate.
+        void gateChoiceSlot(int index);
 
     protected:
+    	/// Emit a signal announcing the desired gate mode,
+    	/// either along beam, or one gate. The channel select,
+    	/// gate choice and (for one gate mode) data block
+    	/// size will be part of the emitted signal.
+    	void signalGateMode();
         /// Send the data for the current plot type to the ScopePlot.
         void displayData();
         /// Initialize the pulse and product sockets. The
@@ -308,6 +316,8 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         std::vector<int> _gates;
         /// The choice of channels (1-4)
         int _channel;
+        /// The selected gate
+        int _gateChoice;
 };
 
 #endif

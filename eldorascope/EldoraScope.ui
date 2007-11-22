@@ -83,7 +83,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="pauseButton" >
+        <widget class="QCheckBox" name="_pauseButton" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>1</hsizetype>
@@ -871,14 +871,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ScopePlot</class>
-   <extends>QWidget</extends>
-   <header>ScopePlot.h</header>
-  </customwidget>
-  <customwidget>
    <class>Knob</class>
    <extends>QWidget</extends>
    <header>Knob.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScopePlot</class>
+   <extends>QWidget</extends>
+   <header>ScopePlot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
