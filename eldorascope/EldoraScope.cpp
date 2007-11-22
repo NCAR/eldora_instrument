@@ -217,7 +217,10 @@ void EldoraScope::processTimeSeries(
 
         }
 
-        //double zeroMoment = powerSpectrum();
+        // compute the power spectrum
+        double zeroMoment = powerSpectrum();
+        zeroMoment = zeroMoment;  // for the time being, to get rid of compiler warning
+        
         // correct unscaled power data using knob setting: 
         for (unsigned int j = 0; j < _fftBlockSize; j++) {
             _spectrum[j] += _powerCorrection;
