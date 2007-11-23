@@ -298,7 +298,7 @@ void EldoraScope::displayData() {
             autoScale(_ProductData);
         // send in the product id, which ScopePlot::Product() uses
         // to decide if axis rescaling is needed.
-        PlotInfo* pi = &_prodPlotInfo[_productPlotType];
+        PlotInfo* pi = &_productPlotInfo[_productPlotType];
         _scopePlot->Product(_ProductData,
                 pi->getId(),
                 yBottom,
@@ -377,6 +377,7 @@ double EldoraScope::powerSpectrum(
 
     return zeroMoment;
 }
+
 ////////////////////////////////////////////////////////////////////
 void EldoraScope::plotTypeSlot(
         int plotType) {
@@ -398,7 +399,7 @@ void EldoraScope::plotTypeSlot(
     } else {
         // change to a product plot type
         PRODUCT_PLOT_TYPES productType = (PRODUCT_PLOT_TYPES)ptype;
-        plotTypeChange(&_prodPlotInfo[productType],
+        plotTypeChange(&_productPlotInfo[productType],
                 (TS_PLOT_TYPES)0,
                 productType,
                 false);
@@ -424,7 +425,7 @@ void EldoraScope::tabChangeSlot(
     } else {
         // change to a product plot type
         PRODUCT_PLOT_TYPES productType = (PRODUCT_PLOT_TYPES)ptype;
-        plotTypeChange(&_prodPlotInfo[productType],
+        plotTypeChange(&_productPlotInfo[productType],
                 (TS_PLOT_TYPES)0,
                 productType,
                 false);
@@ -443,7 +444,7 @@ void EldoraScope::plotTypeChange(
     if (_timeSeriesPlot) {
         currentPi = &_tsPlotInfo[_tsPlotType];
     } else {
-        currentPi = &_prodPlotInfo[_productPlotType];
+        currentPi = &_productPlotInfo[_productPlotType];
     }
     currentPi->setGain(pi->getGainMin(), pi->getGainMax(), _knobGain);
     currentPi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _xyGraphCenter);
@@ -474,21 +475,15 @@ void EldoraScope::initPlots() {
     _pulsePlots.insert(TS_IVSQ_PLOT);
     _pulsePlots.insert(TS_SPECTRUM_PLOT);
 
-    _sMomentsPlots.insert(PROD_S_DBMHC);
-    _sMomentsPlots.insert(PROD_S_DBMVC);
-    _sMomentsPlots.insert(PROD_S_DBZ);
-    _sMomentsPlots.insert(PROD_S_WIDTH);
-    _sMomentsPlots.insert(PROD_S_VEL);
-    _sMomentsPlots.insert(PROD_S_SNR);
-    _sMomentsPlots.insert(PROD_S_RHOHV);
-    _sMomentsPlots.insert(PROD_S_PHIDP);
-    _sMomentsPlots.insert(PROD_S_ZDR);
-
-    _xMomentsPlots.insert(PROD_X_DBMHC);
-    _xMomentsPlots.insert(PROD_X_DBMVX);
-    _xMomentsPlots.insert(PROD_X_DBZ);
-    _xMomentsPlots.insert(PROD_X_SNR);
-    _xMomentsPlots.insert(PROD_X_LDR);
+    _productPlots.insert(PROD_DBMHC);
+    _productPlots.insert(PROD_DBMVC);
+    _productPlots.insert(PROD_DBZ);
+    _productPlots.insert(PROD_WIDTH);
+    _productPlots.insert(PROD_VEL);
+    _productPlots.insert(PROD_SNR);
+    _productPlots.insert(PROD_RHOHV);
+    _productPlots.insert(PROD_PHIDP);
+    _productPlots.insert(PROD_ZDR);
 
     _tsPlotInfo[TS_TIMESERIES_PLOT] = PlotInfo(TS_TIMESERIES_PLOT,
             SCOPE_PLOT_TIMESERIES,
@@ -521,7 +516,7 @@ void EldoraScope::initPlots() {
             5.0,
             0.0);
 
-    _prodPlotInfo[PROD_S_DBMHC] = PlotInfo(PROD_S_DBMHC,
+    _productPlotInfo[PROD_DBMHC] = PlotInfo(PROD_DBMHC,
             SCOPE_PLOT_PRODUCT,
             "H Dbm",
             "Sh: Dbm",
@@ -531,7 +526,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_DBMVC] = PlotInfo(PROD_S_DBMVC,
+    _productPlotInfo[PROD_DBMVC] = PlotInfo(PROD_DBMVC,
             SCOPE_PLOT_PRODUCT,
             "V Dbm",
             "Sv: Dbm",
@@ -541,7 +536,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_DBZ] = PlotInfo(PROD_S_DBZ,
+    _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ,
             SCOPE_PLOT_PRODUCT,
             "Dbz",
             "S : Dbz",
@@ -551,7 +546,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_WIDTH] = PlotInfo(PROD_S_WIDTH,
+    _productPlotInfo[PROD_WIDTH] = PlotInfo(PROD_WIDTH,
             SCOPE_PLOT_PRODUCT,
             "Width",
             "S:  Width",
@@ -561,7 +556,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_VEL] = PlotInfo(PROD_S_VEL,
+    _productPlotInfo[PROD_VEL] = PlotInfo(PROD_VEL,
             SCOPE_PLOT_PRODUCT,
             "Velocity",
             "S:  Velocity",
@@ -571,7 +566,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_SNR] = PlotInfo(PROD_S_SNR,
+    _productPlotInfo[PROD_SNR] = PlotInfo(PROD_SNR,
             SCOPE_PLOT_PRODUCT,
             "SNR",
             "S:  SNR",
@@ -581,7 +576,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_RHOHV] = PlotInfo(PROD_S_RHOHV,
+    _productPlotInfo[PROD_RHOHV] = PlotInfo(PROD_RHOHV,
             SCOPE_PLOT_PRODUCT,
             "Rhohv",
             "S:  Rhohv",
@@ -591,7 +586,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_PHIDP] = PlotInfo(PROD_S_PHIDP,
+    _productPlotInfo[PROD_PHIDP] = PlotInfo(PROD_PHIDP,
             SCOPE_PLOT_PRODUCT,
             "Phidp",
             "S:  Phidp",
@@ -601,7 +596,7 @@ void EldoraScope::initPlots() {
             -5.0,
             5.0,
             0.0);
-    _prodPlotInfo[PROD_S_ZDR] = PlotInfo(PROD_S_ZDR,
+    _productPlotInfo[PROD_ZDR] = PlotInfo(PROD_ZDR,
             SCOPE_PLOT_PRODUCT,
             "Zdr",
             "S:  Zdr",
@@ -612,78 +607,7 @@ void EldoraScope::initPlots() {
             5.0,
             0.0);
 
-    _prodPlotInfo[PROD_X_DBMHC] = PlotInfo(PROD_X_DBMHC,
-            SCOPE_PLOT_PRODUCT,
-            "H Dbm",
-            "Xh: Dbm",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_DBMVX] = PlotInfo(PROD_X_DBMVX,
-            SCOPE_PLOT_PRODUCT,
-            "V Cross Dbm",
-            "Xv: Dbm",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_DBZ] = PlotInfo(PROD_X_DBZ,
-            SCOPE_PLOT_PRODUCT,
-            "Dbz",
-            "X: Dbz",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_SNR] = PlotInfo(PROD_X_SNR,
-            SCOPE_PLOT_PRODUCT,
-            "SNR",
-            "Xh: SNR",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_WIDTH] = PlotInfo(PROD_X_WIDTH,
-            SCOPE_PLOT_PRODUCT,
-            "Width",
-            "Xh: Width",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_VEL] = PlotInfo(PROD_X_VEL,
-            SCOPE_PLOT_PRODUCT,
-            "Velocity",
-            "Xh: Velocity",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _prodPlotInfo[PROD_X_LDR] = PlotInfo(PROD_X_LDR,
-            SCOPE_PLOT_PRODUCT,
-            "LDR",
-            "Xhv:LDR",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-
-    // remove the one tab that was put there by designer
+     // remove the one tab that was put there by designer
     _typeTab->removeTab(0);
 
     // add tabs, and save the button group for
@@ -693,10 +617,7 @@ void EldoraScope::initPlots() {
     pGroup = addPlotTypeTab("Raw", _pulsePlots);
     _tabButtonGroups.push_back(pGroup);
 
-    pGroup = addProductTypeTab("S", _sMomentsPlots);
-    _tabButtonGroups.push_back(pGroup);
-
-    pGroup = addProductTypeTab("X", _xMomentsPlots);
+    pGroup = addProductTypeTab("Products", _productPlots);
     _tabButtonGroups.push_back(pGroup);
 
     connect(_typeTab, SIGNAL(currentChanged(QWidget *)), this, SLOT(tabChangeSlot(QWidget*)));
@@ -758,9 +679,9 @@ QButtonGroup* EldoraScope::addProductTypeTab(
 
     for (i = types.begin(); i != types.end(); i++) {
         // create the radio button
-        int id = _prodPlotInfo[*i].getId();
+        int id = _productPlotInfo[*i].getId();
         QRadioButton* pRadio = new QRadioButton;
-        const QString label = _prodPlotInfo[*i].getLongName().c_str();
+        const QString label = _productPlotInfo[*i].getLongName().c_str();
         pRadio->setText(label);
 
         // put the button in the button group

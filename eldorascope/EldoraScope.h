@@ -1,20 +1,3 @@
-/** @page eldorascope-overview The EldoraScope Program
-
- EldoraScope provides a traditional real-time Ascope display of 
- eldora time series data and computed products. Data are delivered
- to EldoraScope via newTimeSeriesSlot() and newProductSlot().
-
- The display uses the QtToolbox ScopePlot component. The time series
- data are displayed by either the timerseries, i versus q, or power
- spectrum mode of the ScopePlot. The computed products are displayed
- by the product mode of ScopePlot.
- 
- Data may be displayed either for all gates in a beam,
- or a timeseries of data for a selected gate.
-
- EldoraScope is configured via EldoraScope.ini.
- **/
-
 #ifndef ELDORASCOPE_H
 #define ELDORASCOPE_H
 
@@ -24,84 +7,110 @@
 #include <deque>
 #include <set>
 #include <map>
-// the fastest fft in the west; used for power spectrum calcs.
 #include <fftw3.h>
 
 // Coponents from the QtToolbox
-#include <ScopePlot.h>
-#include <Knob.h>
-#include <QtConfig.h>
+#include "ScopePlot.h"
+#include "Knob.h"
+#include "QtConfig.h"
+
+// The designer generated header file.
 #include "ui_EldoraScope.h"
 
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
 
-/// types of plots available in the scope plot.
-enum SCOPE_PLOT_TYPES {
-    SCOPE_PLOT_TIMESERIES,
-    SCOPE_PLOT_IVSQ,
-    SCOPE_PLOT_SPECTRUM,
-    SCOPE_PLOT_PRODUCT
-};
+/** 
+ EldoraScope provides a traditional real-time Ascope display of 
+ eldora time series data and computed products. It is implmented
+ with Qt, and uses the QtToolbox::ScopePlot as the primary display.
+ I&Q, I versus Q, IQ power spectrum, and computed product displays
+ are user selectable. The data can be displayed either along the beam
+ for all gates, or in time for one gate. Users may select the 
+ fft block size and the gate to be displayed.
+ 
+ EldoraScope is simply a data consumer; it does not know
+ anything about the data provider. Signals and slots
+ used to coordinate with other components. Data are expected
+ to be delivered in a mode matching the current display
+ mode. EldoraScope announces the mode by emitting either
+ an alongBeam signal or a oneGate signal. Data are then delivered
+ to EldoraScope by calling the newTimeSeriesSlot() and newProductSlot().
+ 
+ It is the responsibility of the data provider to feed data
+ at a desired rate. EldoraScope will attempt to render all data
+ delivered to newTimeSeriesSlot() and newProductSlot().
 
-/// Time series plot types.
-enum TS_PLOT_TYPES {
-    TS_TIMESERIES_PLOT, ///<  time series I and Q plot
-    TS_IVSQ_PLOT, ///<  time series I versus Q plot
-    TS_SPECTRUM_PLOT ///<  time series power spectrum plot 
-};
-
-/// Product plot types.
-enum PRODUCT_PLOT_TYPES {
-    PROD_S_DBMHC, ///< S-band dBm horizontal co-planar
-    PROD_S_DBMVC, ///< S-band dBm vertical co-planar
-    PROD_S_DBZ, ///< S-band dBz
-    PROD_S_SNR, ///< S-band SNR
-    PROD_S_VEL, ///< S-band velocity
-    PROD_S_WIDTH, ///< S-band spectral width
-    PROD_S_RHOHV, ///< S-band rhohv
-    PROD_S_PHIDP, ///< S-band phidp
-    PROD_S_ZDR, ///< S-band zdr
-    PROD_X_DBMHC, ///< X-band dBm horizontal co-planar
-    PROD_X_DBMVX, ///< X-band dBm vertical cross-planar
-    PROD_X_DBZ , ///< X-band dBz
-    PROD_X_SNR, ///< X-band SNR
-    PROD_X_VEL, ///< X-band velocity
-    PROD_X_WIDTH, ///< X-band spectral width
-    PROD_X_LDR ///< X-band LDR
-};
-
-/// Provides a real time display of either pulse data or a product
-/// extracted from beams. Only a fraction of the incoming data stream is
-/// displayed, since the human eye could not discern the whole bandwidth,
-/// and would use up the cpu anyway.
+ EldoraScope is configured via EldoraScope.ini.
+ **/
 class EldoraScope : public QDialog, public Ui::EldoraScope {
     Q_OBJECT
-    /// The display can either show all gates along a beam, or
-    /// values in time for a selected gate.
-    enum GATE_MODE {
-        ALONG_BEAM, ///< Display all gates along a beam
-        ONE_GATE    ///< Display values in time for a selected gate
-    };
-    
+        /// The display can either show all gates along a beam, or
+        /// values in time for a selected gate.
+        enum GATE_MODE {
+            ALONG_BEAM, ///< Display all gates along a beam
+            ONE_GATE ///< Display values in time for a selected gate
+        };
+
+        /// types of plots available in the scope plot.
+        enum SCOPE_PLOT_TYPES {
+            SCOPE_PLOT_TIMESERIES,
+            SCOPE_PLOT_IVSQ,
+            SCOPE_PLOT_SPECTRUM,
+            SCOPE_PLOT_PRODUCT
+        };
+
+        /// Time series plot types.
+        enum TS_PLOT_TYPES {
+            TS_TIMESERIES_PLOT, ///<  time series I and Q plot
+            TS_IVSQ_PLOT, ///<  time series I versus Q plot
+            TS_SPECTRUM_PLOT ///<  time series power spectrum plot 
+        };
+
+        /// Product plot types.
+        enum PRODUCT_PLOT_TYPES {
+            PROD_DBMHC, ///< S-band dBm horizontal co-planar
+            PROD_DBMVC, ///< S-band dBm vertical co-planar
+            PROD_DBZ, ///< S-band dBz
+            PROD_SNR, ///< S-band SNR
+            PROD_VEL, ///< S-band velocity
+            PROD_WIDTH, ///< S-band spectral width
+            PROD_RHOHV, ///< S-band rhohv
+            PROD_PHIDP, ///< S-band phidp
+            PROD_ZDR, ///< S-band zdr
+        };
+
     public:
         EldoraScope(
                 QDialog* parent = 0);
         ~EldoraScope();
 
-        signals:
-        
+    signals:
+
         /// Emitted to announce that data should be delivered in ONE_GATE mode.
         /// @param channel The selected channel
         /// @param gate The selected gate
         /// @param n The number of points to deliver for the selected gate
-        void oneGateSignal(int channel, int gate, int n);
+        void oneGateSignal(
+                int channel,
+                    int gate,
+                    int n);
         /// emmited to indicate that data should be delivered for 
         /// all gates along a beam
         /// @param channel The selected channel
-        void alongBeamSignal(int channel);
+        void alongBeamSignal(
+                int channel);
     public slots:
-        /// Call when new timeseries data is available.
+        /// Feed new timeseries data via this slot. The data 
+        /// vectors must be of the same length and non-zero; otherwise they
+        /// will be ignored. The vector lengths can change between calls,
+        /// and the plot will respond appropriately. If the plot is currently 
+        /// configured for a time series display (I&Q, IvsQ or spectrum), the
+        /// new data will be displayed.
+        /// @param I A vector I values
+        /// @param Q A vector of Q values
+        /// @param sampleRateHz The sample rate of the I/Q data, in hz.
+        /// @param tuningFrequencyHz The current frequency of the receiver.
         void timeSeriesSlot(
                 std::vector<double> I,
                     std::vector<double> Q,
@@ -111,10 +120,11 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void productSlot();
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries.
-        void gateListSlot(std::vector<int> gates);
+        void gateListSlot(
+                std::vector<int> gates);
         /// Call when the plot type is changed. This function 
         /// must determine which of the two families of
-        /// plots, _tsPlotInfo, or _prodPlotInfo, the
+        /// plots, _tsPlotInfo, or _productPlotInfo, the
         /// previous and new plot types belong to.
         virtual void plotTypeSlot(
                 int plotType);
@@ -146,19 +156,24 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void saveImageSlot();
         /// Pause the plotting. Any received data are ignored.
         /// @param p True to enable pause.
-        void pauseSlot(bool p);
+        void pauseSlot(
+                bool p);
         /// Set the gate display mode
         /// @param m The gate mode, either ALONG_BEAM or ONE_GATE
-        void gateModeSlot(int m);
+        void gateModeSlot(
+                int m);
         /// Select the channel
         /// @param c The channel (1-4)
-        void channelSlot(int c);
+        void channelSlot(
+                int c);
         /// Select the gate
         /// @param g The index from the combo box of the selected gate.
-        void gateChoiceSlot(int index);
+        void gateChoiceSlot(
+                int index);
         /// Select the block size
         /// @param The block size. It must be a power of two.
-        void blockSizeSlot(int);
+        void blockSizeSlot(
+                int);
 
     protected:
         /// Initialize the fft calculations. The minimum and
@@ -167,11 +182,11 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// powers of two within this range. The block size
         /// combo selector is initialized.
         void initFFT();
-    	/// Emit a signal announcing the desired gate mode,
-    	/// either along beam, or one gate. The channel select,
-    	/// gate choice and (for one gate mode) data block
-    	/// size will be part of the emitted signal.
-    	void dataMode();
+        /// Emit a signal announcing the desired gate mode,
+        /// either along beam, or one gate. The channel select,
+        /// gate choice and (for one gate mode) data block
+        /// size will be part of the emitted signal.
+        void dataMode();
         /// Send the data for the current plot type to the ScopePlot.
         void displayData();
         /// Initialize the pulse and product sockets. The
@@ -266,18 +281,19 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param Idata The I time series.
         /// @param Qdata The Q time series.
         /// @return The zero moment
-        double powerSpectrum(std::vector<double>& Idata,
-                std::vector<double>& Qdata);
+        double powerSpectrum(
+                std::vector<double>& Idata,
+                    std::vector<double>& Qdata);
         /// For each TS_PLOT_TYPES, there will be an entry in this map.
         std::map<TS_PLOT_TYPES, PlotInfo> _tsPlotInfo;
         /// For each PRODUCT_PLOT_TYPES, there will be an entry in this map.
-        std::map<PRODUCT_PLOT_TYPES, PlotInfo> _prodPlotInfo;
+        std::map<PRODUCT_PLOT_TYPES, PlotInfo> _productPlotInfo;
         /// This set contains PLOTTYPEs for all timeseries plots
         std::set<TS_PLOT_TYPES> _timeSeriesPlots;
         /// This set contains PLOTTYPEs for all raw data plots
         std::set<TS_PLOT_TYPES> _pulsePlots;
         /// This set contains PLOTTYPEs for all S band moments plots
-        std::set<PRODUCT_PLOT_TYPES> _sMomentsPlots;
+        std::set<PRODUCT_PLOT_TYPES> _productPlots;
         /// This set contains PLOTTYPEs for all X band moments plots
         std::set<PRODUCT_PLOT_TYPES> _xMomentsPlots;
         /// save the button group for each tab,
@@ -328,7 +344,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         int _channel;
         /// The selected gate
         int _gateChoice;
-       
+
 };
 
 #endif
