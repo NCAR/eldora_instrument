@@ -37,7 +37,7 @@ EldoraScope::EldoraScope(
     setupUi(parent);
 
     // Initialize fft calculations
-    fftInit();
+    initFFT();
     
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraScope");
@@ -136,7 +136,7 @@ EldoraScope::~EldoraScope() {
 
 //////////////////////////////////////////////////////////////////////
 void
-EldoraScope::fftInit() {
+EldoraScope::initFFT() {
 
     // configure the block/fft size selection
     /// @todo add logic to insure that smallest fft size is a power of two.
@@ -317,17 +317,17 @@ double EldoraScope::powerSpectrum(
     int blockSize = _blockSizeChoices[_blockSizeIndex];
 
     _spectrum.resize(blockSize);
-    unsigned int n = I.size();
+    int n = Idata.size();
     if (blockSize < n) {
         n = blockSize;
     }
-    for (unsigned int j = 0; j < n; j++) {
+    for (int j = 0; j < n; j++) {
         // transfer the data to the fftw input space
         _fftwData[_blockSizeIndex][j][0] = Idata[j];
         _fftwData[_blockSizeIndex][j][1] = Qdata[j];
     }
     // zero pad, if we are looking at along beam data.
-    for (unsigned int j = n; j < blockSize; j++) {
+    for (int j = n; j < blockSize; j++) {
         _fftwData[_blockSizeIndex][j][0] = 0;
     }
 
@@ -371,7 +371,7 @@ double EldoraScope::powerSpectrum(
     zeroMoment = 10.0*log10(zeroMoment);
 
     // correct unscaled power data using knob setting: 
-    for (unsigned int j = 0; j < blockSize; j++) {
+    for (int j = 0; j < blockSize; j++) {
         _spectrum[j] += _powerCorrection;
     }
 

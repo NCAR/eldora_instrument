@@ -166,7 +166,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Fftw plans and data arrays are allocated for all
         /// powers of two within this range. The block size
         /// combo selector is initialized.
-        void fftInit();
+        void initFFT();
     	/// Emit a signal announcing the desired gate mode,
     	/// either along beam, or one gate. The channel select,
     	/// gate choice and (for one gate mode) data block
