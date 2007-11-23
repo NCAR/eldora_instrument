@@ -156,13 +156,22 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Select the gate
         /// @param g The index from the combo box of the selected gate.
         void gateChoiceSlot(int index);
+        /// Select the block size
+        /// @param The block size. It must be a power of two.
+        void blockSizeSlot(int);
 
     protected:
+        /// Initialize the fft calculations. The minimum and
+        /// maximum fft sizes are read from the configuration.
+        /// Fftw plans and data arrays are allocated for all
+        /// powers of two within this range. The block size
+        /// combo selector is initialized.
+        void fftInit();
     	/// Emit a signal announcing the desired gate mode,
     	/// either along beam, or one gate. The channel select,
     	/// gate choice and (for one gate mode) data block
     	/// size will be part of the emitted signal.
-    	void signalGateMode();
+    	void dataMode();
         /// Send the data for the current plot type to the ScopePlot.
         void displayData();
         /// Initialize the pulse and product sockets. The
@@ -226,20 +235,18 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                 QTimerEvent*);
         /// The hamming window coefficients
         std::vector<double> _hammingCoefs;
+        /// The index of the current fft/block size 
+        /// selection in _blockSizeChoices
+        int _blockSizeIndex;
+        /// The possible block/fftw size choices.
+        std::vector<int> _blockSizeChoices;
         ///	The fftw plan. This is a handle used by
         ///	the fftw routines.
-        fftw_plan _fftwPlan;
+        std::vector<fftw_plan> _fftwPlan;
         ///	The fftw data array. The fft will
         //	be performed in place, so both input data 
         ///	and results are stored here.
-        fftw_complex* _fftwData;
-        ///	fixed block size for initial cut
-        /// @todo implement selectable or automatic
-        /// fft size specification. Perhaps can choose the
-        /// largest power of two less than the delivered data size?
-        /// Would required pre- or dynamic creation of multiple
-        /// fftw plans.
-        unsigned int _fftBlockSize;
+        std::vector<fftw_complex*> _fftwData;
         //	power correction factor applied to (uncorrected) powerSpectrum() output
         double _powerCorrection;
         /// Set true if the Hamming window should be applied
@@ -256,8 +263,11 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Compute the power spectrum. The input values will come
         /// I[]and Q[], the power spectrum will be written to 
         /// _spectrum[]
+        /// @param Idata The I time series.
+        /// @param Qdata The Q time series.
         /// @return The zero moment
-        double powerSpectrum();
+        double powerSpectrum(std::vector<double>& Idata,
+                std::vector<double>& Qdata);
         /// For each TS_PLOT_TYPES, there will be an entry in this map.
         std::map<TS_PLOT_TYPES, PlotInfo> _tsPlotInfo;
         /// For each PRODUCT_PLOT_TYPES, there will be an entry in this map.
@@ -318,6 +328,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         int _channel;
         /// The selected gate
         int _gateChoice;
+       
 };
 
 #endif

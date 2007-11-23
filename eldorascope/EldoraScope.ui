@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1161</width>
+    <width>1167</width>
     <height>869</height>
    </rect>
   </property>
@@ -67,6 +67,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip" >
+        <string>Select the displayed product.</string>
+       </property>
        <widget class="QWidget" name="Channels" >
         <attribute name="title" >
          <string>Chan</string>
@@ -93,7 +96,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip" >
-          <string>pause the display</string>
+          <string>Pause the display.</string>
          </property>
          <property name="text" >
           <string>Pause</string>
@@ -109,6 +112,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>Enable X grid display.</string>
          </property>
          <property name="text" >
           <string>X Grid</string>
@@ -127,6 +133,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>Enable Y grid display.</string>
          </property>
          <property name="text" >
           <string>Y Grid</string>
@@ -160,6 +169,9 @@
           </property>
           <item>
            <widget class="QRadioButton" name="_chan1" >
+            <property name="toolTip" >
+             <string>Select channel 1.</string>
+            </property>
             <property name="text" >
              <string>1</string>
             </property>
@@ -167,6 +179,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="_chan2" >
+            <property name="toolTip" >
+             <string>Select channel 2.</string>
+            </property>
             <property name="text" >
              <string>2</string>
             </property>
@@ -174,6 +189,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="_chan3" >
+            <property name="toolTip" >
+             <string>Select channel 3.</string>
+            </property>
             <property name="text" >
              <string>3</string>
             </property>
@@ -181,6 +199,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="_chan4" >
+            <property name="toolTip" >
+             <string>Select channel 4.</string>
+            </property>
             <property name="text" >
              <string>4</string>
             </property>
@@ -201,20 +222,23 @@
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item row="1" column="1" >
-           <widget class="QComboBox" name="_gateNumber" >
-            <property name="toolTip" >
-             <string>Select the gate for the one gate display.</string>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>Block size</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
           <item row="1" column="0" >
-           <widget class="QRadioButton" name="_oneGate" >
-            <property name="toolTip" >
-             <string>Display values for one gate over time</string>
-            </property>
+           <widget class="QLabel" name="label" >
             <property name="text" >
-             <string>One Gate</string>
+             <string>Gate Number</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -225,6 +249,30 @@
             </property>
             <property name="text" >
              <string>Along Beam</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QRadioButton" name="_oneGate" >
+            <property name="toolTip" >
+             <string>Display values for one gate over time.</string>
+            </property>
+            <property name="text" >
+             <string>One Gate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QComboBox" name="_gateNumber" >
+            <property name="toolTip" >
+             <string>Select the gate for the one gate display.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="_blockSizeCombo" >
+            <property name="toolTip" >
+             <string>Set the number of samples for one gate mode.</string>
             </property>
            </widget>
           </item>
@@ -251,6 +299,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip" >
+          <string>Auto scale the display.</string>
+         </property>
          <property name="text" >
           <string>Auto Scale</string>
          </property>
@@ -258,6 +309,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="_saveImage" >
+         <property name="toolTip" >
+          <string>Save the display image to a file.</string>
+         </property>
          <property name="text" >
           <string>Save Image</string>
          </property>
@@ -303,6 +357,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip" >
+            <string>Scroll the display up.</string>
+           </property>
            <property name="text" >
             <string>^</string>
            </property>
@@ -332,6 +389,9 @@
              <width>30</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip" >
+            <string>Scroll the display down.</string>
            </property>
            <property name="text" >
             <string>v</string>
@@ -364,6 +424,9 @@
            <width>200</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="toolTip" >
+          <string>Change the vertical range of the display.</string>
          </property>
         </widget>
        </item>
