@@ -10,6 +10,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 #include "EldoraScope.h"
+#include "QtConfig.h"
 
 // To get the DDSSubscriber definition
 #include "DDSReader.h"
@@ -43,7 +44,7 @@ void parseArgs(
     po::store(po::parse_command_line(argc, argv, descripts), vm);
     po::notify(vm);
 
-    if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS") || !vm.count("pulsetopic") || !vm.count("tstopic")) {
+    if (vm.count("help")) {
         std::cout << descripts << "\n";
         exit(1);
     }
@@ -52,12 +53,19 @@ void parseArgs(
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
 
+    QtConfig config("NCAR", "EldoraScope");
     std::string pulseTopic;
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
     int rate;
-
+    
+    rate = config.getInt("DisplayRateHz", 25);
+    ORB = config.getString("ORBConfigFile", "/home/eldora/eldora/conf/tcp.conf");
+    DCPS = config.getString("DCPSConfigFile", "/home/eldora/eldora/conf/consumer.ini");
+    tsTopic = config.getString("TSTopic", "EldoraTS");
+    pulseTopic = config.getString("PulseTopic","EldoraPulses");
+    
     parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS, rate);
 
     // we have to do this bit of translation since the 
@@ -82,7 +90,7 @@ int main(int argc, char** argv) {
     // create our test dialog. It will contain an SdrScope
     EldoraScope scope(dialog);
 
-    // create the readers
+   // create the readers
     EldoraScopeReader reader(subscriber, tsTopic, rate);
 
     // connect the scope gate mode changes to the reader
