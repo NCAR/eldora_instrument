@@ -32,7 +32,7 @@ EldoraScope::EldoraScope(
         QDialog* parent) :
     QDialog(parent), _performAutoScale(false), _statsUpdateInterval(5),
             _timeSeriesPlot(TRUE), _config("NCAR", "EldoraScope"),
-            _paused(false), _gateMode(ALONG_BEAM), _channel(1) {
+            _paused(false), _gateMode(ALONG_BEAM), _zeroMoment(0.0) {
     // Set up our form
     setupUi(parent);
 
@@ -61,6 +61,7 @@ EldoraScope::EldoraScope(
     gateModeButtonGroup->addButton(_oneGate, ONE_GATE);
 
     // configure the channel selections
+    _channel = 1;
     _chan1->setChecked(true);
     _chan2->setChecked(false);
     _chan3->setChecked(false);
@@ -228,8 +229,7 @@ void EldoraScope::processTimeSeries(
     case ScopePlot::SPECTRUM: {
 
         // compute the power spectrum
-        double zeroMoment = powerSpectrum(Idata, Qdata);
-        zeroMoment = zeroMoment; // for the time being, to get rid of compiler warning
+        _zeroMoment = powerSpectrum(Idata, Qdata);
         displayData();
         break;
     }
@@ -239,6 +239,7 @@ void EldoraScope::processTimeSeries(
         Q.resize(Qdata.size());
         I = Idata;
         Q = Qdata;
+        _zeroMoment = zeroMomentFromTimeSeries(I, Q);
         displayData();
         break;
     }
@@ -265,6 +266,10 @@ void EldoraScope::processProduct() {
 void EldoraScope::displayData() {
     double yBottom = _xyGraphCenter - _xyGraphRange;
     double yTop = _xyGraphCenter + _xyGraphRange;
+    
+    QString l = QString("%1").arg(_zeroMoment,6,'f',1);
+   _powerDB->setText(l);
+
     if (_timeSeriesPlot) {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
@@ -614,7 +619,7 @@ void EldoraScope::initPlots() {
     // for each tab.
     QButtonGroup* pGroup;
 
-    pGroup = addPlotTypeTab("Raw", _pulsePlots);
+    pGroup = addTSTypeTab("Raw", _pulsePlots);
     _tabButtonGroups.push_back(pGroup);
 
     pGroup = addProductTypeTab("Products", _productPlots);
@@ -622,8 +627,9 @@ void EldoraScope::initPlots() {
 
     connect(_typeTab, SIGNAL(currentChanged(QWidget *)), this, SLOT(tabChangeSlot(QWidget*)));
 }
+
 //////////////////////////////////////////////////////////////////////
-QButtonGroup* EldoraScope::addPlotTypeTab(
+QButtonGroup* EldoraScope::addTSTypeTab(
         std::string tabName,
             std::set<TS_PLOT_TYPES> types) {
     // The page that will be added to the tab widget
@@ -664,6 +670,7 @@ QButtonGroup* EldoraScope::addPlotTypeTab(
 
     return pGroup;
 }
+
 //////////////////////////////////////////////////////////////////////
 QButtonGroup* EldoraScope::addProductTypeTab(
         std::string tabName,
@@ -706,6 +713,7 @@ QButtonGroup* EldoraScope::addProductTypeTab(
 
     return pGroup;
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::timerEvent(
         QTimerEvent*) {
@@ -747,7 +755,6 @@ void EldoraScope::gainChangeSlot(
 }
 
 //////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
 void EldoraScope::upSlot() {
     bool spectrum = false;
 
@@ -763,7 +770,9 @@ void EldoraScope::upSlot() {
     } else {
         _specGraphCenter -= 0.03*_specGraphRange;
     }
+    displayData();
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::dnSlot() {
 
@@ -781,7 +790,10 @@ void EldoraScope::dnSlot() {
     } else {
         _specGraphCenter += 0.03*_specGraphRange;
     }
+    
+    displayData();
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data) {
@@ -789,17 +801,16 @@ void EldoraScope::autoScale(
         _performAutoScale = false;
         return;
     }
-    double min = data[0];
-    double max = data[0];
-    for (unsigned int i = 0; i < data.size(); i++) {
-        if (data[i] > max)
-            max = data[i];
-        else if (data[i] < min)
-            min = data[i];
-    }
+    
+    // find the min and max
+    double min = *std::min_element(data.begin(), data.end());
+    double max = *std::min_element(data.begin(), data.end());
+    
+    // adjust the gains
     adjustGainOffset(min, max);
     _performAutoScale = false;
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data1,
@@ -809,24 +820,21 @@ void EldoraScope::autoScale(
         return;
     }
 
-    double min = 1.0e10;
-    double max = -1.0e10;
-    for (unsigned int i = 0; i < data1.size(); i++) {
-        if (data1[i] > max)
-            max = data1[i];
-        else if (data1[i] < min)
-            min = data1[i];
-    }
-
-    for (unsigned int i = 0; i < data2.size(); i++) {
-        if (data2[i] > max)
-            max = data2[i];
-        else if (data2[i] < min)
-            min = data2[i];
-    }
+    // find the min and max
+    double min1 = *std::min_element(data1.begin(), data1.end());
+    double min2 = *std::min_element(data2.begin(), data2.end());
+    double min = std::min(min1, min2);
+    
+    double max1 = *std::max_element(data1.begin(), data1.end());
+    double max2 = *std::max_element(data2.begin(), data2.end());
+    double max = std::max(max1, max2);
+    
+    // adjust the gains
     adjustGainOffset(min, max);
+    
     _performAutoScale = false;
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::adjustGainOffset(
         double min,
@@ -839,6 +847,7 @@ void EldoraScope::adjustGainOffset(
 
     _gainKnob->setValue(_knobGain);
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScaleSlot() {
     _performAutoScale = true;
@@ -905,3 +914,21 @@ void EldoraScope::blockSizeSlot(
     dataMode();
 }
 
+////////////////////////////////////////////////////////////////////////
+
+double
+EldoraScope::zeroMomentFromTimeSeries(std::vector<double>& I,
+                   std::vector<double>& Q)
+{
+  double p = 0;
+  int n = I.size();
+
+  for (unsigned int i = 0; i < I.size(); i++) {
+    p += I[i]*I[i]
+      + Q[i]*Q[i];
+  }
+
+  p /= n;
+  p = 10.0*log10(p);
+  return p;
+}

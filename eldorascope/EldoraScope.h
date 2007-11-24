@@ -229,11 +229,11 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void adjustGainOffset(
                 double min,
                     double max);
-        /// Holds I data from a pulse for time series and I vs. Q 	
+        /// Holds I data to display for time series and I vs. Q 	
         std::vector<double> I;
-        /// Holds Q data from a pulse for time series and I vs. Q display
+        /// Holds Q data to display for time series and I vs. Q display
         std::vector<double> Q;
-        /// Used to collect the spectrum values calculated from pulses
+        /// Holds power spectrum values for display.
         std::vector<double> _spectrum;
         /// Used to collect product data from beams
         std::vector<double> _ProductData;
@@ -266,7 +266,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         double _powerCorrection;
         /// Set true if the Hamming window should be applied
         bool _doHamming;
-        double _az;
         /// Process time series data.
         /// @param Idata The I values
         /// @param Qdata The Q values
@@ -324,9 +323,14 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param types A set of the desired TS_PLOT_TYPES types 
         /// @return The button group that the inserted buttons
         /// belong to.
-        QButtonGroup* addPlotTypeTab(
+        QButtonGroup* addTSTypeTab(
                 std::string tabName,
                     std::set<TS_PLOT_TYPES> types);
+        /// Calculate the zeroth moment, using the time
+        /// series for input.
+        double zeroMomentFromTimeSeries(
+                std::vector<double>& I,
+                    std::vector<double>& Q);
         /// The configuration for EldoraScope
         QtConfig _config;
         /// Palette for making the leds green
@@ -344,6 +348,9 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         int _channel;
         /// The selected gate
         int _gateChoice;
+        /// The signal power, computed directly from the I&Q
+        /// data, or from the power spectrum
+        double _zeroMoment;
 
 };
 
