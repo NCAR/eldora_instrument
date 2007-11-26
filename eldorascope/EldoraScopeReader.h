@@ -69,16 +69,22 @@ class EldoraScopeReader : public QObject, public TSReader {
         void rateTimeoutSlot();
 
         /// Set the gate mode to ONE_GATE.
+        /// @param channel The channel number (1-4)
+        /// @param forwardRadar True if forward radar, false if aft
         /// @param gate The gate to send in
         /// @param n The number of points
         void oneGateSlot(
                 int channel,
+                    bool forwardRadar,
                     int gate,
                     int n);
 
         /// Set the gate mode to along beam.
+        /// @param channel The channel number (1-4)
+        /// @param forwardRadar True if forward radar, false if aft
         void alongBeamSlot(
-                int channel);
+                int channel,
+                    bool forwardRadar);
 
     protected:
         /// The number of samples received so far.
@@ -104,6 +110,9 @@ class EldoraScopeReader : public QObject, public TSReader {
 
         /// The gate of choice in ONE_GATE mode.
         int _gate;
+
+        /// The selected radar, either forward or aft
+        EldoraDDS::RadarChoice _radarId;
 
         /// Set true by the rate timer timeout, which
         /// enables capturing the next block of data

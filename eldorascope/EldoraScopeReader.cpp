@@ -48,7 +48,7 @@ void EldoraScopeReader::notify() {
 		_readSamples++;
 		_numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
 
-		if (pItem->chan == _channel) {
+		if (pItem->chan == _channel && pItem->radarId == _radarId) {
 			// the number of individual timer series in each dds sample
 
 			int nci = pItem->nci;/// The current mode of data deliver.
@@ -123,21 +123,25 @@ void EldoraScopeReader::rateTimeoutSlot() {
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeReader::oneGateSlot(int channel, int gate, int n) {
+void EldoraScopeReader::oneGateSlot(int channel,
+        bool forwardRadar, int gate, int n) {
 	_gate = gate;
 	_channel = channel;
 	_pointsPerGate = n;
 	_gateMode = ONE_GATE;
 	_pointCounter = 0;
+	_radarId = forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 	// start timeseries collection immediately
 	I.resize(n);
 	Q.resize(n);
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeReader::alongBeamSlot(int channel) {
+void EldoraScopeReader::alongBeamSlot(int channel,
+        bool forwardRadar) {
 	_gateMode = ALONG_BEAM;
 	_channel = channel;
+    _radarId = forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
 
 ////////////////////////////////////////////////////////////

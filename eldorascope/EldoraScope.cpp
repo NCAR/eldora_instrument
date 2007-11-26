@@ -38,7 +38,7 @@ EldoraScope::EldoraScope(
 
     // Initialize fft calculations
     initFFT();
-    
+
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraScope");
     title += " ";
@@ -71,6 +71,15 @@ EldoraScope::EldoraScope(
     channelButtonGroup->addButton(_chan2, 2);
     channelButtonGroup->addButton(_chan3, 3);
     channelButtonGroup->addButton(_chan4, 4);
+    
+    // configure the radar selection
+    _forwardRadar = true;
+    _foreRadar->setChecked(true);
+    _aftRadar->setChecked(false);
+    QButtonGroup* radarButtonGroup = new QButtonGroup();
+    radarButtonGroup->addButton(_foreRadar, true);
+    radarButtonGroup->addButton(_aftRadar, false);
+    
 
     // connect the controls
     connect(_autoScale, SIGNAL(released()), this, SLOT(autoScaleSlot()));
@@ -85,6 +94,7 @@ EldoraScope::EldoraScope(
     connect(_blockSizeCombo, SIGNAL(activated(int)), this, SLOT(blockSizeSlot(int)));
     connect(channelButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(channelSlot(int)));
     connect(gateModeButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(gateModeSlot(int)));
+    connect(radarButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(radarSlot(int)));
 
     // set the checkbox selections
     _pauseButton->setChecked(false);
@@ -125,7 +135,7 @@ EldoraScope::EldoraScope(
     _chan2led->setPalette(_greenPalette);
 
     // The initial plot type will be I and Q timeseries
-   plotTypeSlot(TS_TIMESERIES_PLOT);
+    plotTypeSlot(TS_TIMESERIES_PLOT);
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
@@ -136,8 +146,7 @@ EldoraScope::~EldoraScope() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void
-EldoraScope::initFFT() {
+void EldoraScope::initFFT() {
 
     // configure the block/fft size selection
     /// @todo add logic to insure that smallest fft size is a power of two.
@@ -169,7 +178,7 @@ EldoraScope::initFFT() {
     }
     //  power correction factor applied to (uncorrected) powerSpectrum() output:
     _powerCorrection = 0.0; //  use for power correction to dBm
-    
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -266,9 +275,9 @@ void EldoraScope::processProduct() {
 void EldoraScope::displayData() {
     double yBottom = _xyGraphCenter - _xyGraphRange;
     double yTop = _xyGraphCenter + _xyGraphRange;
-    
-    QString l = QString("%1").arg(_zeroMoment,6,'f',1);
-   _powerDB->setText(l);
+
+    QString l = QString("%1").arg(_zeroMoment, 6, 'f', 1);
+    _powerDB->setText(l);
 
     if (_timeSeriesPlot) {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
@@ -612,7 +621,7 @@ void EldoraScope::initPlots() {
             5.0,
             0.0);
 
-     // remove the one tab that was put there by designer
+    // remove the one tab that was put there by designer
     _typeTab->removeTab(0);
 
     // add tabs, and save the button group for
@@ -790,7 +799,7 @@ void EldoraScope::dnSlot() {
     } else {
         _specGraphCenter += 0.03*_specGraphRange;
     }
-    
+
     displayData();
 }
 
@@ -801,11 +810,11 @@ void EldoraScope::autoScale(
         _performAutoScale = false;
         return;
     }
-    
+
     // find the min and max
     double min = *std::min_element(data.begin(), data.end());
     double max = *std::min_element(data.begin(), data.end());
-    
+
     // adjust the gains
     adjustGainOffset(min, max);
     _performAutoScale = false;
@@ -824,14 +833,14 @@ void EldoraScope::autoScale(
     double min1 = *std::min_element(data1.begin(), data1.end());
     double min2 = *std::min_element(data2.begin(), data2.end());
     double min = std::min(min1, min2);
-    
+
     double max1 = *std::max_element(data1.begin(), data1.end());
     double max2 = *std::max_element(data2.begin(), data2.end());
     double max = std::max(max1, max2);
-    
+
     // adjust the gains
     adjustGainOffset(min, max);
-    
+
     _performAutoScale = false;
 }
 
@@ -862,9 +871,12 @@ void EldoraScope::pauseSlot(
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::dataMode() {
     if (_gateMode == ONE_GATE) {
-emit         		                                        oneGateSignal(_channel, _gateChoice, _blockSizeChoices[_blockSizeIndex]);
+emit         		                                                oneGateSignal(_channel,
+                _forwardRadar,
+                _gateChoice,
+                _blockSizeChoices[_blockSizeIndex]);
     } else {
-emit         		                                        alongBeamSignal(_channel);
+emit         		                                                alongBeamSignal(_channel, _forwardRadar);
     }
 }
 
@@ -900,6 +912,13 @@ void EldoraScope::channelSlot(
 }
 
 //////////////////////////////////////////////////////////////////////
+void EldoraScope::radarSlot(
+        int forwardRadar) {
+    _forwardRadar = forwardRadar,
+    // tell the data source about our decision
+
+    dataMode();
+}//////////////////////////////////////////////////////////////////////
 void EldoraScope::gateChoiceSlot(
         int index) {
     _gateChoice = _gates[index];
@@ -916,19 +935,17 @@ void EldoraScope::blockSizeSlot(
 
 ////////////////////////////////////////////////////////////////////////
 
-double
-EldoraScope::zeroMomentFromTimeSeries(std::vector<double>& I,
-                   std::vector<double>& Q)
-{
-  double p = 0;
-  int n = I.size();
+double EldoraScope::zeroMomentFromTimeSeries(
+        std::vector<double>& I,
+            std::vector<double>& Q) {
+    double p = 0;
+    int n = I.size();
 
-  for (unsigned int i = 0; i < I.size(); i++) {
-    p += I[i]*I[i]
-      + Q[i]*Q[i];
-  }
+    for (unsigned int i = 0; i < I.size(); i++) {
+        p += I[i]*I[i] + Q[i]*Q[i];
+    }
 
-  p /= n;
-  p = 10.0*log10(p);
-  return p;
+    p /= n;
+    p = 10.0*log10(p);
+    return p;
 }

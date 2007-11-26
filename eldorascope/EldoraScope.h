@@ -93,13 +93,15 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param n The number of points to deliver for the selected gate
         void oneGateSignal(
                 int channel,
+                    bool forwardRadar,
                     int gate,
                     int n);
         /// emmited to indicate that data should be delivered for 
         /// all gates along a beam
         /// @param channel The selected channel
         void alongBeamSignal(
-                int channel);
+                int channel,
+                bool forwardRadar);
     public slots:
         /// Feed new timeseries data via this slot. The data 
         /// vectors must be of the same length and non-zero; otherwise they
@@ -166,6 +168,10 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param c The channel (1-4)
         void channelSlot(
                 int c);
+        /// Select the radar
+        /// @param forwardRadar True if forward radar, false if aft
+        void radarSlot(
+                int forwardRadar);
         /// Select the gate
         /// @param g The index from the combo box of the selected gate.
         void gateChoiceSlot(
@@ -351,6 +357,8 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// The signal power, computed directly from the I&Q
         /// data, or from the power spectrum
         double _zeroMoment;
+        /// True if forward radar, false otherwise
+        bool _forwardRadar;
 
 };
 
