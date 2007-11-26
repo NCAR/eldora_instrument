@@ -166,9 +166,12 @@ void * dataTask(void* threadArg) {
 					}
 					// set the timestamp
 					pPulse->timestamp = pABP->pulseCount;
-					// alternate the radar id between forward and aft
-					pPulse->radarId = EldoraDDS::Aft;
-					// send the pulse to the pulde publisher
+					// device 0 is the aft radar, 1 is fore
+					pPulse->radarId = 
+					  (pParams->device == 0) ? 
+					  EldoraDDS::Aft : EldoraDDS::Forward;
+
+					// send the pulse to the pulse publisher
 					pulseWriter->publishItem(pPulse);
 				} else {
 					pParams->droppedPulse++;
@@ -188,8 +191,10 @@ void * dataTask(void* threadArg) {
 					pTS->tsdata[p] = pIQ->_iq[p];
 					// set the timestamp
 					pTS->timestamp = pIQ->pulseCount;
-					// alternate the radar id between forward and aft
-					pTS->radarId = EldoraDDS::Aft;
+					// device 0 is the aft radar, 1 is fore
+					pTS->radarId = 
+					  (pParams->device == 0) ? 
+					  EldoraDDS::Aft : EldoraDDS::Forward;
 					// send the pulse to the pulde publisher
 					tsWriter->publishItem(pTS);
 				} else {
