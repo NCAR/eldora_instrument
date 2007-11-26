@@ -169,7 +169,7 @@ void * dataTask(void* threadArg) {
 					// device 0 is the aft radar, 1 is fore
 					pPulse->radarId = 
 					  (pParams->device == 0) ? 
-					  EldoraDDS::Aft : EldoraDDS::Forward;
+					  EldoraDDS::Forward : EldoraDDS::Aft;
 
 					// send the pulse to the pulse publisher
 					pulseWriter->publishItem(pPulse);
@@ -194,7 +194,7 @@ void * dataTask(void* threadArg) {
 					// device 0 is the aft radar, 1 is fore
 					pTS->radarId = 
 					  (pParams->device == 0) ? 
-					  EldoraDDS::Aft : EldoraDDS::Forward;
+					  EldoraDDS::Forward : EldoraDDS::Aft;
 					// send the pulse to the pulde publisher
 					tsWriter->publishItem(pTS);
 				} else {
