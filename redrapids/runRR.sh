@@ -21,7 +21,7 @@ produce="$topdir/redrapids/testrr314 \
    --pub $*"
  
 # kill existing jobs
-pkill testrr314
+#pkill testrr314
 
 # trap the signals on this script, and kill the jobs
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
