@@ -122,7 +122,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void productSlot();
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries.
-        void gateListSlot(
+        void tsGateListSlot(
                 std::vector<int> gates);
         /// Call when the plot type is changed. This function 
         /// must determine which of the two families of

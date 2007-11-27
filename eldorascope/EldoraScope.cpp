@@ -889,7 +889,7 @@ void EldoraScope::gateModeSlot(
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraScope::gateListSlot(
+void EldoraScope::tsGateListSlot(
         std::vector<int> gates) {
     _gates = gates;
     for (unsigned int i = 0; i < _gates.size(); i++) {

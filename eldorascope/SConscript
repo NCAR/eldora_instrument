@@ -22,7 +22,8 @@ env.Uic4(['EldoraScope.ui',])
 sources = Split("""
 main.cpp
 EldoraScope.cpp
-EldoraScopeReader.cpp
+EldoraScopeSource.cpp
+EldoraScopeTSReader.cpp
 PlotInfo.cpp
 """)
 

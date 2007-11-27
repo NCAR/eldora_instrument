@@ -14,8 +14,8 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 // To get the DDSSubscriber definition
 #include "DDSReader.h"
-// To get the EldoraScopeReader definiton.
-#include "EldoraScopeReader.h"
+// To get the EldoraScopeSource definiton.
+#include "EldoraScopeTSReader.h"
 
 #include "ArgvParams.h"
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     EldoraScope scope(dialog);
 
    // create the readers
-    EldoraScopeReader reader(subscriber, tsTopic, rate);
+    EldoraScopeTSReader reader(subscriber, tsTopic, rate);
 
     // connect the scope gate mode changes to the reader
     QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)),
@@ -103,8 +103,8 @@ int main(int argc, char** argv) {
     // connect the reader to the scope
     
     // first the gate list
-    QObject::connect(&reader, SIGNAL(gateList(std::vector<int>)),
-            &scope, SLOT(gateListSlot(std::vector<int>)));
+    QObject::connect(&reader, SIGNAL(tsGateList(std::vector<int>)),
+            &scope, SLOT(tsGateListSlot(std::vector<int>)));
     
     // now the data supply
     QObject::connect(&reader, 
