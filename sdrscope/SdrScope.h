@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "ui_SdrScope.h"
-#include "ScopePlot/ScopePlot.h"
+#include <ScopePlot.h>
 
 #include <fftw3.h>
 

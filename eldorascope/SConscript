@@ -1,42 +1,8 @@
-import os
-
-tools = ['default', 'ddssvc', 'qt4']
-
+tools = ['default', 'ddssvc', 'qtt_knob', 'qtt_qtconfig', 'sdrscope']
 env = Environment(tools = tools)
-
-env['QWTDIR'] = os.environ.get('QWTDIR', None)
-
-# set the include paths
-
-# QtToolbox items
-env.AppendUnique(CPPPATH = [
-'#/qttoolbox',
-'#/qttoolbox/ScopePlot',
-'#/qttoolbox/Knob',
-'#/qttoolbox/QtConfig'])
-
-# QWT
-env.AppendUnique(CPPPATH = ['$QWTDIR/include',])
-
-# sdr scope
-env.AppendUnique(CPPPATH=['#/sdrscope',])
-
-env.Append(LIBPATH = [
-	'#/qttoolbox/ScopePlot',
-	'#/qttoolbox/Knob',
-	'#/qttoolbox/QtConfig',
-	'#/sdrscope',
-	'$QWTDIR/lib',
-	'/usr/local/lib'])
 
 # libraries:
 libs = Split("""
-sdrscope
-qwt
-fftw3
-scopeplot
-knob
-qtconfig
 boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
@@ -50,17 +16,17 @@ rt
 
 env.AppendUnique(LIBS = libs)
 
-# enable the qt4 modules
-env.EnableQt4Modules(['QtCore','QtGui','QtOpenGL', 'QtXml',])
-
 # This will create ui_EldoraScope.h
 env.Uic4(['EldoraScope.ui',])
 
-sources = ['main.cpp','EldoraScope.cpp', 'EldoraScopeReader.cpp', 'PlotInfo.cpp']
+sources = Split("""
+main.cpp
+EldoraScope.cpp
+EldoraScopeReader.cpp
+PlotInfo.cpp
+""")
 
-eldorascope = env.Program(
-	'eldorascope', sources
-	)
+eldorascope = env.Program('eldorascope', sources)
 	
 Default(eldorascope)
 

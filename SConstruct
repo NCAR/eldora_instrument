@@ -17,7 +17,8 @@ def Eldora(env):
         env.PassEnv(r'DevEnvDir')
         env.PassEnv(r'Framework.*')
 
-env = Environment(tools = ['default'], GLOBAL_TOOLS = [Eldora])
+tools = ['sdrscope']
+env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
@@ -25,5 +26,4 @@ SConscript('tmp/SConscript')
 SConscript('testdds/SConscript')
 SConscript('redrapids/SConscript')
 SConscript('qttoolbox/SConscript')
-SConscript('sdrscope/SConscript')
 SConscript('eldorascope/SConscript')
