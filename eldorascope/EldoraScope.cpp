@@ -628,7 +628,7 @@ void EldoraScope::initPlots() {
     // for each tab.
     QButtonGroup* pGroup;
 
-    pGroup = addTSTypeTab("Raw", _pulsePlots);
+    pGroup = addTSTypeTab("I & Q", _pulsePlots);
     _tabButtonGroups.push_back(pGroup);
 
     pGroup = addProductTypeTab("Products", _productPlots);
