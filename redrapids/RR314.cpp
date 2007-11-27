@@ -576,7 +576,13 @@ void RR314::newABPData(
             pBuf->dataIn++;
             break;
         default:
-            pBuf->_abp[pBuf->nextData] = src[i] * ABPSCALE;
+            // A and B scaled by full scale
+            if (((pBuf->nextData) % 3) < 2) {
+                pBuf->_abp[pBuf->nextData] = src[i]*ABPSCALE;
+            } else {
+                // P scaled by 2 times full scale
+                pBuf->_abp[pBuf->nextData] = src[i]*ABPSCALE/2.0;                
+            }
             pBuf->nextData++;
             pBuf->dataIn++;
             if (pBuf->nextData == pBuf->_abp.size()) {

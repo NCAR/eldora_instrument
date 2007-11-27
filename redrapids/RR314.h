@@ -27,7 +27,6 @@
 /// The scale factor for converting the ABP ints to floats
 /// in the range +/- 1.0
 #define ABPSCALE (1.0/(unsigned int)(pow(2, 31.0)))
-
 /// The number of groups in a DMA transfer.
 #define DMANUMGROUPS      8
 /// The size of each DMA block.
@@ -77,7 +76,7 @@ struct RRBuffer {
 /// for deliver to consumers. The buffer will always contain one
 /// complete set of ABP values for all gates.
 struct RRABPBuffer : RRBuffer {
-        std::vector<int> _abp;
+        std::vector<float> _abp;
 };
 
 /// A buffer type used to collect an incoming iq sample stream and 
