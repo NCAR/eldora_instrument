@@ -576,7 +576,7 @@ void RR314::newABPData(
             pBuf->dataIn++;
             break;
         default:
-            pBuf->_abp[pBuf->nextData] = src[i];
+            pBuf->_abp[pBuf->nextData] = src[i] * ABPSCALE;
             pBuf->nextData++;
             pBuf->dataIn++;
             if (pBuf->nextData == pBuf->_abp.size()) {

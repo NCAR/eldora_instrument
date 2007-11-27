@@ -24,6 +24,10 @@
 #include "ca_functions.h"
 #include "ca_membuffer.h"
 
+/// The scale factor for converting the ABP ints to floats
+/// in the range +/- 1.0
+#define ABPSCALE (1.0/(unsigned int)(pow(2, 31.0)))
+
 /// The number of groups in a DMA transfer.
 #define DMANUMGROUPS      8
 /// The size of each DMA block.
