@@ -7,7 +7,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
-EldoraScopeABPReader::EldoraScopeABPReader(
+EldoraScopeABPSource::EldoraScopeABPSource(
         DDSSubscriber& subscriber,
             std::string topicName,
             double outputRate) :
@@ -18,12 +18,12 @@ EldoraScopeABPReader::EldoraScopeABPReader(
 }
 
 ////////////////////////////////////////////////////////
-EldoraScopeABPReader::~EldoraScopeABPReader() {
+EldoraScopeABPSource::~EldoraScopeABPSource() {
 
 }
 
 ////////////////////////////////////////////////////////
-void EldoraScopeABPReader::notify() {
+void EldoraScopeABPSource::notify() {
     while (Pulse* pItem = getNextItem()) {
 
         _readSamples++;
@@ -71,7 +71,7 @@ emit                         newPData(P);
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeABPReader::oneGateSlot(
+void EldoraScopeABPSource::oneGateSlot(
         int channel,
             bool forwardRadar,
             int gate,
@@ -85,7 +85,7 @@ void EldoraScopeABPReader::oneGateSlot(
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeABPReader::alongBeamSlot(
+void EldoraScopeABPSource::alongBeamSlot(
         int channel,
             bool forwardRadar) {
     EldoraScopeSource::alongBeamSlot(channel, forwardRadar);

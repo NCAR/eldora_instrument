@@ -19,14 +19,14 @@ using namespace EldoraDDS;
 ///
 /// The EldoraScopeSource rate limiting mechanism (the _capture variable)
 /// is used to control the rate of data delivery to the qt client.
-class EldoraScopeTSReader : public EldoraScopeSource, public TSReader {
+class EldoraScopeTSSource : public EldoraScopeSource, public TSReader {
 Q_OBJECT
     public:
-        EldoraScopeTSReader(
+        EldoraScopeTSSource(
                 DDSSubscriber& subscriber,
                     std::string topicName,
                     double outputRate=20.0);
-        virtual ~EldoraScopeTSReader();
+        virtual ~EldoraScopeTSSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
         /// queue. Process the samples here.

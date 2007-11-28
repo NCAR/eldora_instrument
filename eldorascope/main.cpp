@@ -15,8 +15,8 @@ Q_DECLARE_METATYPE(std::vector<int>)
 // To get the DDSSubscriber definition
 #include "DDSReader.h"
 
-#include "EldoraScopeTSReader.h"
-#include "EldoraScopeABPReader.h"
+#include "EldoraScopeTSSource.h"
+#include "EldoraScopeABPSource.h"
 
 #include "ArgvParams.h"
 
@@ -92,24 +92,24 @@ int main(int argc, char** argv) {
     EldoraScope scope(dialog);
 
    // create the readers
-    EldoraScopeTSReader tsReader(subscriber, tsTopic, rate);
-    EldoraScopeABPReader abpReader(subscriber, pulseTopic, rate);
+    EldoraScopeTSSource tsSource(subscriber, tsTopic, rate);
+    EldoraScopeABPSource abpSource(subscriber, pulseTopic, rate);
 
-    // connect the scope gate mode changes to the tsReader
+    // connect the scope gate mode changes to the tsSource
     QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)),
-             &tsReader, SLOT(oneGateSlot(int, bool, int,int)));
+             &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
      
     QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)),
-             &tsReader, SLOT(alongBeamSlot(int, bool)));
+             &tsSource, SLOT(alongBeamSlot(int, bool)));
      
-    // connect the tsReader to the scope
+    // connect the tsSource to the scope
     
     // first the gate list
-    QObject::connect(&tsReader, SIGNAL(tsGateList(std::vector<int>)),
+    QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>)),
             &scope, SLOT(tsGateListSlot(std::vector<int>)));
     
     // now the data supply
-    QObject::connect(&tsReader, 
+    QObject::connect(&tsSource, 
     SIGNAL(
             newData(std::vector<double>,
                     std::vector<double>,
