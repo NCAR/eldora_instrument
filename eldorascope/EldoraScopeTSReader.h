@@ -4,8 +4,6 @@
 #include <vector>
 #include "EldoraScopeSource.h"
 #include "DDSReader.h"
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
