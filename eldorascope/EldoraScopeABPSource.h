@@ -1,5 +1,5 @@
-#ifndef ELDORASCOPEABPREADER_H_
-#define ELDORASCOPEABPREADER_H_
+#ifndef ELDORASCOPEABPSOURCE_H_
+#define ELDORASCOPEABPSOURCE_H_
 
 #include <vector>
 #include "EldoraScopeSource.h"

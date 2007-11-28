@@ -1,4 +1,4 @@
-#include "EldoraScopeABPReader.h"
+#include "EldoraScopeABPSource.h"
 #include <QMetaType>
 #include <iostream>
 using namespace EldoraDDS;

@@ -1,5 +1,5 @@
-#ifndef ELDORASCOPETSREADER_H_
-#define ELDORASCOPETSREADER_H_
+#ifndef ELDORASCOPETSSOURCE_H_
+#define ELDORASCOPETSSOURCE_H_
 
 #include <vector>
 #include "EldoraScopeSource.h"
