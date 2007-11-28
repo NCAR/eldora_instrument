@@ -27,7 +27,11 @@ produce="$topdir/redrapids/testrr314 \
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
 	pkill testrr314' ERR SIGINT SIGTERM
 	
-echo "starting rr314 producer"
-$produce
+echo "starting rr314 for device 0"
+$produce --dev 0 &
+
+echo "starting rr314 for device 1"
+$produce --dev 1
+
 
 
