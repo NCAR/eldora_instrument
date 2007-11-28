@@ -44,8 +44,7 @@ void EldoraScopeTSReader::notify() {
             if (tsLen/2 != _gates.size()) {
                 _gates.resize(tsLen/2);
                 for (unsigned int g = 0; g < tsLen/2; g++) {
-                    std::cout << "gate " << g << "\n";
-                    _gates[g] = g;
+                     _gates[g] = g;
                 }
                 // since the gate list has changed, default to the first one
                 _gate = _gates[0];

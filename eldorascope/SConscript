@@ -24,6 +24,7 @@ main.cpp
 EldoraScope.cpp
 EldoraScopeSource.cpp
 EldoraScopeTSReader.cpp
+EldoraScopeABPReader.cpp
 PlotInfo.cpp
 """)
 
