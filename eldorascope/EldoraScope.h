@@ -69,15 +69,12 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
 
         /// Product plot types.
         enum PRODUCT_PLOT_TYPES {
-            PROD_DBMHC, ///< S-band dBm horizontal co-planar
-            PROD_DBMVC, ///< S-band dBm vertical co-planar
-            PROD_DBZ, ///< S-band dBz
-            PROD_SNR, ///< S-band SNR
-            PROD_VEL, ///< S-band velocity
-            PROD_WIDTH, ///< S-band spectral width
-            PROD_RHOHV, ///< S-band rhohv
-            PROD_PHIDP, ///< S-band phidp
-            PROD_ZDR, ///< S-band zdr
+            PROD_P,   ///< P (from ABP)
+            PROD_DBM, ///< dBm 
+            PROD_DBZ, ///< dBz
+            PROD_SNR, ///< SNR
+            PROD_VEL, ///< velocity
+            PROD_WIDTH, ///< spectral width
         };
 
     public:
@@ -119,7 +116,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                     double sampleRateHz,
                     double tuningFreqHz);
         /// Call when data is available on the product data socket.
-        void productSlot();
+        void productSlot(std::vector<double> p);
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries.
         void tsGateListSlot(
@@ -195,10 +192,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void dataMode();
         /// Send the data for the current plot type to the ScopePlot.
         void displayData();
-        /// Initialize the pulse and product sockets. The
-        /// notifiers will be created, and connected
-        /// to the data handling slots.
-        void initSockets();
         ///	cumulative error count
         int _errorCount[3];
         ///  last pulse number
@@ -279,7 +272,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                 std::vector<double>& Idata,
                     std::vector<double>& Qdata);
         /// Process product data
-        void processProduct();
+        void processProduct(std::vector<double>& p);
         /// Compute the power spectrum. The input values will come
         /// I[]and Q[], the power spectrum will be written to 
         /// _spectrum[]

@@ -16,7 +16,8 @@ _pointCounter(0),
 _gate(0),
 _capture(false), 
 _outputRate(outputRate),
-_channel(1)
+_channel(1),
+_forwardRadar(true)
 {
 
 	// determine the timer interval. Don't support

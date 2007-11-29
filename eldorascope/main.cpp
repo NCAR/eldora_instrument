@@ -52,7 +52,9 @@ void parseArgs(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-int main(int argc, char** argv) {
+int main(
+        int argc,
+            char** argv) {
 
     QtConfig config("NCAR", "EldoraScope");
     std::string pulseTopic;
@@ -60,13 +62,16 @@ int main(int argc, char** argv) {
     std::string ORB;
     std::string DCPS;
     int rate;
-    
+
     rate = config.getInt("DisplayRateHz", 25);
-    ORB = config.getString("ORBConfigFile", "/home/eldora/eldora/conf/tcp.conf");
-    DCPS = config.getString("DCPSConfigFile", "/home/eldora/eldora/conf/consumer.ini");
+    ORB
+            = config.getString("ORBConfigFile",
+                    "/home/eldora/eldora/conf/tcp.conf");
+    DCPS = config.getString("DCPSConfigFile",
+            "/home/eldora/eldora/conf/consumer.ini");
     tsTopic = config.getString("TSTopic", "EldoraTS");
-    pulseTopic = config.getString("PulseTopic","EldoraPulses");
-    
+    pulseTopic = config.getString("PulseTopic", "EldoraPulses");
+
     parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS, rate);
 
     // we have to do this bit of translation since the 
@@ -83,7 +88,7 @@ int main(int argc, char** argv) {
         return subStatus;
 
     QApplication app(argc, argv);
-    
+
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
     QDialog* dialog = new QDialog;
@@ -91,39 +96,37 @@ int main(int argc, char** argv) {
     // create our test dialog. It will contain an SdrScope
     EldoraScope scope(dialog);
 
-   // create the readers
+    // create the readers
     EldoraScopeTSSource tsSource(subscriber, tsTopic, rate);
     EldoraScopeABPSource abpSource(subscriber, pulseTopic, rate);
 
-    // connect the scope gate mode changes to the tsSource
-    QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)),
-             &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
-     
-    QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)),
-             &tsSource, SLOT(alongBeamSlot(int, bool)));
-     
-    // connect the tsSource to the scope
-    
-    // first the gate list
-    QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>)),
-            &scope, SLOT(tsGateListSlot(std::vector<int>)));
-    
-    // now the data supply
-    QObject::connect(&tsSource, 
-    SIGNAL(
-            newData(std::vector<double>,
-                    std::vector<double>,
-                    double,
-                    double)
-    ), &scope, 
-    SLOT(
-            timeSeriesSlot(std::vector<double>,
-                    std::vector<double>,
-                    double,
-                    double)
-    ));
+    // connect the scope gate mode changes to the sources
+    QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)), &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
+    QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)), &abpSource, SLOT(oneGateSlot(int, bool, int,int)));
 
-   // if we don't show() the dialog, nothing appears!
+    QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)), &tsSource, SLOT(alongBeamSlot(int, bool)));
+    QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)), &abpSource, SLOT(alongBeamSlot(int, bool)));
+
+    // connect the gate list signal to the scope
+    QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>)), &scope, SLOT(tsGateListSlot(std::vector<int>)));
+
+    // now the time series data supply
+    QObject::connect(&tsSource, 
+    SIGNAL(newData(std::vector<double>,
+                    std::vector<double>,
+                    double,
+                    double)), &scope, 
+    SLOT(timeSeriesSlot(std::vector<double>,
+                    std::vector<double>,
+                    double,
+                    double)));
+
+    // now the ABP supply
+    QObject::connect(&abpSource, 
+    SIGNAL(newPData(std::vector<double>)), &scope, 
+    SLOT(productSlot(std::vector<double>)));
+
+    // if we don't show() the dialog, nothing appears!
     dialog->show();
 
     // run the whole thing

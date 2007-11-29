@@ -17,6 +17,8 @@ EldoraScopeTSSource::EldoraScopeTSSource(
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
+    
+    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
 
 ////////////////////////////////////////////////////////
@@ -108,7 +110,8 @@ void EldoraScopeTSSource::oneGateSlot(
 
     EldoraScopeSource::oneGateSlot(channel, forwardRadar, gate, n);
 
-    _radarId = forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
+    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
+    
     // start timeseries collection immediately
     I.resize(n);
     Q.resize(n);
@@ -120,6 +123,6 @@ void EldoraScopeTSSource::alongBeamSlot(
             bool forwardRadar) {
     EldoraScopeSource::alongBeamSlot(channel, forwardRadar);
 
-    _radarId = forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
+    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
 

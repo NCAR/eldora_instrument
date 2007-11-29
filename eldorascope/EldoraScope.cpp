@@ -182,10 +182,11 @@ void EldoraScope::initFFT() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraScope::productSlot() {
+void EldoraScope::productSlot(std::vector<double> p) {
     if (_paused)
         return;
-    //				processProduct(pProduct);
+    
+    processProduct(p);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -259,16 +260,19 @@ void EldoraScope::processTimeSeries(
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraScope::processProduct() {
+void EldoraScope::processProduct(std::vector<double>& p) {
     // if we are displaying a raw plot, just ignore
     if (_timeSeriesPlot)
         return;
 
-    PRODUCT_PLOT_TYPES prodType;// = pProduct->header.prodType;
+    _ProductData.resize(p.size());
+    _ProductData = p;
+    
+    PRODUCT_PLOT_TYPES prodType;
 
-    if (prodType == _productPlotType) {
+//    if (prodType == _productPlotType) {
         displayData();
-    }
+//    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -280,6 +284,7 @@ void EldoraScope::displayData() {
     _powerDB->setText(l);
 
     if (_timeSeriesPlot) {
+        // Time series data display
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
         std::string xlabel;
@@ -308,6 +313,7 @@ void EldoraScope::displayData() {
         }
 
     } else {
+        // Product data display
         if (_performAutoScale)
             autoScale(_ProductData);
         // send in the product id, which ScopePlot::Product() uses
@@ -489,15 +495,12 @@ void EldoraScope::initPlots() {
     _pulsePlots.insert(TS_IVSQ_PLOT);
     _pulsePlots.insert(TS_SPECTRUM_PLOT);
 
-    _productPlots.insert(PROD_DBMHC);
-    _productPlots.insert(PROD_DBMVC);
+    _productPlots.insert(PROD_P);
+    _productPlots.insert(PROD_DBM);
     _productPlots.insert(PROD_DBZ);
     _productPlots.insert(PROD_WIDTH);
     _productPlots.insert(PROD_VEL);
     _productPlots.insert(PROD_SNR);
-    _productPlots.insert(PROD_RHOHV);
-    _productPlots.insert(PROD_PHIDP);
-    _productPlots.insert(PROD_ZDR);
 
     _tsPlotInfo[TS_TIMESERIES_PLOT] = PlotInfo(TS_TIMESERIES_PLOT,
             SCOPE_PLOT_TIMESERIES,
@@ -530,20 +533,20 @@ void EldoraScope::initPlots() {
             5.0,
             0.0);
 
-    _productPlotInfo[PROD_DBMHC] = PlotInfo(PROD_DBMHC,
+    _productPlotInfo[PROD_P] = PlotInfo(PROD_P,
             SCOPE_PLOT_PRODUCT,
-            "H Dbm",
-            "Sh: Dbm",
+            "P",
+            "P (from ABP)",
             -5.0,
             5.0,
             0.0,
             -5.0,
             5.0,
             0.0);
-    _productPlotInfo[PROD_DBMVC] = PlotInfo(PROD_DBMVC,
+    _productPlotInfo[PROD_DBM] = PlotInfo(PROD_DBM,
             SCOPE_PLOT_PRODUCT,
-            "V Dbm",
-            "Sv: Dbm",
+            "Dbm",
+            "Dbm",
             -5.0,
             5.0,
             0.0,
@@ -553,7 +556,7 @@ void EldoraScope::initPlots() {
     _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ,
             SCOPE_PLOT_PRODUCT,
             "Dbz",
-            "S : Dbz",
+            "Dbz",
             -5.0,
             5.0,
             0.0,
@@ -563,7 +566,7 @@ void EldoraScope::initPlots() {
     _productPlotInfo[PROD_WIDTH] = PlotInfo(PROD_WIDTH,
             SCOPE_PLOT_PRODUCT,
             "Width",
-            "S:  Width",
+            "Width",
             -5.0,
             5.0,
             0.0,
@@ -573,7 +576,7 @@ void EldoraScope::initPlots() {
     _productPlotInfo[PROD_VEL] = PlotInfo(PROD_VEL,
             SCOPE_PLOT_PRODUCT,
             "Velocity",
-            "S:  Velocity",
+            "Velocity",
             -5.0,
             5.0,
             0.0,
@@ -583,37 +586,7 @@ void EldoraScope::initPlots() {
     _productPlotInfo[PROD_SNR] = PlotInfo(PROD_SNR,
             SCOPE_PLOT_PRODUCT,
             "SNR",
-            "S:  SNR",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_RHOHV] = PlotInfo(PROD_RHOHV,
-            SCOPE_PLOT_PRODUCT,
-            "Rhohv",
-            "S:  Rhohv",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_PHIDP] = PlotInfo(PROD_PHIDP,
-            SCOPE_PLOT_PRODUCT,
-            "Phidp",
-            "S:  Phidp",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_ZDR] = PlotInfo(PROD_ZDR,
-            SCOPE_PLOT_PRODUCT,
-            "Zdr",
-            "S:  Zdr",
+            "SNR",
             -5.0,
             5.0,
             0.0,
@@ -806,28 +779,25 @@ void EldoraScope::dnSlot() {
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data) {
-    if (data.size() == 0) {
-        _performAutoScale = false;
+    _performAutoScale = false;
+    if (data.size() == 0)
         return;
-    }
 
     // find the min and max
     double min = *std::min_element(data.begin(), data.end());
-    double max = *std::min_element(data.begin(), data.end());
-
+    double max = *std::max_element(data.begin(), data.end());
+   
     // adjust the gains
     adjustGainOffset(min, max);
-    _performAutoScale = false;
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data1,
             std::vector<double>& data2) {
-    if (data1.size() == 0 || data2.size() == 0) {
-        _performAutoScale = false;
+    _performAutoScale = false;
+    if (data1.size() == 0 || data2.size() == 0)
         return;
-    }
 
     // find the min and max
     double min1 = *std::min_element(data1.begin(), data1.end());
@@ -841,7 +811,6 @@ void EldoraScope::autoScale(
     // adjust the gains
     adjustGainOffset(min, max);
 
-    _performAutoScale = false;
 }
 
 //////////////////////////////////////////////////////////////////////
