@@ -565,6 +565,9 @@ void RR314::newABPData(
         case 0:
             pBuf->dmaChan = chan;
             pBuf->chanId = src[i];
+            /// @todo A hack for the moment; for some reason the channel ID from
+             /// the card is all fouled up. Map the DMA channel (1, 3, 5, 7) to (1,2,3,4)
+             pBuf->chanId = chan/2 + 1;
             pBuf->dataIn++;
             break;
         case 1:

@@ -180,7 +180,7 @@ void * dataTask(
 
                     // send the pulse to the pulse publisher
                     pulseWriter->publishItem(pPulse);
-                } else {
+                 } else {
                     pParams->droppedPulse++;
                     //std::cout << "can't get publisher pulse\n";
                 }
@@ -205,7 +205,7 @@ void * dataTask(
                     EldoraDDS::Forward : EldoraDDS::Aft;
                     // send the pulse to the pulde publisher
                     tsWriter->publishItem(pTS);
-                } else {
+               } else {
                     pParams->droppedTS++;
                     //std::cout << "can't get publisher TS\n";
                 }
