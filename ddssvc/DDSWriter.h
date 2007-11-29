@@ -91,6 +91,9 @@ private:
 	mutex_t _mutex;
 
 	condition_t _condition;
+	
+	/// Our topic name
+	std::string _topicName;
 
 	/// A queue of incoming items, waiting to be published.
 	std::vector<DDSTYPE*> _inQueue;

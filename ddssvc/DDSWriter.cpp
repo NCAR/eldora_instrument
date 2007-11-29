@@ -8,7 +8,7 @@ using namespace CORBA;
 template<TEMPSIG1>
 DDSWriter<TEMPSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
 			       std::string topicName) :
-  finished_instances_(0), timeout_writes_(0), _condition(_mutex)
+  finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topicName)
 {
 
 	// reserve the space in the queues
@@ -225,7 +225,7 @@ DDSWriter<TEMPSIG2>::publish(
 	_inQueue.erase(_inQueue.begin());
 
 	DDS::ReturnCode_t ret;
-
+	
 	ret = _specificWriter->write(*pItem, handle);
 
 	if (ret != DDS::RETCODE_OK) {

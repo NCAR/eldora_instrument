@@ -123,6 +123,9 @@ private:
 	/// number of dropped items. Zeroed when numDropped is called
 	unsigned int _droppedSamples;
 	
+	/// The topic name
+	std::string _topicName;
+	
 };
 
 #include "PulseTypeSupportC.h"

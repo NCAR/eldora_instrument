@@ -11,7 +11,8 @@ using namespace CORBA;
 template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber,
 		std::string topicName):
 _numSamples(0),
-_droppedSamples(0)
+_droppedSamples(0),
+_topicName(topicName)
 {
 
 	// reserve the space in the queues
