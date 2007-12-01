@@ -7,10 +7,12 @@ echo -n "Enter the bitstream file name: "
 read -e bitstream
 
 echo " "
+echo "Programming device $dev with bisteram $bitstream"
+echo " "
 echo "*** Warning, the prom programming may appear to hang the system for 2 minutes."
 echo " "
 
-~/redrapids/314/loadxsvf/bin/loadxsvf -dev $dev \
+../redrapids/DSK-320-002-R05\ \(CA\ C\ API\ and\ Sample\ Code\)/loadxsvf/bin/loadxsvf -dev $dev \
    -prom -xsvf $bitstream
    
 echo " "
