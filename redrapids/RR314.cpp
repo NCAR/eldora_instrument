@@ -330,6 +330,10 @@ int RR314::configure314() {
         printf("Opened ChannelAdapter device %d\n", _chanAdapter.DevNum);
     }
 
+    // send a hard reset to the card
+    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_RESET_ADR, 1);
+    Adapter_uSleep(5e6);
+    
     // Disable all interupts
     Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0);
 
