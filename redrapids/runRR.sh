@@ -15,20 +15,37 @@ if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 # location of DDS configurtion files
 CONF=$topdir/conf
 
-produce="$topdir/redrapids/testrr314 \
+# The DCPSInforRepo invocation
+dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
+   -NOBITS \
+   -DCPSConfigFile $CONF/DCPSconf.ini \
+   -ORBSvcConf $CONF/tcp.conf \
+   -ORBListenEndpoints iiop://dcpsrepo:50000 \
+   -d $CONF/domain_ids"
+
+# the RR314 application
+rr314="$topdir/redrapids/testrr314 \
    --ORB $CONF/tcp.conf \
    --DCPS $CONF/producer.ini \
    --pub $*"
  
-# kill existing jobs
-#pkill testrr314
-
 # trap the signals on this script, and kill the jobs
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
-	pkill testrr314' ERR SIGINT SIGTERM
+	pkill testrr314; pkill -9 DCPS' ERR SIGINT SIGTERM
 	
-echo "starting rr314"
-$produce
+# start the DCPS info repo if it is not already running"
+dcpspid=`pgrep DCPSInfoRepo`
+if [ "$dcpspid" == "" ] ; then
+   echo "Starting the DCPS info repository"
+   $dcpsinforepo & 
+fi
+
+sleep 1
+
+echo "Starting rr314. Hit control-c to terminate. That"
+echo "will terminate all rr314 programs and the DCPSInfoRepo"
+$rr314
+
 
 
 
