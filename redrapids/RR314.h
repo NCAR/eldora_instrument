@@ -47,36 +47,36 @@ namespace RedRapids {
 class RR314sim;
 
 struct RRBuffer {
-        /// The DMA channel number
-        int dmaChan;
-        /// The channel id delivered by the RR314
-        unsigned int chanId;
-        /// The prt id delivered by the R314
-        unsigned int prtId;
-        /// The pulse count delivered by the RR314
-        unsigned int pulseCount;
-        /// A cyclic counter that counts the housekeeping
-        /// and data items for a single iq or abp set. Used 
-        /// for blocking the iqs.
-        unsigned int dataIn;
-        /// The next location to store a data value
-        /// in the data buffer.
-        unsigned int nextData;
-        /// The type of derived class
-        enum {IQtype, ABPtype} type;
-        /// the number of coherent integrations
-        int nci;
-        /// A virtual member is required in order for dynamic_cast
-        /// to work.
-        virtual ~RRBuffer() {
-        }
-        ;
+	/// The DMA channel number
+	int dmaChan;
+	/// The channel id delivered by the RR314
+	unsigned int chanId;
+	/// The prt id delivered by the R314
+	unsigned int prtId;
+	/// The pulse count delivered by the RR314
+	unsigned int pulseCount;
+	/// A cyclic counter that counts the housekeeping
+	/// and data items for a single iq or abp set. Used 
+	/// for blocking the iqs.
+	unsigned int dataIn;
+	/// The next location to store a data value
+	/// in the data buffer.
+	unsigned int nextData;
+	/// The type of derived class
+	enum {IQtype, ABPtype} type;
+	/// the number of coherent integrations
+	int nci;
+	/// A virtual member is required in order for dynamic_cast
+	/// to work.
+	virtual ~RRBuffer() {
+	}
+	;
 };
 /// A buffer type used to collect an incoming abp sample stream and 
 /// for deliver to consumers. The buffer will always contain one
 /// complete set of ABP values for all gates.
 struct RRABPBuffer : RRBuffer {
-        std::vector<float> _abp;
+	std::vector<float> _abp;
 };
 
 /// A buffer type used to collect an incoming iq sample stream and 
@@ -84,7 +84,7 @@ struct RRABPBuffer : RRBuffer {
 /// each sequence covering the range of iq gates, are aggregated
 /// into one RRIQBuffer.
 struct RRIQBuffer : RRBuffer {
-        std::vector<short> _iq;
+	std::vector<short> _iq;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -119,228 +119,220 @@ struct RRIQBuffer : RRBuffer {
 ///
 class RR314 {
 
-    public:
+public:
 
-        /// Constructor
-        /// @param decimationFactor Downconvertor decimation count
-        /// @param gausianFile The file of gaussian filter coefficients,blank if none.
-        /// @param kaiserFile The file of kaiser filter coefficients, blank if none.
-        /// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
-        /// @param simulate Set true if simulation instead of real hardware
-        RR314(
-                int devNum,
-                    unsigned int gates,
-                    unsigned int samples,
-                    unsigned int dualPrt,
-                    unsigned int startGateIQ,
-                    unsigned int nGatesIQ,
-                    unsigned int decimationFactor,
-                    std::string gaussianFile,
-                    std::string kaiserFile,
-                    std::string xsvfFile,
-                    bool simulate = false)
-                throw (std::string);
+	/// Constructor
+	/// @param decimationFactor Downconvertor decimation count
+	/// @param gausianFile The file of gaussian filter coefficients,blank if none.
+	/// @param kaiserFile The file of kaiser filter coefficients, blank if none.
+	/// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
+	/// @param simulate Set true if simulation instead of real hardware
+	RR314(int devNum, unsigned int gates, unsigned int samples,
+			unsigned int dualPrt, unsigned int startGateIQ,
+			unsigned int nGatesIQ, unsigned int decimationFactor,
+			std::string gaussianFile, std::string kaiserFile,
+			std::string xsvfFile, bool simulate = false) throw (std::string);
 
-        /// Destructor
-        virtual ~RR314();
+	/// Destructor
+	virtual ~RR314();
 
-        /// A map of our instances, indexed by the channel adapter
-        /// variable pointer. Use by C routines to find our instance.
-        static std::map<s_ChannelAdapter*, RR314*>
-                rr314Instances;
+	/// A map of our instances, indexed by the channel adapter
+	/// variable pointer. Use by C routines to find our instance.
+	static std::map<s_ChannelAdapter*, RR314*> rr314Instances;
 
-        /// Start the data capture and processing. The 
-        /// FPGA processing is started by enabling the
-        /// kasier filter and the A/D capture, and the dma 
-        /// transfer is enabled for the V4.
-        void start();
+	/// Start the data capture and processing. The 
+	/// FPGA processing is started by enabling the
+	/// kasier filter and the A/D capture, and the dma 
+	/// transfer is enabled for the V4.
+	void start();
 
-        /// Accept new iq data for this class. This function
-        /// may be called from other threads. It will 
-        /// copy the data into a free buffer, collecting
-        /// values in that buffer until a _numIQ pairs plus the 
-        /// housekeeping data have been satisfied. When a
-        /// complete series has been assembled, data availability 
-        /// is signaled with a broadcast on _dataAvailCond.
-        /// @param src The source of the data
-        /// @param chan The channel of this data
-        /// @param n The number of items
-        void newIQData(short* src, int chan, int n);
+	/// Accept new iq data for this class. This function
+	/// may be called from other threads. It will 
+	/// copy the data into a free buffer, collecting
+	/// values in that buffer until a _numIQ pairs plus the 
+	/// housekeeping data have been satisfied. When a
+	/// complete series has been assembled, data availability 
+	/// is signaled with a broadcast on _dataAvailCond.
+	/// @param src The source of the data
+	/// @param chan The channel of this data
+	/// @param n The number of items
+	void newIQData(short* src, int chan, int n);
 
-        /// Accept new abp data for this class. This function
-        /// may be called from other threads. It will 
-        /// copy the data into a free buffer, collecting
-        /// values in that buffer until a _numIQ pairs plus the 
-        /// housekeeping data have been satisfied. When a
-        /// complete series has been assembled, data availability 
-        /// is signaled with a broadcast on _dataAvailCond.
-        /// @param src The source of the data
-        /// @param chan The channel of this data
-        /// @param n The number of items
-        void newABPData(int* src, int chan, int n);
+	/// Accept new abp data for this class. This function
+	/// may be called from other threads. It will 
+	/// copy the data into a free buffer, collecting
+	/// values in that buffer until a _numIQ pairs plus the 
+	/// housekeeping data have been satisfied. When a
+	/// complete series has been assembled, data availability 
+	/// is signaled with a broadcast on _dataAvailCond.
+	/// @param src The source of the data
+	/// @param chan The channel of this data
+	/// @param n The number of items
+	void newABPData(int* src, int chan, int n);
 
-        /// Return the next available data buffer. 
-        /// If there
-        /// is no data available, wait until there is.
-        /// The caller must return the buffer when finished
-        /// by calling returnBuffer().
-        /// @return A buffer of data
-        RRBuffer* nextBuffer();
+	/// Return the next available data buffer. 
+	/// If there
+	/// is no data available, wait until there is.
+	/// The caller must return the buffer when finished
+	/// by calling returnBuffer().
+	/// @return A buffer of data
+	RRBuffer* nextBuffer();
 
-        /// Return the used buffer to the pool.
-        /// @param buf The buffer to be returned.
-        void returnBuffer(RRBuffer* buf);
+	/// Return the used buffer to the pool.
+	/// @param buf The buffer to be returned.
+	void returnBuffer(RRBuffer* buf);
 
-        /// Return The number of free ABP buffers
-        /// @return The number of free buffers
-        int numFreeABPBuffers();
+	/// Return The number of free ABP buffers
+	/// @return The number of free buffers
+	int numFreeABPBuffers();
 
-        /// Return The number of free iq buffers
-        /// @return The number of free buffers
-        int numFreeIQBuffers();
+	/// Return The number of free iq buffers
+	/// @return The number of free buffers
+	int numFreeIQBuffers();
 
-        /// Get the cumulative number of bytes processed. 
-        /// @return The cumulative number of bytes processed since 
-        /// the last call to this function.
-        std::vector<unsigned long> bytes();
+	/// Get the cumulative number of bytes processed. 
+	/// @return The cumulative number of bytes processed since 
+	/// the last call to this function.
+	std::vector<unsigned long> bytes();
 
-        /// Return The number of fifoFull interrupts.
-        /// @return The number of fifoFull interrupts.
-        int fifoFullInts();
+	/// Return The number of fifoFull interrupts.
+	/// @return The number of fifoFull interrupts.
+	int fifoFullInts();
 
-        /// Get some info about the board.
-        void boardInfo();
+	/// Get some info about the board.
+	void boardInfo();
 
-        /// Set the last DMA transfer group.
-        /// @param chan The channel
-        /// @param group The group
-        void lastGroup(int chan, int group);
+	/// Set the last DMA transfer group.
+	/// @param chan The channel
+	/// @param group The group
+	void lastGroup(int chan, int group);
 
-        /// Get the last DMA group processed for a channel.
-        /// @return The last DMA transfer group
-        /// @param chan The channel
-        int lastGroup(int chan);
+	/// Get the last DMA group processed for a channel.
+	/// @return The last DMA transfer group
+	/// @param chan The channel
+	int lastGroup(int chan);
 
-        /// Set the number of fifofull interrupts.
-        void fifoFullInts(int n);
+	/// Set the number of fifofull interrupts.
+	void fifoFullInts(int n);
 
-        /// Stop the RR card and return DMA allocated space.
-        void RR314shutdown();
+	/// Stop the RR card and return DMA allocated space.
+	void RR314shutdown();
+	
+	/// @return The board temperature (degC).
+	double temperature();
 
-    protected:
+protected:
 
-        /// Configure ignal catching so that DMA operations
-        /// and memory can be cleaned up on a signal.
-        void catchSignals();
+	/// Configure ignal catching so that DMA operations
+	/// and memory can be cleaned up on a signal.
+	void catchSignals();
 
-        /// Configure the card and DMA operations.
-        int configure314();
+	/// Configure the card and DMA operations.
+	int configure314();
 
-        /// Configure the filters and the decimation value.
-        int filterSetup();
+	/// Configure the filters and the decimation value.
+	int filterSetup();
 
-        /// Program the cofficients for the gaussian and
-        /// kaiser filters.
-        bool loadFilters(
-                FilterSpec& gaussian,
-                    FilterSpec& kaiser);
+	/// Program the cofficients for the gaussian and
+	/// kaiser filters.
+	bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
-        /// Configure the timers.
-        void timerInit();
+	/// Configure the timers.
+	void timerInit();
 
-        /// Accumlulate byte counts.
-        /// @param chan The channel
-        /// @param bytes Add these bytes
-        void addBytes(int chan, int bytes);
+	/// Accumlulate byte counts.
+	/// @param chan The channel
+	/// @param bytes Add these bytes
+	void addBytes(int chan, int bytes);
 
-        /// Mutex that protects access to _freeBuffers and _fullBuffers.
-        pthread_mutex_t _bufferMutex;
+	/// Mutex that protects access to _freeBuffers and _fullBuffers.
+	pthread_mutex_t _bufferMutex;
 
-        /// The condition variable used to trigger the 
-        /// data available condition.
-        pthread_cond_t _dataAvailCond;
+	/// The condition variable used to trigger the 
+	/// data available condition.
+	pthread_cond_t _dataAvailCond;
 
-        /// A queue of buffers with data to be processed.
-        std::deque<RRBuffer*> _fullBuffers;
+	/// A queue of buffers with data to be processed.
+	std::deque<RRBuffer*> _fullBuffers;
 
-        /// A queue of available empty iq buffers.
-        std::deque<RRIQBuffer*> _freeIQBuffers;
+	/// A queue of available empty iq buffers.
+	std::deque<RRIQBuffer*> _freeIQBuffers;
 
-        /// A queue of available empty buffers.
-        std::deque<RRABPBuffer*> _freeABPBuffers;
+	/// A queue of available empty buffers.
+	std::deque<RRABPBuffer*> _freeABPBuffers;
 
-        /// The current IQ buffers being filled, one per
-        /// DMA channel. Once the 
-        /// buffer for a channel is filled, it is transfered
-        /// to the _fullBuffer list and the condition
-        /// variable is signalled.
-        std::map<int, RRIQBuffer*> _currentIQBuffer;
+	/// The current IQ buffers being filled, one per
+	/// DMA channel. Once the 
+	/// buffer for a channel is filled, it is transfered
+	/// to the _fullBuffer list and the condition
+	/// variable is signalled.
+	std::map<int, RRIQBuffer*> _currentIQBuffer;
 
-        /// The current ABP buffers being filled, one per
-        /// DMA channel. Once the 
-        /// buffer for a channel is filled, it is transfered
-        /// to the _fullBuffer list and the condition
-        /// variable is signalled.
-        std::map<int, RRABPBuffer*> _currentABPBuffer;
+	/// The current ABP buffers being filled, one per
+	/// DMA channel. Once the 
+	/// buffer for a channel is filled, it is transfered
+	/// to the _fullBuffer list and the condition
+	/// variable is signalled.
+	std::map<int, RRABPBuffer*> _currentABPBuffer;
 
-        /// The gaussian filter decimation factor (1-127).
-        unsigned int _decimationFactor;
+	/// The gaussian filter decimation factor (1-127).
+	unsigned int _decimationFactor;
 
-        /// The path to the file containing the gaussian filter definitions.
-        std::string _gaussianFile;
+	/// The path to the file containing the gaussian filter definitions.
+	std::string _gaussianFile;
 
-        /// The path to the file containing the kaiser filter coefficients.
-        std::string _kaiserFile;
+	/// The path to the file containing the kaiser filter coefficients.
+	std::string _kaiserFile;
 
-        /// The path to a RR bitstream file, if it will be
-        /// loaded.
-        std::string _xsvfFileName;
+	/// The path to a RR bitstream file, if it will be
+	/// loaded.
+	std::string _xsvfFileName;
 
-        /// The number of bytes captured for each channel.
-        std::vector<unsigned long> _bytes;
+	/// The number of bytes captured for each channel.
+	std::vector<unsigned long> _bytes;
 
-        /// The last DMA group transferred.
-        int _lastGroup[8];
+	/// The last DMA group transferred.
+	int _lastGroup[8];
 
-        /// The channel adapter, used in RR interfaces.
-        s_ChannelAdapter _chanAdapter;
+	/// The channel adapter, used in RR interfaces.
+	s_ChannelAdapter _chanAdapter;
 
-        /// Clock setting for the M314, used in RR interfaces.
-        s_ClkSettings _ClkSettings;
+	/// Clock setting for the M314, used in RR interfaces.
+	s_ClkSettings _ClkSettings;
 
-        /// Set true if the DMA allocation has been made.
-        //  bool _dmaAllocated;
+	/// Set true if the DMA allocation has been made.
+	//  bool _dmaAllocated;
 
-        /// Points to the next location in an incoming data buffer
-        /// to retrieve data from.
-        int _bufferNext;
+	/// Points to the next location in an incoming data buffer
+	/// to retrieve data from.
+	int _bufferNext;
 
-        /// The RR314 device number, starting at 0.
-        int _devNum;
+	/// The RR314 device number, starting at 0.
+	int _devNum;
 
-        /// The number of gates.
-        unsigned int _gates;
+	/// The number of gates.
+	unsigned int _gates;
 
-        /// The number of samples.
-        unsigned int _samples;
+	/// The number of samples.
+	unsigned int _samples;
 
-        /// Dual prt true or false.
-        unsigned int _dualPrt;
+	/// Dual prt true or false.
+	unsigned int _dualPrt;
 
-        /// The start gate number of IQ capture.
-        unsigned int _startGateIQ;
+	/// The start gate number of IQ capture.
+	unsigned int _startGateIQ;
 
-        /// The number of IQ gates to capture.
-        unsigned int _numIQ;
+	/// The number of IQ gates to capture.
+	unsigned int _numIQ;
 
-        /// The number of fifo full interrupts. 
-        int _fifoFullInts;
+	/// The number of fifo full interrupts. 
+	int _fifoFullInts;
 
-        /// Set true if simulate
-        bool _simulate;
+	/// Set true if simulate
+	bool _simulate;
 
-        /// The simulator
-        RedRapids::RR314sim* _simulator;
+	/// The simulator
+	RedRapids::RR314sim* _simulator;
 };
 }
 #endif

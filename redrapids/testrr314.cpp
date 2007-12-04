@@ -301,6 +301,9 @@ int main(
         // periodically display the card activity.
         while(1)
         {
+        	// get the current temperature
+        	double temperature = rr314.temperature();
+        	
             // get the current byte count for each dmaChan
             // from rr314. This call causes the byte counters
             // in r314 to be reset to zero.
@@ -329,10 +332,14 @@ int main(
                 params.sampleCounts[i] = 0;
             }
             std::cout << "\n";
-            std::cout << rr314.numFreeIQBuffers() << " "
-            << rr314.numFreeABPBuffers()
-            << "    dropped output pulses:" << droppedPulse <<
-            "       dropped output TS:" << droppedTS << "\n";
+            std::cout 
+            << "   free IQ buffers:" << rr314.numFreeIQBuffers() 
+            << "   free ABP buffers:" << rr314.numFreeABPBuffers()
+            << "   dropped output pulses:" << droppedPulse 
+            << "   dropped output TS:" << droppedTS 
+            << std::setprecision(4) 
+            << "   temperature:" << temperature 
+            << "\n";
             droppedPulse = 0;
             droppedTS = 0;
 

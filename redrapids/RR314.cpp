@@ -331,8 +331,8 @@ int RR314::configure314() {
     }
 
     // send a hard reset to the card
-    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_RESET_ADR, 1);
-    Adapter_uSleep(5e6);
+//    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_RESET_ADR, 1);
+ //   Adapter_uSleep(5e6);
     
     // Disable all interupts
     Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0);
@@ -718,7 +718,7 @@ void RR314::boardInfo() {
     printf("V4 DMA Rev (Offset 0x0) =  %x, ", result);
     Adapter_Read32(&_chanAdapter, V4, V4_REV_ADR, &result);
     printf("User Logic Rev (Offset 0x800) =  %x\n", result);
-    printf("Current temp is %.2f C\n", ca_GetTemp(&_chanAdapter));
+    printf("Current temp is %.2f C\n", temperature());
 
 }
 
@@ -919,6 +919,9 @@ int RR314::lastGroup(
 }
 
 //////////////////////////////////////////////////////////////////////
+double RR314::temperature() {
+	return ca_GetTemp(&_chanAdapter);
+}
 
 //////////////////////////////////////////////////////////////////////
 void shutdownSignalHandler(
