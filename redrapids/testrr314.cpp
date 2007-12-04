@@ -333,13 +333,13 @@ int main(
             }
             std::cout << "\n";
             std::cout 
-            << "   free IQ buffers:" << rr314.numFreeIQBuffers() 
-            << "   free ABP buffers:" << rr314.numFreeABPBuffers()
-            << "   dropped output pulses:" << droppedPulse 
-            << "   dropped output TS:" << droppedTS 
+            << "free IQ:" << rr314.numFreeIQBuffers() 
+            << "   free ABP:" << rr314.numFreeABPBuffers()
+            << "   dropped pulses:" << droppedPulse 
+            << "   dropped TS:" << droppedTS 
             << std::setprecision(4) 
-            << "   temperature:" << temperature 
-            << "\n";
+            << "   t:" << temperature << "C" 
+            << "\n\n";
             droppedPulse = 0;
             droppedTS = 0;
 
