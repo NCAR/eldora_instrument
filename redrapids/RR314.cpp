@@ -331,8 +331,10 @@ int RR314::configure314() {
     }
 
     // send a hard reset to the card
-//    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_RESET_ADR, 1);
- //   Adapter_uSleep(5e6);
+//    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 1);
+//    Adapter_uSleep(5e5);
+//    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 0);
+//    Adapter_uSleep(1e6);
     
     // Disable all interupts
     Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0);
