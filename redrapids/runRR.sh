@@ -27,6 +27,7 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
 rr314="$topdir/redrapids/testrr314 \
    --ORB $CONF/tcp.conf \
    --DCPS $CONF/producer.ini \
+   --numiq 17 \
    --pub $*"
  
 # trap the signals on this script, and kill the jobs
