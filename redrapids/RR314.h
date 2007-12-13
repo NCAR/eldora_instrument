@@ -218,7 +218,8 @@ public:
 	/// Stop the RR card and return DMA allocated space.
 	void RR314shutdown();
 	
-	/// @return The board temperature (degC).
+	/// @return The board temperature (degC). If in
+	/// simulate mode, return a random but reasonable value
 	double temperature();
 
 protected:
