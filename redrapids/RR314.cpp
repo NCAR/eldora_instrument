@@ -320,13 +320,13 @@ int RR314::configure314() {
 	} else {
 		printf("Opened ChannelAdapter device %d\n", _chanAdapter.DevNum);
 	}
-
-	// send a hard reset to the card
-	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 1);
-	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 0);
-
-	// Disable all interupts
-	Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0);
+    
+    // send a hard reset to the card
+    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 1);
+    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 0);
+    
+    // Disable all interupts
+    Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
 
 	//Load the v4 if needed
 	if (_xsvfFileName.size() > 0) {
@@ -339,25 +339,12 @@ int RR314::configure314() {
 			return -1;
 		}
 	}
-
+ 
 	// set up the filters. Will do nothing if either of
 	// the filter file paths is empty.
 	if (filterSetup()) {
 		// error initializing the filters
 		return -1;
-	}
-
-	// Disable all interupts
-	Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
-
-	//Check the V4 has a valid load.  
-	if (V4LoadCheck) {
-		Adapter_Read32(&_chanAdapter, BRIDGE, BRG_FPGA_STAT, &result);
-		if (!(result & FPGA_PROG_DONE)) {
-			printf("V4 is not loaded, please check PROM contents or load an XSVF file to the V4.\n");
-			Adapter_Close(&_chanAdapter);
-			return -1;
-		}
 	}
 
 	// set the sample clock
@@ -366,26 +353,22 @@ int RR314::configure314() {
 
 	// Code here should reset your DCMs and allow time for them to lock,
 	// then check their status
-	//Adapter_uSleep(1000000);
-
 	// Soft Reset, self clearing
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, SOFT_RST);
-
-	// Wait for DCM to Relock
 	Adapter_uSleep(1000000);
 
-	// Check for DCM Lock
-	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
-	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
-	if (result & ADC_DCM_UNLOCKED) {
-		printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
-		Adapter_Close(&_chanAdapter);
-		return -1;
-	}
+    // Check for DCM Lock
+    Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
+    Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
+    if (result & ADC_DCM_UNLOCKED) {
+        printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
+        Adapter_Close(&_chanAdapter);
+        return -1;
+    }
 
 	// Reset Decimator clocks
 	Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_ACT);
-	Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_CLR);
+	Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_CLR);    
 
 	// Set M314 VRANGE mode.  This will touch the register that controls the sample
 	// clk select, so it is done as RMW.
@@ -396,7 +379,10 @@ int RR314::configure314() {
 
 	// Flush FIFOs
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
-
+	Adapter_uSleep(1000000);
+	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
+	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
+	
 	// reset Pulse Pair Processor
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
 	Adapter_uSleep(1000000);
@@ -443,7 +429,9 @@ int RR314::configure314() {
 	Adapter_Write32(&_chanAdapter, V4, DMA_INT_MASK_ADR, 0x0FFFF);
 
 	//Enable V4 interrupts, 
-	Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, DMA_GRP_DONE | INTR_EN);
+	Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 
+			DMA_GRP_DONE | INTR_EN | ADCA_FF_FULL | ADCB_FF_FULL |
+			ADCC_FF_FULL | ADCD_FF_FULL);
 
 	//Allow bridge to create PCI intr
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN);
@@ -803,16 +791,16 @@ void RR314::timerInit() {
 		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0000); // Mult PRT Value Timer 0
 	}
 
-	// Start the DDC
-	Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
-
-	printf("ENABLING: %x\n", 
-	PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
-	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
-
+    // Start the DDC
+    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
+    
+    printf("ENABLING: %x\n", 
+    PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
+    Adapter_Write32(&_chanAdapter, V4, 
+    MT_ADDR, 
+    PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
+    Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
+         
 }
 
 ////////////////////////////////////////////////////////////////////////
