@@ -355,8 +355,7 @@ int RR314::configure314() {
 	// then check their status
 	// Soft Reset, self clearing
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, SOFT_RST);
-	Adapter_uSleep(1000000);
-
+	sleep(1);
     // Check for DCM Lock
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
@@ -379,13 +378,13 @@ int RR314::configure314() {
 
 	// Flush FIFOs
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
-	Adapter_uSleep(1000000);
+	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
 	
 	// reset Pulse Pair Processor
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
-	Adapter_uSleep(1000000);
+	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
 
 	//Enable GPIO
