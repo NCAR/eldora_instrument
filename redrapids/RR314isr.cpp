@@ -146,8 +146,8 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		result |= ADCDFF_FLUSH;
 		std::cout << "ADCD fifo full\n";
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
-	}
-
+	}	
+    
 	/// @todo if any of the a/ds had full fifos, then
 	/// the dma and A/Ds need to be reenabled. This is an artifact
 	/// from some old RR code, does it really need to
@@ -157,7 +157,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		Adapter_Write32(pCA, V4, V4_CTL_ADR, result);
 
 		//  Enable FIFOs to collect ADC data
-		result |= ADCA_CAP | ADCB_CAP | ADCC_CAP | ADCD_CAP;
+		result |= ADCA_CAP;
 		Adapter_Write32(pCA, V4, V4_CTL_ADR, result);
 	}
 
