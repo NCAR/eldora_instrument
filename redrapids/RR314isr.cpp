@@ -29,11 +29,11 @@ void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314, int group)
 	} else {
 		// iq dmaChan
 		short* src = (short*)pCA->DMA.dVirtDMAAdr[(chan*MaxGrpsPerCh)+group];
-		//std::cout << "chan " << chan << "\n";
-		//for (int i = 0; i < NUMSHORTS; i ++) {
-		//	std::cout << chan << std::setw(5) << i << " " << std::setw(6)
-		//			<< src[i] << "\n";
-		//}
+//		std::cout << "chan " << chan << "\n";
+//		for (int i = 0; i < NUMSHORTS; i ++) {
+//			std::cout << chan << std::setw(5) << i << " " << std::setw(6)
+//					<< src[i] << "\n";
+//		}
 
 		// reorder the IQ data stream, since it is packed oddly due to either
 		// the FPGA code or the RR interface.
@@ -44,6 +44,11 @@ void sendGroupToRR314(s_ChannelAdapter* pCA, int chan, RR314* pRR314, int group)
 			srcReordered[i+2] = src[i+0];
 			srcReordered[i+3] = src[i+1];
 		}
+//		std::cout << "srcReordered\n";
+//		for (int i = 0; i < NUMSHORTS; i ++) {
+//			std::cout << chan << std::setw(5) << i << " " << std::setw(6)
+//					<< srcReordered[i] << "\n";
+//		}
 		//		if (chan == 0)
 		//		std::cout.write((char*)srcReordered, 2*NUMSHORTS);
 
