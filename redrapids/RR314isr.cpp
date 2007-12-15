@@ -112,6 +112,10 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 	Adapter_Read32(pCA, V4, DMA_INT_MASK_ADR, &DMAMask);
 	Adapter_Read32(pCA, V4, DMA_INT_STAT_ADR, &DMAStatus);
 
+	//	std::cout << std::setprecision(8) << std::hex << std::showbase;
+	//std::cout << Status << " " << Mask << " " << Control << " " << DMAMask << " " << DMAStatus;
+	//std::cout << "\n";
+	
 	// see if we have a DMA interrupt
 	if (Status & DMA_GRP_DONE) {
 		// yes, process groups for each DMA dmaChan
@@ -125,25 +129,25 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 	// check for AD fifos full.
 	int result = 0;
 	if ((Mask & Status) & ADCA_FF_FULL) {
-		result |= ADCAFF_FLUSH;
+		//result |= ADCAFF_FLUSH;
 		std::cout << "ADCA fifo full\n";
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
 	}
 
 	if ((Mask & Status) & ADCB_FF_FULL) {
-		result |= ADCBFF_FLUSH;
+		//result |= ADCBFF_FLUSH;
 		std::cout << "ADCB fifo full\n";
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
 	}
 
 	if ((Mask & Status) & ADCC_FF_FULL) {
-		result |= ADCCFF_FLUSH;
+		//result |= ADCCFF_FLUSH;
 		std::cout << "ADCC fifo full\n";
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
 	}
 
 	if ((Mask & Status) & ADCD_FF_FULL) {
-		result |= ADCDFF_FLUSH;
+		//result |= ADCDFF_FLUSH;
 		std::cout << "ADCD fifo full\n";
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
 	}	
