@@ -24,7 +24,7 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -d $CONF/domain_ids"
 
 # the RR314 application
-rr314="$topdir/redrapids/testrr314 \
+rr314="$topdir/redrapids/rr314dual \
    --ORB $CONF/tcp.conf \
    --DCPS $CONF/producer.ini \
    --pub $*"

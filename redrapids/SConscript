@@ -48,7 +48,13 @@ env.Append(LIBS = libs)
 # library paths:
 env.AppendUnique(LIBPATH = [redRapidsDevelLibDir, '.'])
 
-# build test
-testrr314 = env.Program('testrr314', 'testrr314.cpp')
+# build single board application
+rr314single = env.Program('rr314single', 'RR314single.cpp')
 
-Default(testrr314)
+Default(rr314single)
+
+# build dual board application
+rr314dual = env.Program('rr314dual', 'RR314dual.cpp')
+
+Default(rr314dual)
+
