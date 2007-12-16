@@ -31,7 +31,7 @@ rr314="$topdir/redrapids/rr314dual \
  
 # trap the signals on this script, and kill the jobs
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
-	pkill testrr314; pkill -9 DCPS' ERR SIGINT SIGTERM
+	pkill rr314dual; pkill -9 DCPS' ERR SIGINT SIGTERM
 
 # ignore hup so that we can log out and leave running
 trap "" HUP
