@@ -15,6 +15,8 @@ EldoraScopeTSSource::EldoraScopeTSSource(
     TSReader(subscriber, topicName)
     {
 
+    // these are required in order to send structured data types
+    // via a qt signal
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
     
@@ -28,11 +30,13 @@ EldoraScopeTSSource::~EldoraScopeTSSource() {
 
 ////////////////////////////////////////////////////////
 void EldoraScopeTSSource::notify() {
+    // a DDS data notification has been received.
     while (TimeSeries* pItem = getNextItem()) {
 
         _readSamples++;
         _numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
 
+        // See if this is the channel and radar that we are interested in
         if (pItem->chan == _channel && pItem->radarId == _radarId) {
             // the number of individual timer series in each dds sample
 
@@ -54,8 +58,9 @@ void EldoraScopeTSSource::notify() {
 emit 				                tsGateList(_gates);
             }
 
+            // The data capture strategy will depend on whether we are collecting
+            // data along the beam or along the gate.
             switch (_gateMode) {
-
             case ALONG_BEAM:
                 for (int s = 0; s < nci; s++) {
                     if (_capture) {
@@ -87,6 +92,7 @@ emit 						                        newData(I, Q, 1.0, 100.0);
                             // a set of I/Q points have been collected.
                             // send the IQ beam to our client.
                             _pointCounter = 0;
+                            // emit the new data signal!
 emit 							                            newData(I, Q, 1.0, 100.0);
                             _capture = false;
                         }
