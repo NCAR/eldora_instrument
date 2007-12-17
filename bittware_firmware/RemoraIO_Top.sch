@@ -666,7 +666,7 @@ BEGIN SCHEMATIC
             LINE N -240 -128 -208 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF sfifo1k16
-            TIMESTAMP 2007 7 10 15 42 3
+            TIMESTAMP 2007 12 17 19 30 26
             RECTANGLE N 32 0 352 448 
             BEGIN LINE W 0 48 32 48 
             END LINE
@@ -814,7 +814,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -24 464 1584 
         END BLOCKDEF
         BEGIN BLOCKDEF afifo1k64
-            TIMESTAMP 2007 7 10 15 43 36
+            TIMESTAMP 2007 12 17 19 32 17
             RECTANGLE N 32 0 352 448 
             LINE N 192 448 192 480 
             BEGIN LINE W 0 48 32 48 
