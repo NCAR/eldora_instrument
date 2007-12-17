@@ -176,9 +176,6 @@ void EldoraScope::initFFT() {
         FFTW_FORWARD, 
         FFTW_ESTIMATE);
     }
-    //  power correction factor applied to (uncorrected) powerSpectrum() output:
-    _powerCorrection = 0.0; //  use for power correction to dBm
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -288,20 +285,23 @@ void EldoraScope::displayData() {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
         std::string xlabel;
-        switch (pi->getDisplayType()) {
+        ScopePlot::PLOTTYPE displayType = (ScopePlot::PLOTTYPE) pi->getDisplayType();
+        switch (displayType) {
         case ScopePlot::TIMESERIES:
             if (_performAutoScale)
-                autoScale(I, Q);
+                autoScale(I, Q, displayType);
             xlabel = ((_gateMode == ONE_GATE) ? std::string("Time")
                     : std::string("Gate"));
             _scopePlot->TimeSeries(I, Q, yBottom, yTop, 1, xlabel, "I - Q");
             break;
         case ScopePlot::IVSQ:
             if (_performAutoScale)
-                autoScale(I, Q);
+                autoScale(I, Q, displayType);
             _scopePlot->IvsQ(I, Q, yBottom, yTop, 1, "I", "Q");
             break;
         case ScopePlot::SPECTRUM:
+            if (_performAutoScale)
+                autoScale(_spectrum, displayType);
             _scopePlot->Spectrum(_spectrum,
                     _specGraphCenter-_specGraphRange /2.0,
                     _specGraphCenter+_specGraphRange/2.0,
@@ -315,7 +315,7 @@ void EldoraScope::displayData() {
     } else {
         // Product data display
         if (_performAutoScale)
-            autoScale(_ProductData);
+            autoScale(_ProductData, ScopePlot::PRODUCT);
         // send in the product id, which ScopePlot::Product() uses
         // to decide if axis rescaling is needed.
         PlotInfo* pi = &_productPlotInfo[_productPlotType];
@@ -349,6 +349,7 @@ double EldoraScope::powerSpectrum(
     // zero pad, if we are looking at along beam data.
     for (int j = n; j < blockSize; j++) {
         _fftwData[_blockSizeIndex][j][0] = 0;
+        _fftwData[_blockSizeIndex][j][1] = 0;
     }
 
     // apply the hamming window to the time series
@@ -389,11 +390,6 @@ double EldoraScope::powerSpectrum(
 
     zeroMoment /= blockSize*blockSize;
     zeroMoment = 10.0*log10(zeroMoment);
-
-    // correct unscaled power data using knob setting: 
-    for (int j = 0; j < blockSize; j++) {
-        _spectrum[j] += _powerCorrection;
-    }
 
     return zeroMoment;
 }
@@ -728,7 +724,7 @@ void EldoraScope::gainChangeSlot(
     // keep a local copy of the gain knob value
     _knobGain = gain;
 
-    _powerCorrection = gain;
+    _specGraphRange = pow(10.0, gain+2.0);
 
     _xyGraphRange = pow(10.0, -gain);
 
@@ -778,7 +774,8 @@ void EldoraScope::dnSlot() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
-        std::vector<double>& data) {
+        std::vector<double>& data,
+        ScopePlot::PLOTTYPE displayType) {
     _performAutoScale = false;
     if (data.size() == 0)
         return;
@@ -788,13 +785,14 @@ void EldoraScope::autoScale(
     double max = *std::max_element(data.begin(), data.end());
    
     // adjust the gains
-    adjustGainOffset(min, max);
+    adjustGainOffset(min, max, displayType);
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data1,
-            std::vector<double>& data2) {
+            std::vector<double>& data2,
+            ScopePlot::PLOTTYPE displayType) {
     _performAutoScale = false;
     if (data1.size() == 0 || data2.size() == 0)
         return;
@@ -809,21 +807,28 @@ void EldoraScope::autoScale(
     double max = std::max(max1, max2);
 
     // adjust the gains
-    adjustGainOffset(min, max);
+    adjustGainOffset(min, max, displayType);
 
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::adjustGainOffset(
         double min,
-            double max) {
-    double factor = 0.8;
-    _xyGraphCenter = (min+max)/2.0;
-    _xyGraphRange = (1/factor)*(max - min)/2.0;
-
-    _knobGain = -log10(_xyGraphRange);
-
-    _gainKnob->setValue(_knobGain);
+            double max,
+            ScopePlot::PLOTTYPE displayType) {
+    if (displayType == ScopePlot::SPECTRUM){
+        // currently in spectrum plot mode
+        _specGraphCenter = min + (max-min)/2.0;
+        _specGraphRange = 3*(max-min);
+        _knobGain      = -log10(_specGraphRange);
+        _gainKnob->setValue();
+    } else {
+        double factor = 0.8;
+        _xyGraphCenter = (min+max)/2.0;
+        _xyGraphRange  = (1/factor)*(max - min)/2.0;
+        _knobGain      = -log10(_xyGraphRange);
+        _gainKnob->setValue(_knobGain);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////

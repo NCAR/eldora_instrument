@@ -209,25 +209,23 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// on the single data series.
         /// @param data The data series to be analyzed.
         void autoScale(
-                std::vector<double>& data);
+                std::vector<double>& data,
+                ScopePlot::PLOTTYPE displayType);
         /// set the _graphRange and _graphOffset based
         /// on the two data series.
         /// @param data1 The first data series to be analyzed.
         /// @param data2 The second data series to be analyzed.
         void autoScale(
                 std::vector<double>& data1,
-                    std::vector<double>& data2);
-        /// set the _specGraphRange and _specGraphCenter based
-        /// on the single data series.
-        /// @param data The spectral series to be analyzed.
-        void specAutoScale(
-                std::vector<double>& data);
+                    std::vector<double>& data2,
+                    ScopePlot::PLOTTYPE displayType);
         /// Adjust the _graphRange and _graphOffset values.
         /// @param min Desired scale minimum
         /// @param max Desired scale maximum
         void adjustGainOffset(
                 double min,
-                    double max);
+                    double max,
+                    ScopePlot::PLOTTYPE displayType);
         /// Holds I data to display for time series and I vs. Q 	
         std::vector<double> I;
         /// Holds Q data to display for time series and I vs. Q display
