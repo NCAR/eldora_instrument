@@ -821,7 +821,7 @@ void EldoraScope::adjustGainOffset(
         _specGraphCenter = min + (max-min)/2.0;
         _specGraphRange = 3*(max-min);
         _knobGain      = -log10(_specGraphRange);
-        _gainKnob->setValue();
+ //       _gainKnob->setValue();
     } else {
         double factor = 0.8;
         _xyGraphCenter = (min+max)/2.0;
