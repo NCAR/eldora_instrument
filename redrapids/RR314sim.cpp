@@ -58,10 +58,10 @@ void RR314sim::simulate() {
     while (1) {
         for (int p = 0; p < _nci; p++) {
             for (unsigned int i = 0; i < _iqChans.size(); i++) {
-                // The firmware assigns channel numbers 1-4, 
+                // The firmware assigns channel numbers 1-8, 
                 // corresponding to the receiver channels
-                _iq[0] = 0;
-                _iq[1] = i + 1;
+                _iq[0] = 2*i + 1;
+                _iq[1] = 0;
                 // prt id
                 _iq[2] = 0;
                 _iq[3] = 0;
