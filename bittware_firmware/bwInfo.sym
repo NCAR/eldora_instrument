@@ -1,0 +1,87 @@
+VERSION 5
+BEGIN SYMBOL bwinfo
+SYMBOLTYPE MASTER
+TIMESTAMP 2003 2 12 18 32 13
+SYMATTR NameFieldText "<NameFieldText>"
+SYMATTR DateFieldText "<DateFieldText>"
+SYMATTR NumberOfSheets "<NumberOfSheets>"
+SYMATTR AuthorText "<AuthorText>"
+BEGIN SYMATTR Revision <Revision>
+    VALUETYPE Float
+END SYMATTR
+LINE N -160 -48 -1200 -48 
+BEGIN LINE W -1200 -320 -160 -320 
+END LINE
+LINE N -1200 0 -160 0 
+LINE N -1196 -220 -160 -220 
+BEGIN LINE W -1200 48 -160 48 
+END LINE
+BEGIN LINE W -1200 -320 -1200 48 
+END LINE
+BEGIN LINE W -160 -320 -160 48 
+END LINE
+LINE N -844 0 -844 48 
+LINE N -240 0 -208 0 
+BEGIN DISPLAY -1160 -20 TEXT Name:
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -1164 20 TEXT Date:
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -824 24 TEXT "Sheets in Design:"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -1088 -24 ATTR "NameFieldText"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -1084 24 ATTR "DateFieldText"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -612 24 ATTR "NumberOfSheets"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -680 -300 TEXT "BittWare, Inc."
+    ALIGNMENT CENTER
+    FONT 40 "Arial"
+END DISPLAY
+BEGIN DISPLAY -680 -260 TEXT "31B South Main Street, Concord, NH, 03301"
+    ALIGNMENT CENTER
+    FONT 28 "Arial"
+END DISPLAY
+BEGIN DISPLAY -680 -236 TEXT www.BittWare.com
+    ALIGNMENT CENTER
+    FONT 28 "Arial"
+END DISPLAY
+BEGIN DISPLAY -808 -196 TEXT "Copyright 2003, BittWare, Inc."
+    FONT 20 "Arial"
+END DISPLAY
+BEGIN DISPLAY -908 -168 TEXT "The user is hereby granted a non-exclusive license to"
+    FONT 20 "Arial"
+END DISPLAY
+BEGIN DISPLAY -904 -144 TEXT "use and or modify this software provided that it runs"
+    FONT 20 "Arial"
+END DISPLAY
+BEGIN DISPLAY -904 -120 TEXT "on BittWare hardware. Usage of this software on"
+    FONT 20 "Arial"
+END DISPLAY
+BEGIN DISPLAY -904 -96 TEXT "non-BittWare hardware without the express written"
+    FONT 20 "Arial"
+END DISPLAY
+BEGIN DISPLAY -900 -72 TEXT "permission of BittWare is strictly prohibited."
+    FONT 20 "Arial"
+END DISPLAY
+LINE N -360 0 -360 48 
+LINE N -448 -48 -448 0 
+BEGIN DISPLAY -348 -24 ATTR "AuthorText"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -288 24 ATTR "Revision"
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -352 24 TEXT Rev:
+    FONT 24 "Arial"
+END DISPLAY
+BEGIN DISPLAY -436 -24 TEXT Author:
+    FONT 24 "Arial"
+END DISPLAY
+END SYMBOL

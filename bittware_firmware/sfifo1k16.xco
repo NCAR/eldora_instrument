@@ -1,0 +1,41 @@
+# BEGIN Project Options
+SET flowvendor = Foundation_iSE
+SET vhdlsim = True
+SET verilogsim = False
+SET workingdirectory = C:\Work_Projects\Xilinx\Eldora_Test
+SET speedgrade = -4
+SET simulationfiles = Behavioral
+SET asysymbol = True
+SET addpads = False
+SET device = xc2v1000
+SET implementationfiletype = Edif
+SET busformat = BusFormatAngleBracket
+SET foundationsym = False
+SET package = fg456
+SET createndf = False
+SET designentry = VHDL
+SET devicefamily = virtex2
+SET formalverification = False
+SET removerpms = False
+# END Project Options
+# BEGIN Select
+SELECT Synchronous_FIFO family Xilinx,_Inc. 3.0
+# END Select
+# BEGIN Parameters
+CSET memory_type=Block_Memory
+CSET write_acknowledge_flag=false
+CSET data_width=16
+CSET write_error_flag=false
+CSET read_acknowledge_sense=Active_Low
+CSET data_count_width=8
+CSET fifo_depth=1024
+CSET component_name=sfifo1k16
+CSET data_count=true
+CSET read_acknowledge_flag=false
+CSET read_error_sense=Active_Low
+CSET read_error_flag=false
+CSET write_acknowledge_sense=Active_Low
+CSET write_error_sense=Active_Low
+# END Parameters
+GENERATE
+

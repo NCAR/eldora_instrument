@@ -1,0 +1,46 @@
+# BEGIN Project Options
+SET flowvendor = Foundation_iSE
+SET vhdlsim = True
+SET verilogsim = False
+SET workingdirectory = C:\Work_Projects\Xilinx\Eldora_Test
+SET speedgrade = -4
+SET simulationfiles = Behavioral
+SET asysymbol = True
+SET addpads = False
+SET device = xc2v1000
+SET implementationfiletype = Edif
+SET busformat = BusFormatAngleBracket
+SET foundationsym = False
+SET package = fg456
+SET createndf = False
+SET designentry = VHDL
+SET devicefamily = virtex2
+SET formalverification = False
+SET removerpms = False
+# END Project Options
+# BEGIN Select
+SELECT Asynchronous_FIFO family Xilinx,_Inc. 5.0
+# END Select
+# BEGIN Parameters
+CSET create_rpm=false
+CSET read_acknowledge=false
+CSET almost_empty_flag=false
+CSET write_acknowledge=false
+CSET memory_type=block
+CSET read_acknowledge_sense=active_high
+CSET read_count_width=9
+CSET fifo_depth=1023
+CSET component_name=afifo1k64
+CSET write_count_width=9
+CSET write_count=true
+CSET read_count=true
+CSET write_error=false
+CSET read_error=false
+CSET read_error_sense=active_high
+CSET almost_full_flag=false
+CSET write_acknowledge_sense=active_high
+CSET write_error_sense=active_high
+CSET input_data_width=64
+# END Parameters
+GENERATE
+

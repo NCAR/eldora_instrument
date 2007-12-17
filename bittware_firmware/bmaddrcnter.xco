@@ -1,0 +1,51 @@
+# BEGIN Project Options
+SET flowvendor = Other
+SET vhdlsim = True
+SET verilogsim = False
+SET workingdirectory = C:\Work_Projects\Xilinx\Eldora_Test
+SET speedgrade = -4
+SET simulationfiles = Behavioral
+SET asysymbol = False
+SET addpads = False
+SET device = xc2v1000
+SET implementationfiletype = Edif
+SET busformat = BusFormatAngleBracket
+SET foundationsym = False
+SET package = fg456
+SET createndf = False
+SET designentry = VHDL
+SET devicefamily = virtex2
+SET formalverification = False
+SET removerpms = False
+# END Project Options
+# BEGIN Select
+SELECT Binary_Counter family Xilinx,_Inc. 6.0
+# END Select
+# BEGIN Parameters
+CSET count_style=count_by_constant
+CSET create_rpm=true
+CSET output_width=26
+CSET async_init_value=0400000
+CSET threshold_0=false
+CSET threshold_1=false
+CSET synchronous_settings=none
+CSET count_to_value=MAX
+CSET threshold_1_value=MAX
+CSET clock_enable=true
+CSET threshold_0_value=MAX
+CSET asynchronous_settings=init
+CSET ce_overrides=sync_controls_override_ce
+CSET load=true
+CSET set_clear_priority=clear_overrides_set
+CSET component_name=bmaddrcnter
+CSET count_by_value=1
+CSET threshold_early=false
+CSET restrict_count=false
+CSET operation=up
+CSET sync_init_value=0
+CSET ce_override_for_load=true
+CSET threshold_options=registered
+CSET load_sense=active_high
+# END Parameters
+GENERATE
+
