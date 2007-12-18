@@ -45,6 +45,9 @@ fi
 
 sleep 1
 
+# kill existing rr314dual
+pkill rr314dual
+
 echo "Starting rr314. Hit control-c to terminate. That"
 echo "will terminate all rr314 programs and the DCPSInfoRepo"
 rm -f nohup.out
