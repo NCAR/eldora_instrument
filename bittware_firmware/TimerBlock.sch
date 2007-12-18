@@ -13,31 +13,35 @@ BEGIN SCHEMATIC
         SIGNAL Mult(15:0)
         SIGNAL TimerClkOut
         SIGNAL TimerEnable
-        SIGNAL TimerClk
-        SIGNAL Cntrl(4:3)
         SIGNAL Enable
         SIGNAL XLXN_1
         SIGNAL OnePPS
         SIGNAL PulseOut
+        SIGNAL Timer_Rst
+        SIGNAL AddrTrigger
+        SIGNAL TimerTrigger
+        SIGNAL Cntrl(4:3)
         SIGNAL CS
         SIGNAL AddrIn(2:0)
         SIGNAL DataInOut(31:0)
         SIGNAL BusClk
         SIGNAL WR
-        SIGNAL Timer_Rst
-        SIGNAL AddrTrigger
-        SIGNAL TimerTrigger
-        PORT Input TimerClk
+        SIGNAL IntTimerClk
+        SIGNAL TimerClk
+        SIGNAL Cntrl(2)
+        SIGNAL ClkSelect
         PORT Input Enable
         PORT Input OnePPS
         PORT Output PulseOut
+        PORT Input Timer_Rst
+        PORT Input AddrTrigger
         PORT Input CS
         PORT Input AddrIn(2:0)
         PORT BiDirectional DataInOut(31:0)
         PORT Input BusClk
         PORT Input WR
-        PORT Input Timer_Rst
-        PORT Input AddrTrigger
+        PORT Input IntTimerClk
+        PORT Input TimerClk
         BEGIN BLOCKDEF TimerDecoder
             TIMESTAMP 2007 7 11 16 32 44
             LINE N 64 -544 0 -544 
@@ -107,11 +111,14 @@ BEGIN SCHEMATIC
             ARC N 28 -144 204 32 192 -96 112 -144 
             LINE N 112 -48 48 -48 
         END BLOCKDEF
-        BEGIN BLOCK XLXI_3 clockdivider
-            PIN Clk TimerClk
-            PIN Sel(1:0) Cntrl(4:3)
-            PIN ClkOut TimerClkOut
-        END BLOCK
+        BEGIN BLOCKDEF clockselect
+            TIMESTAMP 2007 12 17 21 59 43
+            RECTANGLE N 64 -192 320 0 
+            LINE N 64 -160 0 -160 
+            LINE N 64 -96 0 -96 
+            LINE N 64 -32 0 -32 
+            LINE N 320 -160 384 -160 
+        END BLOCKDEF
         BEGIN BLOCK XLXI_5 fd
             PIN C TimerClkOut
             PIN D XLXN_1
@@ -139,6 +146,17 @@ BEGIN SCHEMATIC
             PIN Period(15:0) Period(15:0)
             PIN PulseOut PulseOut
         END BLOCK
+        BEGIN BLOCK XLXI_7 clockselect
+            PIN ClkIn TimerClk
+            PIN IntClkIn IntTimerClk
+            PIN Sel Cntrl(2)
+            PIN ClkOut ClkSelect
+        END BLOCK
+        BEGIN BLOCK XLXI_3 clockdivider
+            PIN Clk ClkSelect
+            PIN Sel(1:0) Cntrl(4:3)
+            PIN ClkOut TimerClkOut
+        END BLOCK
         BEGIN BLOCK XLXI_1 TimerDecoder
             PIN Enable CS
             PIN AddrIn(2:0) AddrIn(2:0)
@@ -154,23 +172,6 @@ BEGIN SCHEMATIC
         END BLOCK
     END NETLIST
     BEGIN SHEET 1 2720 1760
-        BEGIN INSTANCE XLXI_3 576 864 R0
-        END INSTANCE
-        BEGIN BRANCH TimerClkOut
-            WIRE 960 768 1008 768
-            BEGIN DISPLAY 1008 768 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH TimerClk
-            WIRE 544 768 576 768
-        END BRANCH
-        BEGIN BRANCH Cntrl(4:3)
-            WIRE 544 832 576 832
-            BEGIN DISPLAY 544 832 ATTR Name
-                ALIGNMENT SOFT-RIGHT
-            END DISPLAY
-        END BRANCH
         INSTANCE XLXI_5 576 704 R0
         INSTANCE XLXI_4 576 384 R0
         BEGIN BRANCH TimerClkOut
@@ -201,7 +202,6 @@ BEGIN SCHEMATIC
         BEGIN BRANCH OnePPS
             WIRE 256 416 288 416
         END BRANCH
-        IOMARKER 544 768 TimerClk R180 28
         IOMARKER 544 128 Enable R180 28
         IOMARKER 256 416 OnePPS R180 28
         BEGIN BRANCH TimerClkOut
@@ -252,62 +252,6 @@ BEGIN SCHEMATIC
         BEGIN INSTANCE XLXI_2 1616 1440 R0
         END INSTANCE
         IOMARKER 2064 768 PulseOut R0 28
-        BEGIN INSTANCE XLXI_1 576 1520 R0
-        END INSTANCE
-        BEGIN BRANCH CS
-            WIRE 544 976 576 976
-        END BRANCH
-        BEGIN BRANCH AddrIn(2:0)
-            WIRE 544 1040 576 1040
-        END BRANCH
-        BEGIN BRANCH DataInOut(31:0)
-            WIRE 544 1104 576 1104
-        END BRANCH
-        BEGIN BRANCH BusClk
-            WIRE 544 1168 576 1168
-        END BRANCH
-        BEGIN BRANCH WR
-            WIRE 544 1216 576 1216
-        END BRANCH
-        BEGIN BRANCH Timer_Rst
-            WIRE 544 1264 576 1264
-        END BRANCH
-        BEGIN BRANCH Cntrl(15:0)
-            WIRE 1056 976 1088 976
-            BEGIN DISPLAY 1088 976 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH Delay(15:0)
-            WIRE 1056 1040 1088 1040
-            BEGIN DISPLAY 1088 1040 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH Width(15:0)
-            WIRE 1056 1104 1088 1104
-            BEGIN DISPLAY 1088 1104 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH Period(15:0)
-            WIRE 1056 1168 1088 1168
-            BEGIN DISPLAY 1088 1168 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH Mult(15:0)
-            WIRE 1056 1232 1088 1232
-            BEGIN DISPLAY 1088 1232 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        IOMARKER 544 976 CS R180 28
-        IOMARKER 544 1040 AddrIn(2:0) R180 28
-        IOMARKER 544 1104 DataInOut(31:0) R180 28
-        IOMARKER 544 1168 BusClk R180 28
-        IOMARKER 544 1216 WR R180 28
-        IOMARKER 544 1264 Timer_Rst R180 28
         BEGIN BRANCH Timer_Rst
             WIRE 1520 1280 1616 1280
             BEGIN DISPLAY 1520 1280 ATTR Name
@@ -328,6 +272,106 @@ BEGIN SCHEMATIC
         BEGIN BRANCH TimerTrigger
             WIRE 1520 896 1616 896
             BEGIN DISPLAY 1520 896 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
+        END BRANCH
+        BEGIN INSTANCE XLXI_7 576 928 R0
+        END INSTANCE
+        BEGIN INSTANCE XLXI_3 576 1152 R0
+        END INSTANCE
+        BEGIN BRANCH TimerClkOut
+            WIRE 960 1056 1008 1056
+            BEGIN DISPLAY 1008 1056 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH Cntrl(4:3)
+            WIRE 544 1120 576 1120
+            BEGIN DISPLAY 544 1120 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
+        END BRANCH
+        BEGIN INSTANCE XLXI_1 576 1808 R0
+        END INSTANCE
+        BEGIN BRANCH CS
+            WIRE 544 1264 576 1264
+        END BRANCH
+        BEGIN BRANCH AddrIn(2:0)
+            WIRE 544 1328 576 1328
+        END BRANCH
+        BEGIN BRANCH DataInOut(31:0)
+            WIRE 544 1392 576 1392
+        END BRANCH
+        BEGIN BRANCH BusClk
+            WIRE 544 1456 576 1456
+        END BRANCH
+        BEGIN BRANCH WR
+            WIRE 544 1504 576 1504
+        END BRANCH
+        BEGIN BRANCH Timer_Rst
+            WIRE 544 1552 576 1552
+        END BRANCH
+        BEGIN BRANCH Cntrl(15:0)
+            WIRE 1056 1264 1088 1264
+            BEGIN DISPLAY 1088 1264 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH Delay(15:0)
+            WIRE 1056 1328 1088 1328
+            BEGIN DISPLAY 1088 1328 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH Width(15:0)
+            WIRE 1056 1392 1088 1392
+            BEGIN DISPLAY 1088 1392 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH Period(15:0)
+            WIRE 1056 1456 1088 1456
+            BEGIN DISPLAY 1088 1456 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH Mult(15:0)
+            WIRE 1056 1520 1088 1520
+            BEGIN DISPLAY 1088 1520 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        IOMARKER 544 1264 CS R180 28
+        IOMARKER 544 1328 AddrIn(2:0) R180 28
+        IOMARKER 544 1392 DataInOut(31:0) R180 28
+        IOMARKER 544 1456 BusClk R180 28
+        IOMARKER 544 1504 WR R180 28
+        IOMARKER 544 1552 Timer_Rst R180 28
+        BEGIN BRANCH IntTimerClk
+            WIRE 480 832 560 832
+            WIRE 560 832 576 832
+        END BRANCH
+        IOMARKER 480 832 IntTimerClk R180 28
+        BEGIN BRANCH TimerClk
+            WIRE 480 768 560 768
+            WIRE 560 768 576 768
+        END BRANCH
+        IOMARKER 480 768 TimerClk R180 28
+        BEGIN BRANCH Cntrl(2)
+            WIRE 544 896 576 896
+            BEGIN DISPLAY 544 896 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH ClkSelect
+            WIRE 960 768 992 768
+            BEGIN DISPLAY 992 768 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH ClkSelect
+            WIRE 544 1056 576 1056
+            BEGIN DISPLAY 544 1056 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH

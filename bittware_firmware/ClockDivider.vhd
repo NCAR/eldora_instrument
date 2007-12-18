@@ -29,8 +29,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity ClockDivider is
     Port ( Clk : in std_logic;
-           Sel : in std_logic_vector(1 downto 0);
-           ClkOut : out std_logic);
+		     Sel : in std_logic_vector(1 downto 0);
+			  ClkOut : out std_logic);
 end ClockDivider;
 
 architecture Behavioral of ClockDivider is

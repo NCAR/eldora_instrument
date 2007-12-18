@@ -32,12 +32,12 @@ entity TimerInterface is
            Reset : in std_logic;
            AddrIn : in std_logic_vector(31 downto 0);
            DataIn : in std_logic_vector(31 downto 0);
-           TimerAddrOut : out std_logic_vector(2 downto 0);
+			  TimerAddrOut : out std_logic_vector(2 downto 0);
            DataInOut : inout std_logic_vector(31 downto 0);
 			  AddrOut : out std_logic_vector(31 downto 0);
            WR : out std_logic;
 			  GlobalEnable : out std_logic;
-			  TimerSelect : out std_logic_vector(19 downto 0);
+			  TimerSelect : out std_logic_vector(20 downto 0);
 			  AddrTrigger : out std_logic;
 			  Timer_Rst : out std_logic;
 			  AddrWr : in std_logic;
@@ -49,7 +49,7 @@ architecture Behavioral of TimerInterface is
 signal out_data : std_logic_vector(31 downto 0);
 signal out_timeraddr : std_logic_vector(2 downto 0);
 signal out_addr : std_logic_vector(31 downto 0);
-signal out_timerselect : std_logic_vector(19 downto 0);
+signal out_timerselect : std_logic_vector(20 downto 0);
 signal out_wr : std_logic;
 signal out_globalenable : std_logic;
 signal out_addrtrigger : std_logic;
@@ -79,45 +79,47 @@ begin
 				out_timerrst <= AddrIn(13);
 				
 				if (AddrIn(11 downto 4) = "00000000") then
-					out_timerselect <= "00000000000000000001";
+					out_timerselect <= "000000000000000000001";
 				elsif (AddrIn(11 downto 4) = "00000001") then
-					out_timerselect <= "00000000000000000010";
+					out_timerselect <= "000000000000000000010";
 				elsif (AddrIn(11 downto 4) = "00000010") then
-					out_timerselect <= "00000000000000000100";
+					out_timerselect <= "000000000000000000100";
 				elsif (AddrIn(11 downto 4) = "00000011") then
-					out_timerselect <= "00000000000000001000";
+					out_timerselect <= "000000000000000001000";
 				elsif (AddrIn(11 downto 4) = "00000100") then
-					out_timerselect <= "00000000000000010000";
+					out_timerselect <= "000000000000000010000";
 				elsif (AddrIn(11 downto 4) = "00000101") then
-					out_timerselect <= "00000000000000100000";
+					out_timerselect <= "000000000000000100000";
 				elsif (AddrIn(11 downto 4) = "00000110") then
-					out_timerselect <= "00000000000001000000";
+					out_timerselect <= "000000000000001000000";
 				elsif (AddrIn(11 downto 4) = "00000111") then
-					out_timerselect <= "00000000000010000000";
+					out_timerselect <= "000000000000010000000";
 				elsif (AddrIn(11 downto 4) = "00001000") then
-					out_timerselect <= "00000000000100000000";
+					out_timerselect <= "000000000000100000000";
 				elsif (AddrIn(11 downto 4) = "00001001") then
-					out_timerselect <= "00000000001000000000";
+					out_timerselect <= "000000000001000000000";
 				elsif (AddrIn(11 downto 4) = "00001010") then
-					out_timerselect <= "00000000010000000000";
+					out_timerselect <= "000000000010000000000";
 				elsif (AddrIn(11 downto 4) = "00001011") then
-					out_timerselect <= "00000000100000000000";
+					out_timerselect <= "000000000100000000000";
 				elsif (AddrIn(11 downto 4) = "00001100") then
-					out_timerselect <= "00000001000000000000";
+					out_timerselect <= "000000001000000000000";
 				elsif (AddrIn(11 downto 4) = "00001101") then
-					out_timerselect <= "00000010000000000000";
+					out_timerselect <= "000000010000000000000";
 				elsif (AddrIn(11 downto 4) = "00001110") then
-					out_timerselect <= "00000100000000000000";
+					out_timerselect <= "000000100000000000000";
 				elsif (AddrIn(11 downto 4) = "00001111") then
-					out_timerselect <= "00001000000000000000";
+					out_timerselect <= "000001000000000000000";
 				elsif (AddrIn(11 downto 4) = "00010000") then
-					out_timerselect <= "00010000000000000000";
+					out_timerselect <= "000010000000000000000";
 				elsif (AddrIn(11 downto 4) = "00010001") then
-					out_timerselect <= "00100000000000000000";
+					out_timerselect <= "000100000000000000000";
 				elsif (AddrIn(11 downto 4) = "00010010") then
-					out_timerselect <= "01000000000000000000";
+					out_timerselect <= "001000000000000000000";
 				elsif (AddrIn(11 downto 4) = "00010011") then
-					out_timerselect <= "10000000000000000000";
+					out_timerselect <= "010000000000000000000";
+				elsif (AddrIn(11 downto 4) = "00010100") then
+					out_timerselect <= "100000000000000000000";
 				else
 					out_timerselect <= out_timerselect;
 				end if;
