@@ -27,7 +27,7 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 			_kaiserFile(kaiserFile), _xsvfFileName(xsvfFileName),
 			_bufferNext(0), _devNum(devNum), _gates(gates), _samples(samples),
 			_dualPrt(dualPrt), _startGateIQ(startGateIQ), _numIQ(nGatesIQ),
-			_simulate(simulate) {
+			_simulate(simulate), _running(false) {
 
 	// initalize threading constructs
 	pthread_mutex_init(&_bufferMutex, NULL);
@@ -148,6 +148,18 @@ RR314::~RR314() {
 
 void RR314::RR314shutdown() {
 
+	// ignore multiple calls to shutdown the card.
+    if (!_running)
+	    return;
+	
+	_running = false;
+	
+	// if in simulation, don't try to access the card. 
+	// this can happen when a signal is handled while in
+	// simulation mode
+	if (_simulate)
+	    return;
+	
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 
@@ -805,6 +817,8 @@ void RR314::timerInit() {
 ////////////////////////////////////////////////////////////////////////
 
 void RR314::start() {
+    
+    _running = true;
 	if (_simulate) {
 		_simulator->start();
 		return;

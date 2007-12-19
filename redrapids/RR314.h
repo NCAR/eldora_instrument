@@ -334,6 +334,9 @@ protected:
 
 	/// The simulator
 	RedRapids::RR314sim* _simulator;
+	
+	/// Set true when running, false when stopped.
+	bool _running;
 };
 }
 #endif
