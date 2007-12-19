@@ -7,18 +7,20 @@ using namespace CORBA;
 
 template<TEMPSIG1>
 DDSWriter<TEMPSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
-			       std::string topicName) :
-  finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topicName)
+			       std::string topicName, int queueSize) :
+  finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topicName), _queueSize(queueSize), _terminate(false)
 {
 
 	// reserve the space in the queues
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < _queueSize; i++) {
 		DDSTYPE* pItem = new DDSTYPE;
 		_outQueue.push_back(pItem);
 	}
 
+	// get the DDS publisher, which we will need to create the writer.
 	Publisher_var& publisher = ddsPublisher.getPublisher();
 
+	// get the domain participant, which we register our type with
 	DomainParticipant_var& participant = ddsPublisher.getParticipant();
 
 	try {
@@ -121,10 +123,19 @@ DDSWriter<TEMPSIG2>::svc() {
 		ACE_DEBUG((LM_DEBUG,
 						ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
 
+		// this is where it all happens
 		while(1) {
+		    
+		    if (_terminate)
+		        break;
+		    // block until item(s) appears on the _inQueue.
 			waitForItem();
+			
+			// publish the next items on the _inQueue.
+			// publish() returns non-zero if more items remain on _inQueue.
 			while(publish(handle)) {};
 		}
+		
 	} catch (Exception& e) {
 		cerr << "Exception caught in svc:" << endl
 		<< e << endl;

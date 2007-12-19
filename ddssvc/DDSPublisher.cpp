@@ -3,11 +3,13 @@
 #include <ace/streams.h>
 #include "ace/Get_Opt.h"
 
-OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
+//OpenDDS::DCPS::TransportIdType transport_impl_id = 1;
 
 ////////////////////////////////////////////////////////////
 
-DDSPublisher::DDSPublisher(int argc, char* argv[]) {
+DDSPublisher::DDSPublisher(int argc, char* argv[]):
+transport_impl_id(1)
+{
 
 	_runStatus = run(argc, argv);
 }
@@ -17,6 +19,9 @@ DDSPublisher::DDSPublisher(int argc, char* argv[]) {
 DDSPublisher::~DDSPublisher() {
 
 	// Cleanup
+    
+    std::cout << "Cleaning up in ~DDSPublisher()\n";
+    
 	_participant->delete_contained_entities();
 
 	_dpf->delete_participant(_participant.in());
