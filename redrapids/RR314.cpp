@@ -135,13 +135,13 @@ RR314::~RR314() {
 	}
 
 	for (unsigned int i = 0; i < _fullBuffers.size(); i++)
-		delete [] _fullBuffers[i];
+		delete  _fullBuffers[i];
 
 	for (unsigned int i = 0; i < _freeIQBuffers.size(); i++)
-		delete [] _freeIQBuffers[i];
+		delete  _freeIQBuffers[i];
 
 	for (unsigned int i = 0; i < _freeABPBuffers.size(); i++)
-		delete [] _freeABPBuffers[i];
+		delete  _freeABPBuffers[i];
 
 	std::cout << "RR314 deleted\n";
 }
