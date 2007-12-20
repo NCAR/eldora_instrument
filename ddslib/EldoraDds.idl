@@ -14,7 +14,7 @@ typedef sequence<short> TS;
     float prfSeconds;
     float azDegrees;
     long nci;
-    char chan;
+    unsigned short chan;
     TS tsdata;
   };
 
@@ -28,7 +28,7 @@ typedef sequence<short> TS;
     float azDegrees;
     float powerDbm;
     long nci;
-    char chan;
+    unsigned short chan;
     A_B_P abp;
   };
 
