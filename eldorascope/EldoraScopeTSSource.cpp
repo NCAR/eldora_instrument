@@ -62,7 +62,7 @@ emit 				                tsGateList(_gates);
             // data along the beam or along the gate.
             switch (_gateMode) {
             case ALONG_BEAM:
-                for (int s = 0; s < nci; s++) {
+                for (unsigned int s = 0; s < nci; s++) {
                     if (_capture) {
                         // resize the vectors to carry the beam of IQ data
                         I.resize(tsLen/2);
