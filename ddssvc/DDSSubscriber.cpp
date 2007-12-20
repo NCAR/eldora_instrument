@@ -35,15 +35,12 @@ DDSSubscriber::DDSSubscriber(int argc, char* argv[]) {
 
 DDSSubscriber::~DDSSubscriber() {
 
-	if (!CORBA::is_nil(_participant.in())) {
-		_participant->delete_contained_entities();
-	}
-	if (!CORBA::is_nil(_dpf.in())) {
-		_dpf->delete_participant(_participant.in());
-	}
-	ACE_OS::sleep(2);
+	_participant->delete_contained_entities();
+
+	_dpf->delete_participant(_participant.in());
 
 	TheTransportFactory->release();
+
 	TheServiceParticipant->shutdown();
 
 }
