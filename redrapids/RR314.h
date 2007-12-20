@@ -127,11 +127,16 @@ public:
 	/// @param kaiserFile The file of kaiser filter coefficients, blank if none.
 	/// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
 	/// @param simulate Set true if simulation instead of real hardware
+    /// @param catchSignals Set true if the class is supposed to catch signals and
+    /// correctly shutdown the cards. If the user decides to catch signals themself,
+    /// they MUST call RR314shutdown in order to terminate the DMA transfers
+    /// correctly.
 	RR314(int devNum, unsigned int gates, unsigned int samples,
 			unsigned int dualPrt, unsigned int startGateIQ,
 			unsigned int nGatesIQ, unsigned int decimationFactor,
 			std::string gaussianFile, std::string kaiserFile,
-			std::string xsvfFile, bool simulate = false) throw (std::string);
+			std::string xsvfFile, bool simulate = false,
+			bool catchSignals = true) throw (std::string);
 
 	/// Destructor
 	virtual ~RR314();
@@ -221,6 +226,9 @@ public:
 	/// @return The board temperature (degC). If in
 	/// simulate mode, return a random but reasonable value
 	double temperature();
+	
+	/// @return The board number
+	int boardNumber();
 
 protected:
 
@@ -337,6 +345,11 @@ protected:
 	
 	/// Set true when running, false when stopped.
 	bool _running;
+	
+	/// Set true if signal capture will be configured and 
+	/// managed within this class.
+	bool _catchSignals;
 };
+
 }
 #endif

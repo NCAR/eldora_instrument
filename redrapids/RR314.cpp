@@ -21,20 +21,22 @@ std::map<s_ChannelAdapter*, RR314*> RedRapids::RR314::rr314Instances;
 RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 		unsigned int dualPrt, unsigned int startGateIQ, unsigned int nGatesIQ,
 		unsigned int decimationFactor, std::string gaussianFile,
-		std::string kaiserFile, std::string xsvfFileName, bool simulate)
+		std::string kaiserFile, std::string xsvfFileName, bool simulate,
+		bool doSignals)
 		throw(std::string) :
 	_decimationFactor(decimationFactor), _gaussianFile(gaussianFile),
 			_kaiserFile(kaiserFile), _xsvfFileName(xsvfFileName),
 			_bufferNext(0), _devNum(devNum), _gates(gates), _samples(samples),
 			_dualPrt(dualPrt), _startGateIQ(startGateIQ), _numIQ(nGatesIQ),
-			_simulate(simulate), _running(false) {
+			_simulate(simulate), _running(false), _catchSignals(doSignals) {
 
 	// initalize threading constructs
 	pthread_mutex_init(&_bufferMutex, NULL);
 	pthread_cond_init(&_dataAvailCond, NULL);
 
     // capture signals
-    catchSignals();
+    if (_catchSignals)
+        catchSignals();
 
     if (simulate) {
         std::cout
@@ -896,7 +898,12 @@ void RR314::lastGroup(int chan, int group) {
 
 //////////////////////////////////////////////////////////////////////
 int RR314::lastGroup(int chan) {
-	return _lastGroup[chan];
+    return _lastGroup[chan];
+}
+
+//////////////////////////////////////////////////////////////////////
+int RR314::boardNumber() {
+    return _devNum;
 }
 
 //////////////////////////////////////////////////////////////////////
