@@ -175,13 +175,11 @@ static void signalHandler(
 
     std::cout << "caught signal " << signo << "\n";
     
-    // stop all RR314 cards amd free their DMA allocations
-    // iterate through all instances of RR314
-
+    // try to terminate the RR314 boards
+    shutdownRR314();
+    
     // if it was a segv, produce a core dump
     if (signo == SIGSEGV) {
-        // try to terminate the RR314 boards
-        shutdownRR314();
         // and abort with a dump.
         abort();
     }
