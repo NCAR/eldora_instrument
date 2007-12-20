@@ -31,7 +31,7 @@ rr314="$topdir/redrapids/rr314dual \
  
 # trap the signals on this script, and kill the jobs
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
-	pkill rr314dual; pkill -9 DCPS' ERR SIGINT SIGTERM
+	pkill rr314dual' ERR SIGINT SIGTERM
 
 # ignore hup so that we can log out and leave running
 trap "" HUP
@@ -50,8 +50,7 @@ pkill rr314dual
 
 echo "Starting rr314. Hit control-c to terminate. That"
 echo "will terminate all rr314 programs and the DCPSInfoRepo"
-rm -f nohup.out
-nohup $rr314
+$rr314
 
 
 
