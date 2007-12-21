@@ -87,18 +87,27 @@ int main(
     if (subStatus)
         return subStatus;
 
+    // create the application
     QApplication app(argc, argv);
 
+    // register our special signal data types
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
+    
+    // create a dialog to serve as parent for eldorascope
     QDialog* dialog = new QDialog;
 
-    // create our test dialog. It will contain an SdrScope
+    // create eldorascope
     EldoraScope scope(dialog);
 
     // create the readers
     EldoraScopeTSSource tsSource(subscriber, tsTopic, rate);
     EldoraScopeABPSource abpSource(subscriber, pulseTopic, rate);
+    
+    // connect the aboutToQuit signal from Qt to our sources,
+    // so that they can shut down DDS properly.
+    QObject::connect(&app, SIGNAL(aboutToQuit()), &tsSource, SLOT(shutdown()));
+    QObject::connect(&app, SIGNAL(aboutToQuit()), &abpSource, SLOT(shutdown()));
 
     // connect the scope gate mode changes to the sources
     QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)), &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
@@ -129,8 +138,23 @@ int main(
     // if we don't show() the dialog, nothing appears!
     dialog->show();
 
+    // note that the sources may start emitting signals
+    // before the main application event loop is running,
+    // in which case the signals may be lost. This could be 
+    // a problem with the tsGates signalnot being captured.
+    tsSource.start();
+    abpSource.start();
+    
     // run the whole thing
     app.exec();
 
+    // Tell the source threads to quit.
+    tsSource.quit();
+    abpSource.quit();
+    
+    // wait for them to quit
+    tsSource.wait();
+    abpSource.wait();
+    
     return 0;
 }

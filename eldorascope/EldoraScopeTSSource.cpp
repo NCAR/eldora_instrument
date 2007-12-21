@@ -45,7 +45,6 @@ void EldoraScopeTSSource::notify() {
             // the length of each individual time series in the sample. This
             // includs both I and Q.
             unsigned int tsLen = (pItem->tsdata.length())/nci;
-
             // check to see if the number of gates has changed
             if (tsLen/2 != _gates.size()) {
                 _gates.resize(tsLen/2);
@@ -55,7 +54,7 @@ void EldoraScopeTSSource::notify() {
                 // since the gate list has changed, default to the first one
                 _gate = _gates[0];
                 // announce the list of gates
-emit 				                tsGateList(_gates);
+                emit tsGateList(_gates);
             }
 
             // The data capture strategy will depend on whether we are collecting
@@ -73,7 +72,7 @@ emit 				                tsGateList(_gates);
                             Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
                         }
                         // send the IQ beam to our client.
-emit 						                        newData(I, Q, 1.0, 100.0);
+                            emit     newData(I, Q, 1.0, 100.0);
                         _capture = false;
                     }
                 }
@@ -93,7 +92,7 @@ emit 						                        newData(I, Q, 1.0, 100.0);
                             // send the IQ beam to our client.
                             _pointCounter = 0;
                             // emit the new data signal!
-emit 							                            newData(I, Q, 1.0, 100.0);
+                                 emit  newData(I, Q, 1.0, 100.0);
                             _capture = false;
                         }
                     }
@@ -131,4 +130,5 @@ void EldoraScopeTSSource::alongBeamSlot(
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
+
 

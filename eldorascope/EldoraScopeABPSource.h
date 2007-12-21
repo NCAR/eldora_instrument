@@ -58,7 +58,7 @@ Q_OBJECT
         virtual void alongBeamSlot(
                 int channel,
                     bool forwardRadar);
-
+        
     protected:
         /// The selected radar, either forward or aft
         EldoraDDS::RadarChoice _radarId;

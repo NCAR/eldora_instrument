@@ -4,6 +4,7 @@
 #include <vector>
 #include <QObject>
 #include <QTimer>
+#include <QThread>
 
 /// A basic data source for an EldoraScope. This class acts as a
 /// data provider for a scope, implementing the basic Qt mechanisms
@@ -33,7 +34,7 @@
 ///
 /// Some mechanisms for monitoring data throughput are also provided in this 
 /// class.
-class EldoraScopeSource : public QObject {
+class EldoraScopeSource : public QThread {
     Q_OBJECT
 
     public:
@@ -51,7 +52,9 @@ class EldoraScopeSource : public QObject {
        /// is reset to zero whenever numBytes() is called.
         unsigned long numBytes();
 
-
+        /// Start the thread
+        void run();
+        
     public slots:
         /// Called when the rate timer times out.
         void rateTimeoutSlot();
@@ -73,6 +76,10 @@ class EldoraScopeSource : public QObject {
         virtual void alongBeamSlot(
                 int channel,
                     bool forwardRadar);
+
+        /// Notify that we are shutting down. Derived classes
+        /// should override this if they need to handle a shutdown.
+        virtual void shutdown();
 
     protected:
         /// The number of samples received so far.
@@ -111,6 +118,7 @@ class EldoraScopeSource : public QObject {
 
         /// True if we are looking at the forward radar, false otherwise
         bool _forwardRadar;
+        
 };
 
 #endif 

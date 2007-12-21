@@ -44,7 +44,7 @@ void EldoraScopeABPSource::notify() {
                         P[i/3] = pItem->abp[i ];
                     }
                     // send the Pbeam to our client.
-                    emit newPData(P);
+                        emit newPData(P);
                     _capture = false;
                 }
                 break;
@@ -60,7 +60,7 @@ void EldoraScopeABPSource::notify() {
                         // a set of P points have been collected.
                         // send the P time series to our client.
                         _pointCounter = 0;
-                        emit newPData(P);
+                            emit newPData(P);
                         _capture = false;
                     }
                 }
@@ -95,4 +95,3 @@ void EldoraScopeABPSource::alongBeamSlot(
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
-

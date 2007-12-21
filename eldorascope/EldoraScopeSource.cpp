@@ -19,23 +19,29 @@ _outputRate(outputRate),
 _channel(1),
 _forwardRadar(true)
 {
+		    // determine the timer interval. Don't support
+		    // output rates greater than 100 Hz.
+		    if (_outputRate > 200.0)
+		    _outputRate = 200.0;
 
-	// determine the timer interval. Don't support
-	// output rates greater than 100 Hz.
-	if (_outputRate > 200.0)
-	_outputRate = 200.0;
+		    _intervalMS = (int)(1000.0/_outputRate);
 
-	_intervalMS = (int)(1000.0/_outputRate);
+		    connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
 
-	connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
-
-	_rateTimer.setSingleShot(false);
-	_rateTimer.start(_intervalMS);
+		    _rateTimer.setSingleShot(false);
+		    _rateTimer.start(_intervalMS);
+		    
 }
 
 ////////////////////////////////////////////////////////
 EldoraScopeSource::~EldoraScopeSource() {
 
+}
+
+////////////////////////////////////////////////////////
+void
+EldoraScopeSource::run() {
+   exec();
 }
 
 ////////////////////////////////////////////////////////
@@ -70,3 +76,6 @@ void EldoraScopeSource::alongBeamSlot(int channel,
 }
 
 ////////////////////////////////////////////////////////////
+void EldoraScopeSource::shutdown() {
+    
+}
