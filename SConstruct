@@ -22,8 +22,9 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
-SConscript('tmp/SConscript')
-SConscript('testdds/SConscript')
 SConscript('redrapids/SConscript')
 SConscript('qttoolbox/SConscript')
+SConscript('products/SConscript')
 SConscript('eldorascope/SConscript')
+SConscript('tmp/SConscript')
+SConscript('testdds/SConscript')
