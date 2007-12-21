@@ -77,7 +77,7 @@ int main(
 
     while (1) {
         sleep(1);
-        std::cout << "sleeping...\n";
+        std::cout << "Number of samles: " << abpSource.numSamples() << "\n";
     }
 
     return 0;

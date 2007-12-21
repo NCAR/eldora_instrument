@@ -20,7 +20,6 @@ ProdABPreader::~ProdABPreader() {
 void
 ProdABPreader::notify() {
     while (Pulse* pulse = getNextItem()) {
-        std::cout << "Pulse " << pulse->timestamp << "\n";
         returnItem(pulse);
     }
 }
