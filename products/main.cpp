@@ -49,8 +49,7 @@ int main(
     std::string ORB;
     std::string DCPS;
 
-    ORB
-            = config.getString("ORBConfigFile",
+    ORB = config.getString("ORBConfigFile",
                     "/home/eldora/eldora/conf/tcp.conf");
     DCPS = config.getString("DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
@@ -72,8 +71,12 @@ int main(
     if (subStatus)
         return subStatus;
 
-    // create the abp reader
-    ProdABPreader abpSource(subscriber, pulseTopic);
+// create the product generator
+    EldoraProducts prodGenerator;
+    
+    // create the abp reader. prodGenerator will 
+    // recieve abp data from abpSource
+    ProdABPreader abpSource(subscriber, pulseTopic, prodGenerator);
 
     while (1) {
         sleep(10);
