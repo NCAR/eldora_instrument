@@ -77,7 +77,8 @@ int main(
 
     while (1) {
         sleep(10);
-        std::cout << "Number of samples: " << abpSource.numSamples() << "\n";
+        int n = abpSource.numSamples();
+        std::cout << "Number of samples: " << n << " (/8:)" << n/8 << "\n";
     }
 
     return 0;
