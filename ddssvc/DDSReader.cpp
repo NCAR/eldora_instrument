@@ -222,9 +222,10 @@ throw (CORBA::SystemException) {
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_subscription_match(
-		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus &)
+		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus & status)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_subscription_match" << endl;
+	//cout << "DDS::SubscriptionMatchStatus is " << status << "\n";
 }
 
 ////////////////////////////////////////////////////////////
