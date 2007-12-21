@@ -1,0 +1,28 @@
+import os
+tools = ['ddssvc', 'qtt_qtconfig']
+env = Environment(tools = ['default'] + tools)
+
+# libraries:
+libs = Split("""
+boost_program_options
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
+""")
+env.Append(LIBS = libs)
+
+sources = Split('''
+main.cpp
+EldoraProducts.cpp
+ProdABPreader.cpp
+''')
+
+# build eldoraprod
+eldoraprod = env.Program('eldoraprod', sources)
+
+Default(eldoraprod)
