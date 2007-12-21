@@ -76,8 +76,8 @@ int main(
     ProdABPreader abpSource(subscriber, pulseTopic);
 
     while (1) {
-        sleep(1);
-        std::cout << "Number of samles: " << abpSource.numSamples() << "\n";
+        sleep(10);
+        std::cout << "Number of samples: " << abpSource.numSamples() << "\n";
     }
 
     return 0;
