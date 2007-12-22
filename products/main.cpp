@@ -22,7 +22,8 @@ void parseArgs(
     // get the options
     po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") ("pulsetopic",
+    descripts.add_options() ("help", "describe options") (
+            "pulsetopic",
             po::value<std::string>(&pulseTopic), "DDS pulse topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -49,9 +50,12 @@ int main(
     std::string ORB;
     std::string DCPS;
 
-    ORB = config.getString("ORBConfigFile",
+    ORB
+            = config.getString(
+                    "ORBConfigFile",
                     "/home/eldora/eldora/conf/tcp.conf");
-    DCPS = config.getString("DCPSConfigFile",
+    DCPS = config.getString(
+            "DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
 
     pulseTopic = config.getString("PulseTopic", "EldoraPulses");
@@ -71,9 +75,9 @@ int main(
     if (subStatus)
         return subStatus;
 
-// create the product generator
+    // create the product generator
     EldoraProducts prodGenerator;
-    
+
     // create the abp reader. prodGenerator will 
     // recieve abp data from abpSource
     ProdABPreader abpSource(subscriber, pulseTopic, prodGenerator);
@@ -81,7 +85,8 @@ int main(
     while (1) {
         sleep(10);
         int n = abpSource.numSamples();
-        std::cout << "Number of samples: " << n << " (/8:)" << n/8 << "\n";
+        std::cout << "Number of samples: " << n << " (/8:)" << n/8
+                << "  product pulses:" << prodGenerator.numPulses() << "\n";
     }
 
     return 0;

@@ -20,6 +20,7 @@ sources = Split('''
 main.cpp
 EldoraProducts.cpp
 ProdABPreader.cpp
+ABPCollector.cpp
 ''')
 
 # build eldoraprod

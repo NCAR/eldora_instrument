@@ -1,7 +1,8 @@
 #include "EldoraProducts.h"
-
+#include <iostream>
 ////////////////////////////////////////////////////
-EldoraProducts::EldoraProducts() {
+EldoraProducts::EldoraProducts() :
+    _pulses(0) {
 
 }
 
@@ -12,11 +13,17 @@ EldoraProducts::~EldoraProducts() {
 
 ////////////////////////////////////////////////////
 void EldoraProducts::newABPdata(
-        EldoraDDS::Pulse* pABP) {
+        EldoraDDS::Pulse* p) {
+    _pulses++;
     return;
 }
 ////////////////////////////////////////////////////
 
+int EldoraProducts::numPulses() {
+    int n = _pulses;
+    _pulses = 0;
+    return n;
+}
 ////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////

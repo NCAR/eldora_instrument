@@ -10,8 +10,11 @@ class EldoraProducts {
 
         void newABPdata(
                 EldoraDDS::Pulse* pABP);
+        
+        int numPulses();
 
     protected:
+        int _pulses;
 
 };
 #endif
