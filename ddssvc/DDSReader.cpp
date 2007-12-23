@@ -267,10 +267,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::notify() {
 }
 
 /// @todo These instantiations really belong somewhere else
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
-#include "TimeSeriesTypeSupportC.h"
-#include "TimeSeriesTypeSupportImpl.h"
 using namespace EldoraDDS;
 template class DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var>;
 template class DDSReader<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataReader, TimeSeriesDataReader_var>;
+template class DDSReader<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataReader, ProductsDataReader_var>;

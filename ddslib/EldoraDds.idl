@@ -32,16 +32,18 @@ typedef sequence<short> TS;
     A_B_P abp;
   };
 
-#pragma DCPS_DATA_TYPE "EldoraDDS::Beam"
-#pragma DCPS_DATA_KEY  "EldoraDDS::Beam radarId"
+#pragma DCPS_DATA_TYPE "EldoraDDS::Products"
+#pragma DCPS_DATA_KEY  "EldoraDDS::Products radarId"
 
-  struct Beam {
+  struct Products {
     RadarChoice radarId;
     long long timestamp;
     float prfSeconds;
     float azDegrees;
-    float powerDbm;
-    Product prod;
+    float gateSpacingKm;
+    Product dbz;
+    Product vel;
+    Product ncp;
   };
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::HouseKeeping"

@@ -132,9 +132,12 @@ private:
 #include "PulseTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
+#include "ProductsTypeSupportC.h"
+#include "ProductsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
 typedef DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var> PulseReader;
 typedef DDSReader<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataReader, TimeSeriesDataReader_var> TSReader;
+typedef DDSReader<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataReader, ProductsDataReader_var> ProductsReader;
 
 #endif /* DATAREADER_LISTENER_IMPL  */

@@ -128,11 +128,15 @@ private:
 #include "PulseTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
+#include "ProductsTypeSupportC.h"
+#include "ProductsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
 /// A DDSWriter for the Pulse data type.
 typedef DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var> PulseWriter;
 /// A DDSWriter for the TS data type.
 typedef DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var> TSWriter;
+/// A DDSWriter for the Products data type.
+typedef DDSWriter<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataWriter, ProductsDataWriter_var> ProductsWriter;
 
 #endif

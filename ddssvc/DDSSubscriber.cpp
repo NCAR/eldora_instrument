@@ -35,6 +35,8 @@ DDSSubscriber::DDSSubscriber(int argc, char* argv[]) {
 
 DDSSubscriber::~DDSSubscriber() {
 
+    std::cout << "DDSSubscriber shutting down\n";
+    
 	_participant->delete_contained_entities();
 
 	_dpf->delete_participant(_participant.in());
