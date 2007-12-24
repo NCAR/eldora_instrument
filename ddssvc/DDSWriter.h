@@ -1,5 +1,5 @@
-#ifndef ELDORAWRITER_H
-#define ELDORAWRITER_H
+#ifndef DDSWRITER_H
+#define DDSWRITER_H
 
 #include <ace/OS_NS_unistd.h>
 #include <ace/streams.h>
