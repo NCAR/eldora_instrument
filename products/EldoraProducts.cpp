@@ -1,8 +1,10 @@
 #include "EldoraProducts.h"
 #include <iostream>
 ////////////////////////////////////////////////////
-EldoraProducts::EldoraProducts() :
-    _pulses(0) {
+EldoraProducts::EldoraProducts(
+        DDSPublisher& publisher, std::string productsTopic) :
+    _pulses(0), _publisher(publisher), _productsTopic(productsTopic),
+    _productsWriter(publisher, productsTopic){
 
 }
 

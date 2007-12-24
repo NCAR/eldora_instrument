@@ -7,6 +7,9 @@
 // To get the DDSSubscriber and Pulsereader definitions
 #include "ProdABPreader.h"
 
+// To get the DDSPublisher definition
+#include "DDSPublisher.h"
+
 // ArgvParams is used to create syntehic command line arguments
 #include "ArgvParams.h"
 
@@ -15,7 +18,7 @@ void parseArgs(
         int argc,
             char** argv,
             std::string& pulseTopic,
-            std::string& tsTopic,
+            std::string& productsTopic,
             std::string& ORB,
             std::string& DCPS) {
 
@@ -23,8 +26,8 @@ void parseArgs(
     po::options_description descripts("Options");
 
     descripts.add_options() ("help", "describe options") (
-            "pulsetopic",
-            po::value<std::string>(&pulseTopic), "DDS pulse topic")
+            "pulsetopic",po::value<std::string>(&pulseTopic), "DDS pulse topic")
+            ("pulsetopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ;
@@ -46,21 +49,20 @@ int main(
 
     QtConfig config("NCAR", "EldoraProd");
     std::string pulseTopic;
-    std::string tsTopic;
+    std::string productsTopic;
     std::string ORB;
     std::string DCPS;
 
-    ORB
-            = config.getString(
+    ORB = config.getString(
                     "ORBConfigFile",
                     "/home/eldora/eldora/conf/tcp.conf");
     DCPS = config.getString(
             "DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
-
     pulseTopic = config.getString("PulseTopic", "EldoraPulses");
+    productsTopic = config.getString("ProductsTopic", "EldoraProducts");
 
-    parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS);
+    parseArgs(argc, argv, pulseTopic, productsTopic, ORB, DCPS);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -75,11 +77,17 @@ int main(
     if (subStatus)
         return subStatus;
 
+    // create the publisher
+    DDSPublisher publisher(subParams.argc(), subParams.argv());
+    int pubStatus = publisher.status();
+    if (pubStatus)
+        return pubStatus;
+
     // create the product generator
-    EldoraProducts prodGenerator;
+    EldoraProducts prodGenerator(publisher, productsTopic);
 
     // create the abp reader. prodGenerator will 
-    // recieve abp data from abpSource
+    // receive abp data from abpSource
     ProdABPreader abpSource(subscriber, pulseTopic, prodGenerator);
 
     while (1) {
