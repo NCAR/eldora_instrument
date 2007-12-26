@@ -21,6 +21,7 @@ DDSWriter.cpp
 DDSSubscriber.cpp
 DDSReader.cpp
 ArgvParams.cpp
+SignalCatcher.cpp
 """)
 
 subscriber = env.Library('ddssvc', sources)
