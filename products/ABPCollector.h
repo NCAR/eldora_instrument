@@ -26,9 +26,14 @@ class ABPCollector: public std::vector<EldoraDDS::Pulse*> {
         /// Tell the collector that the current saved pulses 
         /// are no longer needed.
         void flush();
-        /// @return Surplus pulses that were not matched or used. ) is returned if none
-        /// available.
+        /// @return Pulses that have been finished. They will end up here if
+        /// flush() is called by the application, or if a sequence error was
+        /// detected by addPulse(). In the latter case, _discards gets
+        /// incremented. 0 is returned if none are available.
         EldoraDDS::Pulse* finishedPulse();
+        /// @return the number of discarded pulses since the last time
+        /// this function was called.
+        int discards();
         
     protected:
         /// finished pulses are collected here. Call 
@@ -36,6 +41,9 @@ class ABPCollector: public std::vector<EldoraDDS::Pulse*> {
         std::vector<EldoraDDS::Pulse*> _finishedPulses;
         /// The radarId that we are processing
         int _radarId;
+        /// The number of pulses that are discarded; i.e.
+        /// moved to the _finishedPulses list by addPulse().
+        int _discards;
 
 };
 

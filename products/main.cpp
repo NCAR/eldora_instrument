@@ -26,8 +26,9 @@ void parseArgs(
     po::options_description descripts("Options");
 
     descripts.add_options() ("help", "describe options") (
-            "pulsetopic",po::value<std::string>(&pulseTopic), "DDS pulse topic")
-            ("pulsetopic",po::value<std::string>(&productsTopic), "DDS products topic")
+            "pulsetopic",
+            po::value<std::string>(&pulseTopic), "DDS pulse topic")
+    ("pulsetopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ;
@@ -53,7 +54,8 @@ int main(
     std::string ORB;
     std::string DCPS;
 
-    ORB = config.getString(
+    ORB
+            = config.getString(
                     "ORBConfigFile",
                     "/home/eldora/eldora/conf/tcp.conf");
     DCPS = config.getString(
@@ -93,8 +95,10 @@ int main(
     while (1) {
         sleep(10);
         int n = abpSource.numSamples();
+        std::vector<int> discards = abpSource.discards();
         std::cout << "Number of samples: " << n << " (/8:)" << n/8
-                << "  product pulses:" << prodGenerator.numPulses() << "\n";
+                << "  product pulses:" << prodGenerator.numPulses()
+                << "  discards:" << discards[0] << "," << discards[1] << "\n";
     }
 
     return 0;

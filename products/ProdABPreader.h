@@ -5,11 +5,15 @@
 #include "ABPCollector.h"
 #include "EldoraProducts.h"
 
+#include <vector>
 
 class ProdABPreader: public PulseReader {
     public:
         ProdABPreader(DDSSubscriber& subscriber, std::string abpTopic, EldoraProducts& consumer);
         virtual ~ProdABPreader();
+        /// @return a vector containing the the number of pulse discards. Element 0 contains
+        /// fore, element 1 contains aft.
+        std::vector<int> discards();
         
     protected:
         void notify();

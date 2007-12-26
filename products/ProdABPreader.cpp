@@ -37,7 +37,7 @@ void ProdABPreader::notify() {
                 // frequencies, saving in the first pulse.
                 for (unsigned int f = 1; f < 4; f++) {
                     for (unsigned int j = 0; j
-                            < _collectorFore[0]->abp.length(); j++) {
+                            < (*collector)[0]->abp.length(); j++) {
                         (*collector)[0]->abp[j] += (*collector)[f]->abp[j];
                     }
                 }
@@ -54,4 +54,11 @@ void ProdABPreader::notify() {
         } // for collectors
     } // while getNextItem()
 }
-
+/////////////////////////////////////////////////////////////////////
+std::vector<int> ProdABPreader::discards() {
+    std::vector<int> n;
+    n.resize(2);
+    n[0] = _collectorFore.discards();
+    n[1] = _collectorAft.discards();
+    return n;
+}

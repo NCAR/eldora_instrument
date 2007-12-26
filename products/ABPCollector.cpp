@@ -2,11 +2,9 @@
 #include <iostream>
 ///////////////////////////////////////////////////////
 ABPCollector::ABPCollector(int radarId):
-_radarId(radarId)
+_radarId(radarId), _discards(0)
 {
-    
 }
-
 ///////////////////////////////////////////////////////
 ABPCollector::~ABPCollector() {
     
@@ -24,15 +22,13 @@ ABPCollector::addPulse(EldoraDDS::Pulse* p) {
     
     if ((p->timestamp != (*this)[0]->timestamp) || this->size() == 4) {
         // mismatch timestamp or already have 4, so 
-        // invalidate the collection and save this one
-        for (unsigned int i = 0; i < this->size(); i++)
-            _finishedPulses.push_back((*this)[i]);
-        _finishedPulses.clear();
-        _finishedPulses.push_back(p);
-        return;
+        // count the current collection as discards, 
+        // and remove them from the collator.
+        _discards += this->size();
+        flush();
     }
     
-    // timestamp matches, and we have fewer than 4, so save it
+    // save this one
     this->push_back(p);
     return;
 }
@@ -53,4 +49,11 @@ EldoraDDS::Pulse* ABPCollector::finishedPulse() {
         _finishedPulses.erase(_finishedPulses.begin());
     }
     return p;
+}
+///////////////////////////////////////////////////////
+int
+ABPCollector::discards() {
+    int n = _discards;
+    _discards = 0;
+    return n;
 }
