@@ -86,6 +86,11 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1>
+DDSWriter<TEMPSIG2>::~DDSWriter(){
+}
+
+////////////////////////////////////////////////////////////
+template<TEMPSIG1>
 void
 DDSWriter<TEMPSIG2>::end() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::end \n")));

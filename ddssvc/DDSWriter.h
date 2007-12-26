@@ -47,7 +47,8 @@ public:
     /// @param queueSize The number of spaces in the queue of items, shared between
     /// the empty and full queues.
 	DDSWriter(DDSPublisher& publisher, std::string topicName, int queueSize=100);
-
+	/// Destructor
+	virtual ~DDSWriter();
 	/// wait for the thread to terminate
 	void end();
 

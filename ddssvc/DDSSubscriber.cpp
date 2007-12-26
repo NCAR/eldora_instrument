@@ -37,7 +37,7 @@ DDSSubscriber::DDSSubscriber(
 
 DDSSubscriber::~DDSSubscriber() {
 
-    std::cout << "DDSSubscriber shutting down\n";
+    std::cout << "Cleaning up in ~DDSSubscriber()\n";
 
     _participant->delete_contained_entities();
 

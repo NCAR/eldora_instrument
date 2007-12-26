@@ -9,7 +9,7 @@
 class EldoraProducts {
     public:
         EldoraProducts(DDSPublisher& publisher, std::string productsTopic);
-        ~EldoraProducts();
+        virtual ~EldoraProducts();
 
         void newABPdata(
                 EldoraDDS::Pulse* pABP);

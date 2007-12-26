@@ -80,7 +80,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
     public:
         EldoraScope(
                 QDialog* parent = 0);
-        ~EldoraScope();
+        virtual ~EldoraScope();
 
     signals:
 

@@ -14,7 +14,7 @@ class FilterSpec: public std::vector<unsigned int> {
         );
 
   /// Destructor
-  ~FilterSpec();
+  virtual ~FilterSpec();
 
   /// @return True if the filter specification was acceptible,
   /// false otherwise.
