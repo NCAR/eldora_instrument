@@ -38,7 +38,7 @@ void parseArgs(
     ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
-    ("rate", po::value<int>(&outputRate)->default_value(25), "Sample update rate (hz) for the display")
+    ("rate", po::value<int>(&outputRate), "Sample update rate (hz) for the display")
     ;
 
     po::variables_map vm;
