@@ -53,6 +53,7 @@ SignalCatcher::instance() {
 //////////////////////////////////////////////////////////////////////
 void
 SignalCatcher::addSignalFlag(int* signalFlag) {
+    *signalFlag = 0;
     _signalFlags.push_back(signalFlag);
 }
 
