@@ -87,6 +87,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
 template<TEMPSIG1>
 DDSWriter<TEMPSIG2>::~DDSWriter(){
+    std::cout << __FUNCTION__ << " destructor\n";
 }
 
 ////////////////////////////////////////////////////////////

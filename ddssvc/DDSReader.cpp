@@ -91,6 +91,7 @@ _topicName(topicName)
 
 // Implementation skeleton destructor
 template<TEMPSIG1> DDSReader<TEMPSIG2>::~DDSReader() {
+    std::cout << __FUNCTION__ << " destructor\n";
 }
 
 ////////////////////////////////////////////////////////////
