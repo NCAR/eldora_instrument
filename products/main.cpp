@@ -10,8 +10,12 @@
 // To get the DDSPublisher definition
 #include "DDSPublisher.h"
 
-// ArgvParams is used to create syntehic command line arguments
+// ArgvParams is used to create synthetic command line arguments
 #include "ArgvParams.h"
+
+// Catch signals so that we can shutdown gracefully, allowing the
+// DDSReader and DDSWriter destructors to be called.
+#include "SignalCatcher.h"
 
 namespace po = boost::program_options;
 void parseArgs(
@@ -47,6 +51,11 @@ void parseArgs(
 int main(
         int argc,
             char** argv) {
+    
+    // This will be initialized to zero by SignalCatcher.
+    int sigNumber;
+    // Catch signals with our flag
+    SignalCatcher::instance()->addSignalFlag(&sigNumber);
 
     QtConfig config("NCAR", "EldoraProd");
     std::string pulseTopic;
@@ -93,12 +102,21 @@ int main(
     ProdABPreader abpSource(subscriber, pulseTopic, prodGenerator);
 
     while (1) {
-        sleep(10);
         int n = abpSource.numSamples();
         std::vector<int> discards = abpSource.discards();
         std::cout << "Number of samples: " << n << " (/8:)" << n/8
                 << "  product pulses:" << prodGenerator.numPulses()
                 << "  discards:" << discards[0] << "," << discards[1] << "\n";
+        
+        for (int i = 0; i < 10; i++) {
+            sleep(1);
+            if (sigNumber) {
+                std::cout << "Caught signal " << sigNumber << ", terminating\n";
+                break;
+            }
+        }
+        if (sigNumber)
+            break;
     }
 
     return 0;
