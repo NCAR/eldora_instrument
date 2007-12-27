@@ -11,7 +11,7 @@ EldoraQtProductsSource::EldoraQtProductsSource(
         DDSSubscriber& subscriber,
             std::string topicName,
             double outputRate) :
-    EldoraQtSource(outputRate), PulseReader(subscriber, topicName) {
+    EldoraQtSource(outputRate), ProductsReader(subscriber, topicName) {
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
@@ -32,7 +32,7 @@ void EldoraQtProductsSource::notify() {
         _readSamples++;
         _numBytes += pItem->dbz.length()*sizeof(pItem->dbz[0]);
         
-        if (pItem->chan == _channel && pItem->radarId == _radarId) {
+        if (pItem->radarId == _radarId) {
 
             switch (_gateMode) {
 
@@ -42,7 +42,7 @@ void EldoraQtProductsSource::notify() {
                     P.resize(pItem->dbz.length());
                     // copy all P in the beam.
                     for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
-                        P[i] = pItem->abp[i ];
+                        P[i] = pItem->dbz[i ];
                     }
                     // send the Pbeam to our client.
                         emit newPData(P);
