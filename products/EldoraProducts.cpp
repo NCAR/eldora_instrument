@@ -6,7 +6,7 @@ EldoraProducts::EldoraProducts(
             std::string productsTopic) :
     _pulses(0), _publisher(publisher), _productsTopic(productsTopic),
             _productsWriter(publisher, productsTopic), _droppedPulses(0) {
-
+            
 }
 
 ////////////////////////////////////////////////////
@@ -24,10 +24,16 @@ void EldoraProducts::newABPdata(
 
         products->radarId = pulse->radarId;
         products->timestamp = pulse->timestamp;
-        products->dbz.length(pulse->abp.length()/3);
+        int productsLength = pulse->abp.length()/3;
+        products->dbz.length(productsLength);
+        products->vel.length(productsLength);
+        products->ncp.length(productsLength);
         int j = 0;
         for (unsigned int i = 0; i < pulse->abp.length(); i+= 3) {
-            products->dbz[j++] = pulse->abp[i];
+            products->dbz[j] = pulse->abp[i+2];
+            products->vel[j] = pulse->abp[i+1];  // just for testing
+            products->ncp[j] = pulse->abp[i+0];  // just for testing
+            j++;
         }
 
         _productsWriter.publishItem(products);
