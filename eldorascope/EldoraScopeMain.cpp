@@ -24,7 +24,7 @@ namespace po = boost::program_options;
 void parseArgs(
         int argc,
             char** argv,
-            std::string& pulseTopic,
+            std::string& productsTopic,
             std::string& tsTopic,
             std::string& ORB,
             std::string& DCPS,
@@ -34,8 +34,8 @@ void parseArgs(
     po::options_description descripts("Options");
 
     descripts.add_options() ("help", "describe options") (
-            "pulsetopic",
-            po::value<std::string>(&pulseTopic), "DDS pulse topic")
+            "productstopic",
+            po::value<std::string>(&productsTopic), "DDS products topic")
     ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -57,8 +57,12 @@ int main(
         int argc,
             char** argv) {
 
+    ///////////////////////////////////////////////////////////////
+    //
+    // Configuration
+    
     QtConfig config("NCAR", "EldoraScope");
-    std::string pulseTopic;
+    std::string productsTopic;
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
@@ -72,10 +76,10 @@ int main(
     DCPS = config.getString(
             "DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
-    tsTopic = config.getString("TSTopic", "EldoraTS");
-    pulseTopic = config.getString("PulseTopic", "EldoraPulses");
+    tsTopic = config.getString("TopicTS", "EldoraTS");
+    productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, pulseTopic, tsTopic, ORB, DCPS, rate);
+    parseArgs(argc, argv, productsTopic, tsTopic, ORB, DCPS, rate);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -84,12 +88,10 @@ int main(
     subParams["-ORBSvcConf"] = ORB;
     subParams["-DCPSConfigFile"] = DCPS;
 
-    // create the subscriber
-    DDSSubscriber subscriber(subParams.argc(), subParams.argv());
-    int subStatus = subscriber.status();
-    if (subStatus)
-        return subStatus;
-
+    ///////////////////////////////////////////////////////////////
+    //
+    // Qt User Interface Components
+    
     // create the application
     QApplication app(argc, argv);
 
@@ -103,10 +105,24 @@ int main(
     // create eldorascope
     EldoraScope scope(dialog);
 
+    ///////////////////////////////////////////////////////////////
+    //
+    // Data source Infrastructure
+    
+    // create the subscriber
+    DDSSubscriber subscriber(subParams.argc(), subParams.argv());
+    int subStatus = subscriber.status();
+    if (subStatus)
+        return subStatus;
+
     // create the readers
     EldoraQtTSSource tsSource(subscriber, tsTopic, rate);
-    EldoraQtProductsSource productsSource(subscriber, pulseTopic, rate);
+    EldoraQtProductsSource productsSource(subscriber, productsTopic, rate);
 
+    ///////////////////////////////////////////////////////////////
+    //
+    // Qt Signal Connections
+    
     // connect the aboutToQuit signal from Qt to our sources,
     // so that they can shut down DDS properly.
     QObject::connect(&app, SIGNAL(aboutToQuit()), &tsSource, SLOT(shutdown()));
@@ -141,16 +157,24 @@ int main(
     // if we don't show() the dialog, nothing appears!
     dialog->show();
 
+    ///////////////////////////////////////////////////////////////
+    //
+    // Start all of the processes
+    
     // note that the sources may start emitting signals
     // before the main application event loop is running,
     // in which case the signals may be lost. This could be 
-    // a problem with the tsGates signalnot being captured.
+    // a problem with the tsGates signal not being captured.
     tsSource.start();
     productsSource.start();
 
     // run the whole thing
     app.exec();
 
+    ///////////////////////////////////////////////////////////////
+    //
+    // Shutdown
+    
     // Tell the source threads to quit.
     tsSource.quit();
     productsSource.quit();

@@ -20,11 +20,11 @@ env.AppendUnique(LIBS = libs)
 env.Uic4(['EldoraScope.ui',])
 
 sources = Split("""
-main.cpp
+EldoraScopeMain.cpp
 EldoraScope.cpp
 EldoraQtSource.cpp
 EldoraQtTSSource.cpp
-EldoraQtABPSource.cpp
+EldoraQtProductsSource.cpp
 PlotInfo.cpp
 """)
 
