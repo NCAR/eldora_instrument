@@ -1,8 +1,8 @@
-#ifndef ELDORASCOPETSSOURCE_H_
-#define ELDORASCOPETSSOURCE_H_
+#ifndef ELDORAQTTSSOURCE_H_
+#define ELDORAQTTSSOURCE_H_
 
 #include <vector>
-#include "EldoraScopeSource.h"
+#include "EldoraQtSource.h"
 #include "DDSReader.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
@@ -10,23 +10,23 @@ using namespace EldoraDDS;
 
 /// A timeseries DDS subscriber for Eldora data,
 /// which can feed Qt clients..
-/// It is derived from EldoraScopeSource and TSReader.
+/// It is derived from EldoraQtSource and TSReader.
 /// When the DDS data notification is received via the notify()
 /// method, a Qt signal is emitted in order to deliver the
 /// data to other Qt components. Note that this scheme is utilizing 
 /// Qt4's capabilty to send signals between threads. See the 
 /// Qt4 docuentation on threading and QObjects.
 ///
-/// The EldoraScopeSource rate limiting mechanism (the _capture variable)
+/// The EldoraQtSource rate limiting mechanism (the _capture variable)
 /// is used to control the rate of data delivery to the qt client.
-class EldoraScopeTSSource : public EldoraScopeSource, public TSReader {
+class EldoraQtTSSource : public EldoraQtSource, public TSReader {
 Q_OBJECT
     public:
-        EldoraScopeTSSource(
+        EldoraQtTSSource(
                 DDSSubscriber& subscriber,
                     std::string topicName,
                     double outputRate=20.0);
-        virtual ~EldoraScopeTSSource();
+        virtual ~EldoraQtTSSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
         /// queue. Process the samples here.

@@ -15,8 +15,8 @@ Q_DECLARE_METATYPE(std::vector<int>)
 // To get the DDSSubscriber definition
 #include "DDSReader.h"
 
-#include "EldoraScopeTSSource.h"
-#include "EldoraScopeABPSource.h"
+#include "EldoraQtTSSource.h"
+#include "EldoraQtABPSource.h"
 
 #include "ArgvParams.h"
 
@@ -101,8 +101,8 @@ int main(
     EldoraScope scope(dialog);
 
     // create the readers
-    EldoraScopeTSSource tsSource(subscriber, tsTopic, rate);
-    EldoraScopeABPSource abpSource(subscriber, pulseTopic, rate);
+    EldoraQtTSSource tsSource(subscriber, tsTopic, rate);
+    EldoraQtABPSource abpSource(subscriber, pulseTopic, rate);
     
     // connect the aboutToQuit signal from Qt to our sources,
     // so that they can shut down DDS properly.

@@ -1,4 +1,4 @@
-#include "EldoraScopeSource.h"
+#include "EldoraQtSource.h"
 #include <QMetaType>
 #include <iostream>
 
@@ -6,7 +6,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
-EldoraScopeSource::EldoraScopeSource(
+EldoraQtSource::EldoraQtSource(
 		double outputRate) : 
 _readSamples(0), 
 _numBytes(0),
@@ -34,30 +34,30 @@ _forwardRadar(true)
 }
 
 ////////////////////////////////////////////////////////
-EldoraScopeSource::~EldoraScopeSource() {
+EldoraQtSource::~EldoraQtSource() {
 
 }
 
 ////////////////////////////////////////////////////////
 void
-EldoraScopeSource::run() {
+EldoraQtSource::run() {
    exec();
 }
 
 ////////////////////////////////////////////////////////
-unsigned long EldoraScopeSource::numBytes() {
+unsigned long EldoraQtSource::numBytes() {
 	unsigned long n = _numBytes;
 	_numBytes = 0;
 	return n;
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeSource::rateTimeoutSlot() {
+void EldoraQtSource::rateTimeoutSlot() {
 	_capture = true;
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeSource::oneGateSlot(int channel,
+void EldoraQtSource::oneGateSlot(int channel,
         bool forwardRadar, int gate, int n) {
 	_gate = gate;
 	_channel = channel;
@@ -68,7 +68,7 @@ void EldoraScopeSource::oneGateSlot(int channel,
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeSource::alongBeamSlot(int channel,
+void EldoraQtSource::alongBeamSlot(int channel,
         bool forwardRadar) {
 	_gateMode = ALONG_BEAM;
 	_channel = channel;
@@ -76,6 +76,6 @@ void EldoraScopeSource::alongBeamSlot(int channel,
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeSource::shutdown() {
+void EldoraQtSource::shutdown() {
     
 }

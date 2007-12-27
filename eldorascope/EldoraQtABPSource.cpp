@@ -1,4 +1,4 @@
-#include "EldoraScopeABPSource.h"
+#include "EldoraQtABPSource.h"
 #include <QMetaType>
 #include <iostream>
 using namespace EldoraDDS;
@@ -7,11 +7,11 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
-EldoraScopeABPSource::EldoraScopeABPSource(
+EldoraQtABPSource::EldoraQtABPSource(
         DDSSubscriber& subscriber,
             std::string topicName,
             double outputRate) :
-    EldoraScopeSource(outputRate), PulseReader(subscriber, topicName) {
+    EldoraQtSource(outputRate), PulseReader(subscriber, topicName) {
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
@@ -21,12 +21,12 @@ EldoraScopeABPSource::EldoraScopeABPSource(
 }
 
 ////////////////////////////////////////////////////////
-EldoraScopeABPSource::~EldoraScopeABPSource() {
+EldoraQtABPSource::~EldoraQtABPSource() {
 
 }
 
 ////////////////////////////////////////////////////////
-void EldoraScopeABPSource::notify() {
+void EldoraQtABPSource::notify() {
     while (Pulse* pItem = getNextItem()) {
 
         _readSamples++;
@@ -74,13 +74,13 @@ void EldoraScopeABPSource::notify() {
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeABPSource::oneGateSlot(
+void EldoraQtABPSource::oneGateSlot(
         int channel,
             bool forwardRadar,
             int gate,
             int n) {
 
-    EldoraScopeSource::oneGateSlot(channel, forwardRadar, gate, n);
+    EldoraQtSource::oneGateSlot(channel, forwardRadar, gate, n);
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
     // start timeseries collection immediately
@@ -88,10 +88,10 @@ void EldoraScopeABPSource::oneGateSlot(
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeABPSource::alongBeamSlot(
+void EldoraQtABPSource::alongBeamSlot(
         int channel,
             bool forwardRadar) {
-    EldoraScopeSource::alongBeamSlot(channel, forwardRadar);
+    EldoraQtSource::alongBeamSlot(channel, forwardRadar);
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }

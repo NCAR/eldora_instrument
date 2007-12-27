@@ -1,8 +1,8 @@
-#ifndef ELDORASCOPEABPSOURCE_H_
-#define ELDORASCOPEABPSOURCE_H_
+#ifndef ELDORAQTABPSOURCE_H_
+#define ELDORAQTABPSOURCE_H_
 
 #include <vector>
-#include "EldoraScopeSource.h"
+#include "EldoraQtSource.h"
 #include "DDSReader.h"
 #include "PulseTypeSupportC.h"
 #include "PulseTypeSupportImpl.h"
@@ -10,23 +10,23 @@ using namespace EldoraDDS;
 
 /// A Pulse DDS subscriber for Eldora data,
 /// which can feed P data to Qt clients..
-/// It is derived from EldoraScopeSource and PulseReader.
+/// It is derived from EldoraQtSource and PulseReader.
 /// When the DDS data notification is received via the notify()
 /// method, a Qt signal is emitted in order to deliver the
 /// data to other Qt components. Note that this scheme is utilizing 
 /// Qt4's capabilty to send signals between threads. See the 
 /// Qt4 docuentation on threading and QObjects.
 ///
-/// The EldoraScopeSource rate limiting mechanism (the _capture variable)
+/// The EldoraQtSource rate limiting mechanism (the _capture variable)
 /// is used to control the rate of data delivery to the qt client.
-class EldoraScopeABPSource : public EldoraScopeSource, public PulseReader {
+class EldoraQtABPSource : public EldoraQtSource, public PulseReader {
 Q_OBJECT
     public:
-        EldoraScopeABPSource(
+        EldoraQtABPSource(
                 DDSSubscriber& subscriber,
                     std::string topicName,
                     double outputRate=20.0);
-        virtual ~EldoraScopeABPSource();
+        virtual ~EldoraQtABPSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
         /// queue. Process the samples here.

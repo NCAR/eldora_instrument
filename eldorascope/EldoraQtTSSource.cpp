@@ -1,4 +1,4 @@
-#include "EldoraScopeTSSource.h"
+#include "EldoraQtTSSource.h"
 #include <QMetaType>
 #include <iostream>
 using namespace EldoraDDS;
@@ -7,11 +7,11 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
-EldoraScopeTSSource::EldoraScopeTSSource(
+EldoraQtTSSource::EldoraQtTSSource(
         DDSSubscriber& subscriber,
             std::string topicName,
             double outputRate) :
-    EldoraScopeSource(outputRate),
+    EldoraQtSource(outputRate),
     TSReader(subscriber, topicName)
     {
 
@@ -24,12 +24,12 @@ EldoraScopeTSSource::EldoraScopeTSSource(
 }
 
 ////////////////////////////////////////////////////////
-EldoraScopeTSSource::~EldoraScopeTSSource() {
+EldoraQtTSSource::~EldoraQtTSSource() {
 
 }
 
 ////////////////////////////////////////////////////////
-void EldoraScopeTSSource::notify() {
+void EldoraQtTSSource::notify() {
     // a DDS data notification has been received.
     while (TimeSeries* pItem = getNextItem()) {
 
@@ -107,13 +107,13 @@ void EldoraScopeTSSource::notify() {
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeTSSource::oneGateSlot(
+void EldoraQtTSSource::oneGateSlot(
         int channel,
             bool forwardRadar,
             int gate,
             int n) {
 
-    EldoraScopeSource::oneGateSlot(channel, forwardRadar, gate, n);
+    EldoraQtSource::oneGateSlot(channel, forwardRadar, gate, n);
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
     
@@ -123,10 +123,10 @@ void EldoraScopeTSSource::oneGateSlot(
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraScopeTSSource::alongBeamSlot(
+void EldoraQtTSSource::alongBeamSlot(
         int channel,
             bool forwardRadar) {
-    EldoraScopeSource::alongBeamSlot(channel, forwardRadar);
+    EldoraQtSource::alongBeamSlot(channel, forwardRadar);
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
