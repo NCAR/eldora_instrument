@@ -67,7 +67,7 @@ Q_OBJECT
         std::vector<int> _gates;
 
         /// Buffer for saving one gate of product data over successive Products
-        std::vector<double> dbz;
+        std::vector<double> P;
 
 };
 
