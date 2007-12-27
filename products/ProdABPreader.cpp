@@ -21,15 +21,18 @@ ProdABPreader::~ProdABPreader() {
 void ProdABPreader::notify() {
     while (Pulse* pPulse = getNextItem()) {
 
-    	std::cout << "pulse radar:" << pPulse->radarId << " timestamp:" << pPulse->timestamp 
-    	<< " chan:" << pPulse->chan << "\n";
         // give the pulse to the fore or aft collector.
-        // One of them will accept it. Note that 
-        // when the pulse timestamp changes, the 
-        _collectorFore.addPulse(pPulse);
-        _collectorAft.addPulse(pPulse);
+        // One of them should accept it. If not,
+    	// we have problems (probably a corrupted
+    	// radarId.
+        if (!_collectorFore.addPulse(pPulse)) {
+        	if (!_collectorAft.addPulse(pPulse)) {
+        		// neither collector wanted the pulse!
+        		returnItem(pPulse);
+        	}
+        }
 
-        // process forward and aft pulses
+        // now process any forward and aft quad pulses that are available 
         for (unsigned int c = 0; c < _collectors.size(); c++) {
             ABPCollector* collector = _collectors[c];
 

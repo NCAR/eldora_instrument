@@ -86,7 +86,7 @@ ABPCollector::pulsesReady() {
 	std::vector<EldoraDDS::Pulse*> r;
 	
 	if (_timestamps.size() > 0 ) {
-		if (_pulses.begin()->second.size() == 4) {
+		if (_timestamps.begin()->second == 4) {
 			r.resize(4);
 			// return the four pulses at the head of the queue.
 			r = _pulses.begin()->second;
