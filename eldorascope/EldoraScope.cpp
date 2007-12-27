@@ -150,8 +150,8 @@ void EldoraScope::initFFT() {
 
     // configure the block/fft size selection
     /// @todo add logic to insure that smallest fft size is a power of two.
-    int fftSize = _config.getInt("SmallestFFT", 16);
-    int maxFftSize = _config.getInt("LargestFFT", 1024);
+    int fftSize = _config.getInt("FFTsmallest", 16);
+    int maxFftSize = _config.getInt("FFTlargest", 1024);
     for (; fftSize <= maxFftSize; fftSize = fftSize*2) {
         _blockSizeChoices.push_back(fftSize);
         QString l = QString("%1").arg(fftSize);
