@@ -128,6 +128,9 @@ class EldoraQtSource : public QThread {
         /// True if we are looking at the forward radar, false otherwise
         bool _forwardRadar;
         
+        /// Set true after the start() function has been called.
+        bool _run;
+        
 };
 
 #endif 
