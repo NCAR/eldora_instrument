@@ -32,7 +32,7 @@ void parseArgs(
     descripts.add_options() ("help", "describe options") (
             "pulsetopic",
             po::value<std::string>(&pulseTopic), "DDS pulse topic")
-    ("pulsetopic",po::value<std::string>(&productsTopic), "DDS products topic")
+    ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ;
@@ -70,8 +70,8 @@ int main(
     DCPS = config.getString(
             "DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
-    pulseTopic = config.getString("PulseTopic", "EldoraPulses");
-    productsTopic = config.getString("ProductsTopic", "EldoraProducts");
+    pulseTopic = config.getString("TopicPulse", "EldoraPulses");
+    productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
     parseArgs(argc, argv, pulseTopic, productsTopic, ORB, DCPS);
 
