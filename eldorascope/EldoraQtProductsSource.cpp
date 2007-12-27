@@ -1,4 +1,4 @@
-#include "EldoraQtABPSource.h"
+#include "EldoraQtProductsSource.h"
 #include <QMetaType>
 #include <iostream>
 using namespace EldoraDDS;
@@ -7,7 +7,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
-EldoraQtABPSource::EldoraQtABPSource(
+EldoraQtProductsSource::EldoraQtProductsSource(
         DDSSubscriber& subscriber,
             std::string topicName,
             double outputRate) :
@@ -21,27 +21,28 @@ EldoraQtABPSource::EldoraQtABPSource(
 }
 
 ////////////////////////////////////////////////////////
-EldoraQtABPSource::~EldoraQtABPSource() {
+EldoraQtProductsSource::~EldoraQtProductsSource() {
 
 }
 
 ////////////////////////////////////////////////////////
-void EldoraQtABPSource::notify() {
-    while (Pulse* pItem = getNextItem()) {
+void EldoraQtProductsSource::notify() {
+    while (Products* pItem = getNextItem()) {
 
         _readSamples++;
-        _numBytes += pItem->abp.length()*sizeof(pItem->abp[0]);
+        _numBytes += pItem->dbz.length()*sizeof(pItem->dbz[0]);
+        
         if (pItem->chan == _channel && pItem->radarId == _radarId) {
 
             switch (_gateMode) {
 
             case ALONG_BEAM:
                 if (_capture) {
-                    // resize the vectors to carry the beam of IQ data
-                    P.resize(pItem->abp.length()/3);
+                    // resize the vectors to carry the beam of product data
+                    P.resize(pItem->dbz.length());
                     // copy all P in the beam.
-                    for (unsigned int i = 2; i < pItem->abp.length(); i += 3) {
-                        P[i/3] = pItem->abp[i ];
+                    for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
+                        P[i] = pItem->abp[i ];
                     }
                     // send the Pbeam to our client.
                         emit newPData(P);
@@ -54,7 +55,7 @@ void EldoraQtABPSource::notify() {
                     if (P.size() != _pointsPerGate) {
                         P.resize(_pointsPerGate);
                     }
-                    P[_pointCounter] = pItem->abp[3*_gate+2];
+                    P[_pointCounter] = pItem->dbz[_gate];
                     _pointCounter++;
                     if (_pointCounter == _pointsPerGate) {
                         // a set of P points have been collected.
@@ -74,7 +75,7 @@ void EldoraQtABPSource::notify() {
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraQtABPSource::oneGateSlot(
+void EldoraQtProductsSource::oneGateSlot(
         int channel,
             bool forwardRadar,
             int gate,
@@ -88,7 +89,7 @@ void EldoraQtABPSource::oneGateSlot(
 }
 
 ////////////////////////////////////////////////////////////
-void EldoraQtABPSource::alongBeamSlot(
+void EldoraQtProductsSource::alongBeamSlot(
         int channel,
             bool forwardRadar) {
     EldoraQtSource::alongBeamSlot(channel, forwardRadar);

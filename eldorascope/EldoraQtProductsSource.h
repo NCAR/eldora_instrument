@@ -1,16 +1,16 @@
-#ifndef ELDORAQTABPSOURCE_H_
-#define ELDORAQTABPSOURCE_H_
+#ifndef ELDORAQTPRODUCTSSOURCE_H_
+#define ELDORAQTPRODUCTSSOURCE_H_
 
 #include <vector>
 #include "EldoraQtSource.h"
 #include "DDSReader.h"
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
+#include "ProductsTypeSupportC.h"
+#include "ProductsTypeSupportImpl.h"
 using namespace EldoraDDS;
 
-/// A Pulse DDS subscriber for Eldora data,
+/// A Products DDS subscriber for Eldora data,
 /// which can feed P data to Qt clients..
-/// It is derived from EldoraQtSource and PulseReader.
+/// It is derived from EldoraQtSource and ProductsReader.
 /// When the DDS data notification is received via the notify()
 /// method, a Qt signal is emitted in order to deliver the
 /// data to other Qt components. Note that this scheme is utilizing 
@@ -19,21 +19,21 @@ using namespace EldoraDDS;
 ///
 /// The EldoraQtSource rate limiting mechanism (the _capture variable)
 /// is used to control the rate of data delivery to the qt client.
-class EldoraQtABPSource : public EldoraQtSource, public PulseReader {
+class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
 Q_OBJECT
     public:
-        EldoraQtABPSource(
+        EldoraQtProductsSource(
                 DDSSubscriber& subscriber,
                     std::string topicName,
                     double outputRate=20.0);
-        virtual ~EldoraQtABPSource();
+        virtual ~EldoraQtProductsSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
         /// queue. Process the samples here.
         virtual void notify();
 
     signals:
-        /// This signal is emitted when new IQ data is available.
+        /// This signal is emitted when new Product data are available.
         /// I and Q will be of the same length, and will have at least 1 
         /// value in them.
         /// @param P P data values.
@@ -66,8 +66,8 @@ Q_OBJECT
         /// The collection of available gates in the timeseries
         std::vector<int> _gates;
 
-        /// Buffer for saving one gate of I data over successive pulses
-        std::vector<double> P;
+        /// Buffer for saving one gate of product data over successive Products
+        std::vector<double> dbz;
 
 };
 
