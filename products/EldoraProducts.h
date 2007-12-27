@@ -21,6 +21,7 @@ class EldoraProducts {
         DDSPublisher& _publisher;
         std::string _productsTopic;
         ProductsWriter _productsWriter;
+        int _droppedPulses;
 
 };
 #endif

@@ -53,7 +53,7 @@ int main(
             char** argv) {
     
     // This will be initialized to zero by SignalCatcher.
-    int sigNumber;
+    int sigNumber = 0;
     // Catch signals with our flag
     SignalCatcher::instance()->addSignalFlag(&sigNumber);
 
