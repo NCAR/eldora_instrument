@@ -1,17 +1,17 @@
-#include "ABPCollector.h"
+#include "PulseCollator.h"
 #include <iostream>
 #include <assert.h>
 
 ///////////////////////////////////////////////////////
-ABPCollector::ABPCollector(int radarId) :
+PulseCollator::PulseCollator(int radarId) :
 	_radarId(radarId), _discards(0) {
 }
 ///////////////////////////////////////////////////////
-ABPCollector::~ABPCollector() {
+PulseCollator::~PulseCollator() {
 
 }
 ///////////////////////////////////////////////////////
-bool ABPCollector::addPulse(EldoraDDS::Pulse* p) {
+bool PulseCollator::addPulse(EldoraDDS::Pulse* p) {
 	
 	// put the pulse int the queue. Flush the queue if this is
 	// the foruth pulse for it's timestamp, and there are
@@ -67,7 +67,7 @@ bool ABPCollector::addPulse(EldoraDDS::Pulse* p) {
 }
 
 ///////////////////////////////////////////////////////
-void ABPCollector::flush(long long timestamp) {
+void PulseCollator::flush(long long timestamp) {
 	for (unsigned int i = 0; i < 4; i++) {
 		if (_pulses[timestamp][i]) {
 			_finishedPulses.push_back(_pulses[timestamp][i]);
@@ -79,7 +79,7 @@ void ABPCollector::flush(long long timestamp) {
 
 ///////////////////////////////////////////////////////
 std::vector<EldoraDDS::Pulse*>
-ABPCollector::pulsesReady() {
+PulseCollator::pulsesReady() {
 	// if there are four pulses at the head of the queue,
 	// return them. Otherwise, return an empty vector.
 	
@@ -101,7 +101,7 @@ ABPCollector::pulsesReady() {
 	return r;
 }
 ///////////////////////////////////////////////////////
-EldoraDDS::Pulse* ABPCollector::finishedPulse() {
+EldoraDDS::Pulse* PulseCollator::finishedPulse() {
 	EldoraDDS::Pulse* p = 0;
 	if (_finishedPulses.size()) {
 		p = _finishedPulses[0];
@@ -110,7 +110,7 @@ EldoraDDS::Pulse* ABPCollector::finishedPulse() {
 	return p;
 }
 ///////////////////////////////////////////////////////
-int ABPCollector::discards() {
+int PulseCollator::discards() {
 	int n = _discards;
 	_discards = 0;
 	return n;

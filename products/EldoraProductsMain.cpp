@@ -5,7 +5,7 @@
 #include "QtConfig.h"
 
 // To get the DDSSubscriber and Pulsereader definitions
-#include "ProdABPreader.h"
+#include "ProductsPulseReader.h"
 
 // To get the DDSPublisher definition
 #include "DDSPublisher.h"
@@ -99,7 +99,7 @@ int main(
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource
-    ProdABPreader abpSource(subscriber, pulseTopic, prodGenerator);
+    ProductsPulseReader abpSource(subscriber, pulseTopic, prodGenerator);
 
     while (1) {
         int n = abpSource.numSamples();

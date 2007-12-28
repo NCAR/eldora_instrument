@@ -2,15 +2,15 @@
 #define PRODABPREADER_INC
 
 #include "DDSReader.h"
-#include "ABPCollector.h"
+#include "PulseCollator.h"
 #include "EldoraProducts.h"
 
 #include <vector>
 
-class ProdABPreader: public PulseReader {
+class ProductsPulseReader: public PulseReader {
     public:
-        ProdABPreader(DDSSubscriber& subscriber, std::string abpTopic, EldoraProducts& consumer);
-        virtual ~ProdABPreader();
+        ProductsPulseReader(DDSSubscriber& subscriber, std::string abpTopic, EldoraProducts& consumer);
+        virtual ~ProductsPulseReader();
         /// @return a vector containing the the number of pulse discards. Element 0 contains
         /// fore, element 1 contains aft.
         std::vector<int> discards();
@@ -20,11 +20,11 @@ class ProdABPreader: public PulseReader {
         /// The consumer of the ABP Pulses.
         EldoraProducts& _consumer;
         /// Pulse collector for forward radar
-        ABPCollector _collectorFore;
+        PulseCollator _collectorFore;
         /// Pulse collector for aft radar;
-        ABPCollector _collectorAft;
+        PulseCollator _collectorAft;
         /// A vector of references to our collectors. 
         /// Will allow iteration over both of them
-        std::vector<ABPCollector*> _collectors;
+        std::vector<PulseCollator*> _collectors;
 };
 #endif

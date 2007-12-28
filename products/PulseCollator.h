@@ -1,5 +1,5 @@
-#ifndef ABPCOLLECTOR_H_
-#define ABPCOLLECTOR_H_
+#ifndef PULSECOLLATOR_H_
+#define PULSECOLLATOR_H_
 
 #include "PulseTypeSupportC.h"
 #include <vector>
@@ -13,13 +13,13 @@
 /// the criteria for a complete set. Thus when the ABPCollect.size() 
 /// equals 4, a complete set is available. The owner can remove them
 /// directly from the vector, or reap them via finishedPulse().
-class ABPCollector {
+class PulseCollator {
     public:
         /// Constructor.
         /// @param radarId The radar identifier that we will search for
-        ABPCollector(int radarId);
+        PulseCollator(int radarId);
         /// Destructor
-        virtual ~ABPCollector();
+        virtual ~PulseCollator();
         /// Add another pulse
         /// @param pPulse The pulse
         /// @return True if the pulse was for this radar, and thus

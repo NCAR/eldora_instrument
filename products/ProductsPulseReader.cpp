@@ -1,7 +1,7 @@
-#include "ProdABPreader.h"
+#include "ProductsPulseReader.h"
 #include <iostream>
 /////////////////////////////////////////////////////////////////////
-ProdABPreader::ProdABPreader(
+ProductsPulseReader::ProductsPulseReader(
         DDSSubscriber& subscriber,
             std::string abpTopic,
             EldoraProducts& consumer) :
@@ -13,12 +13,12 @@ ProdABPreader::ProdABPreader(
 }
 
 /////////////////////////////////////////////////////////////////////
-ProdABPreader::~ProdABPreader() {
+ProductsPulseReader::~ProductsPulseReader() {
     std::cout << __FUNCTION__ << " destructor\n";
 }
 
 /////////////////////////////////////////////////////////////////////
-void ProdABPreader::notify() {
+void ProductsPulseReader::notify() {
     while (Pulse* pPulse = getNextItem()) {
 
         // give the pulse to the fore or aft collector.
@@ -34,7 +34,7 @@ void ProdABPreader::notify() {
 
         // now process any forward and aft quad pulses that are available 
         for (unsigned int c = 0; c < _collectors.size(); c++) {
-            ABPCollector* collector = _collectors[c];
+            PulseCollator* collector = _collectors[c];
 
             // Do we have four pulses? 
             std::vector<EldoraDDS::Pulse*> pulses = collector->pulsesReady();
@@ -62,7 +62,7 @@ void ProdABPreader::notify() {
     } // while getNextItem()
 }
 /////////////////////////////////////////////////////////////////////
-std::vector<int> ProdABPreader::discards() {
+std::vector<int> ProductsPulseReader::discards() {
     std::vector<int> n;
     n.resize(2);
     n[0] = _collectorFore.discards();

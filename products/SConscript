@@ -19,8 +19,8 @@ env.Append(LIBS = libs)
 sources = Split('''
 EldoraProductsMain.cpp
 EldoraProducts.cpp
-ProdABPreader.cpp
-ABPCollector.cpp
+ProductsPulseReader.cpp
+PulseCollator.cpp
 ''')
 
 # build eldoraprod
