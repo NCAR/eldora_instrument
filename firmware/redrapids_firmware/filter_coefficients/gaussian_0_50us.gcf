@@ -1,0 +1,52 @@
+# Coeficients for gaussian filter
+#
+# file format:
+# filter name
+# coef 0
+# coef 1
+# ...
+# ...
+# coef n-1
+#
+#
+# lines beginning with # are ignored
+# blank lines are also ignored
+#
+gaussian-06
+#
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+8
+49
+229
+865
+2615
+6340
+12318
+19179
+23932
