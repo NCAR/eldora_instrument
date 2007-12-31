@@ -48,7 +48,7 @@ void ProductsPulseReader::notify() {
                     }
                 }
                 // Send the summed ABP to the consumer.
-                _consumer.newABPdata(pulses[0]);
+                _consumer.newPulseData(pulses[0]);
                 // we are finished with the current collector crop
                 for (unsigned int i = 0; i < 4; i++)
                 	returnItem(pulses[i]);

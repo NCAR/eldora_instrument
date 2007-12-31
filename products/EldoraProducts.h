@@ -11,8 +11,8 @@ class EldoraProducts {
         EldoraProducts(DDSPublisher& publisher, std::string productsTopic);
         virtual ~EldoraProducts();
 
-        void newABPdata(
-                EldoraDDS::Pulse* pABP);
+        void newPulseData(
+                EldoraDDS::Pulse* pPulse);
         
         int numPulses();
 

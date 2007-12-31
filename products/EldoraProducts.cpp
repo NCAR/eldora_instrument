@@ -15,7 +15,7 @@ EldoraProducts::~EldoraProducts() {
 }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::newABPdata(
+void EldoraProducts::newPulseData(
         EldoraDDS::Pulse* pulse) {
     _pulses++;
 
