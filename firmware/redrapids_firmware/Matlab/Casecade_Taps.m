@@ -49,16 +49,19 @@ end
 h_k = round(h_k*2^17)/2^17;
 %h_k(1:length(h_k)) = 1;
 figure(1);
+subplot(3,1,1);
 stem(h_k);
 title('Impulse Response of Kaiser Window FIR');
 xlabel('N Index');
 ylabel('Magnitude');
-figure(2);
+subplot(3,1,2);
 H_k = fftshift(fft(h_k,N));
 plot(f, 10*log(abs(H_k)));
 title('Frequency Response of Kaiser Window FIR');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude (dB)');
+subplot(3,1,3);
+grpdelay(angle(h_k));
 %---------------------------------------
 % Gaussian FIR 72 Tap
 %---------------------------------------
@@ -86,21 +89,20 @@ for x = 1:length(h_g_dec)
 end
 
 %save('25.gcf','h_g_dec','-ASCII');
-%h_g = [1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72 1/72];
-%h_g = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1/12 1/12 1/12 1/12 1/12 1/12 1/12 1/12 1/12 1/12 1/12 1/12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
-
 h_g = round(h_g*2^17)/2^17;
 
-figure(4);
-subplot(2,1,1);
+figure(2);
+subplot(3,1,1);
 stem(h_g);
-title('Impulse Response of Boxcar FIR');
+title('Impulse Response of Gaussian FIR');
 xlabel('N Index');
 ylabel('Magnitude');
 H_g = fftshift(fft(h_g,N));
-subplot(2,1,2);
+subplot(3,1,2);
 plot(f, 10*log(abs(H_g)));
 Cutoff = 10*log(abs(H_g(round(N*(R_BW+fs/2)/fs))));
-title('Frequency Response of Boxcar FIR');
+title('Frequency Response of Gaussian FIR');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude (dB)');
+subplot(3,1,3);
+grpdelay(angle(h_g));
