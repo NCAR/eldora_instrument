@@ -12,7 +12,7 @@ class EldoraProducts {
         virtual ~EldoraProducts();
 
         void newPulseData(
-                EldoraDDS::Pulse* pPulse);
+                std::vector<EldoraDDS::Pulse*>& pPulse);
         
         int numPulses();
 
