@@ -35,8 +35,11 @@ void EldoraProducts::newPulseData(
         products->p2.length(productsLength);
         products->p3.length(productsLength);
         products->p4.length(productsLength);
+        products->dbm.length(productsLength);
         products->dbz.length(productsLength);
         products->vel.length(productsLength);
+        products->width.length(productsLength);
+        products->snr.length(productsLength);
         products->ncp.length(productsLength);
         
         // Copy the data.
@@ -44,15 +47,21 @@ void EldoraProducts::newPulseData(
              int p = 3*i;
             // temprary hack: Sum all four channel powers to create
             // dbz.
-            products->dbz[i] = pulses[0]->abp[p+2];
+            products->dbm[i] = pulses[0]->abp[p+2];
             for (unsigned int f = 1; f < 4; f++)
-                products->dbz[i] += pulses[f]->abp[p+2];
+                products->dbm[i] += pulses[f]->abp[p+2];
             
             // extract the individual channel powers.
             products->p1[i] = pulses[0]->abp[p+2];
             products->p2[i] = pulses[1]->abp[p+2];
             products->p3[i] = pulses[2]->abp[p+2];
             products->p4[i] = pulses[3]->abp[p+2];
+            
+            products->dbz[i] = 100.0*i;
+            products->vel[i] = i/100.0;
+            products->width[i] = 100.0*i*i;
+            products->ncp[i] = 1.0/(i+1*i+1);
+            products->snr[i] = 100*(i-productsLength/2);
         }
         // Publish the products.
         _productsWriter.publishItem(products);
