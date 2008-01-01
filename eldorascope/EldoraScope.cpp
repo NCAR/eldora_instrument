@@ -492,13 +492,13 @@ void EldoraScope::initPlots() {
             5.0, 0.0, -5.0, 5.0, 0.0);
 
     _productPlotInfo[PROD_P1] = PlotInfo(PROD_P1, SCOPE_PLOT_PRODUCT, "P1",
-            "P Channel 1", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+            "P1", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_P2] = PlotInfo(PROD_P2, SCOPE_PLOT_PRODUCT, "P2",
-            "P Channel 2", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+            "P2", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_P3] = PlotInfo(PROD_P3, SCOPE_PLOT_PRODUCT, "P3",
-            "P Channel 3", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+            "P3", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_P4] = PlotInfo(PROD_P4, SCOPE_PLOT_PRODUCT, "P4",
-            "P Channel 4", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+            "P4", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_DBM] = PlotInfo(PROD_DBM, SCOPE_PLOT_PRODUCT, "Dbm",
             "Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ, SCOPE_PLOT_PRODUCT, "Dbz",
