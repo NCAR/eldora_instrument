@@ -8,18 +8,18 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
 EldoraQtTSSource::EldoraQtTSSource(
-        DDSSubscriber& subscriber,
-            std::string topicName,
-            double outputRate) :
-    EldoraQtSource(outputRate),
-    TSReader(subscriber, topicName)
-    {
+        DDSSubscriber& subscriber, std::string topicName, double outputRate) :
+EldoraQtSource(outputRate),
+TSReader(subscriber,
+        topicName),
+_radarId(EldoraDDS::Forward)
+{
 
     // these are required in order to send structured data types
     // via a qt signal
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
-    
+
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
 
@@ -49,12 +49,12 @@ void EldoraQtTSSource::notify() {
             if (tsLen/2 != _gates.size()) {
                 _gates.resize(tsLen/2);
                 for (unsigned int g = 0; g < tsLen/2; g++) {
-                     _gates[g] = g;
+                    _gates[g] = g;
                 }
                 // since the gate list has changed, default to the first one
                 _gate = _gates[0];
                 // announce the list of gates
-                emit tsGateList(_gates);
+emit                                 tsGateList(_gates);
             }
 
             // The data capture strategy will depend on whether we are collecting
@@ -72,7 +72,7 @@ void EldoraQtTSSource::notify() {
                             Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
                         }
                         // send the IQ beam to our client.
-                            emit     newData(I, Q, 1.0, 100.0);
+emit                                                     newData(I, Q, 1.0, 100.0);
                         _capture = false;
                     }
                 }
@@ -92,7 +92,7 @@ void EldoraQtTSSource::notify() {
                             // send the IQ beam to our client.
                             _pointCounter = 0;
                             // emit the new data signal!
-                                 emit  newData(I, Q, 1.0, 100.0);
+emit                                                          newData(I, Q, 1.0, 100.0);
                             _capture = false;
                         }
                     }
@@ -108,15 +108,17 @@ void EldoraQtTSSource::notify() {
 
 ////////////////////////////////////////////////////////////
 void EldoraQtTSSource::oneGateSlot(
-        int channel,
-            bool forwardRadar,
-            int gate,
-            int n) {
+        int channel, bool forwardRadar, int gate, int n) {
 
-    EldoraQtSource::oneGateSlot(channel, forwardRadar, gate, n);
+    _gate = gate;
+    _channel = channel;
+    _pointsPerGate = n;
+    _gateMode = ONE_GATE;
+    _pointCounter = 0;
+    _forwardRadar = forwardRadar;
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
-    
+
     // start timeseries collection immediately
     I.resize(n);
     Q.resize(n);
@@ -124,11 +126,12 @@ void EldoraQtTSSource::oneGateSlot(
 
 ////////////////////////////////////////////////////////////
 void EldoraQtTSSource::alongBeamSlot(
-        int channel,
-            bool forwardRadar) {
-    EldoraQtSource::alongBeamSlot(channel, forwardRadar);
+        int channel, bool forwardRadar) {
+
+    _gateMode = ALONG_BEAM;
+    _channel = channel;
+    _forwardRadar = forwardRadar;
 
     _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 }
-
 

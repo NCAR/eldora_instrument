@@ -6,6 +6,7 @@
 #include "DDSReader.h"
 #include "ProductsTypeSupportC.h"
 #include "ProductsTypeSupportImpl.h"
+#include "ProductTypes.h"
 using namespace EldoraDDS;
 
 /// A Products DDS subscriber for Eldora data,
@@ -32,7 +33,12 @@ Q_OBJECT
         /// queue. Process the samples here.
         virtual void notify();
 
-    signals:
+        /// Locate the currently selected product.
+        /// @param pItem Pointer to a Products item.
+        /// @return A pointer to the field selected by _product.
+        float* selectProduct(Products* pItem);
+        
+   signals:
         /// This signal is emitted when new Product data are available.
         /// I and Q will be of the same length, and will have at least 1 
         /// value in them.
@@ -42,30 +48,30 @@ Q_OBJECT
         
     public slots:
         /// Set the gate mode to ONE_GATE.
-        /// @param channel The channel number (1-4)
-        /// @param forwardRadar True if forward radar, false if aft
-        /// @param gate The gate to send in
-        /// @param n The number of points
+        /// @param product The product type.
+        /// @param forwardRadar True if forward radar, false if aft.
+        /// @param gate The gate to send in.
+        /// @param n The number of points.
         virtual void oneGateSlot(
-                int channel,
+                PRODUCT_TYPES product,
                     bool forwardRadar,
                     int gate,
                     int n);
 
         /// Set the gate mode to along beam.
-        /// @param channel The channel number (1-4)
+        /// @param product The product type.
         /// @param forwardRadar True if forward radar, false if aft
         virtual void alongBeamSlot(
-                int channel,
+                PRODUCT_TYPES product,
                     bool forwardRadar);
         
     protected:
         /// The selected radar, either forward or aft
         EldoraDDS::RadarChoice _radarId;
 
-        /// The collection of available gates in the timeseries
-        std::vector<int> _gates;
-
+        /// The selected product type
+        PRODUCT_TYPES _product;
+        
         /// Buffer for saving one gate of product data over successive Products
         std::vector<double> P;
 

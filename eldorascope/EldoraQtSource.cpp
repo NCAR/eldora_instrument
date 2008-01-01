@@ -10,7 +10,7 @@ EldoraQtSource::EldoraQtSource(
         double outputRate) :
     _readSamples(0), _numBytes(0), _gateMode(ALONG_BEAM), _pointsPerGate(0),
             _pointCounter(0), _gate(0), _capture(false),
-            _outputRate(outputRate), _channel(1), _forwardRadar(true), _run(false) {
+            _outputRate(outputRate), _forwardRadar(true), _run(false) {
     // determine the timer interval. Don't support
     // output rates greater than 100 Hz.
     if (_outputRate > 200.0)
@@ -55,29 +55,6 @@ void EldoraQtSource::rateTimeoutSlot() {
     // flag has been set.
     if (_run)
         _capture = true;
-}
-
-////////////////////////////////////////////////////////////
-void EldoraQtSource::oneGateSlot(
-        int channel,
-            bool forwardRadar,
-            int gate,
-            int n) {
-    _gate = gate;
-    _channel = channel;
-    _pointsPerGate = n;
-    _gateMode = ONE_GATE;
-    _pointCounter = 0;
-    _forwardRadar = forwardRadar;
-}
-
-////////////////////////////////////////////////////////////
-void EldoraQtSource::alongBeamSlot(
-        int channel,
-            bool forwardRadar) {
-    _gateMode = ALONG_BEAM;
-    _channel = channel;
-    _forwardRadar = forwardRadar;
 }
 
 ////////////////////////////////////////////////////////////

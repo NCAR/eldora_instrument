@@ -129,11 +129,15 @@ int main(
     QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
 
     // connect the scope gate mode changes to the sources
-    QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)), &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
-    QObject::connect(&scope, SIGNAL(oneGateSignal(int, bool, int, int)), &productsSource, SLOT(oneGateSlot(int, bool, int,int)));
+    QObject::connect(&scope, SIGNAL(oneGateTSSignal(int, bool, int, int)), 
+            &tsSource, SLOT(oneGateSlot(int, bool, int,int)));
+    QObject::connect(&scope, SIGNAL(oneGateProductSignal(PRODUCT_TYPES, bool, int, int)), 
+            &productsSource, SLOT(oneGateSlot(PRODUCT_TYPES, bool, int,int)));
 
-    QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)), &tsSource, SLOT(alongBeamSlot(int, bool)));
-    QObject::connect(&scope, SIGNAL(alongBeamSignal(int, bool)), &productsSource, SLOT(alongBeamSlot(int, bool)));
+    QObject::connect(&scope, SIGNAL(alongBeamTSSignal(int, bool)), 
+            &tsSource, SLOT(alongBeamSlot(int, bool)));
+    QObject::connect(&scope, SIGNAL(alongBeamProductSignal(PRODUCT_TYPES, bool)), 
+            &productsSource, SLOT(alongBeamSlot(PRODUCT_TYPES, bool)));
 
     // connect the gate list signal to the scope
     QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>)), &scope, SLOT(tsGateListSlot(std::vector<int>)));

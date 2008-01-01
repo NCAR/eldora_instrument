@@ -20,6 +20,9 @@
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
 
+// Symbolic names for product types
+#include "ProductTypes.h"
+
 /** 
  EldoraScope provides a traditional real-time Ascope display of 
  eldora time series data and computed products. It is implmented
@@ -67,38 +70,47 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
             TS_SPECTRUM_PLOT ///<  time series power spectrum plot 
         };
 
-        /// Product plot types.
-        enum PRODUCT_PLOT_TYPES {
-            PROD_P,   ///< P (from ABP)
-            PROD_DBM, ///< dBm 
-            PROD_DBZ, ///< dBz
-            PROD_SNR, ///< SNR
-            PROD_VEL, ///< velocity
-            PROD_WIDTH, ///< spectral width
-        };
-
-    public:
+     public:
         EldoraScope(
                 QDialog* parent = 0);
         virtual ~EldoraScope();
 
     signals:
 
-        /// Emitted to announce that data should be delivered in ONE_GATE mode.
-        /// @param channel The selected channel
-        /// @param gate The selected gate
-        /// @param n The number of points to deliver for the selected gate
-        void oneGateSignal(
-                int channel,
-                    bool forwardRadar,
-                    int gate,
-                    int n);
-        /// emmited to indicate that data should be delivered for 
-        /// all gates along a beam
-        /// @param channel The selected channel
-        void alongBeamSignal(
-                int channel,
-                bool forwardRadar);
+    /// Emitted to announce that TS data should be delivered 
+    /// in ONE_GATE mode.
+    /// @param channel The selected channel
+    /// @param gate The selected gate
+    /// @param n The number of points to deliver for the selected gate
+    void oneGateTSSignal(
+            int channel,
+                bool forwardRadar,
+                int gate,
+                int n);
+    /// emmited to indicate that TS data should be delivered for 
+    /// all gates along a beam
+    /// @param channel The selected channel
+    void alongBeamTSSignal(
+            int channel,
+            bool forwardRadar);
+    
+    /// Emitted to announce that Product data should be delivered 
+    /// in ONE_GATE mode.
+    /// @param product The selected product
+    /// @param gate The selected gate
+    /// @param n The number of points to deliver for the selected gate
+    void oneGateProductSignal(
+            PRODUCT_TYPES product,
+                bool forwardRadar,
+                int gate,
+                int n);
+    /// emmited to indicate that Product data should be delivered for 
+    /// all gates along a beam
+    /// @param channel The selected channel
+    void alongBeamProductSignal(
+            PRODUCT_TYPES product,
+            bool forwardRadar);
+    
     public slots:
         /// Feed new timeseries data via this slot. The data 
         /// vectors must be of the same length and non-zero; otherwise they
@@ -135,7 +147,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void plotTypeChange(
                 PlotInfo* pi,
                     TS_PLOT_TYPES plotType,
-                    PRODUCT_PLOT_TYPES prodType,
+                    PRODUCT_TYPES prodType,
                     bool pulsePlot);
         /// A different tab has been selected. Change the plot type to the
         /// currently selected button on that tab.
@@ -241,7 +253,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// The current selected plot type.
         TS_PLOT_TYPES _tsPlotType;
         /// The current selected product type.
-        PRODUCT_PLOT_TYPES _productPlotType;
+        PRODUCT_TYPES _productPlotType;
         // The builtin timer will be used to calculate beam statistics.
         void timerEvent(
                 QTimerEvent*);
@@ -283,15 +295,15 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// For each TS_PLOT_TYPES, there will be an entry in this map.
         std::map<TS_PLOT_TYPES, PlotInfo> _tsPlotInfo;
         /// For each PRODUCT_PLOT_TYPES, there will be an entry in this map.
-        std::map<PRODUCT_PLOT_TYPES, PlotInfo> _productPlotInfo;
+        std::map<PRODUCT_TYPES, PlotInfo> _productPlotInfo;
         /// This set contains PLOTTYPEs for all timeseries plots
         std::set<TS_PLOT_TYPES> _timeSeriesPlots;
         /// This set contains PLOTTYPEs for all raw data plots
         std::set<TS_PLOT_TYPES> _pulsePlots;
         /// This set contains PLOTTYPEs for all S band moments plots
-        std::set<PRODUCT_PLOT_TYPES> _productPlots;
+        std::set<PRODUCT_TYPES> _productPlots;
         /// This set contains PLOTTYPEs for all X band moments plots
-        std::set<PRODUCT_PLOT_TYPES> _xMomentsPlots;
+        std::set<PRODUCT_TYPES> _xMomentsPlots;
         /// save the button group for each tab,
         /// so that we can find the selected button
         /// and change the plot type when tabs are switched.
@@ -310,7 +322,7 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// belong to.
         QButtonGroup* addProductTypeTab(
                 std::string tabName,
-                    std::set<PRODUCT_PLOT_TYPES> types);
+                    std::set<PRODUCT_TYPES> types);
         /// add a products tab to the plot type selection tab widget.
         /// Radio buttons are created for all of specified
         /// plty types, and grouped into one button group.

@@ -68,24 +68,6 @@ class EldoraQtSource : public QThread {
         /// Called when the rate timer times out.
         void rateTimeoutSlot();
 
-        /// Set the gate mode to ONE_GATE.
-        /// @param channel The channel number (1-4)
-        /// @param forwardRadar True if forward radar, false if aft
-        /// @param gate The gate to send in
-        /// @param n The number of points
-        virtual void oneGateSlot(
-                int channel,
-                    bool forwardRadar,
-                    int gate,
-                    int n);
-
-        /// Set the gate mode to along beam.
-        /// @param channel The channel number (1-4)
-        /// @param forwardRadar True if forward radar, false if aft
-        virtual void alongBeamSlot(
-                int channel,
-                    bool forwardRadar);
-
         /// Notify that we are shutting down. Derived classes
         /// should override this if they need to handle a shutdown.
         virtual void shutdown();
@@ -121,9 +103,6 @@ class EldoraQtSource : public QThread {
 
         /// the rate at which to deliver data blocks to the client
         double _outputRate;
-
-        /// The selected channel to send to the client
-        unsigned int _channel;
 
         /// True if we are looking at the forward radar, false otherwise
         bool _forwardRadar;

@@ -71,7 +71,7 @@ EldoraScope::EldoraScope(
     channelButtonGroup->addButton(_chan2, 2);
     channelButtonGroup->addButton(_chan3, 3);
     channelButtonGroup->addButton(_chan4, 4);
-    
+
     // configure the radar selection
     _forwardRadar = true;
     _foreRadar->setChecked(true);
@@ -79,7 +79,6 @@ EldoraScope::EldoraScope(
     QButtonGroup* radarButtonGroup = new QButtonGroup();
     radarButtonGroup->addButton(_foreRadar, true);
     radarButtonGroup->addButton(_aftRadar, false);
-    
 
     // connect the controls
     connect(_autoScale, SIGNAL(released()), this, SLOT(autoScaleSlot()));
@@ -179,19 +178,18 @@ void EldoraScope::initFFT() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraScope::productSlot(std::vector<double> p) {
+void EldoraScope::productSlot(
+        std::vector<double> p) {
     if (_paused)
         return;
-    
+
     processProduct(p);
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::timeSeriesSlot(
-        std::vector<double> I,
-            std::vector<double> Q,
-            double sampleRateHz,
-            double tuningFreqHz) {
+        std::vector<double> I, std::vector<double> Q, double sampleRateHz,
+        double tuningFreqHz) {
     if (_paused)
         return;
 
@@ -202,9 +200,7 @@ void EldoraScope::timeSeriesSlot(
 void EldoraScope::saveImageSlot() {
     QString f = _config.getString("imageSaveDirectory", "c:/").c_str();
 
-    QFileDialog d(this,
-            tr("Save EldoraScope Image"),
-            f,
+    QFileDialog d( this, tr("Save EldoraScope Image"), f,
             tr("PNG files (*.png);;All files (*.*)"));
     d.setFileMode(QFileDialog::AnyFile);
     d.setViewMode(QFileDialog::Detail);
@@ -226,8 +222,7 @@ void EldoraScope::saveImageSlot() {
 }
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::processTimeSeries(
-        std::vector<double>& Idata,
-            std::vector<double>& Qdata) {
+        std::vector<double>& Idata, std::vector<double>& Qdata) {
     if (!_timeSeriesPlot)
         return;
 
@@ -257,19 +252,20 @@ void EldoraScope::processTimeSeries(
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraScope::processProduct(std::vector<double>& p) {
+void EldoraScope::processProduct(
+        std::vector<double>& p) {
     // if we are displaying a raw plot, just ignore
     if (_timeSeriesPlot)
         return;
 
     _ProductData.resize(p.size());
     _ProductData = p;
-    
-    PRODUCT_PLOT_TYPES prodType;
 
-//    if (prodType == _productPlotType) {
-        displayData();
-//    }
+    PRODUCT_TYPES prodType;
+
+    //    if (prodType == _productPlotType) {
+    displayData();
+    //    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -285,7 +281,8 @@ void EldoraScope::displayData() {
         PlotInfo* pi = &_tsPlotInfo[_tsPlotType];
 
         std::string xlabel;
-        ScopePlot::PLOTTYPE displayType = (ScopePlot::PLOTTYPE) pi->getDisplayType();
+        ScopePlot::PLOTTYPE displayType =
+                (ScopePlot::PLOTTYPE) pi->getDisplayType();
         switch (displayType) {
         case ScopePlot::TIMESERIES:
             if (_performAutoScale)
@@ -302,13 +299,9 @@ void EldoraScope::displayData() {
         case ScopePlot::SPECTRUM:
             if (_performAutoScale)
                 autoScale(_spectrum, displayType);
-            _scopePlot->Spectrum(_spectrum,
-                    _specGraphCenter-_specGraphRange /2.0,
-                    _specGraphCenter+_specGraphRange/2.0,
-                    1000000,
-                    false,
-                    "Frequency (Hz)",
-                    "Power (dB)");
+            _scopePlot->Spectrum(_spectrum, _specGraphCenter-_specGraphRange
+                    /2.0, _specGraphCenter+_specGraphRange/2.0, 1000000, false,
+                    "Frequency (Hz)", "Power (dB)");
             break;
         }
 
@@ -319,20 +312,14 @@ void EldoraScope::displayData() {
         // send in the product id, which ScopePlot::Product() uses
         // to decide if axis rescaling is needed.
         PlotInfo* pi = &_productPlotInfo[_productPlotType];
-        _scopePlot->Product(_ProductData,
-                pi->getId(),
-                yBottom,
-                yTop,
-                _ProductData.size(),
-                "Gate",
-                pi->getLongName());
+        _scopePlot->Product(_ProductData, pi->getId(), yBottom, yTop,
+                _ProductData.size(), "Gate", pi->getLongName());
     }
 }
 
 //////////////////////////////////////////////////////////////////////
 double EldoraScope::powerSpectrum(
-        std::vector<double>& Idata,
-            std::vector<double>& Qdata) {
+        std::vector<double>& Idata, std::vector<double>& Qdata) {
 
     int blockSize = _blockSizeChoices[_blockSizeIndex];
 
@@ -408,17 +395,13 @@ void EldoraScope::plotTypeSlot(
     if (pageNum == 0) {
         // change to a raw plot type
         TS_PLOT_TYPES plotType = (TS_PLOT_TYPES)ptype;
-        plotTypeChange(&_tsPlotInfo[plotType],
-                plotType,
-                (PRODUCT_PLOT_TYPES)0 ,
-                true);
+        plotTypeChange( &_tsPlotInfo[plotType], plotType,
+                (PRODUCT_TYPES)0 , true);
     } else {
         // change to a product plot type
-        PRODUCT_PLOT_TYPES productType = (PRODUCT_PLOT_TYPES)ptype;
-        plotTypeChange(&_productPlotInfo[productType],
-                (TS_PLOT_TYPES)0,
-                productType,
-                false);
+        PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
+        plotTypeChange( &_productPlotInfo[productType], (TS_PLOT_TYPES)0,
+                productType, false);
     }
 }
 //////////////////////////////////////////////////////////////////////
@@ -434,26 +417,20 @@ void EldoraScope::tabChangeSlot(
     if (pageNum == 0) {
         // change to a raw plot type
         TS_PLOT_TYPES plotType = (TS_PLOT_TYPES)ptype;
-        plotTypeChange(&_tsPlotInfo[plotType],
-                plotType,
-                (PRODUCT_PLOT_TYPES)0 ,
-                true);
+        plotTypeChange( &_tsPlotInfo[plotType], plotType,
+                (PRODUCT_TYPES)0 , true);
     } else {
         // change to a product plot type
-        PRODUCT_PLOT_TYPES productType = (PRODUCT_PLOT_TYPES)ptype;
-        plotTypeChange(&_productPlotInfo[productType],
-                (TS_PLOT_TYPES)0,
-                productType,
-                false);
+        PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
+        plotTypeChange( &_productPlotInfo[productType], (TS_PLOT_TYPES)0,
+                productType, false);
     }
 }
 
 ////////////////////////////////////////////////////////////////////
 void EldoraScope::plotTypeChange(
-        PlotInfo* pi,
-            TS_PLOT_TYPES newPlotType,
-            PRODUCT_PLOT_TYPES newProductType,
-            bool isTsPlot) {
+        PlotInfo* pi, TS_PLOT_TYPES newPlotType,
+        PRODUCT_TYPES newProductType, bool isTsPlot) {
 
     // save the gain and offset of the current plot type
     PlotInfo* currentPi;
@@ -481,6 +458,9 @@ void EldoraScope::plotTypeChange(
 
     // set flag indicating if new plot is a timeseries type
     _timeSeriesPlot = isTsPlot;
+    
+    // send the data mode to the data sources.
+    dataMode();
 
 }
 
@@ -491,104 +471,46 @@ void EldoraScope::initPlots() {
     _pulsePlots.insert(TS_IVSQ_PLOT);
     _pulsePlots.insert(TS_SPECTRUM_PLOT);
 
-    _productPlots.insert(PROD_P);
+    _productPlots.insert(PROD_P1);
+    _productPlots.insert(PROD_P2);
+    _productPlots.insert(PROD_P3);
+    _productPlots.insert(PROD_P4);
     _productPlots.insert(PROD_DBM);
     _productPlots.insert(PROD_DBZ);
     _productPlots.insert(PROD_WIDTH);
     _productPlots.insert(PROD_VEL);
     _productPlots.insert(PROD_SNR);
+    _productPlots.insert(PROD_NCP);
 
     _tsPlotInfo[TS_TIMESERIES_PLOT] = PlotInfo(TS_TIMESERIES_PLOT,
-            SCOPE_PLOT_TIMESERIES,
-            "I and Q",
-            "S:  I and Q",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _tsPlotInfo[TS_IVSQ_PLOT] = PlotInfo(TS_IVSQ_PLOT,
-            SCOPE_PLOT_IVSQ,
-            "I vs Q",
-            "S:  I vs Q",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
+            SCOPE_PLOT_TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0,
+            -5.0, 5.0, 0.0);
+    _tsPlotInfo[TS_IVSQ_PLOT] = PlotInfo(TS_IVSQ_PLOT, SCOPE_PLOT_IVSQ,
+            "I vs Q", "S:  I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _tsPlotInfo[TS_SPECTRUM_PLOT] = PlotInfo(TS_SPECTRUM_PLOT,
-            SCOPE_PLOT_SPECTRUM,
-            "Power Spectrum",
-            "S:  Power Spectrum",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
+            SCOPE_PLOT_SPECTRUM, "Power Spectrum", "S:  Power Spectrum", -5.0,
+            5.0, 0.0, -5.0, 5.0, 0.0);
 
-    _productPlotInfo[PROD_P] = PlotInfo(PROD_P,
-            SCOPE_PLOT_PRODUCT,
-            "P",
-            "P (from ABP)",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_DBM] = PlotInfo(PROD_DBM,
-            SCOPE_PLOT_PRODUCT,
-            "Dbm",
-            "Dbm",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ,
-            SCOPE_PLOT_PRODUCT,
-            "Dbz",
-            "Dbz",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_WIDTH] = PlotInfo(PROD_WIDTH,
-            SCOPE_PLOT_PRODUCT,
-            "Width",
-            "Width",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_VEL] = PlotInfo(PROD_VEL,
-            SCOPE_PLOT_PRODUCT,
-            "Velocity",
-            "Velocity",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
-    _productPlotInfo[PROD_SNR] = PlotInfo(PROD_SNR,
-            SCOPE_PLOT_PRODUCT,
-            "SNR",
-            "SNR",
-            -5.0,
-            5.0,
-            0.0,
-            -5.0,
-            5.0,
-            0.0);
+    _productPlotInfo[PROD_P1] = PlotInfo(PROD_P1, SCOPE_PLOT_PRODUCT, "P1",
+            "P Channel 1", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_P2] = PlotInfo(PROD_P2, SCOPE_PLOT_PRODUCT, "P2",
+            "P Channel 2", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_P3] = PlotInfo(PROD_P3, SCOPE_PLOT_PRODUCT, "P3",
+            "P Channel 3", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_P4] = PlotInfo(PROD_P4, SCOPE_PLOT_PRODUCT, "P4",
+            "P Channel 4", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_DBM] = PlotInfo(PROD_DBM, SCOPE_PLOT_PRODUCT, "Dbm",
+            "Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ, SCOPE_PLOT_PRODUCT, "Dbz",
+            "Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_WIDTH] = PlotInfo(PROD_WIDTH, SCOPE_PLOT_PRODUCT,
+            "Width", "Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_VEL] = PlotInfo(PROD_VEL, SCOPE_PLOT_PRODUCT,
+            "Velocity", "Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_SNR] = PlotInfo(PROD_SNR, SCOPE_PLOT_PRODUCT, "SNR",
+            "SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_NCP] = PlotInfo(PROD_NCP, SCOPE_PLOT_PRODUCT, "NCP",
+            "NCP", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
     // remove the one tab that was put there by designer
     _typeTab->removeTab(0);
@@ -608,8 +530,7 @@ void EldoraScope::initPlots() {
 
 //////////////////////////////////////////////////////////////////////
 QButtonGroup* EldoraScope::addTSTypeTab(
-        std::string tabName,
-            std::set<TS_PLOT_TYPES> types) {
+        std::string tabName, std::set<TS_PLOT_TYPES> types) {
     // The page that will be added to the tab widget
     QWidget* pPage = new QWidget;
     // the layout manager for the page, will contain the buttons
@@ -651,8 +572,7 @@ QButtonGroup* EldoraScope::addTSTypeTab(
 
 //////////////////////////////////////////////////////////////////////
 QButtonGroup* EldoraScope::addProductTypeTab(
-        std::string tabName,
-            std::set<PRODUCT_PLOT_TYPES> types) {
+        std::string tabName, std::set<PRODUCT_TYPES> types) {
     // The page that will be added to the tab widget
     QWidget* pPage = new QWidget;
     // the layout manager for the page, will contain the buttons
@@ -660,7 +580,7 @@ QButtonGroup* EldoraScope::addProductTypeTab(
     // the button group manager, which has nothing to do with rendering
     QButtonGroup* pGroup = new QButtonGroup;
 
-    std::set<PRODUCT_PLOT_TYPES>::iterator i;
+    std::set<PRODUCT_TYPES>::iterator i;
 
     for (i = types.begin(); i != types.end(); i++) {
         // create the radio button
@@ -774,8 +694,7 @@ void EldoraScope::dnSlot() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
-        std::vector<double>& data,
-        ScopePlot::PLOTTYPE displayType) {
+        std::vector<double>& data, ScopePlot::PLOTTYPE displayType) {
     _performAutoScale = false;
     if (data.size() == 0)
         return;
@@ -783,16 +702,15 @@ void EldoraScope::autoScale(
     // find the min and max
     double min = *std::min_element(data.begin(), data.end());
     double max = *std::max_element(data.begin(), data.end());
-   
+
     // adjust the gains
     adjustGainOffset(min, max, displayType);
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
-        std::vector<double>& data1,
-            std::vector<double>& data2,
-            ScopePlot::PLOTTYPE displayType) {
+        std::vector<double>& data1, std::vector<double>& data2,
+        ScopePlot::PLOTTYPE displayType) {
     _performAutoScale = false;
     if (data1.size() == 0 || data2.size() == 0)
         return;
@@ -813,20 +731,18 @@ void EldoraScope::autoScale(
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::adjustGainOffset(
-        double min,
-            double max,
-            ScopePlot::PLOTTYPE displayType) {
-    if (displayType == ScopePlot::SPECTRUM){
+        double min, double max, ScopePlot::PLOTTYPE displayType) {
+    if (displayType == ScopePlot::SPECTRUM) {
         // currently in spectrum plot mode
         _specGraphCenter = min + (max-min)/2.0;
         _specGraphRange = 3*(max-min);
-        _knobGain      = -log10(_specGraphRange);
- //       _gainKnob->setValue();
+        _knobGain = -log10(_specGraphRange);
+        //       _gainKnob->setValue();
     } else {
         double factor = 0.8;
         _xyGraphCenter = (min+max)/2.0;
-        _xyGraphRange  = (1/factor)*(max - min)/2.0;
-        _knobGain      = -log10(_xyGraphRange);
+        _xyGraphRange = (1/factor)*(max - min)/2.0;
+        _knobGain = -log10(_xyGraphRange);
         _gainKnob->setValue(_knobGain);
     }
 }
@@ -844,13 +760,20 @@ void EldoraScope::pauseSlot(
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::dataMode() {
-    if (_gateMode == ONE_GATE) {
-emit         		                                                oneGateSignal(_channel,
-                _forwardRadar,
-                _gateChoice,
-                _blockSizeChoices[_blockSizeIndex]);
+    if (_timeSeriesPlot) {
+        if (_gateMode == ONE_GATE) {
+           emit oneGateTSSignal(_channel, _forwardRadar, _gateChoice,
+                    _blockSizeChoices[_blockSizeIndex]);
+        } else {
+           emit alongBeamTSSignal(_channel, _forwardRadar);
+        }
     } else {
-emit         		                                                alongBeamSignal(_channel, _forwardRadar);
+        if (_gateMode == ONE_GATE) {
+           emit oneGateProductSignal(_productPlotType, _forwardRadar, _gateChoice,
+                    _blockSizeChoices[_blockSizeIndex]);
+        } else {
+           emit alongBeamProductSignal(_productPlotType, _forwardRadar);
+        }
     }
 }
 
@@ -891,7 +814,7 @@ void EldoraScope::radarSlot(
     _forwardRadar = forwardRadar,
     // tell the data source about our decision
 
-    dataMode();
+            dataMode();
 }//////////////////////////////////////////////////////////////////////
 void EldoraScope::gateChoiceSlot(
         int index) {
@@ -910,8 +833,7 @@ void EldoraScope::blockSizeSlot(
 ////////////////////////////////////////////////////////////////////////
 
 double EldoraScope::zeroMomentFromTimeSeries(
-        std::vector<double>& I,
-            std::vector<double>& Q) {
+        std::vector<double>& I, std::vector<double>& Q) {
     double p = 0;
     int n = I.size();
 

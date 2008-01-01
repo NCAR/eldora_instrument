@@ -75,6 +75,9 @@ Q_OBJECT
         /// The selected radar, either forward or aft
         EldoraDDS::RadarChoice _radarId;
 
+        /// The selected channel to send to the client
+        unsigned int _channel;
+
         /// The collection of available gates in the timeseries
         std::vector<int> _gates;
 
