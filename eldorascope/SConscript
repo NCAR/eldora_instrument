@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc', 'qtt_knob', 'qtt_qtconfig', 'sdrscope']
+tools = ['default', 'ddssvc', 'qtt_knob', 'qtt_qtconfig', 'qtt_scopeplot', 'fftw', 'utilities']
 env = Environment(tools = tools)
 
 # libraries:

@@ -1,5 +1,6 @@
 #include "RR314.h"
 #include "RR314sim.h"
+#include "SignalCatcher.h"
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -35,9 +36,11 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
 	pthread_cond_init(&_dataAvailCond, NULL);
 
     // capture signals
-    if (_catchSignals)
-        catchSignals();
-
+	
+    if (_catchSignals) {
+//        SignalCatcher::instance()->configure(0, shutdownSignalHandler);
+    }
+        
     if (simulate) {
         std::cout
                 << "*** RR314 operating in simulation mode, without hardware\n";
@@ -274,31 +277,6 @@ bool RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 	}
 
 	return kaiserLoaded && gaussianLoaded;
-
-}
-
-//////////////////////////////////////////////////////////////////////
-void RR314::catchSignals() {
-
-	// install signal handler for abort signals
-	struct sigaction new_action, old_action;
-
-	/* Set up the structure to specify the new action. */
-	new_action.sa_handler = shutdownSignalHandler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	sigaction(SIGINT, NULL, &old_action);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGINT, &new_action, NULL);
-	sigaction(SIGHUP, NULL, &old_action);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGHUP, &new_action, NULL);
-	sigaction(SIGTERM, NULL, &old_action);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGTERM, &new_action, NULL);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGSEGV, &new_action, NULL);
 
 }
 
@@ -915,7 +893,7 @@ double RR314::temperature() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void shutdownSignalHandler(int signo) {
+void shutdownSignalHandler(int signo, void* userData) {
 
 	// stop all RR314 cards amd free their DMA allocations
 	// iterate through all instances of RR314
@@ -930,11 +908,4 @@ void shutdownSignalHandler(int signo) {
 		p->second->RR314shutdown();
 
 	}
-
-	// if it was a segv, produce a core dump
-	if (signo == SIGSEGV)
-		abort();
-
-	std::cout << "caught signal; exiting...\n";
-	exit(1);
 }

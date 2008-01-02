@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc']
+tools = ['ddssvc', 'utilities']
 env = Environment(tools = ['default'] + tools)
 
 redRapidsDevelDir = os.path.join('#', 'redrapids', 

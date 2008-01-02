@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc']
+tools = ['default', 'ddssvc', 'utilities']
 env = Environment(tools = tools)
 
 # libraries:

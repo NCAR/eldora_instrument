@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'qtt_qtconfig']
+tools = ['ddssvc', 'qtt_qtconfig', 'utilities']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:

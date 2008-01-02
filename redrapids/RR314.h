@@ -40,7 +40,9 @@
 /// various shutdown signals. It's job is to force windrvr6 
 /// to return memory. Signal handlers are register ted call 
 /// this routine when some signals are received.
-void shutdownSignalHandler(int signo);
+/// @param signo The signal number will be delivered here.
+/// @param userData User data is delivered here, but unused in this function.
+void shutdownSignalHandler(int signo, void* userData);
 
 namespace RedRapids {
 
@@ -231,10 +233,6 @@ public:
 	int boardNumber();
 
 protected:
-
-	/// Configure ignal catching so that DMA operations
-	/// and memory can be cleaned up on a signal.
-	void catchSignals();
 
 	/// Configure the card and DMA operations.
 	int configure314();

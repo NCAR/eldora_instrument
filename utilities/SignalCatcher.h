@@ -45,8 +45,11 @@ class SignalCatcher {
     protected:
         SignalCatcher();
     private:
+        /// The user variables which will be set to the signal number.
         std::vector<int*> _signalFlags;
+        /// The user callback funtions to be called.
         std::vector<pf> _userFunctions;
+        /// The user data to be passed to the callback functions.
         std::vector<void*> _userData;
 };
 #endif /*SIGNALCATCHER_H_*/
