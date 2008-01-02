@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.306"
+    ComputedModelVersion    "1.309"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -43,8 +43,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Oct 23 10:59:06 2007"
-  ModelVersionFormat	  "1.%<AutoIncrement:306>"
+  LastModifiedDate	  "Wed Jan 02 14:38:55 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:309>"
   ConfigurationManager	  "None"
   LinearizationMsg	  "none"
   Profile		  off
@@ -523,9 +523,6 @@ Model {
       InitialOutput	      "[]"
     }
     Block {
-      BlockType		      Reference
-    }
-    Block {
       BlockType		      Scope
       ModelBased	      off
       TickLabels	      "OneTimeTick"
@@ -621,7 +618,7 @@ Model {
   }
   System {
     Name		    "PulsePairProc"
-    Location		    [6, 82, 1274, 970]
+    Location		    [2, 78, 1598, 1150]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -731,8 +728,8 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "(M)"
-      Position		      [25, 310, 95, 340]
-      Value		      "11"
+      Position		      [25, 320, 95, 350]
+      Value		      "27"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
       OutDataTypeMode	      "Inherit from 'Constant value'"
@@ -745,7 +742,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "(N)"
-      Position		      [25, 374, 95, 406]
+      Position		      [25, 389, 95, 421]
       Value		      "4"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -760,7 +757,7 @@ Model {
       BlockType		      Reference
       Name		      "AData"
       Ports		      [1, 1]
-      Position		      [630, 270, 690, 290]
+      Position		      [630, 255, 690, 275]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -791,7 +788,7 @@ Model {
       BlockType		      Sum
       Name		      "Add1"
       Ports		      [2, 1]
-      Position		      [755, 595, 785, 735]
+      Position		      [755, 580, 785, 720]
       InputSameDT	      off
       OutDataTypeMode	      "Inherit via internal rule"
       OutScaling	      "2^-10"
@@ -801,7 +798,7 @@ Model {
       BlockType		      Sum
       Name		      "Add3"
       Ports		      [2, 1]
-      Position		      [725, 455, 755, 595]
+      Position		      [725, 440, 755, 580]
       InputSameDT	      off
       OutDataTypeMode	      "Inherit via internal rule"
       OutScaling	      "2^-10"
@@ -811,7 +808,7 @@ Model {
       BlockType		      Reference
       Name		      "BData"
       Ports		      [1, 1]
-      Position		      [630, 340, 690, 360]
+      Position		      [630, 325, 690, 345]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -848,8 +845,8 @@ Model {
     Block {
       BlockType		      SubSystem
       Name		      "Data Display"
-      Ports		      [6, 3]
-      Position		      [860, 175, 970, 595]
+      Ports		      [7, 4]
+      Position		      [865, 163, 980, 647]
       BackgroundColor	      "gray"
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
@@ -858,7 +855,7 @@ Model {
       System {
 	Name			"Data Display"
 	Location		[2, 82, 1270, 978]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -912,6 +909,13 @@ Model {
 	  IconDisplay		  "Port number"
 	}
 	Block {
+	  BlockType		  Inport
+	  Name			  "Sync Error"
+	  Position		  [55, 633, 85, 647]
+	  Port			  "7"
+	  IconDisplay		  "Port number"
+	}
+	Block {
 	  BlockType		  Mux
 	  Name			  "Mux"
 	  Ports			  [4, 1]
@@ -955,6 +959,14 @@ Model {
 	  Name			  "B Scope"
 	  Position		  [245, 503, 275, 517]
 	  Port			  "3"
+	  IconDisplay		  "Port number"
+	  BusOutputAsStruct	  off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Sync Error Scope"
+	  Position		  [240, 633, 270, 647]
+	  Port			  "4"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
 	}
@@ -1057,13 +1069,19 @@ Model {
 	  DstBlock		  "Mux2"
 	  DstPort		  3
 	}
+	Line {
+	  SrcBlock		  "Sync Error"
+	  SrcPort		  1
+	  DstBlock		  "Sync Error Scope"
+	  DstPort		  1
+	}
       }
     }
     Block {
       BlockType		      Reference
       Name		      "Gate1"
       Ports		      [1, 1]
-      Position		      [315, 445, 380, 465]
+      Position		      [315, 465, 380, 485]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1099,7 +1117,7 @@ Model {
       BlockType		      Reference
       Name		      "Gate2"
       Ports		      [1, 1]
-      Position		      [315, 510, 380, 530]
+      Position		      [315, 535, 380, 555]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1135,7 +1153,7 @@ Model {
       BlockType		      Reference
       Name		      "IQData"
       Ports		      [1, 1]
-      Position		      [630, 200, 690, 220]
+      Position		      [630, 185, 690, 205]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1166,7 +1184,7 @@ Model {
       BlockType		      Reference
       Name		      "IQGate1"
       Ports		      [1, 1]
-      Position		      [630, 480, 690, 500]
+      Position		      [630, 465, 690, 485]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1197,7 +1215,7 @@ Model {
       BlockType		      Reference
       Name		      "IQGate2"
       Ports		      [1, 1]
-      Position		      [630, 550, 690, 570]
+      Position		      [630, 535, 690, 555]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1228,7 +1246,7 @@ Model {
       BlockType		      Reference
       Name		      "IQ_Index"
       Ports		      [1, 1]
-      Position		      [315, 640, 380, 660]
+      Position		      [315, 675, 380, 695]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1264,7 +1282,7 @@ Model {
       BlockType		      Reference
       Name		      "IQ_Length"
       Ports		      [1, 1]
-      Position		      [315, 705, 380, 725]
+      Position		      [315, 745, 380, 765]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1335,7 +1353,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Index"
-      Position		      [30, 635, 100, 665]
+      Position		      [30, 670, 100, 700]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -1349,7 +1367,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Length"
-      Position		      [30, 699, 100, 731]
+      Position		      [30, 739, 100, 771]
       Value		      "7"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -1364,14 +1382,14 @@ Model {
       BlockType		      Reference
       Name		      "M"
       Ports		      [1, 1]
-      Position		      [315, 315, 380, 335]
+      Position		      [315, 325, 380, 345]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
 "link integer, double and fixed point to  Xilinx fixed point type.<P><P>Hardwa"
 "re notes:  In hardware these blocks become top level input ports."
       arith_type	      "Unsigned"
-      n_bits		      "11"
+      n_bits		      "10"
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Flag as error"
@@ -1400,7 +1418,7 @@ Model {
       BlockType		      Reference
       Name		      "Manual Switch"
       Ports		      [2, 1]
-      Position		      [165, 502, 195, 538]
+      Position		      [175, 527, 205, 563]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      on
@@ -1418,7 +1436,25 @@ Model {
       BlockType		      Reference
       Name		      "Manual Switch1"
       Ports		      [2, 1]
-      Position		      [165, 567, 195, 603]
+      Position		      [175, 597, 205, 633]
+      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+      SourceType	      "Manual Switch"
+      ShowPortLabels	      on
+      SystemSampleTime	      "-1"
+      FunctionWithSeparateData off
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      sw		      "0"
+      action		      "0"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Manual Switch2"
+      Ports		      [2, 1]
+      Position		      [175, 457, 205, 493]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      on
@@ -1436,7 +1472,7 @@ Model {
       BlockType		      Reference
       Name		      "N"
       Ports		      [1, 1]
-      Position		      [315, 380, 380, 400]
+      Position		      [315, 395, 380, 415]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1534,7 +1570,7 @@ Model {
       BlockType		      Reference
       Name		      "PData"
       Ports		      [1, 1]
-      Position		      [630, 410, 690, 430]
+      Position		      [630, 395, 690, 415]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1565,7 +1601,7 @@ Model {
       BlockType		      Reference
       Name		      "PPGate1"
       Ports		      [1, 1]
-      Position		      [630, 620, 690, 640]
+      Position		      [630, 605, 690, 625]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1596,7 +1632,7 @@ Model {
       BlockType		      Reference
       Name		      "PPGate2"
       Ports		      [1, 1]
-      Position		      [630, 690, 690, 710]
+      Position		      [630, 675, 690, 695]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1627,17 +1663,17 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse"
       Ports		      [0, 1]
-      Position		      [25, 441, 70, 469]
+      Position		      [25, 451, 70, 479]
       PulseType		      "Time based"
-      Period		      "22/12e6"
+      Period		      "54/12e6"
       PulseWidth	      "50"
       PhaseDelay	      "20/12e6"
     }
     Block {
       BlockType		      SubSystem
       Name		      "Pulse Pair Processor"
-      Ports		      [9, 8]
-      Position		      [450, 165, 560, 745]
+      Ports		      [9, 9]
+      Position		      [450, 164, 560, 786]
       BackgroundColor	      "lightBlue"
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
@@ -1646,7 +1682,7 @@ Model {
       System {
 	Name			"Pulse Pair Processor"
 	Location		[0, 82, 1268, 1000]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -1724,7 +1760,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Calc"
 	  Ports			  [9, 11]
-	  Position		  [120, 28, 240, 492]
+	  Position		  [120, 38, 240, 482]
 	  BackgroundColor	  "cyan"
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
@@ -1819,7 +1855,7 @@ Model {
 	      infoedit		      "Concatenates two or more inputs.  Outpu"
 "t will be cast to an unsigned value with the binary point at zero."
 	      num_inputs	      "2"
-	      dbl_ovrd		      "off"
+	      dbl_ovrd		      off
 	      has_advanced_control    "0"
 	      sggui_pos		      "-1,-1,-1,-1"
 	      block_type	      "concat"
@@ -1845,11 +1881,11 @@ Model {
 	      infoedit		      "Hardware notes: A delay line is a chain"
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
-	      en		      "off"
+	      en		      off
 	      latency		      "6"
-	      dbl_ovrd		      "off"
-	      reg_retiming	      "off"
-	      xl_use_area	      "off"
+	      dbl_ovrd		      off
+	      reg_retiming	      off
+	      xl_use_area	      off
 	      xl_area		      "[0,0,0,0,0,0,0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,251"
@@ -1874,11 +1910,11 @@ Model {
 	      infoedit		      "Hardware notes: A delay line is a chain"
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
-	      en		      "off"
+	      en		      off
 	      latency		      "4"
-	      dbl_ovrd		      "off"
-	      reg_retiming	      "off"
-	      xl_use_area	      "off"
+	      dbl_ovrd		      off
+	      reg_retiming	      off
+	      xl_use_area	      off
 	      xl_area		      "[0,0,0,0,0,0,0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,251"
@@ -1903,11 +1939,11 @@ Model {
 	      infoedit		      "Hardware notes: A delay line is a chain"
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
-	      en		      "off"
+	      en		      off
 	      latency		      "4"
-	      dbl_ovrd		      "off"
-	      reg_retiming	      "off"
-	      xl_use_area	      "off"
+	      dbl_ovrd		      off
+	      reg_retiming	      off
+	      xl_use_area	      off
 	      xl_area		      "[0,0,0,0,0,0,0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,251"
@@ -1932,11 +1968,11 @@ Model {
 	      infoedit		      "Hardware notes: A delay line is a chain"
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
-	      en		      "off"
+	      en		      off
 	      latency		      "6"
-	      dbl_ovrd		      "off"
-	      reg_retiming	      "off"
-	      xl_use_area	      "off"
+	      dbl_ovrd		      off
+	      reg_retiming	      off
+	      xl_use_area	      off
 	      xl_area		      "[0,0,0,0,0,0,0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,251"
@@ -1961,11 +1997,11 @@ Model {
 	      infoedit		      "Hardware notes: A delay line is a chain"
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
-	      en		      "off"
+	      en		      off
 	      latency		      "6"
-	      dbl_ovrd		      "off"
-	      reg_retiming	      "off"
-	      xl_use_area	      "off"
+	      dbl_ovrd		      off
+	      reg_retiming	      off
+	      xl_use_area	      off
 	      xl_area		      "[0,0,0,0,0,0,0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,251"
@@ -2041,9 +2077,9 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/AddSub"
 		  SourceType		  "Xilinx Adder/Subtractor Block"
 		  mode			  "Addition"
-		  use_carryin		  "off"
-		  use_carryout		  "off"
-		  en			  "off"
+		  use_carryin		  off
+		  use_carryout		  off
+		  en			  off
 		  latency		  "1"
 		  precision		  "User Defined"
 		  arith_type		  "Signed  (2's comp)"
@@ -2051,11 +2087,11 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Flag as error"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  pipelined		  "on"
-		  use_rpm		  "on"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  pipelined		  on
+		  use_rpm		  on
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2088,15 +2124,15 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Saturate"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -2130,15 +2166,15 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Saturate"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -2272,7 +2308,7 @@ Model {
 		  const			  "1"
 		  n_bits		  "1"
 		  bin_pt		  "0"
-		  explicit_period	  "off"
+		  explicit_period	  off
 		  period		  "1"
 		  equ			  "P=C"
 		  opselect		  "C"
@@ -2280,7 +2316,7 @@ Model {
 		  opr			  "+"
 		  inp1			  "P"
 		  carry			  "CIN"
-		  dbl_ovrd		  "off"
+		  dbl_ovrd		  off
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "constant"
@@ -2304,11 +2340,11 @@ Model {
 		  infoedit		  "Hardware notes: A delay line is a c"
 "hain, each link of which is an SRL16 followed by a flip-flop. If register ret"
 "iming is enabled, the delay line is a chain of flip-flops."
-		  en			  "off"
+		  en			  off
 		  latency		  "2"
-		  dbl_ovrd		  "off"
-		  reg_retiming		  "off"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  reg_retiming		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,251"
@@ -2372,11 +2408,11 @@ Model {
 		  SourceType		  "Xilinx FIFO Block Block"
 		  depth			  "1K"
 		  percent_nbits		  "1"
-		  rst			  "on"
-		  en			  "off"
-		  dbl_ovrd		  "off"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
 		  mem_type		  "Block RAM"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2404,11 +2440,11 @@ Model {
 		  SourceType		  "Xilinx FIFO Block Block"
 		  depth			  "1K"
 		  percent_nbits		  "1"
-		  rst			  "on"
-		  en			  "off"
-		  dbl_ovrd		  "off"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
 		  mem_type		  "Block RAM"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2436,10 +2472,10 @@ Model {
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
 "plement) operator."
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,232"
@@ -2463,10 +2499,10 @@ Model {
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
 "plement) operator."
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,232"
@@ -2490,15 +2526,15 @@ Model {
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
 		  inputs		  "2"
-		  en			  "off"
+		  en			  off
 		  latency		  "0"
 		  precision		  "Full"
 		  arith_type		  "Unsigned"
 		  n_bits		  "16"
 		  bin_pt		  "0"
-		  align_bp		  "on"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2522,15 +2558,15 @@ Model {
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
 		  inputs		  "2"
-		  en			  "off"
+		  en			  off
 		  latency		  "0"
 		  precision		  "Full"
 		  arith_type		  "Unsigned"
 		  n_bits		  "16"
 		  bin_pt		  "0"
-		  align_bp		  "on"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2553,7 +2589,7 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/Mux"
 		  SourceType		  "Xilinx Bus Multiplexer Block"
 		  inputs		  "2"
-		  en			  "off"
+		  en			  off
 		  latency		  "0"
 		  precision		  "Full"
 		  arith_type		  "Unsigned"
@@ -2561,8 +2597,8 @@ Model {
 		  bin_pt		  "14"
 		  quantization		  "Truncate"
 		  overflow		  "Wrap"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2587,10 +2623,10 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
-		  rst			  "on"
-		  en			  "off"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2615,10 +2651,10 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
-		  rst			  "on"
-		  en			  "off"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2650,9 +2686,9 @@ Model {
 "d, with 2 fractional bits, and the output is forced to unsigned with 0 fracti"
 "onal bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes "
 "an output of 56 (111000 in binary)."
-		  force_arith_type	  "on"
+		  force_arith_type	  on
 		  arith_type		  "Unsigned"
-		  force_bin_pt		  "off"
+		  force_bin_pt		  off
 		  bin_pt		  "0"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,306"
@@ -2681,9 +2717,9 @@ Model {
 "d, with 2 fractional bits, and the output is forced to unsigned with 0 fracti"
 "onal bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes "
 "an output of 56 (111000 in binary)."
-		  force_arith_type	  "on"
+		  force_arith_type	  on
 		  arith_type		  "Signed  (2's comp)"
-		  force_bin_pt		  "on"
+		  force_bin_pt		  on
 		  bin_pt		  "15"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,306"
@@ -2712,9 +2748,9 @@ Model {
 "d, with 2 fractional bits, and the output is forced to unsigned with 0 fracti"
 "onal bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes "
 "an output of 56 (111000 in binary)."
-		  force_arith_type	  "on"
+		  force_arith_type	  on
 		  arith_type		  "Signed  (2's comp)"
-		  force_bin_pt		  "on"
+		  force_bin_pt		  on
 		  bin_pt		  "15"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,356,306"
@@ -2738,10 +2774,10 @@ Model {
 		  SourceType		  "Xilinx Arithmetic Relational Operat"
 "or Block"
 		  mode			  "a=b"
-		  en			  "off"
+		  en			  off
 		  latency		  "2"
-		  dbl_ovrd		  "off"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -2769,13 +2805,13 @@ Model {
 "ily unsigned with binary point at zero, but can be Boolean when the slice is "
 "one bit wide.<P><P>Hardware notes: In hardware this block costs nothing."
 		  nbits			  "16"
-		  boolean_output	  "off"
+		  boolean_output	  off
 		  mode			  "Upper Bit Location + Width"
 		  bit1			  "0"
 		  base1			  "MSB of Input"
 		  bit0			  "0"
 		  base0			  "LSB of Input"
-		  dbl_ovrd		  "off"
+		  dbl_ovrd		  off
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,449,398"
 		  block_type		  "slice"
@@ -2801,13 +2837,13 @@ Model {
 "ily unsigned with binary point at zero, but can be Boolean when the slice is "
 "one bit wide.<P><P>Hardware notes: In hardware this block costs nothing."
 		  nbits			  "16"
-		  boolean_output	  "off"
+		  boolean_output	  off
 		  mode			  "Lower Bit Location + Width"
 		  bit1			  "0"
 		  base1			  "MSB of Input"
 		  bit0			  "0"
 		  base0			  "LSB of Input"
-		  dbl_ovrd		  "off"
+		  dbl_ovrd		  off
 		  has_advanced_control	  "0"
 		  sggui_pos		  "20,20,449,398"
 		  block_type		  "slice"
@@ -2871,7 +2907,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -2879,7 +2915,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -2908,9 +2944,9 @@ Model {
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    pipeline		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    pipeline		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,381,366"
@@ -2940,9 +2976,9 @@ Model {
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    pipeline		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    pipeline		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,381,366"
@@ -2976,15 +3012,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "off"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -3019,15 +3055,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "off"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    off
+		    en			    on
 		    explicit_period	    "off"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -3053,11 +3089,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,251"
@@ -3082,11 +3118,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,251"
@@ -3110,10 +3146,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,232"
@@ -3138,10 +3174,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,232"
@@ -3165,15 +3201,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -3197,15 +3233,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -3228,10 +3264,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -3256,10 +3292,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -3285,10 +3321,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -3790,9 +3826,9 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/AddSub"
 		  SourceType		  "Xilinx Adder/Subtractor Block"
 		  mode			  "Addition"
-		  use_carryin		  "off"
-		  use_carryout		  "off"
-		  en			  "off"
+		  use_carryin		  off
+		  use_carryout		  off
+		  en			  off
 		  latency		  "1"
 		  precision		  "User Defined"
 		  arith_type		  "Unsigned"
@@ -3800,11 +3836,11 @@ Model {
 		  bin_pt		  "32"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Flag as error"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  pipelined		  "on"
-		  use_rpm		  "on"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  pipelined		  on
+		  use_rpm		  on
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "281,423,356,343"
@@ -3837,15 +3873,15 @@ Model {
 		  bin_pt		  "32"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Flag as error"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -3879,15 +3915,15 @@ Model {
 		  bin_pt		  "32"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Flag as error"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -4022,11 +4058,11 @@ Model {
 "ed point inputs into ouputs of type Simulink integer, double, or fixed point."
 "<P><P>Hardware notes:  In hardware these blocks become top level output ports"
 " or are discarded, depending on how they are configured."
-	      hdl_port		      "off"
+	      hdl_port		      off
 	      timing_constraint	      "None"
-	      locs_specified	      "off"
+	      locs_specified	      off
 	      LOCs		      "{}"
-	      xl_use_area	      "off"
+	      xl_use_area	      off
 	      xl_area		      "[0 0 0 0 0 0 0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,330"
@@ -4055,11 +4091,11 @@ Model {
 "ed point inputs into ouputs of type Simulink integer, double, or fixed point."
 "<P><P>Hardware notes:  In hardware these blocks become top level output ports"
 " or are discarded, depending on how they are configured."
-	      hdl_port		      "off"
+	      hdl_port		      off
 	      timing_constraint	      "None"
-	      locs_specified	      "off"
+	      locs_specified	      off
 	      LOCs		      "{}"
-	      xl_use_area	      "off"
+	      xl_use_area	      off
 	      xl_area		      "[0 0 0 0 0 0 0]"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,330"
@@ -4136,9 +4172,9 @@ Model {
 		  SourceBlock		  "xbsIndex_r4/AddSub"
 		  SourceType		  "Xilinx Adder/Subtractor Block"
 		  mode			  "Subtraction"
-		  use_carryin		  "off"
-		  use_carryout		  "off"
-		  en			  "off"
+		  use_carryin		  off
+		  use_carryout		  off
+		  en			  off
 		  latency		  "1"
 		  precision		  "User Defined"
 		  arith_type		  "Signed  (2's comp)"
@@ -4146,11 +4182,11 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Flag as error"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  pipelined		  "on"
-		  use_rpm		  "on"
-		  xl_use_area		  "off"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  pipelined		  on
+		  use_rpm		  on
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  has_advanced_control	  "0"
 		  sggui_pos		  "-1,-1,-1,-1"
@@ -4183,15 +4219,15 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Saturate"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -4225,15 +4261,15 @@ Model {
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
 		  overflow		  "Saturate"
-		  en			  "off"
+		  en			  off
 		  latency		  "1"
-		  dbl_ovrd		  "off"
-		  use_behavioral_HDL	  "off"
-		  use_embedded		  "on"
-		  optimum_pipeline	  "off"
-		  use_rpm		  "on"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_embedded		  on
+		  optimum_pipeline	  off
+		  use_rpm		  on
 		  placement_style	  "Rectangular shape"
-		  xl_use_area		  "off"
+		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
 		  has_advanced_control	  "0"
@@ -4317,9 +4353,9 @@ Model {
 "ith 2 fractional bits, and the output is forced to unsigned with 0 fractional"
 " bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes an o"
 "utput of 56 (111000 in binary)."
-	      force_arith_type	      "on"
+	      force_arith_type	      on
 	      arith_type	      "Unsigned"
-	      force_bin_pt	      "on"
+	      force_bin_pt	      on
 	      bin_pt		      "0"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,306"
@@ -4348,9 +4384,9 @@ Model {
 "ith 2 fractional bits, and the output is forced to unsigned with 0 fractional"
 " bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes an o"
 "utput of 56 (111000 in binary)."
-	      force_arith_type	      "on"
+	      force_arith_type	      on
 	      arith_type	      "Unsigned"
-	      force_bin_pt	      "on"
+	      force_bin_pt	      on
 	      bin_pt		      "0"
 	      has_advanced_control    "0"
 	      sggui_pos		      "20,20,356,306"
@@ -4736,7 +4772,7 @@ Model {
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Sum"
-	  Ports			  [11, 8]
+	  Ports			  [11, 9]
 	  Position		  [320, 39, 425, 481]
 	  BackgroundColor	  "orange"
 	  MinAlgLoopOccurrences	  off
@@ -4746,7 +4782,7 @@ Model {
 	  System {
 	    Name		    "Sum"
 	    Location		    [6, 82, 1257, 961]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -4847,7 +4883,7 @@ Model {
 	      System {
 		Name			"A Avg"
 		Location		[2, 82, 1270, 978]
-		Open			on
+		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
 		ScreenColor		"white"
@@ -4914,7 +4950,7 @@ Model {
 		  System {
 		    Name		    "Avg. A 1"
 		    Location		    [2, 82, 1270, 978]
-		    Open		    on
+		    Open		    off
 		    ModelBrowserVisibility  off
 		    ModelBrowserWidth	    200
 		    ScreenColor		    "white"
@@ -5292,7 +5328,7 @@ Model {
 		    System {
 		    Name		    "Subsystem"
 		    Location		    [2, 82, 1270, 978]
-		    Open		    on
+		    Open		    off
 		    ModelBrowserVisibility  off
 		    ModelBrowserWidth	    200
 		    ScreenColor		    "white"
@@ -6437,9 +6473,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Addition"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -6447,11 +6483,11 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "on"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    on
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6477,11 +6513,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6506,11 +6542,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,251"
@@ -6534,11 +6570,11 @@ Model {
 		    SourceType		    "Xilinx FIFO Block Block"
 		    depth		    "1K"
 		    percent_nbits	    "1"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
-		    xl_use_area		    "off"
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6566,15 +6602,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6598,15 +6634,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6629,7 +6665,7 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Mux"
 		    SourceType		    "Xilinx Bus Multiplexer Block"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
@@ -6637,8 +6673,8 @@ Model {
 		    bin_pt		    "14"
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6663,10 +6699,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6691,10 +6727,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6723,7 +6759,7 @@ Model {
 "block costs nothing if full output precision is used."
 		    shift_dir		    "Right"
 		    shift_bits		    "1"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -6731,8 +6767,8 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,375"
@@ -6808,9 +6844,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -6818,11 +6854,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6846,9 +6882,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -6856,11 +6892,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -6887,7 +6923,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -6895,7 +6931,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -6920,7 +6956,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -6928,7 +6964,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -6953,7 +6989,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -6961,7 +6997,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -6994,15 +7030,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -7036,15 +7072,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "7"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -7070,11 +7106,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7098,10 +7134,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7125,15 +7161,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7157,15 +7193,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7189,15 +7225,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7221,15 +7257,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7253,15 +7289,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7285,10 +7321,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7313,10 +7349,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7341,10 +7377,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -7370,10 +7406,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8096,9 +8132,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Addition"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -8106,11 +8142,11 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "on"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    on
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8136,11 +8172,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8164,11 +8200,11 @@ Model {
 		    SourceType		    "Xilinx FIFO Block Block"
 		    depth		    "1K"
 		    percent_nbits	    "1"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
-		    xl_use_area		    "off"
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8196,15 +8232,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8227,7 +8263,7 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Mux"
 		    SourceType		    "Xilinx Bus Multiplexer Block"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
@@ -8235,8 +8271,8 @@ Model {
 		    bin_pt		    "14"
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8261,10 +8297,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8289,10 +8325,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8321,7 +8357,7 @@ Model {
 "block costs nothing if full output precision is used."
 		    shift_dir		    "Right"
 		    shift_bits		    "1"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -8329,8 +8365,8 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,375"
@@ -8406,9 +8442,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -8416,11 +8452,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8444,9 +8480,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -8454,11 +8490,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8485,7 +8521,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -8493,7 +8529,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -8518,7 +8554,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -8526,7 +8562,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -8551,7 +8587,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -8559,7 +8595,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -8592,15 +8628,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -8634,15 +8670,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "7"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -8668,11 +8704,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8696,10 +8732,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8723,15 +8759,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8755,15 +8791,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8787,15 +8823,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8819,15 +8855,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8851,15 +8887,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8883,10 +8919,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8911,10 +8947,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8939,10 +8975,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -8968,10 +9004,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9467,9 +9503,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Addition"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -9477,11 +9513,11 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "on"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    on
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9507,11 +9543,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9535,11 +9571,11 @@ Model {
 		    SourceType		    "Xilinx FIFO Block Block"
 		    depth		    "1K"
 		    percent_nbits	    "1"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
-		    xl_use_area		    "off"
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9567,15 +9603,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9598,7 +9634,7 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Mux"
 		    SourceType		    "Xilinx Bus Multiplexer Block"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
@@ -9606,8 +9642,8 @@ Model {
 		    bin_pt		    "14"
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9632,10 +9668,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9660,10 +9696,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9692,7 +9728,7 @@ Model {
 "block costs nothing if full output precision is used."
 		    shift_dir		    "Right"
 		    shift_bits		    "1"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Signed  (2's comp)"
@@ -9700,8 +9736,8 @@ Model {
 		    bin_pt		    "31"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,375"
@@ -9777,9 +9813,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -9787,11 +9823,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9815,9 +9851,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -9825,11 +9861,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -9856,7 +9892,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -9864,7 +9900,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -9889,7 +9925,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -9897,7 +9933,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -9922,7 +9958,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -9930,7 +9966,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -9963,15 +9999,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -10005,15 +10041,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "7"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -10039,11 +10075,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10067,10 +10103,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10094,15 +10130,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10126,15 +10162,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10158,15 +10194,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10190,15 +10226,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10222,15 +10258,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10254,10 +10290,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10282,10 +10318,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10310,10 +10346,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10339,10 +10375,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -10895,6 +10931,730 @@ Model {
 "8 38 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT:"
 " begin icon text');\ncolor('black');disp('z^{-2}','texmode','on');\nfprintf('"
 "','COMMENT: end icon text');\n"
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Error Check"
+	      Ports		      [3, 1]
+	      Position		      [805, 937, 910, 1033]
+	      BackgroundColor	      "red"
+	      MinAlgLoopOccurrences   off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      MaskHideContents	      off
+	      System {
+		Name			"Error Check"
+		Location		[2, 82, 1590, 1154]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	"[0.500000, 0.500000, 0.500000, 0.5000"
+"00]"
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "Gate_1_In"
+		  Position		  [35, 35, 65, 49]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "Gate_2_In"
+		  Position		  [35, 353, 65, 367]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "M_Reg"
+		  Position		  [35, 475, 65, 489]
+		  Port			  "3"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Counter"
+		  Ports			  [2, 1]
+		  Position		  [315, 24, 375, 91]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Counter"
+		  SourceType		  "Xilinx Counter Block"
+		  infoedit		  "Hardware notes: Free running counte"
+"rs are the least expensive in hardware.  A count limited counter is implement"
+"ed by combining a counter with a comparator."
+		  cnt_type		  "Free Running"
+		  cnt_to		  "Inf"
+		  operation		  "Up"
+		  start_count		  "0"
+		  cnt_by_val		  "1"
+		  arith_type		  "Unsigned"
+		  n_bits		  "10"
+		  bin_pt		  "0"
+		  load_pin		  off
+		  rst			  on
+		  en			  on
+		  explicit_period	  "on"
+		  period		  "1/12e6"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_rpm		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,615"
+		  block_type		  "counter"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,67,2,1,white,blue,0,eceade92"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 67 67 ],[0.77 0.82 0.91]);\npatch([14 4 18 "
+"4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[10 20 34 48 58 58 54 "
+"58 58 45 58 49 34 19 10 23 10 10 14 10 10 ],[0.98 0.96 0.92]);\nplot([0 0 60 "
+"60 0 ],[0 67 67 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'rst');\n"
+"color('black');port_label('input',2,'en');\ncolor('black');port_label('output"
+"',1,'out');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Counter1"
+		  Ports			  [2, 1]
+		  Position		  [315, 344, 375, 411]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Counter"
+		  SourceType		  "Xilinx Counter Block"
+		  infoedit		  "Hardware notes: Free running counte"
+"rs are the least expensive in hardware.  A count limited counter is implement"
+"ed by combining a counter with a comparator."
+		  cnt_type		  "Free Running"
+		  cnt_to		  "Inf"
+		  operation		  "Up"
+		  start_count		  "0"
+		  cnt_by_val		  "1"
+		  arith_type		  "Unsigned"
+		  n_bits		  "10"
+		  bin_pt		  "0"
+		  load_pin		  off
+		  rst			  on
+		  en			  on
+		  explicit_period	  "on"
+		  period		  "1/12e6"
+		  dbl_ovrd		  off
+		  use_behavioral_HDL	  off
+		  use_rpm		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,615"
+		  block_type		  "counter"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,67,2,1,white,blue,0,eceade92"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 67 67 ],[0.77 0.82 0.91]);\npatch([14 4 18 "
+"4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[10 20 34 48 58 58 54 "
+"58 58 45 58 49 34 19 10 23 10 10 14 10 10 ],[0.98 0.96 0.92]);\nplot([0 0 60 "
+"60 0 ],[0 67 67 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'rst');\n"
+"color('black');port_label('input',2,'en');\ncolor('black');port_label('output"
+"',1,'out');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Delay"
+		  Ports			  [1, 1]
+		  Position		  [330, 215, 370, 255]
+		  NamePlacement		  "alternate"
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Delay"
+		  SourceType		  "Xilinx Delay Block"
+		  infoedit		  "Hardware notes: A delay line is a c"
+"hain, each link of which is an SRL16 followed by a flip-flop. If register ret"
+"iming is enabled, the delay line is a chain of flip-flops."
+		  en			  off
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  reg_retiming		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,251"
+		  block_type		  "delay"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,fc531c0e"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 40 40 0 ],[0 0 40 40 ],[0.77 0.82 0.91]);\npatch([10 3 12 "
+"3 10 21 24 27 38 29 20 14 24 14 20 29 38 27 24 21 10 ],[4 11 20 29 36 36 33 3"
+"6 36 27 36 30 20 10 4 13 4 4 7 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 40 40 0 ],"
+"[0 40 40 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMM"
+"ENT: begin icon text');\ncolor('black');disp('z^{-1}','texmode','on');\nfprin"
+"tf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Delay1"
+		  Ports			  [1, 1]
+		  Position		  [330, 260, 370, 300]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Delay"
+		  SourceType		  "Xilinx Delay Block"
+		  infoedit		  "Hardware notes: A delay line is a c"
+"hain, each link of which is an SRL16 followed by a flip-flop. If register ret"
+"iming is enabled, the delay line is a chain of flip-flops."
+		  en			  off
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  reg_retiming		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,251"
+		  block_type		  "delay"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,fc531c0e"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 40 40 0 ],[0 0 40 40 ],[0.77 0.82 0.91]);\npatch([10 3 12 "
+"3 10 21 24 27 38 29 20 14 24 14 20 29 38 27 24 21 10 ],[4 11 20 29 36 36 33 3"
+"6 36 27 36 30 20 10 4 13 4 4 7 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 40 40 0 ],"
+"[0 40 40 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMM"
+"ENT: begin icon text');\ncolor('black');disp('z^{-1}','texmode','on');\nfprin"
+"tf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Delay2"
+		  Ports			  [1, 1]
+		  Position		  [330, 535, 370, 575]
+		  NamePlacement		  "alternate"
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Delay"
+		  SourceType		  "Xilinx Delay Block"
+		  infoedit		  "Hardware notes: A delay line is a c"
+"hain, each link of which is an SRL16 followed by a flip-flop. If register ret"
+"iming is enabled, the delay line is a chain of flip-flops."
+		  en			  off
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  reg_retiming		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,251"
+		  block_type		  "delay"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,fc531c0e"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 40 40 0 ],[0 0 40 40 ],[0.77 0.82 0.91]);\npatch([10 3 12 "
+"3 10 21 24 27 38 29 20 14 24 14 20 29 38 27 24 21 10 ],[4 11 20 29 36 36 33 3"
+"6 36 27 36 30 20 10 4 13 4 4 7 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 40 40 0 ],"
+"[0 40 40 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMM"
+"ENT: begin icon text');\ncolor('black');disp('z^{-1}','texmode','on');\nfprin"
+"tf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Delay3"
+		  Ports			  [1, 1]
+		  Position		  [330, 580, 370, 620]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Delay"
+		  SourceType		  "Xilinx Delay Block"
+		  infoedit		  "Hardware notes: A delay line is a c"
+"hain, each link of which is an SRL16 followed by a flip-flop. If register ret"
+"iming is enabled, the delay line is a chain of flip-flops."
+		  en			  off
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  reg_retiming		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "20,20,356,251"
+		  block_type		  "delay"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,fc531c0e"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 40 40 0 ],[0 0 40 40 ],[0.77 0.82 0.91]);\npatch([10 3 12 "
+"3 10 21 24 27 38 29 20 14 24 14 20 29 38 27 24 21 10 ],[4 11 20 29 36 36 33 3"
+"6 36 27 36 30 20 10 4 13 4 4 7 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 40 40 0 ],"
+"[0 40 40 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMM"
+"ENT: begin icon text');\ncolor('black');disp('z^{-1}','texmode','on');\nfprin"
+"tf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Inverter"
+		  Ports			  [1, 1]
+		  Position		  [205, 21, 240, 59]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,38,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 38 38 ],[0.77 0.82 0.91]);\npatch([8 2 10 2"
+" 8 17 20 23 33 25 18 13 21 13 18 25 33 23 20 17 8 ],[5 11 19 27 33 33 30 33 3"
+"3 25 32 27 19 11 6 13 5 5 8 5 5 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"38 38 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Inverter1"
+		  Ports			  [1, 1]
+		  Position		  [205, 341, 240, 379]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,38,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 38 38 ],[0.77 0.82 0.91]);\npatch([8 2 10 2"
+" 8 17 20 23 33 25 18 13 21 13 18 25 33 23 20 17 8 ],[5 11 19 27 33 33 30 33 3"
+"3 25 32 27 19 11 6 13 5 5 8 5 5 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"38 38 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical"
+		  Ports			  [2, 1]
+		  Position		  [835, 290, 890, 350]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "OR"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
+"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
+"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Register"
+		  Ports			  [2, 1]
+		  Position		  [440, 34, 500, 136]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  off
+		  en			  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,102,2,1,white,blue,0,cc3303a0"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 102 102 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[27 37 51 65 75 75 7"
+"1 75 75 62 75 66 51 36 27 40 27 27 31 27 27 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 102 102 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');"
+"\ncolor('black');port_label('input',2,'en');\ncolor('black');port_label('outp"
+"ut',1,'q');\ncolor('black');disp('\\bf{z^{-1}}','texmode','on');\nfprintf('',"
+"'COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Register1"
+		  Ports			  [3, 1]
+		  Position		  [440, 166, 500, 304]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  on
+		  en			  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,138,3,1,white,blue,0,923c1847"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 138 138 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[45 55 69 83 93 93 8"
+"9 93 93 80 93 84 69 54 45 58 45 45 49 45 45 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 138 138 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');"
+"\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_label('inp"
+"ut',3,'en');\ncolor('black');port_label('output',1,'q');\ncolor('black');disp"
+"('\\bf{z^{-1}}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Register2"
+		  Ports			  [2, 1]
+		  Position		  [440, 354, 500, 456]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  off
+		  en			  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,102,2,1,white,blue,0,cc3303a0"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 102 102 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[27 37 51 65 75 75 7"
+"1 75 75 62 75 66 51 36 27 40 27 27 31 27 27 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 102 102 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');"
+"\ncolor('black');port_label('input',2,'en');\ncolor('black');port_label('outp"
+"ut',1,'q');\ncolor('black');disp('\\bf{z^{-1}}','texmode','on');\nfprintf('',"
+"'COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Register3"
+		  Ports			  [3, 1]
+		  Position		  [440, 486, 500, 624]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  on
+		  en			  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,138,3,1,white,blue,0,923c1847"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 138 138 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[45 55 69 83 93 93 8"
+"9 93 93 80 93 84 69 54 45 58 45 45 49 45 45 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 138 138 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');"
+"\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_label('inp"
+"ut',3,'en');\ncolor('black');port_label('output',1,'q');\ncolor('black');disp"
+"('\\bf{z^{-1}}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Relational"
+		  Ports			  [3, 1]
+		  Position		  [710, 48, 770, 272]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Relational"
+		  SourceType		  "Xilinx Arithmetic Relational Operat"
+"or Block"
+		  mode			  "a!=b"
+		  en			  on
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "relational"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,224,3,1,white,blue,0,5c91c1a3"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 224 224 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[88 98 112 126 136 1"
+"36 132 136 136 123 136 127 112 97 88 101 88 88 92 88 88 ],[0.98 0.96 0.92]);"
+"\nplot([0 0 60 60 0 ],[0 224 224 0 0 ]);\nfprintf('','COMMENT: end icon graph"
+"ics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
+"nput',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port"
+"_label('input',3,'en');\ncolor('black');disp('\\newline\\bf{a!=b}\\newlinez^{"
+"-1}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Relational1"
+		  Ports			  [3, 1]
+		  Position		  [710, 368, 770, 592]
+		  FontSize		  10
+		  SourceBlock		  "xbsIndex_r4/Relational"
+		  SourceType		  "Xilinx Arithmetic Relational Operat"
+"or Block"
+		  mode			  "a!=b"
+		  en			  on
+		  latency		  "1"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "relational"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,224,3,1,white,blue,0,5c91c1a3"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 224 224 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[88 98 112 126 136 1"
+"36 132 136 136 123 136 127 112 97 88 101 88 88 92 88 88 ],[0.98 0.96 0.92]);"
+"\nplot([0 0 60 60 0 ],[0 224 224 0 0 ]);\nfprintf('','COMMENT: end icon graph"
+"ics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
+"nput',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port"
+"_label('input',3,'en');\ncolor('black');disp('\\newline\\bf{a!=b}\\newlinez^{"
+"-1}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Sync Error"
+		  Position		  [965, 315, 995, 329]
+		  IconDisplay		  "Port number"
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [0, 0; 45, 0]
+		  Branch {
+		    DstBlock		    "Counter"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 70]
+		    Branch {
+		    DstBlock		    "Register"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 80]
+		    Branch {
+		    Points		    [0, 45]
+		    DstBlock		    "Delay"
+		    DstPort		    1
+		    }
+		    Branch {
+		    DstBlock		    "Register1"
+		    DstPort		    1
+		    }
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "Counter"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Register"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Relational"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Gate_1_In"
+		  SrcPort		  1
+		  Points		  [0, 0; 115, 0]
+		  Branch {
+		    DstBlock		    "Inverter"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 35; 85, 0]
+		    Branch {
+		    DstBlock		    "Counter"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 205]
+		    DstBlock		    "Delay1"
+		    DstPort		    1
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "Delay"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Register1"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Register1"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Relational"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Delay1"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Register1"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  Points		  [0, 0; 45, 0]
+		  Branch {
+		    DstBlock		    "Counter1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 70]
+		    Branch {
+		    DstBlock		    "Register2"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 80]
+		    Branch {
+		    Points		    [0, 45]
+		    DstBlock		    "Delay2"
+		    DstPort		    1
+		    }
+		    Branch {
+		    DstBlock		    "Register3"
+		    DstPort		    1
+		    }
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "Counter1"
+		  SrcPort		  1
+		  DstBlock		  "Register2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register2"
+		  SrcPort		  1
+		  DstBlock		  "Relational1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Gate_2_In"
+		  SrcPort		  1
+		  Points		  [0, 0; 115, 0]
+		  Branch {
+		    DstBlock		    "Inverter1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 35; 85, 0]
+		    Branch {
+		    DstBlock		    "Counter1"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 205]
+		    DstBlock		    "Delay3"
+		    DstPort		    1
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "M_Reg"
+		  SrcPort		  1
+		  Points		  [0, 0; 80, 0]
+		  Branch {
+		    DstBlock		    "Relational1"
+		    DstPort		    2
+		  }
+		  Branch {
+		    Points		    [0, -320]
+		    DstBlock		    "Relational"
+		    DstPort		    2
+		  }
+		}
+		Line {
+		  SrcBlock		  "Delay2"
+		  SrcPort		  1
+		  DstBlock		  "Register3"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Register3"
+		  SrcPort		  1
+		  DstBlock		  "Relational1"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Delay3"
+		  SrcPort		  1
+		  DstBlock		  "Register3"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Relational"
+		  SrcPort		  1
+		  Points		  [20, 0; 0, 145]
+		  DstBlock		  "Logical"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Relational1"
+		  SrcPort		  1
+		  Points		  [20, 0; 0, -145]
+		  DstBlock		  "Logical"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Logical"
+		  SrcPort		  1
+		  DstBlock		  "Sync Error"
+		  DstPort		  1
+		}
+	      }
 	    }
 	    Block {
 	      BlockType		      SubSystem
@@ -12074,9 +12834,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Addition"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -12084,11 +12844,11 @@ Model {
 		    bin_pt		    "32"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "on"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    on
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12114,11 +12874,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,251"
@@ -12142,11 +12902,11 @@ Model {
 		    SourceType		    "Xilinx FIFO Block Block"
 		    depth		    "1K"
 		    percent_nbits	    "1"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
-		    xl_use_area		    "off"
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12174,15 +12934,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12205,7 +12965,7 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Mux"
 		    SourceType		    "Xilinx Bus Multiplexer Block"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
@@ -12213,8 +12973,8 @@ Model {
 		    bin_pt		    "14"
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12239,10 +12999,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12267,10 +13027,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12299,7 +13059,7 @@ Model {
 "block costs nothing if full output precision is used."
 		    shift_dir		    "Right"
 		    shift_bits		    "1"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -12307,8 +13067,8 @@ Model {
 		    bin_pt		    "32"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,375"
@@ -12384,9 +13144,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -12394,11 +13154,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12422,9 +13182,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -12432,11 +13192,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12463,7 +13223,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -12471,7 +13231,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -12496,7 +13256,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -12504,7 +13264,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -12529,7 +13289,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -12537,7 +13297,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -12570,15 +13330,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -12612,15 +13372,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "7"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -12646,11 +13406,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12674,10 +13434,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12701,15 +13461,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12733,15 +13493,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12765,15 +13525,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12797,15 +13557,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12829,15 +13589,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12861,10 +13621,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12889,10 +13649,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12917,10 +13677,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -12946,10 +13706,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13445,9 +14205,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Addition"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -13455,11 +14215,11 @@ Model {
 		    bin_pt		    "32"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "on"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    on
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13485,11 +14245,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,251"
@@ -13513,11 +14273,11 @@ Model {
 		    SourceType		    "Xilinx FIFO Block Block"
 		    depth		    "1K"
 		    percent_nbits	    "1"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
-		    xl_use_area		    "off"
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13545,15 +14305,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13576,7 +14336,7 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Mux"
 		    SourceType		    "Xilinx Bus Multiplexer Block"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
@@ -13584,8 +14344,8 @@ Model {
 		    bin_pt		    "14"
 		    quantization	    "Truncate"
 		    overflow		    "Wrap"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13610,10 +14370,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13638,10 +14398,10 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/Register"
 		    SourceType		    "Xilinx Register Block"
 		    init		    "0"
-		    rst			    "on"
-		    en			    "off"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    rst			    on
+		    en			    off
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13670,7 +14430,7 @@ Model {
 "block costs nothing if full output precision is used."
 		    shift_dir		    "Right"
 		    shift_bits		    "1"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -13678,8 +14438,8 @@ Model {
 		    bin_pt		    "32"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,375"
@@ -13755,9 +14515,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -13765,11 +14525,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13793,9 +14553,9 @@ Model {
 		    SourceBlock		    "xbsIndex_r4/AddSub"
 		    SourceType		    "Xilinx Adder/Subtractor Block"
 		    mode		    "Subtraction"
-		    use_carryin		    "off"
-		    use_carryout	    "off"
-		    en			    "off"
+		    use_carryin		    off
+		    use_carryout	    off
+		    en			    off
 		    latency		    "0"
 		    precision		    "User Defined"
 		    arith_type		    "Unsigned"
@@ -13803,11 +14563,11 @@ Model {
 		    bin_pt		    "0"
 		    quantization	    "Round  (unbiased: +/- Inf)"
 		    overflow		    "Flag as error"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    pipelined		    "off"
-		    use_rpm		    "on"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    pipelined		    off
+		    use_rpm		    on
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -13834,7 +14594,7 @@ Model {
 		    const		    "0"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -13842,7 +14602,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -13867,7 +14627,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -13875,7 +14635,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -13900,7 +14660,7 @@ Model {
 		    const		    "1"
 		    n_bits		    "1"
 		    bin_pt		    "0"
-		    explicit_period	    "off"
+		    explicit_period	    off
 		    period		    "1"
 		    equ			    "P=C"
 		    opselect		    "C"
@@ -13908,7 +14668,7 @@ Model {
 		    opr			    "+"
 		    inp1		    "P"
 		    carry		    "CIN"
-		    dbl_ovrd		    "off"
+		    dbl_ovrd		    off
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
@@ -13941,15 +14701,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "11"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -13983,15 +14743,15 @@ Model {
 		    arith_type		    "Unsigned"
 		    n_bits		    "7"
 		    bin_pt		    "0"
-		    load_pin		    "off"
-		    rst			    "on"
-		    en			    "on"
+		    load_pin		    off
+		    rst			    on
+		    en			    on
 		    explicit_period	    "on"
 		    period		    "1/12e6"
-		    dbl_ovrd		    "off"
-		    use_behavioral_HDL	    "off"
-		    use_rpm		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    use_behavioral_HDL	    off
+		    use_rpm		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "20,20,356,615"
@@ -14017,11 +14777,11 @@ Model {
 		    infoedit		    "Hardware notes: A delay line is a"
 " chain, each link of which is an SRL16 followed by a flip-flop. If register r"
 "etiming is enabled, the delay line is a chain of flip-flops."
-		    en			    "off"
+		    en			    off
 		    latency		    "1"
-		    dbl_ovrd		    "off"
-		    reg_retiming	    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    reg_retiming	    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14045,10 +14805,10 @@ Model {
 		    SourceType		    "Xilinx Inverter Block"
 		    infoedit		    "Bitwise logical negation (one's c"
 "omplement) operator."
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14072,15 +14832,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14104,15 +14864,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14136,15 +14896,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "AND"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14168,15 +14928,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14200,15 +14960,15 @@ Model {
 		    SourceType		    "Xilinx Logical Block Block"
 		    logical_function	    "OR"
 		    inputs		    "2"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
 		    precision		    "Full"
 		    arith_type		    "Unsigned"
 		    n_bits		    "16"
 		    bin_pt		    "0"
-		    align_bp		    "on"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    align_bp		    on
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14232,10 +14992,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14260,10 +15020,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a!=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14288,10 +15048,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14317,10 +15077,10 @@ Model {
 		    SourceType		    "Xilinx Arithmetic Relational Oper"
 "ator Block"
 		    mode		    "a=b"
-		    en			    "off"
+		    en			    off
 		    latency		    "0"
-		    dbl_ovrd		    "off"
-		    xl_use_area		    "off"
+		    dbl_ovrd		    off
+		    xl_use_area		    off
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
 		    sggui_pos		    "-1,-1,-1,-1"
@@ -14936,6 +15696,14 @@ Model {
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
 	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Sync Error"
+	      Position		      [1090, 978, 1120, 992]
+	      Port		      "9"
+	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
+	    }
 	    Line {
 	      SrcBlock		      "A_Data_In"
 	      SrcPort		      1
@@ -14958,8 +15726,15 @@ Model {
 		}
 		Branch {
 		  Points		  [0, 225]
-		  DstBlock		  "P Avg"
-		  DstPort		  2
+		  Branch {
+		    DstBlock		    "P Avg"
+		    DstPort		    2
+		  }
+		  Branch {
+		    Points		    [0, 405]
+		    DstBlock		    "Error Check"
+		    DstPort		    3
+		  }
 		}
 	      }
 	    }
@@ -15008,8 +15783,15 @@ Model {
 		    }
 		    Branch {
 		    Points		    [0, 100]
+		    Branch {
 		    DstBlock		    "IQ Selector"
 		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 185]
+		    DstBlock		    "Error Check"
+		    DstPort		    1
+		    }
 		    }
 		  }
 		}
@@ -15044,8 +15826,15 @@ Model {
 		    }
 		    Branch {
 		    Points		    [0, 110]
+		    Branch {
 		    DstBlock		    "IQ Selector"
 		    DstPort		    3
+		    }
+		    Branch {
+		    Points		    [0, 175]
+		    DstBlock		    "Error Check"
+		    DstPort		    2
+		    }
 		    }
 		  }
 		}
@@ -15232,19 +16021,25 @@ Model {
 	      DstBlock		      "IQ Selector"
 	      DstPort		      1
 	    }
+	    Line {
+	      SrcBlock		      "Error Check"
+	      SrcPort		      1
+	      DstBlock		      "Sync Error"
+	      DstPort		      1
+	    }
 	  }
 	}
 	Block {
 	  BlockType		  Outport
 	  Name			  "IQ_out"
-	  Position		  [495, 63, 525, 77]
+	  Position		  [495, 53, 525, 67]
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
 	}
 	Block {
 	  BlockType		  Outport
 	  Name			  "A_out"
-	  Position		  [495, 118, 525, 132]
+	  Position		  [495, 103, 525, 117]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15252,7 +16047,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "B_out"
-	  Position		  [495, 173, 525, 187]
+	  Position		  [495, 153, 525, 167]
 	  Port			  "3"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15260,7 +16055,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "P_out"
-	  Position		  [495, 228, 525, 242]
+	  Position		  [495, 203, 525, 217]
 	  Port			  "4"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15268,7 +16063,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "IQ_Gate1"
-	  Position		  [495, 283, 525, 297]
+	  Position		  [495, 253, 525, 267]
 	  Port			  "5"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15276,7 +16071,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "IQ_Gate2"
-	  Position		  [495, 338, 525, 352]
+	  Position		  [495, 303, 525, 317]
 	  Port			  "6"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15284,7 +16079,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "ABP_Gate1"
-	  Position		  [495, 393, 525, 407]
+	  Position		  [495, 353, 525, 367]
 	  Port			  "7"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -15292,8 +16087,16 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "ABP_Gate2"
-	  Position		  [495, 448, 525, 462]
+	  Position		  [495, 403, 525, 417]
 	  Port			  "8"
+	  IconDisplay		  "Port number"
+	  BusOutputAsStruct	  off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Sync_Error"
+	  Position		  [495, 453, 525, 467]
+	  Port			  "9"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
 	}
@@ -15465,13 +16268,19 @@ Model {
 	  DstBlock		  "Sum"
 	  DstPort		  11
 	}
+	Line {
+	  SrcBlock		  "Sum"
+	  SrcPort		  9
+	  DstBlock		  "Sync_Error"
+	  DstPort		  1
+	}
       }
     }
     Block {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse1"
       Ports		      [0, 1]
-      Position		      [25, 496, 70, 524]
+      Position		      [25, 521, 70, 549]
       PulseType		      "Time based"
       Period		      "900/40e6"
       PulseWidth	      "10"
@@ -15481,16 +16290,26 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse2"
       Ports		      [0, 1]
-      Position		      [25, 561, 70, 589]
+      Position		      [25, 591, 70, 619]
       PulseType		      "Time based"
       Period		      "500/12e6"
       PhaseDelay	      "10/12e6"
     }
     Block {
+      BlockType		      DiscretePulseGenerator
+      Name		      "Pulse3"
+      Ports		      [0, 1]
+      Position		      [75, 471, 120, 499]
+      PulseType		      "Time based"
+      Period		      "900/40e6"
+      PulseWidth	      "10"
+      PhaseDelay	      "0/12e6"
+    }
+    Block {
       BlockType		      Reference
       Name		      "Q_In"
       Ports		      [1, 1]
-      Position		      [315, 250, 380, 270]
+      Position		      [315, 255, 380, 275]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -15526,7 +16345,7 @@ Model {
       BlockType		      Reference
       Name		      "Reset"
       Ports		      [1, 1]
-      Position		      [315, 575, 380, 595]
+      Position		      [315, 605, 380, 625]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -15595,21 +16414,22 @@ Model {
     Block {
       BlockType		      Scope
       Name		      "Scope"
-      Ports		      [3]
-      Position		      [1035, 177, 1085, 593]
+      Ports		      [4]
+      Position		      [1055, 164, 1110, 646]
       Floating		      off
       Location		      [6, 56, 1286, 997]
       Open		      off
-      NumInputPorts	      "3"
+      NumInputPorts	      "4"
       List {
 	ListType		AxesTitles
 	axes1			"%<SignalLabel>"
 	axes2			"%<SignalLabel>"
 	axes3			"%<SignalLabel>"
+	axes4			"%<SignalLabel>"
       }
       TimeRange		      "0.0035"
-      YMin		      "0~-5~-5"
-      YMax		      "5~5~5"
+      YMin		      "0~-5~-5~-5"
+      YMax		      "5~5~5~5"
       DataFormat	      "StructureWithTime"
       MaxDataPoints	      "5000000"
       SampleTime	      "0"
@@ -15618,7 +16438,7 @@ Model {
       BlockType		      Scope
       Name		      "Scope1"
       Ports		      [4]
-      Position		      [955, 675, 1000, 810]
+      Position		      [955, 720, 1000, 855]
       Floating		      off
       Location		      [6, 56, 1286, 997]
       Open		      off
@@ -15666,7 +16486,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace"
-      Position		      [785, 435, 845, 465]
+      Position		      [785, 420, 845, 450]
       VariableName	      "Pout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -15693,7 +16513,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace3"
-      Position		      [785, 365, 845, 395]
+      Position		      [785, 350, 845, 380]
       VariableName	      "Bout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -15702,7 +16522,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace4"
-      Position		      [785, 295, 845, 325]
+      Position		      [785, 280, 845, 310]
       VariableName	      "Aout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -15711,7 +16531,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "const"
-      Position		      [75, 519, 120, 541]
+      Position		      [75, 544, 120, 566]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -15725,7 +16545,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "const1"
-      Position		      [75, 584, 120, 606]
+      Position		      [75, 614, 120, 636]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -15759,7 +16579,7 @@ Model {
 	DstPort			2
       }
       Branch {
-	Points			[0, -140]
+	Points			[0, -145]
 	DstBlock		"Out1"
 	DstPort			1
       }
@@ -15773,6 +16593,7 @@ Model {
     Line {
       SrcBlock		      "(N)"
       SrcPort		      1
+      Points		      [0, 0]
       DstBlock		      "N"
       DstPort		      1
     }
@@ -15789,20 +16610,6 @@ Model {
       DstPort		      4
     }
     Line {
-      SrcBlock		      "Pulse"
-      SrcPort		      1
-      Points		      [155, 0]
-      Branch {
-	DstBlock		"Gate1"
-	DstPort			1
-      }
-      Branch {
-	Points			[0, 305]
-	DstBlock		"Scope1"
-	DstPort			3
-      }
-    }
-    Line {
       SrcBlock		      "Pulse1"
       SrcPort		      1
       DstBlock		      "Manual Switch"
@@ -15811,12 +16618,14 @@ Model {
     Line {
       SrcBlock		      "const"
       SrcPort		      1
+      Points		      [35, 0]
       DstBlock		      "Manual Switch"
       DstPort		      2
     }
     Line {
       SrcBlock		      "Manual Switch"
       SrcPort		      1
+      Points		      [0, 0]
       DstBlock		      "Gate2"
       DstPort		      1
     }
@@ -15913,7 +16722,7 @@ Model {
     Line {
       SrcBlock		      "PData"
       SrcPort		      1
-      Points		      [65, 0]
+      Points		      [0, 0; 65, 0]
       Branch {
 	DstBlock		"Data Display"
 	DstPort			4
@@ -15933,25 +16742,27 @@ Model {
     Line {
       SrcBlock		      "Pulse2"
       SrcPort		      1
+      Points		      [85, 0]
       DstBlock		      "Manual Switch1"
       DstPort		      1
     }
     Line {
       SrcBlock		      "const1"
       SrcPort		      1
+      Points		      [35, 0]
       DstBlock		      "Manual Switch1"
       DstPort		      2
     }
     Line {
       SrcBlock		      "Manual Switch1"
       SrcPort		      1
-      Points		      [55, 0]
+      Points		      [0, 0; 45, 0]
       Branch {
 	DstBlock		"Reset"
 	DstPort			1
       }
       Branch {
-	Points			[0, 210]
+	Points			[0, 225]
 	DstBlock		"Scope1"
 	DstPort			4
       }
@@ -15959,7 +16770,7 @@ Model {
     Line {
       SrcBlock		      "AData"
       SrcPort		      1
-      Points		      [65, 0]
+      Points		      [0, 0; 65, 0]
       Branch {
 	DstBlock		"Data Display"
 	DstPort			2
@@ -15973,7 +16784,7 @@ Model {
     Line {
       SrcBlock		      "BData"
       SrcPort		      1
-      Points		      [65, 0]
+      Points		      [0, 0; 65, 0]
       Branch {
 	DstBlock		"Data Display"
 	DstPort			3
@@ -15999,14 +16810,14 @@ Model {
     Line {
       SrcBlock		      "Add1"
       SrcPort		      1
-      Points		      [5, 0]
+      Points		      [0, 0; 15, 0]
       Branch {
-	Points			[10, 0; 0, -105]
+	Points			[0, -105]
 	DstBlock		"Data Display"
 	DstPort			6
       }
       Branch {
-	Points			[0, 60]
+	Points			[0, 120]
 	DstBlock		"Scope1"
 	DstPort			2
       }
@@ -16027,7 +16838,7 @@ Model {
     Line {
       SrcBlock		      "Complex to\nReal-Imag"
       SrcPort		      2
-      Points		      [35, 0; 0, 25]
+      Points		      [35, 0; 0, 30]
       DstBlock		      "Q_In"
       DstPort		      1
     }
@@ -16040,7 +16851,7 @@ Model {
 	DstPort			5
       }
       Branch {
-	Points			[0, 200]
+	Points			[0, 260]
 	DstBlock		"Scope1"
 	DstPort			1
       }
@@ -16060,12 +16871,14 @@ Model {
     Line {
       SrcBlock		      "Index"
       SrcPort		      1
+      Points		      [195, 0]
       DstBlock		      "IQ_Index"
       DstPort		      1
     }
     Line {
       SrcBlock		      "Length"
       SrcPort		      1
+      Points		      [195, 0]
       DstBlock		      "IQ_Length"
       DstPort		      1
     }
@@ -16080,6 +16893,45 @@ Model {
       SrcPort		      1
       DstBlock		      "To Workspace2"
       DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Data Display"
+      SrcPort		      4
+      DstBlock		      "Scope"
+      DstPort		      4
+    }
+    Line {
+      SrcBlock		      "Pulse Pair Processor"
+      SrcPort		      9
+      Points		      [285, 0]
+      DstBlock		      "Data Display"
+      DstPort		      7
+    }
+    Line {
+      SrcBlock		      "Pulse"
+      SrcPort		      1
+      DstBlock		      "Manual Switch2"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Manual Switch2"
+      SrcPort		      1
+      Points		      [65, 0]
+      Branch {
+	DstBlock		"Gate1"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, 330]
+	DstBlock		"Scope1"
+	DstPort			3
+      }
+    }
+    Line {
+      SrcBlock		      "Pulse3"
+      SrcPort		      1
+      DstBlock		      "Manual Switch2"
+      DstPort		      2
     }
   }
 }
