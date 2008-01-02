@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Usage runRR.sh [<testrr314_arg> ...]
+# Usage runRR.sh [<rr314dual args> ...]
 #
 
 #
@@ -24,7 +24,7 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -d $CONF/domain_ids"
 
 # the RR314 application
-rr314="$topdir/redrapids/rr314dual \
+rr314="$topdir/eldoradrx/rr314dual \
    --ORB $CONF/tcp.conf \
    --DCPS $CONF/producer.ini \
    --pub $*"
