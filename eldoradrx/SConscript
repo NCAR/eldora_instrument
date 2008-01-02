@@ -1,0 +1,29 @@
+import os
+tools = ['ddssvc', 'rr314']
+env = Environment(tools = ['default'] + tools)
+
+# libraries:
+libs = Split("""
+boost_program_options
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
+""")
+
+env.Append(LIBS = libs)
+
+# build single board application
+rr314single = env.Program('rr314single', 'RR314single.cpp')
+
+Default(rr314single)
+
+# build dual board application
+rr314dual = env.Program('rr314dual', 'RR314dual.cpp')
+
+Default(rr314dual)
+

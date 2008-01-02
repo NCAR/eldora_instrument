@@ -38,7 +38,7 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
     // capture signals
 	
     if (_catchSignals) {
-//        SignalCatcher::instance()->configure(0, shutdownSignalHandler);
+        SignalCatcher::instance()->configure(0, shutdownSignalHandler);
     }
         
     if (simulate) {

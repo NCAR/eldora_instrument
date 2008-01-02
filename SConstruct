@@ -22,9 +22,16 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
-SConscript('redrapids/SConscript')
-SConscript('qttoolbox/SConscript')
+# The main eldora applications:
+SConscript('eldoradrx/SConscript')
 SConscript('products/SConscript')
 SConscript('eldorascope/SConscript')
-SConscript('tmp/SConscript')
+
+# The qttoobox support
+SConscript('qttoolbox/SConscript')
+
+# A DDS test harness
 SConscript('testdds/SConscript')
+
+# Tom's original code
+SConscript('tmp/SConscript')
