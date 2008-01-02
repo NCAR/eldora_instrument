@@ -124,21 +124,36 @@ class RR314 {
 public:
 
 	/// Constructor
-	/// @param decimationFactor Downconvertor decimation count
+    /// @param devnum The device number.
+    /// @param gates The number of gates.
+    /// @param prf The pulse repeition frequency in Hz.
+    /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
+    /// @param samples Number of pulses to analyze for a single ABP.
+    /// @param dualPrt True if operating in dual prt mode.
+    /// @param startGateIQ The starting gate for IQ capture.
+    /// @param nGatesIQ The number of successive gtes for IQ capture.
 	/// @param gausianFile The file of gaussian filter coefficients,blank if none.
 	/// @param kaiserFile The file of kaiser filter coefficients, blank if none.
 	/// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
 	/// @param simulate Set true if simulation instead of real hardware
     /// @param catchSignals Set true if the class is supposed to catch signals and
-    /// correctly shutdown the cards. If the user decides to catch signals themself,
-    /// they MUST call RR314shutdown in order to terminate the DMA transfers
-    /// correctly.
-	RR314(int devNum, unsigned int gates, unsigned int samples,
-			unsigned int dualPrt, unsigned int startGateIQ,
-			unsigned int nGatesIQ, unsigned int decimationFactor,
-			std::string gaussianFile, std::string kaiserFile,
-			std::string xsvfFile, bool simulate = false,
-			bool catchSignals = true) throw (std::string);
+    /// correctly shutdown the cards. If the user decides to catch signals 
+    /// themself (by setting this to false), they MUST call RR314shutdown in order 
+    /// to terminate the DMA transfers correctly.
+	RR314(int devNum, 
+	        unsigned int gates, 
+	        unsigned int prf,
+	        unsigned int pulsewidth, 
+	        unsigned int samples,
+	        unsigned int dualPrt, 
+	        unsigned int startGateIQ,
+	        unsigned int nGatesIQ, 
+	        std::string gaussianFile,
+	        std::string kaiserFile, 
+	        std::string xsvfFile,
+	        bool simulate = false, 
+	        bool catchSignals = true)
+                throw (std::string);
 
 	/// Destructor
 	virtual ~RR314();
@@ -245,7 +260,8 @@ protected:
 	bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
 	/// Configure the timers.
-	void timerInit();
+	/// @return true if succesful, false otherwise.
+	bool timerInit();
 
 	/// Accumlulate byte counts.
 	/// @param chan The channel
@@ -282,19 +298,6 @@ protected:
 	/// variable is signalled.
 	std::map<int, RRABPBuffer*> _currentABPBuffer;
 
-	/// The gaussian filter decimation factor (1-127).
-	unsigned int _decimationFactor;
-
-	/// The path to the file containing the gaussian filter definitions.
-	std::string _gaussianFile;
-
-	/// The path to the file containing the kaiser filter coefficients.
-	std::string _kaiserFile;
-
-	/// The path to a RR bitstream file, if it will be
-	/// loaded.
-	std::string _xsvfFileName;
-
 	/// The number of bytes captured for each channel.
 	std::vector<unsigned long> _bytes;
 
@@ -319,9 +322,18 @@ protected:
 
 	/// The number of gates.
 	unsigned int _gates;
+	
+	/// The prf in hz,
+	int _prf;
+	
+	/// The pulsewidth in ns.
+	int _pulsewidth;
 
 	/// The number of samples.
 	unsigned int _samples;
+
+    /// The number of IQ gates to capture.
+    unsigned int _numIQ;
 
 	/// Dual prt true or false.
 	unsigned int _dualPrt;
@@ -329,14 +341,24 @@ protected:
 	/// The start gate number of IQ capture.
 	unsigned int _startGateIQ;
 
-	/// The number of IQ gates to capture.
-	unsigned int _numIQ;
+    /// The gaussian filter decimation factor (1-127).
+    unsigned int _decimationFactor;
 
-	/// The number of fifo full interrupts. 
-	int _fifoFullInts;
+    /// The path to the file containing the gaussian filter definitions.
+    std::string _gaussianFile;
+
+    /// The path to the file containing the kaiser filter coefficients.
+    std::string _kaiserFile;
+
+    /// The path to a RR bitstream file, if it will be
+    /// loaded.
+    std::string _xsvfFileName;
 
 	/// Set true if simulate
 	bool _simulate;
+
+	/// The number of fifo full interrupts. 
+	int _fifoFullInts;
 
 	/// The simulator
 	RedRapids::RR314sim* _simulator;

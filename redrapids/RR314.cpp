@@ -19,17 +19,30 @@ std::map<s_ChannelAdapter*, RR314*> RedRapids::RR314::rr314Instances;
 
 //////////////////////////////////////////////////////////////////////
 
-RR314::RR314(int devNum, unsigned int gates, unsigned int samples,
-		unsigned int dualPrt, unsigned int startGateIQ, unsigned int nGatesIQ,
-		unsigned int decimationFactor, std::string gaussianFile,
-		std::string kaiserFile, std::string xsvfFileName, bool simulate,
-		bool doSignals)
+RR314::RR314(int devNum, unsigned int gates, unsigned int prf,
+        unsigned int pulsewidth, unsigned int samples, 
+        unsigned int dualPrt, unsigned int startGateIQ,
+        unsigned int nGatesIQ, 
+        std::string gaussianFile, std::string kaiserFile,
+        std::string xsvfFile, bool simulate,
+        bool catchSignals)
 		throw(std::string) :
-	_decimationFactor(decimationFactor), _gaussianFile(gaussianFile),
-			_kaiserFile(kaiserFile), _xsvfFileName(xsvfFileName),
-			_bufferNext(0), _devNum(devNum), _gates(gates), _samples(samples),
-			_dualPrt(dualPrt), _startGateIQ(startGateIQ), _numIQ(nGatesIQ),
-			_simulate(simulate), _running(false), _catchSignals(doSignals) {
+            _devNum(devNum), 
+			_gates(gates), 
+			_prf(prf),
+			_pulsewidth(pulsewidth), 
+            _samples(samples),
+            _dualPrt(dualPrt), 
+            _startGateIQ(startGateIQ), 
+            _numIQ(nGatesIQ),
+			_gaussianFile(gaussianFile),
+			_kaiserFile(kaiserFile), 
+			_xsvfFileName(xsvfFile),
+            _simulate(simulate), 
+            _catchSignals(catchSignals), 
+			_bufferNext(0), 
+			_running(false) 
+			{
 
 	// initalize threading constructs
 	pthread_mutex_init(&_bufferMutex, NULL);
@@ -428,7 +441,8 @@ int RR314::configure314() {
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN);
 
 	// initialize the timers
-	timerInit();
+	if (!timerInit()) 
+	    return -1;
 
 	return 0;
 
@@ -691,31 +705,59 @@ void RR314::boardInfo() {
 
 /////////////////////////////////////////////////////////////////////////
 
-void RR314::timerInit() {
+bool RR314::timerInit() {
 	//
 	//    This section initializes the timers and pulse pair processors.
 
 	// Decimation Setup
-	unsigned int Dec_Factor = _decimationFactor*2 - 1;
+    int decimationFactor;
+    switch(_pulsewidth) {
+        case 250:
+        decimationFactor = _0_25us;
+        break;
+        case 500:
+        decimationFactor = _0_50us;
+        break;
+        case 750:
+        decimationFactor = _0_75us;
+        break;
+        case 1000:
+        decimationFactor = _1_00us;
+        break;
+        case 1250:
+        decimationFactor = _1_25us;
+        break;
+        case 1500:
+        decimationFactor = _1_50us;
+        break;
+        case 1750:
+        decimationFactor = _1_75us;
+        break;
+        case 2000:
+        decimationFactor = _2_00us;
+        break;
+        default:
+            std::cout << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+            return false;
+    }
+
+	unsigned int Dec_Factor = decimationFactor*2 - 1;
 	Adapter_Write32(&_chanAdapter, V4, DEC_REG, Dec_Factor);// Decimation Register
 
 	//Pulse Pair Setup
 	Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
 	Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of Samples
 	Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _dualPrt); // Dual Prt(Off)
-	Adapter_Write32(&_chanAdapter, V4, 
-	IQ_START_IDX, _startGateIQ); // index of start of IQ capture
+	Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ); // index of start of IQ capture
 	Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQ); // # of Gate of IQ capture
 
 	Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
 	Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
 	Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
-	Adapter_Read32(&_chanAdapter, V4, 
-	IQ_START_IDX, &_startGateIQ);
+	Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
 	Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQ);
 
-	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples,
-			_dualPrt);
+	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
 	printf("IQ Index = %d, IQ Length = %d\n", _startGateIQ, _numIQ);
 	printf("Pulse Width = %d, Decimation Factor = %d\n", _gates,
 			_decimationFactor);
@@ -723,21 +765,11 @@ void RR314::timerInit() {
 	// Reset Timers
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0); // Enable Timer
 	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Control Register
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	DELAY_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	WIDTH_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	PERIOD_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	PRT_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Mult PRT Register Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Control Register
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Mult PRT Register Timer 0
 	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn on Write Strobes
 
 	// Gating Timer Setup
@@ -750,32 +782,25 @@ void RR314::timerInit() {
 	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
 
 	// Delay Register
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	DELAY_REG|Timers); // Address Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0); // Value Timer 0
 
-
 	// Pulse Width Register
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	WIDTH_REG|Timers); // Address Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates); // Value Timer 0 (Testing Purposes)
 
 	// Period Register
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	PERIOD_REG|Timers); // Address Timer 0
+	int periodCount = (int)_gates/(8.0e6/decimationFactor);
+	std::cout << "Period register value:" << periodCount << "\n";
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
 	if (_dualPrt == 0) {
-		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 500);
+		Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount);
 	} else {
-		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 250); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
+		Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
 	}
 
 	//Multiple PRT Register
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	PRT_REG|Timers); // Mult PRT Register Timer 0
+	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG|Timers); // Mult PRT Register Timer 0
 	if (_dualPrt) {
 		Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0054); // Mult PRT Value Timer 0
 	} else {
@@ -791,6 +816,8 @@ void RR314::timerInit() {
     MT_ADDR, 
     PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
+    
+    return true;
          
 }
 
