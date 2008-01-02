@@ -24,7 +24,7 @@ Export('env')
 
 # The main eldora applications:
 SConscript('eldoradrx/SConscript')
-SConscript('products/SConscript')
+SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
 
 # The qttoobox support
