@@ -43,7 +43,8 @@ struct runParams {
         int nci; ///< number of coherent integrations. Also known as "samples"
         int startiq; ///< the starting gate number of iq capture.
         int numiq; ///< the number of gates for iq capture.
-        int decimation; ///< the decimation factor. Must be one of the values from DDCregisters.h
+        int pulsewidth; ///< the pulse width in ns. Must map to oe of the values in DDCregisters.h
+        int prf; ///< the pulse repetition frequency, hz.
         bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
         std::string xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
         std::string kaiser; ///< path to a file containing coefficients for the kaiser filter.
@@ -92,8 +93,9 @@ struct runParams parseOptions(
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
     ("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
     ("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture")
-    ("pulsewidth", po::value<int>(&pulseWidth)->default_value(1000), 
+    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(1000), 
             "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
+    ("prf", po::value<int>(&params.prf)->default_value(1000), "pulse repetition frequency")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
@@ -117,30 +119,15 @@ struct runParams parseOptions(
     }
     
     // verify that the decimation is one of the accepted values.
-    switch(pulseWidth) {
+    switch(params.pulsewidth) {
         case 250:
-        params.decimation = _0_25us;
-        break;
         case 500:
-        params.decimation = _0_50us;
-        break;
         case 750:
-        params.decimation = _0_75us;
-        break;
         case 1000:
-        params.decimation = _1_00us;
-        break;
         case 1250:
-        params.decimation = _1_25us;
-        break;
         case 1500:
-        params.decimation = _1_50us;
-        break;
         case 1750:
-        params.decimation = _1_75us;
-        break;
         case 2000:
-        params.decimation = _2_00us;
         break;
         default:
             std::cout << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
@@ -469,14 +456,15 @@ int main(
             try {
                 RR314 rr314_0(params0.deviceNumber,
                         params0.gates,
+                        params0.prf,
+                        params0.pulsewidth,
                         params0.nci,
                         0, // dual prt (0 or 1)
                         params0.startiq,
                         params0.numiq,
-                        params0.decimation,
-                        params0.xsvf,
-                        params0.kaiser,
                         params0.gaussian,
+                        params0.kaiser,
+                        params0.xsvf,
                         params0.simulate,
                         false              // do not catch signals in RR314; we will do that ourselves.
                 );
@@ -484,14 +472,15 @@ int main(
 
                 RR314 rr314_1(params1.deviceNumber,
                         params1.gates,
+                        params1.prf,
+                        params1.pulsewidth,
                         params1.nci,
                         0, // dual prt (0 or 1)
                         params1.startiq,
                         params1.numiq,
-                        params1.decimation,
-                        params1.xsvf,
-                        params1.kaiser,
                         params1.gaussian,
+                        params1.kaiser,
+                        params1.xsvf,
                         params1.simulate,
                         false              // do not catch signals in RR314; we will do that ourselves
                 );
