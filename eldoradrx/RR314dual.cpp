@@ -37,30 +37,30 @@ bool _terminate = false;
 /// The parameters that specify the configuration for each 
 /// RR314 device.
 struct runParams {
-        int deviceNumber; ///<
-        bool enabled; ///<
-        int gates; ///<
-        int nci; ///<
-        int startiq; ///<
-        int numiq; ///<
-        int decimation; ///<
-        bool simulate; ///<
-        std::string xsvf; ///<
-        std::string kaiser; ///<
-        std::string gaussian; ///<
-        RR314* pRR314; ///<
-        std::ofstream* ofstreams[8]; ///<
-        unsigned long sampleCounts[8]; ///<
-        bool publish; ///<
-        bool capture; ///<
-        bool textcapture; ///<
-        std::string ORB; ///<
-        std::string DCPS; ///<
-        unsigned long* droppedTS; ///<
-        unsigned long* droppedPulse; ///<
-        DDSPublisher* publisher; ///<
-        PulseWriter* pulseWriter; ///<
-        TSWriter* tsWriter; ///<
+        int deviceNumber; ///< card number, starting at 0
+        bool enabled; ///< true if the dma transfers are to be started
+        int gates; ///< number of gates
+        int nci; ///< number of coherent integrations. Also known as "samples"
+        int startiq; ///< the starting gate number of iq capture.
+        int numiq; ///< the number of gates for iq capture.
+        int decimation; ///< the decimation factor. Must be one of the values from DDCregisters.h
+        bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
+        std::string xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
+        std::string kaiser; ///< path to a file containing coefficients for the kaiser filter.
+        std::string gaussian; ///< path to a file containing coefficients for the gaussian filter.
+        RR314* pRR314; ///< pointer to the instance of RR314 representing this card.
+        std::ofstream* ofstreams[8]; ///< pointers to output streams for test or binary data capture.
+        unsigned long sampleCounts[8]; ///< collect the number of DDS samples written for each dma channel.
+        bool publish; ///< set ture if the rr314 data should be published to DDS.
+        bool capture; ///< set true if the data should be captured to files in binary mode.
+        bool textcapture; ///< set true if the data should be captured to files in text mode.
+        std::string ORB; ///< path to the ORB configuration file.
+        std::string DCPS; ///< path to the DCPS configuration file.
+        unsigned long* droppedTS; ///< the number of TS samples that could not be published.
+        unsigned long* droppedPulse; ///< the number of Pulse samples that could not be published.
+        DDSPublisher* publisher; ///< the DDS publisher.
+        PulseWriter* pulseWriter; ///< the DDS pulse writer.
+        TSWriter* tsWriter; ///< the DDS TS writer.
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -79,6 +79,8 @@ struct runParams parseOptions(
     // set the device number
     params.deviceNumber = deviceNumber;
 
+    int pulseWidth;
+    
     // get the options
     po::options_description descripts("Options");
     descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
@@ -86,11 +88,12 @@ struct runParams parseOptions(
     ("simulate", "run in simulation mode")
     ("start0","start RR314 device 0")
     ("start1", "start RR314 device 1")
-    ("gates",po::value<int>(&params.gates)->default_value(391), "number of gates")
+    ("gates",po::value<int>(&params.gates)->default_value(400), "number of gates")
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
     ("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
     ("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture")
-    ("decimation", po::value<int>(&params.decimation)->default_value(6), "decimation factor")
+    ("pulsewidth", po::value<int>(&pulseWidth)->default_value(1000), 
+            "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
@@ -111,6 +114,38 @@ struct runParams parseOptions(
         std::cout << "that card will be started for data collection.\n";
         std::cout << descripts << "\n";
         exit(1);
+    }
+    
+    // verify that the decimation is one of the accepted values.
+    switch(pulseWidth) {
+        case 250:
+        params.decimation = _0_25us;
+        break;
+        case 500:
+        params.decimation = _0_50us;
+        break;
+        case 750:
+        params.decimation = _0_75us;
+        break;
+        case 1000:
+        params.decimation = _1_00us;
+        break;
+        case 1250:
+        params.decimation = _1_25us;
+        break;
+        case 1500:
+        params.decimation = _1_50us;
+        break;
+        case 1750:
+        params.decimation = _1_75us;
+        break;
+        case 2000:
+        params.decimation = _2_00us;
+        break;
+        default:
+            std::cout << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+            exit(1);
+        break;
     }
 
     // see if this device was selected to be active
