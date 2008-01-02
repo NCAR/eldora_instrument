@@ -15,9 +15,11 @@
 ///
 /// The configure() capability should be used, otherwise 
 /// using the class is pointless.
-    typedef void (*pf)(int signo, void* userData);
 class SignalCatcher {
     public:
+        /// A type that defines a pointer to a function taking an int and a 
+        /// void* as arguments.
+        typedef void (*pf)(int signo, void* userData);
         /// @return The instance of this class. 
         static SignalCatcher* instance();
         /// Configure signal catching behavior. User flags
