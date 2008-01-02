@@ -30,7 +30,7 @@
 //////////////////////////////////////////////////////////////////////
 EldoraScope::EldoraScope(
         QDialog* parent) :
-    QDialog(parent), _performAutoScale(false), _statsUpdateInterval(5),
+    QDialog(parent), _statsUpdateInterval(5),
             _timeSeriesPlot(TRUE), _config("NCAR", "EldoraScope"),
             _paused(false), _gateMode(ALONG_BEAM), _zeroMoment(0.0) {
     // Set up our form
@@ -285,20 +285,26 @@ void EldoraScope::displayData() {
                 (ScopePlot::PLOTTYPE) pi->getDisplayType();
         switch (displayType) {
         case ScopePlot::TIMESERIES:
-            if (_performAutoScale)
+            if (pi->autoscale()) {
                 autoScale(I, Q, displayType);
+                pi->autoscale(false);
+            }
             xlabel = ((_gateMode == ONE_GATE) ? std::string("Time")
                     : std::string("Gate"));
             _scopePlot->TimeSeries(I, Q, yBottom, yTop, 1, xlabel, "I - Q");
             break;
         case ScopePlot::IVSQ:
-            if (_performAutoScale)
+            if (pi->autoscale()) {
                 autoScale(I, Q, displayType);
+                pi->autoscale(false);
+            }
             _scopePlot->IvsQ(I, Q, yBottom, yTop, 1, "I", "Q");
             break;
         case ScopePlot::SPECTRUM:
-            if (_performAutoScale)
+            if (pi->autoscale()) {
                 autoScale(_spectrum, displayType);
+                pi->autoscale(false);
+            }
             _scopePlot->Spectrum(_spectrum, _specGraphCenter-_specGraphRange
                     /2.0, _specGraphCenter+_specGraphRange/2.0, 1000000, false,
                     "Frequency (Hz)", "Power (dB)");
@@ -307,11 +313,13 @@ void EldoraScope::displayData() {
 
     } else {
         // Product data display
-        if (_performAutoScale)
-            autoScale(_ProductData, ScopePlot::PRODUCT);
         // send in the product id, which ScopePlot::Product() uses
         // to decide if axis rescaling is needed.
         PlotInfo* pi = &_productPlotInfo[_productPlotType];
+        if (pi->autoscale()) {
+            autoScale(_ProductData, ScopePlot::PRODUCT);
+            pi->autoscale(false);
+        }
         _scopePlot->Product(_ProductData, pi->getId(), yBottom, yTop,
                 _ProductData.size(), "Gate", pi->getLongName());
     }
@@ -695,7 +703,6 @@ void EldoraScope::dnSlot() {
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScale(
         std::vector<double>& data, ScopePlot::PLOTTYPE displayType) {
-    _performAutoScale = false;
     if (data.size() == 0)
         return;
 
@@ -711,7 +718,6 @@ void EldoraScope::autoScale(
 void EldoraScope::autoScale(
         std::vector<double>& data1, std::vector<double>& data2,
         ScopePlot::PLOTTYPE displayType) {
-    _performAutoScale = false;
     if (data1.size() == 0 || data2.size() == 0)
         return;
 
@@ -749,7 +755,15 @@ void EldoraScope::adjustGainOffset(
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::autoScaleSlot() {
-    _performAutoScale = true;
+    PlotInfo* pi;
+    
+    if (_timeSeriesPlot) {
+        pi = &_tsPlotInfo[_tsPlotType];
+    } else {
+        pi = &_productPlotInfo[_productPlotType];
+    }
+    
+    pi->autoscale(true);
 }
 
 //////////////////////////////////////////////////////////////////////

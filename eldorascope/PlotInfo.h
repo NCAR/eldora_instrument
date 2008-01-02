@@ -27,6 +27,13 @@ public:
 
 	std::string getShortName();
 	std::string getLongName();
+	
+	/// Set the autoscale flag
+	/// @param flag True if autscale requested.
+	void autoscale(bool flag);
+	
+	/// @return True if an autoscale is needed.
+	bool autoscale();
 
 protected:
 	int _id;
@@ -39,5 +46,6 @@ protected:
 	double _offsetMin;
 	double _offsetMax;
 	double _offsetCurrent;
+    bool _autoscale;
 };
 #endif

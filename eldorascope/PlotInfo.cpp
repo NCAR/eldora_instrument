@@ -11,7 +11,8 @@ _gainMax(1),
 _gainCurrent(0),
 _offsetMin(-1),
 _offsetMax(1),
-_offsetCurrent(0)
+_offsetCurrent(0),
+_autoscale(true)
 {
 }
 ////////////////////////////////////////////////////////
@@ -122,7 +123,16 @@ PlotInfo::getDisplayType()
 {
 	return _displayType;
 }
-
+////////////////////////////////////////////////////////
+void
+PlotInfo::autoscale(bool b) {
+    _autoscale = b;
+}
+////////////////////////////////////////////////////////
+bool
+PlotInfo::autoscale() {
+    return _autoscale;
+}
 
 
 

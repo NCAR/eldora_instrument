@@ -214,9 +214,6 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         double _xyGraphCenter;
         double _specGraphRange;
         double _specGraphCenter;
-        /// Set true to cause an autoscale 
-        /// to take place on the next data series
-        bool _performAutoScale;
         /// set the _graphRange and _graphOffset based
         /// on the single data series.
         /// @param data The data series to be analyzed.
