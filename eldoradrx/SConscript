@@ -17,11 +17,6 @@ rt
 
 env.Append(LIBS = libs)
 
-# build single board application
-rr314single = env.Program('rr314single', 'RR314single.cpp')
-
-Default(rr314single)
-
 # build dual board application
 rr314dual = env.Program('rr314dual', 'RR314dual.cpp')
 
