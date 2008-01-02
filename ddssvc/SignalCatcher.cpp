@@ -5,6 +5,7 @@
 SignalCatcher* _pinstance = 0;
 //////////////////////////////////////////////////////////////////////
 
+/// The function that is called to set the signal flag.
 void
 signalHandlerFunction(int signo) {
     // if it was a segv, produce a core dump
@@ -52,16 +53,31 @@ SignalCatcher::instance() {
 
 //////////////////////////////////////////////////////////////////////
 void
-SignalCatcher::addSignalFlag(int* signalFlag) {
-    *signalFlag = 0;
-    _signalFlags.push_back(signalFlag);
+SignalCatcher::configure(int* signalFlag, pf userFunction, void* userData)
+{
+    if (signalFlag) {
+        *signalFlag = 0;
+        _signalFlags.push_back(signalFlag);
+    }
+    
+    if (userFunction) {
+        _userFunctions.push_back(userFunction);
+        _userData.push_back(userData);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
 void
 SignalCatcher::setFlags(int signo) {
+    // set the signal flags
     for (unsigned int i = 0; i < _signalFlags.size(); i++)
         *(_signalFlags[i]) = signo;
+    
+    // call the user callback functions
+    for (unsigned int i = 0; i < _userFunctions.size(); i++) {
+        pf f = _userFunctions[i];
+        (*f)(signo, _userData[i]);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -55,7 +55,7 @@ int main(
     // This will be initialized to zero by SignalCatcher.
     int sigNumber = 0;
     // Catch signals with our flag
-    SignalCatcher::instance()->addSignalFlag(&sigNumber);
+    SignalCatcher::instance()->configure(&sigNumber);
 
     QtConfig config("NCAR", "EldoraProd");
     std::string pulseTopic;

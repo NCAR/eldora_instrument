@@ -109,7 +109,7 @@ struct RRIQBuffer : RRBuffer {
 /// one RRIQBuffer. Thus the ABP and IQ buffers will be produced at the same
 /// rate.
 ///
-/// The filled buffers are placed in holding queue. These
+/// The filled buffers are placed in a holding queue. These
 /// buffers are delivered to a client when the client calls the
 /// nextBuffer() function. A condition variable in nextBuffer()
 /// allows the reading thread to suspend while waiting for 
