@@ -355,13 +355,13 @@ int RR314::configure314() {
 	// set the sample clock
 	_ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
 	Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
-
+    sleep(1); //Allow time for synthesizer to lock.
 	// Code here should reset your DCMs and allow time for them to lock,
 	// then check their status
 	// Soft Reset, self clearing
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, SOFT_RST);
 	sleep(1);
-    // Check for DCM Lock
+	// Check for DCM Lock
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
     if (result & ADC_DCM_UNLOCKED) {
