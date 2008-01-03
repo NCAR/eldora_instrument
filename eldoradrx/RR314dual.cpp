@@ -82,20 +82,20 @@ struct runParams parseOptions(
 
     int pulseWidth;
     
-    // get the options
+    // get the option34
     po::options_description descripts("Options");
     descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simulate", "run in simulation mode")
     ("start0","start RR314 device 0")
     ("start1", "start RR314 device 1")
-    ("gates",po::value<int>(&params.gates)->default_value(400), "number of gates")
+    ("gates",po::value<int>(&params.gates)->default_value(500), "number of gates")
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
     ("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
     ("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture")
-    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(1000), 
+    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500), 
             "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
-    ("prf", po::value<int>(&params.prf)->default_value(1000), "pulse repetition frequency")
+    ("prf", po::value<int>(&params.prf)->default_value(3400), "pulse repetition frequency")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
