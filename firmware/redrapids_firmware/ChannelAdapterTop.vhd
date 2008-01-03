@@ -349,7 +349,12 @@ architecture behavioral of ChannelAdapter_Top is
 	signal chd_b		: std_logic_vector(31 downto 0);
 	signal chd_p		: std_logic_vector(31 downto 0);
 	
+	signal a_sync_error  : std_logic;							--Timing Sync Error Signal
+	signal b_sync_error  : std_logic;							--Timing Sync Error Signal
+	signal c_sync_error  : std_logic;							--Timing Sync Error Signal
+	signal d_sync_error  : std_logic;							--Timing Sync Error Signal
 	signal pp_rst		: std_logic;								--Pulse Pair Reset
+	
 	
 	-- Gate Splitter
 	signal gs_dprt_reg: std_logic;							-- Dual PRT Register
@@ -439,6 +444,7 @@ architecture behavioral of ChannelAdapter_Top is
 			gate_2  		  : in std_logic; 
 			channel_id	  : in std_logic_vector(3 downto 0); 
 			prt_mode		  : in std_logic; 
+			sync_error    : in std_logic;
 			data_valid64  : out std_logic; 
 			pp_data_out	  : out std_logic_vector(63 downto 0)); 
 	END COMPONENT;	
@@ -555,7 +561,7 @@ architecture behavioral of ChannelAdapter_Top is
 			d_qin: in std_logic_vector(15 downto 0);
 			iq_index: in std_logic_vector(9 downto 0);
 			iq_length: in std_logic_vector(9 downto 0);
-			m: in std_logic_vector(10 downto 0);
+			m: in std_logic_vector(9 downto 0);
 			n: in std_logic_vector(6 downto 0);
 			reset: in std_logic;
 			a_adata: out std_logic_vector(31 downto 0);
@@ -566,6 +572,7 @@ architecture behavioral of ChannelAdapter_Top is
 			a_pdata: out std_logic_vector(31 downto 0);
 			a_ppgate1: out std_logic;
 			a_ppgate2: out std_logic;
+			a_sync_error: out std_logic;
 			b_adata: out std_logic_vector(31 downto 0);
 			b_bdata: out std_logic_vector(31 downto 0);
 			b_iqdata: out std_logic_vector(31 downto 0);
@@ -574,6 +581,7 @@ architecture behavioral of ChannelAdapter_Top is
 			b_pdata: out std_logic_vector(31 downto 0);
 			b_ppgate1: out std_logic;
 			b_ppgate2: out std_logic;
+			b_sync_error: out std_logic;
 			c_adata: out std_logic_vector(31 downto 0);
 			c_bdata: out std_logic_vector(31 downto 0);
 			c_iqdata: out std_logic_vector(31 downto 0);
@@ -582,6 +590,7 @@ architecture behavioral of ChannelAdapter_Top is
 			c_pdata: out std_logic_vector(31 downto 0);
 			c_ppgate1: out std_logic;
 			c_ppgate2: out std_logic;
+			c_sync_error: out std_logic;
 			d_adata: out std_logic_vector(31 downto 0);
 			d_bdata: out std_logic_vector(31 downto 0);
 			d_iqdata: out std_logic_vector(31 downto 0);
@@ -589,7 +598,8 @@ architecture behavioral of ChannelAdapter_Top is
 			d_iqgate2: out std_logic;
 			d_pdata: out std_logic_vector(31 downto 0);
 			d_ppgate1: out std_logic;
-			d_ppgate2: out std_logic);
+			d_ppgate2: out std_logic;
+			d_sync_error: out std_logic);
 	END COMPONENT;
 
 	
@@ -1266,13 +1276,16 @@ begin
 			status_reg(12)   <= ffb0_full or ffb1_full or status_reg(12);
 			status_reg(11)   <= ffc0_full or ffc1_full or status_reg(11);
 			status_reg(10)   <= ffd0_full or ffd1_full or status_reg(10);
-			status_reg(9 downto 6)   <= (others => '0');  --ADC cur in over range, not sticky
+			status_reg(9)    <= a_sync_error or status_reg(9); --Timing sync error
+			status_reg(8)    <= b_sync_error or status_reg(8);
+			status_reg(7)    <= c_sync_error or status_reg(7);
+			status_reg(6)    <= d_sync_error or status_reg(6);
 			status_reg(5)    <= adca_or or status_reg(5); --ADC has over ranged
 			status_reg(4)    <= adcb_or or status_reg(4);
 			status_reg(3)    <= adcc_or or status_reg(3);
 			status_reg(2)    <= adcd_or or status_reg(2);
-			status_reg(1)    <= '0';--not sram_dcmlocked or status_reg(1); --DCMs out of lock
-			status_reg(0)    <= not adc_dcmlocked  or status_reg(0);
+			status_reg(1)    <= '0';
+			status_reg(0)    <= not adc_dcmlocked  or status_reg(0); --DCM out of lock
 		end if;
 	end process;
 	
@@ -1581,7 +1594,7 @@ begin
 		d_qin => chd_q,
 		iq_index => iq_index_reg(9 downto 0),
 		iq_length => iq_length_reg(9 downto 0),
-		m => pp_m_reg(10 downto 0),
+		m => pp_m_reg(9 downto 0),
 		n => pp_n_reg(6 downto 0),
 		reset => pp_rst,
 		a_adata => cha_a,
@@ -1592,6 +1605,7 @@ begin
 		a_pdata => cha_p,
 		a_ppgate1 => cha_pp_g(0),
 		a_ppgate2 => cha_pp_g(1),
+		a_sync_error => a_sync_error,
 		b_adata => chb_a,
 		b_bdata => chb_b,
 		b_iqdata => chb_iq,
@@ -1600,6 +1614,7 @@ begin
 		b_pdata => chb_p,
 		b_ppgate1 => chb_pp_g(0),
 		b_ppgate2 => chb_pp_g(1),
+		b_sync_error => b_sync_error,
 		c_adata => chc_a,
 		c_bdata => chc_b,
 		c_iqdata => chc_iq,
@@ -1608,6 +1623,7 @@ begin
 		c_pdata => chc_p,
 		c_ppgate1 => chc_pp_g(0),
 		c_ppgate2 => chc_pp_g(1),
+		c_sync_error => c_sync_error,
 		d_adata => chd_a,
 		d_bdata => chd_b,
 		d_iqdata => chd_iq,
@@ -1615,7 +1631,8 @@ begin
 		d_iqgate2 => chd_iq_g(1),
 		d_pdata => chd_p,
 		d_ppgate1 => chd_pp_g(0),
-		d_ppgate2 => chd_pp_g(1));
+		d_ppgate2 => chd_pp_g(1),
+		d_sync_error => d_sync_error);
 
 -- ==================================================
 -- = Channel A Data Flow
@@ -1667,6 +1684,7 @@ begin
 		gate_2  		  => cha_pp_g(1),
 		channel_id	  => "0010",
 		prt_mode		  => gs_dprt_reg,
+		sync_error    => a_sync_error,
 		data_valid64  => ffa1_wr,
 		pp_data_out	  => ffa1_data_in);
 	
@@ -1734,6 +1752,7 @@ begin
 		gate_2  		  => chb_pp_g(1),
 		channel_id	  => "0100",
 		prt_mode		  => gs_dprt_reg,
+		sync_error    => b_sync_error,
 		data_valid64  => ffb1_wr,
 		pp_data_out	  => ffb1_data_in);
 	
@@ -1801,6 +1820,7 @@ begin
 		gate_2  		  => chc_pp_g(1),
 		channel_id	  => "0110",
 		prt_mode		  => gs_dprt_reg,
+		sync_error    => c_sync_error,
 		data_valid64  => ffc1_wr,
 		pp_data_out	  => ffc1_data_in);
 	
@@ -1867,6 +1887,7 @@ begin
 		gate_2  		  => chd_pp_g(1),
 		channel_id	  => "1000",
 		prt_mode		  => gs_dprt_reg,
+		sync_error    => d_sync_error,
 		data_valid64  => ffd1_wr,
 		pp_data_out	  => ffd1_data_in);
 	

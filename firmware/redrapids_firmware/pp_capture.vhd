@@ -40,6 +40,7 @@ entity pp_capture is port (
 	gate_2  		  : in std_logic; -- Data Gate PRT 2
 	channel_id	  : in std_logic_vector(3 downto 0); -- Data Tag
 	prt_mode		  : in std_logic; -- PRT Mode, 1 = dual PRT, 0 = single PRT
+	sync_error    : in std_logic; -- Synchronization error flag.
 	data_valid64  : out std_logic; --data_out[63:0] is valid
 	pp_data_out	  : out std_logic_vector(63 downto 0)); --4 ADC words packed
 end pp_capture;	
@@ -123,7 +124,12 @@ begin
 			--Register incomming ADC data into a 64bit value to post to FIFO.  If sim mode is selected 
 			--make the sim counter the input to the shift register
 			if (ch_id_tag = '0' and (gate_1 = '1' or gate_2 = '1')) then
-				pp_inR(31 downto 4) <= (others=>'0');
+				if (sync_error = '1') then
+						pp_inR(31 downto 16) <= "1111111111111111";
+						pp_inR(15 downto 4) <= (others=>'0');
+				else
+						pp_inR(31 downto 4) <= (others=>'0');
+				end if;
 				pp_inR(3 downto 0) <= channel_id;
 				ch_id_tag <= '1';
 			elsif (prt_tag = '0' and gate_1 = '1') then

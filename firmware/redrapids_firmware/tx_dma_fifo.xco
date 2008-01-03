@@ -2,7 +2,7 @@
 SET flowvendor = Foundation_iSE
 SET vhdlsim = True
 SET verilogsim = True
-SET workingdirectory = C:\Work_Projects\Xilinx\Model314\ChannelAdapter_SX35
+SET workingdirectory = C:\Work_Projects\Eldora\firmware\redrapids_firmware
 SET speedgrade = -11
 SET simulationfiles = Behavioral
 SET asysymbol = True
@@ -22,23 +22,23 @@ SET removerpms = False
 SELECT Fifo_Generator family Xilinx,_Inc. 2.1
 # END Select
 # BEGIN Parameters
-CSET write_data_count=false
 CSET almost_empty_flag=true
+CSET write_data_count=false
 CSET full_threshold_negate_value=192
 CSET empty_threshold_negate_value=2
 CSET output_data_width=64
 CSET input_depth=256
 CSET valid_flag=false
 CSET empty_threshold_negate_presets=1_from_Empty
-CSET programmable_empty_type=Single_Programmable_Empty_Threshold_Constant
 CSET write_acknowledge_flag=false
+CSET programmable_empty_type=Single_Programmable_Empty_Threshold_Constant
 CSET full_threshold_negate_presets=3/4_Full
-CSET underflow_flag=false
 CSET fifo_implementation=Independent_Clocks_Block_RAM
+CSET underflow_flag=false
 CSET use_extra_logic=false
-CSET write_data_count_width=2
-CSET valid_sense=Active_High
 CSET register_outputs=true
+CSET valid_sense=Active_High
+CSET write_data_count_width=2
 CSET data_count_width=2
 CSET output_depth=256
 CSET dout_reset_value=0
