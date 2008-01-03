@@ -28,7 +28,7 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int prf,
         bool catchSignals)
 		throw(std::string) :
             _devNum(devNum), 
-			_gates(gates), 
+			_gates(gates),
 			_prf(prf),
 			_pulsewidth(pulsewidth), 
             _samples(samples),

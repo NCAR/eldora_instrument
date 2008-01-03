@@ -152,6 +152,20 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		pRR314->fifoFullInts(pRR314->fifoFullInts()+1);;
 	}	
     
+	//Check for Timing Synchronization Errors
+	if (Status & A_SYNC_ERROR) {
+		std::cout << "Timing Sync Error on Channel A - Must Restart Processors to Recover.\n";
+	}
+	if (Status & B_SYNC_ERROR) {
+		std::cout << "Timing Sync Error on Channel B - Must Restart Processors to Recover.\n";
+	}
+	if (Status & C_SYNC_ERROR) {
+		std::cout << "Timing Sync Error on Channel C - Must Restart Processors to Recover.\n";
+	}
+	if (Status & D_SYNC_ERROR) {
+		std::cout << "Timing Sync Error on Channel D - Must Restart Processors to Recover.\n";
+	}
+	
 	/// @todo if any of the a/ds had full fifos, then
 	/// the dma and A/Ds need to be reenabled. This is an artifact
 	/// from some old RR code, does it really need to
