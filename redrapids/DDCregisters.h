@@ -98,3 +98,10 @@
   #define PRT3 (0x0<<8)
   #define PRT4 (0x0<<12)
 
+//-------------------------------
+//Added by Tom 1-3-08 for timing error detection 
+//Bits 9-6 of status register corresponde to sync error for channel A-D
+#define A_SYNC_ERROR (0x1<<9)
+#define B_SYNC_ERROR (0x1<<8)
+#define C_SYNC_ERROR (0x1<<7)
+#define D_SYNC_ERROR (0x1<<6)
