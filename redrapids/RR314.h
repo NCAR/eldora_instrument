@@ -341,9 +341,6 @@ protected:
 	/// The start gate number of IQ capture.
 	unsigned int _startGateIQ;
 
-    /// The gaussian filter decimation factor (1-127).
-    unsigned int _decimationFactor;
-
     /// The path to the file containing the gaussian filter definitions.
     std::string _gaussianFile;
 

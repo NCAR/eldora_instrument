@@ -759,8 +759,7 @@ bool RR314::timerInit() {
 
 	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
 	printf("IQ Index = %d, IQ Length = %d\n", _startGateIQ, _numIQ);
-	printf("Pulse Width = %d, Decimation Factor = %d\n", _gates,
-			_decimationFactor);
+	printf("Pulse Width = %d, Decimation Factor = %d\n", _pulsewidth, decimationFactor);
 
 	// Reset Timers
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0); // Enable Timer
@@ -775,9 +774,7 @@ bool RR314::timerInit() {
 	// Gating Timer Setup
 	unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
 	printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
-	Adapter_Write32(&_chanAdapter, V4, 
-	MT_ADDR, 
-	CONTROL_REG|Timers); // Control Register
+	Adapter_Write32(&_chanAdapter, V4,  MT_ADDR,  CONTROL_REG|Timers); // Control Register
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, TIMER_ON); // Enable Timer
 	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
 
@@ -790,7 +787,8 @@ bool RR314::timerInit() {
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates); // Value Timer 0 (Testing Purposes)
 
 	// Period Register
-	int periodCount = (int)_gates/(8.0e6/decimationFactor);
+	double prtClock = (8.0e6/decimationFactor);
+	int periodCount = (int)  (prtClock/_prf);
 	std::cout << "Period register value:" << periodCount << "\n";
 	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
 	if (_dualPrt == 0) {
@@ -870,13 +868,13 @@ int RR314::filterSetup() {
 
 	int Decimation, Dec_Factor;
 
-	Decimation = _decimationFactor;
-	Dec_Factor = Decimation*2 - 1;
+//	Decimation = _decimationFactor;
+	//Dec_Factor = Decimation*2 - 1;
 
 	//Decimation Setup
-	Adapter_Write32(&_chanAdapter, V4, 0x958, 0x1); // Turn on Write Strobe
-	Adapter_Write32(&_chanAdapter, V4, 0x954, Dec_Factor);// Decimation Register
-	Adapter_Write32(&_chanAdapter, V4, 0x958, 0x0); // Turn off Write Strobe
+	//Adapter_Write32(&_chanAdapter, V4, 0x958, 0x1); // Turn on Write Strobe
+	//Adapter_Write32(&_chanAdapter, V4, 0x954, Dec_Factor);// Decimation Register
+	//Adapter_Write32(&_chanAdapter, V4, 0x958, 0x0); // Turn off Write Strobe
 
 	return 0;
 }
