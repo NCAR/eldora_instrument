@@ -38,6 +38,8 @@ void EldoraQtSource::run() {
 
     // Indicate that the event loop is running.
     _run = true;
+    
+    std::cout << __FILE__ << ":" << __FUNCTION__ << "\n";
     // start the event loop
     exec();
 }

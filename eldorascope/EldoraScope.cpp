@@ -138,7 +138,13 @@ EldoraScope::EldoraScope(
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
-
+    
+    // let the data sources get themselves ready
+    sleep(1);
+    
+    // announce our mode
+    dataMode();
+    
 }
 //////////////////////////////////////////////////////////////////////
 EldoraScope::~EldoraScope() {
@@ -776,16 +782,20 @@ void EldoraScope::pauseSlot(
 void EldoraScope::dataMode() {
     if (_timeSeriesPlot) {
         if (_gateMode == ONE_GATE) {
+        	std::cout << __FUNCTION__ << "\n";
            emit oneGateTSSignal(_channel, _forwardRadar, _gateChoice,
                     _blockSizeChoices[_blockSizeIndex]);
         } else {
-           emit alongBeamTSSignal(_channel, _forwardRadar);
+        	std::cout << __FUNCTION__ << "\n";
+            emit alongBeamTSSignal(_channel, _forwardRadar);
         }
     } else {
         if (_gateMode == ONE_GATE) {
-           emit oneGateProductSignal(_productPlotType, _forwardRadar, _gateChoice,
+        	std::cout << __FUNCTION__ << "\n";
+            emit oneGateProductSignal(_productPlotType, _forwardRadar, _gateChoice,
                     _blockSizeChoices[_blockSizeIndex]);
         } else {
+        	std::cout << __FUNCTION__ << "\n";
            emit alongBeamProductSignal(_productPlotType, _forwardRadar);
         }
     }
@@ -829,7 +839,8 @@ void EldoraScope::radarSlot(
     // tell the data source about our decision
 
             dataMode();
-}//////////////////////////////////////////////////////////////////////
+}
+//////////////////////////////////////////////////////////////////////
 void EldoraScope::gateChoiceSlot(
         int index) {
     _gateChoice = _gates[index];

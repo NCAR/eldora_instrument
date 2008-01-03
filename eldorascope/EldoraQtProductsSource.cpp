@@ -126,6 +126,8 @@ float* EldoraQtProductsSource::selectProduct(
 void EldoraQtProductsSource::oneGateSlot(
         PRODUCT_TYPES product, bool forwardRadar, int gate, int n) {
 
+	std::cout << __FUNCTION__ << "\n";
+	
     _gate = gate;
     _pointsPerGate = n;
     _gateMode = ONE_GATE;
@@ -142,6 +144,8 @@ void EldoraQtProductsSource::oneGateSlot(
 void EldoraQtProductsSource::alongBeamSlot(
         PRODUCT_TYPES product, bool forwardRadar) {
 
+	std::cout << __FUNCTION__ << "\n";
+	
     _gateMode = ALONG_BEAM;
     _product = product;
     _forwardRadar = forwardRadar;
