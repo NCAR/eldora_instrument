@@ -742,7 +742,8 @@ bool RR314::timerInit() {
     }
 
 	unsigned int Dec_Factor = decimationFactor*2 - 1;
-	Adapter_Write32(&_chanAdapter, V4, DEC_REG, Dec_Factor);// Decimation Register
+//	Adapter_Write32(&_chanAdapter, V4, DEC_REG, Dec_Factor);// Decimation Register
+	Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
 
 	//Pulse Pair Setup
 	Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
@@ -863,18 +864,6 @@ int RR314::filterSetup() {
 		std::cerr << "Unable to load filters\n";
 		return -1;
 	}
-
-	// for Tom's bitstream:
-
-	int Decimation, Dec_Factor;
-
-//	Decimation = _decimationFactor;
-	//Dec_Factor = Decimation*2 - 1;
-
-	//Decimation Setup
-	//Adapter_Write32(&_chanAdapter, V4, 0x958, 0x1); // Turn on Write Strobe
-	//Adapter_Write32(&_chanAdapter, V4, 0x954, Dec_Factor);// Decimation Register
-	//Adapter_Write32(&_chanAdapter, V4, 0x958, 0x0); // Turn off Write Strobe
 
 	return 0;
 }

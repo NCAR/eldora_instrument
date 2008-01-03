@@ -91,8 +91,8 @@ struct runParams parseOptions(
     ("start1", "start RR314 device 1")
     ("gates",po::value<int>(&params.gates)->default_value(500), "number of gates")
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
-    ("startiq", po::value<int>(&params.startiq)->default_value(0), "start gate for iq capture")
-    ("numiq", po::value<int>(&params.numiq)->default_value(21),"number of gates for iq capture")
+    ("startiq", po::value<int>(&params.startiq)->default_value(100), "start gate for iq capture")
+    ("numiq", po::value<int>(&params.numiq)->default_value(5),"number of gates for iq capture")
     ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500), 
             "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
     ("prf", po::value<int>(&params.prf)->default_value(3400), "pulse repetition frequency")
