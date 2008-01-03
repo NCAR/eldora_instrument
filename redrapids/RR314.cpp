@@ -385,13 +385,14 @@ int RR314::configure314() {
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
 	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
+	sleep(1);
 	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
 	
 	// reset Pulse Pair Processor
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
 	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
-
+	
 	//Enable GPIO
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_GPIO_ADR, BRG_M314GPIO_EN);
 
@@ -424,7 +425,8 @@ int RR314::configure314() {
 		ca_LoadDMASettings(&_chanAdapter);
 	}
 	printf("DMA memory allocation done.\n");
-
+	
+	
 	// Enable DMA interrupt on every group for all 
 	for (i = 0; i < _chanAdapter.DMA.DMAChannels+1; i++)
 		Adapter_Write32(&_chanAdapter, V4, DMA_CH0_GRPSPERINT_ADR+(0x4*i), 0x0);
@@ -439,11 +441,12 @@ int RR314::configure314() {
 
 	//Allow bridge to create PCI intr
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN);
-
+		
+	
 	// initialize the timers
 	if (!timerInit()) 
 	    return -1;
-
+	
 	return 0;
 
 }
