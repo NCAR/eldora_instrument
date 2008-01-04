@@ -10,7 +10,7 @@ Q_DECLARE_METATYPE(std::vector<int>)
 EldoraQtTSSource::EldoraQtTSSource(DDSSubscriber& subscriber,
 		std::string topicName, double outputRate) :
 	EldoraQtSource(outputRate), TSReader(subscriber, topicName),
-			_radarId(EldoraDDS::Forward) {
+			_radarId(EldoraDDS::Forward), _channel(1) {
 
 	// these are required in order to send structured data types
 	// via a qt signal
@@ -36,7 +36,6 @@ void EldoraQtTSSource::notify() {
 		// See if this is the channel and radar that we are interested in
 		if (pItem->chan == _channel && pItem->radarId == _radarId) {
 			// the number of individual timer series in each dds sample
-
 			unsigned int nci = pItem->nci;
 
 			// the length of each individual time series in the sample. This
@@ -107,8 +106,6 @@ emit                                                          							newData(I, 
 void EldoraQtTSSource::oneGateSlot(int channel, bool forwardRadar, int gate,
 		int n) {
 
-	std::cout << __FUNCTION__ << "\n";
-	
 	_gate = gate;
 	_channel = channel;
 	_pointsPerGate = n;
@@ -126,8 +123,6 @@ void EldoraQtTSSource::oneGateSlot(int channel, bool forwardRadar, int gate,
 ////////////////////////////////////////////////////////////
 void EldoraQtTSSource::alongBeamSlot(int channel, bool forwardRadar) {
 
-	std::cout << __FUNCTION__ << "\n";
-	
 	_gateMode = ALONG_BEAM;
 	_channel = channel;
 	_forwardRadar = forwardRadar;

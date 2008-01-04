@@ -782,20 +782,16 @@ void EldoraScope::pauseSlot(
 void EldoraScope::dataMode() {
     if (_timeSeriesPlot) {
         if (_gateMode == ONE_GATE) {
-        	std::cout << __FUNCTION__ << "\n";
            emit oneGateTSSignal(_channel, _forwardRadar, _gateChoice,
                     _blockSizeChoices[_blockSizeIndex]);
         } else {
-        	std::cout << __FUNCTION__ << "\n";
             emit alongBeamTSSignal(_channel, _forwardRadar);
         }
     } else {
         if (_gateMode == ONE_GATE) {
-        	std::cout << __FUNCTION__ << "\n";
             emit oneGateProductSignal(_productPlotType, _forwardRadar, _gateChoice,
                     _blockSizeChoices[_blockSizeIndex]);
         } else {
-        	std::cout << __FUNCTION__ << "\n";
            emit alongBeamProductSignal(_productPlotType, _forwardRadar);
         }
     }

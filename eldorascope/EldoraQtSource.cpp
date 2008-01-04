@@ -13,8 +13,8 @@ EldoraQtSource::EldoraQtSource(
             _outputRate(outputRate), _forwardRadar(true), _run(false) {
     // determine the timer interval. Don't support
     // output rates greater than 100 Hz.
-    if (_outputRate > 200.0)
-        _outputRate = 200.0;
+    if (_outputRate > 100.0)
+        _outputRate = 100.0;
 
     _intervalMS = (int)(1000.0/_outputRate);
 
@@ -38,8 +38,7 @@ void EldoraQtSource::run() {
 
     // Indicate that the event loop is running.
     _run = true;
-    
-    std::cout << __FILE__ << ":" << __FUNCTION__ << "\n";
+
     // start the event loop
     exec();
 }
