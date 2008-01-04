@@ -3,8 +3,11 @@
 #
 import os
 
-tools = []
+tools = ['svninfo']
 env = Environment(tools = ['default'] + tools)
+
+# create the svnInfo.h
+env.SvnInfo('svnInfo.h', '#')
 
 def utilities(env):
     env.AppendLibrary('utilities')
@@ -18,6 +21,7 @@ Export('utilities')
 sources = Split("""
 ArgvParams.cpp
 SignalCatcher.cpp
+EldoraVersion.cpp
 """)
 
 utilities = env.Library('utilities', sources)
