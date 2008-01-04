@@ -67,7 +67,7 @@ entity ChannelAdapter_Top is
       adca_or :         in std_logic;    -- ADC A over range, Active High
       adcb_or :         in std_logic;    -- ADC B over range, Active High
       adcc_or :         in std_logic;    -- ADC C over range, Active High
-      adcd_or :         in std_logic;   -- ADC D over range, Active High
+      adcd_or :         in std_logic;    -- ADC D over range, Active High
 		
 		-- GPIO
 		gpio :				in std_logic_vector(3 downto 0));
@@ -76,7 +76,7 @@ end ChannelAdapter_Top;
                     
 architecture behavioral of ChannelAdapter_Top is    
 
-
+ 
 ---------------------------------------------------------------------------------
 -------------------- Signal Declarations ----------------------------------------
 ---------------------------------------------------------------------------------
@@ -132,6 +132,8 @@ architecture behavioral of ChannelAdapter_Top is
 	signal gs_dprt_seln: std_logic;		--0xA50
 	-- Timing Switch Internal/External  
 	signal timing_seln : std_logic;		--0xA58
+	-- SVN Revision #
+	signal svn_rev_seln: std_logic;		--0xA60
 	
 	
 	--Status and Interrupt signals
@@ -373,6 +375,9 @@ architecture behavioral of ChannelAdapter_Top is
 	-- Timing Select Signal
 	signal timing_sel : std_logic;
 	
+	-- SVN Revision Register
+	signal svn_rev_reg :std_logic_vector(31 downto 0);
+	
 	
 --------------------------------------
 -- Component Instatantiations
@@ -389,6 +394,13 @@ architecture behavioral of ChannelAdapter_Top is
 			locked		: out std_logic);
 	END COMPONENT;
 	
+	
+	-- Register that Holds the SVN Revision #
+   COMPONENT Revision_Reg
+   PORT ( 
+			Revision_Number : out  STD_LOGIC_VECTOR (31 downto 0));
+	END COMPONENT;
+
 
 --	-- Multiple Timers to produce the gating signals.
 	COMPONENT MultiTimer 
@@ -666,6 +678,10 @@ begin
 	 DMABaseAddr  <= X"00000000";  --0x0, start of DMA Core
 	 UserBaseAddr <= X"00000800";  --0x800, start of user logic
 	
+	-- ==== SVN Revision Register ===================================================
+	SVN_Revision_Reg: Revision_Reg PORT MAP(
+	    Revision_Number => svn_rev_reg);
+	
 	-- ==== GPIO =====================================================================
 	IBUF_3 : IBUF PORT MAP (
       O => gpio_buf(3), -- Buffer output
@@ -759,6 +775,7 @@ begin
 			iq_length_seln	<= '1';
 			gs_dprt_seln	<= '1';
 			timing_seln    <= '1';
+			svn_rev_seln   <= '1';
 			addr_decode_en <= '0';
 			Local_Data_Rdy  <= '0';
         elsif rising_edge (user_clk) 
@@ -1044,6 +1061,14 @@ begin
 	                    timing_seln <= '1';
 	                end if;	
 						 
+					--SVN Revision Register
+					--PCI Adr = 0xA60	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011000") then 
+	                    svn_rev_seln <= '0';
+	                else
+	                    svn_rev_seln <= '1';
+	                end if;	
+						 
 						 
             else -- clear all of the selects if data rdy isn't active
 	            rev_seln      <= '1';	
@@ -1078,6 +1103,7 @@ begin
 					iq_length_seln	<= '1';
 					gs_dprt_seln	<= '1';
 					timing_seln    <= '1';
+					svn_rev_seln   <= '1';
 					
             end if;
         end if;
@@ -1282,7 +1308,8 @@ begin
 					ffa0_full, ffa1_full, ffb0_full, ffb1_full, 
 					ffc0_full, ffc1_full, ffd0_full, ffd1_full, 
 					ffa0_wr, ffa1_wr, ffb0_wr, ffb1_wr, 
-					ffc0_wr, ffc1_wr, ffd0_wr, ffd1_wr, 
+					ffc0_wr, ffc1_wr, ffd0_wr, ffd1_wr,
+					a_sync_error, b_sync_error, c_sync_error, d_sync_error,
 					DMA_Interrupt_Status)
 	 begin
 		if(reset = '1') then --init on reset 
@@ -1359,7 +1386,8 @@ begin
 							g_addr_seln, g_data_seln, g_read_seln,
 							dec_seln, mt_addr_seln, mt_data_seln,
 							pp_m_seln, pp_n_seln, iq_index_seln, iq_length_seln,
-							gs_dprt_seln, dec_rst_seln, pp_rst_seln, timing_seln)
+							gs_dprt_seln, dec_rst_seln, pp_rst_seln, timing_seln,
+							svn_rev_seln)
 	 begin
 		if (reset = '1') then
 			Local_Data_Out <= (others => 'Z');
@@ -1445,6 +1473,9 @@ begin
 			elsif (timing_seln = '0' and rdl ='0') then
 				Local_Data_Out(63 downto 1) <= (others => '0');
 				Local_Data_Out(0)  <= timing_sel;	
+			elsif (svn_rev_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 32) <= (others => '0');
+				Local_Data_Out(31 downto 0)  <= svn_rev_reg;	
 			else
 				Local_Data_Out <= (others => 'Z');
 			end if;
