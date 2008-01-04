@@ -52,6 +52,12 @@
   #define DPRT_ON  0x1
   #define DPRT_OFF 0x0
 
+//Timing Select Register
+  #define TIMING_SEL 0xA58
+//Values
+  #define INTERNAL 0x1
+  #define EXTERNAL 0x0
+
 //MultiTimer Registers
   #define MT_ADDR 0xA30
   #define MT_DATA 0xA34
@@ -97,6 +103,8 @@
   #define PRT2 (0x0<<4)
   #define PRT3 (0x0<<8)
   #define PRT4 (0x0<<12)
+
+
 
 //-------------------------------
 //Added by Tom 1-3-08 for timing error detection 
