@@ -50,7 +50,7 @@ Q_OBJECT
         /// This signal is emitted to announce the list of possible 
         /// time series gate choices.
        void tsGateList(
-                std::vector<int> gates);
+                std::vector<int> gates, unsigned short firstgate);
 
     public slots:
         /// Set the gate mode to ONE_GATE.

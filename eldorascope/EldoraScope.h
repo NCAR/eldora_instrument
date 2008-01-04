@@ -130,9 +130,11 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Call when data is available on the product data socket.
         void productSlot(std::vector<double> p);
         /// Call to set the list of available gates in the timeseries.
-        /// @param gates A list of possible gates in the timeseries.
+        /// @param gates A list of possible gates in the timeseries. It will be zero based. 
+        /// Add firstgate to stablish the true gate number.
+        /// @param firstgate The gate number of the first gate.
         void tsGateListSlot(
-                std::vector<int> gates);
+                std::vector<int> gates, unsigned short firstgate);
         /// Call when the plot type is changed. This function 
         /// must determine which of the two families of
         /// plots, _tsPlotInfo, or _productPlotInfo, the
@@ -352,14 +354,13 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         std::vector<int> _gates;
         /// The choice of channels (1-4)
         int _channel;
-        /// The selected gate
+        /// The selected gate, zero based.
         int _gateChoice;
         /// The signal power, computed directly from the I&Q
         /// data, or from the power spectrum
         double _zeroMoment;
         /// True if forward radar, false otherwise
         bool _forwardRadar;
-
 };
 
 #endif

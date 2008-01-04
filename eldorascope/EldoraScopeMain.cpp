@@ -140,7 +140,8 @@ int main(
             &productsSource, SLOT(alongBeamSlot(PRODUCT_TYPES, bool)));
 
     // connect the gate list signal to the scope
-    QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>)), &scope, SLOT(tsGateListSlot(std::vector<int>)));
+    QObject::connect(&tsSource, SIGNAL(tsGateList(std::vector<int>, unsigned short)), 
+            &scope, SLOT(tsGateListSlot(std::vector<int>, unsigned short)));
 
     // now the time series data supply
     QObject::connect(&tsSource, 

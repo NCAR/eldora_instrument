@@ -15,6 +15,7 @@ typedef sequence<short> TS;
     float azDegrees;
     long nci;
     unsigned short chan;
+    unsigned short firstgate;
     TS tsdata;
   };
 

@@ -32,7 +32,7 @@ EldoraScope::EldoraScope(
         QDialog* parent) :
     QDialog(parent), _statsUpdateInterval(5),
             _timeSeriesPlot(TRUE), _config("NCAR", "EldoraScope"),
-            _paused(false), _gateMode(ALONG_BEAM), _zeroMoment(0.0) {
+            _paused(false), _gateMode(ALONG_BEAM), _zeroMoment(0.0){
     // Set up our form
     setupUi(parent);
 
@@ -805,11 +805,12 @@ void EldoraScope::gateModeSlot(
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::tsGateListSlot(
-        std::vector<int> gates) {
+        std::vector<int> gates, unsigned short firstgate) {
+    // save the list of gates
     _gates = gates;
     for (unsigned int i = 0; i < _gates.size(); i++) {
-        QString l = QString("%1").arg(i);
-        _gateNumber->addItem(l, _gates[i]);
+        QString l = QString("%1").arg(_gates[i]+firstgate);
+        _gateNumber->addItem(l, _gates[i]+firstgate);
     }
     // default to the first avaiable gate
     _gateChoice = _gates[0];

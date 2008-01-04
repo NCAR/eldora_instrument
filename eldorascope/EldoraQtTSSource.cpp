@@ -50,7 +50,9 @@ void EldoraQtTSSource::notify() {
 				// since the gate list has changed, default to the first one
 				_gate = _gates[0];
 				// announce the list of gates
-emit                                 				tsGateList(_gates);
+	            // what is the starting gate number
+	            unsigned short firstgate = pItem->firstgate;
+emit                                 				tsGateList(_gates, firstgate);
 			}
 
 			// The data capture strategy will depend on whether we are collecting

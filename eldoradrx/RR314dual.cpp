@@ -308,7 +308,7 @@ static void * dataTask(
                     pTS->tsdata.length(pIQ->_iq.size());
                     pTS->nci = pIQ->nci;
                     pTS->chan = pIQ->chanId;
-                    // std::cout << "channel " << (int)pTS->chan << "\n";
+                    pTS->firstgate = pParams->startiq;
                     for (unsigned int p = 0; p < pIQ->_iq.size(); p++) {
                         pTS->tsdata[p] = pIQ->_iq[p];
                     }
