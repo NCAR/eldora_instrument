@@ -29,7 +29,7 @@ _topicName(topicName)
 		// register our type
 		DDSTYPESUPPORT_VAR typeSupport = new DDSTYPESUPPORTIMPL();
 		if (RETCODE_OK != typeSupport->register_type(participant.in (), "")) {
-			cerr << "register_type failed." << endl;
+			cerr << "register_type failed for " << _topicName << endl;
 			exit(1);
 		}
 
@@ -43,16 +43,16 @@ _topicName(topicName)
 		topic_qos.reliability.kind = DDS::RELIABLE_RELIABILITY_QOS;
 
 		// create our topic, using our type name and the default qos. 
-		std::cout << "Creating topic " << topicName.c_str()
-		<< " for type name " << type_name << std::endl;
+		std::cout << "Creating topic " << _topicName << ", for type name "
+		<< type_name << std::endl;
 		Topic_var topic =
 		participant->create_topic (topicName.c_str(),
 				type_name.in (),
 				topic_qos,
 				DDS::TopicListener::_nil());
 		if (is_nil (topic.in ())) {
-			cerr << "create_topic failed for topic " << topicName.c_str()
-			<< " for type name " << type_name << std::endl;
+			cerr << "create_topic failed for topic " << _topicName << ", "
+			<< " for type name ,  " << type_name << std::endl;
 			exit(1);
 		}
 
@@ -61,7 +61,7 @@ _topicName(topicName)
 		::OpenDDS::DCPS::servant_to_reference(this);
 
 		if (CORBA::is_nil (listener.in ())) {
-			cerr << "listener is nil." << endl;
+			cerr << "listener is nil for " << _topicName << endl;
 			exit(1);
 		}
 
@@ -72,17 +72,16 @@ _topicName(topicName)
 				dw_qos,
 				listener.in());
 		if (is_nil (_genericReader.in ())) {
-			cerr << "create_datawriter failed for topic " << topicName.c_str()
-			<< " for type name " << type_name << std::endl;
+			cerr << "create_datawriter failed for topic " << _topicName << ", "
+			<< " for type name ,  " << type_name << std::endl;
 			exit(1);
 		}
 
 	}
 	catch (Exception& e)
 	{
-		cerr << "Exception caught in " << __FILE__
-		<< " line:" << __LINE__
-		<< e << endl;
+		cerr << "Exception caught for " << _topicName << ", " << e
+		<< " " <<__FILE__ << " line:,  " <<__LINE__ << e << endl;
 		exit(1);
 	}
 }
@@ -91,7 +90,7 @@ _topicName(topicName)
 
 // Implementation skeleton destructor
 template<TEMPSIG1> DDSReader<TEMPSIG2>::~DDSReader() {
-    std::cout << __FUNCTION__ << " destructor\n";
+	std::cout << __FUNCTION__ << " destructor\n";
 }
 
 ////////////////////////////////////////////////////////////
@@ -108,7 +107,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		/// to on_data_available? Could this be done once during the setup?
 		_specificReader = DDSDATAREADER::_narrow(reader);
 		if (CORBA::is_nil (_specificReader.in ())) {
-			cerr << "read: _narrow failed in on_data_avaiable()" << endl;
+			cerr << "read: _narrow failed in on_data_avaiable(), " << _topicName << ", " << endl;
 			exit(1);
 		}
 
@@ -146,13 +145,13 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 		} else {
 			if (status == DDS::RETCODE_NO_DATA) {
 
-				cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!" << endl;
+				cerr << "ERROR: reader received DDS::RETCODE_NO_DATA!,  " << _topicName << ", " << endl;
 			} else {
-				cerr << "ERROR: read Message: Error: " << status << endl;
+				cerr << "ERROR: read Message: Error: ,  " << _topicName << ", " << status << endl;
 			}
 		}
 	} catch (CORBA::Exception& e) {
-		cerr << "Exception caught in read:" << endl << e << endl;
+		cerr << "Exception caught in read for " << _topicName << ", " << e << endl;
 		exit(1);
 	}
 
@@ -201,7 +200,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnItem(DDSTYPE* pItem) {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_requested_deadline_missed(
 		DDS::DataReader_ptr, const DDS::RequestedDeadlineMissedStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_requested_deadline_missed" << endl;
+	cerr << "DDSReader::on_requested_deadline_missed, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -209,7 +208,7 @@ throw (CORBA::SystemException) {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_requested_incompatible_qos(
 		DDS::DataReader_ptr, const DDS::RequestedIncompatibleQosStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_requested_incompatible_qos" << endl;
+	cerr << "DDSReader::on_requested_incompatible_qos, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -217,16 +216,15 @@ throw (CORBA::SystemException) {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_liveliness_changed(
 		DDS::DataReader_ptr, const DDS::LivelinessChangedStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_liveliness_changed" << endl;
+	cerr << "DDSReader::on_liveliness_changed, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_subscription_match(
 		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus & status)
-throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_subscription_match" << endl;
-	//cout << "DDS::SubscriptionMatchStatus is " << status << "\n";
+throw (CORBA::SystemException ) {
+	cerr << "DDSReader::on_subscription_match, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -234,7 +232,7 @@ throw (CORBA::SystemException) {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_sample_rejected(
 		DDS::DataReader_ptr, const DDS::SampleRejectedStatus&)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_sample_rejected" << endl;
+	cerr << "DDSReader::on_sample_rejected, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -242,7 +240,7 @@ throw (CORBA::SystemException) {
 template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_sample_lost(
 		DDS::DataReader_ptr, const DDS::SampleLostStatus&)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_sample_lost" << endl;
+	cerr << "DDSReader::on_sample_lost, " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
