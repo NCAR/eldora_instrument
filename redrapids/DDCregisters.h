@@ -55,8 +55,8 @@
 //Timing Select Register
   #define TIMING_SEL 0xA58
 //Values
-  #define INTERNAL 0x1
-  #define EXTERNAL 0x0
+  #define INTERNAL_TIMING 0x1
+  #define EXTERNAL_TIMING 0x0
 
 //MultiTimer Registers
   #define MT_ADDR 0xA30

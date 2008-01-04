@@ -393,6 +393,9 @@ int RR314::configure314() {
 	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
 	
+	// Select Timing Source Internal/External
+	Adapter_Write32(&_chanAdapter, V4, TIMING_SEL, INTERNAL_TIMING);
+	
 	//Enable GPIO
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_GPIO_ADR, BRG_M314GPIO_EN);
 
@@ -441,7 +444,6 @@ int RR314::configure314() {
 
 	//Allow bridge to create PCI intr
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN);
-		
 	
 	// initialize the timers
 	if (!timerInit()) 
