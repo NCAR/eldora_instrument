@@ -35,7 +35,7 @@ architecture Behavioral of Revision_Reg is
 
 begin
 
-Revision_Number <= $WCREV$;
+Revision_Number <= conv_std_logic_vector($WCREV$, 32);
 
 end Behavioral;
 
