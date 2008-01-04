@@ -59,9 +59,9 @@ void EldoraProducts::newPulseData(
             
             products->dbz[i] = 100.0*i;
             products->vel[i] = i/100.0;
-            products->width[i] = 100.0*i*i;
+            products->width[i] = i*i;
+            products->snr[i] = 100.0*(i-productsLength/2.0);
             products->ncp[i] = 1.0/(i+1*i+1);
-            products->snr[i] = 100*(i-productsLength/2);
         }
         // Publish the products.
         _productsWriter.publishItem(products);
