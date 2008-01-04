@@ -266,12 +266,7 @@ void EldoraScope::processProduct(
 
     _ProductData.resize(p.size());
     _ProductData = p;
-
-    PRODUCT_TYPES prodType;
-
-    //    if (prodType == _productPlotType) {
     displayData();
-    //    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -314,6 +309,9 @@ void EldoraScope::displayData() {
             _scopePlot->Spectrum(_spectrum, _specGraphCenter-_specGraphRange
                     /2.0, _specGraphCenter+_specGraphRange/2.0, 1000000, false,
                     "Frequency (Hz)", "Power (dB)");
+            break;
+        case ScopePlot::PRODUCT:
+            // include just to quiet compiler warnings
             break;
         }
 
