@@ -7,6 +7,7 @@
 #include <QThread>
 
 // $Copyright$
+// $Revision$
 
 /// A basic data source for an Eldora Qt applications. This class 
 //  acts as a data provider, implementing the basic Qt mechanisms
