@@ -29,7 +29,9 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity Gate_Splitter is
     Port ( Reset   : in STD_LOGIC;
-			  Gate_In : in  STD_LOGIC;
+			  Gate_In_Int : in  STD_LOGIC;
+			  Gate_In_Ext : in  STD_LOGIC;
+			  Timing_Sel : in STD_LOGIC;
            Dual_PRT : in  STD_LOGIC;
            Gate1_Out : out  STD_LOGIC;
            Gate2_Out : out  STD_LOGIC);
@@ -38,10 +40,13 @@ end Gate_Splitter;
 architecture Behavioral of Gate_Splitter is
 
 signal pulse	: std_logic;
+signal Gate_In : std_logic;
 
 begin
 
-gate_splitter : process (Gate_In, reset)
+Gate_In <= Gate_In_Int when Timing_Sel = '1' else Gate_In_Ext;
+
+gate_splitter : process (Gate_In, Reset)
 begin
 	if (Reset = '1') then
 		pulse <= '0';

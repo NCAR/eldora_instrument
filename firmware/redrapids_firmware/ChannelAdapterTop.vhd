@@ -130,6 +130,8 @@ architecture behavioral of ChannelAdapter_Top is
 	signal pp_rst_seln : std_logic;     --0xA54
 	-- Gate Splitter
 	signal gs_dprt_seln: std_logic;		--0xA50
+	-- Timing Switch Internal/External  
+	signal timing_seln : std_logic;		--0xA58
 	
 	
 	--Status and Interrupt signals
@@ -368,6 +370,10 @@ architecture behavioral of ChannelAdapter_Top is
 	signal gpio_buf :	  std_logic_vector(3 downto 0);
 	
 	
+	-- Timing Select Signal
+	signal timing_sel : std_logic;
+	
+	
 --------------------------------------
 -- Component Instatantiations
 --------------------------------------
@@ -405,11 +411,13 @@ architecture behavioral of ChannelAdapter_Top is
 	-- Gate Splitter for Multiple PRT
 	COMPONENT Gate_Splitter 
    PORT ( 
-			Reset   	 : in std_logic;
-			Gate_In 	 : in  std_logic;
-         Dual_PRT  : in  std_logic;
-         Gate1_Out : out  std_logic;
-         Gate2_Out : out  std_logic);
+			Reset   	   : in  std_logic;
+			Gate_In_Int : in  std_logic;
+			Gate_In_Ext : in  std_logic;
+			Timing_Sel  : in  std_logic;
+         Dual_PRT    : in  std_logic;
+         Gate1_Out   : out  std_logic;
+         Gate2_Out   : out  std_logic);
 	END COMPONENT;
 	
 	
@@ -750,6 +758,7 @@ begin
 			iq_index_seln	<= '1';
 			iq_length_seln	<= '1';
 			gs_dprt_seln	<= '1';
+			timing_seln    <= '1';
 			addr_decode_en <= '0';
 			Local_Data_Rdy  <= '0';
         elsif rising_edge (user_clk) 
@@ -1026,6 +1035,15 @@ begin
 	                else
 	                    pp_rst_seln <= '1';
 	                end if;	
+					
+					--Timing Select
+					--PCI Adr = 0xA58	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010010110") then 
+	                    timing_seln <= '0';
+	                else
+	                    timing_seln <= '1';
+	                end if;	
+						 
 						 
             else -- clear all of the selects if data rdy isn't active
 	            rev_seln      <= '1';	
@@ -1059,6 +1077,7 @@ begin
 					iq_index_seln	<= '1';
 					iq_length_seln	<= '1';
 					gs_dprt_seln	<= '1';
+					timing_seln    <= '1';
 					
             end if;
         end if;
@@ -1091,6 +1110,7 @@ begin
 			iq_index_reg <= (others => '0');
 			iq_length_reg<= (others => '0');
 			gs_dprt_reg	 <= '0';
+			timing_sel   <= '0';
     	elsif rising_edge (user_clk) 
 		then
 			--Control
@@ -1240,6 +1260,13 @@ begin
 				pp_rst <= pp_rst;
 			end if;
 			
+			--Timing Select Register
+			if (wrl = '0' and timing_seln = '0') then
+				timing_sel <= Local_Data_In(0);
+			else
+				timing_sel <= timing_sel;
+			end if;
+			
     	end if;
     end process; -- input_data
     
@@ -1332,7 +1359,7 @@ begin
 							g_addr_seln, g_data_seln, g_read_seln,
 							dec_seln, mt_addr_seln, mt_data_seln,
 							pp_m_seln, pp_n_seln, iq_index_seln, iq_length_seln,
-							gs_dprt_seln, dec_rst_seln, pp_rst_seln)
+							gs_dprt_seln, dec_rst_seln, pp_rst_seln, timing_seln)
 	 begin
 		if (reset = '1') then
 			Local_Data_Out <= (others => 'Z');
@@ -1415,6 +1442,9 @@ begin
 			elsif (pp_rst_seln = '0' and rdl ='0') then
 				Local_Data_Out(63 downto 1) <= (others => '0');
 				Local_Data_Out(0)  <= pp_rst;	
+			elsif (timing_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 1) <= (others => '0');
+				Local_Data_Out(0)  <= timing_sel;	
 			else
 				Local_Data_Out <= (others => 'Z');
 			end if;
@@ -1495,8 +1525,9 @@ begin
 	-- Channel A Gate Splitter
 	cha_splitter : Gate_Splitter PORT MAP (
 		Reset => reset,
-		--Gate_In => gpio_buf(3),
-		Gate_In => pulse_out(0),
+		Gate_In_Int => pulse_out(0),
+		Gate_In_Ext => gpio_buf(3),
+		Timing_Sel => timing_sel,
       Dual_PRT => gs_dprt_reg,
       Gate1_Out => cha_gate_in(0),
       Gate2_Out => cha_gate_in(1));
@@ -1504,8 +1535,9 @@ begin
 	-- Channel B Gate Splitter
 	chb_splitter : Gate_Splitter PORT MAP (
 		Reset => reset,
-		--Gate_In => gpio_buf(2),
-		Gate_In => pulse_out(1),
+		Gate_In_Int => pulse_out(1),
+		Gate_In_Ext => gpio_buf(2),
+		Timing_Sel => timing_sel,
       Dual_PRT => gs_dprt_reg,
       Gate1_Out => chb_gate_in(0),
       Gate2_Out => chb_gate_in(1));
@@ -1513,8 +1545,9 @@ begin
 	-- Channel C Gate Splitter
 	chc_splitter : Gate_Splitter PORT MAP (
 		Reset => reset,
-		--Gate_In => gpio_buf(1),
-		Gate_In => pulse_out(2),
+		Gate_In_Int => pulse_out(2),
+		Gate_In_Ext => gpio_buf(1),
+		Timing_Sel => timing_sel,
       Dual_PRT => gs_dprt_reg,
       Gate1_Out => chc_gate_in(0),
       Gate2_Out => chc_gate_in(1));
@@ -1522,8 +1555,9 @@ begin
 	-- Channel D Gate Splitter
 	chd_splitter : Gate_Splitter PORT MAP (
 		Reset => reset,
-		--Gate_In => gpio_buf(0),
-		Gate_In => pulse_out(3),
+		Gate_In_Int => pulse_out(3),
+		Gate_In_Ext => gpio_buf(0),
+		Timing_Sel => timing_sel,
       Dual_PRT => gs_dprt_reg,
       Gate1_Out => chd_gate_in(0),
       Gate2_Out => chd_gate_in(1));
