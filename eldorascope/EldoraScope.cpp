@@ -1,6 +1,7 @@
 #include "EldoraScope.h"
 #include "ScopePlot.h"
 #include "Knob.h"
+#include "SvnVersion.h"
 
 #include <QMessageBox>
 #include <QButtonGroup>
@@ -42,7 +43,7 @@ EldoraScope::EldoraScope(
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraScope");
     title += " ";
-    //title += CP2Version::revision();
+    title += SvnVersion::revision();
     parent->setWindowTitle(title.c_str());
 
     // initialize running statistics
