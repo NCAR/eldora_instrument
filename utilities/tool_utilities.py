@@ -21,7 +21,7 @@ Export('utilities')
 sources = Split("""
 ArgvParams.cpp
 SignalCatcher.cpp
-EldoraVersion.cpp
+SvnVersion.cpp
 """)
 
 utilities = env.Library('utilities', sources)
