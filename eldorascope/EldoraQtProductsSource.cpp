@@ -93,20 +93,20 @@ float* EldoraQtProductsSource::selectProduct(
     case PROD_P4:
         p = &pItem->p4[0];
         break;
-    case PROD_DBM:
-        p = &pItem->dbm[0];
+    case PROD_VR:
+        p = &pItem->vr[0];
+        break;
+    case PROD_VS:
+        p = &pItem->vs[0];
+        break;
+    case PROD_VL:
+        p = &pItem->vl[0];
         break;
     case PROD_DBZ:
         p = &pItem->dbz[0];
         break;
-    case PROD_VEL:
-        p = &pItem->vel[0];
-        break;
-    case PROD_SNR:
-        p = &pItem->snr[0];
-        break;
-    case PROD_WIDTH:
-        p = &pItem->width[0];
+    case PROD_SW:
+        p = &pItem->sw[0];
         break;
     case PROD_NCP:
         p = &pItem->ncp[0];

@@ -488,11 +488,11 @@ void EldoraScope::initPlots() {
     _productPlots.insert(PROD_P2);
     _productPlots.insert(PROD_P3);
     _productPlots.insert(PROD_P4);
-    _productPlots.insert(PROD_DBM);
     _productPlots.insert(PROD_DBZ);
-    _productPlots.insert(PROD_WIDTH);
-    _productPlots.insert(PROD_VEL);
-    _productPlots.insert(PROD_SNR);
+    _productPlots.insert(PROD_VR);
+    _productPlots.insert(PROD_VS);
+    _productPlots.insert(PROD_VL);
+    _productPlots.insert(PROD_SW);
     _productPlots.insert(PROD_NCP);
 
     _tsPlotInfo[TS_TIMESERIES_PLOT] = PlotInfo(TS_TIMESERIES_PLOT,
@@ -512,18 +512,18 @@ void EldoraScope::initPlots() {
             "P3", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_P4] = PlotInfo(PROD_P4, SCOPE_PLOT_PRODUCT, "P4",
             "P4", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-    _productPlotInfo[PROD_DBM] = PlotInfo(PROD_DBM, SCOPE_PLOT_PRODUCT, "Dbm",
-            "Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-    _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ, SCOPE_PLOT_PRODUCT, "Dbz",
-            "Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-    _productPlotInfo[PROD_WIDTH] = PlotInfo(PROD_WIDTH, SCOPE_PLOT_PRODUCT,
-            "Width", "Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-    _productPlotInfo[PROD_VEL] = PlotInfo(PROD_VEL, SCOPE_PLOT_PRODUCT,
-            "Velocity", "Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-    _productPlotInfo[PROD_SNR] = PlotInfo(PROD_SNR, SCOPE_PLOT_PRODUCT, "SNR",
-            "SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_VR] = PlotInfo(PROD_VR, SCOPE_PLOT_PRODUCT, "VR",
+            "Radial Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_VL] = PlotInfo(PROD_VL, SCOPE_PLOT_PRODUCT, "VL",
+            "Long Pulse Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_VS] = PlotInfo(PROD_VS, SCOPE_PLOT_PRODUCT,
+            "VS", "Short Pulse Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ, SCOPE_PLOT_PRODUCT,
+            "DBZ", "DBZ", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_SW] = PlotInfo(PROD_SW, SCOPE_PLOT_PRODUCT, "SW",
+            "Spectral Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_NCP] = PlotInfo(PROD_NCP, SCOPE_PLOT_PRODUCT, "NCP",
-            "NCP", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+            "Normailzed Coherent Power", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
     // remove the one tab that was put there by designer
     _typeTab->removeTab(0);

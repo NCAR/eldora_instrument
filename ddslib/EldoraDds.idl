@@ -46,11 +46,11 @@ typedef sequence<short> TS;
     Product p2;
     Product p3;
     Product p4;
-    Product dbm;
+    Product vr;
+    Product vs;
+    Product vl;
     Product dbz;
-    Product vel;
-    Product width;
-    Product snr;
+    Product sw;
     Product ncp;
   };
 

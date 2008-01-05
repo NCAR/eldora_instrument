@@ -7,11 +7,11 @@ enum PRODUCT_TYPES {
     PROD_P2, ///< P1 (from ABP chan 1)
     PROD_P3, ///< P1 (from ABP chan 1)
     PROD_P4, ///< P1 (from ABP chan 1)
-    PROD_DBM, ///< dBm 
-    PROD_DBZ, ///< dBz
-    PROD_SNR, ///< SNR
-    PROD_VEL, ///< velocity
-    PROD_WIDTH, ///< spectral width
+    PROD_VR, ///< radial velocity
+    PROD_VS, ///< short pulse velocity
+    PROD_VL, ///< long pulse velocity
+    PROD_DBZ, ///< range normalized power
+    PROD_SW, ///< spectral width
     PROD_NCP,   ///< Normailzed coherent power
 };
 
