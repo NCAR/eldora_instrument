@@ -105,6 +105,7 @@
   #define PRT4 (0x0<<12)
 
 
+  #define SVN_REV_ADR 0xA60
 
 //-------------------------------
 //Added by Tom 1-3-08 for timing error detection 

@@ -325,7 +325,7 @@ int RR314::configure314() {
 	} else {
 		printf("Opened ChannelAdapter device %d\n", _chanAdapter.DevNum);
 	}
-    
+	
     // send a hard reset to the card
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 1);
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 0);
@@ -698,8 +698,10 @@ void RR314::boardInfo() {
 	unsigned int result;
 
 	// get some of the rev numbers from the card 
+	Adapter_Read32(&_chanAdapter, V4, SVN_REV_ADR, &result);
+	printf("SVN Firmware Rev = %x\n", result);
 	Adapter_Read32(&_chanAdapter, BRIDGE, BRG_REV_ADR, &result);
-	printf("PCI Bridge rev is %x\n", result);
+	printf("PCI Bridge Rev = %x\n", result);
 	Adapter_Read32(&_chanAdapter, V4, DMA_REV_ADR, &result);
 	printf("V4 DMA Rev (Offset 0x0) =  %x, ", result);
 	Adapter_Read32(&_chanAdapter, V4, V4_REV_ADR, &result);
@@ -763,9 +765,20 @@ bool RR314::timerInit() {
 	Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
 	Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQ);
 
-	printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
-	printf("IQ Index = %d, IQ Length = %d\n", _startGateIQ, _numIQ);
-	printf("Pulse Width = %d, Decimation Factor = %d\n", _pulsewidth, decimationFactor);
+	printf("Internal Timing Variables\n");
+	printf("# of Gates          = %d\n", _gates);
+	printf("# of Samples        = %d\n", _samples);
+	printf("Dual PRT (1=on)     = %d\n", _dualPrt);
+	printf("IQ Start Gate       = %d\n", _startGateIQ);
+	printf("# of IQ Gates       = %d\n", _numIQ);
+	printf("TX Pulse Width (us) = %f\n", float(decimationFactor/8.0));
+	printf("RX Pulse Width (us) = %f\n", float(decimationFactor/8.0*_pulsewidth));
+	printf("PRT Period     (us) = %f\n", float(1.0/_prf*1.0e6));
+	printf("Data Rate (MHz)     = %f\n", float(8.0/decimationFactor));
+	
+	//printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
+	//printf("IQ Start Gate = %d, IQ Gate Length = %d\n", _startGateIQ, _numIQ);
+	//printf("Pulse Width = %d, Decimation Factor = %d\n", _pulsewidth, decimationFactor);
 
 	// Reset Timers
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0); // Enable Timer
@@ -779,7 +792,7 @@ bool RR314::timerInit() {
 
 	// Gating Timer Setup
 	unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
-	printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
+	//printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
 	Adapter_Write32(&_chanAdapter, V4,  MT_ADDR,  CONTROL_REG|Timers); // Control Register
 	Adapter_Write32(&_chanAdapter, V4, MT_DATA, TIMER_ON); // Enable Timer
 	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
@@ -814,8 +827,8 @@ bool RR314::timerInit() {
     // Start the DDC
     Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
     
-    printf("ENABLING: %x\n", 
-    PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
+    //printf("ENABLING: %x\n", 
+    //PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
     PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
