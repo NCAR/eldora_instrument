@@ -133,7 +133,7 @@ architecture behavioral of ChannelAdapter_Top is
 	-- Timing Switch Internal/External  
 	signal timing_seln : std_logic;		--0xA58
 	-- SVN Revision #
-	signal svn_rev_seln: std_logic;		--0xA60
+	signal svn_rev_seln: std_logic;		--0xA5C
 	
 	
 	--Status and Interrupt signals
@@ -319,6 +319,7 @@ architecture behavioral of ChannelAdapter_Top is
 	signal mt_addr_wr  : std_logic;								--MultiTimer Address Write
 	signal mt_data_wr  : std_logic;								--MultiTimer Data Write
 	signal pulse_out   : std_logic_vector(3 downto 0);		--MultiTimer Output Pulses
+	signal timer_clk   : std_logic;								--MultiTimer Clk (4 MHz)
 	
 
 	-- Pulse Pair Processor
@@ -391,6 +392,7 @@ architecture behavioral of ChannelAdapter_Top is
 			sampleclk_n	: in std_logic;
 			adc_clk		: out std_logic;
 			filter_clk	: out std_logic;
+			timer_clk   : out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
@@ -709,6 +711,7 @@ begin
 			sampleclk_n	=> sampleclk_n,
 			adc_clk		=> adc_clk,
 			filter_clk	=> filter_clk,
+			timer_clk   => timer_clk,
 			locked		=> adc_dcmlocked);
 	 
 	-- ===== Decimation Clk DCM ====================================================
@@ -1062,8 +1065,8 @@ begin
 	                end if;	
 						 
 					--SVN Revision Register
-					--PCI Adr = 0xA60	                                 						 
-	                if (Local_Data_Addr(11 downto 2) = "1010011000") then 
+					--PCI Adr = 0xA58	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010010111") then 
 	                    svn_rev_seln <= '0';
 	                else
 	                    svn_rev_seln <= '1';
@@ -1545,7 +1548,7 @@ begin
 		addrwr => mt_addr_wr,
 		addrin => mt_addr_reg,
 		datawr => mt_data_wr,
-		timerclk => dec_clk,
+		timerclk => timer_clk,
 		onepps => '0',
 		datain => mt_data_reg,
 		dataout => open,
