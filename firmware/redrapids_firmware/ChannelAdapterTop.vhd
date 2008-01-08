@@ -319,7 +319,9 @@ architecture behavioral of ChannelAdapter_Top is
 	signal mt_addr_wr  : std_logic;								--MultiTimer Address Write
 	signal mt_data_wr  : std_logic;								--MultiTimer Data Write
 	signal pulse_out   : std_logic_vector(3 downto 0);		--MultiTimer Output Pulses
-	signal timer_clk   : std_logic;								--MultiTimer Clk (4 MHz)
+	signal timer_clk   : std_logic;								--MultiTimer Clk (60 MHz)
+	signal timer_dcmlocked : std_logic;							--Timer DCM lock status bit.
+	signal timer_dcmrst: std_logic;								--Timer DCM reset bit.
 	
 
 	-- Pulse Pair Processor
@@ -392,7 +394,16 @@ architecture behavioral of ChannelAdapter_Top is
 			sampleclk_n	: in std_logic;
 			adc_clk		: out std_logic;
 			filter_clk	: out std_logic;
-			timer_clk   : out std_logic;
+			locked		: out std_logic);
+	END COMPONENT;
+	
+	
+	-- Timer Clk DCM
+	COMPONENT timer_dcm_m314
+	PORT (
+			rst			: in std_logic;
+			adc_clk		: in std_logic;
+			timer_clk	: out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
@@ -711,7 +722,6 @@ begin
 			sampleclk_n	=> sampleclk_n,
 			adc_clk		=> adc_clk,
 			filter_clk	=> filter_clk,
-			timer_clk   => timer_clk,
 			locked		=> adc_dcmlocked);
 	 
 	-- ===== Decimation Clk DCM ====================================================
@@ -725,6 +735,16 @@ begin
       decimation  => dec_reg(7 downto 0),
       dec_clk     => dec_clk,
 		fifo_clk    => fifo_clk);
+
+	-- ===== Timer Clk DCM ====================================================
+	--This DCM is used for the timer sample clock.  
+	--Produces a 60 MHz clock for timers from 48 MHz adc clock.
+	timer_dcmrst <= ctl_reg(1) or ctl_reg(15);  --reset with Timer DCM Reset or soft reset
+	Timer_clkmanager: timer_dcm_m314 PORT MAP(
+			rst		  	=> timer_dcmrst,
+			adc_clk		=> adc_clk,
+			timer_clk	=> timer_clk,
+			locked		=> timer_dcmlocked);
 
     -- ===== Address Decoder =========================================================
     --This logic will detect that a Rd/Wr is being done but looking at the Local_Data_ADS_N
@@ -1341,8 +1361,8 @@ begin
 			status_reg(4)    <= adcb_or or status_reg(4);
 			status_reg(3)    <= adcc_or or status_reg(3);
 			status_reg(2)    <= adcd_or or status_reg(2);
-			status_reg(1)    <= '0';
-			status_reg(0)    <= not adc_dcmlocked  or status_reg(0); --DCM out of lock
+			status_reg(1)    <= not timer_dcmlocked or status_reg(1); --Timer DCM out of lock
+			status_reg(0)    <= not adc_dcmlocked  or status_reg(0); --ADC DCM out of lock
 		end if;
 	end process;
 	
