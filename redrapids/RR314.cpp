@@ -365,9 +365,20 @@ int RR314::configure314() {
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
     if (result & ADC_DCM_UNLOCKED) {
-        printf("DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
+        printf("ADC DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
         Adapter_Close(&_chanAdapter);
         return -1;
+    }
+    
+    // Reset Timer DCM
+    Adapter_Write32(&_chanAdapter, V4,V4_CTL_ADR, TIMER_DCM_RST);
+    sleep(1);
+    Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
+    Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
+    if (result & TIMER_DCM_UNLOCKED) {
+    	printf("Timer DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n", result);
+    	Adapter_Close(&_chanAdapter);
+    	return -1;
     }
 
 	// Reset Decimator clocks
@@ -699,7 +710,7 @@ void RR314::boardInfo() {
 
 	// get some of the rev numbers from the card 
 	Adapter_Read32(&_chanAdapter, V4, SVN_REV_ADR, &result);
-	printf("SVN Firmware Rev = %x\n", result);
+	printf("SVN Firmware Rev = %i\n", result);
 	Adapter_Read32(&_chanAdapter, BRIDGE, BRG_REV_ADR, &result);
 	printf("PCI Bridge Rev = %x\n", result);
 	Adapter_Read32(&_chanAdapter, V4, DMA_REV_ADR, &result);
@@ -803,10 +814,11 @@ bool RR314::timerInit() {
 
 	// Pulse Width Register
 	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates); // Value Timer 0 (Testing Purposes)
-
+	Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates*60*decimationFactor/8); // Value Timer 0 (Testing Purposes)
+	//Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates); // Value Timer 0 (Testing Purposes)
 	// Period Register
-	double prtClock = (8.0e6/decimationFactor);
+	//double prtClock = (8.0e6/decimationFactor);
+	double prtClock = (60e6);
 	int periodCount = (int)  (prtClock/_prf);
 	std::cout << "Period register value:" << periodCount << "\n";
 	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0

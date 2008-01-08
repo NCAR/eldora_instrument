@@ -116,6 +116,8 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 	//std::cout << Status << " " << Mask << " " << Control << " " << DMAMask << " " << DMAStatus;
 	//std::cout << "\n";
 	
+	//printf("STATUS REG = %x\n", Status);
+	
 	// see if we have a DMA interrupt
 	if (Status & DMA_GRP_DONE) {
 		// yes, process groups for each DMA dmaChan
@@ -155,15 +157,19 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 	//Check for Timing Synchronization Errors
 	if (Status & A_SYNC_ERROR) {
 		std::cout << "Timing Sync Error on Channel A - Must Restart Processors to Recover.\n";
+		//Shutdown
 	}
 	if (Status & B_SYNC_ERROR) {
 		std::cout << "Timing Sync Error on Channel B - Must Restart Processors to Recover.\n";
+		//Shutdown
 	}
 	if (Status & C_SYNC_ERROR) {
 		std::cout << "Timing Sync Error on Channel C - Must Restart Processors to Recover.\n";
+		//Shutdown
 	}
 	if (Status & D_SYNC_ERROR) {
 		std::cout << "Timing Sync Error on Channel D - Must Restart Processors to Recover.\n";
+		//Shutdown
 	}
 	
 	/// @todo if any of the a/ds had full fifos, then
