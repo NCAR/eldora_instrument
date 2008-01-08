@@ -2,7 +2,7 @@ module EldoraDDS {
 
 enum RadarChoice {Forward, Aft};
 typedef sequence<float> A_B_P;
-typedef sequence<float> Product;
+typedef sequence<short> Product;
 typedef sequence<short> TS;
   
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
@@ -42,15 +42,49 @@ typedef sequence<short> TS;
     float prfSeconds;
     float azDegrees;
     float gateSpacingKm;
+    
+    float p1Gain;
+    float p1Offset;
     Product p1;
+    
+    float p2Gain;
+    float p2Offset;
     Product p2;
+    
+    float p3Gain;
+    float p3Offset;
     Product p3;
+    
+    float p4Gain;
+    float p4Offset;
     Product p4;
+    
+    float vrGain;
+    float vrOffset;
     Product vr;
+    
+    float vsGain;
+    float vsOffset;
     Product vs;
+    
+    float vlGain;
+    float vlOffset;
     Product vl;
+    
+    float dmGain;
+    float dmOffset;
+    Product dm;
+    
+    float dbzGain;
+    float dbzOffset;
     Product dbz;
+    
+    float swGain;
+    float swOffset;
     Product sw;
+    
+    float ncpGain;
+    float ncpOffset;
     Product ncp;
   };
 

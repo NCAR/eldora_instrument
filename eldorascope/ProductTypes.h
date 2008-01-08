@@ -10,9 +10,10 @@ enum PRODUCT_TYPES {
     PROD_VR, ///< radial velocity
     PROD_VS, ///< short pulse velocity
     PROD_VL, ///< long pulse velocity
+    PROD_DM, ///< unormalized power
     PROD_DBZ, ///< range normalized power
     PROD_SW, ///< spectral width
-    PROD_NCP,   ///< Normailzed coherent power
+    PROD_NCP, ///< Normailzed coherent power
 };
 
 #endif

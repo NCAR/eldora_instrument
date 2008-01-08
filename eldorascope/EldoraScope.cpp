@@ -488,6 +488,7 @@ void EldoraScope::initPlots() {
     _productPlots.insert(PROD_P2);
     _productPlots.insert(PROD_P3);
     _productPlots.insert(PROD_P4);
+    _productPlots.insert(PROD_DM);
     _productPlots.insert(PROD_DBZ);
     _productPlots.insert(PROD_VR);
     _productPlots.insert(PROD_VS);
@@ -518,6 +519,8 @@ void EldoraScope::initPlots() {
             "Long Pulse Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_VS] = PlotInfo(PROD_VS, SCOPE_PLOT_PRODUCT,
             "VS", "Short Pulse Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+    _productPlotInfo[PROD_DM] = PlotInfo(PROD_DM, SCOPE_PLOT_PRODUCT,
+            "DM", "Power", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_DBZ] = PlotInfo(PROD_DBZ, SCOPE_PLOT_PRODUCT,
             "DBZ", "DBZ", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
     _productPlotInfo[PROD_SW] = PlotInfo(PROD_SW, SCOPE_PLOT_PRODUCT, "SW",

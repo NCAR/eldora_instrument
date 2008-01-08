@@ -33,8 +33,12 @@ void EldoraQtProductsSource::notify() {
         
         if (pItem->radarId == _radarId) {
 
-            // get a pointer to the currently selected product.
-            float* product = selectProduct(pItem);
+            // get a pointer to the currently selected product,
+            // and the gain and offset.
+            float gain;
+            float offset;
+            short* product;
+            selectProduct(pItem, &product, gain, offset);
 
             switch (_gateMode) {
             case ALONG_BEAM:
@@ -43,7 +47,7 @@ void EldoraQtProductsSource::notify() {
                     P.resize(pItem->dbz.length());
                     // copy all P in the beam.
                     for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
-                        P[i] = product[i ];
+                        P[i] = (product[i] + offset)/gain;
                     }
                     // send the Pbeam to our client.
                     emit newPData(P);
@@ -56,7 +60,7 @@ void EldoraQtProductsSource::notify() {
                     if (P.size() != _pointsPerGate) {
                         P.resize(_pointsPerGate);
                     }
-                    P[_pointCounter] = product[_gate];
+                    P[_pointCounter] = (product[_gate]+offset)/gain;
                     _pointCounter++;
                     if (_pointCounter == _pointsPerGate) {
                         // a set of P points have been collected.
@@ -76,48 +80,72 @@ void EldoraQtProductsSource::notify() {
 }
 
 ////////////////////////////////////////////////////////////
-float* EldoraQtProductsSource::selectProduct(
-        Products* pItem) {
+void EldoraQtProductsSource::selectProduct(
+        Products* pItem, short** p, float& gain, float& offset) {
 
-    float* p;
     switch (_product) {
     case PROD_P1:
-        p = &pItem->p1[0];
+        *p = &pItem->p1[0];
+        gain = pItem->p1Gain;
+        offset = pItem->p1Offset;
         break;
     case PROD_P2:
-        p = &pItem->p2[0];
+        *p = &pItem->p2[0];
+        gain = pItem->p3Gain;
+        offset = pItem->p3Offset;
         break;
     case PROD_P3:
-        p = &pItem->p3[0];
+        *p = &pItem->p3[0];
+        gain = pItem->p3Gain;
+        offset = pItem->p3Offset;
         break;
     case PROD_P4:
-        p = &pItem->p4[0];
+        *p = &pItem->p4[0];
+        gain = pItem->p4Gain;
+        offset = pItem->p4Offset;
         break;
     case PROD_VR:
-        p = &pItem->vr[0];
+        *p = &pItem->vr[0];
+        gain = pItem->vrGain;
+        offset = pItem->vrOffset;
         break;
     case PROD_VS:
-        p = &pItem->vs[0];
+        *p = &pItem->vs[0];
+        gain = pItem->vsGain;
+        offset = pItem->vsOffset;
         break;
     case PROD_VL:
-        p = &pItem->vl[0];
+        *p = &pItem->vl[0];
+        gain = pItem->vlGain;
+        offset = pItem->vlOffset;
+        break;
+    case PROD_DM:
+        *p = &pItem->dm[0];
+        gain = pItem->dmGain;
+        offset = pItem->dmOffset;
         break;
     case PROD_DBZ:
-        p = &pItem->dbz[0];
+        *p = &pItem->dbz[0];
+        gain = pItem->dbzGain;
+        offset = pItem->dbzOffset;
         break;
     case PROD_SW:
-        p = &pItem->sw[0];
+        *p = &pItem->sw[0];
+        gain = pItem->swGain;
+        offset = pItem->swOffset;
         break;
     case PROD_NCP:
-        p = &pItem->ncp[0];
+        *p = &pItem->ncp[0];
+        gain = pItem->ncpGain;
+        offset = pItem->ncpOffset;
         break;
     default:
         // what the heck, just use dbz
-        p = &pItem->dbz[0];
+        *p = &pItem->dbz[0];
+        gain = pItem->dbzGain;
+        offset = pItem->dbzOffset;
         break;
     }
-    
-    return p;
 }
 
 ////////////////////////////////////////////////////////////

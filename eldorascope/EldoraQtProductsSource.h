@@ -35,8 +35,10 @@ Q_OBJECT
 
         /// Locate the currently selected product.
         /// @param pItem Pointer to a Products item.
-        /// @return A pointer to the field selected by _product.
-        float* selectProduct(Products* pItem);
+        /// @param data A pointer to the data field selected by _product is returned here.
+        /// @param gain The gain factor for the product is returned here.
+        /// @param offset The offset for the product is returned here.
+        void selectProduct(Products* pItem, short** data, float& gain, float& offset);
         
    signals:
         /// This signal is emitted when new Product data are available.
