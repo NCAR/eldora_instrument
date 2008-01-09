@@ -104,9 +104,10 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
                 bool forwardRadar,
                 int gate,
                 int n);
-    /// emmited to indicate that Product data should be delivered for 
+    /// Emmited to indicate that Product data should be delivered for 
     /// all gates along a beam
     /// @param channel The selected channel
+    /// @param forwardRadar Set true if the forward radar, false otherwise.
     void alongBeamProductSignal(
             PRODUCT_TYPES product,
             bool forwardRadar);
