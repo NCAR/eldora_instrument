@@ -26,7 +26,7 @@ sources = Split("""
 EldoraPPIMain.cpp
 EldoraPPI.cpp
 PpiInfo.cpp
-ColorBarsettings.cpp
+ColorBarSettings.cpp
 """)
 
 eldorappi = env.Program('eldorappi', sources)
