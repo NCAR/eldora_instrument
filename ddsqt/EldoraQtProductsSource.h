@@ -28,7 +28,8 @@ Q_OBJECT
         EldoraQtProductsSource(
                 DDSSubscriber& subscriber,
                     std::string topicName,
-                    double outputRate=20.0);
+                    double outputRate=20.0,
+                    bool bothRadars=false);
         virtual ~EldoraQtProductsSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
@@ -47,8 +48,9 @@ Q_OBJECT
         /// I and Q will be of the same length, and will have at least 1 
         /// value in them.
         /// @param P P data values.
+        /// @param int radarId Either EldoraDDS::Fore or EldoraDDS::Aft
        void newPData(
-                std::vector<double> P);
+                std::vector<double> P, int radarId);
         
     public slots:
         /// Set the gate mode to ONE_GATE.
@@ -72,6 +74,10 @@ Q_OBJECT
     protected:
         /// The selected radar, either forward or aft
         EldoraDDS::RadarChoice _radarId;
+        
+        /// If true, ignore the _radarId choice, and send both 
+        /// radars.
+        bool _bothRadars;
 
         /// The selected product type
         PRODUCT_TYPES _product;

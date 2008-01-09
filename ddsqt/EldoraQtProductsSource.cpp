@@ -8,9 +8,10 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
 EldoraQtProductsSource::EldoraQtProductsSource(
-        DDSSubscriber& subscriber, std::string topicName, double outputRate) :
+        DDSSubscriber& subscriber, std::string topicName, double outputRate, bool bothRadars) :
     EldoraQtSource(outputRate), ProductsReader(subscriber, topicName),
-            _radarId(EldoraDDS::Forward), _product(PROD_DBZ) {
+            _radarId(EldoraDDS::Forward), _product(PROD_DBZ),
+            _bothRadars(bothRadars) {
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
@@ -31,7 +32,7 @@ void EldoraQtProductsSource::notify() {
         _readSamples++;
         _numBytes += pItem->dbz.length()*sizeof(pItem->dbz[0]);
         
-        if (pItem->radarId == _radarId) {
+        if (_bothRadars || pItem->radarId == _radarId) {
 
             // get a pointer to the currently selected product,
             // and the gain and offset.
@@ -50,12 +51,15 @@ void EldoraQtProductsSource::notify() {
                         P[i] = (product[i] + offset)/gain;
                     }
                     // send the Pbeam to our client.
-                    emit newPData(P);
+                    emit newPData(P, pItem->radarId);
                     clearCapture();
                 }
                 break;
 
             case ONE_GATE:
+                // note that setting the _bothRadars flag along
+                // with the ONE_GATE option will cause the data
+                // for fore and aft to be scrambled together.
                 if (_capture) {
                     if (P.size() != _pointsPerGate) {
                         P.resize(_pointsPerGate);
@@ -66,7 +70,7 @@ void EldoraQtProductsSource::notify() {
                         // a set of P points have been collected.
                         // send the P time series to our client.
                         _pointCounter = 0;
-                        emit newPData(P);
+                        emit newPData(P, pItem->radarId);
                         clearCapture();
                     }
                 }

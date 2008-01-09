@@ -186,7 +186,7 @@ void EldoraScope::initFFT() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::productSlot(
-        std::vector<double> p) {
+        std::vector<double> p, int radarId) {
     if (_paused)
         return;
 

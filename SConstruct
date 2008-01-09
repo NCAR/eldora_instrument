@@ -23,6 +23,7 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 Export('env')
 
 # The main eldora applications:
+SConscript('eldorappi/SConscript')
 SConscript('eldoradrx/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
