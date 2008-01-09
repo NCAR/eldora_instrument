@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc', 'qtt_knob', 'qtt_qtconfig', 'qtt_scopeplot', 'fftw', 'utilities']
+tools = ['default', 'ddssvc', 'ddsqt', 'qtt_knob', 'qtt_qtconfig', 'qtt_scopeplot', 'fftw', 'utilities']
 env = Environment(tools = tools)
 
 # libraries:
@@ -22,9 +22,6 @@ env.Uic4(['EldoraScope.ui',])
 sources = Split("""
 EldoraScopeMain.cpp
 EldoraScope.cpp
-EldoraQtSource.cpp
-EldoraQtTSSource.cpp
-EldoraQtProductsSource.cpp
 PlotInfo.cpp
 """)
 
