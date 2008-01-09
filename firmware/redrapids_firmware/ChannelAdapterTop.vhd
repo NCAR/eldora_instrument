@@ -1342,7 +1342,12 @@ begin
 		else
 			status_reg(31 downto 20) <= (others => '0');
 			status_reg(30)   <= DMA_Interrupt_Status;  --DMA core already has it sticky
-			status_reg(29 downto 20) <= (others => '0');
+			--status_reg(29 downto 20) <= (others => '0');
+			status_reg(29 downto 24) <= (others => '0');
+			status_reg(23)   <= a_sync_error or status_reg(23);  --Sync Errors
+			status_reg(22)   <= b_sync_error or status_reg(22);
+			status_reg(21)   <= c_sync_error or status_reg(21);
+			status_reg(20)   <= d_sync_error or status_reg(20);
 			status_reg(19)   <= '0'; 						 --Wr after FF Full
  			status_reg(18)   <= ((ffa0_full and ffa0_wr) or (ffa1_full and ffa1_wr)) or status_reg(18);
 			status_reg(17)   <= ((ffb0_full and ffb0_wr) or (ffb1_full and ffb1_wr)) or status_reg(17);
@@ -1353,10 +1358,7 @@ begin
 			status_reg(12)   <= ffb0_full or ffb1_full or status_reg(12);
 			status_reg(11)   <= ffc0_full or ffc1_full or status_reg(11);
 			status_reg(10)   <= ffd0_full or ffd1_full or status_reg(10);
-			status_reg(9)    <= a_sync_error or status_reg(9); --Timing sync error
-			status_reg(8)    <= b_sync_error or status_reg(8);
-			status_reg(7)    <= c_sync_error or status_reg(7);
-			status_reg(6)    <= d_sync_error or status_reg(6);
+			status_reg(9 downto 6) <= (others => '0');  --ADC cur in over
 			status_reg(5)    <= adca_or or status_reg(5); --ADC has over ranged
 			status_reg(4)    <= adcb_or or status_reg(4);
 			status_reg(3)    <= adcc_or or status_reg(3);
