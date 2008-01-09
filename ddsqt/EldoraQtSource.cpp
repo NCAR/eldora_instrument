@@ -16,14 +16,23 @@ EldoraQtSource::EldoraQtSource(
     if (_outputRate > 100.0)
         _outputRate = 100.0;
 
-    _intervalMS = (int)(1000.0/_outputRate);
+    if (_outputRate > 0.0) 
+        _intervalMS = (int)(1000.0/_outputRate);
+    else
+        _intervalMS = 0;        
 
     connect(&_rateTimer, SIGNAL(timeout()), this, SLOT(rateTimeoutSlot()));
 
     // start the capture timer. Note that the _capture flag will
     // not be set until _run is set.
     _rateTimer.setSingleShot(false);
-    _rateTimer.start(_intervalMS);
+    if (_intervalMS > 0 ) {
+        _rateTimer.start(_intervalMS);
+    } else {
+        // in the case of continuos data, we will poll the _run flag
+        // every second, to initiate the capture once.
+        _rateTimer.start(1000);        
+    }
 
 
 }
@@ -56,6 +65,18 @@ void EldoraQtSource::rateTimeoutSlot() {
     // flag has been set.
     if (_run)
         _capture = true;
+}
+
+////////////////////////////////////////////////////////////
+void EldoraQtSource::clearCapture() {
+    // if we are rate limiting, clear the capture flag.
+    if (_intervalMS > 0) {
+        _capture = false;
+        return;
+    }
+    
+    // we are in continuous mode, so clear it only if _run is cleared.
+    _capture = _run;
 }
 
 ////////////////////////////////////////////////////////////

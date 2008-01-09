@@ -51,7 +51,7 @@ void EldoraQtProductsSource::notify() {
                     }
                     // send the Pbeam to our client.
                     emit newPData(P);
-                    _capture = false;
+                    clearCapture();
                 }
                 break;
 
@@ -67,7 +67,7 @@ void EldoraQtProductsSource::notify() {
                         // send the P time series to our client.
                         _pointCounter = 0;
                         emit newPData(P);
-                        _capture = false;
+                        clearCapture();
                     }
                 }
                 break;

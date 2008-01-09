@@ -71,7 +71,7 @@ emit                                 				tsGateList(_gates, firstgate);
 						}
 						// send the IQ beam to our client.
 emit                                                     						newData(I, Q, 1.0, 100.0);
-						_capture = false;
+						clearCapture();
 					}
 				}
 				break;
@@ -91,7 +91,7 @@ emit                                                     						newData(I, Q, 1.0
 							_pointCounter = 0;
 							// emit the new data signal!
 emit                                                          							newData(I, Q, 1.0, 100.0);
-							_capture = false;
+							clearCapture();
 						}
 					}
 				}

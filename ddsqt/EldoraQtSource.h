@@ -73,6 +73,12 @@ class EldoraQtSource : public QThread {
         virtual void shutdown();
 
     protected:
+        /// Clear the capture flag, depending on the rate limiting mode.
+        /// If rate limiting is in effect (_intervalMS > 0), the flag
+        /// will be cleared. If in continuous mode (_intervalMS == 0), 
+        /// the flag will be cleared only if _run is false.
+        virtual void clearCapture();
+        
         /// The number of samples received so far.
         unsigned int _readSamples;
 

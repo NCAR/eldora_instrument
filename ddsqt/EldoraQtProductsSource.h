@@ -19,7 +19,9 @@ using namespace EldoraDDS;
 /// Qt4 docuentation on threading and QObjects.
 ///
 /// The EldoraQtSource rate limiting mechanism (the _capture variable)
-/// is used to control the rate of data delivery to the qt client.
+/// is used to control the rate of data delivery to the qt client. If
+/// the rate parameter is set to zero, then there is no rate limiting
+/// and all data are delivered.
 class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
 Q_OBJECT
     public:
