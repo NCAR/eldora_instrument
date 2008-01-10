@@ -38,12 +38,14 @@ end Register_16bit;
 
 architecture Behavioral of Register_16bit is
 
-signal out_data : std_logic_vector(15 downto 0) := "0000000000000000";
+signal out_data : std_logic_vector(15 downto 0);
 
 begin
-process (Clk,Enable,WR)
+process (Clk,Enable,WR, Reset)
 begin
-	if Rising_Edge(Clk) and Enable = '1' and WR = '1' then
+	if Reset = '1' then
+			out_data <= (others=>'0');
+	elsif Rising_Edge(Clk) and Enable = '1' and WR = '1' then
 			out_data <= DataIn;
 	end if;
 end process;

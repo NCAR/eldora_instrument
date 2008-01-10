@@ -35,7 +35,7 @@ entity TimerModule is
 			  --Misc. Signals
 			  Enable   : in std_logic;						     -- Component enable
 			  Trigger  : in std_logic;						     -- Trigger to start pulse
-			  Rst      :  in std_logic;						  -- Component reset
+			  Rst      : in std_logic;						  	  -- Component reset
 			  Cntrl    : in std_logic_vector(15 downto 0); -- Control Register
 			  Mult     : in std_logic_vector(15 downto 0); -- Multiple PRT data
            
@@ -62,6 +62,8 @@ signal prt_mult   :std_logic_vector(3 downto 0);
 -- Derived Values
 signal product : std_logic_vector (19 downto 0);
 
+signal trig : std_logic;
+
 -- Output Signal
 signal pulse      : std_logic;
 
@@ -72,16 +74,28 @@ attribute uselowskewlines of pulse: signal is "yes";
 
 begin
     
+
+process(Rst, Trigger)
+begin
+if (Rst = '1') then
+	trig <= '0';
+elsif (Trigger = '1') then
+	trig <= '1';
+else
+	trig <= trig;
+end if;
+end process;
+
 -- Scheme to turn pulse on and off   
-process (Clk, Rst, Trigger, Cntrl(0), Cntrl(1))
+process (Clk)
 begin 
-if (Trigger = '0' or Rst = '1') then
+if (Rst = '1' or trig = '0') then
 	width_int   <= (others => '0');
 	period_int  <= (others => '0');
 	delay_int   <= (others => '0');
 	prt_mult		<= Mult(3 downto 0);						
 	pulse       <= Cntrl(1);
-elsif (Rising_Edge(Clk) and Cntrl(0) = '1' and Trigger = '1')  then
+elsif (Rising_Edge(Clk) and Enable = '1')  then
 	if (delay_int >= Delay) then
 		pulse <= not Cntrl(1);
 		if (width_int >= Width) then
@@ -116,16 +130,6 @@ end process;
 
 product <= period * prt_mult - 1 when (prt_mult /= 0 and prt_mult /= 1) else ("0000" & period) - 1;
 
--- Output pulse
-process(Clk,pulse,Cntrl(1),Enable)
-	begin
-	if(rising_edge(Clk)) then
-		if (Enable = '1') then
-			PulseOut <= pulse;
-		else 
-			PulseOut <= Cntrl(1);
-		end if;
-	end if;
-end process;
+PulseOut <= pulse when (Cntrl(0) = '1') else (Cntrl(1));
 
 end Behavioral;

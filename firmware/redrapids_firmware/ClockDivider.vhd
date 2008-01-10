@@ -35,8 +35,8 @@ end ClockDivider;
 
 architecture Behavioral of ClockDivider is
 
-signal count : std_logic_vector(3 downto 0) := "0000";
-signal out_clk : std_logic := '1';
+signal count : std_logic_vector(3 downto 0);
+signal out_clk : std_logic;
 
 begin
 
@@ -44,13 +44,12 @@ process(Clk)
 begin
 if Rising_Edge(Clk) then
 	count <= count + 1;	
-	if Sel = "01" then
-		out_clk <= count(0);
-	elsif Sel = "10" then
-		out_clk <= count(1);
-	else
-		out_clk <= count(2);
-	end if;
+	case Sel is
+		when "01" => out_clk <= count(0);	
+		when "10" => out_clk <= count(1);		
+		when "11" => out_clk <= count(2);	
+		when others => null;
+	end case;	
 end if;
 end process;
 ClkOut <= Clk when Sel = "00" else out_clk;
