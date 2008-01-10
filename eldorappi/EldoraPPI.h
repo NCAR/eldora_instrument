@@ -67,6 +67,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param p True to enable pause.
         void pauseSlot(
                 bool p);
+        /// Activated when a mouse click is released for the color bar.
+        void colorBarReleasedSlot();
+        /// Activated when the ColorBarSettings dialog is finished.
+        /// @param result The dialog result code
+        void colorBarSettingsFinishedSlot(int result);
     protected:
         // Configure the PPI displays when there is a change in the operating
         // configuration, such as the number of gates, etc.
@@ -84,15 +89,17 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
                 double defaultScaleMax, ///< Colorbar maximum
                 int ppiVarIndex ///< Variable index on the selection tab
                 );
+        /// The currently selected ppi type.
+        PRODUCT_TYPES _ppiType;
         /// This set contains PRODUCT_TYPESs identifiers for all desired 
-        /// S band moments plots. It is used to filter S products from
+        /// products plots. It is used to filter products from
         /// the incoming data stream.
         std::set<PRODUCT_TYPES> _productList;
         /// This set contains the list of all received products 
         /// that are on the desired list, and have the same beam id.
         /// When the length reaches the same size as _productList, 
         /// then we have all products for a given beam.
-        std::set<PRODUCT_TYPES> _currentSproducts;
+        std::set<PRODUCT_TYPES> _currentProducts;
         /// Will hold the beam values for all S band variables in one beam
         std::vector<std::vector<double> > _beamData;
         /// Color maps for each product

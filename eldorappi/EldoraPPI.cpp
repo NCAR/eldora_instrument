@@ -30,7 +30,7 @@ EldoraPPI::EldoraPPI(
         QDialog* parent) :
     QDialog(parent), _statsUpdateInterval(5),
             _config("NCAR", "EldoraPPI"),
-            _paused(false), _gates(0){
+            _paused(false), _gates(0), _ppiType(PROD_DBZ){
     // Set up our form
     setupUi(parent);
 
@@ -49,13 +49,19 @@ EldoraPPI::EldoraPPI(
 
 
     // connect the controls
+    connect(colorBarFore, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
+    connect(colorBarAft,     SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
+
 //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
 //    connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
 
     // set the checkbox selections
 //    _pauseButton->setChecked(false);
 
-    // initialize the book keeping for the plots.
+    // initialize the color maps
+    initColorMaps();
+    
+    // initialize the book keeping for the ppi displays.
     initPlots();
 
     // start the statistics timer
@@ -72,9 +78,7 @@ EldoraPPI::~EldoraPPI() {
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
         std::vector<double> p, int radarId) {
-    
-    std::cout << "product from radar " << radarId << "\n";
-    
+
     if (_paused)
         return;
     
@@ -209,5 +213,85 @@ EldoraPPI::setPpiInfo(PRODUCT_TYPES t,
 
     _config.sync();
 
+}
+//////////////////////////////////////////////////////////////////////
+void
+EldoraPPI::colorBarReleasedSlot()
+{
+    // get the current settings
+    double min = _ppiInfo[_ppiType].getScaleMin();
+    double max = _ppiInfo[_ppiType].getScaleMax();
+    std::string currentName = _ppiInfo[_ppiType].getColorMapName();
+
+    // create the color bar settings dialog
+    std::vector<std::string> mapNames;
+    for (std::map<std::string, ColorMap>::iterator i = _colorMaps.begin();
+        i != _colorMaps.end(); i++) {
+            mapNames.push_back(i->first);
+    }
+    _colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, this);
+
+    // connect the finished slot so that the dialog status 
+    // can be captuyred when the dialog closes
+    connect(_colorBarSettings, SIGNAL(finished(int)), 
+        this, SLOT(colorBarSettingsFinishedSlot(int)));
+
+    // and show it
+    _colorBarSettings->show();
+
+}
+//////////////////////////////////////////////////////////////////////////////
+void 
+EldoraPPI::colorBarSettingsFinishedSlot(int result)
+{
+    // see if the OK button was hit
+    if (result == QDialog::Accepted) {
+        // get the scale values from the settings dialog
+        double scaleMin = _colorBarSettings->getMinimum();
+        double scaleMax = _colorBarSettings->getMaximum();
+
+        // if the user inverted the values, swap them
+        if (scaleMin > scaleMax) 
+        {
+            double temp = scaleMax;
+            scaleMax = scaleMin;
+            scaleMin = temp;
+        }
+
+        // get the map name
+        std::string newMapName = _colorBarSettings->getMapName();
+
+        // Reconfigure the color bar
+        int index = _ppiInfo[_ppiType].getPpiIndex();
+        // save the new map name
+        _ppiInfo[_ppiType].setColorMapName(newMapName);
+
+        // configure the color bar with the new map and ranges.
+        if (_productList.find(_ppiType)!=_productList.end())
+        {
+            // get rid of the existing map
+            delete _maps[index];
+            // create a new map
+            ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
+            _maps[index] = newMap;
+            // set range on the new color map
+            _maps[index]->setRange(scaleMin, scaleMax);
+            // configure the color bar with it
+            colorBarFore->configure(*_maps[index]);
+        } 
+        // assign the new scale values to the current product
+        _ppiInfo[_ppiType].setScale(scaleMin, scaleMax);
+        // save the new values in the configuration
+        // create the configuration keys
+        std::string key = _ppiInfo[_ppiType].getKey();
+        std::string minKey = key + "/min";
+        std::string maxKey = key + "/max";
+        std::string mapKey = key + "/colorMap";
+
+        // set the configuration values
+        _config.setDouble(minKey, scaleMin);
+        _config.setDouble(maxKey, scaleMax);
+        _config.setString(mapKey, newMapName);
+    }
 }
 

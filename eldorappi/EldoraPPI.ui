@@ -46,7 +46,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ColorBar" name="colorbarFore" />
+      <widget class="ColorBar" name="colorBarFore" />
      </item>
     </layout>
    </item>
@@ -77,7 +77,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ColorBar" name="colorbarAft" />
+      <widget class="ColorBar" name="colorBarAft" />
      </item>
     </layout>
    </item>
