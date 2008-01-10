@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.309"
+    ComputedModelVersion    "1.312"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -43,8 +43,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Jan 02 14:38:55 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:309>"
+  LastModifiedDate	  "Thu Jan 10 09:08:17 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:312>"
   ConfigurationManager	  "None"
   LinearizationMsg	  "none"
   Profile		  off
@@ -618,7 +618,7 @@ Model {
   }
   System {
     Name		    "PulsePairProc"
-    Location		    [2, 78, 1598, 1150]
+    Location		    [2, 82, 1590, 1154]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -855,7 +855,7 @@ Model {
       System {
 	Name			"Data Display"
 	Location		[2, 82, 1270, 978]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -1353,7 +1353,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Index"
-      Position		      [30, 670, 100, 700]
+      Position		      [30, 710, 100, 740]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -1367,7 +1367,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Length"
-      Position		      [30, 739, 100, 771]
+      Position		      [30, 779, 100, 811]
       Value		      "7"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -1418,7 +1418,8 @@ Model {
       BlockType		      Reference
       Name		      "Manual Switch"
       Ports		      [2, 1]
-      Position		      [175, 527, 205, 563]
+      Position		      [175, 552, 205, 588]
+      NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      on
@@ -1436,7 +1437,8 @@ Model {
       BlockType		      Reference
       Name		      "Manual Switch1"
       Ports		      [2, 1]
-      Position		      [175, 597, 205, 633]
+      Position		      [165, 612, 195, 648]
+      NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      on
@@ -1454,7 +1456,7 @@ Model {
       BlockType		      Reference
       Name		      "Manual Switch2"
       Ports		      [2, 1]
-      Position		      [175, 457, 205, 493]
+      Position		      [200, 457, 230, 493]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      on
@@ -1466,6 +1468,43 @@ Model {
       RTWMemSecDataInternal   "Inherit from model"
       RTWMemSecDataParameters "Inherit from model"
       sw		      "1"
+      action		      "0"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Manual Switch3"
+      Ports		      [2, 1]
+      Position		      [115, 447, 145, 483]
+      NamePlacement	      "alternate"
+      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+      SourceType	      "Manual Switch"
+      ShowPortLabels	      on
+      SystemSampleTime	      "-1"
+      FunctionWithSeparateData off
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      sw		      "1"
+      action		      "0"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Manual Switch4"
+      Ports		      [2, 1]
+      Position		      [235, 622, 265, 658]
+      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+      SourceType	      "Manual Switch"
+      ShowPortLabels	      on
+      SystemSampleTime	      "-1"
+      FunctionWithSeparateData off
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      sw		      "0"
       action		      "0"
     }
     Block {
@@ -1663,7 +1702,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse"
       Ports		      [0, 1]
-      Position		      [25, 451, 70, 479]
+      Position		      [20, 441, 65, 469]
       PulseType		      "Time based"
       Period		      "54/12e6"
       PulseWidth	      "50"
@@ -4859,14 +4898,14 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "IQ Index"
-	      Position		      [30, 843, 60, 857]
+	      Position		      [20, 843, 50, 857]
 	      Port		      "10"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "IQ Length"
-	      Position		      [30, 883, 60, 897]
+	      Position		      [20, 883, 50, 897]
 	      Port		      "11"
 	      IconDisplay	      "Port number"
 	    }
@@ -10935,8 +10974,8 @@ Model {
 	    Block {
 	      BlockType		      SubSystem
 	      Name		      "Error Check"
-	      Ports		      [3, 1]
-	      Position		      [805, 937, 910, 1033]
+	      Ports		      [4, 1]
+	      Position		      [785, 964, 890, 1061]
 	      BackgroundColor	      "red"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -10961,29 +11000,36 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_1_In"
-		  Position		  [35, 35, 65, 49]
+		  Position		  [35, 33, 65, 47]
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_2_In"
-		  Position		  [35, 353, 65, 367]
+		  Position		  [35, 383, 65, 397]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "M_Reg"
-		  Position		  [35, 475, 65, 489]
+		  Position		  [35, 488, 65, 502]
 		  Port			  "3"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "Reset"
+		  Position		  [35, 658, 65, 672]
+		  Port			  "4"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Reference
 		  Name			  "Counter"
 		  Ports			  [2, 1]
-		  Position		  [315, 24, 375, 91]
-		  FontSize		  10
+		  Position		  [350, 39, 410, 106]
+		  NamePlacement		  "alternate"
 		  SourceBlock		  "xbsIndex_r4/Counter"
 		  SourceType		  "Xilinx Counter Block"
 		  infoedit		  "Hardware notes: Free running counte"
@@ -11025,8 +11071,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Counter1"
 		  Ports			  [2, 1]
-		  Position		  [315, 344, 375, 411]
-		  FontSize		  10
+		  Position		  [335, 359, 395, 426]
 		  SourceBlock		  "xbsIndex_r4/Counter"
 		  SourceType		  "Xilinx Counter Block"
 		  infoedit		  "Hardware notes: Free running counte"
@@ -11068,9 +11113,8 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay"
 		  Ports			  [1, 1]
-		  Position		  [330, 215, 370, 255]
+		  Position		  [350, 230, 390, 270]
 		  NamePlacement		  "alternate"
-		  FontSize		  10
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11099,8 +11143,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay1"
 		  Ports			  [1, 1]
-		  Position		  [330, 260, 370, 300]
-		  FontSize		  10
+		  Position		  [350, 275, 390, 315]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11129,9 +11172,8 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay2"
 		  Ports			  [1, 1]
-		  Position		  [330, 535, 370, 575]
+		  Position		  [350, 550, 390, 590]
 		  NamePlacement		  "alternate"
-		  FontSize		  10
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11160,8 +11202,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay3"
 		  Ports			  [1, 1]
-		  Position		  [330, 580, 370, 620]
-		  FontSize		  10
+		  Position		  [350, 595, 390, 635]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11190,8 +11231,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [205, 21, 240, 59]
-		  FontSize		  10
+		  Position		  [145, 21, 180, 59]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -11218,8 +11258,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [205, 341, 240, 379]
-		  FontSize		  10
+		  Position		  [145, 371, 180, 409]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -11246,8 +11285,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical"
 		  Ports			  [2, 1]
-		  Position		  [835, 290, 890, 350]
-		  FontSize		  10
+		  Position		  [930, 320, 985, 380]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
@@ -11279,8 +11317,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Register"
 		  Ports			  [2, 1]
-		  Position		  [440, 34, 500, 136]
-		  FontSize		  10
+		  Position		  [525, 49, 585, 151]
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
@@ -11308,8 +11345,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Register1"
 		  Ports			  [3, 1]
-		  Position		  [440, 166, 500, 304]
-		  FontSize		  10
+		  Position		  [525, 181, 585, 319]
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
@@ -11337,8 +11373,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Register2"
 		  Ports			  [2, 1]
-		  Position		  [440, 354, 500, 456]
-		  FontSize		  10
+		  Position		  [525, 369, 585, 471]
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
@@ -11366,8 +11401,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Register3"
 		  Ports			  [3, 1]
-		  Position		  [440, 486, 500, 624]
-		  FontSize		  10
+		  Position		  [525, 501, 585, 639]
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
@@ -11393,10 +11427,65 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Register4"
+		  Ports			  [2, 1]
+		  Position		  [820, 158, 880, 227]
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,69,2,1,white,blue,0,b6caf0d3"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 69 69 ],[0.77 0.82 0.91]);\npatch([14 4 18 "
+"4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[11 21 35 49 59 59 55 "
+"59 59 46 59 50 35 20 11 24 11 11 15 11 11 ],[0.98 0.96 0.92]);\nplot([0 0 60 "
+"60 0 ],[0 69 69 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');\nco"
+"lor('black');port_label('input',2,'rst');\ncolor('black');port_label('output'"
+",1,'q');\ncolor('black');disp('\\bf{z^{-1}}','texmode','on');\nfprintf('','CO"
+"MMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Register5"
+		  Ports			  [2, 1]
+		  Position		  [820, 478, 880, 547]
+		  SourceBlock		  "xbsIndex_r4/Register"
+		  SourceType		  "Xilinx Register Block"
+		  init			  "0"
+		  rst			  on
+		  en			  off
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "register"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,69,2,1,white,blue,0,b6caf0d3"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 69 69 ],[0.77 0.82 0.91]);\npatch([14 4 18 "
+"4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[11 21 35 49 59 59 55 "
+"59 59 46 59 50 35 20 11 24 11 11 15 11 11 ],[0.98 0.96 0.92]);\nplot([0 0 60 "
+"60 0 ],[0 69 69 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'d');\nco"
+"lor('black');port_label('input',2,'rst');\ncolor('black');port_label('output'"
+",1,'q');\ncolor('black');disp('\\bf{z^{-1}}','texmode','on');\nfprintf('','CO"
+"MMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Relational"
 		  Ports			  [3, 1]
-		  Position		  [710, 48, 770, 272]
-		  FontSize		  10
+		  Position		  [710, 63, 770, 287]
 		  SourceBlock		  "xbsIndex_r4/Relational"
 		  SourceType		  "Xilinx Arithmetic Relational Operat"
 "or Block"
@@ -11425,8 +11514,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Relational1"
 		  Ports			  [3, 1]
-		  Position		  [710, 368, 770, 592]
-		  FontSize		  10
+		  Position		  [710, 383, 770, 607]
 		  SourceBlock		  "xbsIndex_r4/Relational"
 		  SourceType		  "Xilinx Arithmetic Relational Operat"
 "or Block"
@@ -11454,13 +11542,167 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "Sync Error"
-		  Position		  [965, 315, 995, 329]
+		  Position		  [1050, 343, 1080, 357]
 		  IconDisplay		  "Port number"
+		  BusOutputAsStruct	  off
+		}
+		Line {
+		  SrcBlock		  "Counter"
+		  SrcPort		  1
+		  DstBlock		  "Register"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register"
+		  SrcPort		  1
+		  DstBlock		  "Relational"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Gate_1_In"
+		  SrcPort		  1
+		  Points		  [50, 0]
+		  Branch {
+		    Points		    [0, 85; 165, 0]
+		    Branch {
+		    Points		    [0, -35]
+		    DstBlock		    "Counter"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 170]
+		    DstBlock		    "Delay1"
+		    DstPort		    1
+		    }
+		  }
+		  Branch {
+		    DstBlock		    "Inverter"
+		    DstPort		    1
+		  }
+		}
+		Line {
+		  SrcBlock		  "Register1"
+		  SrcPort		  1
+		  DstBlock		  "Relational"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Delay1"
+		  SrcPort		  1
+		  Points		  [0, 0]
+		  DstBlock		  "Register1"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Counter1"
+		  SrcPort		  1
+		  DstBlock		  "Register2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register2"
+		  SrcPort		  1
+		  DstBlock		  "Relational1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Gate_2_In"
+		  SrcPort		  1
+		  Points		  [0, 0; 60, 0]
+		  Branch {
+		    Points		    [0, 65; 140, 0]
+		    Branch {
+		    Points		    [0, -45]
+		    DstBlock		    "Counter1"
+		    DstPort		    2
+		    }
+		    Branch {
+		    Points		    [0, 160]
+		    DstBlock		    "Delay3"
+		    DstPort		    1
+		    }
+		  }
+		  Branch {
+		    DstBlock		    "Inverter1"
+		    DstPort		    1
+		  }
+		}
+		Line {
+		  SrcBlock		  "M_Reg"
+		  SrcPort		  1
+		  Points		  [50, 0]
+		  Branch {
+		    DstBlock		    "Relational1"
+		    DstPort		    2
+		  }
+		  Branch {
+		    Points		    [0, -320]
+		    DstBlock		    "Relational"
+		    DstPort		    2
+		  }
+		}
+		Line {
+		  SrcBlock		  "Register3"
+		  SrcPort		  1
+		  DstBlock		  "Relational1"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Delay3"
+		  SrcPort		  1
+		  DstBlock		  "Register3"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Logical"
+		  SrcPort		  1
+		  DstBlock		  "Sync Error"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  Points		  [90, 0; 0, -15; 30, 0]
+		  Branch {
+		    DstBlock		    "Counter1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 70]
+		    Branch {
+		    Points		    [0, 80]
+		    Branch {
+		    Points		    [0, 45]
+		    DstBlock		    "Delay2"
+		    DstPort		    1
+		    }
+		    Branch {
+		    DstBlock		    "Register3"
+		    DstPort		    1
+		    }
+		    }
+		    Branch {
+		    DstBlock		    "Register2"
+		    DstPort		    2
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "Delay"
+		  SrcPort		  1
+		  DstBlock		  "Register1"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Delay2"
+		  SrcPort		  1
+		  DstBlock		  "Register3"
+		  DstPort		  2
 		}
 		Line {
 		  SrcBlock		  "Inverter"
 		  SrcPort		  1
-		  Points		  [0, 0; 45, 0]
+		  Points		  [75, 0; 0, 15; 50, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
@@ -11468,6 +11710,7 @@ Model {
 		  Branch {
 		    Points		    [0, 70]
 		    Branch {
+		    Points		    [0, 0]
 		    DstBlock		    "Register"
 		    DstPort		    2
 		    }
@@ -11486,172 +11729,43 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Counter"
-		  SrcPort		  1
-		  Points		  [0, 0]
-		  DstBlock		  "Register"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Register"
-		  SrcPort		  1
-		  Points		  [0, 0]
-		  DstBlock		  "Relational"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Gate_1_In"
-		  SrcPort		  1
-		  Points		  [0, 0; 115, 0]
-		  Branch {
-		    DstBlock		    "Inverter"
-		    DstPort		    1
-		  }
-		  Branch {
-		    Points		    [0, 35; 85, 0]
-		    Branch {
-		    DstBlock		    "Counter"
-		    DstPort		    2
-		    }
-		    Branch {
-		    Points		    [0, 205]
-		    DstBlock		    "Delay1"
-		    DstPort		    1
-		    }
-		  }
-		}
-		Line {
-		  SrcBlock		  "Delay"
-		  SrcPort		  1
-		  Points		  [0, 0]
-		  DstBlock		  "Register1"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Register1"
-		  SrcPort		  1
-		  Points		  [0, 0]
-		  DstBlock		  "Relational"
-		  DstPort		  3
-		}
-		Line {
-		  SrcBlock		  "Delay1"
-		  SrcPort		  1
-		  Points		  [0, 0]
-		  DstBlock		  "Register1"
-		  DstPort		  3
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  Points		  [0, 0; 45, 0]
-		  Branch {
-		    DstBlock		    "Counter1"
-		    DstPort		    1
-		  }
-		  Branch {
-		    Points		    [0, 70]
-		    Branch {
-		    DstBlock		    "Register2"
-		    DstPort		    2
-		    }
-		    Branch {
-		    Points		    [0, 80]
-		    Branch {
-		    Points		    [0, 45]
-		    DstBlock		    "Delay2"
-		    DstPort		    1
-		    }
-		    Branch {
-		    DstBlock		    "Register3"
-		    DstPort		    1
-		    }
-		    }
-		  }
-		}
-		Line {
-		  SrcBlock		  "Counter1"
-		  SrcPort		  1
-		  DstBlock		  "Register2"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Register2"
-		  SrcPort		  1
-		  DstBlock		  "Relational1"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Gate_2_In"
-		  SrcPort		  1
-		  Points		  [0, 0; 115, 0]
-		  Branch {
-		    DstBlock		    "Inverter1"
-		    DstPort		    1
-		  }
-		  Branch {
-		    Points		    [0, 35; 85, 0]
-		    Branch {
-		    DstBlock		    "Counter1"
-		    DstPort		    2
-		    }
-		    Branch {
-		    Points		    [0, 205]
-		    DstBlock		    "Delay3"
-		    DstPort		    1
-		    }
-		  }
-		}
-		Line {
-		  SrcBlock		  "M_Reg"
-		  SrcPort		  1
-		  Points		  [0, 0; 80, 0]
-		  Branch {
-		    DstBlock		    "Relational1"
-		    DstPort		    2
-		  }
-		  Branch {
-		    Points		    [0, -320]
-		    DstBlock		    "Relational"
-		    DstPort		    2
-		  }
-		}
-		Line {
-		  SrcBlock		  "Delay2"
-		  SrcPort		  1
-		  DstBlock		  "Register3"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Register3"
-		  SrcPort		  1
-		  DstBlock		  "Relational1"
-		  DstPort		  3
-		}
-		Line {
-		  SrcBlock		  "Delay3"
-		  SrcPort		  1
-		  DstBlock		  "Register3"
-		  DstPort		  3
-		}
-		Line {
 		  SrcBlock		  "Relational"
 		  SrcPort		  1
-		  Points		  [20, 0; 0, 145]
-		  DstBlock		  "Logical"
+		  DstBlock		  "Register4"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Relational1"
 		  SrcPort		  1
-		  Points		  [20, 0; 0, -145]
+		  DstBlock		  "Register5"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register5"
+		  SrcPort		  1
+		  Points		  [30, 0]
 		  DstBlock		  "Logical"
 		  DstPort		  2
 		}
 		Line {
-		  SrcBlock		  "Logical"
+		  SrcBlock		  "Reset"
 		  SrcPort		  1
-		  DstBlock		  "Sync Error"
+		  Points		  [725, 0; 0, -135]
+		  Branch {
+		    DstBlock		    "Register5"
+		    DstPort		    2
+		  }
+		  Branch {
+		    Points		    [0, -320]
+		    DstBlock		    "Register4"
+		    DstPort		    2
+		  }
+		}
+		Line {
+		  SrcBlock		  "Register4"
+		  SrcPort		  1
+		  Points		  [30, 0]
+		  DstBlock		  "Logical"
 		  DstPort		  1
 		}
 	      }
@@ -11659,8 +11773,8 @@ Model {
 	    Block {
 	      BlockType		      SubSystem
 	      Name		      "IQ Selector"
-	      Ports		      [5, 3]
-	      Position		      [785, 704, 930, 916]
+	      Ports		      [6, 3]
+	      Position		      [785, 711, 930, 949]
 	      BackgroundColor	      "orange"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -11668,7 +11782,7 @@ Model {
 	      MaskHideContents	      off
 	      System {
 		Name			"IQ Selector"
-		Location		[112, 82, 1380, 978]
+		Location		[2, 82, 1590, 1154]
 		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
@@ -11691,36 +11805,43 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "IQ Gate 1"
-		  Position		  [25, 73, 55, 87]
+		  Position		  [25, 143, 55, 157]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "IQ Gate 2"
-		  Position		  [25, 103, 55, 117]
+		  Position		  [25, 173, 55, 187]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "IQ Index"
-		  Position		  [25, 163, 55, 177]
+		  Position		  [25, 233, 55, 247]
 		  Port			  "4"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "IQ Length"
-		  Position		  [25, 203, 55, 217]
+		  Position		  [25, 348, 55, 362]
 		  Port			  "5"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "Reset"
+		  Position		  [25, 78, 55, 92]
+		  Port			  "6"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Reference
 		  Name			  "Counter"
 		  Ports			  [2, 1]
-		  Position		  [300, 80, 360, 140]
+		  Position		  [390, 150, 450, 210]
 		  SourceBlock		  "xbsIndex_r4/Counter"
 		  SourceType		  "Xilinx Counter Block"
 		  infoedit		  "Hardware notes: Free running counte"
@@ -11762,7 +11883,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Counter1"
 		  Ports			  [2, 1]
-		  Position		  [600, 125, 660, 185]
+		  Position		  [765, 195, 825, 255]
 		  SourceBlock		  "xbsIndex_r4/Counter"
 		  SourceType		  "Xilinx Counter Block"
 		  infoedit		  "Hardware notes: Free running counte"
@@ -11804,7 +11925,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay"
 		  Ports			  [1, 1]
-		  Position		  [770, 36, 810, 74]
+		  Position		  [910, 81, 950, 119]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11833,7 +11954,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay1"
 		  Ports			  [1, 1]
-		  Position		  [940, 355, 970, 385]
+		  Position		  [1010, 425, 1040, 455]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11862,7 +11983,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay2"
 		  Ports			  [1, 1]
-		  Position		  [1130, 155, 1170, 195]
+		  Position		  [1360, 210, 1400, 250]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11891,7 +12012,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Delay3"
 		  Ports			  [1, 1]
-		  Position		  [940, 505, 970, 535]
+		  Position		  [1010, 575, 1040, 605]
 		  SourceBlock		  "xbsIndex_r4/Delay"
 		  SourceType		  "Xilinx Delay Block"
 		  infoedit		  "Hardware notes: A delay line is a c"
@@ -11920,7 +12041,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [215, 78, 250, 112]
+		  Position		  [230, 148, 265, 182]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -11947,7 +12068,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [525, 123, 560, 157]
+		  Position		  [600, 193, 635, 227]
 		  NamePlacement		  "alternate"
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
@@ -11975,7 +12096,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter2"
 		  Ports			  [1, 1]
-		  Position		  [820, 188, 855, 222]
+		  Position		  [980, 258, 1015, 292]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -12002,7 +12123,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter4"
 		  Ports			  [1, 1]
-		  Position		  [750, 338, 780, 372]
+		  Position		  [820, 408, 850, 442]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -12029,7 +12150,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical"
 		  Ports			  [2, 1]
-		  Position		  [110, 65, 165, 125]
+		  Position		  [140, 135, 195, 195]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
@@ -12061,7 +12182,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical1"
 		  Ports			  [2, 1]
-		  Position		  [905, 160, 960, 220]
+		  Position		  [1050, 230, 1105, 290]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
@@ -12093,7 +12214,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical2"
 		  Ports			  [2, 1]
-		  Position		  [1020, 348, 1060, 432]
+		  Position		  [1090, 418, 1130, 502]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
@@ -12125,7 +12246,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical3"
 		  Ports			  [2, 1]
-		  Position		  [1020, 498, 1060, 582]
+		  Position		  [1090, 568, 1130, 652]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "OR"
@@ -12157,7 +12278,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical4"
 		  Ports			  [2, 1]
-		  Position		  [835, 340, 890, 400]
+		  Position		  [905, 410, 960, 470]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "AND"
@@ -12189,7 +12310,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Logical5"
 		  Ports			  [2, 1]
-		  Position		  [835, 490, 890, 550]
+		  Position		  [905, 560, 960, 620]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
 		  logical_function	  "AND"
@@ -12219,9 +12340,105 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Logical6"
+		  Ports			  [2, 1]
+		  Position		  [305, 70, 360, 130]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "OR"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
+"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
+"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical7"
+		  Ports			  [2, 1]
+		  Position		  [675, 105, 730, 165]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "OR"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
+"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
+"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical8"
+		  Ports			  [2, 1]
+		  Position		  [1140, 215, 1195, 275]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "OR"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
+"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
+"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Register1"
 		  Ports			  [2, 1]
-		  Position		  [1005, 147, 1065, 203]
+		  Position		  [1240, 202, 1300, 258]
 		  SourceBlock		  "xbsIndex_r4/Register"
 		  SourceType		  "Xilinx Register Block"
 		  init			  "0"
@@ -12249,7 +12466,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Relational"
 		  Ports			  [3, 1]
-		  Position		  [425, 78, 475, 262]
+		  Position		  [510, 148, 560, 332]
 		  SourceBlock		  "xbsIndex_r4/Relational"
 		  SourceType		  "Xilinx Arithmetic Relational Operat"
 "or Block"
@@ -12278,7 +12495,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Relational1"
 		  Ports			  [3, 1]
-		  Position		  [725, 133, 780, 277]
+		  Position		  [890, 203, 945, 347]
 		  SourceBlock		  "xbsIndex_r4/Relational"
 		  SourceType		  "Xilinx Arithmetic Relational Operat"
 "or Block"
@@ -12306,14 +12523,14 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Out"
-		  Position		  [1230, 168, 1260, 182]
+		  Position		  [1465, 223, 1495, 237]
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
 		}
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 1 Out"
-		  Position		  [1120, 383, 1150, 397]
+		  Position		  [1190, 453, 1220, 467]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -12321,7 +12538,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 2 Out"
-		  Position		  [1125, 533, 1155, 547]
+		  Position		  [1195, 603, 1225, 617]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -12335,40 +12552,20 @@ Model {
 		Line {
 		  SrcBlock		  "IQ Index"
 		  SrcPort		  1
+		  Points		  [0, 0]
 		  DstBlock		  "Relational"
 		  DstPort		  2
 		}
 		Line {
-		  SrcBlock		  "Inverter"
-		  SrcPort		  1
-		  Points		  [25, 0]
-		  Branch {
-		    DstBlock		    "Counter"
-		    DstPort		    1
-		  }
-		  Branch {
-		    Points		    [0, -40]
-		    DstBlock		    "Delay"
-		    DstPort		    1
-		  }
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  DstBlock		  "Counter1"
-		  DstPort		  1
-		}
-		Line {
 		  SrcBlock		  "Relational"
 		  SrcPort		  1
-		  Points		  [25, 0]
+		  Points		  [0, 0; 20, 0]
 		  Branch {
-		    Points		    [0, -30]
 		    DstBlock		    "Inverter1"
 		    DstPort		    1
 		  }
 		  Branch {
-		    Points		    [60, 0]
+		    Points		    [50, 0]
 		    Branch {
 		    DstBlock		    "Counter1"
 		    DstPort		    2
@@ -12389,13 +12586,14 @@ Model {
 		Line {
 		  SrcBlock		  "Relational1"
 		  SrcPort		  1
+		  Points		  [15, 0]
 		  DstBlock		  "Inverter2"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "IQ Data"
 		  SrcPort		  1
-		  Points		  [930, 0]
+		  Points		  [1165, 0]
 		  DstBlock		  "Register1"
 		  DstPort		  1
 		}
@@ -12408,13 +12606,13 @@ Model {
 		Line {
 		  SrcBlock		  "Logical"
 		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [0, 0; 10, 0]
 		  Branch {
 		    DstBlock		    "Inverter"
 		    DstPort		    1
 		  }
 		  Branch {
-		    Points		    [0, 30; 95, 0]
+		    Points		    [0, 30; 165, 0]
 		    Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    2
@@ -12429,7 +12627,7 @@ Model {
 		Line {
 		  SrcBlock		  "IQ Gate 2"
 		  SrcPort		  1
-		  Points		  [20, 0]
+		  Points		  [0, 0; 50, 0]
 		  Branch {
 		    DstBlock		    "Logical"
 		    DstPort		    2
@@ -12443,7 +12641,7 @@ Model {
 		Line {
 		  SrcBlock		  "IQ Gate 1"
 		  SrcPort		  1
-		  Points		  [30, 0]
+		  Points		  [0, 0; 60, 0]
 		  Branch {
 		    DstBlock		    "Logical"
 		    DstPort		    1
@@ -12457,35 +12655,26 @@ Model {
 		Line {
 		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [15, 0]
-		  Branch {
-		    DstBlock		    "Register1"
-		    DstPort		    2
-		  }
-		  Branch {
-		    Points		    [0, 115; -245, 0]
-		    DstBlock		    "Inverter4"
-		    DstPort		    1
-		  }
+		  DstBlock		  "Logical8"
+		  DstPort		  2
 		}
 		Line {
 		  SrcBlock		  "Inverter2"
 		  SrcPort		  1
-		  Points		  [0, 0]
 		  DstBlock		  "Logical1"
 		  DstPort		  2
 		}
 		Line {
 		  SrcBlock		  "Delay"
 		  SrcPort		  1
-		  Points		  [45, 0; 0, 120]
+		  Points		  [80, 0]
 		  DstBlock		  "Logical1"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "IQ Length"
 		  SrcPort		  1
-		  Points		  [165, 0; 0, 75; 415, 0; 0, -80]
+		  Points		  [805, 0; 0, -80]
 		  DstBlock		  "Relational1"
 		  DstPort		  2
 		}
@@ -12510,7 +12699,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter4"
 		  SrcPort		  1
-		  Points		  [20, 0]
+		  Points		  [0, 0; 20, 0]
 		  Branch {
 		    DstBlock		    "Logical4"
 		    DstPort		    1
@@ -12524,7 +12713,7 @@ Model {
 		Line {
 		  SrcBlock		  "Logical4"
 		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [0, 0; 15, 0]
 		  Branch {
 		    DstBlock		    "Delay1"
 		    DstPort		    1
@@ -12538,14 +12727,12 @@ Model {
 		Line {
 		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [0, 0]
 		  DstBlock		  "IQ Gate 2 Out"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Delay3"
 		  SrcPort		  1
-		  Points		  [0, 0]
 		  DstBlock		  "Logical3"
 		  DstPort		  1
 		}
@@ -12561,6 +12748,75 @@ Model {
 		    Points		    [0, 40]
 		    DstBlock		    "Logical3"
 		    DstPort		    2
+		  }
+		}
+		Line {
+		  SrcBlock		  "Reset"
+		  SrcPort		  1
+		  Points		  [0, 0; 225, 0]
+		  Branch {
+		    DstBlock		    "Logical6"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, -30; 375, 0]
+		    Branch {
+		    DstBlock		    "Logical7"
+		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [455, 0; 0, 175]
+		    DstBlock		    "Logical8"
+		    DstPort		    1
+		    }
+		  }
+		}
+		Line {
+		  SrcBlock		  "Logical6"
+		  SrcPort		  1
+		  Points		  [0, 0; 10, 0]
+		  Branch {
+		    DstBlock		    "Counter"
+		    DstPort		    1
+		  }
+		  Branch {
+		    DstBlock		    "Delay"
+		    DstPort		    1
+		  }
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [20, 0]
+		  DstBlock		  "Logical6"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  Points		  [20, 0]
+		  DstBlock		  "Logical7"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Logical7"
+		  SrcPort		  1
+		  Points		  [15, 0]
+		  DstBlock		  "Counter1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical8"
+		  SrcPort		  1
+		  Points		  [15, 0]
+		  Branch {
+		    DstBlock		    "Register1"
+		    DstPort		    2
+		  }
+		  Branch {
+		    Points		    [0, 140; -410, 0]
+		    DstBlock		    "Inverter4"
+		    DstPort		    1
 		  }
 		}
 	      }
@@ -15636,7 +15892,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ"
-	      Position		      [1090, 733, 1120, 747]
+	      Position		      [1090, 743, 1120, 757]
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
 	    }
@@ -15667,7 +15923,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ Gate 1"
-	      Position		      [1090, 803, 1120, 817]
+	      Position		      [1090, 823, 1120, 837]
 	      Port		      "5"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -15675,7 +15931,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ Gate 2"
-	      Position		      [1090, 873, 1120, 887]
+	      Position		      [1090, 903, 1120, 917]
 	      Port		      "6"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -15699,7 +15955,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "Sync Error"
-	      Position		      [1090, 978, 1120, 992]
+	      Position		      [1090, 1008, 1120, 1022]
 	      Port		      "9"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -15731,7 +15987,7 @@ Model {
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, 405]
+		    Points		    [0, 415]
 		    DstBlock		    "Error Check"
 		    DstPort		    3
 		  }
@@ -15788,7 +16044,7 @@ Model {
 		    DstPort		    2
 		    }
 		    Branch {
-		    Points		    [0, 185]
+		    Points		    [0, 205]
 		    DstBlock		    "Error Check"
 		    DstPort		    1
 		    }
@@ -15831,7 +16087,7 @@ Model {
 		    DstPort		    3
 		    }
 		    Branch {
-		    Points		    [0, 175]
+		    Points		    [0, 190]
 		    DstBlock		    "Error Check"
 		    DstPort		    2
 		    }
@@ -15905,8 +16161,22 @@ Model {
 		}
 		Branch {
 		  Points		  [0, 205]
-		  DstBlock		  "P Avg"
-		  DstPort		  6
+		  Branch {
+		    DstBlock		    "P Avg"
+		    DstPort		    6
+		  }
+		  Branch {
+		    Points		    [0, 200]
+		    Branch {
+		    DstBlock		    "IQ Selector"
+		    DstPort		    6
+		    }
+		    Branch {
+		    Points		    [0, 120]
+		    DstBlock		    "Error Check"
+		    DstPort		    4
+		    }
+		  }
 		}
 	      }
 	    }
@@ -15987,12 +16257,14 @@ Model {
 	    Line {
 	      SrcBlock		      "IQ Index"
 	      SrcPort		      1
+	      Points		      [0, 0]
 	      DstBlock		      "IQ Selector"
 	      DstPort		      4
 	    }
 	    Line {
 	      SrcBlock		      "IQ Length"
 	      SrcPort		      1
+	      Points		      [0, 0]
 	      DstBlock		      "IQ Selector"
 	      DstPort		      5
 	    }
@@ -16280,7 +16552,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse1"
       Ports		      [0, 1]
-      Position		      [25, 521, 70, 549]
+      Position		      [25, 546, 70, 574]
       PulseType		      "Time based"
       Period		      "900/40e6"
       PulseWidth	      "10"
@@ -16290,7 +16562,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse2"
       Ports		      [0, 1]
-      Position		      [25, 591, 70, 619]
+      Position		      [25, 606, 70, 634]
       PulseType		      "Time based"
       Period		      "500/12e6"
       PhaseDelay	      "10/12e6"
@@ -16299,11 +16571,21 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse3"
       Ports		      [0, 1]
-      Position		      [75, 471, 120, 499]
+      Position		      [75, 501, 120, 529]
       PulseType		      "Time based"
       Period		      "900/40e6"
       PulseWidth	      "10"
       PhaseDelay	      "0/12e6"
+    }
+    Block {
+      BlockType		      DiscretePulseGenerator
+      Name		      "Pulse4"
+      Ports		      [0, 1]
+      Position		      [120, 661, 165, 689]
+      PulseType		      "Time based"
+      Period		      "5000/12e6"
+      PulseWidth	      "50"
+      PhaseDelay	      "5000/12e6"
     }
     Block {
       BlockType		      Reference
@@ -16531,7 +16813,7 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "const"
-      Position		      [75, 544, 120, 566]
+      Position		      [75, 569, 120, 591]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -16545,7 +16827,21 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "const1"
-      Position		      [75, 614, 120, 636]
+      Position		      [75, 629, 120, 651]
+      Value		      "0"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "sfix(16)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "2^0"
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "const2"
+      Position		      [20, 484, 65, 506]
       Value		      "0"
       VectorParams1D	      on
       SamplingMode	      "Sample based"
@@ -16618,14 +16914,13 @@ Model {
     Line {
       SrcBlock		      "const"
       SrcPort		      1
-      Points		      [35, 0]
       DstBlock		      "Manual Switch"
       DstPort		      2
     }
     Line {
       SrcBlock		      "Manual Switch"
       SrcPort		      1
-      Points		      [0, 0]
+      Points		      [90, 0]
       DstBlock		      "Gate2"
       DstPort		      1
     }
@@ -16742,30 +17037,14 @@ Model {
     Line {
       SrcBlock		      "Pulse2"
       SrcPort		      1
-      Points		      [85, 0]
       DstBlock		      "Manual Switch1"
       DstPort		      1
     }
     Line {
       SrcBlock		      "const1"
       SrcPort		      1
-      Points		      [35, 0]
       DstBlock		      "Manual Switch1"
       DstPort		      2
-    }
-    Line {
-      SrcBlock		      "Manual Switch1"
-      SrcPort		      1
-      Points		      [0, 0; 45, 0]
-      Branch {
-	DstBlock		"Reset"
-	DstPort			1
-      }
-      Branch {
-	Points			[0, 225]
-	DstBlock		"Scope1"
-	DstPort			4
-      }
     }
     Line {
       SrcBlock		      "AData"
@@ -16904,19 +17183,20 @@ Model {
       SrcBlock		      "Pulse Pair Processor"
       SrcPort		      9
       Points		      [285, 0]
-      DstBlock		      "Data Display"
-      DstPort		      7
-    }
-    Line {
-      SrcBlock		      "Pulse"
-      SrcPort		      1
-      DstBlock		      "Manual Switch2"
-      DstPort		      1
+      Branch {
+	DstBlock		"Data Display"
+	DstPort			7
+      }
+      Branch {
+	Points			[0, 85]
+	DstBlock		"Scope1"
+	DstPort			4
+      }
     }
     Line {
       SrcBlock		      "Manual Switch2"
       SrcPort		      1
-      Points		      [65, 0]
+      Points		      [40, 0]
       Branch {
 	DstBlock		"Gate1"
 	DstPort			1
@@ -16930,7 +17210,47 @@ Model {
     Line {
       SrcBlock		      "Pulse3"
       SrcPort		      1
+      Points		      [50, 0; 0, -30]
       DstBlock		      "Manual Switch2"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Manual Switch3"
+      SrcPort		      1
+      DstBlock		      "Manual Switch2"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Pulse"
+      SrcPort		      1
+      DstBlock		      "Manual Switch3"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "const2"
+      SrcPort		      1
+      Points		      [30, 0]
+      DstBlock		      "Manual Switch3"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Manual Switch1"
+      SrcPort		      1
+      DstBlock		      "Manual Switch4"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Manual Switch4"
+      SrcPort		      1
+      Points		      [30, 0]
+      DstBlock		      "Reset"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Pulse4"
+      SrcPort		      1
+      Points		      [30, 0; 0, -25]
+      DstBlock		      "Manual Switch4"
       DstPort		      2
     }
   }
