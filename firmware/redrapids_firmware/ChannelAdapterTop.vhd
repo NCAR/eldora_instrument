@@ -713,10 +713,10 @@ begin
 --      I => gpio(0));    -- Buffer input (connect directly to top-level port)
 --	
 	-- ==== GPIO =====================================================================
-	gpio(3) <= pulse_out(3);
-	gpio(2) <= pulse_out(2);
-	gpio(1) <= pulse_out(1);
-	gpio(0) <= pulse_out(0);
+	gpio(3) <= cha_gate_in(1);
+	gpio(2) <= cha_gate_in(0);
+	gpio(1) <= cha_gate_out(1);
+	gpio(0) <= cha_gate_out(0);
 	
 	-- ===== Analog Sample Clk DCM ====================================================
 	--This DCM is used for the incomming LVDS ADC sample clock.  
