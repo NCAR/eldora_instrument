@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.289"
+    ComputedModelVersion    "1.290"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -43,8 +43,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Jan 10 09:14:28 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:289>"
+  LastModifiedDate	  "Fri Jan 11 11:05:04 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:290>"
   ConfigurationManager	  "None"
   LinearizationMsg	  "none"
   Profile		  off
@@ -7327,7 +7327,7 @@ Model {
 		    Block {
 		    BlockType		    Outport
 		    Name		    "A,B,P Gate 1"
-		    Position		    [1050, 598, 1080, 612]
+		    Position		    [1030, 598, 1060, 612]
 		    Port		    "2"
 		    IconDisplay		    "Port number"
 		    BusOutputAsStruct	    off
@@ -7459,13 +7459,6 @@ Model {
 		    DstPort		    1
 		    }
 		    Line {
-		    SrcBlock		    "Logical"
-		    SrcPort		    1
-		    Points		    [0, 0]
-		    DstBlock		    "A,B,P Gate 1"
-		    DstPort		    1
-		    }
-		    Line {
 		    SrcBlock		    "Reset"
 		    SrcPort		    1
 		    Points		    [105, 0]
@@ -7512,6 +7505,12 @@ Model {
 		    SrcPort		    1
 		    DstBlock		    "Mux"
 		    DstPort		    3
+		    }
+		    Line {
+		    SrcBlock		    "Logical"
+		    SrcPort		    1
+		    DstBlock		    "A,B,P Gate 1"
+		    DstPort		    1
 		    }
 		  }
 		}
@@ -12071,20 +12070,20 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_1_In"
-		  Position		  [35, 33, 65, 47]
+		  Position		  [35, 48, 65, 62]
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_2_In"
-		  Position		  [35, 383, 65, 397]
+		  Position		  [35, 368, 65, 382]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "M_Reg"
-		  Position		  [35, 488, 65, 502]
+		  Position		  [35, 313, 65, 327]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
@@ -12302,7 +12301,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [145, 21, 180, 59]
+		  Position		  [185, 36, 220, 74]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -12329,7 +12328,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [145, 371, 180, 409]
+		  Position		  [185, 356, 220, 394]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -12632,9 +12631,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_1_In"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 85; 165, 0]
+		    Points		    [0, 70; 135, 0]
 		    Branch {
 		    Points		    [0, -35]
 		    DstBlock		    "Counter"
@@ -12679,9 +12678,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_2_In"
 		  SrcPort		  1
-		  Points		  [0, 0; 60, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 65; 140, 0]
+		    Points		    [0, 80; 120, 0]
 		    Branch {
 		    Points		    [0, -45]
 		    DstBlock		    "Counter1"
@@ -12701,13 +12700,14 @@ Model {
 		Line {
 		  SrcBlock		  "M_Reg"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [50, 175; 0, 0]
 		  Branch {
+		    Points		    [0, 175]
 		    DstBlock		    "Relational1"
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -320]
+		    Points		    [0, -145]
 		    DstBlock		    "Relational"
 		    DstPort		    2
 		  }
@@ -12733,7 +12733,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter1"
 		  SrcPort		  1
-		  Points		  [90, 0; 0, -15; 30, 0]
+		  Points		  [80, 0]
 		  Branch {
 		    DstBlock		    "Counter1"
 		    DstPort		    1
@@ -12773,7 +12773,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter"
 		  SrcPort		  1
-		  Points		  [75, 0; 0, 15; 50, 0]
+		  Points		  [85, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
@@ -13192,6 +13192,33 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Inverter3"
+		  Ports			  [1, 1]
+		  Position		  [750, 503, 785, 537]
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,34,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([9 3 11 3"
+" 9 18 20 22 32 24 17 12 20 12 17 24 32 22 20 18 9 ],[4 10 18 26 32 32 30 32 3"
+"2 24 31 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"34 34 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Inverter4"
 		  Ports			  [1, 1]
 		  Position		  [820, 408, 850, 442]
@@ -13280,6 +13307,38 @@ Model {
 ",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
 "exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical10"
+		  Ports			  [2, 1]
+		  Position		  [1170, 580, 1230, 700]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "AND"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -13411,12 +13470,12 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Logical6"
+		  Name			  "Logical9"
 		  Ports			  [2, 1]
-		  Position		  [305, 70, 360, 130]
+		  Position		  [1165, 430, 1225, 550]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
+		  logical_function	  "AND"
 		  inputs		  "2"
 		  en			  off
 		  latency		  "0"
@@ -13432,78 +13491,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "logical"
 		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical7"
-		  Ports			  [2, 1]
-		  Position		  [675, 105, 730, 165]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical8"
-		  Ports			  [2, 1]
-		  Position		  [1140, 215, 1195, 275]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -13601,7 +13596,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 1 Out"
-		  Position		  [1190, 453, 1220, 467]
+		  Position		  [1280, 483, 1310, 497]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -13609,7 +13604,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 2 Out"
-		  Position		  [1195, 603, 1225, 617]
+		  Position		  [1285, 633, 1315, 647]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -13723,12 +13718,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical1"
-		  SrcPort		  1
-		  DstBlock		  "Logical8"
-		  DstPort		  2
-		}
-		Line {
 		  SrcBlock		  "Inverter2"
 		  SrcPort		  1
 		  DstBlock		  "Logical1"
@@ -13747,12 +13736,6 @@ Model {
 		  Points		  [805, 0; 0, -80]
 		  DstBlock		  "Relational1"
 		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical2"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 1 Out"
-		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Delay1"
@@ -13795,12 +13778,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical3"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 2 Out"
-		  DstPort		  1
-		}
-		Line {
 		  SrcBlock		  "Delay3"
 		  SrcPort		  1
 		  DstBlock		  "Logical3"
@@ -13823,62 +13800,72 @@ Model {
 		Line {
 		  SrcBlock		  "Reset"
 		  SrcPort		  1
-		  Points		  [0, 0; 225, 0]
+		  Points		  [40, 0; 0, 435]
+		  DstBlock		  "Inverter3"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter3"
+		  SrcPort		  1
+		  Points		  [25, 0]
 		  Branch {
-		    DstBlock		    "Logical6"
-		    DstPort		    1
+		    DstBlock		    "Logical9"
+		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -30; 375, 0]
-		    Branch {
-		    DstBlock		    "Logical7"
-		    DstPort		    1
-		    }
-		    Branch {
-		    Points		    [455, 0; 0, 175]
-		    DstBlock		    "Logical8"
-		    DstPort		    1
-		    }
+		    Points		    [0, 150]
+		    DstBlock		    "Logical10"
+		    DstPort		    2
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical6"
+		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [0, 0; 10, 0]
+		  DstBlock		  "Logical10"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical2"
+		  SrcPort		  1
+		  DstBlock		  "Logical9"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical9"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 1 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical10"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 2 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  DstBlock		  "Counter1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [95, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
 		  }
 		  Branch {
+		    Points		    [0, -65]
 		    DstBlock		    "Delay"
 		    DstPort		    1
 		  }
 		}
 		Line {
-		  SrcBlock		  "Inverter"
+		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical6"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical7"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical7"
-		  SrcPort		  1
-		  Points		  [15, 0]
-		  DstBlock		  "Counter1"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Logical8"
-		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [90, 0; 0, -15; 15, 0]
 		  Branch {
 		    DstBlock		    "Register1"
 		    DstPort		    2
@@ -21999,7 +21986,7 @@ Model {
 		    Block {
 		    BlockType		    Outport
 		    Name		    "A,B,P Gate 1"
-		    Position		    [1050, 598, 1080, 612]
+		    Position		    [1030, 598, 1060, 612]
 		    Port		    "2"
 		    IconDisplay		    "Port number"
 		    BusOutputAsStruct	    off
@@ -22131,13 +22118,6 @@ Model {
 		    DstPort		    1
 		    }
 		    Line {
-		    SrcBlock		    "Logical"
-		    SrcPort		    1
-		    Points		    [0, 0]
-		    DstBlock		    "A,B,P Gate 1"
-		    DstPort		    1
-		    }
-		    Line {
 		    SrcBlock		    "Reset"
 		    SrcPort		    1
 		    Points		    [105, 0]
@@ -22184,6 +22164,12 @@ Model {
 		    SrcPort		    1
 		    DstBlock		    "Mux"
 		    DstPort		    3
+		    }
+		    Line {
+		    SrcBlock		    "Logical"
+		    SrcPort		    1
+		    DstBlock		    "A,B,P Gate 1"
+		    DstPort		    1
 		    }
 		  }
 		}
@@ -26743,20 +26729,20 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_1_In"
-		  Position		  [35, 33, 65, 47]
+		  Position		  [35, 48, 65, 62]
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_2_In"
-		  Position		  [35, 383, 65, 397]
+		  Position		  [35, 368, 65, 382]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "M_Reg"
-		  Position		  [35, 488, 65, 502]
+		  Position		  [35, 313, 65, 327]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
@@ -26974,7 +26960,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [145, 21, 180, 59]
+		  Position		  [185, 36, 220, 74]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -27001,7 +26987,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [145, 371, 180, 409]
+		  Position		  [185, 356, 220, 394]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -27304,9 +27290,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_1_In"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 85; 165, 0]
+		    Points		    [0, 70; 135, 0]
 		    Branch {
 		    Points		    [0, -35]
 		    DstBlock		    "Counter"
@@ -27351,9 +27337,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_2_In"
 		  SrcPort		  1
-		  Points		  [0, 0; 60, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 65; 140, 0]
+		    Points		    [0, 80; 120, 0]
 		    Branch {
 		    Points		    [0, -45]
 		    DstBlock		    "Counter1"
@@ -27373,13 +27359,14 @@ Model {
 		Line {
 		  SrcBlock		  "M_Reg"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [50, 175; 0, 0]
 		  Branch {
+		    Points		    [0, 175]
 		    DstBlock		    "Relational1"
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -320]
+		    Points		    [0, -145]
 		    DstBlock		    "Relational"
 		    DstPort		    2
 		  }
@@ -27405,7 +27392,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter1"
 		  SrcPort		  1
-		  Points		  [90, 0; 0, -15; 30, 0]
+		  Points		  [80, 0]
 		  Branch {
 		    DstBlock		    "Counter1"
 		    DstPort		    1
@@ -27445,7 +27432,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter"
 		  SrcPort		  1
-		  Points		  [75, 0; 0, 15; 50, 0]
+		  Points		  [85, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
@@ -27864,6 +27851,33 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Inverter3"
+		  Ports			  [1, 1]
+		  Position		  [750, 503, 785, 537]
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,34,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([9 3 11 3"
+" 9 18 20 22 32 24 17 12 20 12 17 24 32 22 20 18 9 ],[4 10 18 26 32 32 30 32 3"
+"2 24 31 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"34 34 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Inverter4"
 		  Ports			  [1, 1]
 		  Position		  [820, 408, 850, 442]
@@ -27952,6 +27966,38 @@ Model {
 ",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
 "exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical10"
+		  Ports			  [2, 1]
+		  Position		  [1170, 580, 1230, 700]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "AND"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -28083,12 +28129,12 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Logical6"
+		  Name			  "Logical9"
 		  Ports			  [2, 1]
-		  Position		  [305, 70, 360, 130]
+		  Position		  [1165, 430, 1225, 550]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
+		  logical_function	  "AND"
 		  inputs		  "2"
 		  en			  off
 		  latency		  "0"
@@ -28104,78 +28150,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "logical"
 		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical7"
-		  Ports			  [2, 1]
-		  Position		  [675, 105, 730, 165]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical8"
-		  Ports			  [2, 1]
-		  Position		  [1140, 215, 1195, 275]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -28273,7 +28255,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 1 Out"
-		  Position		  [1190, 453, 1220, 467]
+		  Position		  [1280, 483, 1310, 497]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -28281,7 +28263,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 2 Out"
-		  Position		  [1195, 603, 1225, 617]
+		  Position		  [1285, 633, 1315, 647]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -28395,12 +28377,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical1"
-		  SrcPort		  1
-		  DstBlock		  "Logical8"
-		  DstPort		  2
-		}
-		Line {
 		  SrcBlock		  "Inverter2"
 		  SrcPort		  1
 		  DstBlock		  "Logical1"
@@ -28419,12 +28395,6 @@ Model {
 		  Points		  [805, 0; 0, -80]
 		  DstBlock		  "Relational1"
 		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical2"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 1 Out"
-		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Delay1"
@@ -28467,12 +28437,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical3"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 2 Out"
-		  DstPort		  1
-		}
-		Line {
 		  SrcBlock		  "Delay3"
 		  SrcPort		  1
 		  DstBlock		  "Logical3"
@@ -28495,62 +28459,72 @@ Model {
 		Line {
 		  SrcBlock		  "Reset"
 		  SrcPort		  1
-		  Points		  [0, 0; 225, 0]
+		  Points		  [40, 0; 0, 435]
+		  DstBlock		  "Inverter3"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter3"
+		  SrcPort		  1
+		  Points		  [25, 0]
 		  Branch {
-		    DstBlock		    "Logical6"
-		    DstPort		    1
+		    DstBlock		    "Logical9"
+		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -30; 375, 0]
-		    Branch {
-		    DstBlock		    "Logical7"
-		    DstPort		    1
-		    }
-		    Branch {
-		    Points		    [455, 0; 0, 175]
-		    DstBlock		    "Logical8"
-		    DstPort		    1
-		    }
+		    Points		    [0, 150]
+		    DstBlock		    "Logical10"
+		    DstPort		    2
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical6"
+		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [0, 0; 10, 0]
+		  DstBlock		  "Logical10"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical2"
+		  SrcPort		  1
+		  DstBlock		  "Logical9"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical9"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 1 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical10"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 2 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  DstBlock		  "Counter1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [95, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
 		  }
 		  Branch {
+		    Points		    [0, -65]
 		    DstBlock		    "Delay"
 		    DstPort		    1
 		  }
 		}
 		Line {
-		  SrcBlock		  "Inverter"
+		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical6"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical7"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical7"
-		  SrcPort		  1
-		  Points		  [15, 0]
-		  DstBlock		  "Counter1"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Logical8"
-		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [90, 0; 0, -15; 15, 0]
 		  Branch {
 		    DstBlock		    "Register1"
 		    DstPort		    2
@@ -36671,7 +36645,7 @@ Model {
 		    Block {
 		    BlockType		    Outport
 		    Name		    "A,B,P Gate 1"
-		    Position		    [1050, 598, 1080, 612]
+		    Position		    [1030, 598, 1060, 612]
 		    Port		    "2"
 		    IconDisplay		    "Port number"
 		    BusOutputAsStruct	    off
@@ -36803,13 +36777,6 @@ Model {
 		    DstPort		    1
 		    }
 		    Line {
-		    SrcBlock		    "Logical"
-		    SrcPort		    1
-		    Points		    [0, 0]
-		    DstBlock		    "A,B,P Gate 1"
-		    DstPort		    1
-		    }
-		    Line {
 		    SrcBlock		    "Reset"
 		    SrcPort		    1
 		    Points		    [105, 0]
@@ -36856,6 +36823,12 @@ Model {
 		    SrcPort		    1
 		    DstBlock		    "Mux"
 		    DstPort		    3
+		    }
+		    Line {
+		    SrcBlock		    "Logical"
+		    SrcPort		    1
+		    DstBlock		    "A,B,P Gate 1"
+		    DstPort		    1
 		    }
 		  }
 		}
@@ -41415,20 +41388,20 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_1_In"
-		  Position		  [35, 33, 65, 47]
+		  Position		  [35, 48, 65, 62]
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_2_In"
-		  Position		  [35, 383, 65, 397]
+		  Position		  [35, 368, 65, 382]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "M_Reg"
-		  Position		  [35, 488, 65, 502]
+		  Position		  [35, 313, 65, 327]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
@@ -41646,7 +41619,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [145, 21, 180, 59]
+		  Position		  [185, 36, 220, 74]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -41673,7 +41646,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [145, 371, 180, 409]
+		  Position		  [185, 356, 220, 394]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -41976,9 +41949,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_1_In"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 85; 165, 0]
+		    Points		    [0, 70; 135, 0]
 		    Branch {
 		    Points		    [0, -35]
 		    DstBlock		    "Counter"
@@ -42023,9 +41996,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_2_In"
 		  SrcPort		  1
-		  Points		  [0, 0; 60, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 65; 140, 0]
+		    Points		    [0, 80; 120, 0]
 		    Branch {
 		    Points		    [0, -45]
 		    DstBlock		    "Counter1"
@@ -42045,13 +42018,14 @@ Model {
 		Line {
 		  SrcBlock		  "M_Reg"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [50, 175; 0, 0]
 		  Branch {
+		    Points		    [0, 175]
 		    DstBlock		    "Relational1"
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -320]
+		    Points		    [0, -145]
 		    DstBlock		    "Relational"
 		    DstPort		    2
 		  }
@@ -42077,7 +42051,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter1"
 		  SrcPort		  1
-		  Points		  [90, 0; 0, -15; 30, 0]
+		  Points		  [80, 0]
 		  Branch {
 		    DstBlock		    "Counter1"
 		    DstPort		    1
@@ -42117,7 +42091,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter"
 		  SrcPort		  1
-		  Points		  [75, 0; 0, 15; 50, 0]
+		  Points		  [85, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
@@ -42536,6 +42510,33 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Inverter3"
+		  Ports			  [1, 1]
+		  Position		  [750, 503, 785, 537]
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,34,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([9 3 11 3"
+" 9 18 20 22 32 24 17 12 20 12 17 24 32 22 20 18 9 ],[4 10 18 26 32 32 30 32 3"
+"2 24 31 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"34 34 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Inverter4"
 		  Ports			  [1, 1]
 		  Position		  [820, 408, 850, 442]
@@ -42624,6 +42625,38 @@ Model {
 ",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
 "exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical10"
+		  Ports			  [2, 1]
+		  Position		  [1170, 580, 1230, 700]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "AND"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -42755,12 +42788,12 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Logical6"
+		  Name			  "Logical9"
 		  Ports			  [2, 1]
-		  Position		  [305, 70, 360, 130]
+		  Position		  [1165, 430, 1225, 550]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
+		  logical_function	  "AND"
 		  inputs		  "2"
 		  en			  off
 		  latency		  "0"
@@ -42776,78 +42809,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "logical"
 		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical7"
-		  Ports			  [2, 1]
-		  Position		  [675, 105, 730, 165]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical8"
-		  Ports			  [2, 1]
-		  Position		  [1140, 215, 1195, 275]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -42945,7 +42914,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 1 Out"
-		  Position		  [1190, 453, 1220, 467]
+		  Position		  [1280, 483, 1310, 497]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -42953,7 +42922,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 2 Out"
-		  Position		  [1195, 603, 1225, 617]
+		  Position		  [1285, 633, 1315, 647]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -43067,12 +43036,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical1"
-		  SrcPort		  1
-		  DstBlock		  "Logical8"
-		  DstPort		  2
-		}
-		Line {
 		  SrcBlock		  "Inverter2"
 		  SrcPort		  1
 		  DstBlock		  "Logical1"
@@ -43091,12 +43054,6 @@ Model {
 		  Points		  [805, 0; 0, -80]
 		  DstBlock		  "Relational1"
 		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical2"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 1 Out"
-		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Delay1"
@@ -43139,12 +43096,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical3"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 2 Out"
-		  DstPort		  1
-		}
-		Line {
 		  SrcBlock		  "Delay3"
 		  SrcPort		  1
 		  DstBlock		  "Logical3"
@@ -43167,62 +43118,72 @@ Model {
 		Line {
 		  SrcBlock		  "Reset"
 		  SrcPort		  1
-		  Points		  [0, 0; 225, 0]
+		  Points		  [40, 0; 0, 435]
+		  DstBlock		  "Inverter3"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter3"
+		  SrcPort		  1
+		  Points		  [25, 0]
 		  Branch {
-		    DstBlock		    "Logical6"
-		    DstPort		    1
+		    DstBlock		    "Logical9"
+		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -30; 375, 0]
-		    Branch {
-		    DstBlock		    "Logical7"
-		    DstPort		    1
-		    }
-		    Branch {
-		    Points		    [455, 0; 0, 175]
-		    DstBlock		    "Logical8"
-		    DstPort		    1
-		    }
+		    Points		    [0, 150]
+		    DstBlock		    "Logical10"
+		    DstPort		    2
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical6"
+		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [0, 0; 10, 0]
+		  DstBlock		  "Logical10"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical2"
+		  SrcPort		  1
+		  DstBlock		  "Logical9"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical9"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 1 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical10"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 2 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  DstBlock		  "Counter1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [95, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
 		  }
 		  Branch {
+		    Points		    [0, -65]
 		    DstBlock		    "Delay"
 		    DstPort		    1
 		  }
 		}
 		Line {
-		  SrcBlock		  "Inverter"
+		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical6"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical7"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical7"
-		  SrcPort		  1
-		  Points		  [15, 0]
-		  DstBlock		  "Counter1"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Logical8"
-		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [90, 0; 0, -15; 15, 0]
 		  Branch {
 		    DstBlock		    "Register1"
 		    DstPort		    2
@@ -51343,7 +51304,7 @@ Model {
 		    Block {
 		    BlockType		    Outport
 		    Name		    "A,B,P Gate 1"
-		    Position		    [1050, 598, 1080, 612]
+		    Position		    [1030, 598, 1060, 612]
 		    Port		    "2"
 		    IconDisplay		    "Port number"
 		    BusOutputAsStruct	    off
@@ -51475,13 +51436,6 @@ Model {
 		    DstPort		    1
 		    }
 		    Line {
-		    SrcBlock		    "Logical"
-		    SrcPort		    1
-		    Points		    [0, 0]
-		    DstBlock		    "A,B,P Gate 1"
-		    DstPort		    1
-		    }
-		    Line {
 		    SrcBlock		    "Reset"
 		    SrcPort		    1
 		    Points		    [105, 0]
@@ -51528,6 +51482,12 @@ Model {
 		    SrcPort		    1
 		    DstBlock		    "Mux"
 		    DstPort		    3
+		    }
+		    Line {
+		    SrcBlock		    "Logical"
+		    SrcPort		    1
+		    DstBlock		    "A,B,P Gate 1"
+		    DstPort		    1
 		    }
 		  }
 		}
@@ -56087,20 +56047,20 @@ Model {
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_1_In"
-		  Position		  [35, 33, 65, 47]
+		  Position		  [35, 48, 65, 62]
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "Gate_2_In"
-		  Position		  [35, 383, 65, 397]
+		  Position		  [35, 368, 65, 382]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
 		  Name			  "M_Reg"
-		  Position		  [35, 488, 65, 502]
+		  Position		  [35, 313, 65, 327]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
@@ -56318,7 +56278,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter"
 		  Ports			  [1, 1]
-		  Position		  [145, 21, 180, 59]
+		  Position		  [185, 36, 220, 74]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -56345,7 +56305,7 @@ Model {
 		  BlockType		  Reference
 		  Name			  "Inverter1"
 		  Ports			  [1, 1]
-		  Position		  [145, 371, 180, 409]
+		  Position		  [185, 356, 220, 394]
 		  SourceBlock		  "xbsIndex_r4/Inverter"
 		  SourceType		  "Xilinx Inverter Block"
 		  infoedit		  "Bitwise logical negation (one's com"
@@ -56648,9 +56608,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_1_In"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 85; 165, 0]
+		    Points		    [0, 70; 135, 0]
 		    Branch {
 		    Points		    [0, -35]
 		    DstBlock		    "Counter"
@@ -56695,9 +56655,9 @@ Model {
 		Line {
 		  SrcBlock		  "Gate_2_In"
 		  SrcPort		  1
-		  Points		  [0, 0; 60, 0]
+		  Points		  [80, 0]
 		  Branch {
-		    Points		    [0, 65; 140, 0]
+		    Points		    [0, 80; 120, 0]
 		    Branch {
 		    Points		    [0, -45]
 		    DstBlock		    "Counter1"
@@ -56717,13 +56677,14 @@ Model {
 		Line {
 		  SrcBlock		  "M_Reg"
 		  SrcPort		  1
-		  Points		  [50, 0]
+		  Points		  [50, 175; 0, 0]
 		  Branch {
+		    Points		    [0, 175]
 		    DstBlock		    "Relational1"
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -320]
+		    Points		    [0, -145]
 		    DstBlock		    "Relational"
 		    DstPort		    2
 		  }
@@ -56749,7 +56710,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter1"
 		  SrcPort		  1
-		  Points		  [90, 0; 0, -15; 30, 0]
+		  Points		  [80, 0]
 		  Branch {
 		    DstBlock		    "Counter1"
 		    DstPort		    1
@@ -56789,7 +56750,7 @@ Model {
 		Line {
 		  SrcBlock		  "Inverter"
 		  SrcPort		  1
-		  Points		  [75, 0; 0, 15; 50, 0]
+		  Points		  [85, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
@@ -57208,6 +57169,33 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
+		  Name			  "Inverter3"
+		  Ports			  [1, 1]
+		  Position		  [750, 503, 785, 537]
+		  SourceBlock		  "xbsIndex_r4/Inverter"
+		  SourceType		  "Xilinx Inverter Block"
+		  infoedit		  "Bitwise logical negation (one's com"
+"plement) operator."
+		  en			  off
+		  latency		  "0"
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "inv"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "35,34,1,1,white,blue,0,1ab4a85f"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 35 35 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([9 3 11 3"
+" 9 18 20 22 32 24 17 12 20 12 17 24 32 22 20 18 9 ],[4 10 18 26 32 32 30 32 3"
+"2 24 31 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 35 35 0 ],[0 "
+"34 34 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
+": begin icon text');\ncolor('black');disp('not');\nfprintf('','COMMENT: end i"
+"con text');\n"
+		}
+		Block {
+		  BlockType		  Reference
 		  Name			  "Inverter4"
 		  Ports			  [1, 1]
 		  Position		  [820, 408, 850, 442]
@@ -57296,6 +57284,38 @@ Model {
 ",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
 "exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Logical10"
+		  Ports			  [2, 1]
+		  Position		  [1170, 580, 1230, 700]
+		  SourceBlock		  "xbsIndex_r4/Logical"
+		  SourceType		  "Xilinx Logical Block Block"
+		  logical_function	  "AND"
+		  inputs		  "2"
+		  en			  off
+		  latency		  "0"
+		  precision		  "Full"
+		  arith_type		  "Unsigned"
+		  n_bits		  "16"
+		  bin_pt		  "0"
+		  align_bp		  on
+		  dbl_ovrd		  off
+		  xl_use_area		  off
+		  xl_area		  "[0,0,0,0,0,0,0]"
+		  has_advanced_control	  "0"
+		  sggui_pos		  "-1,-1,-1,-1"
+		  block_type		  "logical"
+		  block_version		  "8.2"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
+		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -57427,12 +57447,12 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Logical6"
+		  Name			  "Logical9"
 		  Ports			  [2, 1]
-		  Position		  [305, 70, 360, 130]
+		  Position		  [1165, 430, 1225, 550]
 		  SourceBlock		  "xbsIndex_r4/Logical"
 		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
+		  logical_function	  "AND"
 		  inputs		  "2"
 		  en			  off
 		  latency		  "0"
@@ -57448,78 +57468,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "logical"
 		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
+		  sg_icon_stat		  "60,120,2,1,white,blue,0,087b5522"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical7"
-		  Ports			  [2, 1]
-		  Position		  [675, 105, 730, 165]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Reference
-		  Name			  "Logical8"
-		  Ports			  [2, 1]
-		  Position		  [1140, 215, 1195, 275]
-		  SourceBlock		  "xbsIndex_r4/Logical"
-		  SourceType		  "Xilinx Logical Block Block"
-		  logical_function	  "OR"
-		  inputs		  "2"
-		  en			  off
-		  latency		  "0"
-		  precision		  "Full"
-		  arith_type		  "Unsigned"
-		  n_bits		  "16"
-		  bin_pt		  "0"
-		  align_bp		  on
-		  dbl_ovrd		  off
-		  xl_use_area		  off
-		  xl_area		  "[0,0,0,0,0,0,0]"
-		  has_advanced_control	  "0"
-		  sggui_pos		  "-1,-1,-1,-1"
-		  block_type		  "logical"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,f4a65842"
-		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');disp('\\newlineor\\newlinez^{-0}','t"
-"exmode','on');\nfprintf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 60 60 0 ],[0 0 120 120 ],[0.77 0.82 0.91]);\npatch([14 4 1"
+"8 4 14 30 34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[36 46 60 74 84 84 8"
+"0 84 84 71 84 75 60 45 36 49 36 36 40 36 36 ],[0.98 0.96 0.92]);\nplot([0 0 6"
+"0 60 0 ],[0 120 120 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprin"
+"tf('','COMMENT: begin icon text');\ncolor('black');disp('\\newlineand\\newlin"
+"ez^{-0}','texmode','on');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
@@ -57617,7 +57573,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 1 Out"
-		  Position		  [1190, 453, 1220, 467]
+		  Position		  [1280, 483, 1310, 497]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -57625,7 +57581,7 @@ Model {
 		Block {
 		  BlockType		  Outport
 		  Name			  "IQ Gate 2 Out"
-		  Position		  [1195, 603, 1225, 617]
+		  Position		  [1285, 633, 1315, 647]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
@@ -57739,12 +57695,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical1"
-		  SrcPort		  1
-		  DstBlock		  "Logical8"
-		  DstPort		  2
-		}
-		Line {
 		  SrcBlock		  "Inverter2"
 		  SrcPort		  1
 		  DstBlock		  "Logical1"
@@ -57763,12 +57713,6 @@ Model {
 		  Points		  [805, 0; 0, -80]
 		  DstBlock		  "Relational1"
 		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical2"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 1 Out"
-		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Delay1"
@@ -57811,12 +57755,6 @@ Model {
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical3"
-		  SrcPort		  1
-		  DstBlock		  "IQ Gate 2 Out"
-		  DstPort		  1
-		}
-		Line {
 		  SrcBlock		  "Delay3"
 		  SrcPort		  1
 		  DstBlock		  "Logical3"
@@ -57839,62 +57777,72 @@ Model {
 		Line {
 		  SrcBlock		  "Reset"
 		  SrcPort		  1
-		  Points		  [0, 0; 225, 0]
+		  Points		  [40, 0; 0, 435]
+		  DstBlock		  "Inverter3"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter3"
+		  SrcPort		  1
+		  Points		  [25, 0]
 		  Branch {
-		    DstBlock		    "Logical6"
-		    DstPort		    1
+		    DstBlock		    "Logical9"
+		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, -30; 375, 0]
-		    Branch {
-		    DstBlock		    "Logical7"
-		    DstPort		    1
-		    }
-		    Branch {
-		    Points		    [455, 0; 0, 175]
-		    DstBlock		    "Logical8"
-		    DstPort		    1
-		    }
+		    Points		    [0, 150]
+		    DstBlock		    "Logical10"
+		    DstPort		    2
 		  }
 		}
 		Line {
-		  SrcBlock		  "Logical6"
+		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [0, 0; 10, 0]
+		  DstBlock		  "Logical10"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical2"
+		  SrcPort		  1
+		  DstBlock		  "Logical9"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical9"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 1 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Logical10"
+		  SrcPort		  1
+		  DstBlock		  "IQ Gate 2 Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter1"
+		  SrcPort		  1
+		  DstBlock		  "Counter1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Inverter"
+		  SrcPort		  1
+		  Points		  [95, 0]
 		  Branch {
 		    DstBlock		    "Counter"
 		    DstPort		    1
 		  }
 		  Branch {
+		    Points		    [0, -65]
 		    DstBlock		    "Delay"
 		    DstPort		    1
 		  }
 		}
 		Line {
-		  SrcBlock		  "Inverter"
+		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical6"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Inverter1"
-		  SrcPort		  1
-		  Points		  [20, 0]
-		  DstBlock		  "Logical7"
-		  DstPort		  2
-		}
-		Line {
-		  SrcBlock		  "Logical7"
-		  SrcPort		  1
-		  Points		  [15, 0]
-		  DstBlock		  "Counter1"
-		  DstPort		  1
-		}
-		Line {
-		  SrcBlock		  "Logical8"
-		  SrcPort		  1
-		  Points		  [15, 0]
+		  Points		  [90, 0; 0, -15; 15, 0]
 		  Branch {
 		    DstBlock		    "Register1"
 		    DstPort		    2
