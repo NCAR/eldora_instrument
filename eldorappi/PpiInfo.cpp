@@ -20,16 +20,14 @@ PpiInfo::PpiInfo(int id,
                  std::string longName,
                  std::string colorMapName,
                  double scaleMin, 
-                 double scaleMax,
-                 int ppiIndex):
+                 double scaleMax):
 _key(key),
 _id(id),
 _shortName(shortName),
 _longName(longName),
 _colorMapName(colorMapName),
 _scaleMin(scaleMin),
-_scaleMax(scaleMax),
-_ppiIndex(ppiIndex)
+_scaleMax(scaleMax)
 {
 }
 
@@ -100,11 +98,4 @@ std::string
 PpiInfo::getKey()
 {
     return _key;
-}
-
-////////////////////////////////////////////////////////
-int 
-PpiInfo::getPpiIndex()
-{
-    return _ppiIndex;
 }

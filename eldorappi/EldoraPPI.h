@@ -89,6 +89,15 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
                 double defaultScaleMax, ///< Colorbar maximum
                 int ppiVarIndex ///< Variable index on the selection tab
                 );
+        /// Configure the PpiInfo entry for a product, 
+        /// getting values from the configuration.
+        void setPpiInfo(PRODUCT_TYPES t, ///< The product type
+            std::string key,             ///< The key to use in the configuration
+            std::string shortName,       ///< Short name
+            std::string longName,        ///< Long name
+            double defaultScaleMin,      ///< Colorbar minimum
+            double defaultScaleMax      ///< Colorbar maximum
+            );    
         /// The currently selected ppi type.
         PRODUCT_TYPES _ppiType;
         /// This set contains PRODUCT_TYPESs identifiers for all desired 

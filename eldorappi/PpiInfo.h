@@ -14,13 +14,11 @@ public:
         std::string longName,
         std::string colorMapName,
         double scaleMin, 
-        double scaleMax, 
-        int ppiIndex
+        double scaleMax
         );
     virtual ~PpiInfo();
 
     int getId();
-    int getPpiIndex();
     std::string getKey();
     void setScale(double min, double max);
     void setColorMapName(std::string mapName);
@@ -38,7 +36,6 @@ protected:
     std::string _longName;
     double _scaleMin;
     double _scaleMax;
-    int _ppiIndex;
     std::string _colorMapName;
 };
 

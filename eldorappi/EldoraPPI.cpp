@@ -28,9 +28,8 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _statsUpdateInterval(5),
-            _config("NCAR", "EldoraPPI"),
-            _paused(false), _gates(0), _ppiType(PROD_DBZ){
+    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"),
+            _paused(false), _gates(0), _ppiType(PROD_DBZ) {
     // Set up our form
     setupUi(parent);
 
@@ -46,30 +45,28 @@ EldoraPPI::EldoraPPI(
         _lastPulseNum[i] = 0;
     }
 
-
-
     // connect the controls
     connect(colorBarFore, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
-    connect(colorBarAft,     SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
+    connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
 
-//    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
-//    connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
+    //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
+    //    connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
 
     // set the checkbox selections
-//    _pauseButton->setChecked(false);
+    //    _pauseButton->setChecked(false);
 
     // initialize the color maps
     initColorMaps();
-    
+
     // initialize the book keeping for the ppi displays.
     initPlots();
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
-    
+
     // let the data sources get themselves ready
     sleep(1);
-    
+
 }
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::~EldoraPPI() {
@@ -81,23 +78,23 @@ void EldoraPPI::productSlot(
 
     if (_paused)
         return;
-    
+
     if (p.size() != _gates) {
         _gates = p.size();
         configurePPI();
     }
-    
-    if (radarId == 0){
-        
+
+    if (radarId == 0) {
+
     } else {
-        
+
     }
 
 }
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::configurePPI() {
-    
+
     ppiFore->configure(6, _gates, 720, 0.100*2*_gates, 1);
     ppiAft->configure(6, _gates, 720, 0.100*2*_gates, 1);
 }
@@ -131,15 +128,24 @@ void EldoraPPI::saveImageSlot() {
 ////////////////////////////////////////////////////////////////////
 void EldoraPPI::initPlots() {
 
+    setPpiInfo(PROD_P1, "P1", "Power1", "Power from channel 1", -30.0, 20.0);
+    setPpiInfo(PROD_P2, "P2", "Power2", "Power from channel 2", -30.0, 20.0);
+    setPpiInfo(PROD_P3, "P3", "Power3", "Power from channel 3", -30.0, 20.0);
+    setPpiInfo(PROD_P4, "P4", "Power4", "Power from channel 4", -30.0, 20.0);
+    setPpiInfo(PROD_DM, "DM", "DM", "Power", -60.0, 20.0);
+    setPpiInfo(PROD_DBZ, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0);
+    setPpiInfo(PROD_VR, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
+    setPpiInfo(PROD_VS, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
+    setPpiInfo(PROD_VL, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
+    setPpiInfo(PROD_SW, "SW", "SW", "Spectral width", 0.0, 30.0, );
+    setPpiInfo(PROD_NCP, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
 }
-
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
 }
-
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::pauseSlot(
@@ -148,9 +154,7 @@ void EldoraPPI::pauseSlot(
 }
 
 //////////////////////////////////////////////////////////////////////
-void
-EldoraPPI::initColorMaps() 
-{
+void EldoraPPI::initColorMaps() {
 
     // get the builtin maps. Note that we are expecting there to
     // be one named default.
@@ -181,15 +185,9 @@ EldoraPPI::initColorMaps()
 }
 
 //////////////////////////////////////////////////////////////////////
-void 
-EldoraPPI::setPpiInfo(PRODUCT_TYPES t, 
-                   std::string key,             
-                   std::string shortName,       
-                   std::string longName,        
-                   double defaultScaleMin,      
-                   double defaultScaleMax,      
-                   int ppiVarIndex)
-{
+void EldoraPPI::setPpiInfo(
+        PRODUCT_TYPES t, std::string key, std::string shortName,
+        std::string longName, double defaultScaleMin, double defaultScaleMax) {
     // create the configuration keys
     std::string minKey = key;
     minKey += "/min";
@@ -208,16 +206,15 @@ EldoraPPI::setPpiInfo(PRODUCT_TYPES t,
         mapName = "default";
     }
 
+    _productList.insert(t);
     // set the ppi configuration
-    _ppiInfo[t] = PpiInfo(t, key, shortName, longName, mapName, min, max, ppiVarIndex);
+    _ppiInfo[t] = PpiInfo(t, key, shortName, longName, mapName, min, max);
 
     _config.sync();
 
 }
 //////////////////////////////////////////////////////////////////////
-void
-EldoraPPI::colorBarReleasedSlot()
-{
+void EldoraPPI::colorBarReleasedSlot() {
     // get the current settings
     double min = _ppiInfo[_ppiType].getScaleMin();
     double max = _ppiInfo[_ppiType].getScaleMax();
@@ -225,25 +222,23 @@ EldoraPPI::colorBarReleasedSlot()
 
     // create the color bar settings dialog
     std::vector<std::string> mapNames;
-    for (std::map<std::string, ColorMap>::iterator i = _colorMaps.begin();
-        i != _colorMaps.end(); i++) {
-            mapNames.push_back(i->first);
+    for (std::map<std::string, ColorMap>::iterator i = _colorMaps.begin(); i
+            != _colorMaps.end(); i++) {
+        mapNames.push_back(i->first);
     }
     _colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, this);
 
     // connect the finished slot so that the dialog status 
     // can be captuyred when the dialog closes
-    connect(_colorBarSettings, SIGNAL(finished(int)), 
-        this, SLOT(colorBarSettingsFinishedSlot(int)));
+    connect(_colorBarSettings, SIGNAL(finished(int)), this, SLOT(colorBarSettingsFinishedSlot(int)));
 
     // and show it
     _colorBarSettings->show();
 
 }
 //////////////////////////////////////////////////////////////////////////////
-void 
-EldoraPPI::colorBarSettingsFinishedSlot(int result)
-{
+void EldoraPPI::colorBarSettingsFinishedSlot(
+        int result) {
     // see if the OK button was hit
     if (result == QDialog::Accepted) {
         // get the scale values from the settings dialog
@@ -251,8 +246,7 @@ EldoraPPI::colorBarSettingsFinishedSlot(int result)
         double scaleMax = _colorBarSettings->getMaximum();
 
         // if the user inverted the values, swap them
-        if (scaleMin > scaleMax) 
-        {
+        if (scaleMin > scaleMax) {
             double temp = scaleMax;
             scaleMax = scaleMin;
             scaleMin = temp;
@@ -261,24 +255,21 @@ EldoraPPI::colorBarSettingsFinishedSlot(int result)
         // get the map name
         std::string newMapName = _colorBarSettings->getMapName();
 
-        // Reconfigure the color bar
-        int index = _ppiInfo[_ppiType].getPpiIndex();
         // save the new map name
         _ppiInfo[_ppiType].setColorMapName(newMapName);
 
         // configure the color bar with the new map and ranges.
-        if (_productList.find(_ppiType)!=_productList.end())
-        {
+        if (_productList.find(_ppiType)!=_productList.end()) {
             // get rid of the existing map
-            delete _maps[index];
+            delete _maps[_ppiType];
             // create a new map
             ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
-            _maps[index] = newMap;
+            _maps[_ppiType] = newMap;
             // set range on the new color map
-            _maps[index]->setRange(scaleMin, scaleMax);
+            _maps[_ppiType]->setRange(scaleMin, scaleMax);
             // configure the color bar with it
-            colorBarFore->configure(*_maps[index]);
-        } 
+            colorBarFore->configure(*_maps[_ppiType]);
+        }
         // assign the new scale values to the current product
         _ppiInfo[_ppiType].setScale(scaleMin, scaleMax);
         // save the new values in the configuration
