@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc', 'ddsqt', 'qtt_qtconfig', 'qtt_ppi', 'utilities']
+tools = ['default', 'ddssvc', 'ddsqt', 'qtt_qtconfig', 'qtt_ppi', 'utilities', 'doxygen']
 env = Environment(tools = tools)
 
 # libraries:

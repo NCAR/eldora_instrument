@@ -3,7 +3,8 @@
 
 #include <QDialog>
 #include <QPalette>
-#include <qevent.h>
+#include <QVBoxLayout>
+#include <QEvent>
 #include <deque>
 #include <map>
 #include <set>
@@ -27,12 +28,20 @@
 
 /** 
  EldoraPPI provides a traditional real-time PPI display of 
- eldora 
+ eldora products. Two PPI displays are provided; one for the forward
+ radar and one for the aft radar.
+ 
+ The fore and aft displays each render the same fixed set of products 
+ (PROD_DM, PROD_SW, etc.). The same colormap will be used on both 
+ displays for a given product.
  
  EldoraPPI is simply a data consumer; it does not know
  anything about the data provider. Signals and slots
- used to coordinate with other components. Data are delivered
- to EldoraPPI by calling  newProductSlot().
+ used to coordinate with other components. Product data are delivered
+ to EldoraPPI by calling newProductSlot(). EldoraPPI collects 
+ products for each radar until a complete set of products are
+ found (for a given beam), and then the data are sent to the
+ PPI display.
  
  EldoraPPI is configured via EldoraPPI.ini.
  **/
@@ -72,31 +81,31 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// Activated when the ColorBarSettings dialog is finished.
         /// @param result The dialog result code
         void colorBarSettingsFinishedSlot(int result);
+        /// Called to change the forward product type
+        /// @param id The product type id.
+        void productTypeSlotFore(int id);
+        /// Called to change the aft product type
+        /// @param id The product type id.
+        void productTypeSlotAft(int id);
     protected:
         // Configure the PPI displays when there is a change in the operating
         // configuration, such as the number of gates, etc.
         void configurePPI();
-        /// Initialize the color maps.
+        /// Initialize all of the color maps. It creates the master list of 
+        /// colormaps which are available. These are the combination of
+        /// the ColorMap builtin maps, and the ones specified in the
+        /// configuration. The master list lives in _colorMaps.
         void initColorMaps();
         /// Configure the PpiInfo entry for a product, 
         /// getting values from the configuration.
-        void setPpiInfo(
-                PRODUCT_TYPES t, ///< The product type
-                std::string key, ///< The key to use in the configuration
-                std::string shortName, ///< Short name
-                std::string longName, ///< Long name
-                double defaultScaleMin, ///< Colorbar minimum
-                double defaultScaleMax, ///< Colorbar maximum
-                int ppiVarIndex ///< Variable index on the selection tab
-                );
-        /// Configure the PpiInfo entry for a product, 
-        /// getting values from the configuration.
         void setPpiInfo(PRODUCT_TYPES t, ///< The product type
+            int index,                   ///< The index of this product in the _beamData and _productMaps vectors
             std::string key,             ///< The key to use in the configuration
             std::string shortName,       ///< Short name
             std::string longName,        ///< Long name
             double defaultScaleMin,      ///< Colorbar minimum
-            double defaultScaleMax      ///< Colorbar maximum
+            double defaultScaleMax,      ///< Colorbar maximum
+            bool setChecked=false        ///< If true, button will be checked
             );    
         /// The currently selected ppi type.
         PRODUCT_TYPES _ppiType;
@@ -106,16 +115,19 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         std::set<PRODUCT_TYPES> _productList;
         /// This set contains the list of all received products 
         /// that are on the desired list, and have the same beam id.
-        /// When the length reaches the same size as _productList, 
-        /// then we have all products for a given beam.
+        /// It is used to track incoming products, so that when a 
+        /// complete set of products has been received, a new beam can 
+        /// be drawn.
         std::set<PRODUCT_TYPES> _currentProducts;
-        /// Will hold the beam values for all S band variables in one beam
+        /// Will hold the beam values for all product variables in one beam
         std::vector<std::vector<double> > _beamData;
-        /// Color maps for each product
-        std::vector<ColorMap*> _maps;
+        /// The color maps assigned to each product. They are drawn from _colorMaps.
+        /// The vector length must be the same as _productList, and also the number
+        /// of data vectors in _beamData which are passed to PPI::addBeam().
+        std::vector<ColorMap*> _productMaps;
         /// The dialog that will collect colorbar settings
         ColorBarSettings* _colorBarSettings;
-        /// The available ColorMaps. They are individually identified by a name.
+        /// The master collection of available ColorMaps. They are individually identified by a name.
         std::map<std::string, ColorMap> _colorMaps;
         ///	cumulative error count
         int _errorCount[3];
@@ -141,12 +153,15 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         QPalette _redPalette;
         /// Set true if the plot graphics are paused
         bool _paused;
-        /// The number of gates
-        int gates;
         /// The nuber of gates
         int _gates;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
         std::map<PRODUCT_TYPES, PpiInfo> _ppiInfo;
+        QVBoxLayout _forwardVBox;
+        QVBoxLayout _aftVBox;
+        QButtonGroup _forwardButtonGroup;
+        QButtonGroup _aftButtonGroup;
+        
 
 };
 

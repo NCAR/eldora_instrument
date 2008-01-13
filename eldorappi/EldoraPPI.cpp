@@ -46,9 +46,15 @@ EldoraPPI::EldoraPPI(
     }
 
     // connect the controls
+    
+    // The color bar popup
     connect(colorBarFore, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
     connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
 
+    // product selection buttons
+    connect(&_forwardButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeSlotFore(int)));
+    connect(&_aftButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeSlotAft(int)));
+    
     //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
     //    connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
 
@@ -95,8 +101,8 @@ void EldoraPPI::productSlot(
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::configurePPI() {
 
-    ppiFore->configure(6, _gates, 720, 0.100*2*_gates, 1);
-    ppiAft->configure(6, _gates, 720, 0.100*2*_gates, 1);
+    ppiForward->configure(7, _gates, 720, 0.100*2*_gates, 1);
+    ppiAft->configure(7, _gates, 720, 0.100*2*_gates, 1);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -128,17 +134,20 @@ void EldoraPPI::saveImageSlot() {
 ////////////////////////////////////////////////////////////////////
 void EldoraPPI::initPlots() {
 
-    setPpiInfo(PROD_P1, "P1", "Power1", "Power from channel 1", -30.0, 20.0);
-    setPpiInfo(PROD_P2, "P2", "Power2", "Power from channel 2", -30.0, 20.0);
-    setPpiInfo(PROD_P3, "P3", "Power3", "Power from channel 3", -30.0, 20.0);
-    setPpiInfo(PROD_P4, "P4", "Power4", "Power from channel 4", -30.0, 20.0);
-    setPpiInfo(PROD_DM, "DM", "DM", "Power", -60.0, 20.0);
-    setPpiInfo(PROD_DBZ, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0);
-    setPpiInfo(PROD_VR, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
-    setPpiInfo(PROD_VS, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
-    setPpiInfo(PROD_VL, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
-    setPpiInfo(PROD_SW, "SW", "SW", "Spectral width", 0.0, 30.0, );
-    setPpiInfo(PROD_NCP, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
+    int index = 0;
+    setPpiInfo(PROD_DM, index++, "DM", "DM", "Power", -60.0, 20.0);
+    setPpiInfo(PROD_DBZ, index++, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0, true);
+    setPpiInfo(PROD_VR, index++, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
+    setPpiInfo(PROD_VS, index++, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
+    setPpiInfo(PROD_VL, index++, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
+    setPpiInfo(PROD_SW, index++, "SW", "SW", "Spectral width", 0.0, 30.0);
+    setPpiInfo(PROD_NCP, index++, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
+
+    // The buttons were created and assigned to layouts in setPpiInfo.
+    // Attach these layouts to the button groups
+    forwardGroupBox->setLayout(&_forwardVBox);
+    aftGroupBox->setLayout(&_aftVBox);
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -186,8 +195,9 @@ void EldoraPPI::initColorMaps() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::setPpiInfo(
-        PRODUCT_TYPES t, std::string key, std::string shortName,
-        std::string longName, double defaultScaleMin, double defaultScaleMax) {
+        PRODUCT_TYPES t, int index, std::string key, std::string shortName,
+        std::string longName, double defaultScaleMin, double defaultScaleMax,
+        bool setChecked) {
     // create the configuration keys
     std::string minKey = key;
     minKey += "/min";
@@ -208,9 +218,36 @@ void EldoraPPI::setPpiInfo(
 
     _productList.insert(t);
     // set the ppi configuration
-    _ppiInfo[t] = PpiInfo(t, key, shortName, longName, mapName, min, max);
+    _ppiInfo[t]
+            = PpiInfo(t, index, key, shortName, longName, mapName, min, max);
 
     _config.sync();
+
+    // Assign the color map, by copying one of our base maps.
+    ColorMap* map = new ColorMap(_colorMaps[mapName]);
+    std::cout << "_productMaps for index " << index << " is " << map << "\n";
+    _productMaps.push_back(map);
+
+    // create the product selection buttons, forward and aft
+    QRadioButton* button;
+
+    // forward button
+    button = new QRadioButton(tr(shortName.c_str()));
+    if (setChecked)
+        button->setChecked(true);
+    button->setToolTip(longName.c_str());
+    _forwardVBox.addWidget(button);
+    _forwardButtonGroup.addButton(button);
+    _forwardButtonGroup.setId(button, t);
+
+    // aft button
+    button = new QRadioButton(tr(shortName.c_str()));
+    if (setChecked)
+        button->setChecked(true);
+    button->setToolTip(longName.c_str());
+    _aftVBox.addWidget(button);
+    _aftButtonGroup.addButton(button);
+    _aftButtonGroup.setId(button, t);
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -259,17 +296,19 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         _ppiInfo[_ppiType].setColorMapName(newMapName);
 
         // configure the color bar with the new map and ranges.
-        if (_productList.find(_ppiType)!=_productList.end()) {
-            // get rid of the existing map
-            delete _maps[_ppiType];
-            // create a new map
-            ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
-            _maps[_ppiType] = newMap;
-            // set range on the new color map
-            _maps[_ppiType]->setRange(scaleMin, scaleMax);
-            // configure the color bar with it
-            colorBarFore->configure(*_maps[_ppiType]);
-        }
+        // first figure out whch entry in the _productMaps vector
+        // corresponds to this product.
+        int index = _ppiInfo[_ppiType].getUserData();
+        // get rid of the existing map
+        delete _productMaps[index];
+        // create a new map
+        ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
+        _productMaps[index] = newMap;
+        // set range on the new color map
+        _productMaps[index]->setRange(scaleMin, scaleMax);
+        // configure the color bar with it
+        colorBarFore->configure(*_productMaps[index]);
+
         // assign the new scale values to the current product
         _ppiInfo[_ppiType].setScale(scaleMin, scaleMax);
         // save the new values in the configuration
@@ -285,4 +324,27 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         _config.setString(mapKey, newMapName);
     }
 }
+//////////////////////////////////////////////////////////////////////////////
+void EldoraPPI::productTypeSlotFore(int id) {
+    // set the ppiType
+    _ppiType = (PRODUCT_TYPES)id;
+    
+    // get the _productsMap index
+    int index = _ppiInfo[_ppiType].getUserData();
+    
+    // configure the color bar with it
+    colorBarFore->configure(*_productMaps[index]);
+}
+//////////////////////////////////////////////////////////////////////////////
+void EldoraPPI::productTypeSlotAft(int id) {
+    // set the ppiType
+    _ppiType = (PRODUCT_TYPES)id;
+    
+    // get the _productsMap index
+    int index = _ppiInfo[_ppiType].getUserData();
+    
+    // configure the color bar with it
+    colorBarAft->configure(*_productMaps[index]);
+}
+
 
