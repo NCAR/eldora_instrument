@@ -91,7 +91,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ColorBar" name="colorBarFore" />
+      <widget class="ColorBar" name="colorBarFor" />
      </item>
     </layout>
    </item>

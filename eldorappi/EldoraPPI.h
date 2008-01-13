@@ -34,7 +34,7 @@
  The user can configure the colormap for a given product by clicking on 
  the color bar.
  
- The fore and aft displays each render the same fixed set of products 
+ The for and aft displays each render the same fixed set of products 
  (PROD_DM, PROD_SW, etc.). The same colormap will be used on both 
  displays for a given product. Thus if the colormap and colorbar is changed 
  for a product on the aft radar, and the same product is being displayed
@@ -90,7 +90,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         void colorBarSettingsFinishedSlot(int result);
         /// Called to change the forward product type
         /// @param id The product type id.
-        void productTypeForeSlot(int id);
+        void productTypeForSlot(int id);
         /// Called to change the aft product type
         /// @param id The product type id.
         void productTypeAftSlot(int id);
@@ -169,7 +169,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// The nuber of gates
         int _gates;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
-        std::map<PRODUCT_TYPES, ProductInfo> _ppiInfo;
+        std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
         QVBoxLayout _forwardVBox;
         QVBoxLayout _aftVBox;
         QButtonGroup _forwardButtonGroup;

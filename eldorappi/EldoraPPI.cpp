@@ -49,11 +49,11 @@ EldoraPPI::EldoraPPI(
     // connect the controls
     
     // The color bar popup
-    connect(colorBarFore, SIGNAL(released()), this, SLOT(colorBarForSlot()));
+    connect(colorBarFor, SIGNAL(released()), this, SLOT(colorBarForSlot()));
     connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarAftSlot()));
 
     // product selection buttons
-    connect(&_forwardButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeForeSlot(int)));
+    connect(&_forwardButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeForSlot(int)));
     connect(&_aftButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeAftSlot(int)));
     
     //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
@@ -219,7 +219,7 @@ void EldoraPPI::setPpiInfo(
 
     _productList.insert(t);
     // set the ppi configuration
-    _ppiInfo[t]
+    _productInfo[t]
             = ProductInfo(t, index, key, shortName, longName, mapName, min, max);
 
     _config.sync();
@@ -269,9 +269,9 @@ void EldoraPPI::colorBarPopup(bool forwardRadar) {
     else
         prodType = _prodTypeAft;
     
-    double min = _ppiInfo[prodType].getScaleMin();
-    double max = _ppiInfo[prodType].getScaleMax();
-    std::string currentName = _ppiInfo[prodType].getColorMapName();
+    double min = _productInfo[prodType].getScaleMin();
+    double max = _productInfo[prodType].getScaleMax();
+    std::string currentName = _productInfo[prodType].getColorMapName();
 
     // create the color bar settings dialog
     std::vector<std::string> mapNames;
@@ -317,12 +317,12 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         std::string newMapName = _colorBarSettings->getMapName();
 
         // save the new map name
-        _ppiInfo[prodType].setColorMapName(newMapName);
+        _productInfo[prodType].setColorMapName(newMapName);
 
         // configure the color bar with the new map and ranges.
         // first figure out whch entry in the _productMaps vector
         // corresponds to this product.
-        int index = _ppiInfo[prodType].getUserData();
+        int index = _productInfo[prodType].getUserData();
         // get rid of the existing map
         delete _productMaps[index];
         // create a new map
@@ -333,15 +333,15 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         
         // configure the color bar with it
         if (prodType == _prodTypeFor) 
-            colorBarFore->configure(*_productMaps[index]);
+            colorBarFor->configure(*_productMaps[index]);
         if (prodType == _prodTypeAft) 
             colorBarAft->configure(*_productMaps[index]);         
 
         // assign the new scale values to the current product
-        _ppiInfo[_prodTypeFor].setScale(scaleMin, scaleMax);
+        _productInfo[_prodTypeFor].setScale(scaleMin, scaleMax);
         // save the new values in the configuration
         // create the configuration keys
-        std::string key = _ppiInfo[prodType].getKey();
+        std::string key = _productInfo[prodType].getKey();
         std::string minKey = key + "/min";
         std::string maxKey = key + "/max";
         std::string mapKey = key + "/colorMap";
@@ -353,15 +353,15 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
     }
 }
 //////////////////////////////////////////////////////////////////////////////
-void EldoraPPI::productTypeForeSlot(int id) {
+void EldoraPPI::productTypeForSlot(int id) {
     // set the ppiType
     _prodTypeFor = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _ppiInfo[_prodTypeFor].getUserData();
+    int index = _productInfo[_prodTypeFor].getUserData();
     
     // configure the color bar with it
-    colorBarFore->configure(*_productMaps[index]);
+    colorBarFor->configure(*_productMaps[index]);
 }
 //////////////////////////////////////////////////////////////////////////////
 void EldoraPPI::productTypeAftSlot(int id) {
@@ -369,7 +369,7 @@ void EldoraPPI::productTypeAftSlot(int id) {
     _prodTypeAft = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _ppiInfo[_prodTypeAft].getUserData();
+    int index = _productInfo[_prodTypeAft].getUserData();
     
     // configure the color bar with it
     colorBarAft->configure(*_productMaps[index]);
