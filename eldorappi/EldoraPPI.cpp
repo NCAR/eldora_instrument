@@ -29,7 +29,7 @@
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
     QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"),
-            _paused(false), _gates(0), _ppiType(PROD_DBZ) {
+            _paused(false), _gates(0), _prodType(PROD_DBZ) {
     // Set up our form
     setupUi(parent);
 
@@ -219,7 +219,7 @@ void EldoraPPI::setPpiInfo(
     _productList.insert(t);
     // set the ppi configuration
     _ppiInfo[t]
-            = PpiInfo(t, index, key, shortName, longName, mapName, min, max);
+            = ProductInfo(t, index, key, shortName, longName, mapName, min, max);
 
     _config.sync();
 
@@ -253,9 +253,9 @@ void EldoraPPI::setPpiInfo(
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::colorBarReleasedSlot() {
     // get the current settings
-    double min = _ppiInfo[_ppiType].getScaleMin();
-    double max = _ppiInfo[_ppiType].getScaleMax();
-    std::string currentName = _ppiInfo[_ppiType].getColorMapName();
+    double min = _ppiInfo[_prodType].getScaleMin();
+    double max = _ppiInfo[_prodType].getScaleMax();
+    std::string currentName = _ppiInfo[_prodType].getColorMapName();
 
     // create the color bar settings dialog
     std::vector<std::string> mapNames;
@@ -293,12 +293,12 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         std::string newMapName = _colorBarSettings->getMapName();
 
         // save the new map name
-        _ppiInfo[_ppiType].setColorMapName(newMapName);
+        _ppiInfo[_prodType].setColorMapName(newMapName);
 
         // configure the color bar with the new map and ranges.
         // first figure out whch entry in the _productMaps vector
         // corresponds to this product.
-        int index = _ppiInfo[_ppiType].getUserData();
+        int index = _ppiInfo[_prodType].getUserData();
         // get rid of the existing map
         delete _productMaps[index];
         // create a new map
@@ -310,10 +310,10 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         colorBarFore->configure(*_productMaps[index]);
 
         // assign the new scale values to the current product
-        _ppiInfo[_ppiType].setScale(scaleMin, scaleMax);
+        _ppiInfo[_prodType].setScale(scaleMin, scaleMax);
         // save the new values in the configuration
         // create the configuration keys
-        std::string key = _ppiInfo[_ppiType].getKey();
+        std::string key = _ppiInfo[_prodType].getKey();
         std::string minKey = key + "/min";
         std::string maxKey = key + "/max";
         std::string mapKey = key + "/colorMap";
@@ -327,10 +327,10 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
 //////////////////////////////////////////////////////////////////////////////
 void EldoraPPI::productTypeSlotFore(int id) {
     // set the ppiType
-    _ppiType = (PRODUCT_TYPES)id;
+    _prodType = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _ppiInfo[_ppiType].getUserData();
+    int index = _ppiInfo[_prodType].getUserData();
     
     // configure the color bar with it
     colorBarFore->configure(*_productMaps[index]);
@@ -338,10 +338,10 @@ void EldoraPPI::productTypeSlotFore(int id) {
 //////////////////////////////////////////////////////////////////////////////
 void EldoraPPI::productTypeSlotAft(int id) {
     // set the ppiType
-    _ppiType = (PRODUCT_TYPES)id;
+    _prodType = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _ppiInfo[_ppiType].getUserData();
+    int index = _ppiInfo[_prodType].getUserData();
     
     // configure the color bar with it
     colorBarAft->configure(*_productMaps[index]);

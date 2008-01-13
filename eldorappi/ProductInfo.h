@@ -1,16 +1,16 @@
-#ifndef PPIINFO_H_
-#define PPIINFO_H_
+#ifndef PRODUCTINFO_H_
+#define PRODUCTINFO_H_
 
 #include <string>
 
 /// Keep track of the configuration information for each 
 /// product type.
-class PpiInfo {
+class ProductInfo {
 public:
     /// Default constructor.
-    PpiInfo();
+    ProductInfo();
     /// Useful constructor.
-    PpiInfo(int id,             ///< An id value.
+    ProductInfo(int id,             ///< An id value.
         int userData,           ///< Used for whatever desired by the client.
         std::string key,        ///< An alphanumeric key.
         std::string shortName,  ///< A short name.
@@ -20,7 +20,7 @@ public:
         double scaleMax         ///< The maximum for the colormap scale.
         );
     /// Destructor.
-    virtual ~PpiInfo();
+    virtual ~ProductInfo();
     /// Get the id.
     /// @return The id.
     int getId();

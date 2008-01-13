@@ -9,7 +9,7 @@
 #include <map>
 #include <set>
 
-#include "PpiInfo.h"
+#include "ProductInfo.h"
 
 // Coponents from the QtToolbox
 #include "PPI.h"
@@ -96,7 +96,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// the ColorMap builtin maps, and the ones specified in the
         /// configuration. The master list lives in _colorMaps.
         void initColorMaps();
-        /// Configure the PpiInfo entry for a product, 
+        /// Configure the ProductInfo entry for a product, 
         /// getting values from the configuration.
         void setPpiInfo(PRODUCT_TYPES t, ///< The product type
             int index,                   ///< The index of this product in the _beamData and _productMaps vectors
@@ -108,7 +108,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
             bool setChecked=false        ///< If true, button will be checked
             );    
         /// The currently selected ppi type.
-        PRODUCT_TYPES _ppiType;
+        PRODUCT_TYPES _prodType;
         /// This set contains PRODUCT_TYPESs identifiers for all desired 
         /// products plots. It is used to filter products from
         /// the incoming data stream.
@@ -156,7 +156,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// The nuber of gates
         int _gates;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
-        std::map<PRODUCT_TYPES, PpiInfo> _ppiInfo;
+        std::map<PRODUCT_TYPES, ProductInfo> _ppiInfo;
         QVBoxLayout _forwardVBox;
         QVBoxLayout _aftVBox;
         QButtonGroup _forwardButtonGroup;

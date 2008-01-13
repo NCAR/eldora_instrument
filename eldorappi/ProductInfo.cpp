@@ -3,7 +3,7 @@
 #include "PpiInfo.h"
 
 ////////////////////////////////////////////////////////
-PpiInfo::PpiInfo():
+ProductInfo::PpiInfo():
 _key(""),
 _id(0),
 _shortName(""),
@@ -14,7 +14,7 @@ _scaleMax(10)
 }
 
 ////////////////////////////////////////////////////////
-PpiInfo::PpiInfo(int id, 
+ProductInfo::PpiInfo(int id, 
                  int userData,
                  std::string key, 
                  std::string shortName, 
@@ -35,13 +35,13 @@ _scaleMax(scaleMax)
 
 ////////////////////////////////////////////////////////
 
-PpiInfo::~PpiInfo()
+ProductInfo::~PpiInfo()
 {
 }
 
 ////////////////////////////////////////////////////////
 void
-PpiInfo::setScale(double min, double max)
+ProductInfo::setScale(double min, double max)
 {
     _scaleMin = min;
     _scaleMax = max;
@@ -49,60 +49,60 @@ PpiInfo::setScale(double min, double max)
 
 ////////////////////////////////////////////////////////
 double 
-PpiInfo::getScaleMin()
+ProductInfo::getScaleMin()
 {
     return _scaleMin;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PpiInfo::getScaleMax()
+ProductInfo::getScaleMax()
 {
     return _scaleMax;
 }
 
 ////////////////////////////////////////////////////////
 std::string 
-PpiInfo::getShortName()
+ProductInfo::getShortName()
 {
     return _shortName;
 }
 
 ////////////////////////////////////////////////////////
 std::string 
-PpiInfo::getLongName()
+ProductInfo::getLongName()
 {
     return _longName;
 }
 ////////////////////////////////////////////////////////
 int 
-PpiInfo::getId()
+ProductInfo::getId()
 {
     return _id;
 }
 ////////////////////////////////////////////////////////
 int 
-PpiInfo::getUserData()
+ProductInfo::getUserData()
 {
     return _userData;
 }
 ////////////////////////////////////////////////////////
 void 
-PpiInfo::setColorMapName(std::string mapName)
+ProductInfo::setColorMapName(std::string mapName)
 {
     _colorMapName = mapName;
 }
 
 ////////////////////////////////////////////////////////
 std::string 
-PpiInfo::getColorMapName()
+ProductInfo::getColorMapName()
 {
     return _colorMapName;
 }
 
 ////////////////////////////////////////////////////////
 std::string 
-PpiInfo::getKey()
+ProductInfo::getKey()
 {
     return _key;
 }
