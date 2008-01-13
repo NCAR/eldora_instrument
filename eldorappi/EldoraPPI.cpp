@@ -225,7 +225,6 @@ void EldoraPPI::setPpiInfo(
 
     // Assign the color map, by copying one of our base maps.
     ColorMap* map = new ColorMap(_colorMaps[mapName]);
-    std::cout << "_productMaps for index " << index << " is " << map << "\n";
     _productMaps.push_back(map);
 
     // create the product selection buttons, forward and aft
