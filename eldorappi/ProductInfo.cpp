@@ -1,9 +1,7 @@
-#include "PpiInfo.h"
-
-#include "PpiInfo.h"
+#include "ProductInfo.h"
 
 ////////////////////////////////////////////////////////
-ProductInfo::PpiInfo():
+ProductInfo::ProductInfo():
 _key(""),
 _id(0),
 _shortName(""),
@@ -14,7 +12,7 @@ _scaleMax(10)
 }
 
 ////////////////////////////////////////////////////////
-ProductInfo::PpiInfo(int id, 
+ProductInfo::ProductInfo(int id, 
                  int userData,
                  std::string key, 
                  std::string shortName, 
@@ -35,7 +33,7 @@ _scaleMax(scaleMax)
 
 ////////////////////////////////////////////////////////
 
-ProductInfo::~PpiInfo()
+ProductInfo::~ProductInfo()
 {
 }
 

@@ -25,7 +25,7 @@ env.Uic4(['ColorBarSettings.ui',])
 sources = Split("""
 EldoraPPIMain.cpp
 EldoraPPI.cpp
-PpiInfo.cpp
+ProductInfo.cpp
 ColorBarSettings.cpp
 """)
 
