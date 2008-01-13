@@ -29,11 +29,16 @@
 /** 
  EldoraPPI provides a traditional real-time PPI display of 
  eldora products. Two PPI displays are provided; one for the forward
- radar and one for the aft radar.
+ radar and one for the aft radar. Each PPI has an associated ColorBar display.
+ 
+ The user can configure the colormap for a given product by clicking on 
+ the color bar.
  
  The fore and aft displays each render the same fixed set of products 
  (PROD_DM, PROD_SW, etc.). The same colormap will be used on both 
- displays for a given product.
+ displays for a given product. Thus if the colormap and colorbar is changed 
+ for a product on the aft radar, and the same product is being displayed
+ on the forward colorbar, the forward colorbar will also be updated.
  
  EldoraPPI is simply a data consumer; it does not know
  anything about the data provider. Signals and slots
@@ -76,17 +81,19 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param p True to enable pause.
         void pauseSlot(
                 bool p);
-        /// Activated when a mouse click is released for the color bar.
-        void colorBarReleasedSlot();
+        /// Activated when a mouse click is released for the forward color bar.
+        void colorBarForSlot();
+        /// Activated when a mouse click is released for the aft color bar.
+        void colorBarAftSlot();
         /// Activated when the ColorBarSettings dialog is finished.
         /// @param result The dialog result code
         void colorBarSettingsFinishedSlot(int result);
         /// Called to change the forward product type
         /// @param id The product type id.
-        void productTypeSlotFore(int id);
+        void productTypeForeSlot(int id);
         /// Called to change the aft product type
         /// @param id The product type id.
-        void productTypeSlotAft(int id);
+        void productTypeAftSlot(int id);
     protected:
         // Configure the PPI displays when there is a change in the operating
         // configuration, such as the number of gates, etc.
@@ -107,8 +114,14 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
             double defaultScaleMax,      ///< Colorbar maximum
             bool setChecked=false        ///< If true, button will be checked
             );    
-        /// The currently selected ppi type.
-        PRODUCT_TYPES _prodType;
+        /// Create a popup for configuring the colorbar. 
+        /// @param forwardRadar Set true if we are configuring the forward
+        /// color bar, false if the aft.
+        void colorBarPopup(bool forwardRadar);
+        /// The currently selected forward ppi type.
+        PRODUCT_TYPES _prodTypeFor;
+        /// The currently selected aft ppi type.
+        PRODUCT_TYPES _prodTypeAft;
         /// This set contains PRODUCT_TYPESs identifiers for all desired 
         /// products plots. It is used to filter products from
         /// the incoming data stream.

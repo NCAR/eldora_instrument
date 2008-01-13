@@ -14,6 +14,7 @@ public:
         double max, 
         std::string currentMap,
         std::vector<std::string> mapNames, 
+        bool forwardRadar,
         QWidget* parent=0);
     /// Destructor
     virtual ~ColorBarSettings();
@@ -23,8 +24,12 @@ public:
     double getMaximum();
     /// @returns The selected color map
     std::string getMapName();
+    /// @returns True if this is for the forward radar, false otherwise
+    bool forwardRadar();
 
 protected:
+    /// True if for the forward radar, false otherwise
+    bool _forwardRadar;
 };
 
 #endif /*COLORBARSETTINGS_H_*/

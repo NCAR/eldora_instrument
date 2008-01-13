@@ -5,8 +5,10 @@ ColorBarSettings::ColorBarSettings(double min,
                                    double max, 
                                    std::string currentMap,
                                    std::vector<std::string> mapNames, 
+                                   bool forwardRadar,
                                    QWidget* parent):
-QDialog(parent)
+QDialog(parent),
+_forwardRadar(forwardRadar)
 {
     setupUi(this);  
 
@@ -54,3 +56,8 @@ ColorBarSettings::getMapName()
     return selectedName.toStdString();
 }
 //////////////////////////////////////////////////////////////////////////////
+bool
+ColorBarSettings::forwardRadar()
+{
+    return _forwardRadar;
+}
