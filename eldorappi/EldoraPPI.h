@@ -167,7 +167,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// Set true if the plot graphics are paused
         bool _paused;
         /// The nuber of gates
-        int _gates;
+        unsigned int _gates;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
         std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
         QVBoxLayout _forwardVBox;

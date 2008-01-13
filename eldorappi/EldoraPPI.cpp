@@ -28,9 +28,8 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"),
-            _paused(false), _gates(0), _prodTypeFor(PROD_DBZ),
-            _prodTypeAft(PROD_DBZ){
+    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
+    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false) {
     // Set up our form
     setupUi(parent);
 
@@ -169,7 +168,7 @@ void EldoraPPI::initColorMaps() {
     // get the builtin maps. Note that we are expecting there to
     // be one named default.
     std::vector<std::string> mapNames = ColorMap::builtinMaps();
-    for (int i = 0; i < mapNames.size(); i++) {
+    for (unsigned int i = 0; i < mapNames.size(); i++) {
         _colorMaps[mapNames[i]] = ColorMap(0.0, 1.0, mapNames[i]);
     }
 
@@ -178,7 +177,7 @@ void EldoraPPI::initColorMaps() {
 
     std::vector<std::vector<int> > emptyMap;
     // save colormaps for each of these choices.
-    for (int i = 0; i < names.size(); i++) {
+    for (unsigned int i = 0; i < names.size(); i++) {
         std::vector<std::vector<int> > colors;
         std::string mapKey("ColorMaps/");
         mapKey += names[i];
