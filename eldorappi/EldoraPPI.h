@@ -68,9 +68,10 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
     public slots:
         /// Feed product data via this slot.
         /// @param p The product data.
-        /// @param int radarId Either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param prodType The product type, from PRODUCT_TYPES
         void productSlot(
-                std::vector<double> p, int radarId);
+                std::vector<double> p, int radarId, int prodType);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(

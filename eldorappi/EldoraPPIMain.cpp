@@ -21,17 +21,13 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 namespace po = boost::program_options;
 void parseArgs(
-        int argc,
-            char** argv,
-            std::string& productsTopic,
-            std::string& ORB,
-            std::string& DCPS) {
+        int argc, char** argv, std::string& productsTopic, std::string& ORB,
+        std::string& DCPS) {
 
     // get the options
     po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") (
-            "productstopic",
+    descripts.add_options() ("help", "describe options") ("productstopic",
             po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -49,24 +45,22 @@ void parseArgs(
 
 ///////////////////////////////////////////////////////////////////////////////
 int main(
-        int argc,
-            char** argv) {
+        int argc, char** argv) {
 
     ///////////////////////////////////////////////////////////////
     //
     // Configuration
-    
+
     QtConfig config("NCAR", "EldoraPPI");
     std::string productsTopic;
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
 
-    ORB = config.getString(
-                    "ORBConfigFile",
+    ORB
+            = config.getString("ORBConfigFile",
                     "/home/eldora/eldora/conf/tcp.conf");
-    DCPS = config.getString(
-            "DCPSConfigFile",
+    DCPS = config.getString("DCPSConfigFile",
             "/home/eldora/eldora/conf/consumer.ini");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
@@ -82,7 +76,7 @@ int main(
     ///////////////////////////////////////////////////////////////
     //
     // Qt User Interface Components
-    
+
     // create the application
     QApplication app(argc, argv);
 
@@ -99,7 +93,7 @@ int main(
     ///////////////////////////////////////////////////////////////
     //
     // Data source Infrastructure
-    
+
     // create the subscriber
     DDSSubscriber subscriber(subParams.argc(), subParams.argv());
     int subStatus = subscriber.status();
@@ -107,12 +101,24 @@ int main(
         return subStatus;
 
     // create the reader
-    EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0, true);
+    // select the products that it will receive
+    std::set<PRODUCT_TYPES> prodTypes;
+    prodTypes.insert(PROD_DM);
+    prodTypes.insert(PROD_DBZ);
+    prodTypes.insert(PROD_SW);
+    prodTypes.insert(PROD_NCP);
+    prodTypes.insert(PROD_VR);
+    prodTypes.insert(PROD_VS);
+    prodTypes.insert(PROD_VL);
+
+    // request products from both radars. A rate of 0.0 means send all beams
+    EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,
+            EldoraQtProductsSource::RADAR_BOTH, prodTypes);
 
     ///////////////////////////////////////////////////////////////
     //
     // Qt Signal Connections
-    
+
     // connect the aboutToQuit signal from Qt to our source,
     // so that they can shut down DDS properly.
     QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
@@ -123,8 +129,8 @@ int main(
 
     // now the products supply
     QObject::connect(&productsSource, 
-    SIGNAL(newPData(std::vector<double>, int)), &ppi, 
-    SLOT(productSlot(std::vector<double>, int)));
+    SIGNAL(newPData(std::vector<double>, int, int)), &ppi, 
+    SLOT(productSlot(std::vector<double>, int, int)));
 
     // if we don't show() the dialog, nothing appears!
     dialog->show();
@@ -132,7 +138,7 @@ int main(
     ///////////////////////////////////////////////////////////////
     //
     // Start all of the processes
-    
+
     // note that the sources may start emitting signals
     // before the main application event loop is running,
     // in which case the signals may be lost. This could be 
@@ -145,7 +151,7 @@ int main(
     ///////////////////////////////////////////////////////////////
     //
     // Shutdown
-    
+
     // Tell the source threads to quit.
     productsSource.quit();
 

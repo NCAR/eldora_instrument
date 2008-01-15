@@ -8,15 +8,14 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 ////////////////////////////////////////////////////////
 EldoraQtProductsSource::EldoraQtProductsSource(
-        DDSSubscriber& subscriber, std::string topicName, double outputRate, bool bothRadars) :
-    EldoraQtSource(outputRate), ProductsReader(subscriber, topicName),
-            _radarId(EldoraDDS::Forward), _product(PROD_DBZ),
-            _bothRadars(bothRadars) {
+        DDSSubscriber& subscriber, std::string topicName, double outputRate,
+        RADAR_CHOICE radarChoices, std::set<PRODUCT_TYPES> productChoices) :
+EldoraQtSource(outputRate), ProductsReader(subscriber, topicName),
+_outputRate(outputRate), _radarChoices(radarChoices),
+_productChoices(productChoices) {
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
-
-    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
 
 }
 
@@ -31,50 +30,66 @@ void EldoraQtProductsSource::notify() {
 
         _readSamples++;
         _numBytes += pItem->dbz.length()*sizeof(pItem->dbz[0]);
-        
-        if (_bothRadars || pItem->radarId == _radarId) {
 
-            // get a pointer to the currently selected product,
-            // and the gain and offset.
-            float gain;
-            float offset;
-            short* product;
-            selectProduct(pItem, &product, gain, offset);
+        RADAR_CHOICE thisRadar;
+        switch (pItem->radarId) {
+        case EldoraDDS::Forward:
+            thisRadar = RADAR_FOR;
+            break;
+        case EldoraDDS::Aft:
+            thisRadar = RADAR_AFT;
+            break;
+        default:
+            thisRadar = RADAR_FOR;
+            break;
+        }
 
-            switch (_gateMode) {
-            case ALONG_BEAM:
-                if (_capture) {
-                    // resize the vectors to carry the beam of product data
-                    P.resize(pItem->dbz.length());
-                    // copy all P in the beam.
-                    for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
-                        P[i] = (product[i] + offset)/gain;
-                    }
-                    // send the Pbeam to our client.
-                    emit newPData(P, pItem->radarId);
-                    clearCapture();
-                }
-                break;
+        if (_radarChoices == RADAR_BOTH || _radarChoices == thisRadar) {
 
-            case ONE_GATE:
-                // note that setting the _bothRadars flag along
-                // with the ONE_GATE option will cause the data
-                // for fore and aft to be scrambled together.
-                if (_capture) {
-                    if (P.size() != _pointsPerGate) {
-                        P.resize(_pointsPerGate);
-                    }
-                    P[_pointCounter] = (product[_gate]+offset)/gain;
-                    _pointCounter++;
-                    if (_pointCounter == _pointsPerGate) {
-                        // a set of P points have been collected.
-                        // send the P time series to our client.
-                        _pointCounter = 0;
-                        emit newPData(P, pItem->radarId);
+            for (std::set<PRODUCT_TYPES>::iterator prodType = _productChoices.begin(); 
+                prodType != _productChoices.end(); prodType++) {
+                // get a pointer to the desired product,
+                // and the gain and offset.
+                float gain;
+                float offset;
+                short* product;
+                selectProduct(*prodType, pItem, &product, gain, offset);
+
+                switch (_gateMode) {
+                case ALONG_BEAM:
+                    if (_capture) {
+                        // resize the vectors to carry the beam of product data
+                        P.resize(pItem->dbz.length());
+                        // copy all P in the beam.
+                        for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
+                            P[i] = (product[i] + offset)/gain;
+                        }
+                        // send the Pbeam to our client.
+                        emit newPData(P, pItem->radarId, *prodType);
                         clearCapture();
                     }
+                    break;
+
+                case ONE_GATE:
+                    // note that setting the _bothRadars flag along
+                    // with the ONE_GATE option will cause the data
+                    // for fore and aft to be scrambled together.
+                    if (_capture) {
+                        if (P.size() != _pointsPerGate) {
+                            P.resize(_pointsPerGate);
+                        }
+                        P[_pointCounter] = (product[_gate]+offset)/gain;
+                        _pointCounter++;
+                        if (_pointCounter == _pointsPerGate) {
+                            // a set of P points have been collected.
+                            // send the P time series to our client.
+                            _pointCounter = 0;
+                            emit newPData(P, pItem->radarId, *prodType);
+                            clearCapture();
+                        }
+                    }
+                    break;
                 }
-                break;
             }
         }
 
@@ -85,9 +100,10 @@ void EldoraQtProductsSource::notify() {
 
 ////////////////////////////////////////////////////////////
 void EldoraQtProductsSource::selectProduct(
-        Products* pItem, short** p, float& gain, float& offset) {
+        PRODUCT_TYPES prodType, Products* pItem, short** p, float& gain,
+        float& offset) {
 
-    switch (_product) {
+    switch (prodType) {
     case PROD_P1:
         *p = &pItem->p1[0];
         gain = pItem->p1Gain;
@@ -154,27 +170,39 @@ void EldoraQtProductsSource::selectProduct(
 
 ////////////////////////////////////////////////////////////
 void EldoraQtProductsSource::oneGateSlot(
-        PRODUCT_TYPES product, bool forwardRadar, int gate, int n) {
+        PRODUCT_TYPES prodType, bool forwardRadar, int gate, int n) {
 
-   _gate = gate;
+    _gate = gate;
     _pointsPerGate = n;
     _gateMode = ONE_GATE;
     _pointCounter = 0;
-    _forwardRadar = forwardRadar;
-    _product = product;
+    
+    // if we are not already looking at multiple products, then
+    // change the one that we are looking at
+    if (_productChoices.size() <= 1) {
+    _productChoices.clear();
+    _productChoices.insert(prodType);
+    }
 
-    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
+    _radarChoices = _forwardRadar ? RADAR_FOR : RADAR_AFT;
+    
     // start timeseries collection immediately
     P.resize(n);
 }
 
 ////////////////////////////////////////////////////////////
 void EldoraQtProductsSource::alongBeamSlot(
-        PRODUCT_TYPES product, bool forwardRadar) {
+        PRODUCT_TYPES prodType, bool forwardRadar) {
 
+    // set the gate mode
     _gateMode = ALONG_BEAM;
-    _product = product;
-    _forwardRadar = forwardRadar;
-
-    _radarId = _forwardRadar ? EldoraDDS::Forward : EldoraDDS::Aft;
+    
+    // if we are not already looking at multiple products, then
+    // change the one that we are looking at
+    if (_productChoices.size() <= 1) {
+    _productChoices.clear();
+    _productChoices.insert(prodType);
+    }
+    
+    _radarChoices = _forwardRadar ? RADAR_FOR : RADAR_AFT;
 }

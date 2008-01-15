@@ -117,7 +117,10 @@ int main(
 
     // create the readers
     EldoraQtTSSource tsSource(subscriber, tsTopic, rate);
-    EldoraQtProductsSource productsSource(subscriber, productsTopic, rate);
+    std::set<PRODUCT_TYPES> prodType;
+    prodType.insert(PROD_DBZ);
+    EldoraQtProductsSource productsSource(subscriber, productsTopic, 
+            rate, EldoraQtProductsSource::RADAR_FOR, prodType);
 
     ///////////////////////////////////////////////////////////////
     //
@@ -156,8 +159,8 @@ int main(
 
     // now the products supply
     QObject::connect(&productsSource, 
-    SIGNAL(newPData(std::vector<double>)), &scope, 
-    SLOT(productSlot(std::vector<double>)));
+    SIGNAL(newPData(std::vector<double>, int, int)), &scope, 
+    SLOT(productSlot(std::vector<double>, int, int)));
 
     // if we don't show() the dialog, nothing appears!
     dialog->show();
