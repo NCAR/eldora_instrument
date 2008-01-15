@@ -69,9 +69,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// Feed product data via this slot.
         /// @param p The product data.
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param elDegrees The antenna pointing elevation, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
         void productSlot(
-                std::vector<double> p, int radarId, int prodType);
+                std::vector<double> p, int radarId, float elDegrees,
+                int prodType);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(
@@ -88,13 +90,16 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         void colorBarAftSlot();
         /// Activated when the ColorBarSettings dialog is finished.
         /// @param result The dialog result code
-        void colorBarSettingsFinishedSlot(int result);
+        void colorBarSettingsFinishedSlot(
+                int result);
         /// Called to change the forward product type
         /// @param id The product type id.
-        void productTypeForSlot(int id);
+        void productTypeForSlot(
+                int id);
         /// Called to change the aft product type
         /// @param id The product type id.
-        void productTypeAftSlot(int id);
+        void productTypeAftSlot(
+                int id);
     protected:
         // Configure the PPI displays when there is a change in the operating
         // configuration, such as the number of gates, etc.
@@ -106,19 +111,21 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         void initColorMaps();
         /// Configure the ProductInfo entry for a product, 
         /// getting values from the configuration.
-        void setPpiInfo(PRODUCT_TYPES t, ///< The product type
-            int index,                   ///< The index of this product in the _beamData and _productMaps vectors
-            std::string key,             ///< The key to use in the configuration
-            std::string shortName,       ///< Short name
-            std::string longName,        ///< Long name
-            double defaultScaleMin,      ///< Colorbar minimum
-            double defaultScaleMax,      ///< Colorbar maximum
-            bool setChecked=false        ///< If true, button will be checked
-            );    
+        void setPpiInfo(
+                PRODUCT_TYPES t, ///< The product type
+                int index, ///< The index of this product in the _beamData and _productMaps vectors
+                std::string key, ///< The key to use in the configuration
+                std::string shortName, ///< Short name
+                std::string longName, ///< Long name
+                double defaultScaleMin, ///< Colorbar minimum
+                double defaultScaleMax, ///< Colorbar maximum
+                bool setChecked=false ///< If true, button will be checked
+                );
         /// Create a popup for configuring the colorbar. 
         /// @param forwardRadar Set true if we are configuring the forward
         /// color bar, false if the aft.
-        void colorBarPopup(bool forwardRadar);
+        void colorBarPopup(
+                bool forwardRadar);
         /// The currently selected forward ppi type.
         PRODUCT_TYPES _prodTypeFor;
         /// The currently selected aft ppi type.
@@ -175,7 +182,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         QVBoxLayout _aftVBox;
         QButtonGroup _forwardButtonGroup;
         QButtonGroup _aftButtonGroup;
-        
 
 };
 

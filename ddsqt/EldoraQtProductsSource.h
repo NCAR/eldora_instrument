@@ -30,7 +30,7 @@ using namespace EldoraDDS;
 /// specified in the constructor, and will not be changed by these slots.
 ///
 class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
-Q_OBJECT
+    Q_OBJECT
     public:
         /// Used to specify which (or both) radars 
         enum RADAR_CHOICE {
@@ -47,27 +47,27 @@ Q_OBJECT
         /// RADAR_BOTH is specified, then data for both radars are delivered.
         /// @param productChoices The initial product type choices.
         EldoraQtProductsSource(
-                DDSSubscriber& subscriber,
-                    std::string topicName,
-                    double outputRate=20.0,
-                    RADAR_CHOICE radarChoices=RADAR_FOR,
-                    std::set<PRODUCT_TYPES> productChoices=std::set<PRODUCT_TYPES>());
+                DDSSubscriber& subscriber, std::string topicName,
+                double outputRate=20.0, RADAR_CHOICE radarChoices=RADAR_FOR,
+                std::set<PRODUCT_TYPES> productChoices=std::set<PRODUCT_TYPES>());
         virtual ~EldoraQtProductsSource();
         /// Subclass DDSReader::notify(), which wil be called
         /// whenever new samples are added to the DDSReader available
         /// queue. Process the samples here.
         virtual void notify();
 
-   signals:
+    signals:
         /// This signal is emitted when new Product data are available.
         /// I and Q will be of the same length, and will have at least 1 
         /// value in them.
         /// @param P P data values.
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param elDegrees Elevation angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
-       void newPData(
-                std::vector<double> P, int radarId, int prodType);
-        
+        void newPData(
+                std::vector<double> P, int radarId, float elDegrees,
+                int prodType);
+
     public slots:
         /// Set the gate mode to ONE_GATE.
         /// @param product The product type.
@@ -75,18 +75,14 @@ Q_OBJECT
         /// @param gate The gate to send in.
         /// @param n The number of points.
         virtual void oneGateSlot(
-                PRODUCT_TYPES product,
-                    bool forwardRadar,
-                    int gate,
-                    int n);
+                PRODUCT_TYPES product, bool forwardRadar, int gate, int n);
 
         /// Set the gate mode to along beam.
         /// @param product The product type.
         /// @param forwardRadar True if forward radar, false if aft
         virtual void alongBeamSlot(
-                PRODUCT_TYPES product,
-                    bool forwardRadar);
-        
+                PRODUCT_TYPES product, bool forwardRadar);
+
     protected:
         /// Locate the specified product.
         /// @param prodType The specific product type
@@ -94,18 +90,19 @@ Q_OBJECT
         /// @param data A pointer to the data field selected by _product is returned here.
         /// @param gain The gain factor for the product is returned here.
         /// @param offset The offset for the product is returned here.
-        void selectProduct(PRODUCT_TYPES prodType, 
-                Products* pItem, short** data, float& gain, float& offset);
-        
+        void selectProduct(
+                PRODUCT_TYPES prodType, Products* pItem, short** data,
+                float& gain, float& offset);
+
         /// Do not collect samples any faster than this
         double _outputRate;
-        
+
         /// The selected radar, either forward or aft
         RADAR_CHOICE _radarChoices;
-        
+
         /// The selected product types
         std::set<PRODUCT_TYPES> _productChoices;
-        
+
         /// Buffer for saving one gate of product data over successive Products
         std::vector<double> P;
 

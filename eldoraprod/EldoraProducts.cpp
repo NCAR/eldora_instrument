@@ -33,6 +33,8 @@ void EldoraProducts::newPulseData(
         // transfer beam metadata
         products->radarId = pulses[0]->radarId;
         products->timestamp = pulses[0]->timestamp;
+        products->elDegrees = pulses[0]->elDegrees;
+        
         // The abp pulses are three times as long as the
         // product beams. 
         int productsLength = pulses[0]->abp.length()/3;

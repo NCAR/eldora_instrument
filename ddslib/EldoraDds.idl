@@ -26,7 +26,7 @@ typedef sequence<short> TS;
     RadarChoice radarId;
     long long timestamp;
     float prfSeconds;
-    float azDegrees;
+    float elDegrees;
     float powerDbm;
     long nci;
     unsigned short chan;
@@ -40,7 +40,7 @@ typedef sequence<short> TS;
     RadarChoice radarId;
     long long timestamp;
     float prfSeconds;
-    float azDegrees;
+    float elDegrees;
     float gateSpacingKm;
     
     float p1Gain;

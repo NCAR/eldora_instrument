@@ -80,9 +80,9 @@ EldoraPPI::~EldoraPPI() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
-        std::vector<double> p, int radarId, int prodType) {
+        std::vector<double> p, int radarId, float elDegrees, int prodType) {
     
-    std::cout << "radar:" << radarId << "  prod:"<<prodType << "\n";
+    std::cout << "radar:" << radarId << "   el:" << elDegrees << "  prod:"<<prodType << "\n";
 
     if (_paused)
         return;

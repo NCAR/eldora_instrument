@@ -131,8 +131,9 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// Call when data is available on the product data socket.
         /// @param p the product data
         /// @param radarId either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param elDegrees The antenna pointing elevation, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
-        void productSlot(std::vector<double> p, int radarId, int prodType);
+        void productSlot(std::vector<double> p, int radarId, float elDegrees, int prodType);
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries. It will be zero based. 
         /// Add firstgate to stablish the true gate number.

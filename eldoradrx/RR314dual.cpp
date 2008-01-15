@@ -255,6 +255,8 @@ static void * dataTask(
     PulseWriter* pulseWriter = pParams->pulseWriter;
     TSWriter* tsWriter = pParams->tsWriter;
 
+    float elevation[4] = {0.0, 0.0, 0.0, 0.0};
+    
     ACE_Time_Value small(0, 100000);
 
     std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " nci:" << pParams->nci << "\n";
@@ -280,6 +282,13 @@ static void * dataTask(
                     RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
                     pPulse->abp.length(pABP->_abp.size());
+                    
+                    // simulate the elevation
+                    elevation[channel/2] += 0.5;
+                    if (elevation[channel/2] >= 360.0)
+                        elevation[channel/2] -= 360.0;
+                    pPulse->elDegrees = elevation[channel/2];
+                    
                     pPulse->nci = pABP->nci;
                     pPulse->chan = pABP->chanId;
                     for (unsigned int p = 0; p < pABP->_abp.size(); p++) {

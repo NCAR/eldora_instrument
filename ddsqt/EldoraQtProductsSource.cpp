@@ -65,7 +65,7 @@ void EldoraQtProductsSource::notify() {
                             P[i] = (product[i] + offset)/gain;
                         }
                         // send the Pbeam to our client.
-                        emit newPData(P, pItem->radarId, *prodType);
+                        emit newPData(P, pItem->radarId, pItem->elDegrees, *prodType);
                         clearCapture();
                     }
                     break;
@@ -84,7 +84,7 @@ void EldoraQtProductsSource::notify() {
                             // a set of P points have been collected.
                             // send the P time series to our client.
                             _pointCounter = 0;
-                            emit newPData(P, pItem->radarId, *prodType);
+                            emit newPData(P, pItem->radarId, pItem->elDegrees, *prodType);
                             clearCapture();
                         }
                     }
