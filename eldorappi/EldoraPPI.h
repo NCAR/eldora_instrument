@@ -11,6 +11,8 @@
 
 #include "ProductInfo.h"
 
+#include "PpiManager.h"
+
 // Coponents from the QtToolbox
 #include "PPI.h"
 #include "ColorMap.h"
@@ -110,8 +112,10 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// configuration. The master list lives in _colorMaps.
         void initColorMaps();
         /// Configure the ProductInfo entry for a product, 
-        /// getting values from the configuration.
-        void setPpiInfo(
+        /// getting values from the configuration. Create the radio buttons for 
+        /// each product and add to the for and aft control panels. Create a consecutive
+        /// entry in _productIndex each time setProductInfo is called.
+        void setProductInfo(
                 PRODUCT_TYPES t, ///< The product type
                 int index, ///< The index of this product in the _beamData and _productMaps vectors
                 std::string key, ///< The key to use in the configuration
@@ -126,6 +130,10 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// color bar, false if the aft.
         void colorBarPopup(
                 bool forwardRadar);
+        /// The manager for the forward PPI
+        PPIManager _forManager;
+        /// The manager for the aft PPI
+        PPIManager _aftManager;
         /// The currently selected forward ppi type.
         PRODUCT_TYPES _prodTypeFor;
         /// The currently selected aft ppi type.
@@ -134,14 +142,10 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// products plots. It is used to filter products from
         /// the incoming data stream.
         std::set<PRODUCT_TYPES> _productList;
-        /// This set contains the list of all received products 
-        /// that are on the desired list, and have the same beam id.
-        /// It is used to track incoming products, so that when a 
-        /// complete set of products has been received, a new beam can 
-        /// be drawn.
-        std::set<PRODUCT_TYPES> _currentProducts;
-        /// Will hold the beam values for all product variables in one beam
-        std::vector<std::vector<double> > _beamData;
+        /// The PPIManager differentiates incoming products based on an
+        /// index that runs between 0 and the number of products. This
+        /// is used to map the PRODUCT_TYPE to that index.
+        std::map<PRODUCT_TYPES, int> _productIndex;
         /// The color maps assigned to each product. They are drawn from _colorMaps.
         /// The vector length must be the same as _productList, and also the number
         /// of data vectors in _beamData which are passed to PPI::addBeam().
@@ -154,8 +158,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         int _errorCount[3];
         ///  last pulse number
         long long _lastPulseNum[3];
-        /// Used to collect product data from beams
-        std::vector<double> _ProductData;
         // how often to update the statistics (in seconds)
         int _statsUpdateInterval;
         /// The current selected product type.

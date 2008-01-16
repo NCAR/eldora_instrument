@@ -26,6 +26,7 @@ sources = Split("""
 EldoraPPIMain.cpp
 EldoraPPI.cpp
 ProductInfo.cpp
+PpiManager.cpp
 ColorBarSettings.cpp
 """)
 

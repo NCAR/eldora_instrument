@@ -28,7 +28,8 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
+    QDialog(parent), _forManager(*ppiFor, 7),
+    _aftManager(*ppiAft, 7), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
     _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false) {
     // Set up our form
     setupUi(parent);
@@ -44,6 +45,15 @@ EldoraPPI::EldoraPPI(
         _errorCount[i] = 0;
         _lastPulseNum[i] = 0;
     }
+
+    // fill in the product list
+    _productList.insert(PROD_DM);
+    _productList.insert(PROD_DBZ);
+    _productList.insert(PROD_VR);
+    _productList.insert(PROD_VS);
+    _productList.insert(PROD_VL);
+    _productList.insert(PROD_SW);
+    _productList.insert(PROD_NCP);
 
     // connect the controls
     
@@ -81,9 +91,7 @@ EldoraPPI::~EldoraPPI() {
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
         std::vector<double> p, int radarId, float elDegrees, int prodType) {
-    
-    std::cout << "radar:" << radarId << "   el:" << elDegrees << "  prod:"<<prodType << "\n";
-
+  
     if (_paused)
         return;
 
@@ -92,10 +100,12 @@ void EldoraPPI::productSlot(
         configurePPI();
     }
 
+    // Map the product type into the zero based index for the PPIManager.
+    int index = _productInfo[(PRODUCT_TYPES)prodType].getUserData();
     if (radarId == 0) {
-
+        _forManager.newProduct(p, elDegrees, index);
     } else {
-
+        _aftManager.newProduct(p, elDegrees, index);
     }
 
 }
@@ -103,7 +113,7 @@ void EldoraPPI::productSlot(
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::configurePPI() {
 
-    ppiForward->configure(7, _gates, 720, 0.100*2*_gates, 1);
+    ppiFor->configure(7, _gates, 720, 0.100*2*_gates, 1);
     ppiAft->configure(7, _gates, 720, 0.100*2*_gates, 1);
 }
 
@@ -137,13 +147,13 @@ void EldoraPPI::saveImageSlot() {
 void EldoraPPI::initPlots() {
 
     int index = 0;
-    setPpiInfo(PROD_DM, index++, "DM", "DM", "Power", -60.0, 20.0);
-    setPpiInfo(PROD_DBZ, index++, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0, true);
-    setPpiInfo(PROD_VR, index++, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
-    setPpiInfo(PROD_VS, index++, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
-    setPpiInfo(PROD_VL, index++, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
-    setPpiInfo(PROD_SW, index++, "SW", "SW", "Spectral width", 0.0, 30.0);
-    setPpiInfo(PROD_NCP, index++, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
+    setProductInfo(PROD_DM, index++, "DM", "DM", "Power", -60.0, 20.0);
+    setProductInfo(PROD_DBZ, index++, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0, true);
+    setProductInfo(PROD_VR, index++, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
+    setProductInfo(PROD_VS, index++, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
+    setProductInfo(PROD_VL, index++, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
+    setProductInfo(PROD_SW, index++, "SW", "SW", "Spectral width", 0.0, 30.0);
+    setProductInfo(PROD_NCP, index++, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
 
     // The buttons were created and assigned to layouts in setPpiInfo.
     // Attach these layouts to the button groups
@@ -196,7 +206,7 @@ void EldoraPPI::initColorMaps() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraPPI::setPpiInfo(
+void EldoraPPI::setProductInfo(
         PRODUCT_TYPES t, int index, std::string key, std::string shortName,
         std::string longName, double defaultScaleMin, double defaultScaleMax,
         bool setChecked) {
@@ -249,7 +259,7 @@ void EldoraPPI::setPpiInfo(
     _aftVBox.addWidget(button);
     _aftButtonGroup.addButton(button);
     _aftButtonGroup.setId(button, t);
-
+    
 }
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::colorBarForSlot() {
