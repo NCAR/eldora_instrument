@@ -28,9 +28,10 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _forManager(*ppiFor, 7),
-    _aftManager(*ppiAft, 7), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
-    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false) {
+    QDialog(parent), _forManager(*ppiFor, 7, _productMaps),
+    _aftManager(*ppiAft, 7, _productMaps), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
+    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false),
+    _productCount(0) {
     // Set up our form
     setupUi(parent);
 
@@ -79,6 +80,10 @@ EldoraPPI::EldoraPPI(
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
+    
+    // inital configuration o the ppis (note _gates == 0)
+    _forManager.configurePPI(_productList.size(), _gates, 720);
+    _aftManager.configurePPI(_productList.size(), _gates, 720);
 
     // let the data sources get themselves ready
     sleep(1);
@@ -91,17 +96,35 @@ EldoraPPI::~EldoraPPI() {
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
         std::vector<double> p, int radarId, float elDegrees, int prodType) {
+    
+    PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
+    // ignore products that we are not interested in. Of course, the 
+    // caller is not supposed to send them to us, but perform a
+    // sanity check here anyway.
+    if (_productList.find(productType) == _productList.end())
+        return;
+    
+    // ignore product if we are paused.
     if (_paused)
         return;
+    
+    if (_productCount < 700) {
+        _productCount++;
+        return;
+    }
 
+    // if the product size has changed, reconfigure the ppi displays
     if (p.size() != _gates) {
         _gates = p.size();
-        configurePPI();
+        _forManager.configurePPI(_productList.size(), _gates, 720);
+        _aftManager.configurePPI(_productList.size(), _gates, 720);
     }
 
     // Map the product type into the zero based index for the PPIManager.
-    int index = _productInfo[(PRODUCT_TYPES)prodType].getUserData();
+    int index = _productInfo[productType].getUserData();
+    
+    // senf the product to the appropriate ppi manager
     if (radarId == 0) {
         _forManager.newProduct(p, elDegrees, index);
     } else {
@@ -110,12 +133,6 @@ void EldoraPPI::productSlot(
 
 }
 
-//////////////////////////////////////////////////////////////////////
-void EldoraPPI::configurePPI() {
-
-    ppiFor->configure(7, _gates, 720, 0.100*2*_gates, 1);
-    ppiAft->configure(7, _gates, 720, 0.100*2*_gates, 1);
-}
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::saveImageSlot() {

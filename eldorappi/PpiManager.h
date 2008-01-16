@@ -4,9 +4,8 @@
 #include <set>
 
 #include "ProductTypes.h"
-
-
 #include "PPI.h"
+#include "ColorMap.h"
 
 /// Manage the Eldora data interaction with a PPI display.
 class PPIManager {
@@ -14,7 +13,8 @@ class PPIManager {
         /// Constructor
         /// @param ppi The ppi display
         /// @param nProducts The number of products that we will be collecting
-        PPIManager(PPI& ppi, int nProducts);
+        /// @param colorMaps The color maps for each product
+        PPIManager(PPI& ppi, int nProducts, std::vector<ColorMap*>& colorMaps);
         /// Destructor
         virtual ~PPIManager();
         /// Add a new data product. The data for product with index
@@ -26,6 +26,12 @@ class PPIManager {
         /// @param elDegrees The elevation pointing angle
         /// @param prodIndex DEnotes which product in the display this belongs to.
         void newProduct(std::vector<double> p, float elDegrees, int prodIndex);
+        /// Configure the PPI displays when there is a change in the operating
+        /// configuration, such as the number of gates, etc.
+        /// @param numProducts The number of products that the ppi will provide
+        /// @param gates The number of gates in each beam
+        /// @param beams The number of beams in the ppi
+        void configurePPI(int numProducts, int gates, int beams);
         
     protected:
         /// The PPI component that we are managing.
@@ -41,7 +47,10 @@ class PPIManager {
         /// Will hold the beam values for all product variables in one beam,
         /// for a given radar.
         std::vector<std::vector<double> > _productData;
-        
+        /// Reference to the colormaps for the products, one for each product
+        std::vector<ColorMap*>& _colorMaps;
+        /// The current number of gates
+        int _gates;
 };
 
 #endif /*PPIMANAGER_H_*/

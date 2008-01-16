@@ -103,9 +103,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         void productTypeAftSlot(
                 int id);
     protected:
-        // Configure the PPI displays when there is a change in the operating
-        // configuration, such as the number of gates, etc.
-        void configurePPI();
         /// Initialize all of the color maps. It creates the master list of 
         /// colormaps which are available. These are the combination of
         /// the ColorMap builtin maps, and the ones specified in the
@@ -160,9 +157,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         long long _lastPulseNum[3];
         // how often to update the statistics (in seconds)
         int _statsUpdateInterval;
-        /// The current selected product type.
-        PRODUCT_TYPES _productType;
-        // The builtin timer will be used to calculate beam statistics.
+       // The builtin timer will be used to calculate beam statistics.
         void timerEvent(
                 QTimerEvent*);
         /// initialize all of the book keeping structures
@@ -180,10 +175,21 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         unsigned int _gates;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
         std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
+        /// The layout which contains the radio buttons for product
+        /// selection for the forward radar.
         QVBoxLayout _forwardVBox;
+        /// The layout which contains the radio buttons for product
+        /// selection for the aft radar.
         QVBoxLayout _aftVBox;
+        /// The button group for the radio buttons for product 
+        /// selection for the forward radar.
         QButtonGroup _forwardButtonGroup;
+        /// The button group for the radio buttons for product 
+        /// selection for the aft radar.
         QButtonGroup _aftButtonGroup;
+        /// The number of products delivered thus far
+        int _productCount;
+
 
 };
 
