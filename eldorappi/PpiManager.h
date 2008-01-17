@@ -11,12 +11,16 @@
 class PPIManager {
     public:
         /// Constructor
+        PPIManager();
+        /// Destructor
+        virtual ~PPIManager();
+        /// configure the manager. This cannot take place in the constructor,
+        /// becasue the ppi pointer (from the form) will not be initialized
+        /// until after setupUI()
         /// @param ppi The ppi display
         /// @param nProducts The number of products that we will be collecting
         /// @param colorMaps The color maps for each product
-        PPIManager(PPI& ppi, int nProducts, std::vector<ColorMap*>& colorMaps);
-        /// Destructor
-        virtual ~PPIManager();
+        void setup(PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps);
         /// Add a new data product. The data for product with index
         /// prodIndex are saved in the corresponding vector in _productData.
         /// When a complete set of products have been
@@ -35,7 +39,7 @@ class PPIManager {
         
     protected:
         /// The PPI component that we are managing.
-        PPI& _ppi;
+        PPI* _ppi;
         /// The number of products to be collected
         int _nProducts;
         /// This set contains the list of all received products 
@@ -48,7 +52,7 @@ class PPIManager {
         /// for a given radar.
         std::vector<std::vector<double> > _productData;
         /// Reference to the colormaps for the products, one for each product
-        std::vector<ColorMap*>& _colorMaps;
+        std::vector<ColorMap*>* _colorMaps;
         /// The current number of gates
         int _gates;
 };

@@ -187,9 +187,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// The button group for the radio buttons for product 
         /// selection for the aft radar.
         QButtonGroup _aftButtonGroup;
-        /// The number of products delivered thus far
-        int _productCount;
-
 
 };
 

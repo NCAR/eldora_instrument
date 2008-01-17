@@ -28,13 +28,15 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _forManager(*ppiFor, 7, _productMaps),
-    _aftManager(*ppiAft, 7, _productMaps), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
-    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false),
-    _productCount(0) {
+    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
+    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false)
+    {
     // Set up our form
     setupUi(parent);
 
+    _forManager.setup(ppiFor, 7, &_productMaps);
+    _aftManager.setup(ppiAft, 7, &_productMaps);
+    
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraPPI");
     title += " ";
@@ -80,13 +82,6 @@ EldoraPPI::EldoraPPI(
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
-    
-    // inital configuration o the ppis (note _gates == 0)
-    _forManager.configurePPI(_productList.size(), _gates, 720);
-    _aftManager.configurePPI(_productList.size(), _gates, 720);
-
-    // let the data sources get themselves ready
-    sleep(1);
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -109,11 +104,6 @@ void EldoraPPI::productSlot(
     if (_paused)
         return;
     
-    if (_productCount < 700) {
-        _productCount++;
-        return;
-    }
-
     // if the product size has changed, reconfigure the ppi displays
     if (p.size() != _gates) {
         _gates = p.size();
