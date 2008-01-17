@@ -34,8 +34,10 @@ EldoraPPI::EldoraPPI(
     // Set up our form
     setupUi(parent);
 
-    _forManager.setup(ppiFor, 7, &_productMaps);
-    _aftManager.setup(ppiAft, 7, &_productMaps);
+    int decimation = _config.getInt("Decimation", 1);
+    
+    _forManager.setup(ppiFor, 7, &_productMaps, decimation);
+    _aftManager.setup(ppiAft, 7, &_productMaps, decimation);
     
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraPPI");
@@ -121,6 +123,8 @@ void EldoraPPI::productSlot(
         _aftManager.newProduct(p, elDegrees, index);
     }
 
+    // make sure that user interface events get handled.
+    QApplication::processEvents();
 }
 
 

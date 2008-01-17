@@ -20,7 +20,8 @@ class PPIManager {
         /// @param ppi The ppi display
         /// @param nProducts The number of products that we will be collecting
         /// @param colorMaps The color maps for each product
-        void setup(PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps);
+        /// @param decimation The gate decimation for the PPI
+        void setup(PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps, int decimation);
         /// Add a new data product. The data for product with index
         /// prodIndex are saved in the corresponding vector in _productData.
         /// When a complete set of products have been
@@ -55,6 +56,8 @@ class PPIManager {
         std::vector<ColorMap*>* _colorMaps;
         /// The current number of gates
         int _gates;
+        /// The gate decimation for PPI
+        int _decimation;
 };
 
 #endif /*PPIMANAGER_H_*/

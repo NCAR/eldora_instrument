@@ -3,15 +3,16 @@
 #include <iostream>
 /////////////////////////////////////////////////////////////////////////////
 PPIManager::PPIManager() :
-    _gates(0) {
+    _gates(0), _decimation(1) {
 }
 /////////////////////////////////////////////////////////////////////////////
 void PPIManager::setup(
-        PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps) {
+        PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps, int decimation) {
 
     _ppi = ppi;
     _nProducts = nProducts;
     _colorMaps = colorMaps;
+    _decimation = decimation;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,7 +61,7 @@ void PPIManager::configurePPI(
     if (gates == 0)
         distance = 100.0;
 
-    _ppi->configure(numProducts, _gates, beams, distance, 1);
+    _ppi->configure(numProducts, _gates, beams, distance, _decimation);
 
 }
 
