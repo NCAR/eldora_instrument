@@ -5,95 +5,174 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>877</height>
+    <width>662</width>
+    <height>884</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QHBoxLayout" >
    <property name="margin" >
     <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="1" column="1" >
-    <widget class="QGroupBox" name="aftGroupBox" >
-     <property name="title" >
-      <string>Aft</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <layout class="QHBoxLayout" >
+   <item>
+    <layout class="QGridLayout" >
      <property name="margin" >
       <number>0</number>
      </property>
      <property name="spacing" >
       <number>6</number>
      </property>
-     <item>
-      <widget class="PPI" name="ppiAft" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>3</hsizetype>
-         <vsizetype>3</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="1" column="1" >
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
        </property>
-       <property name="toolTip" >
-        <string>knob</string>
+       <property name="spacing" >
+        <number>6</number>
        </property>
-       <property name="whatsThis" >
-        <string>A knob that you can turn.</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QGroupBox" name="aftGroupBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Aft</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLCDNumber" name="aftElev" >
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item>
-      <widget class="ColorBar" name="colorBarAft" />
+     <item row="1" column="0" >
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="PPI" name="ppiAft" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>3</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>knob</string>
+         </property>
+         <property name="whatsThis" >
+          <string>A knob that you can turn.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ColorBar" name="colorBarAft" />
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0" >
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="PPI" name="ppiFor" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>3</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>knob</string>
+         </property>
+         <property name="whatsThis" >
+          <string>A knob that you can turn.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ColorBar" name="colorBarFor" />
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1" >
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="forwardGroupBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Forward</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLCDNumber" name="forElev" >
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
-   <item row="0" column="1" >
-    <widget class="QGroupBox" name="forwardGroupBox" >
-     <property name="title" >
-      <string>Forward</string>
+   <item>
+    <widget class="QPushButton" name="pause" >
+     <property name="text" >
+      <string>Pause</string>
+     </property>
+     <property name="checkable" >
+      <bool>true</bool>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
      </property>
     </widget>
-   </item>
-   <item row="0" column="0" >
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <item>
-      <widget class="PPI" name="ppiFor" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>3</hsizetype>
-         <vsizetype>3</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip" >
-        <string>knob</string>
-       </property>
-       <property name="whatsThis" >
-        <string>A knob that you can turn.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="ColorBar" name="colorBarFor" />
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

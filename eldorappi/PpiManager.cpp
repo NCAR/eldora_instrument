@@ -21,9 +21,11 @@ PPIManager::~PPIManager() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void PPIManager::newProduct(
+bool PPIManager::newProduct(
         std::vector<double> p, float elDegrees, int prodIndex) {
 
+    bool retval = false;
+    
     // See if we already have this product. If so, then we have dropped
     // one or more products, and need to start over.
     if (_currentProducts.find(prodIndex) != _currentProducts.end()) {
@@ -38,11 +40,25 @@ void PPIManager::newProduct(
 
     // if we have a complete set, send them to the display
     if (_currentProducts.size() == _nProducts) {
-        _ppi->addBeam(elDegrees-0.25, elDegrees + 0.25, _gates, _productData,
+        double startAng = elDegrees-0.45;
+        double stopAng = elDegrees+0.45;
+        if (startAng < 0.0) {
+            startAng += 360.0;
+            stopAng += 360.0;
+        } else {
+            if (stopAng >= 360.0) {
+                startAng -= 360.0;
+                stopAng -= 360.0;
+            }
+        }
+        _ppi->addBeam(startAng, stopAng, _gates, _productData,
                 1, *_colorMaps);
         // clear our collected products
         _currentProducts.clear();
+        // indicate that we completed a set
+        retval = true;
     }
+    return retval;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -64,8 +80,10 @@ void PPIManager::configurePPI(
     _ppi->configure(numProducts, _gates, beams, distance, _decimation);
 
 }
-
 /////////////////////////////////////////////////////////////////////////////
+void PPIManager::selectVar(int index) {
+    _ppi->selectVar(index);
+}
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 

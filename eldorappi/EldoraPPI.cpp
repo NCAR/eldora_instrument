@@ -34,6 +34,9 @@ EldoraPPI::EldoraPPI(
     // Set up our form
     setupUi(parent);
 
+    // configure pause
+    _paused = pause->isChecked();
+    
     int decimation = _config.getInt("Decimation", 1);
     
     _forManager.setup(ppiFor, 7, &_productMaps, decimation);
@@ -71,7 +74,7 @@ EldoraPPI::EldoraPPI(
     connect(&_aftButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeAftSlot(int)));
     
     //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
-    //    connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
+    connect(pause, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
 
     // set the checkbox selections
     //    _pauseButton->setChecked(false);
@@ -109,8 +112,8 @@ void EldoraPPI::productSlot(
     // if the product size has changed, reconfigure the ppi displays
     if (p.size() != _gates) {
         _gates = p.size();
-        _forManager.configurePPI(_productList.size(), _gates, 720);
-        _aftManager.configurePPI(_productList.size(), _gates, 720);
+        _forManager.configurePPI(_productList.size(), _gates, 400);
+        _aftManager.configurePPI(_productList.size(), _gates, 400);
     }
 
     // Map the product type into the zero based index for the PPIManager.
@@ -118,9 +121,13 @@ void EldoraPPI::productSlot(
     
     // senf the product to the appropriate ppi manager
     if (radarId == 0) {
-        _forManager.newProduct(p, elDegrees, index);
+        if (_forManager.newProduct(p, elDegrees, index)) {
+            forElev->display(elDegrees);
+        }
     } else {
-        _aftManager.newProduct(p, elDegrees, index);
+        if (_aftManager.newProduct(p, elDegrees, index)){
+            aftElev->display(elDegrees);
+        }
     }
 
     // make sure that user interface events get handled.
@@ -382,6 +389,9 @@ void EldoraPPI::productTypeForSlot(int id) {
     // get the _productsMap index
     int index = _productInfo[_prodTypeFor].getUserData();
     
+    // inform the display
+    _forManager.selectVar(index);
+    
     // configure the color bar with it
     colorBarFor->configure(*_productMaps[index]);
 }
@@ -392,6 +402,9 @@ void EldoraPPI::productTypeAftSlot(int id) {
     
     // get the _productsMap index
     int index = _productInfo[_prodTypeAft].getUserData();
+    
+    // inform the display
+    _aftManager.selectVar(index);
     
     // configure the color bar with it
     colorBarAft->configure(*_productMaps[index]);

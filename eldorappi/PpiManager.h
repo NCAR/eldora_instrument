@@ -30,14 +30,17 @@ class PPIManager {
         /// @param p Data for a single product
         /// @param elDegrees The elevation pointing angle
         /// @param prodIndex DEnotes which product in the display this belongs to.
-        void newProduct(std::vector<double> p, float elDegrees, int prodIndex);
+        /// @returns True if a complete set was assembled on this call.
+        bool newProduct(std::vector<double> p, float elDegrees, int prodIndex);
         /// Configure the PPI displays when there is a change in the operating
         /// configuration, such as the number of gates, etc.
         /// @param numProducts The number of products that the ppi will provide
         /// @param gates The number of gates in each beam
         /// @param beams The number of beams in the ppi
         void configurePPI(int numProducts, int gates, int beams);
-        
+        /// Select the product to display on the ppi
+        /// @param The product index, zero based.
+        void selectVar(int index);
     protected:
         /// The PPI component that we are managing.
         PPI* _ppi;
