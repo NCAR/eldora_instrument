@@ -284,7 +284,7 @@ static void * dataTask(
                     pPulse->abp.length(pABP->_abp.size());
                     
                     // simulate the elevation
-                    elevation[channel/2] += 0.5;
+                    elevation[channel/2] += 0.90;
                     if (elevation[channel/2] >= 360.0)
                         elevation[channel/2] -= 360.0;
                     pPulse->elDegrees = elevation[channel/2];
