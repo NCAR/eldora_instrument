@@ -181,9 +181,9 @@ void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
     QString angle;
-    angle.setNum(_forwardElevation, 'f', 4);
+    angle.setNum(_forwardElevation, 'f', 1);
     forElev->setText(angle);
-    angle.setNum(_aftElevation, 'f', 4);
+    angle.setNum(_aftElevation, 'f', 1);
     aftElev->setText(angle);
  
 }
