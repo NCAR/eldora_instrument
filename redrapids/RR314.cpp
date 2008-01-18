@@ -24,7 +24,7 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int prf,
         unsigned int dualPrt, unsigned int startGateIQ,
         unsigned int nGatesIQ, 
         std::string gaussianFile, std::string kaiserFile,
-        std::string xsvfFile, bool simulate,
+        std::string xsvfFile, bool simulate, int usleep,
         bool catchSignals)
 		throw(std::string) :
             _devNum(devNum), 
@@ -41,7 +41,8 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int prf,
             _simulate(simulate), 
             _catchSignals(catchSignals), 
 			_bufferNext(0), 
-			_running(false) 
+			_running(false),
+			_usleep(usleep)
 			{
 
 	// initalize threading constructs
@@ -113,7 +114,8 @@ RR314::RR314(int devNum, unsigned int gates, unsigned int prf,
 				_gates,
 				_startGateIQ,
 				_numIQ,
-				_samples);
+				_samples,
+				_usleep);
 		return;
 	}
 

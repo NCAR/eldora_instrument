@@ -13,9 +13,9 @@ void* RR314sim::simThread(void* threadArgs) {
 
 //////////////////////////////////////////////////////////////////////
 
-RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq, int nci) :
+RR314sim::RR314sim(RR314* pRR314, int gates, int startiq, int numiq, int nci, int usleep) :
     _pRR314(pRR314), _gates(gates), _startiq(startiq), _numiq(numiq),
-            _nci(nci), _pulseNum(0), _beamNum(0) {
+            _nci(nci), _pulseNum(0), _beamNum(0), _usleep(usleep) {
 
     // configure the dmaChan numbers which
     // will receive the IQ and ABP data
@@ -92,7 +92,7 @@ void RR314sim::simulate() {
             }
             _pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
         }
-        usleep(30000);
+        usleep(_usleep);
         _beamNum++;
     }
 }

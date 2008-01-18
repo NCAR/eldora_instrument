@@ -46,6 +46,7 @@ struct runParams {
         int pulsewidth; ///< the pulse width in ns. Must map to oe of the values in DDCregisters.h
         int prf; ///< the pulse repetition frequency, hz.
         bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
+        int usleep; ///< The usleep value for sleeps between frames
         std::string xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
         std::string kaiser; ///< path to a file containing coefficients for the kaiser filter.
         std::string gaussian; ///< path to a file containing coefficients for the gaussian filter.
@@ -87,6 +88,7 @@ struct runParams parseOptions(
     descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simulate", "run in simulation mode")
+    ("usleep", po::value<int>(&params.usleep)->default_value(50000),"usleep value for simulation")
     ("start0","start RR314 device 0")
     ("start1", "start RR314 device 1")
     ("gates",po::value<int>(&params.gates)->default_value(500), "number of gates")
@@ -475,6 +477,7 @@ int main(
                         params0.kaiser,
                         params0.xsvf,
                         params0.simulate,
+                        params0.usleep,
                         false              // do not catch signals in RR314; we will do that ourselves.
                 );
 
@@ -491,6 +494,7 @@ int main(
                         params1.kaiser,
                         params1.xsvf,
                         params1.simulate,
+                        params1.usleep,
                         false              // do not catch signals in RR314; we will do that ourselves
                 );
 

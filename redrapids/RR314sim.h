@@ -26,11 +26,13 @@ namespace RedRapids {
     /// @param startiq The starting gate for iq data.
     /// @param numiq The number of iq gates.
     /// @param nci The number of IQs that go into each ABP
+    /// @param usleep The usleep setting for sleeps between frames
     RR314sim(RedRapids::RR314* pRR314, 
 	     int gates, 
 	     int startiq, 
 	     int numiq, 
-	     int nci);
+	     int nci,
+	     int usleep);
     /// Destructor.
     virtual ~RR314sim();
     /// Start the simulation thread. 
@@ -64,6 +66,8 @@ namespace RedRapids {
     unsigned int _pulseNum;
     /// The beam number
     unsigned int _beamNum;
+    /// The usleep value
+    int _usleep;
 };
 }
 #endif

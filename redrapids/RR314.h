@@ -136,6 +136,7 @@ public:
 	/// @param kaiserFile The file of kaiser filter coefficients, blank if none.
 	/// @param xsvfFile The xsvfFile to be loaded. Blank if not to be loaded.
 	/// @param simulate Set true if simulation instead of real hardware
+    /// @param usleep The sleep value for the simulator, if in simulation mode
     /// @param catchSignals Set true if the class is supposed to catch signals and
     /// correctly shutdown the cards. If the user decides to catch signals 
     /// themself (by setting this to false), they MUST call RR314shutdown in order 
@@ -152,6 +153,7 @@ public:
 	        std::string kaiserFile, 
 	        std::string xsvfFile,
 	        bool simulate = false, 
+	        int usleep = 30000,
 	        bool catchSignals = true)
                 throw (std::string);
 
@@ -366,6 +368,9 @@ protected:
 	/// Set true if signal capture will be configured and 
 	/// managed within this class.
 	bool _catchSignals;
+	
+	/// The sleep value sent to the simulator when in simulation mode
+	int _usleep;
 };
 
 }
