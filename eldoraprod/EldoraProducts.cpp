@@ -106,10 +106,10 @@ void EldoraProducts::initProducts(EldoraDDS::Products* p) {
     p->p4Gain = 100.0;
     p->p4Offset = 32768.0;
     
-    p->dmGain = 100.0;
+    p->dmGain = 1000.0;
     p->dmOffset = 0.0;
     
-    p->dbzGain = 100.0;
+    p->dbzGain = 1000.0;
     p->dbzOffset = 0.0;
     
     p->vrGain = 100.0;
