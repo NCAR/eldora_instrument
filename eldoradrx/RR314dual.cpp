@@ -95,7 +95,7 @@ struct runParams parseOptions(
     ("numiq", po::value<int>(&params.numiq)->default_value(5),"number of gates for iq capture")
     ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500), 
             "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
-    ("prf", po::value<int>(&params.prf)->default_value(3400), "pulse repetition frequency")
+    ("prf", po::value<int>(&params.prf)->default_value(2500), "pulse repetition frequency")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
