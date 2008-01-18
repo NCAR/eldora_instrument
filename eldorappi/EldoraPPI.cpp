@@ -29,7 +29,8 @@
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
     QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
-    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false)
+    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false),
+    _forwardElevation(0.0), _aftElevation(0.0)
     {
     // Set up our form
     setupUi(parent);
@@ -86,7 +87,7 @@ EldoraPPI::EldoraPPI(
     initPlots();
 
     // start the statistics timer
-    startTimer(_statsUpdateInterval*1000);
+    startTimer(100);
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -119,19 +120,14 @@ void EldoraPPI::productSlot(
     // Map the product type into the zero based index for the PPIManager.
     int index = _productInfo[productType].getUserData();
     
-    // senf the product to the appropriate ppi manager
+    // send the product to the appropriate ppi manager
     if (radarId == 0) {
-        if (_forManager.newProduct(p, elDegrees, index)) {
-            forElev->display(elDegrees);
-        }
-    } else {
-        if (_aftManager.newProduct(p, elDegrees, index)){
-            aftElev->display(elDegrees);
-        }
+        if (_forManager.newProduct(p, elDegrees, index))
+        	_forwardElevation = elDegrees;
+    } else {  
+        if (_aftManager.newProduct(p, elDegrees, index))
+        	_aftElevation = elDegrees;
     }
-
-    // make sure that user interface events get handled.
-    QApplication::processEvents();
 }
 
 
@@ -184,6 +180,12 @@ void EldoraPPI::initPlots() {
 void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
+    QString angle;
+    angle.setNum(_forwardElevation, 'f', 4);
+    forElev->setText(angle);
+    angle.setNum(_aftElevation, 'f', 4);
+    aftElev->setText(angle);
+ 
 }
 
 //////////////////////////////////////////////////////////////////////
