@@ -258,6 +258,11 @@ static void * dataTask(
     TSWriter* tsWriter = pParams->tsWriter;
 
     float elevation[4] = {0.0, 0.0, 0.0, 0.0};
+    // the aft radar is 180 degrees different from the forward.
+    if (pParams->deviceNumber != 0) {
+        for (int i = 0; i < 4; i++)
+            elevation[i] = 180.0;
+    }
     
     ACE_Time_Value small(0, 100000);
 
@@ -281,6 +286,11 @@ static void * dataTask(
                 // an abp dmaChan
                 EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
                 if (pPulse) {
+                    // device 0 is the aft radar, 1 is fore
+                    pPulse->radarId =
+                    (pParams->deviceNumber == 0) ?
+                    EldoraDDS::Forward : EldoraDDS::Aft;
+                    
                     RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
                     pPulse->abp.length(pABP->_abp.size());
@@ -299,10 +309,6 @@ static void * dataTask(
                     }
                     // set the timestamp
                     pPulse->timestamp = pABP->pulseCount;
-                    // device 0 is the aft radar, 1 is fore
-                    pPulse->radarId =
-                    (pParams->deviceNumber == 0) ?
-                    EldoraDDS::Forward : EldoraDDS::Aft;
 
                     // send the pulse to the pulse publisher
                     pulseWriter->publishItem(pPulse);
