@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
-    <height>884</height>
+    <width>721</width>
+    <height>971</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -51,15 +51,121 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="forElev" >
-         <property name="text" >
-          <string>0.0</string>
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string/>
          </property>
-         <property name="textFormat" >
-          <enum>Qt::PlainText</enum>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="forElev" >
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1" >
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="aftGroupBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <property name="title" >
+          <string>Aft</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string/>
+         </property>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="aftElev" >
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0" >
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="PPI" name="ppiFor" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>3</hsizetype>
+           <vsizetype>3</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>knob</string>
+         </property>
+         <property name="whatsThis" >
+          <string>A knob that you can turn.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ColorBar" name="colorBarFor" >
+         <property name="minimumSize" >
+          <size>
+           <width>60</width>
+           <height>100</height>
+          </size>
          </property>
         </widget>
        </item>
@@ -92,76 +198,14 @@
         </widget>
        </item>
        <item>
-        <widget class="ColorBar" name="colorBarAft" />
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="1" >
-      <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QGroupBox" name="aftGroupBox" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>5</hsizetype>
-           <vsizetype>3</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title" >
-          <string>Aft</string>
+        <widget class="ColorBar" name="colorBarAft" >
+         <property name="minimumSize" >
+          <size>
+           <width>60</width>
+           <height>100</height>
+          </size>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="aftElev" >
-         <property name="text" >
-          <string>0.0</string>
-         </property>
-         <property name="textFormat" >
-          <enum>Qt::PlainText</enum>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="0" >
-      <layout class="QHBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="PPI" name="ppiFor" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>3</hsizetype>
-           <vsizetype>3</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip" >
-          <string>knob</string>
-         </property>
-         <property name="whatsThis" >
-          <string>A knob that you can turn.</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="ColorBar" name="colorBarFor" />
        </item>
       </layout>
      </item>
