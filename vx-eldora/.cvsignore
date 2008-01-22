@@ -1,0 +1,9 @@
+.sconsign*
+config
+config.py
+lib
+# Eclipse-generated files
+.cdtproject
+.project
+.pydevproject
+.settings
