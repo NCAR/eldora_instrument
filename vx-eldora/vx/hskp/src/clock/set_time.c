@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.4  2005/08/04 22:27:38  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.3  1994/05/20  20:36:42  craig
  * *** empty log message ***
  *
@@ -28,7 +33,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "hskpAll.h"
 
 
-void set_time(char hour,char minute,char second,char month,char day0,char year)
+void set_time(short hour, short minute, short second, short month, short day0,
+              short year)
 {
 /***** Stop clock. Leave in 24 hr mode **********/
 
