@@ -1,0 +1,178 @@
+# -*- python -*-
+# script to build eldora library
+import os
+
+Import('env')
+env = env.Copy()
+
+s = {}
+
+s['arinc429'] = """
+convert_iru.c
+init_iru.c
+iru_menu.c
+start_iru.c
+"""
+
+#s['clk'] = """
+#clock_menu.c
+#get_time.c
+#get_year.c
+#init_clock.c
+#send_packet.c
+#set_time.c
+#start_clock.c
+#"""
+
+s['clock'] = """
+get_time.c
+init_clock.c
+read_data.c
+set_time.c
+start_clock.c
+sync_irig.c
+tod_menu.c
+view_time.c
+write_data.c
+"""
+
+s['ecb'] = """
+dpclr.c
+ecb_menu.c
+ecbClrFifos.c
+ecbCmpltIsr.c
+ecbErrorIsr.c
+ecbGetBusStat.c
+ecbGetDDSool.c
+ecbGetTsami.c
+ecbGetTsamr.c
+ecbGiveSem.c
+ecbIntInit.c
+ecbSetAtten.c
+ecbSetDDS.c
+ecbSetDDSfloat.c
+ecbSetDivN.c
+ecbSetIF.c
+ecbSetMux.c
+ecbShowBim.c
+ecbShowBusStat.c
+ecbShowDDSool.c
+ecbShowLast.c
+ecbShowMstat.c
+ecbShowRpc.c
+ecbShowTempi.c
+ecbShowTempr.c
+fifotst1.c
+go11.c
+ldsrec.c
+stop11.c
+"""
+
+s['gps'] = """
+command_gps.c
+gps_isr.c
+gps_menu.c
+init_gps.c
+"""
+
+s['main'] = """
+globals.c
+hostStartup.c
+hskp.c
+main_menu.c
+start_testpulse.c
+startup.cc
+sum_testpulse.c
+update_testpulse.c
+"""
+
+s['minirims'] = """
+command_mini.c
+init_mini.c
+mini_isr.c
+mini_menu.c
+"""
+
+s['motor'] = """
+get_pos.c
+go_motor.c
+goto_pos.c
+init_motor.c
+just_set_vel.c
+motor_menu.c
+pos_loop.c
+read_reg.c
+read_rpm.c
+set_vel.c
+stop_motor.c
+test_pos.c
+trap_pos.c
+write_reg.c
+"""
+
+s['power'] = """
+fltpt.c
+init_dma.c
+init_gpib.c
+init_ieee.c
+init_isr_vecs.c
+init_ptrs.c
+lab_test.c
+listen.c
+pgm_rt.c
+pwrmenu.c
+ReadStatusByte.c
+ReceiveData.c
+Return_to_Local.c
+send_cmnd_string.c
+start_ieee.c
+stop_ieee.c
+talk.c
+test_pwr.c
+testp_err_isr.c
+testp_norm_isr.c
+testp_rt.c
+xmit_err_isr.c
+xmit_norm_isr.c
+xmit_rt.c
+"""
+
+s['tp41'] = """
+hskpIntInit.c
+"""
+
+s['vmevme'] = """
+fill_nav_info.c
+fill_platform.c
+init_vmevme.c
+midbeam.c
+start_vmevme.c
+stop_vmevme.c
+vmevme_isr.c
+vmevme_menu.c
+"""
+
+sources = []
+for k in s.keys():
+    sources += [ os.path.join(k, p) for p in Split(s[k]) ]
+
+env.AppendUnique(CPPDEFINES = ['USE_ANSI'])
+env.Append(CPPPATH = Split("""
+#/vx/hskp/include
+#/rpc/include
+#/vx/minirims/include
+$COMMONS/include
+"""))
+
+objs = env.StaticObject(sources)
+objs += ["#/vx/vmevme_int/sendInt.o"]
+
+env.Append (LIBPATH = ["$COMMONS/lib/vxworks"])
+env.Append (LIBS = ["Net", "VxHeader", "tp41"])
+
+# -X discards temporary locals
+# -Ur builds global constructor/destructor tables
+env.Append(LINKFLAGS=["-Wl,-X,-Ur"])
+housekeeper = env.Program("bin/housekeeper.o", objs)
+
+Default(housekeeper)

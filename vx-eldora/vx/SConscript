@@ -2,7 +2,9 @@
 # $Id$
 dirs = Split(
 """
-src
+hskp
+tp41
+vmevme_int
 """)
 
 SConscript(dirs=dirs)

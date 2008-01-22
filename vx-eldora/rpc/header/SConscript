@@ -1,0 +1,9 @@
+Import('env')
+
+sources = Split("""
+Header.cc
+""")
+
+l = env.Library("VxHeader", sources)
+li = env.InstallLibrary(l)
+Default(li)

@@ -1,0 +1,18 @@
+# -*- python -*-
+# script to build eldora library
+
+Import('env')
+
+sources = Split("""
+getInt.c
+sendInt.c
+""")
+
+env.Append (CPPPATH = Split("""
+#/rpc/include
+../hskp/include
+"""))
+
+objs = env.StaticObject(sources)
+
+Default(objs)
