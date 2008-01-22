@@ -47,7 +47,9 @@ In /opt/local/m68k-wrs-vxworks/bin, I created links from the fully
 qualified program names (eg, m68k-wrs-vxworks-gcc) to the shortened form
 hardcoded in the makefiles, mostly ld68k and gcc68k.
 
-(2008/01/15) There is now a dummy libm.a created like this:
+=== (2008/01/15 cb) ===================
+
+There is now a dummy libm.a created like this:
 
     $ /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-ar -crv \
       /opt/local/m68k-wrs-vxworks/lib/gcc-lib/m68k-wrs-vxworks/2.95.3/libm.a
@@ -62,6 +64,28 @@ that provided this fix:
 
 I edited ~eldora/.bashrc to add the /opt/local/m68k-wrs-vxworks/bin
 directory to the path.
+
+Also, libstdc++.a is missing a C++ binding for __cvt_double() which is
+required by some standard stream I/O stuff (the undefined symbol is
+___cvt_double__FdiiPiiPcT5).  The symbol has been added to the library via 
+brute force using this small C source file __cvt_double__FdiiPiiPcT5.c:
+
+    int __cvt_double__FdiiPiiPcT5(double number, register int prec, int flags, 
+                                  int *signp, int fmtch, char *startp, 
+                                  char *endp)
+    {
+        __cvt_double(number, prec, flags, signp, fmtch, startp, endp);
+    }
+
+compiled with the cross-compiler, then added to libstdc++.a:
+
+  $ /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-gcc -c \
+    __cvt_double__FdiiPiiPcT5.c
+  $ /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-ar r libstdc++.a \
+    __cvt_double__FdiiPiiPcT5.o
+  $ /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-ranlib libstdc++.a
+
+=== (end 2008/01/15 cb) ===================
 
 I checked out the /code/cvs/vx-eldora tree into ~eldora/vx-eldora and tried
 a make in vx/hskp/src.  However there are a few errors thanks the
@@ -175,6 +199,9 @@ removed doc/logs and doc/specs
 move *.skel into doc/skel
 
 remove $Log$
+remove Revision 1.5  2008/01/16 21:49:06  burghart
+remove Added more notes on g++ linking and libm.
+remove
 remove Revision 1.4  2008/01/16 00:24:43  burghart
 remove Added a note about creating a dummy libm.a to make g++ cross-compiler linking happy.
 remove
