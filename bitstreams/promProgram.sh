@@ -7,7 +7,7 @@ echo -n "Enter the bitstream file name: "
 read -e bitstream
 
 echo " "
-echo "Programming device $dev with bisteram $bitstream"
+echo "Programming device $dev with bitstream $bitstream"
 echo " "
 echo "*** Warning, the prom programming may appear to hang the system for 2 minutes."
 echo " "
