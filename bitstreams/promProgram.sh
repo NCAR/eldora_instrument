@@ -16,6 +16,6 @@ echo " "
    -prom -xsvf $bitstream
    
 echo " "
-echo "*** Note - you must reboot the system in order to load the new PROM bitstream into the FPGA."
+echo "*** Note - you must power cycle the system in order to load the new PROM bitstream into the FPGA."
 
 
