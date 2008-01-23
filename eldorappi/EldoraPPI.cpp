@@ -38,11 +38,6 @@ EldoraPPI::EldoraPPI(
     // configure pause
     _paused = pause->isChecked();
     
-    int decimation = _config.getInt("Decimation", 1);
-    
-    _forManager.setup(ppiFor, 7, &_productMaps, decimation);
-    _aftManager.setup(ppiAft, 7, &_productMaps, decimation);
-    
     // get our title from the coniguration
     std::string title = _config.getString("title", "EldoraPPI");
     title += " ";
@@ -86,6 +81,22 @@ EldoraPPI::EldoraPPI(
     // initialize the book keeping for the ppi displays.
     initPlots();
 
+    // configure the displays themselves.
+    int decimation = _config.getInt("Decimation", 1);
+    _forManager.setup(ppiFor, 7, &_productMaps, decimation);
+    _aftManager.setup(ppiAft, 7, &_productMaps, decimation);
+    
+    // run through all of the product types and configure the 
+    // the for and aft displays.
+    for (std::set<PRODUCT_TYPES>::iterator i = _productList.begin(); 
+    i != _productList.end(); i++){
+        productTypeForSlot(*i);
+        productTypeAftSlot(*i);
+    }
+    // and then set the initial display
+    productTypeForSlot(PROD_DBZ);
+    productTypeAftSlot(PROD_DBZ);
+   
     // start the statistics timer
     startTimer(100);
 
@@ -230,17 +241,21 @@ void EldoraPPI::setProductInfo(
         PRODUCT_TYPES t, int index, std::string key, std::string shortName,
         std::string longName, double defaultScaleMin, double defaultScaleMax,
         bool setChecked) {
-    // create the configuration keys
+    
+    // Add this product to our list of products. The set
+    // will allow for rapid determination of whther a product is one 
+    // that we want.
+    _productList.insert(t);
+    
+    // create the configuration key names
     std::string minKey = key;
     minKey += "/min";
-
     std::string maxKey = key;
     maxKey += "/max";
-
     std::string mapKey = key;
     mapKey += "/colorMap";
 
-    // get the configuration values
+    // get the product configuration values
     double min = _config.getDouble(minKey, defaultScaleMin);
     double max = _config.getDouble(maxKey, defaultScaleMax);
     std::string mapName = _config.getString(mapKey, "default");
@@ -248,15 +263,18 @@ void EldoraPPI::setProductInfo(
         mapName = "default";
     }
 
-    _productList.insert(t);
-    // set the ppi configuration
+    // Now initialize  all of the configuration information for this product.
     _productInfo[t]
             = ProductInfo(t, index, key, shortName, longName, mapName, min, max);
 
+    // synchronoze the configuration. But why here?
     _config.sync();
 
-    // Assign the color map, by copying one of our base maps.
+    // Put a new map into the color map vector. Remember that the 
+    // location of the color map in _productMaps will correspond
+    // to the product entry in _productList
     ColorMap* map = new ColorMap(_colorMaps[mapName]);
+    map->setRange(min, max);
     _productMaps.push_back(map);
 
     // create the product selection buttons, forward and aft
