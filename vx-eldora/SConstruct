@@ -23,7 +23,6 @@ Export('env')
 dirs = Split("""
 vx
 rpc/header
-test
 """)
     
 SConscript(dirs = dirs)
