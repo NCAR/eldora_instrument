@@ -70,7 +70,7 @@ entity ChannelAdapter_Top is
       adcd_or :         in std_logic;    -- ADC D over range, Active High
 		
 		-- GPIO
-		gpio :				out std_logic_vector(3 downto 0));
+		gpio :				in std_logic_vector(3 downto 0));
 		
 end ChannelAdapter_Top;           
                     
@@ -695,28 +695,28 @@ begin
 	SVN_Revision_Reg: Revision_Reg PORT MAP(
 	    Revision_Number => svn_rev_reg);
 	
---	-- ==== GPIO =====================================================================
---	IBUF_3 : IBUF PORT MAP (
---      O => gpio_buf(3), -- Buffer output
---      I => gpio(3));    -- Buffer input (connect directly to top-level port)
---	
---	IBUF_2 : IBUF PORT MAP (
---      O => gpio_buf(2), -- Buffer output
---      I => gpio(2));    -- Buffer input (connect directly to top-level port)
---		
---	IBUF_1 : IBUF PORT MAP (
---      O => gpio_buf(1), -- Buffer output
---      I => gpio(1));    -- Buffer input (connect directly to top-level port)
---		
---	IBUF_0 : IBUF PORT MAP (
---      O => gpio_buf(0), -- Buffer output
---      I => gpio(0));    -- Buffer input (connect directly to top-level port)
---	
 	-- ==== GPIO =====================================================================
-	gpio(3) <= cha_gate_in(1);
-	gpio(2) <= cha_gate_in(0);
-	gpio(1) <= cha_gate_out(1);
-	gpio(0) <= cha_gate_out(0);
+	IBUF_3 : IBUF PORT MAP (
+      O => gpio_buf(3), -- Buffer output
+      I => gpio(3));    -- Buffer input (connect directly to top-level port)
+	
+	IBUF_2 : IBUF PORT MAP (
+      O => gpio_buf(2), -- Buffer output
+      I => gpio(2));    -- Buffer input (connect directly to top-level port)
+		
+	IBUF_1 : IBUF PORT MAP (
+      O => gpio_buf(1), -- Buffer output
+      I => gpio(1));    -- Buffer input (connect directly to top-level port)
+		
+	IBUF_0 : IBUF PORT MAP (
+      O => gpio_buf(0), -- Buffer output
+      I => gpio(0));    -- Buffer input (connect directly to top-level port)
+	
+--	-- ==== GPIO =====================================================================
+--	gpio(3) <= cha_gate_in(1);
+--	gpio(2) <= cha_gate_in(0);
+--	gpio(1) <= cha_gate_out(1);
+--	gpio(0) <= cha_gate_out(0);
 	
 	-- ===== Analog Sample Clk DCM ====================================================
 	--This DCM is used for the incomming LVDS ADC sample clock.  
@@ -1348,21 +1348,21 @@ begin
 		else
 			status_reg(31 downto 20) <= (others => '0');
 			status_reg(30)   <= DMA_Interrupt_Status;  --DMA core already has it sticky
-			status_reg(29 downto 20) <= (others => '0');
-			--status_reg(29 downto 24) <= (others => '0');
-			--status_reg(23)   <= a_sync_error or status_reg(23);  --Sync Errors
-			--status_reg(22)   <= b_sync_error or status_reg(22);
-			--status_reg(21)   <= c_sync_error or status_reg(21);
-			--status_reg(20)   <= d_sync_error or status_reg(20);
+			--status_reg(29 downto 20) <= (others => '0');
+			status_reg(29 downto 24) <= (others => '0');
+			status_reg(23)   <= a_sync_error or status_reg(23);  --Sync Errors
+			status_reg(22)   <= b_sync_error or status_reg(22);
+			status_reg(21)   <= c_sync_error or status_reg(21);
+			status_reg(20)   <= d_sync_error or status_reg(20);
 			status_reg(19)   <= '0'; 						 --Wr after FF Full
- 			status_reg(18)   <= a_sync_error or status_reg(23);  --Sync Errors
-			status_reg(17)   <= b_sync_error or status_reg(22);
-			status_reg(16)   <= c_sync_error or status_reg(21);
-			status_reg(15)   <= d_sync_error or status_reg(20);
-			--status_reg(18)   <= ((ffa0_full and ffa0_wr) or (ffa1_full and ffa1_wr)) or status_reg(18);
-			--status_reg(17)   <= ((ffb0_full and ffb0_wr) or (ffb1_full and ffb1_wr)) or status_reg(17);
-			--status_reg(16)   <= ((ffc0_full and ffc0_wr) or (ffc1_full and ffc1_wr)) or status_reg(16);
-			--status_reg(15)   <= ((ffd0_full and ffd0_wr) or (ffd1_full and ffd1_wr)) or status_reg(15);
+ 			--status_reg(18)   <= a_sync_error or status_reg(23);  --Sync Errors
+			--status_reg(17)   <= b_sync_error or status_reg(22);
+			--status_reg(16)   <= c_sync_error or status_reg(21);
+			--status_reg(15)   <= d_sync_error or status_reg(20);
+			status_reg(18)   <= ((ffa0_full and ffa0_wr) or (ffa1_full and ffa1_wr)) or status_reg(18);
+			status_reg(17)   <= ((ffb0_full and ffb0_wr) or (ffb1_full and ffb1_wr)) or status_reg(17);
+			status_reg(16)   <= ((ffc0_full and ffc0_wr) or (ffc1_full and ffc1_wr)) or status_reg(16);
+			status_reg(15)   <= ((ffd0_full and ffd0_wr) or (ffd1_full and ffd1_wr)) or status_reg(15);
 			status_reg(14)   <= '0'; 						--Fifos full
 			status_reg(13)   <= ffa0_full or ffa1_full or status_reg(13);
 			status_reg(12)   <= ffb0_full or ffb1_full or status_reg(12);
