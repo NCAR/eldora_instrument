@@ -22,7 +22,7 @@ PPIManager::~PPIManager() {
 
 /////////////////////////////////////////////////////////////////////////////
 bool PPIManager::newProduct(
-        std::vector<double> p, float elDegrees, int prodIndex) {
+        std::vector<double>& p, float elDegrees, int prodIndex) {
 
     bool retval = false;
     

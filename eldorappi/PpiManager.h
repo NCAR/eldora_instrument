@@ -31,7 +31,7 @@ class PPIManager {
         /// @param elDegrees The elevation pointing angle
         /// @param prodIndex DEnotes which product in the display this belongs to.
         /// @returns True if a complete set was assembled on this call.
-        bool newProduct(std::vector<double> p, float elDegrees, int prodIndex);
+        bool newProduct(std::vector<double>& p, float elDegrees, int prodIndex);
         /// Configure the PPI displays when there is a change in the operating
         /// configuration, such as the number of gates, etc.
         /// @param numProducts The number of products that the ppi will provide

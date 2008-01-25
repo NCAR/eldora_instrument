@@ -65,9 +65,11 @@ emit                                 				tsGateList(_gates, firstgate);
 						I.resize(tsLen/2);
 						Q.resize(tsLen/2);
 						// extract IQ for the seleced time series within the block of IQ data
+						double* pI = &I[0];
+						double* pQ = &Q[0];
 						for (unsigned int i = 0; i < tsLen/2; i++) {
-							I[i] = pItem->tsdata[s*tsLen + 2*i ];
-							Q[i] = pItem->tsdata[s*tsLen + 2*i+1];
+							pI[i] = pItem->tsdata[s*tsLen + 2*i ];
+							pQ[i] = pItem->tsdata[s*tsLen + 2*i+1];
 						}
 						// send the IQ beam to our client.
 emit                                                     						newData(I, Q, 1.0, 100.0);

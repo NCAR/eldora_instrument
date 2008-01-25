@@ -64,8 +64,9 @@ void EldoraQtProductsSource::notify() {
                             P.resize(pItem->dbz.length());
                         }
                         // copy all P in the beam.
+                        double* pP = &P[0];
                         for (unsigned int i = 0; i < productSize; i++) {
-                            P[i] = (product[i] + offset)/gain;
+                            pP[i] = (product[i] + offset)/gain;
                         }
                         // send the Pbeam to our client.
                         emit newPData(P, pItem->radarId, pItem->elDegrees, *prodType);
