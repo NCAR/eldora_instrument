@@ -10,6 +10,7 @@ def Eldora(env):
     if env['CC'] == "gcc":
         env.Append(_LIBFLAGS=['-lpthread'])
         env.Append(CCFLAGS='-fmessage-length=0')
+        env.Append(CCFLAGS='-O2')
     else:
         env.Append(CCFLAGS=['/EHsc','/MDd','/GR','/GX'])
         env.PassEnv(r'VC.*')
