@@ -37,3 +37,8 @@ SConscript('testdds/SConscript')
 
 # Tom's original code
 SConscript('tmp/SConscript')
+
+options = env.GlobalOptions()
+options.Update(env)
+Help(options.GenerateHelpText(env))
+
