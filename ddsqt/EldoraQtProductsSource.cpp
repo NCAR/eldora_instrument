@@ -44,6 +44,7 @@ void EldoraQtProductsSource::notify() {
             break;
         }
 
+        unsigned int productSize = pItem->dbz.length();
         if (_radarChoices == RADAR_BOTH || _radarChoices == thisRadar) {
 
             for (std::set<PRODUCT_TYPES>::iterator prodType = _productChoices.begin(); 
@@ -58,10 +59,12 @@ void EldoraQtProductsSource::notify() {
                 switch (_gateMode) {
                 case ALONG_BEAM:
                     if (_capture) {
-                        // resize the vectors to carry the beam of product data
-                        P.resize(pItem->dbz.length());
+                        if (productSize != P.size()) {
+                            // resize the vectors to carry the beam of product data
+                            P.resize(pItem->dbz.length());
+                        }
                         // copy all P in the beam.
-                        for (unsigned int i = 0; i < pItem->dbz.length(); i++) {
+                        for (unsigned int i = 0; i < productSize; i++) {
                             P[i] = (product[i] + offset)/gain;
                         }
                         // send the Pbeam to our client.
