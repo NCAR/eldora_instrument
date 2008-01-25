@@ -14,27 +14,28 @@ iru_menu.c
 start_iru.c
 """
 
-#s['clk'] = """
-#clock_menu.c
-#get_time.c
-#get_year.c
-#init_clock.c
-#send_packet.c
-#set_time.c
-#start_clock.c
-#"""
-
-s['clock'] = """
+s['clk'] = """
+clock_menu.c
 get_time.c
+get_year.c
 init_clock.c
-read_data.c
+send_packet.c
 set_time.c
 start_clock.c
 sync_irig.c
-tod_menu.c
-view_time.c
-write_data.c
 """
+
+#s['clock'] = """
+#get_time.c
+#init_clock.c
+#read_data.c
+#set_time.c
+#start_clock.c
+#sync_irig.c
+#tod_menu.c
+#view_time.c
+#write_data.c
+#"""
 
 s['ecb'] = """
 dpclr.c
