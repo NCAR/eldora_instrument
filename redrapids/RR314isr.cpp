@@ -156,20 +156,29 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
     
 	//Check for Timing Synchronization Errors
 	if (Status & A_SYNC_ERROR) {
-		std::cout << "Timing Sync Error on Channel A - Must Restart Processors to Recover.\n";
+		printf("Timing Sync Error on Device %i Channel A\n");//, pRR314._devNum);
+				//pRR314._devNum);
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
+		pRR314->RR314shutdown();
 	}
 	if (Status & B_SYNC_ERROR) {
-		std::cout << "Timing Sync Error on Channel B - Must Restart Processors to Recover.\n";
+		printf("Timing Sync Error on Device %i Channel B\n");//, pRR314._devNum);
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
+		pRR314->RR314shutdown();
 	}
 	if (Status & C_SYNC_ERROR) {
-		std::cout << "Timing Sync Error on Channel C - Must Restart Processors to Recover.\n";
+		printf("Timing Sync Error on Device %i Channel C\n");//, pRR314._devNum);
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";		
 		//Shutdown
+		pRR314->RR314shutdown();
 	}
 	if (Status & D_SYNC_ERROR) {
-		std::cout << "Timing Sync Error on Channel D - Must Restart Processors to Recover.\n";
+		printf("Timing Sync Error on Device %i Channel D\n");//, pRR314._devNum);
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";				
 		//Shutdown
+		pRR314->RR314shutdown();
 	}
 	
 	/// @todo if any of the a/ds had full fifos, then

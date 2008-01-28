@@ -113,8 +113,8 @@
 
 //-------------------------------
 //Added by Tom 1-3-08 for timing error detection 
-//Bits 9-6 of status register corresponde to sync error for channel A-D
-#define A_SYNC_ERROR (0x1<<9)
-#define B_SYNC_ERROR (0x1<<8)
-#define C_SYNC_ERROR (0x1<<7)
-#define D_SYNC_ERROR (0x1<<6)
+//Bits 23-20 of status register corresponde to sync error for channel A-D
+#define A_SYNC_ERROR (0x1<<23)
+#define B_SYNC_ERROR (0x1<<22)
+#define C_SYNC_ERROR (0x1<<21)
+#define D_SYNC_ERROR (0x1<<20)

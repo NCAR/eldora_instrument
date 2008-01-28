@@ -400,14 +400,18 @@ int RR314::configure314() {
 	Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 	sleep(1);
 	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
+		
 	
 	// reset Pulse Pair Processor
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
 	sleep(1);
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
+	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
+	
 	
 	// Select Timing Source Internal/External
 	Adapter_Write32(&_chanAdapter, V4, TIMING_SEL, INTERNAL_TIMING);
+	
 	
 	//Enable GPIO
 	Adapter_Write32(&_chanAdapter, BRIDGE, BRG_GPIO_ADR, BRG_M314GPIO_EN);
@@ -789,20 +793,6 @@ bool RR314::timerInit() {
 	printf("PRT Period     (us) = %f\n", float(1.0/_prf*1.0e6));
 	printf("Data Rate (MHz)     = %f\n", float(8.0/decimationFactor));
 	
-	//printf("Gates = %d, Samples = %d, Dual Prt = %d\n", _gates, _samples, _dualPrt);
-	//printf("IQ Start Gate = %d, IQ Gate Length = %d\n", _startGateIQ, _numIQ);
-	//printf("Pulse Width = %d, Decimation Factor = %d\n", _pulsewidth, decimationFactor);
-
-	// Reset Timers
-	Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0); // Enable Timer
-	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
-	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG|TIMER0|TIMER1|TIMER2|TIMER3); // Control Register
-	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Address Timer 0
-	Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG |TIMER0|TIMER1|TIMER2|TIMER3); // Mult PRT Register Timer 0
-	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn on Write Strobes
-
 	// Gating Timer Setup
 	unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
 	//printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
