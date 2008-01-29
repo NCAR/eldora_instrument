@@ -285,11 +285,9 @@ BEGIN SCHEMATIC
         SIGNAL TimerDataIn(31:0)
         SIGNAL WR
         SIGNAL AddrOutTimer(2:0)
-        SIGNAL TimerClk
         SIGNAL GlobalEnable
         SIGNAL Addr_Trigger
         SIGNAL OnePPS_Trigger
-        SIGNAL XLXN_6518(31:0)
         SIGNAL xv2_reset_l
         SIGNAL xv2_haclk
         SIGNAL xuser_clk
@@ -311,7 +309,6 @@ BEGIN SCHEMATIC
         SIGNAL XLXN_1115
         SIGNAL XLXN_1429
         SIGNAL xexep_p33
-        SIGNAL XLXN_6551
         SIGNAL XLXN_6557
         SIGNAL XLXN_6556
         SIGNAL UserClkFB
@@ -444,16 +441,11 @@ BEGIN SCHEMATIC
         SIGNAL xexep_n34
         SIGNAL xexep_p34
         SIGNAL xexep_p31
-        SIGNAL XLXN_8648(31:0)
-        SIGNAL XLXN_8649(31:0)
-        SIGNAL XLXN_8650(31:0)
-        SIGNAL XLXN_8651(31:0)
-        SIGNAL XLXN_8652(31:0)
-        SIGNAL XLXN_8653(31:0)
-        SIGNAL XLXN_8654(31:0)
-        SIGNAL XLXN_8656(31:0)
         SIGNAL XLXN_8657(31:0)
         SIGNAL XLXN_8658(31:0)
+        SIGNAL XLXN_6551
+        SIGNAL TimerClk
+        SIGNAL TimerClkFB
         PORT BiDirectional xv2_l2dat(7:0)
         PORT BiDirectional xv2_l3dat(7:0)
         PORT BiDirectional xv2_l0dat(7:0)
@@ -629,7 +621,7 @@ BEGIN SCHEMATIC
             LINE N 0 -32 64 -32 
         END BLOCKDEF
         BEGIN BLOCKDEF macro_virtex2_rev2
-            TIMESTAMP 2002 10 8 22 18 10
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -640 320 0 
             LINE N 64 -608 0 -608 
             LINE N 64 -544 0 -544 
@@ -716,7 +708,7 @@ BEGIN SCHEMATIC
             LINE N 0 -128 64 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF BiDir8
-            TIMESTAMP 2002 12 27 23 36 55
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -727,7 +719,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 272 -76 336 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF BiDir32
-            TIMESTAMP 2002 12 27 23 35 52
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -738,7 +730,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 272 -76 336 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF BWTitle
-            TIMESTAMP 2003 2 10 19 1 56
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N -176 -176 -1204 -176 
             BEGIN LINE W -1200 -212 -1200 -320 
             END LINE
@@ -763,7 +755,7 @@ BEGIN SCHEMATIC
             LINE N -240 -128 -208 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF sfifo1k16
-            TIMESTAMP 2007 12 17 19 30 26
+            TIMESTAMP 2008 1 29 15 28 42
             RECTANGLE N 32 0 352 448 
             BEGIN LINE W 0 48 32 48 
             END LINE
@@ -779,7 +771,7 @@ BEGIN SCHEMATIC
             END LINE
         END BLOCKDEF
         BEGIN BLOCKDEF LtoF16
-            TIMESTAMP 2003 2 11 21 4 46
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -320 384 0 
             LINE N 64 -288 0 -288 
             LINE N 64 -224 0 -224 
@@ -794,7 +786,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 384 -172 448 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF F16toL
-            TIMESTAMP 2003 2 11 21 5 6
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -448 348 -128 
             LINE N 64 -416 0 -416 
             LINE N 64 -352 0 -352 
@@ -809,7 +801,7 @@ BEGIN SCHEMATIC
             LINE N 352 -288 416 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF slavebusint
-            TIMESTAMP 2003 2 20 20 9 58
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N 64 368 0 368 
             RECTANGLE N 0 356 64 380 
             LINE N 64 448 0 448 
@@ -911,7 +903,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -24 464 1584 
         END BLOCKDEF
         BEGIN BLOCKDEF afifo1k64
-            TIMESTAMP 2007 12 17 19 32 17
+            TIMESTAMP 2008 1 29 15 29 42
             RECTANGLE N 32 0 352 448 
             LINE N 192 448 192 480 
             BEGIN LINE W 0 48 32 48 
@@ -930,7 +922,7 @@ BEGIN SCHEMATIC
             END LINE
         END BLOCKDEF
         BEGIN BLOCKDEF ltof64
-            TIMESTAMP 2003 2 11 20 49 58
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -320 384 0 
             LINE N 64 -288 0 -288 
             LINE N 64 -224 0 -224 
@@ -945,7 +937,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 384 -172 448 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF f64tol
-            TIMESTAMP 2003 2 11 20 49 32
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -448 348 -128 
             LINE N 64 -416 0 -416 
             LINE N 64 -352 0 -352 
@@ -960,7 +952,7 @@ BEGIN SCHEMATIC
             LINE N 352 -288 416 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF bwInfo
-            TIMESTAMP 2003 2 12 19 32 14
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N -160 -48 -1200 -48 
             BEGIN LINE W -1200 -320 -160 -320 
             END LINE
@@ -978,7 +970,7 @@ BEGIN SCHEMATIC
             LINE N -448 -48 -448 0 
         END BLOCKDEF
         BEGIN BLOCKDEF SDtoF64
-            TIMESTAMP 2003 2 21 1 23 42
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -24 624 544 
             LINE N 64 80 0 80 
             LINE N 64 128 0 128 
@@ -1011,7 +1003,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 624 228 688 252 
         END BLOCKDEF
         BEGIN BLOCKDEF F64toSD
-            TIMESTAMP 2003 2 21 2 17 26
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -32 608 496 
             LINE N 64 0 0 0 
             LINE N 64 176 0 176 
@@ -1054,7 +1046,7 @@ BEGIN SCHEMATIC
             CIRCLE N 40 -76 64 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF bidir16en
-            TIMESTAMP 2003 2 17 5 3 22
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -1066,7 +1058,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 0 -172 64 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF bidir32en
-            TIMESTAMP 2003 2 17 5 4 46
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -1078,7 +1070,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 0 -172 64 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF ioregisters
-            TIMESTAMP 2003 2 20 23 16 26
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N 64 176 0 176 
             RECTANGLE N 0 164 64 188 
             LINE N 64 256 0 256 
@@ -1142,7 +1134,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -36 624 976 
         END BLOCKDEF
         BEGIN BLOCKDEF miscstatregs
-            TIMESTAMP 2003 2 21 2 12 44
+            TIMESTAMP 2007 12 28 17 31 43
             RECTANGLE N 64 -32 544 672 
             LINE N 64 0 0 0 
             LINE N 64 32 0 32 
@@ -1290,7 +1282,7 @@ BEGIN SCHEMATIC
             LINE N 112 -48 48 -48 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerBlock
-            TIMESTAMP 2007 12 17 22 6 27
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N 64 -416 0 -416 
             LINE N 336 -416 400 -416 
             LINE N 64 -320 0 -320 
@@ -1319,7 +1311,7 @@ BEGIN SCHEMATIC
             LINE N 108 -16 116 -16 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerInterface
-            TIMESTAMP 2007 12 17 21 38 11
+            TIMESTAMP 2007 12 28 17 31 43
             LINE N 560 -32 624 -32 
             RECTANGLE N 560 -428 624 -404 
             LINE N 560 -416 624 -416 
@@ -2324,17 +2316,13 @@ BEGIN SCHEMATIC
             PIN I XLXN_7632
             PIN O Int_TimerClk
         END BLOCK
-        BEGIN BLOCK XLXI_1893 bufg
-            PIN I XLXN_6551
-            PIN O TimerClk
-        END BLOCK
         BEGIN BLOCK TimerDCM dcm
             BEGIN ATTR CLKFX_DIVIDE 1
                 VERILOG all:0 dp:1nosynth wsynop:1 wsynth:1
                 VHDL all:0 gm:1nosynth wa:1 wd:1
                 VALUETYPE Integer 1 32
             END ATTR
-            BEGIN ATTR CLKFX_MULTIPLY 3
+            BEGIN ATTR CLKFX_MULTIPLY 6
                 VERILOG all:0 dp:1nosynth wsynop:1 wsynth:1
                 VHDL all:0 gm:1nosynth wa:1 wd:1
                 VALUETYPE Integer 1 32
@@ -2348,21 +2336,21 @@ BEGIN SCHEMATIC
                 VERILOG all:0 wsynop:1 wsynth:1
                 VHDL all:0 wa:1 wd:1
             END ATTR
-            PIN CLKFB TimerClk
+            PIN CLKFB TimerClkFB
             PIN CLKIN TimerClkIn
             PIN DSSEN XLXN_6557
             PIN PSCLK XLXN_6556
             PIN PSEN XLXN_6556
             PIN PSINCDEC XLXN_6556
             PIN RST Reset
-            PIN CLK0 XLXN_6551
+            PIN CLK0 TimerClkFB
             PIN CLK180
             PIN CLK270
             PIN CLK2X
             PIN CLK2X180
             PIN CLK90
             PIN CLKDV
-            PIN CLKFX
+            PIN CLKFX XLXN_6551
             PIN CLKFX180
             PIN LOCKED
             PIN PSDONE
@@ -3050,6 +3038,10 @@ BEGIN SCHEMATIC
             PIN AddrOut(31:0) TimerAddrOut(31:0)
             PIN TimerSelect(20:0) TimerSelect(20:0)
         END BLOCK
+        BEGIN BLOCK XLXI_1893 bufg
+            PIN I XLXN_6551
+            PIN O TimerClk
+        END BLOCK
     END NETLIST
     BEGIN SHEET 1 2720 1760
         BEGIN INSTANCE XLXI_735 2880 1840 R0
@@ -3166,29 +3158,12 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH TimerClk
-            WIRE 1888 240 1936 240
-            BEGIN DISPLAY 1888 240 ATTR Name
-                ALIGNMENT SOFT-RIGHT
-            END DISPLAY
-        END BRANCH
         BEGIN BRANCH Reset
             WIRE 1904 752 1936 752
             BEGIN DISPLAY 1904 752 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH XLXN_6551
-            WIRE 2320 176 2384 176
-            WIRE 2384 176 2384 208
-        END BRANCH
-        BEGIN BRANCH TimerClk
-            WIRE 2384 432 2384 512
-            BEGIN DISPLAY 2384 512 ATTR Name
-                ALIGNMENT SOFT-VRIGHT
-            END DISPLAY
-        END BRANCH
-        INSTANCE XLXI_1893 2352 208 R90
         BEGIN INSTANCE TimerDCM 1936 1136 R0
             BEGIN DISPLAY 72 -1112 ATTR CLKIN_PERIOD
                 FONT 28 "Arial"
@@ -3296,6 +3271,29 @@ BEGIN SCHEMATIC
             WIRE 1008 256 1008 384
             WIRE 1008 384 1008 416
             WIRE 1008 384 1056 384
+        END BRANCH
+        BEGIN BRANCH XLXN_6551
+            WIRE 2320 624 2384 624
+            WIRE 2384 624 2384 656
+        END BRANCH
+        BEGIN BRANCH TimerClk
+            WIRE 2384 880 2384 960
+            BEGIN DISPLAY 2384 960 ATTR Name
+                ALIGNMENT SOFT-VRIGHT
+            END DISPLAY
+        END BRANCH
+        INSTANCE XLXI_1893 2352 656 R90
+        BEGIN BRANCH TimerClkFB
+            WIRE 2320 176 2368 176
+            BEGIN DISPLAY 2368 176 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH TimerClkFB
+            WIRE 1888 240 1936 240
+            BEGIN DISPLAY 1888 240 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
         END BRANCH
     END SHEET
     BEGIN SHEET 2 2720 1760
