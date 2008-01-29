@@ -1,0 +1,5 @@
+dirs = Split("""
+header
+""")
+    
+SConscript(dirs = dirs)
