@@ -9,6 +9,13 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.7  2005/08/03 20:20:56  granger
+ * updates copied from the versions in the rpc/include directory, except for
+ * Aircraft.h which looks it got accidentally replaced with the contents of
+ * Parameter.h; some of these are commits of changes from
+ * /net/eldora/eldora/rpc/header which were never committed to rcs; and some
+ * files are being added to revision control for the first time
+ *
  * Revision 1.6  1994/08/30  15:19:48  thor
  * Dropped old rpc stuff.
  *
