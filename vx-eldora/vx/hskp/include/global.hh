@@ -9,6 +9,9 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.1  1992/09/03 15:20:42  craig
+ * Initial revision
+ *
 # Revision 1.1  1992/08/14  18:10:09  reif
 # Initial revision
 #
@@ -28,10 +31,9 @@
 
 extern "C" {
 #include "vxWorks.h"
-#include "TapeHeader.h"
 };
 
-#include "Header.hh"
+#include "Header.h"
 
 #ifndef GBL_SCOPE
 #define GBL_SCOPE extern

@@ -9,6 +9,11 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.11  2005/08/04 22:27:37  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.10  2003/10/02  15:15:21  kapoor
  * Modified to work with both TOD and Bancomm function calls
  *
@@ -39,7 +44,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #define HSKP_RPC_SCOPE
 
-#include "Header.hh"
+#include "Header.h"
 #include "Hskp.hh"
 #include "udpSvr.hh"
 

@@ -9,6 +9,13 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.8  2005/08/03 20:20:56  granger
+ * updates copied from the versions in the rpc/include directory, except for
+ * Aircraft.h which looks it got accidentally replaced with the contents of
+ * Parameter.h; some of these are commits of changes from
+ * /net/eldora/eldora/rpc/header which were never committed to rcs; and some
+ * files are being added to revision control for the first time
+ *
  * Revision 1.7  1992/07/28  17:31:02  thor
  * Added nav & insitu stuff.
  *
@@ -37,9 +44,9 @@
  *
  *
  * description:
- *        This file defines the C routines that are used to interface
- * to the Header class. HeaderPtr is used as an opaque pointer to an
- * instance of Header.
+ * 
+ *   This file defines the interface (C and C++) to the Header class. 
+ *   For C, HeaderPtr is used as an opaque pointer to an instance of Header.
  *
  */
 #ifndef INCHeaderh
@@ -49,9 +56,15 @@
 #define OK_RPC
 #endif
 
-#include "TapeHeader.h"
+#ifdef __cplusplus
+extern "C" {
+class Header; /* defined later */
+typedef Header* HeaderPtr;
+#else
+typedef void* HeaderPtr; /* opaque pointer for C */
+#endif
 
-typedef void *HeaderPtr;
+#include "TapeHeader.h"
 
 static const int MAX_PARAM = 10;
 
@@ -94,6 +107,70 @@ extern void ResetHeader(HeaderPtr ptr, TAPEHEADER *th);
 extern void DestroyHeader(HeaderPtr ptr);
 
 extern int readHeaderFile(HeaderPtr ptr, char *file);
+
+/*
+ * Below here is C++-only stuff, with the definition of class Header
+ */
+#ifdef __cplusplus
+} /* end extern "C" */
+
+#include <fstream.h>
+
+class Header {
+  protected:
+    TAPEHEADER *th;   // Working copy of tape header.
+
+    int numParams;    // How many parameters in use.
+
+  public:
+    Header(void);   // Virgin copy.
+
+    Header(TAPEHEADER *t);  // Exisiting header.
+
+    Header(void *t);    // Make one from a real tape header.
+
+    Header(const char *file); // Read in from a file.
+
+    int Parameter(PARAMETER &param, int paramNum);
+    PARAMETER *Parameter(int paramNum);
+
+    void CellSpacing(CELLSPACING &cs, int descNum = 1);
+    CELLSPACING *CellSpacing(int descNum = 1);
+
+    int Radar(RADARDESC &r, int descNum);
+    RADARDESC *Radar(int descNum);
+
+    void FieldRadar(FIELDRADAR &f, int descNum = 1);
+    FIELDRADAR *FieldRadar(int descNum = 1);
+
+    void Volume(VOLUME &v);
+    VOLUME *Volume(void);
+
+    void Waveform(WAVEFORM &w);
+    WAVEFORM *Waveform(void);
+
+    void NavDesc(NAVDESC &n);
+    NAVDESC *NavDesc(void);
+
+    void Insitu(INSITUDESC &id);
+    INSITUDESC *Insitu(void);
+
+    TAPEHEADER *GetRpcHeader(void) { return(th); }
+
+    int GetRealHeader(void *header);
+
+    int readFile(const char *file);
+
+    Header &operator=(Header &in);
+
+    Header &operator=(TAPEHEADER *th);
+
+    friend ostream& operator<<(ostream &os, Header &hdr);
+    friend istream& operator>>(istream &is, Header &hdr);
+
+    ~Header(void);
+};
+#endif /* __cplusplus */
 
 #endif /* INCHeaderh */
 

@@ -9,6 +9,13 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.16  2005/08/03 20:20:56  granger
+ * updates copied from the versions in the rpc/include directory, except for
+ * Aircraft.h which looks it got accidentally replaced with the contents of
+ * Parameter.h; some of these are commits of changes from
+ * /net/eldora/eldora/rpc/header which were never committed to rcs; and some
+ * files are being added to revision control for the first time
+ *
  * Revision 1.15  1994/10/24  18:55:52  thor
  * Fixed broked << operator.
  *
@@ -73,7 +80,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define CLIENT_SIDE
 #endif // UNIX
 
-#include "Header.hh"
+#include "Header.h"
 #include <netinet/in.h>
 
 #ifndef FAST
