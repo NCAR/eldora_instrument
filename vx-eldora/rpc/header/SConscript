@@ -4,6 +4,18 @@ sources = Split("""
 Header.cc
 """)
 
+headers = Split("""
+Header.h
+""")
+
+rpcdefs = Split("""
+HeaderRpc.x
+""")
+
+headers += env.RPCGenHeader(rpcdefs)
+
+env.Install("../include", headers)
+
 l = env.Library("VxHeader", sources)
 li = env.InstallLibrary(l)
 Default(li)
