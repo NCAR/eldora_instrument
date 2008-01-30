@@ -9,6 +9,12 @@
 // revision history
 // ----------------
 // $Log$
+// Revision 1.6  2005/08/03 20:23:02  granger
+// updates copied from the versions in the rpc/include directory; some of
+// these are commits of changes from /net/eldora/eldora/rpc/hskp which were
+// never committed to rcs; and some files are being added to revision control
+// for the first time
+//
 // Revision 1.5  1994/09/13  16:24:18  thor
 // Fixed losing clnt_destroy().
 //
@@ -37,9 +43,10 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #endif
 
 #include <iostream.h>
-#include "Hskp.hh"
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include "HskpControl.h"
 
 class messanger {
   public:
@@ -153,7 +160,7 @@ int messanger::reconnect()
     if (client != NULL)
       clnt_destroy(client);
     
-    if ((client = clnt_create(target,HskpControl,HskpCtrlVers,"udp")) == NULL)
+    if ((client = clnt_create(target,HSKPCONTROL,HSKPCTRLVERS,"udp")) == NULL)
       return(-1);
     else
       return(getStatus());

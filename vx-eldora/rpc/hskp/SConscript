@@ -1,0 +1,21 @@
+Import('env')
+
+sources = Split("""
+""")
+
+headers = Split("""
+HskpCommandDefs.h
+HskpStatus.h
+HskpStatusDefs.h
+""")
+
+rpcdefs = Split("""
+HskpControl.x
+""")
+
+for x in rpcdefs:
+    headers += env.RPCGenHeader(x)
+
+env.Install("../include", headers)
+
+env.RPCGenClient(rpcdefs)
