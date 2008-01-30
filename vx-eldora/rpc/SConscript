@@ -1,5 +1,6 @@
 dirs = Split("""
 header
+hskp
 """)
     
 SConscript(dirs = dirs)
