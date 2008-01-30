@@ -81,8 +81,7 @@ extern HeaderPtr inHeader;
 #include "vmevmeDef.h"
 #include "vmevmeFunc.h"
 #include "vmevmeGbl.h"
-#include "HskpCmd.h"
-#include "HskpStatus.h"
+#include "HskpControl.h"
 
 #include "clockDef.h"
 #include "clockGbl.h"
