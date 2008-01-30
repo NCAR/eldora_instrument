@@ -9,6 +9,10 @@
  * revision history
  * ----------------
  * $Log$
+ * Revision 1.12  2008/01/29 17:37:11  burghart
+ * Merged rpc/include/Header.hh into rpc/include/Header.h to create a single
+ * header file to be used for both C and C++ source.
+ *
  * Revision 1.11  2005/08/04 22:27:37  granger
  * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
  * (afaik) directories were removed, like hskp/src/clock/newclk and
@@ -45,7 +49,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #define HSKP_RPC_SCOPE
 
 #include "Header.h"
-#include "Hskp.hh"
+#include "HskpControl.h"
 #include "udpSvr.hh"
 
 #include "vxWorks.h"
