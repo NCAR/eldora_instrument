@@ -1,0 +1,5 @@
+Move all files from this directory into the appropriate sibling directories
+to keep them with their associated implementations.  RPC header files should 
+be built from .x files and builds should install the headers from their new home 
+directories back here.  See ../header (Header.h, HeaderRpc.x, SConscript) for 
+an example where the files have already been moved.
