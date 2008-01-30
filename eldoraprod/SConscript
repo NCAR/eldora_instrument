@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'qtt_qtconfig', 'utilities']
+tools = ['ddssvc', 'qtt_qtconfig', 'utilities', 'deploy']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
@@ -27,3 +27,6 @@ PulseCollator.cpp
 eldoraprod = env.Program('eldoraprod', sources)
 
 Default(eldoraprod)
+
+env.DeployProgram(eldoraprod)
+

@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'rr314']
+tools = ['ddssvc', 'rr314', 'deploy']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
@@ -21,4 +21,7 @@ env.Append(LIBS = libs)
 rr314dual = env.Program('rr314dual', 'RR314dual.cpp')
 
 Default(rr314dual)
+
+env.DeployProgram(rr314dual)
+
 

@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc', 'ddsqt', 'qtt_qtconfig', 'qtt_ppi', 'utilities', 'doxygen']
+tools = ['default', 'ddssvc', 'ddsqt', 'qtt_qtconfig', 'qtt_ppi', 'utilities', 'doxygen', 'deploy']
 env = Environment(tools = tools)
 
 # libraries:
@@ -33,4 +33,7 @@ ColorBarSettings.cpp
 eldorappi = env.Program('eldorappi', sources)
 	
 Default(eldorappi)
+
+env.DeployProgram(eldorappi)
+
 

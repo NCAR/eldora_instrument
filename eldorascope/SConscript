@@ -1,4 +1,4 @@
-tools = ['default', 'ddssvc', 'ddsqt', 'qtt_knob', 'qtt_qtconfig', 'qtt_scopeplot', 'fftw', 'utilities']
+tools = ['default', 'ddssvc', 'ddsqt', 'qtt_knob', 'qtt_qtconfig', 'qtt_scopeplot', 'fftw', 'utilities', 'deploy']
 env = Environment(tools = tools)
 
 # libraries:
@@ -28,4 +28,7 @@ PlotInfo.cpp
 eldorascope = env.Program('eldorascope', sources)
 	
 Default(eldorascope)
+
+env.DeployProgram(eldorascope)
+
 
