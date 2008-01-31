@@ -3,11 +3,7 @@
 
 #include "dsp21k.h"
 
-/**********************************************************************************************
-
- Desc: Bittware Timer Registers
-
- **********************************************************************************************/
+// Bittware Timer Registers
 
 //Address Register
 #define TIMER1    (0x01<<4)
@@ -56,6 +52,15 @@
 #define PRT3 (0x0<<8)
 #define PRT4 (0x0<<12)
 
+/// Memory buffer size in bytes
+#define BUFFER_SIZE 0x8 
+
+///Address and Data Physical Memory Offset
+#define AD_OFFSET 0x00400008
+
+/// Represent the Bittware fpga card, which has been configured 
+/// with a bitstream implementing radar timing.
+/// The construtor initializes the card. 
 class Bittware {
     public:
         /// Constructor
@@ -67,21 +72,25 @@ class Bittware {
         /// Start the timer
         void start();
     protected:
-        /// Read from Memory store into Buffer                   *
-        ULONG *mem_read(
-                PDSP21K processor, DSP21K_PHYS_MEMORY phys_mem,
-                ULONG rd_buffer[]);
-        /// Write Buffer to Memory                       *
-        void mem_write(
-                PDSP21K processor, DSP21K_PHYS_MEMORY phys_mem,
-                ULONG wr_buffer[]);
-        /// Copy Read Buffer to Write Buffer Routine                 *
-        void copy_buffer(
-                DSP21K_PHYS_MEMORY phys_mem, ULONG wr_buffer[],
-                ULONG rd_buffer[]);
-        /// Print Error Message Routine                          *
-        int check_error(
-                PDSP21K processor, int error);
+        /// Read from Memory store into Buffer 
+        unsigned int *mem_read(unsigned int rd_buffer[]);
+        /// Write Buffer to Memory 
+        void mem_write(unsigned int wr_buffer[]);
+        /// Copy Read Buffer to Write Buffer Routine
+        void copy_buffer(unsigned int wr_buffer[],
+                         unsigned int rd_buffer[]);
+        /// Print Error Message Routine                  
+        int check_error(int error);
+        /// @return True if board is operational, false otherwise
+        bool status();
+        /// True if the board is operational, false otherwise.
+        bool _isok;
+        /// The processor
+        PDSP21K _processor;
+        /// The configuration
+        DSP21K_DEVICE_CFG _cfg;
+        /// The physical memory
+        DSP21K_PHYS_MEMORY _physmem;
 
 };
 
