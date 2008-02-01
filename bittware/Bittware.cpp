@@ -48,15 +48,15 @@ void Bittware::configure(unsigned long delay,
     // Set Timer 1
 
     ULONG *reg_buf;
-    ULONG control = TIMER_ON | TIMER_POS | EXT_CLK | CLK_DIV1;
+    ULONG control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
 
     // Write to Timer 1 Control Register
-    wr_buffer[0x0] = TIMER1 | CONTROL_REG; //Address Line
+    wr_buffer[0x0] = BW_TIMER1 | BW_CONTROL_REG; //Address Line
     wr_buffer[0x1] = control; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Control Register
-    wr_buffer[0x0] = TIMER1; //Address Line
+    wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
@@ -64,42 +64,42 @@ void Bittware::configure(unsigned long delay,
     printf("Read Data Line = %lx\n", *(reg_buf+1));
 
     // Write to Timer 1 Delay Register
-    wr_buffer[0x0] = TIMER1 | DELAY_REG; //Address Line
+    wr_buffer[0x0] = BW_TIMER1 | BW_DELAY_REG; //Address Line
     wr_buffer[0x1] = delay; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Delay Register
-    wr_buffer[0x0] = TIMER1; //Address Line
+    wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
     // Write to Timer 1 Width Register
-    wr_buffer[0x0] = TIMER1 | WIDTH_REG; //Address Line
+    wr_buffer[0x0] = BW_TIMER1 | BW_WIDTH_REG; //Address Line
     wr_buffer[0x1] = width; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Width Register
-    wr_buffer[0x0] = TIMER1; //Address Line
+    wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
     // Write to Timer 1 Period Register
-    wr_buffer[0x0] = TIMER1 | PERIOD_REG; //Address Line
+    wr_buffer[0x0] = BW_TIMER1 | BW_PERIOD_REG; //Address Line
     wr_buffer[0x1] = period; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Period Register
-    wr_buffer[0x0] = TIMER1; //Address Line
+    wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
     // Write to Timer 1 PRT Register
-    wr_buffer[0x0] = TIMER1 | PRT_REG; //Address Line
+    wr_buffer[0x0] = BW_TIMER1 | BW_PRT_REG; //Address Line
     wr_buffer[0x1] = prt; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 PRT Register
-    wr_buffer[0x0] = TIMER1; //Address Line
+    wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 }
@@ -112,13 +112,13 @@ void Bittware::start() {
     // Enable Timers
 
     //Set Global Enable bit on Address Line
-    wr_buffer[0x0] = GLOBAL_EN; //Address Line
+    wr_buffer[0x0] = BW_GLOBAL_EN; //Address Line
     mem_write(wr_buffer);
 
     // Trigger Timers
 
     //Set Address Trigger bit on Address Line
-    wr_buffer[0x0] = ADDR_TRIG; //Address Line
+    wr_buffer[0x0] = BW_ADDR_TRIG; //Address Line
     mem_write(wr_buffer);
 
 }
