@@ -7,7 +7,7 @@ def bittware(env):
     #
     # Our bittware library
     env.AppendUnique(CPPPATH = ['#/bittware',])
-    env.AppendLibrary('rr314')
+    env.AppendLibrary('bittware')
     #
     # dsp21k include path
     env.AppendUnique(CPPPATH = ['/usr/local/dsp21ksf/inc',])

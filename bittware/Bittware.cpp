@@ -37,6 +37,11 @@ Bittware::Bittware() :
 }
 
 //////////////////////////////////////////////////////////////////////
+Bittware::~Bittware() {
+    
+}
+
+//////////////////////////////////////////////////////////////////////
 void Bittware::configure(unsigned long delay,
                          unsigned long width,
                          unsigned long period,
