@@ -1,4 +1,7 @@
+// most importantly, our hardware:
 #include "RR314.h"
+#include "Bittware.h"
+
 #include <math.h>
 #include <iostream>
 #include <fstream>
@@ -71,18 +74,15 @@ struct runParams {
 /// that are not specified on the command line.
 /// @return The runtime options that can be passed to the
 /// threads that interact with the RR314.
-struct runParams parseOptions(
-        int argc,
-            char** argv,
-            int deviceNumber) {
+struct runParams parseOptions(int argc,
+                              char** argv,
+                              int deviceNumber) {
 
     runParams params;
 
     // set the device number
     params.deviceNumber = deviceNumber;
 
-    int pulseWidth;
-    
     // get the option34
     po::options_description descripts("Options");
     descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
@@ -95,8 +95,8 @@ struct runParams parseOptions(
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
     ("startiq", po::value<int>(&params.startiq)->default_value(100), "start gate for iq capture")
     ("numiq", po::value<int>(&params.numiq)->default_value(5),"number of gates for iq capture")
-    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500), 
-            "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
+    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500),
+    "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
     ("prf", po::value<int>(&params.prf)->default_value(2500), "pulse repetition frequency")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
@@ -119,7 +119,7 @@ struct runParams parseOptions(
         std::cout << descripts << "\n";
         exit(1);
     }
-    
+
     // verify that the decimation is one of the accepted values.
     switch(params.pulsewidth) {
         case 250:
@@ -132,8 +132,8 @@ struct runParams parseOptions(
         case 2000:
         break;
         default:
-            std::cout << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
-            exit(1);
+        std::cout << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+        exit(1);
         break;
     }
 
@@ -153,8 +153,7 @@ struct runParams parseOptions(
 /// name "data<devNum>-<dmaChannel>.
 /// @params runParams The configuration options for 
 /// one RR314 device.
-static void createFiles(
-        runParams& params) {
+static void createFiles(runParams& params) {
     for (int i = 0; i < 8; i++) {
         std::stringstream s;
         s << "data";
@@ -194,14 +193,13 @@ static void shutdownRR314() {
 /// For catastrophic signals, such as segv,
 /// perform critical cleanup such as stopping the RR314 cards.
 ///
-static void signalHandler(
-        int signo) {
+static void signalHandler(int signo) {
 
     std::cout << "caught signal " << signo << "\n";
-    
+
     // try to terminate the RR314 boards
     shutdownRR314();
-    
+
     // if it was a segv, produce a core dump
     if (signo == SIGSEGV) {
         // and abort with a dump.
@@ -245,8 +243,7 @@ static void setupSignalHandler() {
 //
 // a task which just consumes the data from the
 // rr314 as it becomes available
-static void * dataTask(
-        void* threadArg) {
+static void * dataTask(void* threadArg) {
     runParams* pParams = (runParams*) threadArg;
     RR314* pRR314 = pParams->pRR314;
     int gates = pParams->gates;
@@ -257,13 +254,17 @@ static void * dataTask(
     PulseWriter* pulseWriter = pParams->pulseWriter;
     TSWriter* tsWriter = pParams->tsWriter;
 
-    float elevation[4] = {0.0, 0.0, 0.0, 0.0};
+    float elevation[4] =
+        { 0.0,
+                0.0,
+                0.0,
+                0.0 };
     // the aft radar is 180 degrees different from the forward.
     if (pParams->deviceNumber != 0) {
         for (int i = 0; i < 4; i++)
             elevation[i] = 180.0;
     }
-    
+
     ACE_Time_Value small(0, 100000);
 
     std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " nci:" << pParams->nci << "\n";
@@ -290,17 +291,17 @@ static void * dataTask(
                     pPulse->radarId =
                     (pParams->deviceNumber == 0) ?
                     EldoraDDS::Forward : EldoraDDS::Aft;
-                    
+
                     RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
                     pPulse->abp.length(pABP->_abp.size());
-                    
+
                     // simulate the elevation
                     elevation[channel/2] += 0.90;
                     if (elevation[channel/2] >= 360.0)
-                        elevation[channel/2] -= 360.0;
+                    elevation[channel/2] -= 360.0;
                     pPulse->elDegrees = elevation[channel/2];
-                    
+
                     pPulse->nci = pABP->nci;
                     pPulse->chan = pABP->chanId;
                     for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
@@ -382,12 +383,11 @@ static void * dataTask(
 
 //////////////////////////////////////////////////////////////////////
 
-void showStats(
-        runParams& params,
-            RR314& rr314,
-            unsigned long& droppedPulse,
-            unsigned long& droppedTS,
-            int loopCount) {
+void showStats(runParams& params,
+               RR314& rr314,
+               unsigned long& droppedPulse,
+               unsigned long& droppedTS,
+               int loopCount) {
     // get the current temperature
     double temperature = rr314.temperature();
 
@@ -431,13 +431,24 @@ void showStats(
 //
 // The main routine creates the card, starts it, and then just
 // monitors the card activity.
-int main(
-        int argc,
-            char** argv) {
+int main(int argc,
+         char** argv) {
 
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
+    
+    // create timer
+    Bittware* timer = 0;
+    if (!params0.simulate) {
+        timer = new Bittware();
+        timer->configure(15, 4000, 5000, 0);
+        if (!timer->isok()) {
+            std::cerr << "Unable to create bittware timer\n";
+            exit(1);
+        }
+        timer->start();
+    }
 
     if (params0.publish) {
         std::cout <<__FILE__ << " creating DDS services\n";
@@ -484,9 +495,8 @@ int main(
                         params0.xsvf,
                         params0.simulate,
                         params0.usleep,
-                        false              // do not catch signals in RR314; we will do that ourselves.
+                        false // do not catch signals in RR314; we will do that ourselves.
                 );
-
 
                 RR314 rr314_1(params1.deviceNumber,
                         params1.gates,
@@ -501,7 +511,7 @@ int main(
                         params1.xsvf,
                         params1.simulate,
                         params1.usleep,
-                        false              // do not catch signals in RR314; we will do that ourselves
+                        false // do not catch signals in RR314; we will do that ourselves
                 );
 
                 // save instances of RR314 for the shutdown handler
@@ -534,7 +544,7 @@ int main(
 
                 // setup the signal handlers before we run the cards.
                 setupSignalHandler();
-                
+
                 // start the processing
                 if (params0.enabled) {
                     rr314_0.start();
@@ -552,11 +562,11 @@ int main(
                     loopCount++;
                     for (int i = 0; i < 10; i++) {
                         if (_terminate)
-                            break;
+                        break;
                         sleep(1);
                     }
                     if (_terminate)
-                        break;
+                    break;
                 }
             }
             catch (std::string e)
@@ -564,8 +574,12 @@ int main(
                 std::cout << e << std::endl;
                 exit(1);
             }
-            
-            std::cout << "Terminating " << argv[0] << "\n";
 
+            std::cout << "Terminating " << argv[0] << "\n";
+            if (!timer) {
+                delete timer;
+            }
+
+            
         }
 

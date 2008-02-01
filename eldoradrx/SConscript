@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'rr314', 'deploy']
+tools = ['ddssvc', 'rr314', 'bittware', 'deploy']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
