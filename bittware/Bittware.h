@@ -68,21 +68,24 @@ class Bittware {
         /// Destructor
         virtual ~Bittware();
         /// Configure the Bittware timer card
-        void configure();
+        void configure(unsigned long delay,
+                       unsigned long width,
+                       unsigned long period,
+                       unsigned long prt);
         /// Start the timer
         void start();
+        /// @return True if board is operational, false otherwise
+        bool isok();
     protected:
         /// Read from Memory store into Buffer 
-        unsigned int *mem_read(unsigned int rd_buffer[]);
+        ULONG *mem_read(ULONG rd_buffer[]);
         /// Write Buffer to Memory 
-        void mem_write(unsigned int wr_buffer[]);
+        void mem_write(ULONG wr_buffer[]);
         /// Copy Read Buffer to Write Buffer Routine
-        void copy_buffer(unsigned int wr_buffer[],
-                         unsigned int rd_buffer[]);
+        void copy_buffer(ULONG wr_buffer[],
+                         ULONG rd_buffer[]);
         /// Print Error Message Routine                  
         int check_error(int error);
-        /// @return True if board is operational, false otherwise
-        bool status();
         /// True if the board is operational, false otherwise.
         bool _isok;
         /// The processor

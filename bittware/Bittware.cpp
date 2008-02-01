@@ -19,7 +19,7 @@ Bittware::Bittware() :
     dsp21k_cfg_proc(_processor); //Configure the board.
 
     error = dsp21k_get_device_info(_processor, &_cfg);
-    if (check_error(_processor, error) != DSP21K_SUCCESS)
+    if (check_error(error) != DSP21K_SUCCESS)
         return;
 
     //Setup Physical Memory
@@ -28,7 +28,7 @@ Bittware::Bittware() :
 
     //Allocate Physical Memory
     error = dsp21k_alloc_phys_memory(_processor, &_physmem);
-    if (check_error(_processor, error) != DSP21K_SUCCESS) {
+    if (check_error(error) != DSP21K_SUCCESS) {
         printf("\nAddress/Data Memory Allocation Error!\n");
         return;
     }
@@ -37,23 +37,22 @@ Bittware::Bittware() :
 }
 
 //////////////////////////////////////////////////////////////////////
-void Bittware::configure() {
+void Bittware::configure(unsigned long delay,
+                         unsigned long width,
+                         unsigned long period,
+                         unsigned long prt) {
 
-    unsigned int rd_buffer[BUFFER_SIZE / 4];
-    unsigned int wr_buffer[BUFFER_SIZE / 4];
+    ULONG rd_buffer[BUFFER_SIZE / 4];
+    ULONG wr_buffer[BUFFER_SIZE / 4];
 
     // Set Timer 1
 
-    unsigned int *reg_buf;
-    unsigned int CONTROL= TIMER_ON | TIMER_POS | EXT_CLK | CLK_DIV1;
-    unsigned int DELAY = 15;
-    unsigned int WIDTH = 4000;
-    unsigned int PERIOD = 5000;
-    unsigned int PRT = 0x0000;
+    ULONG *reg_buf;
+    ULONG control = TIMER_ON | TIMER_POS | EXT_CLK | CLK_DIV1;
 
     // Write to Timer 1 Control Register
     wr_buffer[0x0] = TIMER1 | CONTROL_REG; //Address Line
-    wr_buffer[0x1] = CONTROL; //Data Line
+    wr_buffer[0x1] = control; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Control Register
@@ -61,12 +60,12 @@ void Bittware::configure() {
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
-    printf("Read Address Line = %x\n", *reg_buf);
-    printf("Read Data Line = %x\n", *(reg_buf+1));
+    printf("Read Address Line = %lx\n", *reg_buf);
+    printf("Read Data Line = %lx\n", *(reg_buf+1));
 
     // Write to Timer 1 Delay Register
     wr_buffer[0x0] = TIMER1 | DELAY_REG; //Address Line
-    wr_buffer[0x1] = DELAY; //Data Line
+    wr_buffer[0x1] = delay; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Delay Register
@@ -76,7 +75,7 @@ void Bittware::configure() {
 
     // Write to Timer 1 Width Register
     wr_buffer[0x0] = TIMER1 | WIDTH_REG; //Address Line
-    wr_buffer[0x1] = WIDTH; //Data Line
+    wr_buffer[0x1] = width; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Width Register
@@ -86,7 +85,7 @@ void Bittware::configure() {
 
     // Write to Timer 1 Period Register
     wr_buffer[0x0] = TIMER1 | PERIOD_REG; //Address Line
-    wr_buffer[0x1] = PERIOD; //Data Line
+    wr_buffer[0x1] = period; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Period Register
@@ -96,7 +95,7 @@ void Bittware::configure() {
 
     // Write to Timer 1 PRT Register
     wr_buffer[0x0] = TIMER1 | PRT_REG; //Address Line
-    wr_buffer[0x1] = PRT; //Data Line
+    wr_buffer[0x1] = prt; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 PRT Register
@@ -108,12 +107,12 @@ void Bittware::configure() {
 /////////////////////////////////////////////////////////////////////////////
 void Bittware::start() {
 
-    unsigned int wr_buffer[BUFFER_SIZE / 4]; //Write Buffer
+    ULONG wr_buffer[BUFFER_SIZE / 4]; //Write Buffer
 
     // Enable Timers
 
     //Set Global Enable bit on Address Line
-    wr_buffer[0x0] = GLOBAL_ENABLE; //Address Line
+    wr_buffer[0x0] = GLOBAL_EN; //Address Line
     mem_write(wr_buffer);
 
     // Trigger Timers
@@ -125,11 +124,11 @@ void Bittware::start() {
 }
 
 ////////////////////////////////////////////////////////////////////////
-unsigned int * Bittware::mem_read(unsigned int rd_buffer[]) {
+ULONG * Bittware::mem_read(ULONG rd_buffer[]) {
     int error;
-    unsigned int *read;
+    ULONG *read;
     error = dsp21k_rd_phys_memory(&_physmem, 0, _physmem.size / 4, rd_buffer);
-    if (check_error(_processor, error) != DSP21K_SUCCESS) {
+    if (check_error(error) != DSP21K_SUCCESS) {
         printf("Memory Read Error!\n");
         return 0;
     }
@@ -141,10 +140,10 @@ unsigned int * Bittware::mem_read(unsigned int rd_buffer[]) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-void Bittware::mem_write(unsigned int wr_buffer[]) {
+void Bittware::mem_write(ULONG wr_buffer[]) {
     int error;
     error = dsp21k_wr_phys_memory(&_physmem, 0, _physmem.size / 4, wr_buffer);
-    if (check_error(_processor, error) != DSP21K_SUCCESS) {
+    if (check_error(error) != DSP21K_SUCCESS) {
         printf("Memory Write Error!\n");
         return;
     }
@@ -152,9 +151,9 @@ void Bittware::mem_write(unsigned int wr_buffer[]) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-void Bittware::copy_buffer(unsigned int wr_buffer[],
-                           unsigned int rd_buffer[]) {
-    int i;
+void Bittware::copy_buffer(ULONG wr_buffer[],
+                           ULONG rd_buffer[]) {
+    unsigned int i;
 
     for (i = 0; i < _physmem.size / 4; i++)
         wr_buffer[i] = rd_buffer[i];
@@ -177,6 +176,6 @@ int Bittware::check_error(int error) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-int Bittware::status() {
+bool Bittware::isok() {
     return _isok;
 }

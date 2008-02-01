@@ -4,27 +4,21 @@
 import os
 
 def bittware(env):
-    # redrapids include location:
-    #pidsDevelDir = os.path.join('#', 'redrapids', 
-    #                             'DSK-320-002-R05 (CA C API and Sample Code)', 
-    #                             'channeladapterlib', 'R05')
-    #redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
-    #env.AppendUnique(CPPPATH=[redRapidsDevelDir, ])
     #
-    # The bittware library
+    # Our bittware library
     env.AppendUnique(CPPPATH = ['#/bittware',])
     env.AppendLibrary('rr314')
     #
-    # redrapids required defines:
-    #env.AppendUnique(CPPDEFINES = ['LINUX', ])
+    # dsp21k include path
+    env.AppendUnique(CPPPATH = ['/usr/local/dsp21ksf/inc',])
     #
-    # channel adapter library paths:
-    #redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
-    #env.AppendUnique(LIBPATH = [redRapidsDevelLibDir, '.'])
+    # dsp21ksf library paths:
+    dsp21kLibDir = '/usr/local/dsp21ksf/lib'
+    env.AppendUnique(LIBPATH = [dsp21kLibDir, '.'])
     #
     # channel adapter lib:
-    #libs = Split(['channeladapter'])
-    #env.Append(LIBS = libs)
+    dsp21kLibs = ['hil','bwregs']
+    env.Append(LIBS = dsp21kLibs)
     #
     #
     tools = ['utilities']
@@ -34,7 +28,7 @@ Export('bittware')
 
 # The redrapids and library sources
 
-tools = ['utilities']
+tools = ['utilities','bittware']
 env = Environment(tools = ['default'] + tools)
 
 #redRapidsDevelDir = os.path.join('#', 'redrapids', 
