@@ -36,7 +36,7 @@ Bittware::Bittware() :
 
     _isok = true;
     
-    std::cout << "Remora succsefully initialize\n";
+    std::cout << "Remora  initialized\n";
 }
 
 //////////////////////////////////////////////////////////////////////
