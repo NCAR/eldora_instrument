@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>		/* for memcpy and string routines */
+#include <iostream>
 
 Bittware::Bittware() :
     _isok(false) {
@@ -34,6 +35,8 @@ Bittware::Bittware() :
     }
 
     _isok = true;
+    
+    std::cout << "Remora succsefully initialize\n";
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -65,8 +68,8 @@ void Bittware::configure(unsigned long delay,
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
-    printf("Read Address Line = %lx\n", *reg_buf);
-    printf("Read Data Line = %lx\n", *(reg_buf+1));
+    std::cout << "Read Address Line = " << *reg_buf << "\n";
+    std::cout << "Read Data Line = " << *(reg_buf+1) << "\n";
 
     // Write to Timer 1 Delay Register
     wr_buffer[0x0] = BW_TIMER1 | BW_DELAY_REG; //Address Line
@@ -107,6 +110,8 @@ void Bittware::configure(unsigned long delay,
     wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
+    
+    std::cout << "Remora configured\n";
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -125,6 +130,8 @@ void Bittware::start() {
     //Set Address Trigger bit on Address Line
     wr_buffer[0x0] = BW_ADDR_TRIG; //Address Line
     mem_write(wr_buffer);
+    
+    std::cout << "Remora started\n";
 
 }
 
