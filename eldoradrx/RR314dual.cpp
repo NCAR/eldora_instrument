@@ -53,6 +53,7 @@ struct runParams {
         std::string xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
         std::string kaiser; ///< path to a file containing coefficients for the kaiser filter.
         std::string gaussian; ///< path to a file containing coefficients for the gaussian filter.
+        bool internaltimer; ///< If true, use the rr314 builtin timer rather than an external
         RR314* pRR314; ///< pointer to the instance of RR314 representing this card.
         std::ofstream* ofstreams[8]; ///< pointers to output streams for test or binary data capture.
         unsigned long sampleCounts[8]; ///< collect the number of DDS samples written for each dma channel.
@@ -98,6 +99,7 @@ struct runParams parseOptions(int argc,
     ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500),
     "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
     ("prf", po::value<int>(&params.prf)->default_value(2500), "pulse repetition frequency")
+    ("internaltimer",  "use RR314 internal timer")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
@@ -112,6 +114,7 @@ struct runParams parseOptions(int argc,
     params.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
     params.textcapture = vm.count("text") != 0;
     params.simulate = vm.count("simulate") != 0;
+    params.internaltimer = vm.count("internaltimer") != 0;
 
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
         std::cout << "Initialize two rr314 cards. If --start0 ond/or --start1 is specified,\n";
@@ -437,13 +440,17 @@ int main(int argc,
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
-    
+
     // create timer
     Bittware* timer = 0;
-    if (!params0.simulate) {
-      timer = new Bittware();
-      timer->configure(15, 4000, 5000, 0);
-      if (!timer->isok()) {
+    if (!params0.simulate && !params0.internaltimer) {
+        timer = new Bittware(0);
+        timer->configure(params0.gates,
+                         params0.prf,
+                         params0.pulsewidth,
+                         params0.nci,
+                         false);
+        if (!timer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
             exit(1);
         }
@@ -488,6 +495,7 @@ int main(int argc,
                         params0.pulsewidth,
                         params0.nci,
                         0, // dual prt (0 or 1)
+                        params0.internaltimer,
                         params0.startiq,
                         params0.numiq,
                         params0.gaussian,
@@ -504,6 +512,7 @@ int main(int argc,
                         params1.pulsewidth,
                         params1.nci,
                         0, // dual prt (0 or 1)
+                        params1.internaltimer,
                         params1.startiq,
                         params1.numiq,
                         params1.gaussian,
@@ -580,6 +589,5 @@ int main(int argc,
                 delete timer;
             }
 
-            
         }
 

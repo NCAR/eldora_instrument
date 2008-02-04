@@ -130,6 +130,7 @@ public:
     /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
     /// @param samples Number of pulses to analyze for a single ABP.
     /// @param dualPrt True if operating in dual prt mode.
+    /// @param internalTimer True if we will use the external timer
     /// @param startGateIQ The starting gate for IQ capture.
     /// @param nGatesIQ The number of successive gtes for IQ capture.
 	/// @param gausianFile The file of gaussian filter coefficients,blank if none.
@@ -147,6 +148,7 @@ public:
 	        unsigned int pulsewidth, 
 	        unsigned int samples,
 	        unsigned int dualPrt, 
+	        bool internalTimer,
 	        unsigned int startGateIQ,
 	        unsigned int nGatesIQ, 
 	        std::string gaussianFile,
@@ -371,6 +373,9 @@ protected:
 	
 	/// The sleep value sent to the simulator when in simulation mode
 	int _usleep;
+	
+	/// Use the internal timer
+	bool _internalTimer;
 };
 
 }
