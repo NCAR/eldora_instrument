@@ -441,9 +441,9 @@ int main(int argc,
     // create timer
     Bittware* timer = 0;
     if (!params0.simulate) {
-        timer = new Bittware();
-        timer->configure(15, 4000, 5000, 0);
-        if (!timer->isok()) {
+      timer = new Bittware();
+      timer->configure(15, 4000, 5000, 0);
+      if (!timer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
             exit(1);
         }
