@@ -5,8 +5,8 @@
 #include <string.h>		/* for memcpy and string routines */
 #include <iostream>
 
-Bittware::Bittware() :
-    _isok(false) {
+Bittware::Bittware(int devNum) :
+    _devNum(devNum), _isok(false) {
 
     //*********************************************************************************************
     //*    Initialization  
@@ -35,30 +35,68 @@ Bittware::Bittware() :
     }
 
     _isok = true;
-    
+
     std::cout << "Remora  initialized\n";
 }
 
 //////////////////////////////////////////////////////////////////////
 Bittware::~Bittware() {
-    
+
 }
 
 //////////////////////////////////////////////////////////////////////
-void Bittware::configure(unsigned long delay,
-                         unsigned long width,
-                         unsigned long period,
-                         unsigned long prt) {
+void Bittware::configure(unsigned int gates,
+                         unsigned int prf,
+                         unsigned int pulsewidth,
+                         unsigned int samples,
+                         bool dualPrt) {
+
+    _gates = gates;
+    _prf = prf;
+    _pulsewidth = pulsewidth;
+    _samples = _samples;
+    _dualPrt = dualPrt;
+
+    // Decimation Setup
+    int decimationFactor;
+    switch (_pulsewidth) {
+    case 250:
+        decimationFactor = 2;
+        break;
+    case 500:
+        decimationFactor = 4;
+        break;
+    case 750:
+        decimationFactor = 6;
+        break;
+    case 1000:
+        decimationFactor = 8;
+        break;
+    case 1250:
+        decimationFactor = 10;
+        break;
+    case 1500:
+        decimationFactor = 12;
+        break;
+    case 1750:
+        decimationFactor = 14;
+        break;
+    case 2000:
+        decimationFactor = 16;
+        break;
+    default:
+        std::cout << "WARNING (" <<__FILE__ << ":" << __LINE__
+        << "): pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+        decimationFactor = 8;
+    }
 
     ULONG rd_buffer[BUFFER_SIZE / 4];
     ULONG wr_buffer[BUFFER_SIZE / 4];
 
-    // Set Timer 1
-
     ULONG *reg_buf;
-    ULONG control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
 
-    // Write to Timer 1 Control Register
+    // Configure  Timer 1 Control Register
+    ULONG control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     wr_buffer[0x0] = BW_TIMER1 | BW_CONTROL_REG; //Address Line
     wr_buffer[0x1] = control; //Data Line
     mem_write(wr_buffer);
@@ -71,9 +109,9 @@ void Bittware::configure(unsigned long delay,
     std::cout << "Read Address Line = " << *reg_buf << "\n";
     std::cout << "Read Data Line = " << *(reg_buf+1) << "\n";
 
-    // Write to Timer 1 Delay Register
+    // Configure Timer 1 Delay Register
     wr_buffer[0x0] = BW_TIMER1 | BW_DELAY_REG; //Address Line
-    wr_buffer[0x1] = delay; //Data Line
+    wr_buffer[0x1] = 0; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Delay Register
@@ -81,9 +119,9 @@ void Bittware::configure(unsigned long delay,
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
-    // Write to Timer 1 Width Register
+    // Configure Timer 1 Width Register
     wr_buffer[0x0] = BW_TIMER1 | BW_WIDTH_REG; //Address Line
-    wr_buffer[0x1] = width; //Data Line
+    wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Width Register
@@ -91,9 +129,12 @@ void Bittware::configure(unsigned long delay,
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
-    // Write to Timer 1 Period Register
+    // Configure Timer 1 Period Register
+    double prtClock = (60e6);
+    int periodCount = (int) (prtClock/_prf);
+
     wr_buffer[0x0] = BW_TIMER1 | BW_PERIOD_REG; //Address Line
-    wr_buffer[0x1] = period; //Data Line
+    wr_buffer[0x1] = periodCount; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Period Register
@@ -101,16 +142,20 @@ void Bittware::configure(unsigned long delay,
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
-    // Write to Timer 1 PRT Register
+    // Configure Timer 1 multiple PRT Register
     wr_buffer[0x0] = BW_TIMER1 | BW_PRT_REG; //Address Line
-    wr_buffer[0x1] = prt; //Data Line
+    if (!_dualPrt) {
+        wr_buffer[0x1] = 0x0000;
+    } else {
+        wr_buffer[0x1] = 0x0054;
+    }
     mem_write(wr_buffer);
 
-    // Read Back Timer 1 PRT Register
+    // Read Back Timer 1 multiple PRT Register
     wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
-    
+
     std::cout << "Remora configured\n";
 }
 
@@ -130,7 +175,7 @@ void Bittware::start() {
     //Set Address Trigger bit on Address Line
     wr_buffer[0x0] = BW_ADDR_TRIG; //Address Line
     mem_write(wr_buffer);
-    
+
     std::cout << "Remora started\n";
 
 }

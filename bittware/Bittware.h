@@ -64,14 +64,21 @@
 class Bittware {
     public:
         /// Constructor
-        Bittware();
+        /// @param devNum The card number
+        Bittware(int devNum);
         /// Destructor
         virtual ~Bittware();
         /// Configure the Bittware timer card
-        void configure(unsigned long delay,
-                       unsigned long width,
-                       unsigned long period,
-                       unsigned long prt);
+        /// @param gates The number of gates.
+        /// @param prf The pulse repeition frequency in Hz.
+        /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
+        /// @param samples Number of pulses to analyze for a single ABP.
+        /// @param dualPrt True if operating in dual prt mode.
+        void configure(unsigned int gates, 
+                       unsigned int prf,
+                       unsigned int pulsewidth, 
+                       unsigned int samples,
+                       bool dualPrt);
         /// Start the timer
         void start();
         /// @return True if board is operational, false otherwise
@@ -86,8 +93,20 @@ class Bittware {
                          ULONG rd_buffer[]);
         /// Print Error Message Routine                  
         int check_error(int error);
+        /// The card number
+        int _devNum;
         /// True if the board is operational, false otherwise.
         bool _isok;
+        /// The number of gates.
+        unsigned int _gates;       
+        /// The prf in hz
+        int _prf;        
+        /// The pulsewidth in ns.
+        int _pulsewidth;
+        /// The number of samples.
+        unsigned int _samples;
+        /// Dual prt true or false.
+        bool _dualPrt;
         /// The processor
         PDSP21K _processor;
         /// The configuration
