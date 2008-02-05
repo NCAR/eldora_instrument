@@ -5,18 +5,22 @@ import os
 
 def bittware(env):
     #
-    # Our bittware library
+    # Specify our product: the bittware library
     env.AppendUnique(CPPPATH = ['#/bittware',])
     env.AppendLibrary('bittware')
     #
+    # we need the DSP21KSF environment variable
+    env['DSP21KSF'] = os.environ['DSP21KSF']
+    #
     # dsp21k include path
-    env.AppendUnique(CPPPATH = ['/usr/local/dsp21ksf/inc',])
+    dsp21ksfIncPath = os.path.join(env['DSP21KSF'], 'inc')
+    env.AppendUnique(CPPPATH = [dsp21ksfIncPath,])
     #
-    # dsp21ksf library paths:
-    dsp21kLibDir = '/usr/local/dsp21ksf/lib'
-    env.AppendUnique(LIBPATH = [dsp21kLibDir, '.'])
+    # dsp21ksf library path
+    dsp21ksfLibPath = os.path.join(env['DSP21KSF'], 'lib')
+    env.AppendUnique(LIBPATH = [dsp21ksfLibPath,])
     #
-    # channel adapter lib:
+    # dsp21ksf libraries
     dsp21kLibs = ['hil','bwregs']
     env.Append(LIBS = dsp21kLibs)
     #
@@ -30,16 +34,6 @@ Export('bittware')
 
 tools = ['utilities','bittware']
 env = Environment(tools = ['default'] + tools)
-
-#redRapidsDevelDir = os.path.join('#', 'redrapids', 
-#                                 'DSK-320-002-R05 (CA C API and Sample Code)', 
-#                                 'channeladapterlib', 'R05')
-#redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
-#env.AppendUnique(CPPPATH=[redRapidsDevelDir, ])
-#env.AppendUnique(CPPDEFINES = ['LINUX', ])
-
-#rrsources = [os.path.join(redRapidsDevelDir, 'ca_functions.c'), 
-#             os.path.join(redRapidsDevelDir, 'ca_membuffer.c')]
 
 libsources = Split("""
 Bittware.cpp

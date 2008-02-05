@@ -90,13 +90,13 @@ void Bittware::configure(unsigned int gates,
         decimationFactor = 8;
     }
 
-    ULONG rd_buffer[BUFFER_SIZE / 4];
-    ULONG wr_buffer[BUFFER_SIZE / 4];
+    U32 rd_buffer[BUFFER_SIZE / 4];
+    U32 wr_buffer[BUFFER_SIZE / 4];
 
-    ULONG *reg_buf;
+    U32 *reg_buf;
 
     // Configure  Timer 1 Control Register
-    ULONG control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
+    U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     wr_buffer[0x0] = BW_TIMER1 | BW_CONTROL_REG; //Address Line
     wr_buffer[0x1] = control; //Data Line
     mem_write(wr_buffer);
@@ -162,7 +162,7 @@ void Bittware::configure(unsigned int gates,
 /////////////////////////////////////////////////////////////////////////////
 void Bittware::start() {
 
-    ULONG wr_buffer[BUFFER_SIZE / 4]; //Write Buffer
+    U32 wr_buffer[BUFFER_SIZE / 4]; //Write Buffer
 
     // Enable Timers
 
@@ -181,9 +181,9 @@ void Bittware::start() {
 }
 
 ////////////////////////////////////////////////////////////////////////
-ULONG * Bittware::mem_read(ULONG rd_buffer[]) {
+U32 * Bittware::mem_read(U32 rd_buffer[]) {
     int error;
-    ULONG *read;
+    U32 *read;
     error = dsp21k_rd_phys_memory(&_physmem, 0, _physmem.size / 4, rd_buffer);
     if (check_error(error) != DSP21K_SUCCESS) {
         printf("Memory Read Error!\n");
@@ -197,7 +197,7 @@ ULONG * Bittware::mem_read(ULONG rd_buffer[]) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-void Bittware::mem_write(ULONG wr_buffer[]) {
+void Bittware::mem_write(U32 wr_buffer[]) {
     int error;
     error = dsp21k_wr_phys_memory(&_physmem, 0, _physmem.size / 4, wr_buffer);
     if (check_error(error) != DSP21K_SUCCESS) {
@@ -208,8 +208,8 @@ void Bittware::mem_write(ULONG wr_buffer[]) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-void Bittware::copy_buffer(ULONG wr_buffer[],
-                           ULONG rd_buffer[]) {
+void Bittware::copy_buffer(U32 wr_buffer[],
+                           U32 rd_buffer[]) {
     unsigned int i;
 
     for (i = 0; i < _physmem.size / 4; i++)

@@ -85,12 +85,12 @@ class Bittware {
         bool isok();
     protected:
         /// Read from Memory store into Buffer 
-        ULONG *mem_read(ULONG rd_buffer[]);
+        U32 *mem_read(U32 rd_buffer[]);
         /// Write Buffer to Memory 
-        void mem_write(ULONG wr_buffer[]);
+        void mem_write(U32 wr_buffer[]);
         /// Copy Read Buffer to Write Buffer Routine
-        void copy_buffer(ULONG wr_buffer[],
-                         ULONG rd_buffer[]);
+        void copy_buffer(U32 wr_buffer[],
+                         U32 rd_buffer[]);
         /// Print Error Message Routine                  
         int check_error(int error);
         /// The card number
