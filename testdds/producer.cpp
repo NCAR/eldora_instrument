@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
         // iq pairs in each timeseries
         int numiq = 1000;
         // a timestamp
-        unsigned long timestamp;
+        unsigned long timestamp = 0;
 
         while ( !pulseWriter.is_finished())
           {

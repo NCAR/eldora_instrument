@@ -39,7 +39,7 @@ bool PPIManager::newProduct(
     _productData[prodIndex] = p;
 
     // if we have a complete set, send them to the display
-    if (_currentProducts.size() == _nProducts) {
+    if (_currentProducts.size() == (unsigned int)_nProducts) {
         double startAng = elDegrees-0.45;
         double stopAng = elDegrees+0.45;
         if (startAng < 0.0) {

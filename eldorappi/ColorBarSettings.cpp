@@ -24,7 +24,7 @@ _forwardRadar(forwardRadar)
 
     // Put the map names in the combo box
     int currentIndex = 0;
-    for (int i = 0; i < mapNames.size(); i++) {
+    for (unsigned int i = 0; i < mapNames.size(); i++) {
         _mapComboBox->insertItem(0, mapNames[i].c_str());
         if (currentMap == mapNames[i])
             currentIndex = i;

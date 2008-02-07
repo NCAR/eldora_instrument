@@ -52,7 +52,7 @@ void EldoraProducts::newPulseData(
         products->ncp.length(productsLength);
         
         // Copy the data.
-         for (unsigned int i = 0; i < productsLength; i++) {
+         for (int i = 0; i < productsLength; i++) {
              int p = 3*i;
             // temprary hack: Sum all four channel powers to create
             // dbz.

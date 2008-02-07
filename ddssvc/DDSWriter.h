@@ -16,8 +16,10 @@ typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
 /// The template signature for the class declaration. 
+#undef TEMPSIG1  // avoid "TEMPSIG1 redefined" warnings
 #define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER, class DDSDATAWRITER_VAR
 /// The template signature for the class member definitions
+#undef TEMPSIG2  // avoid "TEMPSIG2 redefined" warnings
 #define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
 
 /// A templatized writer for an arbitrary DDS datatype. A DDS

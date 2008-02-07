@@ -12,8 +12,10 @@ typedef ACE_Guard<mutex_t> guard_t;
 
 
 /// Template signature for class definitions.
+#undef TEMPSIG1  // avoid "TEMPSIG1 redefined" warnings
 #define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAREADER, class DDSDATAREADER_VAR
 /// Template signatures for class instantiations.
+#undef TEMPSIG2  // avoid "TEMPSIG2 redefined" warnings
 #define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAREADER, DDSDATAREADER_VAR
 
 /// A generic data reader class which is templated on the DDS data type. Instantiate

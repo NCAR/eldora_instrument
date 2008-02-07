@@ -28,9 +28,9 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), 
-    _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), _gates(0), _paused(false),
-    _forwardElevation(0.0), _aftElevation(0.0)
+    QDialog(parent), _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), 
+    _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
+    _gates(0), _forwardElevation(0.0), _aftElevation(0.0)
     {
     // Set up our form
     setupUi(parent);

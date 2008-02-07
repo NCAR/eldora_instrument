@@ -2,8 +2,8 @@
 
 ////////////////////////////////////////////////////////
 ProductInfo::ProductInfo():
-_key(""),
 _id(0),
+_key(""),
 _shortName(""),
 _longName(""),
 _scaleMin(1),
@@ -25,9 +25,9 @@ _userData(userData),
 _key(key),
 _shortName(shortName),
 _longName(longName),
-_colorMapName(colorMapName),
 _scaleMin(scaleMin),
-_scaleMax(scaleMax)
+_scaleMax(scaleMax),
+_colorMapName(colorMapName)
 {
 }
 
