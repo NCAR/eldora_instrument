@@ -25,9 +25,17 @@ Export('env')
 
 # The main eldora applications:
 SConscript('eldorappi/SConscript')
-SConscript('eldoradrx/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
+# Only build eldoradrx if the DSP21KSF environment variable is set.  This
+# allows for still building everythin else on systems without the bittware 
+# development system installed.
+if (os.environ.has_key('DSP21KSF')):
+    SConscript('eldoradrx/SConscript')
+else:
+    print
+    print "No eldoradrx build: environment variable 'DSP21KSF' is not set"
+    print    
 
 # The qttoobox support
 SConscript('qttoolbox/SConscript')
