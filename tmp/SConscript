@@ -1,29 +1,12 @@
 import os
-tools = ['default']
+tools = ['default', 'rr314']
 env = Environment(tools = tools)
-
-redRapidsDevelDir = os.path.join('#', 'redrapids', 
-                                 'DSK-320-002-R05 (CA C API and Sample Code)',
-                                 'channeladapterlib', 'R05')
-redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
-
-env.AppendUnique(CPPPATH=[redRapidsDevelDir,])
-env.AppendUnique(CPPDEFINES = ['LINUX',])
-
-# libraries:
-libs = Split("""
-rr314
-channeladapter
-""")
-
-# library paths:
-libpaths=[redRapidsDevelLibDir, '#/redrapids']
 
 # Build tom
 sources = Split("""
 channeladapter_DDCx4.c
 """)
 
-tom = env.Program('tom', sources, LIBS=libs, LIBPATH=libpaths )
+tom = env.Program('tom', sources)
 
 Default(tom)
