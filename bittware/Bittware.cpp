@@ -16,6 +16,8 @@ Bittware::Bittware(int devNum) :
 
     _processor = dsp21k_open(0); //Open Board for communication
 
+    std::cout << "_processor is " << _processor << "\n";
+    
     dsp21k_reset_bd(_processor); //Reset the board.
     dsp21k_cfg_proc(_processor); //Configure the board.
 
@@ -24,7 +26,8 @@ Bittware::Bittware(int devNum) :
         return;
 
     //Setup Physical Memory
-    _physmem.phys_addr = _cfg.pci_badr[2] + AD_OFFSET; //Physical Memory address = BAR2 + offset
+    //_physmem.phys_addr = _cfg.pci_badr[2] + AD_OFFSET; //Physical Memory address = BAR2 + offset
+    _physmem.phys_addr = _cfg.pci_badr[2] + 0x400000/4; //Physical Memory address = BAR2 + offset
     _physmem.size = BUFFER_SIZE; //Physical Memory size
 
     //Allocate Physical Memory
@@ -34,6 +37,21 @@ Bittware::Bittware(int devNum) :
         return;
     }
 
+    int temp;
+    U32 rd_buffer[BUFFER_SIZE / 4];
+    U32 wr_buffer[BUFFER_SIZE / 4];
+
+    for (temp=0; temp<5; temp++)
+    {
+    	error = dsp21k_rd_phys_memory(&_physmem, temp, _physmem.size / 4, rd_buffer);
+        if (check_error(error) != DSP21K_SUCCESS) {
+            printf("Memory Read Error!\n");
+            return;
+        }
+        printf("Mem0 %x = %x\n", temp, rd_buffer[0]);
+        printf("Mem1 %x = %x\n", temp, rd_buffer[1]);
+    }
+        
     _isok = true;
 
     std::cout << "Remora  initialized\n";

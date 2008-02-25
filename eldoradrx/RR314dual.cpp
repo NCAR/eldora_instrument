@@ -436,7 +436,7 @@ void showStats(runParams& params,
 // monitors the card activity.
 int main(int argc,
          char** argv) {
-
+    printf("Starting\n");
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
