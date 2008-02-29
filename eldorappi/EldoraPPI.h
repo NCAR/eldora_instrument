@@ -86,21 +86,21 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param p True to enable pause.
         void pauseSlot(
                 bool p);
-        /// Activated when a mouse click is released for the forward color bar.
-        void colorBarForSlot();
-        /// Activated when a mouse click is released for the aft color bar.
-        void colorBarAftSlot();
+        /// Activated when a mouse click is released for the upper color bar.
+        void colorBarUpperSlot();
+        /// Activated when a mouse click is released for the lower color bar.
+        void colorBarLowerSlot();
         /// Activated when the ColorBarSettings dialog is finished.
         /// @param result The dialog result code
         void colorBarSettingsFinishedSlot(
                 int result);
-        /// Called to change the forward product type
+        /// Called to change the upper product type
         /// @param id The product type id.
-        void productTypeForSlot(
+        void productTypeUpperSlot(
                 int id);
-        /// Called to change the aft product type
+        /// Called to change the lower product type
         /// @param id The product type id.
-        void productTypeAftSlot(
+        void productTypeLowerSlot(
                 int id);
     protected:
         /// Initialize all of the color maps. It creates the master list of 
@@ -110,7 +110,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         void initColorMaps();
         /// Configure the ProductInfo entry for a product, 
         /// getting values from the configuration. Create the radio buttons for 
-        /// each product and add to the for and aft control panels. Create a consecutive
+        /// each product and add to the upper and lower control panels. Create a consecutive
         /// entry in _productIndex each time setProductInfo is called.
         void setProductInfo(
                 PRODUCT_TYPES t, ///< The product type
@@ -127,14 +127,14 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// color bar, false if the aft.
         void colorBarPopup(
                 bool forwardRadar);
-        /// The manager for the forward PPI
-        PPIManager _forManager;
-        /// The manager for the aft PPI
-        PPIManager _aftManager;
-        /// The currently selected forward ppi type.
-        PRODUCT_TYPES _prodTypeFor;
-        /// The currently selected aft ppi type.
-        PRODUCT_TYPES _prodTypeAft;
+        /// The manager for the upper PPI
+        PPIManager _upperManager;
+        /// The manager for the lower PPI
+        PPIManager _lowerManager;
+        /// The currently selected upper ppi type.
+        PRODUCT_TYPES _prodTypeUpper;
+        /// The currently selected lower ppi type.
+        PRODUCT_TYPES _prodTypeLower;
         /// This set contains PRODUCT_TYPESs identifiers for all desired 
         /// products plots. It is used to filter products from
         /// the incoming data stream.
@@ -176,21 +176,19 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// For each PRODUCT_TYPES, there will be an entry in this map.
         std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
         /// The layout which contains the radio buttons for product
-        /// selection for the forward radar.
-        QVBoxLayout _forwardVBox;
+        /// selection for the upper display.
+        QVBoxLayout _upperVBox;
         /// The layout which contains the radio buttons for product
-        /// selection for the aft radar.
-        QVBoxLayout _aftVBox;
+        /// selection for the lower display.
+        QVBoxLayout _lowerVBox;
         /// The button group for the radio buttons for product 
-        /// selection for the forward radar.
-        QButtonGroup _forwardButtonGroup;
+        /// selection for the upper display.
+        QButtonGroup _upperButtonGroup;
         /// The button group for the radio buttons for product 
-        /// selection for the aft radar.
-        QButtonGroup _aftButtonGroup;
-        /// elevation angle, forward radar
-        double _forwardElevation;
-        /// elevation angle, aft radar
-        double _aftElevation;
+        /// selection for the lower display.
+        QButtonGroup _lowerButtonGroup;
+        /// elevation angle
+        double _elevation;
 
 };
 

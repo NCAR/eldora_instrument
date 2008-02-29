@@ -28,9 +28,9 @@
 //////////////////////////////////////////////////////////////////////
 EldoraPPI::EldoraPPI(
         QDialog* parent) :
-    QDialog(parent), _prodTypeFor(PROD_DBZ), _prodTypeAft(PROD_DBZ), 
+    QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
-    _gates(0), _forwardElevation(0.0), _aftElevation(0.0)
+    _gates(0), _elevation(0.0)
     {
     // Set up our form
     setupUi(parent);
@@ -62,12 +62,12 @@ EldoraPPI::EldoraPPI(
     // connect the controls
     
     // The color bar popup
-    connect(colorBarFor, SIGNAL(released()), this, SLOT(colorBarForSlot()));
-    connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarAftSlot()));
+    connect(colorBarFor, SIGNAL(released()), this, SLOT(colorBarUpperSlot()));
+    connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarLowerSlot()));
 
     // product selection buttons
-    connect(&_forwardButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeForSlot(int)));
-    connect(&_aftButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeAftSlot(int)));
+    connect(&_upperButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeUpperSlot(int)));
+    connect(&_lowerButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeLowerSlot(int)));
     
     //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
     connect(pause, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
@@ -83,19 +83,19 @@ EldoraPPI::EldoraPPI(
 
     // configure the displays themselves.
     int decimation = _config.getInt("Decimation", 1);
-    _forManager.setup(ppiFor, 7, &_productMaps, decimation);
-    _aftManager.setup(ppiAft, 7, &_productMaps, decimation);
+    _upperManager.setup(ppiFor, 7, &_productMaps, decimation);
+    _lowerManager.setup(ppiAft, 7, &_productMaps, decimation);
     
     // run through all of the product types and configure the 
     // the for and aft displays.
     for (std::set<PRODUCT_TYPES>::iterator i = _productList.begin(); 
     i != _productList.end(); i++){
-        productTypeForSlot(*i);
-        productTypeAftSlot(*i);
+        productTypeUpperSlot(*i);
+        productTypeLowerSlot(*i);
     }
     // and then set the initial display
-    productTypeForSlot(PROD_DBZ);
-    productTypeAftSlot(PROD_DBZ);
+    productTypeUpperSlot(PROD_DBZ);
+    productTypeLowerSlot(PROD_DBZ);
    
     // start the statistics timer
     startTimer(100);
@@ -124,18 +124,17 @@ void EldoraPPI::productSlot(
     // if the product size has changed, reconfigure the ppi displays
     if (p.size() != _gates) {
         _gates = p.size();
-        _forManager.configurePPI(_productList.size(), _gates, 400);
-        _aftManager.configurePPI(_productList.size(), _gates, 400);
+        _upperManager.configurePPI(_productList.size(), _gates, 400);
+        _lowerManager.configurePPI(_productList.size(), _gates, 400);
     }
 
     // Map the product type into the zero based index for the PPIManager.
     int index = _productInfo[productType].getUserData();
     
     // send the product to the appropriate ppi manager
-    if (_forManager.newProduct(p, elDegrees, index))
-        	_forwardElevation = elDegrees;
-    if (_aftManager.newProduct(p, elDegrees, index))
-        	_aftElevation = elDegrees;
+    if (_upperManager.newProduct(p, elDegrees, index))
+        	_elevation = elDegrees;
+    _lowerManager.newProduct(p, elDegrees, index);
 }
 
 
@@ -179,8 +178,8 @@ void EldoraPPI::initPlots() {
 
     // The buttons were created and assigned to layouts in setPpiInfo.
     // Attach these layouts to the button groups
-    forwardGroupBox->setLayout(&_forwardVBox);
-    aftGroupBox->setLayout(&_aftVBox);
+    forwardGroupBox->setLayout(&_upperVBox);
+    aftGroupBox->setLayout(&_lowerVBox);
 
 }
 
@@ -189,10 +188,8 @@ void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
     QString angle;
-    angle.setNum(_forwardElevation, 'f', 1);
+    angle.setNum(_elevation, 'f', 1);
     forElev->setText(angle);
-    angle.setNum(_aftElevation, 'f', 1);
-    aftElev->setText(angle);
  
 }
 
@@ -282,26 +279,26 @@ void EldoraPPI::setProductInfo(
     if (setChecked)
         button->setChecked(true);
     button->setToolTip(longName.c_str());
-    _forwardVBox.addWidget(button);
-    _forwardButtonGroup.addButton(button);
-    _forwardButtonGroup.setId(button, t);
+    _upperVBox.addWidget(button);
+    _upperButtonGroup.addButton(button);
+    _upperButtonGroup.setId(button, t);
 
     // aft button
     button = new QRadioButton(tr(shortName.c_str()));
     if (setChecked)
         button->setChecked(true);
     button->setToolTip(longName.c_str());
-    _aftVBox.addWidget(button);
-    _aftButtonGroup.addButton(button);
-    _aftButtonGroup.setId(button, t);
+    _lowerVBox.addWidget(button);
+    _lowerButtonGroup.addButton(button);
+    _lowerButtonGroup.setId(button, t);
     
 }
 //////////////////////////////////////////////////////////////////////
-void EldoraPPI::colorBarForSlot() {
+void EldoraPPI::colorBarUpperSlot() {
     colorBarPopup(true);
 }
 //////////////////////////////////////////////////////////////////////
-void EldoraPPI::colorBarAftSlot() {
+void EldoraPPI::colorBarLowerSlot() {
     colorBarPopup(false);
 }
 //////////////////////////////////////////////////////////////////////
@@ -311,9 +308,9 @@ void EldoraPPI::colorBarPopup(bool forwardRadar) {
     // the selected colormap.
     PRODUCT_TYPES prodType;
     if (forwardRadar)
-        prodType = _prodTypeFor;
+        prodType = _prodTypeUpper;
     else
-        prodType = _prodTypeAft;
+        prodType = _prodTypeLower;
     
     double min = _productInfo[prodType].getScaleMin();
     double max = _productInfo[prodType].getScaleMax();
@@ -344,9 +341,9 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         // which colorbar are we aorking with?
         PRODUCT_TYPES prodType;
         if (_colorBarSettings->forwardRadar())
-            prodType = _prodTypeFor;
+            prodType = _prodTypeUpper;
         else
-            prodType = _prodTypeAft;
+            prodType = _prodTypeLower;
         
         // get the scale values from the settings dialog
         double scaleMin = _colorBarSettings->getMinimum();
@@ -378,13 +375,13 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
         _productMaps[index]->setRange(scaleMin, scaleMax);
         
         // configure the color bar with it
-        if (prodType == _prodTypeFor) 
+        if (prodType == _prodTypeUpper) 
             colorBarFor->configure(*_productMaps[index]);
-        if (prodType == _prodTypeAft) 
+        if (prodType == _prodTypeLower) 
             colorBarAft->configure(*_productMaps[index]);         
 
         // assign the new scale values to the current product
-        _productInfo[_prodTypeFor].setScale(scaleMin, scaleMax);
+        _productInfo[_prodTypeUpper].setScale(scaleMin, scaleMax);
         // save the new values in the configuration
         // create the configuration keys
         std::string key = _productInfo[prodType].getKey();
@@ -399,29 +396,29 @@ void EldoraPPI::colorBarSettingsFinishedSlot(
     }
 }
 //////////////////////////////////////////////////////////////////////////////
-void EldoraPPI::productTypeForSlot(int id) {
+void EldoraPPI::productTypeUpperSlot(int id) {
     // set the ppiType
-    _prodTypeFor = (PRODUCT_TYPES)id;
+    _prodTypeUpper = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _productInfo[_prodTypeFor].getUserData();
+    int index = _productInfo[_prodTypeUpper].getUserData();
     
     // inform the display
-    _forManager.selectVar(index);
+    _upperManager.selectVar(index);
     
     // configure the color bar with it
     colorBarFor->configure(*_productMaps[index]);
 }
 //////////////////////////////////////////////////////////////////////////////
-void EldoraPPI::productTypeAftSlot(int id) {
+void EldoraPPI::productTypeLowerSlot(int id) {
     // set the ppiType
-    _prodTypeAft = (PRODUCT_TYPES)id;
+    _prodTypeLower = (PRODUCT_TYPES)id;
     
     // get the _productsMap index
-    int index = _productInfo[_prodTypeAft].getUserData();
+    int index = _productInfo[_prodTypeLower].getUserData();
     
     // inform the display
-    _aftManager.selectVar(index);
+    _lowerManager.selectVar(index);
     
     // configure the color bar with it
     colorBarAft->configure(*_productMaps[index]);
