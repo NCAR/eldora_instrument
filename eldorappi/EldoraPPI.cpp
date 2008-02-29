@@ -132,13 +132,10 @@ void EldoraPPI::productSlot(
     int index = _productInfo[productType].getUserData();
     
     // send the product to the appropriate ppi manager
-    if (radarId == 0) {
-        if (_forManager.newProduct(p, elDegrees, index))
+    if (_forManager.newProduct(p, elDegrees, index))
         	_forwardElevation = elDegrees;
-    } else {  
-        if (_aftManager.newProduct(p, elDegrees, index))
+    if (_aftManager.newProduct(p, elDegrees, index))
         	_aftElevation = elDegrees;
-    }
 }
 
 

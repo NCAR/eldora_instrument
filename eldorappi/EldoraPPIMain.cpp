@@ -21,14 +21,19 @@ Q_DECLARE_METATYPE(std::vector<int>)
 
 namespace po = boost::program_options;
 void parseArgs(
-        int argc, char** argv, std::string& productsTopic, std::string& ORB,
+        int argc, char** argv, 
+        std::string& productsTopic, 
+        bool& forwardRadar,
+        std::string& ORB,
         std::string& DCPS) {
 
     // get the options
     po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") ("productstopic",
-            po::value<std::string>(&productsTopic), "DDS products topic")
+    descripts.add_options() ("help", "describe options") 
+    ("productstopic", po::value<std::string>(&productsTopic), "DDS products topic")
+    ("forward", "View forward radar (--forward or --aft is required)")
+	("aft", "View aft radar (--forward or --aft is required)")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ;
@@ -41,6 +46,18 @@ void parseArgs(
         std::cout << descripts << "\n";
         exit(1);
     }
+
+    // digest the radar choice option
+    if ((vm.count("forward")+vm.count("aft")) != 1) {
+        std::cout << descripts << "\n";
+        exit(1);    	
+    }
+    
+    if (vm.count("forward"))
+    	forwardRadar = true;
+    else
+    	forwardRadar = false;
+    
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,11 +68,16 @@ int main(
     //
     // Configuration
 
+	// The EldoraPPI configuration 
     QtConfig config("NCAR", "EldoraPPI");
+    // The products topic name
     std::string productsTopic;
-    std::string tsTopic;
+    // path to the ORBSvcConf configuration file
     std::string ORB;
+    // path to the DCPSConfigFile configuration file
     std::string DCPS;
+    // set true if viewing forward radar, false otherwise
+    bool forwardRadar;
 
     ORB
             = config.getString("ORBConfigFile",
@@ -64,7 +86,7 @@ int main(
             "/home/eldora/eldora/conf/consumer.ini");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, productsTopic, ORB, DCPS);
+    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -113,7 +135,8 @@ int main(
 
     // request products from both radars. A rate of 0.0 means send all beams
     EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,
-            EldoraQtProductsSource::RADAR_BOTH, prodTypes);
+            (forwardRadar ? EldoraQtProductsSource::RADAR_FOR : EldoraQtProductsSource::RADAR_AFT), 
+            prodTypes);
 
     ///////////////////////////////////////////////////////////////
     //
