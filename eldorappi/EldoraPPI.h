@@ -55,7 +55,7 @@
 class EldoraPPI : public QDialog, public Ui::EldoraPPI {
     Q_OBJECT
     public:
-        EldoraPPI(
+        EldoraPPI(std::string title,
                 QDialog* parent = 0);
         virtual ~EldoraPPI();
 

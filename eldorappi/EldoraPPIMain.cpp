@@ -10,6 +10,7 @@ Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
 
 #include "EldoraPPI.h"
+#include "SvnVersion.h"
 #include "QtConfig.h"
 
 // To get the DDSSubscriber definition
@@ -109,8 +110,16 @@ int main(
     // create a dialog to serve as parent for eldorascope
     QDialog* dialog = new QDialog;
 
-    // create eldorascope
-    EldoraPPI ppi(dialog);
+    // create eldorappi
+    // get our title from the coniguration
+    std::string title = config.getString("title", "EldoraPPI");
+    title += " ";
+    title += SvnVersion::revision();
+    if (forwardRadar) 
+        title += " Forward Radar";
+    else
+        title += " Aft Radar";
+    EldoraPPI ppi(title, dialog);
 
     ///////////////////////////////////////////////////////////////
     //

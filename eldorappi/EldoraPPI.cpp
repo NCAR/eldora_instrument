@@ -1,6 +1,5 @@
 #include "EldoraPPI.h"
 #include "PPI.h"
-#include "SvnVersion.h"
 
 #include <QMessageBox>
 #include <QButtonGroup>
@@ -26,7 +25,7 @@
 #include <time.h>
 
 //////////////////////////////////////////////////////////////////////
-EldoraPPI::EldoraPPI(
+EldoraPPI::EldoraPPI(std::string title,
         QDialog* parent) :
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
@@ -37,11 +36,8 @@ EldoraPPI::EldoraPPI(
 
     // configure pause
     _paused = pause->isChecked();
-    
-    // get our title from the coniguration
-    std::string title = _config.getString("title", "EldoraPPI");
-    title += " ";
-    title += SvnVersion::revision();
+
+    // set the title
     parent->setWindowTitle(title.c_str());
 
     // initialize running statistics
@@ -189,7 +185,7 @@ void EldoraPPI::timerEvent(
 
     QString angle;
     angle.setNum(_elevation, 'f', 1);
-    forElev->setText(angle);
+    elevation->setText(angle);
  
 }
 
@@ -302,12 +298,12 @@ void EldoraPPI::colorBarLowerSlot() {
     colorBarPopup(false);
 }
 //////////////////////////////////////////////////////////////////////
-void EldoraPPI::colorBarPopup(bool forwardRadar) {
+void EldoraPPI::colorBarPopup(bool upper) {
     
     // get the current settings for the selected product in
     // the selected colormap.
     PRODUCT_TYPES prodType;
-    if (forwardRadar)
+    if (upper)
         prodType = _prodTypeUpper;
     else
         prodType = _prodTypeLower;
@@ -322,7 +318,7 @@ void EldoraPPI::colorBarPopup(bool forwardRadar) {
             != _colorMaps.end(); i++) {
         mapNames.push_back(i->first);
     }
-    _colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, forwardRadar, this);
+    _colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, upper, this);
 
     // connect the finished slot so that the dialog status 
     // can be captuyred when the dialog closes
