@@ -43,7 +43,10 @@ void EldoraQtProductsSource::notify() {
             thisRadar = RADAR_FOR;
             break;
         }
-
+        
+//        std::cout << "_radarChoices:" << _radarChoices <<
+//        "  thisRadar:" << thisRadar << "\n";
+        
         unsigned int productSize = pItem->dbz.length();
         if (_radarChoices == RADAR_BOTH || _radarChoices == thisRadar) {
 
@@ -54,6 +57,8 @@ void EldoraQtProductsSource::notify() {
                 float gain;
                 float offset;
                 short* product;
+                
+                // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
 
                 switch (_gateMode) {
@@ -65,6 +70,14 @@ void EldoraQtProductsSource::notify() {
                         }
                         // copy all P in the beam.
                         double* pP = &P[0];
+                        if (*prodType == PROD_P1 || 
+                        		*prodType == PROD_P2 || 
+                        		*prodType == PROD_P3 || 
+                        		*prodType == PROD_P4) {
+ //                       	std::cout << "Radar:" << pItem->radarId <<
+ //                       	"  product type:" << *prodType <<
+ //                       	"  product:" << P[0] << "\n";
+                        }
                         for (unsigned int i = 0; i < productSize; i++) {
                             pP[i] = (product[i] + offset)/gain;
                         }
@@ -180,6 +193,7 @@ void EldoraQtProductsSource::oneGateSlot(
     _pointsPerGate = n;
     _gateMode = ONE_GATE;
     _pointCounter = 0;
+    _forwardRadar = forwardRadar;
     
     // if we are not already looking at multiple products, then
     // change the one that we are looking at
@@ -200,6 +214,9 @@ void EldoraQtProductsSource::alongBeamSlot(
 
     // set the gate mode
     _gateMode = ALONG_BEAM;
+    
+    // save the radar
+    _forwardRadar = forwardRadar;
     
     // if we are not already looking at multiple products, then
     // change the one that we are looking at
