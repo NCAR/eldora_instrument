@@ -70,14 +70,6 @@ void EldoraQtProductsSource::notify() {
                         }
                         // copy all P in the beam.
                         double* pP = &P[0];
-                        if (*prodType == PROD_P1 || 
-                        		*prodType == PROD_P2 || 
-                        		*prodType == PROD_P3 || 
-                        		*prodType == PROD_P4) {
- //                       	std::cout << "Radar:" << pItem->radarId <<
- //                       	"  product type:" << *prodType <<
- //                       	"  product:" << P[0] << "\n";
-                        }
                         for (unsigned int i = 0; i < productSize; i++) {
                             pP[i] = (product[i] + offset)/gain;
                         }

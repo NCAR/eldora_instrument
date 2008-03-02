@@ -59,30 +59,17 @@ void EldoraProducts::newPulseData(
             double dbz = 0.0;
             for (unsigned int f = 0; f < 4; f++) {
                 dbz += pulses[f]->abp[p+2];
-//                if (i == 0) {
-//                	std::cout << "pulse for radar:" << pulses[f]->radarId <<
-//                	" f:" << f << " abp[2]:" << pulses[f]->abp[p+2] << "\n";
-//                }
             }
             
             products->dm[i] = TOSHORT(dbz/(((i+1.0)*(i+1.0))/100.0), products->dmGain, products->dmOffset);
                 
-            products->dbz[i] = TOSHORT(dbz, products->dbzGain, products->dbzOffset);
+            products->dbz[i] = TOSHORT(dbz, products->dbzGain, products->dbzOffset)*100-70;
 
-            products->p1[i] = TOSHORT(pulses[0]->abp[p+2], products->p1Gain, products->p1Offset);
-            products->p2[i] = TOSHORT(pulses[1]->abp[p+2], products->p2Gain, products->p2Offset);
-            products->p3[i] = TOSHORT(pulses[2]->abp[p+2], products->p3Gain, products->p3Offset);
-            products->p4[i] = TOSHORT(pulses[3]->abp[p+2], products->p4Gain, products->p4Offset);
+            products->p1[i] = TOSHORT(pulses[0]->abp[p+2]*70.0 - 60.0, products->p1Gain, products->p1Offset);
+            products->p2[i] = TOSHORT(pulses[1]->abp[p+2]*70.0 - 60.0, products->p2Gain, products->p2Offset);
+            products->p3[i] = TOSHORT(pulses[2]->abp[p+2]*70.0 - 60.0, products->p3Gain, products->p3Offset);
+            products->p4[i] = TOSHORT(pulses[3]->abp[p+2]*70.0 - 60.0, products->p4Gain, products->p4Offset);
            
-//            if (i == 0) {
-//            	std::cout << "pulse for radar:" << pulses[0]->radarId <<
-//            	" p1:" << products->p1[i] <<
-//            	" p2:" << products->p2[i] <<
-//            	" p3:" << products->p3[i] <<
-//            	" p4:" << products->p4[i] <<
-//                "\n";
-//            }
-
             products->vr[i] = TOSHORT((i-productsLength/2.0), products->vrGain, products->vrOffset);
             products->vs[i] = TOSHORT((i-productsLength/2.0)/10.0, products->vsGain, products->vsOffset);
             products->vl[i] = TOSHORT(i*(i-productsLength/2.0)/productsLength, products->vlGain, products->vlOffset);
