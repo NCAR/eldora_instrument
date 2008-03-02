@@ -4,10 +4,14 @@ enum RadarChoice {Forward, Aft};
 typedef sequence<float> A_B_P;
 typedef sequence<short> Product;
 typedef sequence<short> TS;
-  
+
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
 #pragma DCPS_DATA_KEY  "EldoraDDS::TimeSeries radarId"
 
+/// TimeSeries carries I and Q pairs for a limited number 
+/// of consecutive gates, for 4 frequencies, for one radar.
+/// The packing order is [freq][gate][I,Q]
+///
   struct TimeSeries {
     RadarChoice radarId;
     long long timestamp;
@@ -19,9 +23,13 @@ typedef sequence<short> TS;
     TS tsdata;
   };
 
+
 #pragma DCPS_DATA_TYPE "EldoraDDS::Pulse"
 #pragma DCPS_DATA_KEY  "EldoraDDS::Pulse radarId"
 
+/// Pulse contains A,B,P triples for all gates in a single radar beam.
+/// The packing order is [gate][A,B,P]
+///
   struct Pulse {
     RadarChoice radarId;
     long long timestamp;
@@ -36,6 +44,16 @@ typedef sequence<short> TS;
 #pragma DCPS_DATA_TYPE "EldoraDDS::Products"
 #pragma DCPS_DATA_KEY  "EldoraDDS::Products radarId"
 
+/// Products contains radar products computed from A,B,P. 
+/// Each product type carries that one parameter for all
+/// gates in one beam.
+///
+/// The products are scaled to fit within a 16 bit 
+/// value, in order to reduce the overall system bandwidth.
+/// The gain and offset numbers are used to scale the
+/// original input value for translation to 16 bites, and 
+/// then unscale the values by the consumer.
+///
   struct Products {
     RadarChoice radarId;
     long long timestamp;
@@ -91,6 +109,8 @@ typedef sequence<short> TS;
 #pragma DCPS_DATA_TYPE "EldoraDDS::HouseKeeping"
 #pragma DCPS_DATA_KEY  "EldoraDDS::HouseKeeping radarId"
 
+/// Housekeeping is not used yet, but it is probable that we 
+/// will need something like this.
   struct HouseKeeping {
     RadarChoice radarId;
     long long timestamp;
