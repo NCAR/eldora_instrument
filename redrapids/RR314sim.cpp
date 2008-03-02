@@ -96,9 +96,6 @@ void RR314sim::simulate() {
                 _abp[a+0] = (int)((rand() - RAND_MAX/2)*boardFactor);
                 _abp[a+1] = (int)((rand() - RAND_MAX/2)*boardFactor);
                 _abp[a+2] = (int)(rand()*boardFactor);
-                _abp[a+0] = (boardNumber+1)*(i+1)*pow(2, 27.0);
-                _abp[a+1] = (boardNumber+1)*(i+1)*pow(2, 27.0);
-                _abp[a+2] = (boardNumber+1)*(i+1)*pow(2, 27.0);
             }
             _pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
         }
