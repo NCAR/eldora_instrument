@@ -572,6 +572,8 @@ void RR314::newABPData(int* src,
     // verify that we got an abp channel
     assert((chan & 1) && (chan < 8));
 
+    //std::cout << "newABPData for board:" << boardNumber() << "  chan:" << chan << " src[5]:" << src[5] << "\n";
+    
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
     // loop through all src samples
     for (int i = 0; i < n; i++) {

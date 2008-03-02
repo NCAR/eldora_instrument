@@ -51,14 +51,19 @@ void EldoraProducts::newPulseData(
         products->sw.length(productsLength);
         products->ncp.length(productsLength);
         
-        // Copy the data.
+        // Compute the products.
          for (int i = 0; i < productsLength; i++) {
              int p = 3*i;
             // temprary hack: Sum all four channel powers to create
             // dbz.
             double dbz = 0.0;
-            for (unsigned int f = 0; f < 4; f++)
+            for (unsigned int f = 0; f < 4; f++) {
                 dbz += pulses[f]->abp[p+2];
+//                if (i == 0) {
+//                	std::cout << "pulse for radar:" << pulses[f]->radarId <<
+//                	" f:" << f << " abp[2]:" << pulses[f]->abp[p+2] << "\n";
+//                }
+            }
             
             products->dm[i] = TOSHORT(dbz/(((i+1.0)*(i+1.0))/100.0), products->dmGain, products->dmOffset);
                 
@@ -68,7 +73,16 @@ void EldoraProducts::newPulseData(
             products->p2[i] = TOSHORT(pulses[1]->abp[p+2], products->p2Gain, products->p2Offset);
             products->p3[i] = TOSHORT(pulses[2]->abp[p+2], products->p3Gain, products->p3Offset);
             products->p4[i] = TOSHORT(pulses[3]->abp[p+2], products->p4Gain, products->p4Offset);
-            
+           
+//            if (i == 0) {
+//            	std::cout << "pulse for radar:" << pulses[0]->radarId <<
+//            	" p1:" << products->p1[i] <<
+//            	" p2:" << products->p2[i] <<
+//            	" p3:" << products->p3[i] <<
+//            	" p4:" << products->p4[i] <<
+//                "\n";
+//            }
+
             products->vr[i] = TOSHORT((i-productsLength/2.0), products->vrGain, products->vrOffset);
             products->vs[i] = TOSHORT((i-productsLength/2.0)/10.0, products->vsGain, products->vsOffset);
             products->vl[i] = TOSHORT(i*(i-productsLength/2.0)/productsLength, products->vlGain, products->vlOffset);
@@ -95,16 +109,16 @@ int EldoraProducts::numPulses() {
 void EldoraProducts::initProducts(EldoraDDS::Products* p) {
     
     p->p1Gain = 100.0;
-    p->p1Offset = 32768.0;
+    p->p1Offset = 0.0;
     
     p->p2Gain = 100.0;
-    p->p2Offset = 32768.0;
+    p->p2Offset = 0.0;
     
     p->p3Gain = 100.0;
-    p->p3Offset = 32768.0;
+    p->p3Offset = 0.0;
     
     p->p4Gain = 100.0;
-    p->p4Offset = 32768.0;
+    p->p4Offset = 0.0;
     
     p->dmGain = 1000.0;
     p->dmOffset = 0.0;

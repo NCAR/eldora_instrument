@@ -1,5 +1,6 @@
 #include "RR314sim.h"
 #include <iostream>
+#include <math.h>
 
 using namespace RedRapids;
 
@@ -46,6 +47,12 @@ void RR314sim::start() {
 
 //////////////////////////////////////////////////////////////////////
 void RR314sim::simulate() {
+	
+	// get the board number. We will modify the simulated data based 
+	// on the boardnumber.
+	int boardNumber = _pRR314->boardNumber();	
+	float boardFactor = (1 + boardNumber)/2.0;
+	
     // establish the ABP data size. Each apb is three signed ints,
     // plus the two identifier words.
     _abp.resize(3*_gates+3);
@@ -70,10 +77,10 @@ void RR314sim::simulate() {
                 _iq[5] = _pulseNum & 0xffff;
                 for (unsigned int k = 6; k < _iq.size(); k += 2) {
                     // create Is and Qs
-                    _iq[k  ] = (rand() - RAND_MAX/2);
-                    _iq[k] /= k*1.0;
-                    _iq[k+1] = (rand() - RAND_MAX/2);
-                    _iq[k+1] /= k*1.0;
+                	short int I = (rand() - RAND_MAX/2) & 0xffff;
+                	short int Q = (rand() - RAND_MAX/2) & 0xffff;
+                    _iq[k  ] = (short int)(I*boardFactor/k);
+                    _iq[k+1] = (short int)(Q*boardFactor/k);
                 }
                  _pRR314->newIQData(&_iq[0], _iqChans[i], _iq.size());
             }
@@ -81,14 +88,17 @@ void RR314sim::simulate() {
         }
         for (unsigned int i = 0; i < _abpChans.size(); i++) {
              /// The firmware assigns channel numbers 1-4, 
-            /// corresponding to the receiver channels
+            /// corresponding to the receiver channels A.B. C. D
             _abp[0] = i + 1;
             _abp[1] = 0;
             _abp[2] = _beamNum;
              for (unsigned int a = 3; a < _abp.size(); a += 3) {
-                _abp[a+0] = rand() - RAND_MAX/2;
-                _abp[a+1] = rand() - RAND_MAX/2;
-                _abp[a+2] = rand();
+                _abp[a+0] = (int)((rand() - RAND_MAX/2)*boardFactor);
+                _abp[a+1] = (int)((rand() - RAND_MAX/2)*boardFactor);
+                _abp[a+2] = (int)(rand()*boardFactor);
+                _abp[a+0] = (boardNumber+1)*(i+1)*pow(2, 27.0);
+                _abp[a+1] = (boardNumber+1)*(i+1)*pow(2, 27.0);
+                _abp[a+2] = (boardNumber+1)*(i+1)*pow(2, 27.0);
             }
             _pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
         }

@@ -836,7 +836,6 @@ void EldoraScope::radarSlot(
         int forwardRadar) {
     _forwardRadar = forwardRadar,
     // tell the data source about our decision
-
             dataMode();
 }
 //////////////////////////////////////////////////////////////////////
