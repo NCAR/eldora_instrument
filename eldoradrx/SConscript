@@ -18,10 +18,10 @@ rr314""")
 env.Append(LIBS = libs)
 
 # build dual board application
-rr314dual = env.Program('rr314dual', 'RR314dual.cpp')
+eldoradrx = env.Program('eldoradrx', 'RR314dual.cpp')
 
-Default(rr314dual)
+Default(eldoradrx)
 
-env.DeployProgram(rr314dual)
+env.DeployProgram(eldoradrx)
 
 

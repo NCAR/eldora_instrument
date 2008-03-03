@@ -24,14 +24,14 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -d $CONF/DDSDomainIds.conf"
 
 # the RR314 application
-rr314="$topdir/eldoradrx/rr314dual \
+eldoradrx="$topdir/eldoradrx/eldoradrx \
    --ORB $CONF/ORBSvc.conf \
    --DCPS $CONF/DDSClient.ini \
    --pub $*"
  
 # trap the signals on this script, and kill the jobs
 trap 'echo -e "$0: SHUTTING DOWN"; trap "" ERR; \
-	pkill rr314dual' ERR SIGINT SIGTERM
+	pkill eldoradrx' ERR SIGINT SIGTERM
 
 # ignore hup so that we can log out and leave running
 trap "" HUP
@@ -45,12 +45,12 @@ fi
 
 sleep 1
 
-# kill existing rr314dual
-pkill rr314dual
+# kill existing eldoradrx
+pkill eldoradrx
 
-echo "Starting rr314. Hit control-c to terminate. That"
-echo "will terminate all rr314 programs and the DCPSInfoRepo"
-$rr314
+echo "Starting eldoradrx. Hit control-c to terminate. That"
+echo "will terminate all eldoradrx programs"
+$eldoradrx
 
 
 
