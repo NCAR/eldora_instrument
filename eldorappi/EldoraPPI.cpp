@@ -18,6 +18,7 @@
 #include <QPalette>
 #include <QDateTime>
 #include <QFileDialog>
+
 #include <string>
 #include <algorithm>
 
@@ -46,6 +47,11 @@ EldoraPPI::EldoraPPI(std::string title,
         _lastPulseNum[i] = 0;
     }
 
+    // creat the hot key action group
+    fkeysActionGroup = new QActionGroup(parent);
+    fkeysActionGroup->setEnabled(true);
+    fkeysActionGroup->setExclusive(false);
+    
     // fill in the product list
     _productList.insert(PROD_DM);
     _productList.insert(PROD_DBZ);
@@ -54,6 +60,9 @@ EldoraPPI::EldoraPPI(std::string title,
     _productList.insert(PROD_VL);
     _productList.insert(PROD_SW);
     _productList.insert(PROD_NCP);
+    
+    
+    connect(fkeysActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(fkeyTriggered(QAction*)));
 
     // connect the controls
     
@@ -89,6 +98,26 @@ EldoraPPI::EldoraPPI(std::string title,
         productTypeUpperSlot(*i);
         productTypeLowerSlot(*i);
     }
+    
+    // add hot keys 
+    for (int i = 0; i < _productList.size(); i++) {
+    	QAction* F1;
+    	F1 = new QAction(fkeysActionGroup);
+    	F1->setEnabled(true);
+    	F1->setShortcut(Qt::Key_F1 + i);
+    	F1->setShortcutContext(Qt::ApplicationShortcut);
+    	F1->setActionGroup(fkeysActionGroup);
+    	parent->addAction(F1);
+
+    	F1 = new QAction(fkeysActionGroup);
+    	F1->setEnabled(true);
+    	F1->setShortcut('1' + i);
+    	F1->setShortcutContext(Qt::ApplicationShortcut);
+    	F1->setActionGroup(fkeysActionGroup);
+    	parent->addAction(F1);
+    }
+
+
     // and then set the initial display
     productTypeUpperSlot(PROD_DBZ);
     productTypeLowerSlot(PROD_DBZ);
@@ -419,5 +448,43 @@ void EldoraPPI::productTypeLowerSlot(int id) {
     // configure the color bar with it
     colorBarAft->configure(*_productMaps[index]);
 }
-
+//////////////////////////////////////////////////////////////////////////////
+void EldoraPPI::fkeyTriggered(QAction* qa) {
+	
+	// ignore keys that we are not expecting
+	
+	int numkey = qa->shortcut() - '1';	
+	if (numkey >= 0 && numkey < _productList.size()) {
+		// Lower display:
+		// Got a number key. See if this product index exists in _productInfo
+		for (std::map<PRODUCT_TYPES, ProductInfo>::iterator i = _productInfo.begin();
+		i != _productInfo.end(); i++) {
+			if (i->second.getUserData() == numkey ) {
+				// Matched it.
+				productTypeLowerSlot(i->second.getId());
+				QAbstractButton* button = 
+					_lowerButtonGroup.button(i->second.getId());
+				if(button)
+					button->setChecked(true);
+			}
+		}
+	} else {
+		int fkey = qa->shortcut() - Qt::Key_F1;
+		if (fkey >= 0 && fkey < _productList.size()) {
+			// Upper display:
+			// Got a function key. See if this product index exists in _productInfo
+			for (std::map<PRODUCT_TYPES, ProductInfo>::iterator i = _productInfo.begin();
+			i != _productInfo.end(); i++) {
+				if (i->second.getUserData() == fkey ) {
+					// matched it
+					productTypeUpperSlot(i->second.getId());
+					QAbstractButton* button = 
+						_upperButtonGroup.button(i->second.getId());
+					if(button)
+						button->setChecked(true);	
+				}
+			}
+		}
+	}
+}
 

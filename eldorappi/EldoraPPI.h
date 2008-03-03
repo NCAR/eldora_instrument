@@ -5,6 +5,8 @@
 #include <QPalette>
 #include <QVBoxLayout>
 #include <QEvent>
+#include <QAction>
+#include <QActionGroup>
 #include <deque>
 #include <map>
 #include <set>
@@ -30,17 +32,22 @@
 
 /** 
  EldoraPPI provides a traditional real-time PPI display of 
- eldora products. Two PPI displays are provided; one for the forward
- radar and one for the aft radar. Each PPI has an associated ColorBar display.
+ eldora products from one radar. Two stacked PPI displays are provided
+ so that two parameters may be displayed at a time.
  
  The user can configure the colormap for a given product by clicking on 
  the color bar.
  
- The for and aft displays each render the same fixed set of products 
+ The upper and lower displays each render the same fixed set of products 
  (PROD_DM, PROD_SW, etc.). The same colormap will be used on both 
  displays for a given product. Thus if the colormap and colorbar is changed 
- for a product on the aft radar, and the same product is being displayed
- on the forward colorbar, the forward colorbar will also be updated.
+ for a product on the upper display, and the same product is being displayed
+ on the lower display, the lower colorbar will also be updated.
+ 
+ In addition to radio buttons, hot keys are provided for selecting
+ the data product for each display. Number keys, starting at 1,
+ will select products on the upper display. Function keys, starting at F1,
+ do the same for the lower display. 
  
  EldoraPPI is simply a data consumer; it does not know
  anything about the data provider. Signals and slots
@@ -102,6 +109,10 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param id The product type id.
         void productTypeLowerSlot(
                 int id);
+        /// Called when a function key is pressed, to switch the 
+        /// product selection
+        void fkeyTriggered(QAction *qa);
+        
     protected:
         /// Initialize all of the color maps. It creates the master list of 
         /// colormaps which are available. These are the combination of
@@ -182,13 +193,20 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// selection for the lower display.
         QVBoxLayout _lowerVBox;
         /// The button group for the radio buttons for product 
-        /// selection for the upper display.
+        /// selection for the upper display. Each button in the group
+        /// is assigned an id equal to the PRODUCT_TYPE for that 
+        /// product.
         QButtonGroup _upperButtonGroup;
         /// The button group for the radio buttons for product 
-        /// selection for the lower display.
+        /// selection for the lower display. Each button in the group
+        /// is assigned an id equal to the PRODUCT_TYPE for that 
+        /// product.
         QButtonGroup _lowerButtonGroup;
         /// elevation angle
         double _elevation;
+        /// Action group for the fkeys shortcuts
+        QActionGroup* fkeysActionGroup;
+
 
 };
 
