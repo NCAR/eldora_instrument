@@ -1,16 +1,129 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.0"
    width="990"
    height="765"
-   id="svg2">
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   sodipodi:docname="ProcessOverview.svg"
+   sodipodi:docbase="/Work/Projects/Eldora/docs/design"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <metadata
+     id="metadata2545">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     inkscape:window-height="1162"
+     inkscape:window-width="1531"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="1.2535948"
+     inkscape:cx="495.00001"
+     inkscape:cy="382.50001"
+     inkscape:window-x="1798"
+     inkscape:window-y="10"
+     inkscape:current-layer="svg2" />
   <defs
      id="defs4">
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         id="path3704"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker6989"
+       style="overflow:visible;">
+      <path
+         id="path3692"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Tail"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Tail"
+       style="overflow:visible">
+      <g
+         id="g3719"
+         transform="scale(-1.2)">
+        <path
+           id="path3721"
+           d="M -3.8048674,-3.9585227 L 0.54352094,0"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+        <path
+           id="path3723"
+           d="M -1.2866832,-3.9585227 L 3.0617053,0"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+        <path
+           id="path3725"
+           d="M 1.3053582,-3.9585227 L 5.6537466,0"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+        <path
+           id="path3727"
+           d="M -3.8048674,4.1775838 L 0.54352094,0.21974226"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+        <path
+           id="path3729"
+           d="M -1.2866832,4.1775838 L 3.0617053,0.21974226"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+        <path
+           id="path3731"
+           d="M 1.3053582,4.1775838 L 5.6537466,0.21974226"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;marker-start:none;marker-end:none;stroke-linecap:round" />
+      </g>
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3686"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
     <marker
        refX="0"
        refY="0"
@@ -351,695 +464,994 @@
        gradientTransform="translate(265.9846,126.7768)" />
   </defs>
   <g
-     id="layer1">
-    <g
-       transform="matrix(0.7752044,0,0,0.7064777,98.389937,13.703045)"
-       id="g11292" />
-    <g
-       transform="translate(146.26908,19.264688)"
-       id="g16985">
-      <rect
-         width="117.85714"
-         height="71.428574"
-         rx="10.42449"
-         ry="10.42449"
-         x="393.86758"
-         y="105.90387"
-         style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11267" />
-      <rect
-         width="39.867653"
-         height="24.222092"
-         rx="8.081111"
-         ry="7.3646698"
-         x="393.75519"
-         y="105.75712"
-         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11269" />
-      <text
-         x="381.45074"
-         y="126.7009"
-         transform="scale(1.0475117,0.9546433)"
-         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11271"
-         xml:space="preserve"><tspan
-           x="381.45074"
-           y="126.7009"
-           id="tspan11273">State</tspan></text>
-      <rect
-         width="39.867653"
-         height="24.222092"
-         rx="8.081111"
-         ry="7.3646698"
-         x="471.79089"
-         y="105.9357"
-         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11301" />
-      <text
-         x="460.10013"
-         y="126.85351"
-         transform="scale(1.0475117,0.9546433)"
-         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11303"
-         xml:space="preserve"><tspan
-           x="460.10013"
-           y="126.85351"
-           id="tspan11305">RPC</tspan></text>
-      <text
-         x="424.93903"
-         y="151.61816"
-         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11297"
-         xml:space="preserve"><tspan
-           x="424.93903"
-           y="151.61816"
-           id="tspan11299">EldoraGui</tspan></text>
-    </g>
-    <g
-       transform="translate(326.38803,214.32744)"
-       id="g11356">
-      <g
-         id="g11591">
-        <rect
-           width="117.85714"
-           height="71.428574"
-           rx="10.42449"
-           ry="10.42449"
-           x="511.42856"
-           y="348.79074"
-           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11358" />
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="512.85712"
-           y="452.36218"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11360" />
-        <text
-           x="520.3634"
-           y="473.8732"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11362"
-           xml:space="preserve"><tspan
-             x="520.3634"
-             y="473.8732"
-             id="tspan11364">State</tspan></text>
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="613.52179"
-           y="452.61496"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11366" />
-        <text
-           x="626.64008"
-           y="474.07941"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11368"
-           xml:space="preserve"><tspan
-             x="626.64008"
-             y="474.07941"
-             id="tspan11370">RPC</tspan></text>
-        <text
-           x="542.5"
-           y="397.71933"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11372"
-           xml:space="preserve"><tspan
-             x="542.5"
-             y="397.71933"
-             id="tspan11374">EldoraPPI</tspan></text>
-      </g>
-    </g>
-    <g
-       transform="translate(-85.269719,218.35909)"
-       id="g11376">
-      <g
-         id="g11617">
-        <rect
-           width="117.85714"
-           height="71.428574"
-           rx="10.42449"
-           ry="10.42449"
-           x="511.42856"
-           y="348.79074"
-           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11378" />
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="512.85712"
-           y="452.36218"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11380" />
-        <text
-           x="520.3634"
-           y="473.8732"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11382"
-           xml:space="preserve"><tspan
-             x="520.3634"
-             y="473.8732"
-             id="tspan11384">State</tspan></text>
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="613.52179"
-           y="452.61496"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11386" />
-        <text
-           x="626.64008"
-           y="474.07941"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11388"
-           xml:space="preserve"><tspan
-             x="626.64008"
-             y="474.07941"
-             id="tspan11390">RPC</tspan></text>
-        <text
-           x="547.85712"
-           y="395.57648"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11392"
-           xml:space="preserve"><tspan
-             x="547.85712"
-             y="395.57648"
-             id="tspan11394">EldoraArc</tspan></text>
-      </g>
-    </g>
-    <g
-       transform="translate(111.54243,-40.839261)"
-       id="g11396">
-      <g
-         id="g11580">
-        <rect
-           width="117.85714"
-           height="71.428574"
-           rx="10.42449"
-           ry="10.42449"
-           x="511.42856"
-           y="348.79074"
-           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11398" />
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="512.85712"
-           y="452.36218"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11400" />
-        <text
-           x="520.3634"
-           y="473.8732"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11402"
-           xml:space="preserve"><tspan
-             x="520.3634"
-             y="473.8732"
-             id="tspan11404">State</tspan></text>
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="613.52179"
-           y="452.61496"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11406" />
-        <text
-           x="626.64008"
-           y="474.07941"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11408"
-           xml:space="preserve"><tspan
-             x="626.64008"
-             y="474.07941"
-             id="tspan11410">RPC</tspan></text>
-        <text
-           x="540.71429"
-           y="394.50504"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11412"
-           xml:space="preserve"><tspan
-             x="540.71429"
-             y="394.50504"
-             id="tspan11414">EldoraProd</tspan></text>
-      </g>
-    </g>
-    <g
-       transform="translate(133.2488,220.73321)"
-       id="g11416">
-      <g
-         transform="translate(-16.071429,-6.0714286)"
-         id="g11606">
-        <rect
-           width="117.85714"
-           height="71.428574"
-           rx="10.42449"
-           ry="10.42449"
-           x="511.42856"
-           y="348.79074"
-           style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11418" />
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="512.85712"
-           y="452.36218"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11420" />
-        <text
-           x="520.3634"
-           y="473.8732"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11422"
-           xml:space="preserve"><tspan
-             x="520.3634"
-             y="473.8732"
-             id="tspan11424">State</tspan></text>
-        <rect
-           width="51.42857"
-           height="34.285713"
-           rx="10.42449"
-           ry="10.42449"
-           x="613.52179"
-           y="452.61496"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11426" />
-        <text
-           x="626.64008"
-           y="474.07941"
-           transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11428"
-           xml:space="preserve"><tspan
-             x="626.64008"
-             y="474.07941"
-             id="tspan11430">RPC</tspan></text>
-        <text
-           x="535"
-           y="395.93362"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11432"
-           xml:space="preserve"><tspan
-             x="535"
-             y="395.93362"
-             id="tspan11434">EldoraScope</tspan></text>
-      </g>
-    </g>
-    <text
-       x="598.57141"
-       y="506.64789"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text11280"
-       xml:space="preserve"><tspan
-         x="598.57141"
-         y="506.64789"
-         id="tspan11282">  </tspan></text>
-    <text
-       x="157.5838"
-       y="416.97623"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text11650"
-       xml:space="preserve"><tspan
-         x="157.5838"
-         y="416.97623"
-         id="tspan11652"> </tspan></text>
-    <g
-       transform="translate(-439.12652,68.326645)"
-       id="g11693">
-      <rect
-         width="117.85714"
-         height="71.428574"
-         rx="10.42449"
-         ry="10.42449"
-         x="511.42856"
-         y="348.79074"
-         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11667" />
-      <rect
-         width="51.42857"
-         height="34.285713"
-         rx="10.42449"
-         ry="10.42449"
-         x="512.85712"
-         y="452.36218"
-         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11669" />
-      <text
-         x="520.3634"
-         y="473.8732"
-         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11671"
-         xml:space="preserve"><tspan
-           x="520.3634"
-           y="473.8732"
-           id="tspan11673">State</tspan></text>
-      <rect
-         width="51.42857"
-         height="34.285713"
-         rx="10.42449"
-         ry="10.42449"
-         x="613.52179"
-         y="452.61496"
-         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect11675" />
-      <text
-         x="626.64008"
-         y="474.07941"
-         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
-         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11677"
-         xml:space="preserve"><tspan
-           x="626.64008"
-           y="474.07941"
-           id="tspan11679">RPC</tspan></text>
-      <text
-         x="531.08191"
-         y="395.63773"
-         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11681"
-         xml:space="preserve"><tspan
-           x="531.08191"
-           y="395.63773"
-           id="tspan11683">HouseKeeper</tspan></text>
-    </g>
-    <path
-       d="M 712.39838,379.88005 L 866.24634,562.6014"
-       inkscape:connection-start="#g11396"
-       inkscape:connection-end="#g11356"
-       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path11953" />
-    <path
-       d="M 682.69843,379.88005 L 686.73563,562.93574"
-       inkscape:connection-start="#g11396"
-       inkscape:connection-end="#g11416"
-       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path11957" />
-    <g
-       transform="translate(41.507577,-15.591734)"
-       id="g12017">
-      <g
-         transform="translate(79.802052,43.436558)"
-         id="g11942">
-        <rect
-           width="117.85714"
-           height="71.428574"
-           rx="10.42449"
-           ry="10.42449"
-           x="150.173"
-           y="282.27539"
-           style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11632" />
-        <rect
-           width="39.867653"
-           height="24.222092"
-           rx="8.081111"
-           ry="7.3646698"
-           x="150.06062"
-           y="282.12863"
-           style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11634" />
-        <rect
-           width="39.867653"
-           height="24.222092"
-           rx="8.081111"
-           ry="7.3646698"
-           x="228.09631"
-           y="282.30719"
-           style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect11640" />
-        <text
-           x="169.82635"
-           y="329.12238"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           id="text11646"
-           xml:space="preserve"><tspan
-             x="169.82635"
-             y="329.12238"
-             id="tspan11648">EldoraMerge</tspan></text>
-      </g>
-      <text
-         x="303.64124"
-         y="356.04691"
-         transform="scale(1.0475117,0.9546433)"
-         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11642"
-         xml:space="preserve"><tspan
-           x="303.64124"
-           y="356.04691"
-           id="tspan11644">RPC</tspan></text>
-      <text
-         x="225.95618"
-         y="355.89432"
-         transform="scale(1.0475117,0.9546433)"
-         style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text11636"
-         xml:space="preserve"><tspan
-           x="225.95618"
-           y="355.89432"
-           id="tspan11638">State</tspan></text>
-    </g>
-    <g
-       transform="translate(170.38209,-128.20356)"
-       id="g12029">
-      <g
-         transform="translate(79.802052,43.436558)"
-         id="g12031" />
-    </g>
-    <path
-       d="M 654.39528,379.88005 L 512.59168,566.63305"
-       inkscape:connection-start="#g11396"
-       inkscape:connection-end="#g11376"
-       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path12051" />
+     id="g11292"
+     transform="matrix(0.7752044,0,0,0.7064777,98.389937,13.703045)" />
+  <g
+     id="g16985"
+     transform="translate(92.575249,-29.380879)">
     <rect
-       width="117.85714"
-       height="71.428574"
-       rx="10.42449"
-       ry="10.42449"
-       x="271.79837"
-       y="238.22919"
+       id="rect11267"
        style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect11338" />
+       y="105.90387"
+       x="393.86758"
+       ry="10.42449"
+       rx="10.42449"
+       height="71.428574"
+       width="117.85714" />
     <rect
-       width="39.867653"
-       height="24.222092"
-       rx="8.081111"
-       ry="7.3646698"
-       x="271.686"
-       y="238.08243"
+       id="rect11269"
        style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect11340" />
-    <text
-       x="264.91815"
-       y="265.31326"
-       transform="scale(1.0475117,0.9546433)"
-       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text11342"
-       xml:space="preserve"><tspan
-         x="264.91815"
-         y="265.31326"
-         id="tspan11344">State</tspan></text>
-    <rect
-       width="39.867653"
-       height="24.222092"
-       rx="8.081111"
+       y="105.75712"
+       x="393.75519"
        ry="7.3646698"
-       x="349.72168"
-       y="238.26102"
-       style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect11346" />
+       rx="8.081111"
+       height="24.222092"
+       width="39.867653" />
     <text
-       x="343.56754"
-       y="265.46585"
-       transform="scale(1.0475117,0.9546433)"
+       xml:space="preserve"
+       id="text11271"
        style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text11348"
-       xml:space="preserve"><tspan
-         x="343.56754"
-         y="265.46585"
-         id="tspan11350">RPC</tspan></text>
-    <text
-       x="295.99741"
-       y="280.02542"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text11352"
-       xml:space="preserve"><tspan
-         x="295.99741"
-         y="280.02542"
-         id="tspan11354">EldoraExec  </tspan></text>
+       transform="scale(1.0475117,0.9546433)"
+       y="126.7009"
+       x="381.45074"><tspan
+         id="tspan11273"
+         y="126.7009"
+         x="381.45074">State</tspan></text>
     <rect
-       width="117.38573"
-       height="23.705883"
-       rx="23.793903"
-       ry="7.2077179"
-       x="271.8446"
-       y="286.52222"
-       style="fill:#ffd700;fill-opacity:1;stroke:#6a0aff;stroke-width:1.25625241;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect12072" />
+       id="rect11301"
+       style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       y="105.9357"
+       x="471.79089"
+       ry="7.3646698"
+       rx="8.081111"
+       height="24.222092"
+       width="39.867653" />
     <text
-       x="287.79877"
-       y="314.72598"
-       transform="scale(1.0475117,0.9546433)"
+       xml:space="preserve"
+       id="text11303"
        style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text12074"
-       xml:space="preserve"><tspan
-         x="287.79877"
-         y="314.72598"
-         id="tspan12076">FPGA Rx/Tx</tspan></text>
+       transform="scale(1.0475117,0.9546433)"
+       y="126.85351"
+       x="460.10013"><tspan
+         id="tspan11305"
+         y="126.85351"
+         x="460.10013">RPC</tspan></text>
+    <text
+       xml:space="preserve"
+       id="text11297"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       y="151.61816"
+       x="424.93903"><tspan
+         id="tspan11299"
+         y="151.61816"
+         x="424.93903">EldoraGui</tspan></text>
+  </g>
+  <g
+     id="g11356"
+     transform="translate(327.83561,168.00466)">
     <g
-       transform="matrix(0.8671869,0,0,0.9618288,81.724997,10.129123)"
-       id="g15995">
+       id="g11591">
       <rect
-         width="160.19136"
-         height="204.65907"
-         x="206.58215"
-         y="206.60208"
-         style="opacity:1;fill:none;fill-opacity:1;stroke:#1353f0;stroke-width:1.15250587;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.15250583, 2.30501166;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect13078" />
+         id="rect11358"
+         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="348.79074"
+         x="511.42856"
+         ry="10.42449"
+         rx="10.42449"
+         height="71.428574"
+         width="117.85714" />
+      <rect
+         id="rect11360"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.36218"
+         x="512.85712"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
       <text
-         x="247.14285"
-         y="228.57143"
+         xml:space="preserve"
+         id="text11362"
          style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-         id="text15987"
-         xml:space="preserve"><tspan
-           x="247.14285"
-           y="228.57143"
-           id="tspan15989">threaded tasks</tspan></text>
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="473.8732"
+         x="520.3634"><tspan
+           id="tspan11364"
+           y="473.8732"
+           x="520.3634">State</tspan></text>
+      <rect
+         id="rect11366"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.61496"
+         x="613.52179"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11368"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="474.07941"
+         x="626.64008"><tspan
+           id="tspan11370"
+           y="474.07941"
+           x="626.64008">RPC</tspan></text>
+      <text
+         xml:space="preserve"
+         id="text11372"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="397.71933"
+         x="542.5"><tspan
+           id="tspan11374"
+           y="397.71933"
+           x="542.5">EldoraPPI</tspan></text>
+    </g>
+  </g>
+  <g
+     id="g11376"
+     transform="translate(-83.822133,172.03631)">
+    <g
+       id="g11617">
+      <rect
+         id="rect11378"
+         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="348.79074"
+         x="511.42856"
+         ry="10.42449"
+         rx="10.42449"
+         height="71.428574"
+         width="117.85714" />
+      <rect
+         id="rect11380"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.36218"
+         x="512.85712"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11382"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="473.8732"
+         x="520.3634"><tspan
+           id="tspan11384"
+           y="473.8732"
+           x="520.3634">State</tspan></text>
+      <rect
+         id="rect11386"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.61496"
+         x="613.52179"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11388"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="474.07941"
+         x="626.64008"><tspan
+           id="tspan11390"
+           y="474.07941"
+           x="626.64008">RPC</tspan></text>
+      <text
+         xml:space="preserve"
+         id="text11392"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="395.57648"
+         x="547.85712"><tspan
+           id="tspan11394"
+           y="395.57648"
+           x="547.85712">EldoraArc</tspan></text>
+    </g>
+  </g>
+  <g
+     id="g11396"
+     transform="translate(112.99001,-87.162044)">
+    <g
+       id="g11580">
+      <rect
+         id="rect11398"
+         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="348.79074"
+         x="511.42856"
+         ry="10.42449"
+         rx="10.42449"
+         height="71.428574"
+         width="117.85714" />
+      <rect
+         id="rect11400"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.36218"
+         x="512.85712"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11402"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="473.8732"
+         x="520.3634"><tspan
+           id="tspan11404"
+           y="473.8732"
+           x="520.3634">State</tspan></text>
+      <rect
+         id="rect11406"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.61496"
+         x="613.52179"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11408"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="474.07941"
+         x="626.64008"><tspan
+           id="tspan11410"
+           y="474.07941"
+           x="626.64008">RPC</tspan></text>
+      <text
+         xml:space="preserve"
+         id="text11412"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="394.50504"
+         x="540.71429"><tspan
+           id="tspan11414"
+           y="394.50504"
+           x="540.71429">EldoraProd</tspan></text>
+    </g>
+  </g>
+  <g
+     id="g11416"
+     transform="translate(134.69638,174.41043)">
+    <g
+       id="g11606"
+       transform="translate(-16.071429,-6.0714286)">
+      <rect
+         id="rect11418"
+         style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="348.79074"
+         x="511.42856"
+         ry="10.42449"
+         rx="10.42449"
+         height="71.428574"
+         width="117.85714" />
+      <rect
+         id="rect11420"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.36218"
+         x="512.85712"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11422"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="473.8732"
+         x="520.3634"><tspan
+           id="tspan11424"
+           y="473.8732"
+           x="520.3634">State</tspan></text>
+      <rect
+         id="rect11426"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="452.61496"
+         x="613.52179"
+         ry="10.42449"
+         rx="10.42449"
+         height="34.285713"
+         width="51.42857" />
+      <text
+         xml:space="preserve"
+         id="text11428"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+         y="474.07941"
+         x="626.64008"><tspan
+           id="tspan11430"
+           y="474.07941"
+           x="626.64008">RPC</tspan></text>
+      <text
+         xml:space="preserve"
+         id="text11432"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="395.93362"
+         x="535"><tspan
+           id="tspan11434"
+           y="395.93362"
+           x="535">EldoraScope</tspan></text>
+    </g>
+  </g>
+  <text
+     xml:space="preserve"
+     id="text11280"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="506.64789"
+     x="598.57141"><tspan
+       id="tspan11282"
+       y="506.64789"
+       x="598.57141">  </tspan></text>
+  <text
+     xml:space="preserve"
+     id="text11650"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="416.97623"
+     x="157.5838"><tspan
+       id="tspan11652"
+       y="416.97623"
+       x="157.5838"> </tspan></text>
+  <g
+     id="g11693"
+     transform="translate(-437.67894,22.003862)">
+    <rect
+       id="rect11667"
+       style="opacity:1;fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       y="348.79074"
+       x="511.42856"
+       ry="10.42449"
+       rx="10.42449"
+       height="71.428574"
+       width="117.85714" />
+    <rect
+       id="rect11669"
+       style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+       y="452.36218"
+       x="512.85712"
+       ry="10.42449"
+       rx="10.42449"
+       height="34.285713"
+       width="51.42857" />
+    <text
+       xml:space="preserve"
+       id="text11671"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+       y="473.8732"
+       x="520.3634"><tspan
+         id="tspan11673"
+         y="473.8732"
+         x="520.3634">State</tspan></text>
+    <rect
+       id="rect11675"
+       style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+       y="452.61496"
+       x="613.52179"
+       ry="10.42449"
+       rx="10.42449"
+       height="34.285713"
+       width="51.42857" />
+    <text
+       xml:space="preserve"
+       id="text11677"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       transform="matrix(0.7752044,0,0,0.7064777,113.74708,29.060188)"
+       y="474.07941"
+       x="626.64008"><tspan
+         id="tspan11679"
+         y="474.07941"
+         x="626.64008">RPC</tspan></text>
+    <text
+       xml:space="preserve"
+       id="text11681"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       y="395.63773"
+       x="531.08191"><tspan
+         id="tspan11683"
+         y="395.63773"
+         x="531.08191">HouseKeeper</tspan></text>
+  </g>
+  <g
+     id="g12017"
+     transform="translate(42.955163,-61.914517)">
+    <g
+       id="g11942"
+       transform="translate(79.802052,43.436558)">
+      <rect
+         id="rect11632"
+         style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="282.27539"
+         x="150.173"
+         ry="10.42449"
+         rx="10.42449"
+         height="71.428574"
+         width="117.85714" />
+      <rect
+         id="rect11634"
+         style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="282.12863"
+         x="150.06062"
+         ry="7.3646698"
+         rx="8.081111"
+         height="24.222092"
+         width="39.867653" />
+      <rect
+         id="rect11640"
+         style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         y="282.30719"
+         x="228.09631"
+         ry="7.3646698"
+         rx="8.081111"
+         height="24.222092"
+         width="39.867653" />
+      <text
+         xml:space="preserve"
+         id="text11646"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="329.12238"
+         x="169.82635"><tspan
+           id="tspan11648"
+           y="329.12238"
+           x="169.82635">EldoraMerge</tspan></text>
     </g>
     <text
-       x="310"
-       y="177.85715"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text15991"
-       xml:space="preserve"><tspan
-         x="310"
-         y="177.85715"
-         id="tspan15993"> </tspan></text>
-    <path
-       d="M 389.83977,372.37459 L 837.31659,572.27559"
-       inkscape:connection-start="#g12017"
-       inkscape:connection-end="#g11356"
-       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path16996" />
-    <path
-       d="M 381.47442,382.04879 L 636.47129,562.93574"
-       inkscape:connection-start="#g12017"
-       inkscape:connection-end="#g11416"
-       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path16998" />
-    <path
-       d="M 352.20942,382.04879 L 463.2892,566.63305"
-       inkscape:connection-start="#g12017"
-       inkscape:connection-end="#g11376"
-       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path17000" />
-    <path
-       d="M 190.65918,420.89904 L 270.98263,377.75035"
-       inkscape:connection-start="#g11693"
-       inkscape:connection-end="#g12017"
-       style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:16, 2;stroke-dashoffset:0;stroke-opacity:1"
-       id="path17004" />
-    <path
-       d="M 389.83977,345.45943 L 622.47099,344.02406"
-       inkscape:connection-start="#g12017"
-       inkscape:connection-end="#g11396"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path17008" />
-    <path
-       d="M 91.157529,654.14128 L 173.86852,654.0689"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path2549" />
-    <path
-       d="M 91.428077,674.72824 L 174.35271,674.56391"
-       style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:1.58611608;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path2551" />
-    <path
-       d="M 91.04325,613.47568 L 173.94503,612.79375"
-       style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:1.58871269;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:19.06455273, 1.58871272;stroke-dashoffset:0;stroke-opacity:1"
-       id="path2553" />
+       xml:space="preserve"
+       id="text11642"
+       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       transform="scale(1.0475117,0.9546433)"
+       y="356.04691"
+       x="303.64124"><tspan
+         id="tspan11644"
+         y="356.04691"
+         x="303.64124">RPC</tspan></text>
     <text
-       x="187.85715"
-       y="618.57141"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text2555"
-       xml:space="preserve"><tspan
-         x="187.85715"
-         y="618.57141"
-         id="tspan2557">UDP Link</tspan></text>
-    <text
-       x="187.85715"
-       y="679.64282"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text2559"
-       xml:space="preserve"><tspan
-         x="187.85715"
-         y="679.64282"
-         id="tspan2561">DDS Links</tspan></text>
-    <path
-       d="M 93.003547,694.34912 L 175.71454,694.27674"
-       style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path3532" />
-    <text
-       x="425.71234"
-       y="71.134331"
-       transform="scale(0.8901442,1.1234135)"
-       style="font-size:23.46201897px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text2339"
-       xml:space="preserve"><tspan
-         x="425.71234"
-         y="71.134331"
-         id="tspan2341">Eldora Process Overview</tspan></text>
-    <text
-       x="846.50781"
-       y="727.62439"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text2343"
-       xml:space="preserve"><tspan
-         x="846.50781"
-         y="727.62439"
-         id="tspan2345">12 July 2007</tspan></text>
-    <text
-       x="923.27942"
-       y="455.89331"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="text2347"
-       xml:space="preserve"><tspan
-         x="923.27942"
-         y="455.89331"
-         id="tspan2349"> </tspan></text>
+       xml:space="preserve"
+       id="text11636"
+       style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       transform="scale(1.0475117,0.9546433)"
+       y="355.89432"
+       x="225.95618"><tspan
+         id="tspan11638"
+         y="355.89432"
+         x="225.95618">State</tspan></text>
   </g>
+  <g
+     id="g12029"
+     transform="translate(170.38209,-128.20356)">
+    <g
+       id="g12031"
+       transform="translate(79.802052,43.436558)" />
+  </g>
+  <rect
+     id="rect11338"
+     style="fill:#00fffc;fill-opacity:1;stroke:#6a0aff;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     y="191.9064"
+     x="273.24594"
+     ry="10.42449"
+     rx="10.42449"
+     height="71.428574"
+     width="117.85714" />
+  <rect
+     id="rect11340"
+     style="fill:#00ff00;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     y="191.75964"
+     x="273.13358"
+     ry="7.3646698"
+     rx="8.081111"
+     height="24.222092"
+     width="39.867653" />
+  <text
+     xml:space="preserve"
+     id="text11342"
+     style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     transform="scale(1.0475117,0.9546433)"
+     y="216.7896"
+     x="266.30011"><tspan
+       id="tspan11344"
+       y="216.7896"
+       x="266.30011">State</tspan></text>
+  <rect
+     id="rect11346"
+     style="fill:#ffaaaa;fill-opacity:1;stroke:#6a0aff;stroke-width:0.74004364;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     y="191.93823"
+     x="351.16925"
+     ry="7.3646698"
+     rx="8.081111"
+     height="24.222092"
+     width="39.867653" />
+  <text
+     xml:space="preserve"
+     id="text11348"
+     style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     transform="scale(1.0475117,0.9546433)"
+     y="216.94218"
+     x="344.94949"><tspan
+       id="tspan11350"
+       y="216.94218"
+       x="344.94949">RPC</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text11352"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="233.70264"
+     x="297.44498"><tspan
+       id="tspan11354"
+       y="233.70264"
+       x="297.44498">EldoraDrx  </tspan></text>
+  <rect
+     id="rect12072"
+     style="fill:#ffd700;fill-opacity:1;stroke:#6a0aff;stroke-width:1.25625241;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     y="240.19943"
+     x="273.29218"
+     ry="7.2077179"
+     rx="23.793903"
+     height="23.705883"
+     width="117.38573" />
+  <text
+     xml:space="preserve"
+     id="text12074"
+     style="font-size:8.88052368px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     transform="scale(1.0475117,0.9546433)"
+     y="266.20233"
+     x="289.18073"><tspan
+       id="tspan12076"
+       y="266.20233"
+       x="289.18073">FPGA Rx/Tx</tspan></text>
+  <g
+     id="g15995"
+     transform="matrix(0.8671869,0,0,0.9618288,83.172583,-36.19366)">
+    <rect
+       id="rect13078"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#1353f0;stroke-width:1.15250587;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.15250583, 2.30501166;stroke-dashoffset:0;stroke-opacity:1"
+       y="206.60208"
+       x="206.58215"
+       height="204.65907"
+       width="160.19136" />
+    <text
+       xml:space="preserve"
+       id="text15987"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       y="228.57143"
+       x="247.14285"><tspan
+         id="tspan15989"
+         y="228.57143"
+         x="247.14285">threaded tasks</tspan></text>
+  </g>
+  <text
+     xml:space="preserve"
+     id="text15991"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="177.85715"
+     x="310"><tspan
+       id="tspan15993"
+       y="177.85715"
+       x="310"> </tspan></text>
+  <path
+     id="path17004"
+     style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:16, 2;stroke-dashoffset:0;stroke-opacity:1"
+     inkscape:connection-end="#g12017"
+     inkscape:connection-start="#g11693"
+     d="M 192.10676,374.57626 L 272.43022,331.42757" />
+  <path
+     id="path2549"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 274.33553,677.1313 L 357.04652,677.05892" />
+  <path
+     id="path2551"
+     style="fill:none;fill-rule:evenodd;stroke:#ff001a;stroke-width:1.709;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 275.32986,726.84138 L 358.2545,726.67705" />
+  <path
+     id="path2553"
+     style="fill:none;fill-rule:evenodd;stroke:#06f904;stroke-width:1.58871269;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:19.06455273, 1.58871272;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 274.22125,646.4657 L 357.12303,645.78377" />
+  <text
+     xml:space="preserve"
+     id="text2555"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="651.5614"
+     x="371.03516"><tspan
+       id="tspan2557"
+       y="651.5614"
+       x="371.03516">UDP</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text2559"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="706.42316"
+     x="371.75894"><tspan
+       id="tspan2561"
+       y="706.42316"
+       x="371.75894">DDS</tspan></text>
+  <path
+     id="path3532"
+     style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:1.70921695;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 275.45775,701.58706 L 358.16875,701.51468" />
+  <text
+     xml:space="preserve"
+     id="text2339"
+     style="font-size:23.46201897px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     transform="scale(0.8901442,1.1234135)"
+     y="68.159203"
+     x="78.391052"><tspan
+       id="tspan2341"
+       y="68.159203"
+       x="78.391052">Eldora Process Overview</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text2343"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="727.62439"
+     x="846.50781"><tspan
+       id="tspan2345"
+       y="727.62439"
+       x="846.50781">04 March 2008</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text2347"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     y="455.89331"
+     x="923.27942"><tspan
+       id="tspan2349"
+       y="455.89331"
+       x="923.27942"> </tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="180.88034"
+     y="649.6123"
+     id="text2669"><tspan
+       sodipodi:role="line"
+       id="tspan2671"
+       x="180.88034"
+       y="649.6123">Housekeeping</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="104.84323"
+     y="678.86853"
+     id="text2673"><tspan
+       sodipodi:role="line"
+       id="tspan2675"
+       x="104.84323"
+       y="678.86853">EldoraDDS::TimeSeries(IQ)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="71.772919"
+     y="730.25787"
+     id="text2677"><tspan
+       sodipodi:role="line"
+       id="tspan2679"
+       x="71.772919"
+       y="730.25787">EldoraDDS::Products (moments)</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="124.97604"
+     y="706.37274"
+     id="text2681"><tspan
+       sodipodi:role="line"
+       id="tspan2683"
+       x="124.97604"
+       y="706.37274">EldoraDDS::Pulse (ABP)</tspan></text>
+  <path
+     id="path2687"
+     style="fill:none;fill-rule:evenodd;stroke:#022cff;stroke-width:2.61402392;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 391.28444,315.2353 L 619.21755,315.17387" />
+  <path
+     id="path2689"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.76103854;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 390.08175,288.42308 L 619.31226,288.35493" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.20000005;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#marker6989);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 370.58226,335.06667 C 668.06139,516.01504 668.06139,516.01504 668.06139,516.01504"
+     id="path2701" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.20700002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#marker6989);stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 351.00418,335.03102 C 471.2252,518.22207 471.2252,518.22207 471.2252,518.22207 L 471.2252,518.22207 L 471.2252,518.22207"
+     id="path2703" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#ff000f;stroke-width:2.1814549;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#marker6989);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 662.42596,333.27145 C 497.95758,518.21051 497.95758,518.21051 497.95758,518.21051 L 497.95758,518.21051 L 497.95758,518.21051"
+     id="path5033" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:2.17894864;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#marker6989);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 682.53174,333.31725 C 684.70906,513.16633 684.70906,513.16633 684.70906,513.16633"
+     id="path5035" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:2.18283749;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#marker6989);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 705.69007,332.88671 C 891.72207,513.14398 891.72207,513.14398 891.72207,513.14398"
+     id="path5037" />
+  <g
+     id="g7973"
+     transform="translate(709.9083,-11.669205)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path7969"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect7971"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <g
+     id="g7983"
+     transform="translate(709.9083,23.060164)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path7985"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect7987"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <g
+     id="g7989"
+     transform="translate(709.9083,57.789509)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path7991"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect7993"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <g
+     id="g7995"
+     transform="matrix(4.1777593e-4,0.9999999,-0.9999999,4.1777593e-4,188.48259,382.07337)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path7997"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect7999"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.20000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 129.87714,442.9119 C 129.87714,507.32952 129.87714,507.32952 129.87714,507.32952 L 129.87714,507.32952 L 129.87714,505.88193"
+     id="path8001" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.15663552px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 176.37276,442.18811 L 176.37276,508.05332"
+     id="path8003" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="112.95005"
+     y="525.32947"
+     id="text8005"><tspan
+       sodipodi:role="line"
+       id="tspan8007"
+       x="112.95005"
+       y="525.32947">IRIG-B</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="158.54907"
+     y="525.32947"
+     id="text8009"><tspan
+       sodipodi:role="line"
+       id="tspan8011"
+       x="158.54907"
+       y="525.32947">ARINC</tspan></text>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.98445129;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.98445128, 3.96890256;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 607.74565,107.25603 L 724.49194,107.25603 L 724.49194,107.25603 L 723.94384,106.47836 L 723.94384,106.47836 L 723.94384,106.47836 L 721.75142,104.14532 L 721.75142,104.14532"
+     id="path8988" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="875.27606"
+     y="128.26871"
+     id="text9967"><tspan
+       sodipodi:role="line"
+       id="tspan9969"
+       x="875.27606"
+       y="128.26871">For Rcvr</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="877.5368"
+     y="163.1826"
+     id="text9971"><tspan
+       sodipodi:role="line"
+       id="tspan9973"
+       x="877.5368"
+       y="163.1826">Aft Rcvr</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="790.4599"
+     y="152.23309"
+     id="text9975"><tspan
+       sodipodi:role="line"
+       id="tspan9977"
+       x="790.4599"
+       y="152.23309">I/O24</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="775.04974"
+     y="83.472725"
+     id="text9979"><tspan
+       sodipodi:role="line"
+       id="tspan9981"
+       x="775.04974"
+       y="83.472725">DigiPort</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="70.246239"
+     y="552.20465"
+     id="text9983"><tspan
+       sodipodi:role="line"
+       id="tspan9985"
+       x="70.246239"
+       y="552.20465">Power </tspan><tspan
+       sodipodi:role="line"
+       x="70.246239"
+       y="567.20465"
+       id="tspan12944">Meter</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="790.4599"
+     y="115.59715"
+     id="text9987"><tspan
+       sodipodi:role="line"
+       id="tspan9989"
+       x="790.4599"
+       y="115.59715">I/O24</tspan></text>
+  <g
+     id="g9991"
+     transform="translate(709.9083,-46.398482)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path9993"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect9995"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="775.04974"
+     y="48.422218"
+     id="text9997"><tspan
+       sodipodi:role="line"
+       id="tspan9999"
+       x="775.04974"
+       y="48.422218">DigiPort</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="880.72363"
+     y="58.810043"
+     id="text10001"><tspan
+       sodipodi:role="line"
+       id="tspan10003"
+       x="880.72363"
+       y="58.810043">For Xmtr</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="877.96332"
+     y="93.808884"
+     id="text10005"><tspan
+       sodipodi:role="line"
+       id="tspan10007"
+       x="877.96332"
+       y="93.808884">Aft Xmtr</tspan></text>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 722.80001,158.16003 L 724.52211,158.16003 L 724.52211,54.38441 L 824.40425,54.38441 L 824.40425,54.38441 L 824.40425,54.38441"
+     id="path10011" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 724.52211,158.16003 L 824.40425,158.16003"
+     id="path10013" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 724.52211,120.94395 L 824.40425,120.94395 L 824.40425,120.94395 L 824.40425,120.94395 L 824.40425,120.94395"
+     id="path10015" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 824.40425,89.453417 L 724.52211,89.453417"
+     id="path10017" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="54.322781"
+     y="492.12985"
+     id="text12946"><tspan
+       sodipodi:role="line"
+       id="tspan12948"
+       x="54.322781"
+       y="492.12985">GPIB</tspan></text>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 86.89349,497.9202 L 86.89349,441.46431 L 86.89349,441.46431"
+     id="path12950" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="148.42812"
+     y="621.55957"
+     id="text13927"><tspan
+       sodipodi:role="line"
+       id="tspan13929"
+       x="148.42812"
+       y="621.55957">Network Data Links</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="630.18768"
+     y="98.915535"
+     id="text2390"><tspan
+       sodipodi:role="line"
+       id="tspan2392"
+       x="630.18768"
+       y="98.915535">Ethernet</tspan></text>
 </svg>
