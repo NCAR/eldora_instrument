@@ -1,19 +1,19 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Usage runRR.sh [<rr314dual args> ...]
+# Usage rundrx.sh [<rr314dual args> ...]
 #
 
-#
-# Find the Eldora top directory (one directory up from where this script lives), 
-# so that we can find the config files
-#
-topdir="${0%/*}/.."
-# If we weren't run using an absolute path, the prepend the working directory
-# to get an absolute path
-if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
+# source the .bashrc file, since KDE seems to strip 
+# LD_LIBRARY_PATH when the script is setup to run as a 
+# non-KDE application button on the kde menubar.
+if [ -f ~/.bashrc ]
+then 
+   source ~/.bashrc
+fi
 
-# location of DDS configurtion files
-CONF=$topdir/conf
+
+# location of DDS configuration files
+CONF=$ELDORADIR/conf
 
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
@@ -24,7 +24,7 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -d $CONF/DDSDomainIds.conf"
 
 # the RR314 application
-eldoradrx="$topdir/eldoradrx/eldoradrx \
+eldoradrx="$ELDORADIR/eldoradrx/eldoradrx \
    --ORB $CONF/ORBSvc.conf \
    --DCPS $CONF/DDSClient.ini \
    --pub $*"
@@ -51,7 +51,3 @@ pkill eldoradrx
 echo "Starting eldoradrx. Hit control-c to terminate. That"
 echo "will terminate all eldoradrx programs"
 $eldoradrx
-
-
-
-
