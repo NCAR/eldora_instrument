@@ -11,7 +11,6 @@ typedef sequence<short> TS;
 /// TimeSeries carries I and Q pairs for a limited number 
 /// of consecutive gates, for 4 frequencies, for one radar.
 /// The packing order is [freq][gate][I,Q]
-///
   struct TimeSeries {
     RadarChoice radarId;
     long long timestamp;
@@ -53,7 +52,6 @@ typedef sequence<short> TS;
 /// The gain and offset numbers are used to scale the
 /// original input value for translation to 16 bites, and 
 /// then unscale the values by the consumer.
-///
   struct Products {
     RadarChoice radarId;
     long long timestamp;
