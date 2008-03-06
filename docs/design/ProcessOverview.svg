@@ -17,7 +17,10 @@
    inkscape:version="0.45.1"
    sodipodi:docname="ProcessOverview.svg"
    sodipodi:docbase="/Work/Projects/Eldora/docs/design"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/Work/Projects/Eldora/docs/design/ProcessOverview.png"
+   inkscape:export-xdpi="86.941475"
+   inkscape:export-ydpi="86.941475">
   <metadata
      id="metadata2545">
     <rdf:RDF>
@@ -42,10 +45,10 @@
      pagecolor="#ffffff"
      id="base"
      inkscape:zoom="1.2535948"
-     inkscape:cx="495.00001"
-     inkscape:cy="382.50001"
-     inkscape:window-x="1798"
-     inkscape:window-y="10"
+     inkscape:cx="495"
+     inkscape:cy="382.5"
+     inkscape:window-x="1480"
+     inkscape:window-y="3"
      inkscape:current-layer="svg2" />
   <defs
      id="defs4">
@@ -1100,7 +1103,7 @@
      x="846.50781"><tspan
        id="tspan2345"
        y="727.62439"
-       x="846.50781">04 March 2008</tspan></text>
+       x="846.50781">05 March 2008</tspan></text>
   <text
      xml:space="preserve"
      id="text2347"
@@ -1333,16 +1336,20 @@
   <text
      xml:space="preserve"
      style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-     x="70.246239"
-     y="552.20465"
+     x="28.683908"
+     y="555.64612"
      id="text9983"><tspan
        sodipodi:role="line"
        id="tspan9985"
-       x="70.246239"
-       y="552.20465">Power </tspan><tspan
+       x="28.683908"
+       y="555.64612">For</tspan><tspan
        sodipodi:role="line"
-       x="70.246239"
-       y="567.20465"
+       x="28.683908"
+       y="570.64612"
+       id="tspan2412">Power </tspan><tspan
+       sodipodi:role="line"
+       x="28.683908"
+       y="585.64612"
        id="tspan12944">Meter</tspan></text>
   <text
      xml:space="preserve"
@@ -1405,12 +1412,12 @@
        x="877.96332"
        y="93.808884">Aft Xmtr</tspan></text>
   <path
-     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
-     d="M 722.80001,158.16003 L 724.52211,158.16003 L 724.52211,54.38441 L 824.40425,54.38441 L 824.40425,54.38441 L 824.40425,54.38441"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.00000001, 4.00000001;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 722.80001,194.51119 L 724.52211,194.51119 L 724.52211,54.384411 L 824.40425,54.384411 L 824.40425,54.384411 L 824.40425,54.384411"
      id="path10011" />
   <path
-     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
-     d="M 724.52211,158.16003 L 824.40425,158.16003"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.99999999, 3.99999998;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 724.52211,194.51115 L 824.40425,194.51115"
      id="path10013" />
   <path
      style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
@@ -1423,27 +1430,29 @@
   <text
      xml:space="preserve"
      style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-     x="54.322781"
-     y="492.12985"
+     x="51.929665"
+     y="466.60327"
      id="text12946"><tspan
        sodipodi:role="line"
        id="tspan12948"
-       x="54.322781"
-       y="492.12985">GPIB</tspan></text>
+       x="51.929665"
+       y="466.60327">GPIB</tspan></text>
   <path
-     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="M 86.89349,497.9202 L 86.89349,441.46431 L 86.89349,441.46431"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.00648212;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 86.89349,498.29497 L 86.89349,441.47254 L 86.89349,441.47254"
      id="path12950" />
   <text
      xml:space="preserve"
-     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-     x="148.42812"
-     y="621.55957"
-     id="text13927"><tspan
+     style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="131.6763"
+     y="631.13202"
+     id="text13927"
+     sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan13929"
-       x="148.42812"
-       y="621.55957">Network Data Links</tspan></text>
+       x="131.6763"
+       y="631.13202"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans">Network Data Links</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -1454,4 +1463,139 @@
        id="tspan2392"
        x="630.18768"
        y="98.915535">Ethernet</tspan></text>
+  <g
+     id="g2392"
+     transform="matrix(4.1777593e-4,0.9999999,-0.9999999,4.1777593e-4,151.12081,381.74593)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path2394"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect2396"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.00648189;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 49.901268,498.34808 L 49.901268,485.64995 L 49.901268,485.64995"
+     id="path2398" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.00648189;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 51.00485,486.63828 L 85.992003,486.63828 L 85.992003,486.63828"
+     id="path2402" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="79.087578"
+     y="557.30103"
+     id="text2404"><tspan
+       sodipodi:role="line"
+       id="tspan2406"
+       x="79.087578"
+       y="557.30103">Aft</tspan><tspan
+       sodipodi:role="line"
+       x="79.087578"
+       y="572.30103"
+       id="tspan2410">Power </tspan><tspan
+       sodipodi:role="line"
+       x="79.087578"
+       y="587.30103"
+       id="tspan2408">Meter</tspan></text>
+  <g
+     id="g2414"
+     transform="translate(710.05669,94.351867)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path2416"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect2418"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="876.55444"
+     y="197.13567"
+     id="text2420"><tspan
+       sodipodi:role="line"
+       id="tspan2422"
+       x="876.55444"
+       y="197.13567">Stepped Atten</tspan></text>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2, 4;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 726.97535,159.41931 L 826.85749,159.41931"
+     id="path2424" />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="789.95789"
+     y="188.10068"
+     id="text2426"><tspan
+       sodipodi:role="line"
+       id="tspan2428"
+       x="789.95789"
+       y="188.10068">I/O24</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="432.82684"
+     y="-228.75693"
+     id="text2432"
+     transform="matrix(5.221888e-3,0.9999864,-0.9999864,5.221888e-3,0,0)"><tspan
+       sodipodi:role="line"
+       id="tspan2434"
+       x="432.82684"
+       y="-228.75693">Ethernet</tspan></text>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.99999997, 1.99999997;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 191.25664,423.38175 L 223.87255,422.96867 L 223.87255,508.88958"
+     id="path2436" />
+  <g
+     id="g3413"
+     transform="matrix(4.1777593e-4,0.9999999,-0.9999999,4.1777593e-4,324.89911,384.02675)">
+    <path
+       d="M 157.78698 100.55757 A 7.5998316 7.2379351 0 1 1  142.58732,100.55757 A 7.5998316 7.2379351 0 1 1  157.78698 100.55757 z"
+       sodipodi:ry="7.2379351"
+       sodipodi:rx="7.5998316"
+       sodipodi:cy="100.55757"
+       sodipodi:cx="150.18715"
+       id="path3415"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <rect
+       y="90.424461"
+       x="117.25455"
+       height="20.990011"
+       width="24.608978"
+       id="rect3417"
+       style="opacity:0.95;fill:#0000ff;fill-opacity:1;stroke:#ff0000;stroke-width:2.20000005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="198.33272"
+     y="569.02283"
+     id="text3419"><tspan
+       sodipodi:role="line"
+       x="198.33272"
+       y="569.02283"
+       id="tspan3425">C-Migits</tspan></text>
 </svg>
