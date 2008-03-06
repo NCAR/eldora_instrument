@@ -2,8 +2,7 @@
 # script to build eldora library
 import os
 
-Import('env')
-env = env.Copy()
+env = Environment(tools = ['default', 'vxworks'])
 
 s = {}
 
@@ -158,18 +157,23 @@ for k in s.keys():
     sources += [ os.path.join(k, p) for p in Split(s[k]) ]
 
 env.AppendUnique(CPPDEFINES = ['USE_ANSI'])
-env.Append(CPPPATH = Split("""
-#/vx/hskp/include
-#/rpc/include
-#/vx/minirims/include
-$COMMONS/include
-"""))
+
+env.Append(CPPPATH = ["../include", "#/rpc/include", "#/vx/minirims/include",
+                      env["COMMONS"] + "/include"])
+#env.Append(CPPPATH = Split("""
+#../include
+##/rpc/include
+##/vx/minirims/include
+#$COMMONS/include
+#"""))
+#vx-eldora/rpc/include
+#vx-eldora/vx/minirims/include
 
 objs = env.StaticObject(sources)
-objs += ["#/vx/vmevme_int/sendInt.o"]
+#objs += ["#/vx-eldora/vx/vmevme_int/sendInt.o"]
 
-env.Append (LIBPATH = ["$COMMONS/lib/vxworks"])
-env.Append (LIBS = ["Net", "VxHeader", "tp41"])
+env.Append(LIBPATH = ["#/lib", env["COMMONS"] + "/lib/vxworks"])
+env.Append(LIBS = ["Net", "VxHeader", "tp41"])
 
 # -X discards temporary locals
 # -Ur builds global constructor/destructor tables

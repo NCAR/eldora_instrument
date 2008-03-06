@@ -2,23 +2,26 @@
 # $Id$
 
 import os, os.path, sys
-sys.path.insert(0, os.path.join(os.getcwd(), 'config'))
-import atd_scons
+import eol_scons
 
-options = atd_scons.Pkg_Options()
+def VxEldora(env):
+    env.AppendUnique(CCFLAGS = ["-O", "-fvolatile"])
+    env.AppendUnique(LIBPATH = [os.path.join(env["INSTALL_LIBDIR"], "lib")])
+    env['COMMONS'] = "/net/projects/common"
+    
+eol_scons.GlobalTools().extend([VxEldora, "gcc68k"])
 
-env = atd_scons.Pkg_Environment(tools = ["default"])
-env['COMMONS'] = "/net/projects/common"
-
-env.Require(["PKG_VXWORKS"])
-env['VXCONFIG'] = "$VXDIR/config/eldora.tp41"
-env.Append(CPPPATH = ["$VXCONFIG"])
-
-env.Tool("gcc68k")
-
-env.AppendUnique(LIBPATH = ["#/lib"])
-env.Append(CCFLAGS = ['-O', '-fvolatile'])
-Export('env')
+#
+#
+#
+#COMMONS = "/net/projects/common"
+#Export('COMMONS')
+#
+#env.Require(["PKG_VXWORKS"])
+#VXDIR = "$VXDIR"
+#VXCONFIG = "$VXDIR/config/eldora.tp41"
+#Export('VXDIR')
+#Export('VXCONFIG')
 
 dirs = Split("""
 vx
@@ -27,5 +30,7 @@ rpc
     
 SConscript(dirs = dirs)
 
+env = Environment(tools = ["default"])
+options = eol_scons.GlobalOptions()
 options.Update(env)
 Help(options.GenerateHelpText(env))

@@ -1,7 +1,6 @@
 # -*- python -*-
 # $Id$
-dirs = Split(
-"""
+dirs = Split("""
 src
 """)
 

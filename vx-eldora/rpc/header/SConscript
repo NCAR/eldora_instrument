@@ -1,4 +1,4 @@
-Import('env')
+env = Environment(tools = ["default"])
 
 sources = Split("""
 Header.cc
@@ -15,6 +15,7 @@ HeaderRpc.x
 
 headers += env.RPCGenHeader(rpcdefs)
 
+env.AppendUnique(CPPPATH = ["../include"])
 env.Install("../include", headers)
 
 l = env.Library("VxHeader", sources)

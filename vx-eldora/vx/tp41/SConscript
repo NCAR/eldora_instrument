@@ -1,7 +1,5 @@
 # -*- python -*-
-
-Import('env')
-env = env.Copy()
+env = Environment(tools = ["default", "vxworks"])
 
 sources = Split("""
 cio.c
@@ -10,7 +8,6 @@ mbox.c
 """)
 
 env.Append(CPPDEFINES = ['TP41LIB'])
-env.Append(CPPPATH = ['#/vx/config/eldora.tp41'])
 l = env.Library("tp41", sources)
 li = env.InstallLibrary(l)
 Default(li)

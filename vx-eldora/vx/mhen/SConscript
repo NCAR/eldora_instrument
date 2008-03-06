@@ -1,9 +1,7 @@
 # -*- python -*-
 # script to build eldora library
 
-Import('env')
-env = env.Create("vx.mhen", tools = ['default'])
-env.Require (["PKG_VXWORKS"])
+env = Environment(tools = ["default", "vxworks"]);
 
 OBJS=el.o dspq.o coll.o ad.o timmod.o
 #
