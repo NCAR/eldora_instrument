@@ -7,12 +7,24 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui  import *
 
 from EldoraMain import *
+from RPC import *
+
+rpc = RPC("http://localhost:60000")
+try:
+    print rpc.listMethods()
+except Exception, e:
+        print "Error trying to contact ", rpc
+    
 
 def runStop(runswitch):
-    if (runswitch):
-        print 'Running!'
-    else:
-        print 'Stopped'
+    try:
+        if (runswitch):
+            print 'Running! ', rpc.listMethods()
+        else:
+            print 'Stopped! ', rpc.listMethods()
+    except Exception, e:
+        print "Error trying to contact ", rpc
+        
         
 app = QApplication(sys.argv)
 
