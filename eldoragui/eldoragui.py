@@ -7,21 +7,23 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui  import *
 
 from EldoraMain import *
-from RPC import *
+from EldoraRPC import *
 
-rpc = RPC("http://localhost:60000")
+rpc = EldoraRPC("http://localhost:60000")
 try:
-    print rpc.listMethods()
+    methods =  rpc.listMethods()
 except Exception, e:
-        print "Error trying to contact ", rpc
+    print "Error trying to contact ", rpc
+    methods = ()
+print "there are ", len(methods), " methods"
     
 
 def runStop(runswitch):
     try:
         if (runswitch):
-            print 'Running! ', rpc.listMethods()
+            print rpc.radarStart()
         else:
-            print 'Stopped! ', rpc.listMethods()
+            print rpc.radarStop()
     except Exception, e:
         print "Error trying to contact ", rpc
         
