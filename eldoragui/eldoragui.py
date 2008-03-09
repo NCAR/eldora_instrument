@@ -15,7 +15,9 @@ try:
 except Exception, e:
     print "Error trying to contact ", rpc
     methods = ()
-print "there are ", len(methods), " methods"
+
+for m in methods:
+    print " method ", m, ": ", rpc.methodSignature(m)
     
 
 def runStop(runswitch):
