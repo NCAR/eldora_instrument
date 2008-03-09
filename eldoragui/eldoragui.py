@@ -10,24 +10,17 @@ from EldoraMain import *
 from EldoraRPC import *
 
 rpc = EldoraRPC("http://localhost:60000")
-try:
-    methods =  rpc.listMethods()
-except Exception, e:
-    print "Error trying to contact ", rpc
-    methods = ()
-
-for m in methods:
-    print " method ", m, ": ", rpc.methodSignature(m)
-    
 
 def runStop(runswitch):
     try:
         if (runswitch):
-            print rpc.radarStart()
+            r = rpc.radarStart()
+            main.statusLabel.setText(QString(r))
         else:
-            print rpc.radarStop()
+            r = rpc.radarStop()
+            main.statusLabel.setText(QString(r))
     except Exception, e:
-        print "Error trying to contact ", rpc
+        print "Error trying to contact ", rpc, e
         
         
 app = QApplication(sys.argv)

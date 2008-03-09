@@ -1,4 +1,5 @@
 #include "RPCServer.h"
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////
 RadarStart::RadarStart(XmlRpcServer* s):
@@ -19,10 +20,28 @@ RadarStart::help() {
 }
 
 ///////////////////////////////////////////////////////////////////
-RPCServer::RPCServer(int port):
+RadarStop::RadarStop(XmlRpcServer* s):
+    XmlRpcServerMethod("radarStop", s) {
+}
+
+///////////////////////////////////////////////////////////////////
+void 
+RadarStop::execute(XmlRpcValue& params, XmlRpcValue& result)
+{
+  result = "Radar stopped";
+}
+
+///////////////////////////////////////////////////////////////////
+std::string 
+RadarStop::help() { 
+    return std::string("Stop the radar"); 
+}
+
+///////////////////////////////////////////////////////////////////
+RPCServer::RPCServer(int port, int verbosity):
 	_port(port) {
     
-    XmlRpc::setVerbosity(5);
+    XmlRpc::setVerbosity(verbosity);
 
     // Create the server socket on the specified port
     bindAndListen(_port);
@@ -35,10 +54,7 @@ RPCServer::RPCServer(int port):
 ///////////////////////////////////////////////////////////////////
 void
 RPCServer::start() {
-    
-    // register the radar start command
-    RadarStart(this);
-    
+        
     // Wait for requests indefinitely
     work(-1.0);
     

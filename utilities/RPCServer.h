@@ -15,11 +15,23 @@ class RadarStart : public XmlRpcServerMethod {
 
 };
 
+class RadarStop : public XmlRpcServerMethod {
+    public:
+        RadarStop(XmlRpcServer* s);
+
+        void execute(XmlRpcValue& params,
+                     XmlRpcValue& result);
+
+        std::string help();
+
+};
+
 class RPCServer : public XmlRpcServer {
     public:
         /// Create an RPC server
         /// @param port The socket port to use
-        RPCServer(int port);
+        /// @param verbosity The debugging outpt level. 0=none
+        RPCServer(int port, int verbosity=0);
         /// start the server
         void start();
         /// Destroy the server. 

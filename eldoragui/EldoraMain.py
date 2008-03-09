@@ -20,11 +20,16 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
-        self.runcallback = runStopFunction
+        self.runcallback = None
         
         # initialize the runstop button
         self.toggleRun(false)
-        
+        # set the callback _after_ calling toggleRun, so that it does
+        # not get called during our construction. Otherwise, the 
+        # routine that is constructing us might not yet have everything
+        # in place for the callback to work properly.
+        self.runcallback = runStopFunction
+
         # connect components
         # The run/stop button
         self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
