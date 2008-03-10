@@ -1,0 +1,21 @@
+import os
+tools = ['utilities',]
+env = Environment(tools = ['default'] + tools)
+
+#### Process our .ui file with pyuic4 to produce a .py file
+#### containing the pyqt class implementation for our interface.
+
+curDir = env.Dir('.').get_path(env.Dir('#'))
+
+# The name of the .ui file
+uiFile = curDir + '/EldoraMain.ui'
+
+# The name of the generated py file. Its name will come from the
+# name assigned to the top level component in the .ui file, with
+# Ui_ prepended.
+pyFile = curDir + '/Ui_EldoraMain.py'
+
+# create pyfile
+ui_eldoramain = env.Command('Ui_EldoraMain.py', 'EldoraMain.ui', 'pyuic4 -o ' + pyFile + ' ' + uiFile)
+
+Default(ui_eldoramain)

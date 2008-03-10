@@ -23,10 +23,12 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
-# The main eldora applications:
+# Build the main eldora applications:
 SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
+SConscript('eldoragui/SConscript')
+
 # Only build eldoradrx if the DSP21KSF environment variable is set.  This
 # allows for still building everythin else on systems without the bittware 
 # development system installed.
