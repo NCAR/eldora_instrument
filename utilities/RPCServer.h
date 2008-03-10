@@ -1,8 +1,26 @@
 #ifndef UTILITIESRPC_H_
 #define UTILITIESRPC_H_
 
+#include <string>
 #include "xmlrpc++/XmlRpc.h"
 using namespace XmlRpc;
+
+class RPCMethod : public XmlRpcServerMethod {
+    public:
+        RPCMethod(XmlRpcServer* s, std::string name, std::string helpMsg="");
+
+        void execute(XmlRpcValue& params,
+                     XmlRpcValue& result);
+
+        std::string help();
+        
+    protected:
+        /// The method name
+        std::string _methodName;
+        /// The help message
+        std::string _helpMsg;
+
+};
 
 class RadarStart : public XmlRpcServerMethod {
     public:

@@ -2,9 +2,9 @@
 
 int main (int argc, char** argv) {
 	
-	RPCServer server(60000);
+	RPCServer server(60000, 5);
 	
-	RadarStart radarStart(&server);
+	RPCMethod radarStart(&server, "radarStart", "there is no help for you");
 	
 	RadarStop radarStop(&server);
 	

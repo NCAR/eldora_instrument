@@ -2,6 +2,28 @@
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////
+RPCMethod::RPCMethod(XmlRpcServer* s, std::string methodName, std::string helpMsg):
+    XmlRpcServerMethod(methodName, s),
+    _methodName(methodName),
+    _helpMsg(helpMsg) {
+}
+
+///////////////////////////////////////////////////////////////////
+void 
+RPCMethod::execute(XmlRpcValue& params, XmlRpcValue& result)
+{
+    std::string resultMsg = _methodName;
+    resultMsg += " executed";
+    result = resultMsg;
+}
+
+///////////////////////////////////////////////////////////////////
+std::string 
+RPCMethod::help() { 
+    return _helpMsg; 
+}
+
+///////////////////////////////////////////////////////////////////
 RadarStart::RadarStart(XmlRpcServer* s):
     XmlRpcServerMethod("radarStart", s) {
 }
