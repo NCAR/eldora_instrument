@@ -26,8 +26,8 @@ Bittware::Bittware(int devNum) :
         return;
 
     //Setup Physical Memory
-    //_physmem.phys_addr = _cfg.pci_badr[2] + AD_OFFSET; //Physical Memory address = BAR2 + offset
-    _physmem.phys_addr = _cfg.pci_badr[2] + 0x400000/4; //Physical Memory address = BAR2 + offset
+    _physmem.phys_addr = _cfg.pci_badr[2] + AD_OFFSET; //Physical Memory address = BAR2 + offset
+    //_physmem.phys_addr = _cfg.pci_badr[2] + 0x400000; //Physical Memory address = BAR2 + offset
     _physmem.size = BUFFER_SIZE; //Physical Memory size
 
     //Allocate Physical Memory
@@ -37,21 +37,36 @@ Bittware::Bittware(int devNum) :
         return;
     }
 
-    int temp;
+  /*    
     U32 rd_buffer[BUFFER_SIZE / 4];
     U32 wr_buffer[BUFFER_SIZE / 4];
-
-    for (temp=0; temp<5; temp++)
-    {
-    	error = dsp21k_rd_phys_memory(&_physmem, temp, _physmem.size / 4, rd_buffer);
-        if (check_error(error) != DSP21K_SUCCESS) {
-            printf("Memory Read Error!\n");
-            return;
-        }
-        printf("Mem0 %x = %x\n", temp, rd_buffer[0]);
-        printf("Mem1 %x = %x\n", temp, rd_buffer[1]);
-    }
+    U32 *reg_buf;
+    
+    reg_buf = mem_read(rd_buffer);
+    //printf("MISC = %08x\n", *reg_buf);
+    //printf("STAT = %08x\n", *(reg_buf+1));
+    printf("ADDR = %08x\n", *(reg_buf));
+    printf("DATA = %08x\n", *(reg_buf+1));
         
+    
+    
+    //wr_buffer[0] = 0x01010101;
+    //wr_buffer[1] = 0x;
+    wr_buffer[0] = 0xAAAAAAAA;
+    wr_buffer[1] = 0xBBBBBBBB;
+    
+    printf("Writing\n");
+    mem_write(wr_buffer);
+    
+    reg_buf = mem_read(rd_buffer);
+    //printf("MISC = %08x\n", *reg_buf);
+    //printf("STAT = %08x\n", *(reg_buf+1));
+    printf("ADDR = %08x\n", *(reg_buf));
+    printf("DATA = %08x\n", *(reg_buf+1));
+     	
+    exit(1);
+    */
+    
     _isok = true;
 
     std::cout << "Remora  initialized\n";
@@ -122,6 +137,9 @@ void Bittware::configure(unsigned int gates,
     // Read Back Timer 1 Control Register
     wr_buffer[0x0] = BW_TIMER1; //Address Line
     mem_write(wr_buffer);
+    std::cout << "Wrote Address Line = " << wr_buffer[0x0] << "\n";
+    std::cout << "Wrote Data Line = " << wr_buffer[0x1] << "\n";
+      
     reg_buf = mem_read(rd_buffer);
 
     std::cout << "Read Address Line = " << *reg_buf << "\n";
@@ -200,28 +218,33 @@ void Bittware::start() {
 
 ////////////////////////////////////////////////////////////////////////
 U32 * Bittware::mem_read(U32 rd_buffer[]) {
-    int error;
+    //int error;
     U32 *read;
-    error = dsp21k_rd_phys_memory(&_physmem, 0, _physmem.size / 4, rd_buffer);
-    if (check_error(error) != DSP21K_SUCCESS) {
-        printf("Memory Read Error!\n");
-        return 0;
-    }
+    //error = dsp21k_rd_phys_memory(&_physmem, 0, _physmem.size / 4, rd_buffer);
+    //if (check_error(error) != DSP21K_SUCCESS) {
+    //    printf("Memory Read Error!\n");
+    //    return 0;
+    //}
+    
+    rd_buffer[0] = ((U32*)_physmem.mem_ptr)[0];
+    rd_buffer[1] = ((U32*)_physmem.mem_ptr)[1];
     read = rd_buffer;
-    //printf("1   %08x     %08x\n",*read, rd_buffer[0]);
-    //printf("2   %08x     %08x\n",*(read+1), rd_buffer[1]);
     return read;
     //return rd_buffer[1];
 }
 
 ////////////////////////////////////////////////////////////////////////
 void Bittware::mem_write(U32 wr_buffer[]) {
-    int error;
-    error = dsp21k_wr_phys_memory(&_physmem, 0, _physmem.size / 4, wr_buffer);
-    if (check_error(error) != DSP21K_SUCCESS) {
-        printf("Memory Write Error!\n");
-        return;
-    }
+    //int error;
+    //error = dsp21k_wr_phys_memory(&_physmem, 0, _physmem.size / 4, wr_buffer);
+    //if (check_error(error) != DSP21K_SUCCESS) {
+    //    printf("Memory Write Error!\n");
+    //    return;
+    //}
+	((U32*)_physmem.mem_ptr)[0] = wr_buffer[0];
+	((U32*)_physmem.mem_ptr)[1] = wr_buffer[1];
+		
+	
     return;
 }
 
