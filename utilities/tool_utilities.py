@@ -1,9 +1,10 @@
 #
-# Rules to build ddssvc and export it as a SCons tool
+# Rules to build the general ELDORA utilities library and export it
+# as a SCons tool
 #
 import os
 
-tools = ['default', 'svninfo']
+tools = ['default', 'svninfo', 'xmlrpc']
 env = Environment(tools = tools)
 
 # create the svnInfo.h
@@ -11,7 +12,6 @@ env.SvnInfo('svnInfo.h', '#')
 
 def utilities(env):
     env.AppendLibrary('utilities')
-    env.AppendLibrary('xmlrpc++')
     env.AppendUnique(CPPPATH = ['#/utilities',])
     env.Require(tools)
 
