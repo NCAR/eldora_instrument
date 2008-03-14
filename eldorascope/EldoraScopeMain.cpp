@@ -69,13 +69,19 @@ int main(
     int rate;
 
     rate = config.getInt("DisplayRateHz", 25);
-    ORB
-            = config.getString(
-                    "ORBConfigFile",
-                    "/home/eldora/eldora/conf/tcp.conf");
-    DCPS = config.getString(
-            "DCPSConfigFile",
-            "/home/eldora/eldora/conf/consumer.ini");
+    // set up the default configuration directory path
+    char* e = getenv("ELDORADIR");
+    std::string EldoraDir("/conf/");
+    if (e) {
+    	EldoraDir = e + EldoraDir;
+    }
+    
+    std::string orbFile = EldoraDir + "ORBSvc.conf";
+    ORB = config.getString("ORBConfigFile",orbFile);
+    
+    std::string dcpsFile = EldoraDir + "DDSClient.ini";
+    DCPS = config.getString( "DCPSConfigFile", dcpsFile);
+    
     tsTopic = config.getString("TopicTS", "EldoraTS");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
