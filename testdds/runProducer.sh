@@ -14,8 +14,8 @@ CONF=$topdir/conf
 
 # The producer invocation
 producer="$topdir/testdds/producer \
-        --ORB $CONF/tcp.conf \
-        --DCPS $CONF/producer.ini \
+        --ORB $CONF/ORBSvc.conf \
+        --DCPS $CONF/DDSClient.ini \
         --delta 10000 \
         --pulse EldoraPulses --ts EldoraTS"
 

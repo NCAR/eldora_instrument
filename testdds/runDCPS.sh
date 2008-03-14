@@ -15,10 +15,10 @@ CONF=$topdir/conf
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -NOBITS \
-   -DCPSConfigFile $CONF/DCPSconf.ini \
-   -ORBSvcConf $CONF/tcp.conf \
+   -DCPSConfigFile $CONF/DDSClient.ini \
+   -ORBSvcConf $CONF/ORBSvc.conf \
    -ORBListenEndpoints iiop://dcpsrepo:50000 \
-   -d $CONF/domain_ids"
+   -d $CONF/DDSDomainIds.conf"
 
 # kill existing jobs
 pkill producer

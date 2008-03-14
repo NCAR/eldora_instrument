@@ -13,8 +13,8 @@ if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 CONF=$topdir/conf
 
 # The consumer invocation
-consume="$topdir/testdds/consumer --ORB $CONF/tcp.conf \
-         --DCPS $CONF/consumer.ini \
+consume="$topdir/testdds/consumer --ORB $CONF/ORBSvc.conf \
+         --DCPS $CONF/DDSClient.ini \
          --pulse EldoraPulses --ts EldoraTS"
 
 echo "Starting consumer"
