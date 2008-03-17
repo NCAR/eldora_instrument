@@ -263,6 +263,10 @@ protected:
 	/// kaiser filters.
 	bool loadFilters(FilterSpec& gaussian, FilterSpec& kaiser);
 
+	/// Configure the pulse pair processor.
+	/// @return true if succesful, false otherwise.
+	bool pulsepairInit();
+	
 	/// Configure the timers.
 	/// @return true if succesful, false otherwise.
 	bool timerInit();

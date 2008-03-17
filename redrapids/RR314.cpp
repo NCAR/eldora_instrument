@@ -463,12 +463,20 @@ int RR314::configure314() {
     //Allow bridge to create PCI intr
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_EN);
 
+    // initialize the pulse pair processor
+    if (!pulsepairInit()) {
+    	return -1;
+    }    
+    
     // initialize the timers
     if (_internalTimer) {
         if (!timerInit())
             return -1;
     }
 
+    // Start the DDC
+    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
+            
     return 0;
 
 }
@@ -738,9 +746,9 @@ void RR314::boardInfo() {
 
 /////////////////////////////////////////////////////////////////////////
 
-bool RR314::timerInit() {
+bool RR314::pulsepairInit() {
     //
-    //    This section initializes the timers and pulse pair processors.
+    //    This section initializes the pulse pair processors.
 
     // Decimation Setup
     int decimationFactor;
@@ -776,7 +784,6 @@ bool RR314::timerInit() {
     }
 
     unsigned int Dec_Factor = decimationFactor*2 - 1;
-    //	Adapter_Write32(&_chanAdapter, V4, DEC_REG, Dec_Factor);// Decimation Register
     Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
 
     //Pulse Pair Setup
@@ -791,6 +798,49 @@ bool RR314::timerInit() {
     Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
     Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
     Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQ);
+   
+    return true;
+
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+bool RR314::timerInit() {
+    //
+    //    This section initializes the timers.
+
+    // Decimation Setup
+    int decimationFactor;
+    switch (_pulsewidth) {
+    case 250:
+        decimationFactor = _0_25us;
+        break;
+    case 500:
+        decimationFactor = _0_50us;
+        break;
+    case 750:
+        decimationFactor = _0_75us;
+        break;
+    case 1000:
+        decimationFactor = _1_00us;
+        break;
+    case 1250:
+        decimationFactor = _1_25us;
+        break;
+    case 1500:
+        decimationFactor = _1_50us;
+        break;
+    case 1750:
+        decimationFactor = _1_75us;
+        break;
+    case 2000:
+        decimationFactor = _2_00us;
+        break;
+    default:
+        std::cout
+                << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+        return false;
+    }
 
     printf("Internal Timing Variables\n");
     printf("# of Gates          = %d\n", _gates);
@@ -821,7 +871,7 @@ bool RR314::timerInit() {
     // Period Register
     double prtClock = (60e6);
     int periodCount = (int) (prtClock/_prf);
-    std::cout << "Period register value:" << periodCount << "\n";
+    //std::cout << "Period register value:" << periodCount << "\n";
     Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
     if (_dualPrt == 0) {
         Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount);
@@ -837,11 +887,7 @@ bool RR314::timerInit() {
         Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0000); // Mult PRT Value Timer 0
     }
 
-    // Start the DDC
-    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
-
-    //printf("ENABLING: %x\n", 
-    //PRT_REG|Timers|TIMER_EN|ADDR_TRIG);
+    // Enable and Trigger All Timers 
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
     PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
