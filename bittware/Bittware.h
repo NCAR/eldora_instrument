@@ -5,7 +5,12 @@
 
 // Bittware Timer Registers
 
+//Status Register
+#define BW_TIMER_DCMLOCK (0x01<<10)
+
 //Address Register
+#define BW_WRITE     (0x01<<3)
+#define BW_READ      (0x00<<3)
 #define BW_TIMER1    (0x01<<4)
 #define BW_TIMER2    (0x02<<4)
 #define BW_TIMER3    (0x03<<4)
@@ -27,12 +32,13 @@
 #define BW_TIMER19   (0x13<<4)
 #define BW_TIMER20   (0x14<<4)
 #define BW_TIMER21   (0x15<<4)
-#define BW_GLOBAL_EN  (0x1<<12)
+#define BW_GLOBAL_EN (0x1<<12)
+#define BW_TIMER_RST (0x01<<13)
 #define BW_ADDR_TRIG (0x1<<15)
 
 //MultTimer Sub Registers
 
-#define BW_CONTROL_REG 0x8
+#define BW_CONTROL_REG 0x0
 #define BW_TIMER_ON  (0x1<<0)
 #define BW_TIMER_OFF (0x0<<0)
 #define BW_TIMER_NEG (0x1<<1)
@@ -43,20 +49,20 @@
 #define BW_CLK_DIV2  (0x1<<3)
 #define BW_CLK_DIV4  (0x2<<3)
 #define BW_CLK_DIV8  (0x3<<3)
-#define BW_DELAY_REG   0x9
-#define BW_WIDTH_REG   0xA
-#define BW_PERIOD_REG  0xB
-#define BW_PRT_REG     0xC
+#define BW_DELAY_REG   0x1
+#define BW_WIDTH_REG   0x2
+#define BW_PERIOD_REG  0x3
+#define BW_PRT_REG     0x4
 #define BW_PRT1 (0x0<<0)
 #define BW_PRT2 (0x0<<4)
 #define BW_PRT3 (0x0<<8)
 #define BW_PRT4 (0x0<<12)
 
 /// Memory buffer size in bytes
-#define BUFFER_SIZE 0x8 
+#define BUFFER_SIZE 0xC 
 
 ///Address and Data Physical Memory Offset
-#define AD_OFFSET 0x00400008
+#define AD_OFFSET 0x00400004
 
 /// Represent the Bittware fpga card, which has been configured 
 /// with a bitstream implementing radar timing.
@@ -81,6 +87,8 @@ class Bittware {
                        bool dualPrt);
         /// Start the timer
         void start();
+        /// Stop the timer
+        void Bittware_shutdown();        
         /// @return True if board is operational, false otherwise
         bool isok();
     protected:

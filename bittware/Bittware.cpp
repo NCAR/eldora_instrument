@@ -27,7 +27,6 @@ Bittware::Bittware(int devNum) :
 
     //Setup Physical Memory
     _physmem.phys_addr = _cfg.pci_badr[2] + AD_OFFSET; //Physical Memory address = BAR2 + offset
-    //_physmem.phys_addr = _cfg.pci_badr[2] + 0x400000; //Physical Memory address = BAR2 + offset
     _physmem.size = BUFFER_SIZE; //Physical Memory size
 
     //Allocate Physical Memory
@@ -36,36 +35,6 @@ Bittware::Bittware(int devNum) :
         printf("\nAddress/Data Memory Allocation Error!\n");
         return;
     }
-
-  /*    
-    U32 rd_buffer[BUFFER_SIZE / 4];
-    U32 wr_buffer[BUFFER_SIZE / 4];
-    U32 *reg_buf;
-    
-    reg_buf = mem_read(rd_buffer);
-    //printf("MISC = %08x\n", *reg_buf);
-    //printf("STAT = %08x\n", *(reg_buf+1));
-    printf("ADDR = %08x\n", *(reg_buf));
-    printf("DATA = %08x\n", *(reg_buf+1));
-        
-    
-    
-    //wr_buffer[0] = 0x01010101;
-    //wr_buffer[1] = 0x;
-    wr_buffer[0] = 0xAAAAAAAA;
-    wr_buffer[1] = 0xBBBBBBBB;
-    
-    printf("Writing\n");
-    mem_write(wr_buffer);
-    
-    reg_buf = mem_read(rd_buffer);
-    //printf("MISC = %08x\n", *reg_buf);
-    //printf("STAT = %08x\n", *(reg_buf+1));
-    printf("ADDR = %08x\n", *(reg_buf));
-    printf("DATA = %08x\n", *(reg_buf+1));
-     	
-    exit(1);
-    */
     
     _isok = true;
 
@@ -128,70 +97,153 @@ void Bittware::configure(unsigned int gates,
 
     U32 *reg_buf;
 
+    U32 Timer, control;
+    double prtClock;
+    int periodCount;
+    
+    // Reset Timers and DCM
+    wr_buffer[0x0] = BW_TIMER_RST;
+    mem_write(wr_buffer);
+    wr_buffer[0x0] = 0;
+    mem_write(wr_buffer);
+    
+    // Check DCM Lock Status
+    reg_buf = mem_read(rd_buffer);
+    //printf("Status Reg = %08x\n", *reg_buf);
+    if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");
+    else printf("Timer DCM Failed to Lock!\n");
+    
+    for (Timer = 0x0<<4; Timer < 0x8<<4; Timer += 0x1<<4)
+    {
+    	
     // Configure  Timer 1 Control Register
-    U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
-    wr_buffer[0x0] = BW_TIMER1 | BW_CONTROL_REG; //Address Line
+    control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
+    wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
     wr_buffer[0x1] = control; //Data Line
     mem_write(wr_buffer);
-
+    
     // Read Back Timer 1 Control Register
-    wr_buffer[0x0] = BW_TIMER1; //Address Line
+    wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
     mem_write(wr_buffer);
-    std::cout << "Wrote Address Line = " << wr_buffer[0x0] << "\n";
-    std::cout << "Wrote Data Line = " << wr_buffer[0x1] << "\n";
-      
     reg_buf = mem_read(rd_buffer);
-
-    std::cout << "Read Address Line = " << *reg_buf << "\n";
-    std::cout << "Read Data Line = " << *(reg_buf+1) << "\n";
-
+    
     // Configure Timer 1 Delay Register
-    wr_buffer[0x0] = BW_TIMER1 | BW_DELAY_REG; //Address Line
+    wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
     wr_buffer[0x1] = 0; //Data Line
     mem_write(wr_buffer);
-
+    
     // Read Back Timer 1 Delay Register
-    wr_buffer[0x0] = BW_TIMER1; //Address Line
+    wr_buffer[0x0] = BW_READ | Timer | BW_DELAY_REG; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
-
+     
     // Configure Timer 1 Width Register
-    wr_buffer[0x0] = BW_TIMER1 | BW_WIDTH_REG; //Address Line
-    wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
+    wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+    //wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
+    wr_buffer[0x1] = _gates*10*decimationFactor/8; //Data Line
+    printf("Width = %i\n", _gates*10*decimationFactor/8);
+    //wr_buffer[0x1] = 100; //Data Line
     mem_write(wr_buffer);
 
     // Read Back Timer 1 Width Register
-    wr_buffer[0x0] = BW_TIMER1; //Address Line
+    wr_buffer[0x0] = BW_READ | Timer | BW_WIDTH_REG; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
-
+    
     // Configure Timer 1 Period Register
-    double prtClock = (60e6);
-    int periodCount = (int) (prtClock/_prf);
+    prtClock = (10e6);
+    periodCount = (int) (prtClock/_prf);
 
-    wr_buffer[0x0] = BW_TIMER1 | BW_PERIOD_REG; //Address Line
+    wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
     wr_buffer[0x1] = periodCount; //Data Line
+    printf("Period = %i\n", periodCount);
+    //wr_buffer[0x1] = 200; //Data Line
     mem_write(wr_buffer);
-
+    
     // Read Back Timer 1 Period Register
-    wr_buffer[0x0] = BW_TIMER1; //Address Line
+    wr_buffer[0x0] = BW_READ | Timer | BW_PERIOD_REG; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
 
     // Configure Timer 1 multiple PRT Register
-    wr_buffer[0x0] = BW_TIMER1 | BW_PRT_REG; //Address Line
+    wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
     if (!_dualPrt) {
         wr_buffer[0x1] = 0x0000;
     } else {
         wr_buffer[0x1] = 0x0054;
     }
     mem_write(wr_buffer);
-
+    
     // Read Back Timer 1 multiple PRT Register
-    wr_buffer[0x0] = BW_TIMER1; //Address Line
+    wr_buffer[0x0] = BW_READ | Timer | BW_PRT_REG; //Address Line
     mem_write(wr_buffer);
     reg_buf = mem_read(rd_buffer);
+    
+    }
+    
+    // Configure the Test Pulse
+    Timer = 0x8<<4;
+    
+    // Configure  Timer 1 Control Register
+    	control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+        wr_buffer[0x1] = control; //Data Line
+        mem_write(wr_buffer);
+        
+        // Read Back Timer 1 Control Register
+        wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
+        mem_write(wr_buffer);
+        reg_buf = mem_read(rd_buffer);
+        
+        // Configure Timer 1 Delay Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+        wr_buffer[0x1] = 500; //Data Line
+        printf("Test Pulse = %i gate\n", wr_buffer[0x1]);
+        mem_write(wr_buffer);
+        
+        // Read Back Timer 1 Delay Register
+        wr_buffer[0x0] = BW_READ | Timer | BW_DELAY_REG; //Address Line
+        mem_write(wr_buffer);
+        reg_buf = mem_read(rd_buffer);
+         
+        // Configure Timer 1 Width Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+        //wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
+        wr_buffer[0x1] = 50; //Data Line
+        printf("Test Pulse = %i gates long\n", wr_buffer[0x1]);
+        mem_write(wr_buffer);
 
+        // Read Back Timer 1 Width Register
+        wr_buffer[0x0] = BW_READ | Timer | BW_WIDTH_REG; //Address Line
+        mem_write(wr_buffer);
+        reg_buf = mem_read(rd_buffer);
+        
+        // Configure Timer 1 Period Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+        wr_buffer[0x1] = periodCount; //Data Line
+        //wr_buffer[0x1] = 200; //Data Line
+        mem_write(wr_buffer);
+        
+        // Read Back Timer 1 Period Register
+        wr_buffer[0x0] = BW_READ | Timer | BW_PERIOD_REG; //Address Line
+        mem_write(wr_buffer);
+        reg_buf = mem_read(rd_buffer);
+
+        // Configure Timer 1 multiple PRT Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        if (!_dualPrt) {
+            wr_buffer[0x1] = 0x0000;
+        } else {
+            wr_buffer[0x1] = 0x0054;
+        }
+        mem_write(wr_buffer);
+        
+        // Read Back Timer 1 multiple PRT Register
+        wr_buffer[0x0] = BW_READ | Timer | BW_PRT_REG; //Address Line
+        mem_write(wr_buffer);
+        reg_buf = mem_read(rd_buffer);
+    
+    
     std::cout << "Remora configured\n";
 }
 
@@ -205,15 +257,33 @@ void Bittware::start() {
     //Set Global Enable bit on Address Line
     wr_buffer[0x0] = BW_GLOBAL_EN; //Address Line
     mem_write(wr_buffer);
-
+    
     // Trigger Timers
 
     //Set Address Trigger bit on Address Line
-    wr_buffer[0x0] = BW_ADDR_TRIG; //Address Line
+    wr_buffer[0x0] |= BW_ADDR_TRIG; //Address Line
     mem_write(wr_buffer);
 
     std::cout << "Remora started\n";
 
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void Bittware::Bittware_shutdown() {
+
+	U32 wr_buffer[BUFFER_SIZE / 4];
+	
+    //Reset the Bittware Card to stop pulses.
+	wr_buffer[0x0] = BW_TIMER_RST;
+	mem_write(wr_buffer);
+	wr_buffer[0x0] = 0;
+	mem_write(wr_buffer);    	
+	    
+	//Free allocated physical memory buffer
+    dsp21k_free_phys_memory(_processor, &_physmem);
+    
+    printf("Bittware Card Shutdown\n");
+  
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -228,6 +298,7 @@ U32 * Bittware::mem_read(U32 rd_buffer[]) {
     
     rd_buffer[0] = ((U32*)_physmem.mem_ptr)[0];
     rd_buffer[1] = ((U32*)_physmem.mem_ptr)[1];
+    rd_buffer[2] = ((U32*)_physmem.mem_ptr)[2];
     read = rd_buffer;
     return read;
     //return rd_buffer[1];
@@ -241,8 +312,8 @@ void Bittware::mem_write(U32 wr_buffer[]) {
     //    printf("Memory Write Error!\n");
     //    return;
     //}
-	((U32*)_physmem.mem_ptr)[0] = wr_buffer[0];
-	((U32*)_physmem.mem_ptr)[1] = wr_buffer[1];
+	((U32*)_physmem.mem_ptr)[1] = wr_buffer[0];
+	((U32*)_physmem.mem_ptr)[2] = wr_buffer[1];
 		
 	
     return;
