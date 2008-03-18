@@ -202,7 +202,7 @@ static void signalHandler(int signo) {
 
     // try to terminate the RR314 boards
     shutdownRR314();
-
+    
     // if it was a segv, produce a core dump
     if (signo == SIGSEGV) {
         // and abort with a dump.
@@ -442,19 +442,19 @@ int main(int argc,
     runParams params1 = parseOptions(argc, argv, 1);
 
     // create timer
-    Bittware* timer = 0;
+    Bittware* bwtimer = 0;
     if (!params0.simulate && !params0.internaltimer) {
-        timer = new Bittware(0);
-        timer->configure(params0.gates,
+    	bwtimer = new Bittware(0);
+    	bwtimer->configure(params0.gates,
                          params0.prf,
                          params0.pulsewidth,
                          params0.nci,
                          false);
-        if (!timer->isok()) {
+        if (!bwtimer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
+            bwtimer->Bittware_shutdown();
             exit(1);
         }
-        timer->start();
     }
 
     if (params0.publish) {
@@ -464,6 +464,9 @@ int main(int argc,
         argv["-ORBSvcConf"] = params0.ORB.c_str();
         argv["-DCPSConfigFile"] = params0.DCPS.c_str();
 
+        for (unsigned int i = 0;  i < argv.argc(); i++) {
+        	std::cout << "argv[" << i << "]:" << argv.argv()[i] << "\n";
+        }
         // create the publisher
                 params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
                 params1.publisher = params0.publisher;
@@ -562,6 +565,10 @@ int main(int argc,
                     rr314_1.start();
                 }
 
+                // start the timer, if we are using it.
+                if (bwtimer) {
+                	bwtimer->start();
+                }
                 int loopCount = 0;
                 // periodically display the card activity.
                 while(1)
@@ -585,9 +592,9 @@ int main(int argc,
             }
 
             std::cout << "Terminating " << argv[0] << "\n";
-            if (!timer) {
-                delete timer;
+            if (bwtimer) {
+                delete bwtimer;
             }
-
+         
         }
 
