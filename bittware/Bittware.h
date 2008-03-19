@@ -88,7 +88,7 @@ class Bittware {
         /// Start the timer
         void start();
         /// Stop the timer
-        void Bittware_shutdown();        
+        void shutdown();        
         /// @return True if board is operational, false otherwise
         bool isok();
     protected:

@@ -113,9 +113,11 @@ void Bittware::configure(unsigned int gates,
     if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");
     else printf("Timer DCM Failed to Lock!\n");
     
+    int stagger = 0;
+    
     for (Timer = 0x0<<4; Timer < 0x8<<4; Timer += 0x1<<4)
     {
-    	
+    
     // Configure  Timer 1 Control Register
     control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
@@ -129,8 +131,10 @@ void Bittware::configure(unsigned int gates,
     
     // Configure Timer 1 Delay Register
     wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-    wr_buffer[0x1] = 0; //Data Line
+    wr_buffer[0x1] = stagger; //Data Line
     mem_write(wr_buffer);
+    
+    stagger += 10;
     
     // Read Back Timer 1 Delay Register
     wr_buffer[0x0] = BW_READ | Timer | BW_DELAY_REG; //Address Line
@@ -197,7 +201,7 @@ void Bittware::configure(unsigned int gates,
         
         // Configure Timer 1 Delay Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-        wr_buffer[0x1] = 500; //Data Line
+        wr_buffer[0x1] = 500-30; //Data Line
         printf("Test Pulse = %i gate\n", wr_buffer[0x1]);
         mem_write(wr_buffer);
         
@@ -209,7 +213,7 @@ void Bittware::configure(unsigned int gates,
         // Configure Timer 1 Width Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
         //wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
-        wr_buffer[0x1] = 50; //Data Line
+        wr_buffer[0x1] = 30; //Data Line
         printf("Test Pulse = %i gates long\n", wr_buffer[0x1]);
         mem_write(wr_buffer);
 
@@ -269,7 +273,7 @@ void Bittware::start() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void Bittware::Bittware_shutdown() {
+void Bittware::shutdown() {
 
 	U32 wr_buffer[BUFFER_SIZE / 4];
 	
@@ -282,7 +286,7 @@ void Bittware::Bittware_shutdown() {
 	//Free allocated physical memory buffer
     dsp21k_free_phys_memory(_processor, &_physmem);
     
-    printf("Bittware Card Shutdown\n");
+    //printf("Bittware Card Shutdown\n");
   
 }
 
