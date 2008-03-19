@@ -190,8 +190,10 @@ static void shutdownRR314() {
         (*p)->RR314shutdown();
     }
     
-    std::cout << "stopping Bittware device\n";
-    bwtimer->shutdown();
+    if (bwtimer) {
+    	std::cout << "stopping Bittware device\n";
+        bwtimer->shutdown();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
