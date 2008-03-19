@@ -36,6 +36,14 @@ class EldoraRPC:
         except Exception, e:
             raise e
         
+    def shutdown(self):
+        # can throw an exception if the server 
+        # is not available
+        try:
+            return self.server.shutdown()
+        except Exception, e:
+            raise e
+        
         
             
     

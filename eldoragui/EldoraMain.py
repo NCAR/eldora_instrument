@@ -16,11 +16,12 @@ false = 0
 # functions specified to the constructor.
 #
 class EldoraMain(QMainWindow, Ui_EldoraMain):
-    def __init__(self, runStopFunction=None, parent=None):
+    def __init__(self, runStopFunction=None, shutdownFunction=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
         self.runcallback = None
+        self.shutdownFunction = shutdownFunction
         
         # initialize the runstop button
         self.toggleRun(false)
@@ -33,6 +34,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # connect components
         # The run/stop button
         self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
+        # The shutdown button
+        self.connect(self.shutdownButton, SIGNAL("released()"), self.shutdownFunction)
         
         # use our timer for a clock
         self.startTimer(1000)

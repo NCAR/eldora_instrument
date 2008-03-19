@@ -4,7 +4,9 @@ int main (int argc, char** argv) {
 	
 	RPCServer server(60000, 5);
 	
-	RPCMethod radarStart(&server, "radarStart", "there is no help for you");
+	RPCMethod shutdown(&server, "shutdown", "you must shutdown");
+	
+	RadarStart radarStart(&server);
 	
 	RadarStop radarStop(&server);
 	

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>365</width>
-    <height>119</height>
+    <width>373</width>
+    <height>152</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -28,23 +28,15 @@
     <property name="spacing" >
      <number>6</number>
     </property>
-    <item row="1" column="1" >
-     <widget class="QLabel" name="statusLabel" >
-      <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>3</vsizetype>
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="1" column="0" >
+     <widget class="QPushButton" name="shutdownButton" >
       <property name="text" >
-       <string>Status</string>
+       <string>Shutdown</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" >
-     <widget class="QLabel" name="label" >
+    <item row="0" column="1" >
+     <widget class="QLabel" name="dateTimeLabel" >
       <property name="sizePolicy" >
        <sizepolicy>
         <hsizetype>5</hsizetype>
@@ -54,10 +46,7 @@
        </sizepolicy>
       </property>
       <property name="text" >
-       <string>Status: </string>
-      </property>
-      <property name="alignment" >
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <string>Date and Time Go Here</string>
       </property>
      </widget>
     </item>
@@ -79,8 +68,8 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1" >
-     <widget class="QLabel" name="dateTimeLabel" >
+    <item row="2" column="1" >
+     <widget class="QLabel" name="statusLabel" >
       <property name="sizePolicy" >
        <sizepolicy>
         <hsizetype>5</hsizetype>
@@ -90,7 +79,25 @@
        </sizepolicy>
       </property>
       <property name="text" >
-       <string>Date and Time Go Here</string>
+       <string>Status</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" >
+     <widget class="QLabel" name="label" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>3</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text" >
+       <string>Status: </string>
+      </property>
+      <property name="alignment" >
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
@@ -101,7 +108,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>365</width>
+     <width>373</width>
      <height>29</height>
     </rect>
    </property>

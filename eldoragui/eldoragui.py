@@ -22,10 +22,18 @@ def runStop(runswitch):
     except Exception, e:
         print "Error trying to contact ", rpc, e
         
+def shutdown():
+    try:
+       r = rpc.shutdown()
+       main.statusLabel.setText(QString(r))
+    except Exception, e:
+        print "Error trying to contact ", rpc, e
+        
+
         
 app = QApplication(sys.argv)
 
-main = EldoraMain(runStopFunction=runStop)
+main = EldoraMain(runStopFunction=runStop, shutdownFunction=shutdown)
 main.show()
 
 app.exec_()
