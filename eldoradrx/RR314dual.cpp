@@ -30,6 +30,9 @@ namespace po = boost::program_options;
 /// All of the RR314 instances that we are manipulating.
 std::vector<RR314*> rr314Instances;
 
+/// The Bittware timer
+Bittware* bwtimer = 0;
+
 /// Set this flag to true in order to request the main loop to
 /// shut everything down.
 bool _terminate = false;
@@ -186,6 +189,9 @@ static void shutdownRR314() {
         std::cout << "stopping RR314 device " << (*p)->boardNumber() << std::endl;
         (*p)->RR314shutdown();
     }
+    
+    std::cout << "stopping Bittware device\n";
+    bwtimer->shutdown();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -442,7 +448,6 @@ int main(int argc,
     runParams params1 = parseOptions(argc, argv, 1);
 
     // create timer
-    Bittware* bwtimer = 0;
     if (!params0.simulate && !params0.internaltimer) {
     	bwtimer = new Bittware(0);
     	bwtimer->configure(params0.gates,
@@ -452,7 +457,7 @@ int main(int argc,
                          false);
         if (!bwtimer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
-            bwtimer->Bittware_shutdown();
+            bwtimer->shutdown();
             exit(1);
         }
     }
