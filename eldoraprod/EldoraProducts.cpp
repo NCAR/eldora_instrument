@@ -65,10 +65,21 @@ void EldoraProducts::newPulseData(
                 
             products->dbz[i] = TOSHORT(dbz, products->dbzGain, products->dbzOffset)*100-70;
 
-            products->p1[i] = TOSHORT(pulses[0]->abp[p+2]*70.0 - 60.0, products->p1Gain, products->p1Offset);
-            products->p2[i] = TOSHORT(pulses[1]->abp[p+2]*70.0 - 60.0, products->p2Gain, products->p2Offset);
-            products->p3[i] = TOSHORT(pulses[2]->abp[p+2]*70.0 - 60.0, products->p3Gain, products->p3Offset);
-            products->p4[i] = TOSHORT(pulses[3]->abp[p+2]*70.0 - 60.0, products->p4Gain, products->p4Offset);
+            /** 
+            if (products->radarId == EldoraDDS::Aft) {
+				if (i >= 45 && i <= 60) {
+					std::cout << "ABP[2][" << i << "] "
+					<< pulses[0]->abp[p+2] << " "
+					<< pulses[1]->abp[p+2] << " "
+					<< pulses[2]->abp[p+2] << " "
+					<< pulses[3]->abp[p+2] << "\n";
+				}
+			}
+			**/
+            products->p1[i] = TOSHORT(pulses[0]->abp[p+2], products->p1Gain, products->p1Offset);
+            products->p2[i] = TOSHORT(pulses[1]->abp[p+2], products->p2Gain, products->p2Offset);
+            products->p3[i] = TOSHORT(pulses[2]->abp[p+2], products->p3Gain, products->p3Offset);
+            products->p4[i] = TOSHORT(pulses[3]->abp[p+2], products->p4Gain, products->p4Offset);
            
             products->vr[i] = TOSHORT((i-productsLength/2.0), products->vrGain, products->vrOffset);
             products->vs[i] = TOSHORT((i-productsLength/2.0)/10.0, products->vsGain, products->vsOffset);
@@ -95,16 +106,16 @@ int EldoraProducts::numPulses() {
 ////////////////////////////////////////////////////
 void EldoraProducts::initProducts(EldoraDDS::Products* p) {
     
-    p->p1Gain = 100.0;
+    p->p1Gain = 1.0e9;
     p->p1Offset = 0.0;
     
-    p->p2Gain = 100.0;
+    p->p2Gain = 1.0e9;
     p->p2Offset = 0.0;
     
-    p->p3Gain = 100.0;
+    p->p3Gain = 1.0e9;
     p->p3Offset = 0.0;
     
-    p->p4Gain = 100.0;
+    p->p4Gain = 1.0e9;
     p->p4Offset = 0.0;
     
     p->dmGain = 1000.0;
