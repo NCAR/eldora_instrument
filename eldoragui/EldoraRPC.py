@@ -24,7 +24,7 @@ class EldoraRPC:
         # can throw an exception if the server 
         # is not available
         try:
-            return self.server.radarStart()
+            return self.server.start()
         except Exception, e:
             raise e
         
@@ -32,7 +32,7 @@ class EldoraRPC:
         # can throw an exception if the server 
         # is not available
         try:
-            return self.server.radarStop()
+            return self.server.stop()
         except Exception, e:
             raise e
         
