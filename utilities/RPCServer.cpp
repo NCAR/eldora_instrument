@@ -32,6 +32,7 @@ RadarStart::RadarStart(XmlRpcServer* s):
 void 
 RadarStart::execute(XmlRpcValue& params, XmlRpcValue& result)
 {
+	std::cout << "params type is " << params.getType() << "  I am " << _name << "\n";
   result = "Radar started";
 }
 

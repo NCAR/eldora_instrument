@@ -34,5 +34,5 @@ Default(utilities)
 testtools = ['default', 'utilities']
 testenv = Environment(tools = testtools)
 
-rpcservertest = testenv.Program('rpcservertest', 'RPCServerTest.cpp')
+rpcservertest = testenv.Program('rpcservertest', ['RPCmain.cpp', 'RPCServerTest.cpp'])
 Default (rpcservertest)

@@ -1,15 +1,30 @@
-#include "RPCServer.h"
+#include "RPCServerTest.h"
+#include <iostream>
 
-int main (int argc, char** argv) {
+RPCServerTest::RPCServerTest()
+{
+}
+
+int
+RPCServerTest::start() {
 	
-	RPCServer server(60000, 5);
+	std::cout << "I got the start command\n";
+	return 0;
+			
+}
+
+std::string
+RPCServerTest::stop() {
 	
-	RPCMethod shutdown(&server, "shutdown", "you must shutdown");
+	std::cout << "I got the stop command\n";
+	return std::string("We have been stopped!");
+			
+}
+
+std::string
+RPCServerTest::shutdown() {
 	
-	RadarStart radarStart(&server);
-	
-	RadarStop radarStop(&server);
-	
-	server.start();
-	
+	std::cout << "I got the shutdown command\n";
+	return std::string("Shutdown NOW!");
+			
 }
