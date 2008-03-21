@@ -5,26 +5,29 @@ RPCServerTest::RPCServerTest()
 {
 }
 
-int
-RPCServerTest::start() {
+void
+RPCServerTest::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the start command\n";
-	return 0;
+	result = "Started via a function pointer!";
+	return;
 			
 }
 
-std::string
-RPCServerTest::stop() {
+void
+RPCServerTest::stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the stop command\n";
-	return std::string("We have been stopped!");
+	result = "Stopped via a function pointer!";
+	return;
 			
 }
 
-std::string
-RPCServerTest::shutdown() {
+void
+RPCServerTest::shutdown(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the shutdown command\n";
-	return std::string("Shutdown NOW!");
+	result = "Shutdown via a function pointer!";
+	return;
 			
 }
