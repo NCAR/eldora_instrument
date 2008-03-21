@@ -11,15 +11,18 @@ using namespace XmlRpc;
 /// library (http://xmlrpcpp.sourceforge.net/).
 ///
 /// The handler methods which implement the RPC methods must
-/// have the standard XmlRpc++ signature:
+/// have the standard XmlRpc++ signature and return value semantics:
 /// @code
-/// void rpcMethod(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
+/// void rpcMethod(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+///    int data  = params;
+///    result = "Success";
+/// }
 /// @endcode
 ///
 /// The implementation trick is to use a pointer
 /// to the member function which will be called to handle the 
-/// given command. The member function pointer is provided in the 
-/// RPCCmd constructor. 
+/// given command. The member function pointer is provided to the 
+/// RPCCmd constructor, so that it knows where to send the RPC command.
 ///
 /// An example of usage is:
 /// @code
@@ -31,7 +34,7 @@ using namespace XmlRpc;
 /// // The handler that will respond to the rpc commands
 /// Handler cmdHandler;
 ///
-/// // The command handlers are defined next:
+/// // The command handler RPC methods are defined next:
 /// RPCCmd<Handler>     startCmd(&server, cmdHandler, "start",    &Handler::start);
 /// RPCCmd<Handler>      stopCmd(&server, cmdHandler, "stop",     &Handler::stop);
 /// RPCCmd<Handler>  shutdownCmd(&server, cmdHandler, "shutdown", &Handler::shutdown);
