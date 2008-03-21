@@ -13,7 +13,7 @@ using namespace XmlRpc;
 /// The handler methods which implement the RPC methods must
 /// have the standard XmlRpc++ signature and return value semantics:
 /// @code
-/// void rpcMethod(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+/// void Handler::rpcMethod(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 ///    int data  = params;
 ///    result = "Success";
 /// }
