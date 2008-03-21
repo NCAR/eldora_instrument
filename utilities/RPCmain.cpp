@@ -2,9 +2,7 @@
 
 #include "RPCServer.h"
 
-#include "RPCStartCmd.h"
-#include "RPCStopCmd.h"
-#include "RPCShutdownCmd.h"
+#include "EldoraRpcCmds.h"
 
 int main (int argc, char** argv) {
 	
