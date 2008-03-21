@@ -2,7 +2,7 @@
 
 #include "RPCServer.h"
 
-#include "EldoraRpcCmds.h"
+#include "RPCCmd.h"
 
 int main (int argc, char** argv) {
 	
