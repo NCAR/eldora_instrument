@@ -1,46 +1,60 @@
+##############################################################
+#
+# Xilinx Core Generator version J.40
+# Date: Wed Mar 26 15:15:43 2008
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
 # BEGIN Project Options
-SET flowvendor = Foundation_iSE
-SET vhdlsim = True
-SET verilogsim = False
-SET workingdirectory = C:\Work_Projects\Eldora\firmware\bittware_firmware
-SET speedgrade = -4
-SET simulationfiles = Behavioral
-SET asysymbol = True
 SET addpads = False
-SET device = xc2v1000
-SET implementationfiletype = Edif
-SET busformat = BusFormatAngleBracket
-SET foundationsym = False
-SET package = fg456
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = False
 SET designentry = VHDL
+SET device = xc2v1000
 SET devicefamily = virtex2
+SET flowvendor = Foundation_iSE
 SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Edif
+SET package = fg456
 SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -4
+SET verilogsim = False
+SET vhdlsim = True
 # END Project Options
 # BEGIN Select
 SELECT Asynchronous_FIFO family Xilinx,_Inc. 5.0
 # END Select
 # BEGIN Parameters
-CSET create_rpm=false
-CSET read_acknowledge=false
 CSET almost_empty_flag=false
-CSET write_acknowledge=false
-CSET memory_type=block
-CSET read_acknowledge_sense=active_high
-CSET read_count_width=9
-CSET fifo_depth=1023
+CSET almost_full_flag=false
 CSET component_name=afifo1k64
-CSET write_count_width=9
-CSET write_count=true
+CSET create_rpm=false
+CSET fifo_depth=1023
+CSET input_data_width=64
+CSET memory_type=block
+CSET read_acknowledge=false
+CSET read_acknowledge_sense=active_high
 CSET read_count=true
-CSET write_error=false
+CSET read_count_width=9
 CSET read_error=false
 CSET read_error_sense=active_high
-CSET almost_full_flag=false
+CSET write_acknowledge=false
 CSET write_acknowledge_sense=active_high
+CSET write_count=true
+CSET write_count_width=9
+CSET write_error=false
 CSET write_error_sense=active_high
-CSET input_data_width=64
 # END Parameters
 GENERATE
+# CRC: b66a3c25
 

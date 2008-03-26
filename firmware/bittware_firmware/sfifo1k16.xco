@@ -1,41 +1,55 @@
+##############################################################
+#
+# Xilinx Core Generator version J.40
+# Date: Wed Mar 26 15:15:56 2008
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
 # BEGIN Project Options
-SET flowvendor = Foundation_iSE
-SET vhdlsim = True
-SET verilogsim = False
-SET workingdirectory = C:\Work_Projects\Eldora\firmware\bittware_firmware
-SET speedgrade = -4
-SET simulationfiles = Behavioral
-SET asysymbol = True
 SET addpads = False
-SET device = xc2v1000
-SET implementationfiletype = Edif
-SET busformat = BusFormatAngleBracket
-SET foundationsym = False
-SET package = fg456
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = False
 SET designentry = VHDL
+SET device = xc2v1000
 SET devicefamily = virtex2
+SET flowvendor = Foundation_iSE
 SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Edif
+SET package = fg456
 SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -4
+SET verilogsim = False
+SET vhdlsim = True
 # END Project Options
 # BEGIN Select
 SELECT Synchronous_FIFO family Xilinx,_Inc. 3.0
 # END Select
 # BEGIN Parameters
-CSET memory_type=Block_Memory
-CSET write_acknowledge_flag=false
-CSET data_width=16
-CSET write_error_flag=false
-CSET read_acknowledge_sense=Active_Low
-CSET data_count_width=8
-CSET fifo_depth=1024
 CSET component_name=sfifo1k16
 CSET data_count=true
+CSET data_count_width=8
+CSET data_width=16
+CSET fifo_depth=1024
+CSET memory_type=Block_Memory
 CSET read_acknowledge_flag=false
-CSET read_error_sense=Active_Low
+CSET read_acknowledge_sense=Active_Low
 CSET read_error_flag=false
+CSET read_error_sense=Active_Low
+CSET write_acknowledge_flag=false
 CSET write_acknowledge_sense=Active_Low
+CSET write_error_flag=false
 CSET write_error_sense=Active_Low
 # END Parameters
 GENERATE
+# CRC: 2be08e2c
 

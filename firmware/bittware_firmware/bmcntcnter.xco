@@ -1,51 +1,65 @@
+##############################################################
+#
+# Xilinx Core Generator version J.40
+# Date: Wed Mar 26 15:15:20 2008
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
 # BEGIN Project Options
-SET flowvendor = Other
-SET vhdlsim = True
-SET verilogsim = False
-SET workingdirectory = C:\Work_Projects\Eldora\firmware\bittware_firmware
-SET speedgrade = -4
-SET simulationfiles = Behavioral
-SET asysymbol = False
 SET addpads = False
-SET device = xc2v1000
-SET implementationfiletype = Edif
-SET busformat = BusFormatAngleBracket
-SET foundationsym = False
-SET package = fg456
+SET asysymbol = False
+SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = False
 SET designentry = VHDL
+SET device = xc2v1000
 SET devicefamily = virtex2
+SET flowvendor = Other
 SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Edif
+SET package = fg456
 SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -4
+SET verilogsim = False
+SET vhdlsim = True
 # END Project Options
 # BEGIN Select
 SELECT Binary_Counter family Xilinx,_Inc. 6.0
 # END Select
 # BEGIN Parameters
-CSET count_style=count_by_constant
-CSET create_rpm=true
-CSET output_width=25
 CSET async_init_value=0
-CSET threshold_0=true
-CSET threshold_1=true
-CSET synchronous_settings=none
-CSET count_to_value=MAX
-CSET threshold_1_value=1
-CSET clock_enable=true
-CSET threshold_0_value=0
 CSET asynchronous_settings=clear
+CSET ce_override_for_load=true
 CSET ce_overrides=sync_controls_override_ce
-CSET load=true
-CSET set_clear_priority=clear_overrides_set
+CSET clock_enable=true
 CSET component_name=bmcntcnter
 CSET count_by_value=1
-CSET threshold_early=false
-CSET restrict_count=false
-CSET operation=down
-CSET sync_init_value=0
-CSET ce_override_for_load=true
-CSET threshold_options=non_registered
+CSET count_style=count_by_constant
+CSET count_to_value=MAX
+CSET create_rpm=true
+CSET load=true
 CSET load_sense=active_high
+CSET operation=down
+CSET output_width=25
+CSET restrict_count=false
+CSET set_clear_priority=clear_overrides_set
+CSET sync_init_value=0
+CSET synchronous_settings=none
+CSET threshold_0=true
+CSET threshold_0_value=0
+CSET threshold_1=true
+CSET threshold_1_value=1
+CSET threshold_early=false
+CSET threshold_options=non_registered
 # END Parameters
 GENERATE
+# CRC: f8f4320b
 
