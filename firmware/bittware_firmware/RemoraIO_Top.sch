@@ -295,8 +295,6 @@ BEGIN SCHEMATIC
         SIGNAL Reset
         SIGNAL Timer_Rst
         SIGNAL TimerSelect(20:0)
-        SIGNAL xexep_p32
-        SIGNAL XLXN_6437
         SIGNAL TimerSelect(1)
         SIGNAL TimerSelect(2)
         SIGNAL TimerSelect(3)
@@ -433,8 +431,6 @@ BEGIN SCHEMATIC
         SIGNAL XLXN_8631
         SIGNAL xexep_n31
         SIGNAL XLXN_8633
-        SIGNAL xexep_n32
-        SIGNAL XLXN_8635
         SIGNAL xexep_n33
         SIGNAL XLXN_8637
         SIGNAL XLXN_8638
@@ -443,9 +439,13 @@ BEGIN SCHEMATIC
         SIGNAL xexep_p31
         SIGNAL XLXN_8657(31:0)
         SIGNAL XLXN_8658(31:0)
-        SIGNAL XLXN_6551
         SIGNAL TimerClk
-        SIGNAL TimerClkFB
+        SIGNAL XLXN_8660
+        SIGNAL XLXN_8635
+        SIGNAL xexep_n32
+        SIGNAL XLXN_8672
+        SIGNAL XLXN_8675
+        SIGNAL xexep_p32
         PORT BiDirectional xv2_l2dat(7:0)
         PORT BiDirectional xv2_l3dat(7:0)
         PORT BiDirectional xv2_l0dat(7:0)
@@ -489,7 +489,6 @@ BEGIN SCHEMATIC
         PORT Input xv2_reset_l
         PORT Input xv2_haclk
         PORT Input xuser_clk
-        PORT Input xexep_p32
         PORT Output xexep_n3
         PORT Input xexep_p33
         PORT Output xexep_p19
@@ -552,11 +551,12 @@ BEGIN SCHEMATIC
         PORT Output xexep_p29
         PORT Output xexep_n30
         PORT Output xexep_n31
-        PORT Output xexep_n32
         PORT Output xexep_n33
         PORT Output xexep_n34
         PORT Output xexep_p34
         PORT Output xexep_p31
+        PORT Output xexep_n32
+        PORT Input xexep_p32
         BEGIN BLOCKDEF iobuf
             TIMESTAMP 2001 11 14 15 13 3
             LINE N 224 -128 128 -128 
@@ -2168,14 +2168,6 @@ BEGIN SCHEMATIC
         BEGIN BLOCK XLXI_1873(31:0) gnd
             PIN G XLXN_8657(31:0)
         END BLOCK
-        BEGIN BLOCK XLXI_1837 ibufg
-            PIN I xexep_p32
-            PIN O XLXN_6437
-        END BLOCK
-        BEGIN BLOCK XLXI_1838 bufg
-            PIN I XLXN_6437
-            PIN O OnePPS_Trigger
-        END BLOCK
         BEGIN BLOCK Timer_2 TimerBlock
             PIN Timer_Rst Timer_Rst
             PIN CS TimerSelect(1)
@@ -2336,21 +2328,21 @@ BEGIN SCHEMATIC
                 VERILOG all:0 wsynop:1 wsynth:1
                 VHDL all:0 wa:1 wd:1
             END ATTR
-            PIN CLKFB TimerClkFB
+            PIN CLKFB TimerClk
             PIN CLKIN TimerClkIn
             PIN DSSEN XLXN_6557
             PIN PSCLK XLXN_6556
             PIN PSEN XLXN_6556
             PIN PSINCDEC XLXN_6556
-            PIN RST Reset
-            PIN CLK0 TimerClkFB
+            PIN RST Timer_Rst
+            PIN CLK0 XLXN_8660
             PIN CLK180
             PIN CLK270
             PIN CLK2X
             PIN CLK2X180
             PIN CLK90
             PIN CLKDV
-            PIN CLKFX XLXN_6551
+            PIN CLKFX
             PIN CLKFX180
             PIN LOCKED
             PIN PSDONE
@@ -2991,13 +2983,6 @@ BEGIN SCHEMATIC
         BEGIN BLOCK XLXI_2348 gnd
             PIN G XLXN_8633
         END BLOCK
-        BEGIN BLOCK XLXI_2349 obuf
-            PIN I XLXN_8635
-            PIN O xexep_n32
-        END BLOCK
-        BEGIN BLOCK XLXI_2350 gnd
-            PIN G XLXN_8635
-        END BLOCK
         BEGIN BLOCK XLXI_2351 obuf
             PIN I XLXN_8637
             PIN O xexep_n33
@@ -3039,8 +3024,23 @@ BEGIN SCHEMATIC
             PIN TimerSelect(20:0) TimerSelect(20:0)
         END BLOCK
         BEGIN BLOCK XLXI_1893 bufg
-            PIN I XLXN_6551
+            PIN I XLXN_8660
             PIN O TimerClk
+        END BLOCK
+        BEGIN BLOCK XLXI_2350 gnd
+            PIN G XLXN_8635
+        END BLOCK
+        BEGIN BLOCK XLXI_2349 obuf
+            PIN I XLXN_8635
+            PIN O xexep_n32
+        END BLOCK
+        BEGIN BLOCK XLXI_2360 ibufg
+            PIN I xexep_p32
+            PIN O XLXN_8675
+        END BLOCK
+        BEGIN BLOCK XLXI_2361 bufg
+            PIN I XLXN_8675
+            PIN O OnePPS_Trigger
         END BLOCK
     END NETLIST
     BEGIN SHEET 1 2720 1760
@@ -3096,7 +3096,7 @@ BEGIN SCHEMATIC
         END DISPLAY
         INSTANCE XLXI_307 496 96 R0
         BEGIN INSTANCE BusDCM 192 1696 R0
-            BEGIN DISPLAY -8 -1160 ATTR CLKIN_PERIOD
+            BEGIN DISPLAY 40 -1048 ATTR CLKIN_PERIOD
                 FONT 28 "Arial"
             END DISPLAY
         END INSTANCE
@@ -3155,12 +3155,6 @@ BEGIN SCHEMATIC
         BEGIN BRANCH TimerClkIn
             WIRE 1888 176 1936 176
             BEGIN DISPLAY 1888 176 ATTR Name
-                ALIGNMENT SOFT-RIGHT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH Reset
-            WIRE 1904 752 1936 752
-            BEGIN DISPLAY 1904 752 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
@@ -3272,26 +3266,26 @@ BEGIN SCHEMATIC
             WIRE 1008 384 1008 416
             WIRE 1008 384 1056 384
         END BRANCH
-        BEGIN BRANCH XLXN_6551
-            WIRE 2320 624 2384 624
-            WIRE 2384 624 2384 656
+        BEGIN BRANCH XLXN_8660
+            WIRE 2320 176 2400 176
+            WIRE 2400 176 2400 192
+        END BRANCH
+        BEGIN BRANCH Timer_Rst
+            WIRE 1888 752 1936 752
+            BEGIN DISPLAY 1888 752 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
         END BRANCH
         BEGIN BRANCH TimerClk
-            WIRE 2384 880 2384 960
-            BEGIN DISPLAY 2384 960 ATTR Name
+            WIRE 2400 416 2400 448
+            BEGIN DISPLAY 2400 448 ATTR Name
                 ALIGNMENT SOFT-VRIGHT
             END DISPLAY
         END BRANCH
-        INSTANCE XLXI_1893 2352 656 R90
-        BEGIN BRANCH TimerClkFB
-            WIRE 2320 176 2368 176
-            BEGIN DISPLAY 2368 176 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        BEGIN BRANCH TimerClkFB
-            WIRE 1888 240 1936 240
-            BEGIN DISPLAY 1888 240 ATTR Name
+        INSTANCE XLXI_1893 2368 192 R90
+        BEGIN BRANCH TimerClk
+            WIRE 1904 240 1936 240
+            BEGIN DISPLAY 1904 240 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
@@ -6319,21 +6313,6 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-LEFT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH xexep_p32
-            WIRE 272 640 304 640
-        END BRANCH
-        BEGIN BRANCH XLXN_6437
-            WIRE 528 640 544 640
-        END BRANCH
-        INSTANCE XLXI_1837 304 672 R0
-        BEGIN BRANCH OnePPS_Trigger
-            WIRE 768 640 784 640
-            BEGIN DISPLAY 784 640 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        INSTANCE XLXI_1838 544 672 R0
-        IOMARKER 272 640 xexep_p32 R180 28
         BEGIN INSTANCE Timer_2 2176 560 R0
         END INSTANCE
         BEGIN INSTANCE Timer_3 2976 576 R0
@@ -8233,14 +8212,6 @@ BEGIN SCHEMATIC
             WIRE 288 2464 304 2464
         END BRANCH
         INSTANCE XLXI_2348 160 2400 R90
-        INSTANCE XLXI_2349 304 2592 R0
-        BEGIN BRANCH xexep_n32
-            WIRE 528 2560 608 2560
-        END BRANCH
-        BEGIN BRANCH XLXN_8635
-            WIRE 288 2560 304 2560
-        END BRANCH
-        INSTANCE XLXI_2350 160 2496 R90
         INSTANCE XLXI_2351 304 2688 R0
         BEGIN BRANCH xexep_n33
             WIRE 528 2656 608 2656
@@ -8251,7 +8222,6 @@ BEGIN SCHEMATIC
         INSTANCE XLXI_2352 160 2592 R90
         IOMARKER 608 2368 xexep_n30 R0 28
         IOMARKER 608 2464 xexep_n31 R0 28
-        IOMARKER 608 2560 xexep_n32 R0 28
         IOMARKER 608 2656 xexep_n33 R0 28
         INSTANCE XLXI_2353 304 2720 M180
         INSTANCE XLXI_2354 160 2688 R90
@@ -8288,5 +8258,29 @@ BEGIN SCHEMATIC
         END BRANCH
         BEGIN INSTANCE XLXI_2356 144 560 R0
         END INSTANCE
+        IOMARKER 608 2560 xexep_n32 R0 28
+        INSTANCE XLXI_2350 160 2496 R90
+        BEGIN BRANCH XLXN_8635
+            WIRE 288 2560 304 2560
+        END BRANCH
+        BEGIN BRANCH xexep_n32
+            WIRE 528 2560 608 2560
+        END BRANCH
+        INSTANCE XLXI_2349 304 2592 R0
+        INSTANCE XLXI_2360 304 656 R0
+        BEGIN BRANCH XLXN_8675
+            WIRE 528 624 560 624
+        END BRANCH
+        INSTANCE XLXI_2361 560 656 R0
+        BEGIN BRANCH xexep_p32
+            WIRE 272 624 304 624
+        END BRANCH
+        IOMARKER 272 624 xexep_p32 R180 28
+        BEGIN BRANCH OnePPS_Trigger
+            WIRE 784 624 816 624
+            BEGIN DISPLAY 816 624 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
     END SHEET
 END SCHEMATIC

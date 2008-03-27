@@ -57,7 +57,7 @@ BEGIN SCHEMATIC
         PORT BiDirectional DataInOut(31:0)
         PORT Input Reset
         BEGIN BLOCKDEF register_16bit
-            TIMESTAMP 2006 3 9 0 12 48
+            TIMESTAMP 2008 3 26 15 3 38
             LINE N 64 -160 0 -160 
             RECTANGLE N 320 -172 384 -148 
             LINE N 320 -160 384 -160 

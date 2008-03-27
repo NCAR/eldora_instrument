@@ -43,7 +43,7 @@ BEGIN SCHEMATIC
         PORT Input IntTimerClk
         PORT Input TimerClk
         BEGIN BLOCKDEF TimerDecoder
-            TIMESTAMP 2007 7 11 16 32 44
+            TIMESTAMP 2008 3 26 15 3 38
             LINE N 64 -544 0 -544 
             RECTANGLE N 0 -492 64 -468 
             LINE N 64 -480 0 -480 
@@ -65,7 +65,7 @@ BEGIN SCHEMATIC
             LINE N 416 -288 480 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerModule
-            TIMESTAMP 2007 7 11 16 55 17
+            TIMESTAMP 2008 3 26 15 3 38
             LINE N 64 -160 0 -160 
             LINE N 64 -672 0 -672 
             LINE N 64 -608 0 -608 
@@ -84,7 +84,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -704 320 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF clockdivider
-            TIMESTAMP 2006 3 9 0 8 45
+            TIMESTAMP 2008 3 26 15 3 38
             RECTANGLE N 64 -128 320 0 
             LINE N 64 -96 0 -96 
             RECTANGLE N 0 -44 64 -20 
@@ -112,7 +112,7 @@ BEGIN SCHEMATIC
             LINE N 112 -48 48 -48 
         END BLOCKDEF
         BEGIN BLOCKDEF clockselect
-            TIMESTAMP 2007 12 17 21 59 43
+            TIMESTAMP 2008 3 26 15 3 38
             RECTANGLE N 64 -192 320 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
