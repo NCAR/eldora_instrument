@@ -443,7 +443,6 @@ BEGIN SCHEMATIC
         SIGNAL XLXN_8660
         SIGNAL XLXN_8635
         SIGNAL xexep_n32
-        SIGNAL XLXN_8672
         SIGNAL XLXN_8675
         SIGNAL xexep_p32
         PORT BiDirectional xv2_l2dat(7:0)
@@ -621,7 +620,7 @@ BEGIN SCHEMATIC
             LINE N 0 -32 64 -32 
         END BLOCKDEF
         BEGIN BLOCKDEF macro_virtex2_rev2
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -640 320 0 
             LINE N 64 -608 0 -608 
             LINE N 64 -544 0 -544 
@@ -708,7 +707,7 @@ BEGIN SCHEMATIC
             LINE N 0 -128 64 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF BiDir8
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -719,7 +718,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 272 -76 336 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF BiDir32
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -730,7 +729,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 272 -76 336 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF BWTitle
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             LINE N -176 -176 -1204 -176 
             BEGIN LINE W -1200 -212 -1200 -320 
             END LINE
@@ -755,7 +754,7 @@ BEGIN SCHEMATIC
             LINE N -240 -128 -208 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF sfifo1k16
-            TIMESTAMP 2008 3 26 15 15 53
+            TIMESTAMP 2008 3 27 20 50 46
             RECTANGLE N 32 0 352 448 
             BEGIN LINE W 0 48 32 48 
             END LINE
@@ -771,7 +770,7 @@ BEGIN SCHEMATIC
             END LINE
         END BLOCKDEF
         BEGIN BLOCKDEF LtoF16
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -320 384 0 
             LINE N 64 -288 0 -288 
             LINE N 64 -224 0 -224 
@@ -786,7 +785,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 384 -172 448 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF F16toL
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -448 348 -128 
             LINE N 64 -416 0 -416 
             LINE N 64 -352 0 -352 
@@ -801,7 +800,7 @@ BEGIN SCHEMATIC
             LINE N 352 -288 416 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF slavebusint
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             LINE N 64 368 0 368 
             RECTANGLE N 0 356 64 380 
             LINE N 64 448 0 448 
@@ -903,7 +902,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -24 464 1584 
         END BLOCKDEF
         BEGIN BLOCKDEF afifo1k64
-            TIMESTAMP 2008 3 26 15 15 40
+            TIMESTAMP 2008 3 27 20 50 37
             RECTANGLE N 32 0 352 448 
             LINE N 192 448 192 480 
             BEGIN LINE W 0 48 32 48 
@@ -922,7 +921,7 @@ BEGIN SCHEMATIC
             END LINE
         END BLOCKDEF
         BEGIN BLOCKDEF ltof64
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -320 384 0 
             LINE N 64 -288 0 -288 
             LINE N 64 -224 0 -224 
@@ -937,7 +936,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 384 -172 448 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF f64tol
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -448 348 -128 
             LINE N 64 -416 0 -416 
             LINE N 64 -352 0 -352 
@@ -952,7 +951,7 @@ BEGIN SCHEMATIC
             LINE N 352 -288 416 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF bwInfo
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             LINE N -160 -48 -1200 -48 
             BEGIN LINE W -1200 -320 -160 -320 
             END LINE
@@ -970,7 +969,7 @@ BEGIN SCHEMATIC
             LINE N -448 -48 -448 0 
         END BLOCKDEF
         BEGIN BLOCKDEF SDtoF64
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -24 624 544 
             LINE N 64 80 0 80 
             LINE N 64 128 0 128 
@@ -1003,7 +1002,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 624 228 688 252 
         END BLOCKDEF
         BEGIN BLOCKDEF F64toSD
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -32 608 496 
             LINE N 64 0 0 0 
             LINE N 64 176 0 176 
@@ -1046,7 +1045,7 @@ BEGIN SCHEMATIC
             CIRCLE N 40 -76 64 -52 
         END BLOCKDEF
         BEGIN BLOCKDEF bidir16en
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -1058,7 +1057,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 0 -172 64 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF bidir32en
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -192 272 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -1070,7 +1069,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 0 -172 64 -148 
         END BLOCKDEF
         BEGIN BLOCKDEF ioregisters
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             LINE N 64 176 0 176 
             RECTANGLE N 0 164 64 188 
             LINE N 64 256 0 256 
@@ -1134,7 +1133,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -36 624 976 
         END BLOCKDEF
         BEGIN BLOCKDEF miscstatregs
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -32 544 672 
             LINE N 64 0 0 0 
             LINE N 64 32 0 32 
@@ -1282,7 +1281,7 @@ BEGIN SCHEMATIC
             LINE N 112 -48 48 -48 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerBlock
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 49 1
             LINE N 64 -416 0 -416 
             LINE N 336 -416 400 -416 
             LINE N 64 -320 0 -320 
@@ -1311,7 +1310,7 @@ BEGIN SCHEMATIC
             LINE N 108 -16 116 -16 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerInterface
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             LINE N 560 -32 624 -32 
             RECTANGLE N 560 -428 624 -404 
             LINE N 560 -416 624 -416 
@@ -2169,74 +2168,74 @@ BEGIN SCHEMATIC
             PIN G XLXN_8657(31:0)
         END BLOCK
         BEGIN BLOCK Timer_2 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(1)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8513
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(1)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8513
         END BLOCK
         BEGIN BLOCK Timer_3 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(2)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8516
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(2)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8516
         END BLOCK
         BEGIN BLOCK Timer_4 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(3)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8522
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(3)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8522
         END BLOCK
         BEGIN BLOCK Timer_1 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(0)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_6666
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(0)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_6666
         END BLOCK
         BEGIN BLOCK Timer_5 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(4)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8525
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(4)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8525
         END BLOCK
         BEGIN BLOCK XLXI_17 ibuf
             PIN I xv2_reset_l
@@ -2417,256 +2416,256 @@ BEGIN SCHEMATIC
             PIN G XLXN_1428
         END BLOCK
         BEGIN BLOCK Timer_7 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(6)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8531
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(6)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8531
         END BLOCK
         BEGIN BLOCK Timer_12 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(11)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8546
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(11)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8546
         END BLOCK
         BEGIN BLOCK Timer_8 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(7)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8534
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(7)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8534
         END BLOCK
         BEGIN BLOCK Timer_13 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(12)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7449
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(12)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7449
         END BLOCK
         BEGIN BLOCK XLXI_2069 obuf
             PIN I XLXN_7449
             PIN O xexep_p19
         END BLOCK
         BEGIN BLOCK Timer_9 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(8)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8537
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(8)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8537
         END BLOCK
         BEGIN BLOCK Timer_14 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(13)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7497
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(13)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7497
         END BLOCK
         BEGIN BLOCK XLXI_2077 obuf
             PIN I XLXN_7497
             PIN O xexep_p20
         END BLOCK
         BEGIN BLOCK Timer_11 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(10)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8543
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(10)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8543
         END BLOCK
         BEGIN BLOCK Timer_6 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(5)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8528
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(5)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8528
         END BLOCK
         BEGIN BLOCK Timer_10 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(9)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8540
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(9)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8540
         END BLOCK
         BEGIN BLOCK Timer_15 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(14)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7509
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(14)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7509
         END BLOCK
         BEGIN BLOCK XLXI_2079 obuf
             PIN I XLXN_7509
             PIN O xexep_p21
         END BLOCK
         BEGIN BLOCK Timer_17 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(16)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7473
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(16)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7473
         END BLOCK
         BEGIN BLOCK XLXI_2073 obuf
             PIN I XLXN_7473
             PIN O xexep_p24
         END BLOCK
         BEGIN BLOCK Timer_18 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(17)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8550
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(17)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8550
         END BLOCK
         BEGIN BLOCK XLXI_2082 obuf
             PIN I XLXN_7522
             PIN O xexep_p26
         END BLOCK
         BEGIN BLOCK Timer_19 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(18)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7522
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(18)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7522
         END BLOCK
         BEGIN BLOCK XLXI_2071 obuf
             PIN I XLXN_7461
             PIN O xexep_p22
         END BLOCK
         BEGIN BLOCK Timer_16 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(15)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7461
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(15)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7461
         END BLOCK
         BEGIN BLOCK Timer_20 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(19)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_8552
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(19)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_8552
         END BLOCK
         BEGIN BLOCK XLXI_2154 obuf
             PIN I XLXN_7648
             PIN O xexep_p30
         END BLOCK
         BEGIN BLOCK Timer_21 TimerBlock
-            PIN Timer_Rst Timer_Rst
-            PIN CS TimerSelect(20)
-            PIN BusClk BusClk
-            PIN TimerClk TimerClk
-            PIN PulseOut XLXN_7648
-            PIN IntTimerClk Int_TimerClk
             PIN Enable GlobalEnable
             PIN OnePPS OnePPS_Trigger
+            PIN Timer_Rst Timer_Rst
             PIN AddrTrigger Addr_Trigger
+            PIN CS TimerSelect(20)
             PIN AddrIn(2:0) AddrOutTimer(2:0)
+            PIN BusClk BusClk
             PIN WR WR
+            PIN IntTimerClk Int_TimerClk
+            PIN TimerClk TimerClk
             PIN DataInOut(31:0) TimerDataOut(31:0)
+            PIN PulseOut XLXN_7648
         END BLOCK
         BEGIN BLOCK XLXI_2266 obufds
             BEGIN ATTR SLEW "FAST"

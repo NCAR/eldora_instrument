@@ -138,7 +138,7 @@ begin
 	AddrTrigger <= out_addrtrigger;
 	Timer_Rst <= out_timerrst;
 	AddrOut <= out_addr;
-	DataInOut(31 downto 16) <= out_data(31 downto 16) when (out_wr = '1') else (OTHERS => '0');
-	DataInOut(15 downto 0) <= out_data(15 downto 0) when (out_wr = '1') else (OTHERS => 'Z');
+	DataInOut(31 downto 22) <= out_data(31 downto 22) when (out_wr = '1') else (OTHERS => '0');
+	DataInOut(21 downto 0) <= out_data(21 downto 0) when (out_wr = '1') else (OTHERS => 'Z');
 
 end Behavioral;

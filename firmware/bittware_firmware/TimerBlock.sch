@@ -7,9 +7,9 @@ BEGIN SCHEMATIC
     END ATTR
     BEGIN NETLIST
         SIGNAL Cntrl(15:0)
-        SIGNAL Delay(15:0)
-        SIGNAL Width(15:0)
-        SIGNAL Period(15:0)
+        SIGNAL Delay(21:0)
+        SIGNAL Width(21:0)
+        SIGNAL Period(21:0)
         SIGNAL Mult(15:0)
         SIGNAL TimerClkOut
         SIGNAL TimerEnable
@@ -43,7 +43,7 @@ BEGIN SCHEMATIC
         PORT Input IntTimerClk
         PORT Input TimerClk
         BEGIN BLOCKDEF TimerDecoder
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 21 8 2
             LINE N 64 -544 0 -544 
             RECTANGLE N 0 -492 64 -468 
             LINE N 64 -480 0 -480 
@@ -65,7 +65,7 @@ BEGIN SCHEMATIC
             LINE N 416 -288 480 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerModule
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 21 5 11
             LINE N 64 -160 0 -160 
             LINE N 64 -672 0 -672 
             LINE N 64 -608 0 -608 
@@ -84,7 +84,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -704 320 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF clockdivider
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -128 320 0 
             LINE N 64 -96 0 -96 
             RECTANGLE N 0 -44 64 -20 
@@ -112,7 +112,7 @@ BEGIN SCHEMATIC
             LINE N 112 -48 48 -48 
         END BLOCKDEF
         BEGIN BLOCKDEF clockselect
-            TIMESTAMP 2008 3 26 15 3 38
+            TIMESTAMP 2008 3 27 20 35 48
             RECTANGLE N 64 -192 320 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
@@ -141,9 +141,9 @@ BEGIN SCHEMATIC
             PIN Rst Timer_Rst
             PIN Cntrl(15:0) Cntrl(15:0)
             PIN Mult(15:0) Mult(15:0)
-            PIN Delay(15:0) Delay(15:0)
-            PIN Width(15:0) Width(15:0)
-            PIN Period(15:0) Period(15:0)
+            PIN Delay(21:0) Delay(21:0)
+            PIN Width(21:0) Width(21:0)
+            PIN Period(21:0) Period(21:0)
             PIN PulseOut PulseOut
         END BLOCK
         BEGIN BLOCK XLXI_7 clockselect
@@ -161,13 +161,13 @@ BEGIN SCHEMATIC
             PIN Enable CS
             PIN AddrIn(2:0) AddrIn(2:0)
             PIN Clk BusClk
-            PIN DataInOut(31:0) DataInOut(31:0)
             PIN WR WR
             PIN Reset Timer_Rst
+            PIN DataInOut(31:0) DataInOut(31:0)
             PIN Cntrl(15:0) Cntrl(15:0)
-            PIN Delay(15:0) Delay(15:0)
-            PIN Width(15:0) Width(15:0)
-            PIN Period(15:0) Period(15:0)
+            PIN Delay(21:0) Delay(21:0)
+            PIN Width(21:0) Width(21:0)
+            PIN Period(21:0) Period(21:0)
             PIN Mult(15:0) Mult(15:0)
         END BLOCK
     END NETLIST
@@ -222,19 +222,19 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Delay(15:0)
+        BEGIN BRANCH Delay(21:0)
             WIRE 1520 1024 1616 1024
             BEGIN DISPLAY 1520 1024 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Width(15:0)
+        BEGIN BRANCH Width(21:0)
             WIRE 1520 1088 1616 1088
             BEGIN DISPLAY 1520 1088 ATTR Name
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Period(15:0)
+        BEGIN BRANCH Period(21:0)
             WIRE 1520 1152 1616 1152
             BEGIN DISPLAY 1520 1152 ATTR Name
                 ALIGNMENT SOFT-RIGHT
@@ -317,19 +317,19 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-LEFT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Delay(15:0)
+        BEGIN BRANCH Delay(21:0)
             WIRE 1056 1328 1088 1328
             BEGIN DISPLAY 1088 1328 ATTR Name
                 ALIGNMENT SOFT-LEFT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Width(15:0)
+        BEGIN BRANCH Width(21:0)
             WIRE 1056 1392 1088 1392
             BEGIN DISPLAY 1088 1392 ATTR Name
                 ALIGNMENT SOFT-LEFT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH Period(15:0)
+        BEGIN BRANCH Period(21:0)
             WIRE 1056 1456 1088 1456
             BEGIN DISPLAY 1088 1456 ATTR Name
                 ALIGNMENT SOFT-LEFT

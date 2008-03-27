@@ -40,9 +40,9 @@ entity TimerModule is
 			  Mult     : in std_logic_vector(15 downto 0); -- Multiple PRT data
            
 			  --Transmit Pulse Signals
-			  Delay    : in std_logic_vector(15 downto 0); -- # of clock cycles preceding +pulse edge
-			  Width    : in std_logic_vector(15 downto 0); -- # of clock cycles to make pulse width
-			  Period   : in std_logic_vector(15 downto 0); -- # of clock cycles to make pulse period
+			  Delay    : in std_logic_vector(21 downto 0); -- # of clock cycles preceding +pulse edge
+			  Width    : in std_logic_vector(21 downto 0); -- # of clock cycles to make pulse width
+			  Period   : in std_logic_vector(21 downto 0); -- # of clock cycles to make pulse period
 			  PulseOut : out std_logic);
 end TimerModule;
 
@@ -54,13 +54,13 @@ attribute buffer_type : string;
 attribute uselowskewlines : string;
 
 -- Pulse Generation Variables
-signal delay_int  : std_logic_vector(15 downto 0);
-signal width_int  : std_logic_vector(15 downto 0);
-signal period_int : std_logic_vector(18 downto 0);
+signal delay_int  : std_logic_vector(21 downto 0);
+signal width_int  : std_logic_vector(21 downto 0);
+signal period_int : std_logic_vector(24 downto 0);
 signal prt_mult   :std_logic_vector(3 downto 0); 
 
 -- Derived Values
-signal product : std_logic_vector (19 downto 0);
+signal product : std_logic_vector (25 downto 0);
 
 signal trig : std_logic;
 
