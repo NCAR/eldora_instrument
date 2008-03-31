@@ -85,9 +85,9 @@ EtherIO24::UDPSocketClose()
   int f;
 
   if(!(f = close(_udpSocketFd)))
-  {
     return -1;
-  }
+  
+  return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 bool
