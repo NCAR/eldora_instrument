@@ -2,9 +2,8 @@
 #include "trigmux.h"
 
 TrigMux::TrigMux(std::string ipAddress, int port, int radar):
-
-    _ether3(ipAddress, port),
-    _radar(radar)
+    _radar(radar),
+    _ether3(ipAddress, port)
 {}
 
 /////////////////////////////////////////////////////////////

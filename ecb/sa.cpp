@@ -3,8 +3,8 @@
 #include "sa.h"
 
 SA::SA(std::string ipAddress, int port, int radar):
-    _ether2(ipAddress, port),
-    _radar(radar)
+   _radar(radar),
+   _ether2(ipAddress, port)
 {}
 //////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ int
 SA::ChgAttenVal(int attenval)
 {
 
-  int chgval;
+  int chgval = 0;
   int d = 0;
 
   //Brute Force method of changing the values
