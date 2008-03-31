@@ -16,8 +16,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 	char *hold;
 	//char hold;
 
-	void Output(unsigned char cmd[]); 
-	void Toggle(void); 
+	void Output(unsigned char cmd[]);
 	int hextodec(char hex);
 	char *dectohex(int dec);
 	
@@ -149,7 +148,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 		ether.Output(Data, 5);
 		}
 
-	dds.Toggle(ether);
+	dds.Toggle();
 	
 	//Set PIRA Registers (0x00-0x03)
 	Address[0] = '!';
@@ -177,7 +176,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 		Data[4] = q;
 		ether.Output(Data, 5);
 		
-		dds.Toggle(ether);
+		dds.Toggle();
 		}
 	
 	//Set AHC Register (0x0E) 
@@ -198,7 +197,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 	Data[4] = 0x00; //for data<0:7>;
 	ether.Output(Data, 5);
 		
-	dds.Toggle(ether);
+	dds.Toggle();
 	
 		
 	//Set M<0:5> bits for PLL Divide by N counter
@@ -230,7 +229,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 	Address[4] = q;
 	ether.Output(Address, 5);
 	
-	dds.Toggle(ether);
+	dds.Toggle();
 	
 	//Reset all Data Address & Unselect DDS
 	Address[0] = '!';

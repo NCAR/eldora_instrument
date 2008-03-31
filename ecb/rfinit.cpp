@@ -119,7 +119,7 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
   Data[4] = 0x00; //for data<0:7>;
   ether.Output(Data, 5);
 
-  dds.Toggle(ether);
+  dds.Toggle();
 
   //Set PIRB Registers (0x07-0x04) to 0x00
   Address[0] = '!';
@@ -144,7 +144,7 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
     Data[4] = 0x00; //for data<0:7>;
     ether.Output(Data, 5);
 
-    dds.Toggle(ether);
+    dds.Toggle();
   }
 
 
@@ -166,7 +166,7 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
   Data[4] = 0x00; //for data<0:7>;
   ether.Output(Data, 5);
 
-  dds.Toggle(ether);
+  dds.Toggle();
 
   //Set DDS2 Registers to 0x00
   Address[0] = '!';
@@ -191,7 +191,7 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
     Data[4] = 0x00;
     ether.Output(Data, 5);
 
-    dds.Toggle(ether);
+    dds.Toggle();
   }
 
   //Reset all Data Address & Unselect DDS

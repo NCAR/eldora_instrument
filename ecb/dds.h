@@ -36,7 +36,9 @@ public:
 
   ///Initialize the DDS
   void Rfinit();
-
+  
+  ///Send bytes to EtherIO 24 to Toggle DS bit
+  void Toggle();
 
 protected:
   ///Creates Ether IO 24 Object
@@ -44,9 +46,6 @@ protected:
 
   ///DDS unit number; 0 based
   int _ddsunit;
-
-  ///Send bytes to EtherIO 24 to Toggle DS bit
-  void Toggle();
 
   ///Send data to specified ports
   ///@param portletter Port Name
