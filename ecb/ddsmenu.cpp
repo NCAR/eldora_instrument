@@ -123,7 +123,7 @@ DDSMenu::OpenMenu()
     if((freqin < 9.0e9) || (freqin > 10.0e9))
     {
       printf("Frequency must be between 9 and 10 GHz.\n");
-      printf("You entered %d.\n",freqin);
+      printf("You entered %.6f.\n",freqin);
       err_flag = 1;
     }
 
