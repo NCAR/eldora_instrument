@@ -1,0 +1,23 @@
+env = Environment(tools = ['default'])
+
+sources = Split("""
+ddsmenu.cpp
+ddsprogrammer_cpp.cpp
+dds.cpp
+dectohex.cpp
+delay.cpp
+etherio24.cpp
+hextodec.cpp
+mygetline.cpp
+rfinit.cpp
+rfputval.cpp
+samenu.cpp
+sa.cpp
+trigmuxmenu.cpp
+trigmux.cpp
+""")
+
+ecbmain = env.Program('ecbmain', sources)
+    
+Default(ecbmain)
+
