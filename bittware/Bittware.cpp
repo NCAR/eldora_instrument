@@ -60,46 +60,105 @@ void Bittware::configure(unsigned int gates,
     _dualPrt = dualPrt;
 
     // Decimation Setup
-    int decimationFactor;
-    switch (_pulsewidth) {
-    case 250:
-        decimationFactor = 2;
-        break;
-    case 500:
-        decimationFactor = 4;
-        break;
-    case 750:
-        decimationFactor = 6;
-        break;
-    case 1000:
-        decimationFactor = 8;
-        break;
-    case 1250:
-        decimationFactor = 10;
-        break;
-    case 1500:
-        decimationFactor = 12;
-        break;
-    case 1750:
-        decimationFactor = 14;
-        break;
-    case 2000:
-        decimationFactor = 16;
-        break;
-    default:
-        std::cout << "WARNING (" <<__FILE__ << ":" << __LINE__
-        << "): pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
-        decimationFactor = 8;
+    int decimationFactor = _pulsewidth/125;
+    if (decimationFactor != 2 && decimationFactor != 4 && 
+    	decimationFactor != 6 && decimationFactor != 8 && 
+    	decimationFactor != 10 && decimationFactor != 12 &&
+    	decimationFactor != 14 && decimationFactor != 16)
+    {
+    	std::cout << "WARNING (" <<__FILE__ << ":" << __LINE__
+    	<< "): pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
+    	decimationFactor = 8;
     }
-
+    
     U32 rd_buffer[BUFFER_SIZE / 4];
     U32 wr_buffer[BUFFER_SIZE / 4];
-
     U32 *reg_buf;
-
-    U32 Timer, control;
-    double prtClock;
-    int periodCount;
+    
+    U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
+    U32 Timer;
+    
+    double prtClock = (10e6);      // Timer Input Clock Freq
+    int periodCount;               // Period Count for all Timers
+    int PrtScheme;                 // PRT Scheme for all Timers
+    _dualPrt = 0;
+    _gates = 500;
+    _samples = 3;
+    
+// Timer Variables Parsed from Header
+    float IPP1 = 0.5;              // Inter Pulse Period 1
+    float IPP2 = 0.625;            // Inter Pulse Period 2
+    int Gate_Dist[2];              // TP [Delay, Counts/Gate]
+       Gate_Dist[0] = 90;
+       Gate_Dist[1] = 60;    
+  
+    U32 TX_Delay[5];               // TX Pulse Delays
+        TX_Delay[0] = 17;
+        TX_Delay[1] = 77;
+        TX_Delay[2] = 137;
+        TX_Delay[3] = 197;
+        TX_Delay[4] = 0;
+        
+    U32 TX_Width[5];               // TX Pulse Widths
+        TX_Width[0] = 60;
+        TX_Width[1] = 60;
+        TX_Width[2] = 60;
+        TX_Width[3] = 60;
+        TX_Width[4] = 257;
+            
+// Calculated Timing Variables from Header Variables
+    
+    // Test Pulse Calculations
+    U32 TP_Delay = ((int) ((TX_Delay[0] + Gate_Dist[0] + (_gates - 4) * Gate_Dist[1]) / 10)) * 10;
+    U32 TP_Width = (int) (Gate_Dist[1] * 5);
+    
+    // RX Pulse Calculations
+    U32 RX_Delay[4];
+      //RX_Delay[0] = Gate_Dist[0] + TX_Delay[0];
+      RX_Delay[0] = 0;
+      RX_Delay[1] = Gate_Dist[0] + TX_Delay[1];
+      RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
+      RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];
+    U32 RX_Width[4];
+      RX_Width[0] = _gates; 
+      RX_Width[1] = _gates;
+      RX_Width[2] = _gates;
+      RX_Width[3] = _gates;
+      
+    // Calculate the period and PRT Scheme for dual prt or single prt
+    int X, Y;
+    if (_dualPrt)  //dual prt
+    {
+        X = (int) ((int) (IPP2 / IPP1) / ((float) IPP2 / IPP1 - (int) (IPP2 / IPP1)));
+        Y = (int) (X * IPP2 / IPP1);
+        PrtScheme = (Y<<4) | X;
+        periodCount = (int) (IPP1 * ((float) IPP2/IPP1 - (int) (IPP2/IPP1)) / (int) (IPP2/IPP1) * prtClock / 1e3);
+       
+    }
+    else  //single prt
+    {
+    	periodCount = (int) (IPP1 * prtClock / 1e3);    
+    	//periodCount = (int) (prtClock / _prf);  
+    	PrtScheme = 0x0000;
+    }
+    
+    // Midbeam Interrupt Calculation
+    U32 Midbeam_Width = 5;
+    U32 Midbeam_Prt = 0x0;
+    U32 Midbeam_Delay;
+    U32 Midbeam_periodCount;
+    if (_dualPrt)
+    {
+        Midbeam_Delay = (int) (RX_Delay[0] + (((IPP1+IPP2) * (_samples - 1) + IPP1) * 10e3) + _gates);
+    	Midbeam_periodCount = periodCount * (X + Y) * _samples;
+    }
+    else
+    {
+    	Midbeam_Delay = (int) (RX_Delay[0] + ((IPP1 * 10e3) * (_samples - 1)) + _gates);
+    	Midbeam_periodCount = periodCount * _samples;
+    }   
+    
+// Initialize the Bittware Card and Fill Registers
     
     // Reset Timers and DCM
     wr_buffer[0x0] = BW_TIMER_RST;
@@ -113,141 +172,196 @@ void Bittware::configure(unsigned int gates,
     if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");
     else printf("Timer DCM Failed to Lock!\n");
     
-    int stagger = 0;
+    // Example - Read Back Timer 1 Control Register
+    //wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
+    //mem_write(wr_buffer);
+    //reg_buf = mem_read(rd_buffer);
+    //printf("Timer 1 Control = %i\n", *(reg_buf+2));
     
-    for (Timer = 0x0<<4; Timer < 0x8<<4; Timer += 0x1<<4)
+    // Initialize FORE & AFT TX Pulses
+    for (int i = 0; i < 5; i++)
     {
-    
-    // Configure  Timer 1 Control Register
-    control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
-    wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
-    wr_buffer[0x1] = control; //Data Line
-    mem_write(wr_buffer);
-    
-    // Read Back Timer 1 Control Register
-    wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
-    mem_write(wr_buffer);
-    reg_buf = mem_read(rd_buffer);
-    
-    // Configure Timer 1 Delay Register
-    wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-    wr_buffer[0x1] = stagger; //Data Line
-    mem_write(wr_buffer);
-    
-    stagger += 10;
-    
-    // Read Back Timer 1 Delay Register
-    wr_buffer[0x0] = BW_READ | Timer | BW_DELAY_REG; //Address Line
-    mem_write(wr_buffer);
-    reg_buf = mem_read(rd_buffer);
-     
-    // Configure Timer 1 Width Register
-    wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
-    //wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
-    wr_buffer[0x1] = _gates*10*decimationFactor/8; //Data Line
-    printf("Width = %i\n", _gates*10*decimationFactor/8);
-    //wr_buffer[0x1] = 100; //Data Line
-    mem_write(wr_buffer);
+    	//FORE
+    	Timer = (i<<4) + TX_FORE_CH1 ;
+    	
+    	printf(" FORE TX Timer = %i\n", Timer>>4);
+    	// Configure FORE Control Register
+    	wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+    	wr_buffer[0x1] = control; //Data Line
+    	mem_write(wr_buffer);
+    	// Configure FORE Delay Register
+    	wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+    	wr_buffer[0x1] = TX_Delay[i]; //Data Line
+    	mem_write(wr_buffer);
+    	// Configure FORE Width Register
+    	wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+    	wr_buffer[0x1] = TX_Width[i]; //Data Line
+    	mem_write(wr_buffer);
+    	// Configure FORE Period Register 
+    	wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+    	wr_buffer[0x1] = periodCount; //Data Line
+    	mem_write(wr_buffer);
+    	// Configure FORE multiple PRT Register
+    	wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = PrtScheme;
+    	mem_write(wr_buffer); 
 
-    // Read Back Timer 1 Width Register
-    wr_buffer[0x0] = BW_READ | Timer | BW_WIDTH_REG; //Address Line
-    mem_write(wr_buffer);
-    reg_buf = mem_read(rd_buffer);
-    
-    // Configure Timer 1 Period Register
-    prtClock = (10e6);
-    periodCount = (int) (prtClock/_prf);
-
-    wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-    wr_buffer[0x1] = periodCount; //Data Line
-    printf("Period = %i\n", periodCount);
-    //wr_buffer[0x1] = 200; //Data Line
-    mem_write(wr_buffer);
-    
-    // Read Back Timer 1 Period Register
-    wr_buffer[0x0] = BW_READ | Timer | BW_PERIOD_REG; //Address Line
-    mem_write(wr_buffer);
-    reg_buf = mem_read(rd_buffer);
-
-    // Configure Timer 1 multiple PRT Register
-    wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-    if (!_dualPrt) {
-        wr_buffer[0x1] = 0x0000;
-    } else {
-        wr_buffer[0x1] = 0x0054;
-    }
-    mem_write(wr_buffer);
-    
-    // Read Back Timer 1 multiple PRT Register
-    wr_buffer[0x0] = BW_READ | Timer | BW_PRT_REG; //Address Line
-    mem_write(wr_buffer);
-    reg_buf = mem_read(rd_buffer);
-    
-    }
-    
-    // Configure the Test Pulse
-    Timer = 0x8<<4;
-    
-    // Configure  Timer 1 Control Register
-    	control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
+    	// AFT
+    	Timer = (i<<4) + TX_AFT_CH1;
+    	
+    	printf(" AFT TX Timer = %i\n", Timer>>4);
+        // Configure FORE Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
         wr_buffer[0x1] = control; //Data Line
         mem_write(wr_buffer);
-        
-        // Read Back Timer 1 Control Register
-        wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
-        mem_write(wr_buffer);
-        reg_buf = mem_read(rd_buffer);
-        
-        // Configure Timer 1 Delay Register
+        // Configure FORE Delay Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-        wr_buffer[0x1] = 500-30; //Data Line
-        printf("Test Pulse = %i gate\n", wr_buffer[0x1]);
+        wr_buffer[0x1] = TX_Delay[i]; //Data Line
         mem_write(wr_buffer);
-        
-        // Read Back Timer 1 Delay Register
-        wr_buffer[0x0] = BW_READ | Timer | BW_DELAY_REG; //Address Line
-        mem_write(wr_buffer);
-        reg_buf = mem_read(rd_buffer);
-         
-        // Configure Timer 1 Width Register
+        // Configure FORE Width Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
-        //wr_buffer[0x1] = _gates*60*decimationFactor/8; //Data Line
-        wr_buffer[0x1] = 30; //Data Line
-        printf("Test Pulse = %i gates long\n", wr_buffer[0x1]);
+        wr_buffer[0x1] = TX_Width[i]; //Data Line
         mem_write(wr_buffer);
-
-        // Read Back Timer 1 Width Register
-        wr_buffer[0x0] = BW_READ | Timer | BW_WIDTH_REG; //Address Line
-        mem_write(wr_buffer);
-        reg_buf = mem_read(rd_buffer);
-        
-        // Configure Timer 1 Period Register
+        // Configure FORE Period Register 
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
         wr_buffer[0x1] = periodCount; //Data Line
-        //wr_buffer[0x1] = 200; //Data Line
         mem_write(wr_buffer);
-        
-        // Read Back Timer 1 Period Register
-        wr_buffer[0x0] = BW_READ | Timer | BW_PERIOD_REG; //Address Line
-        mem_write(wr_buffer);
-        reg_buf = mem_read(rd_buffer);
-
-        // Configure Timer 1 multiple PRT Register
+        // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        if (!_dualPrt) {
-            wr_buffer[0x1] = 0x0000;
-        } else {
-            wr_buffer[0x1] = 0x0054;
-        }
+        wr_buffer[0x1] = PrtScheme;
+        mem_write(wr_buffer);     	
+    }
+ 
+    // Initialize FORE & AFT TX Pulses
+    
+        //FORE
+       	Timer = TX_FORE_TP;
+       	printf(" FORE TP Timer = %i\n", Timer>>4);
+       	// Configure FORE Control Register
+       	wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+       	wr_buffer[0x1] = control; //Data Line
+       	mem_write(wr_buffer);
+       	// Configure FORE Delay Register
+       	wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+       	wr_buffer[0x1] = TP_Delay; //Data Line
+       	mem_write(wr_buffer);
+       	// Configure FORE Width Register
+       	wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+       	wr_buffer[0x1] = TP_Width; //Data Line
+       	mem_write(wr_buffer);
+       	// Configure FORE Period Register 
+       	wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+       	wr_buffer[0x1] = periodCount; //Data Line
+       	mem_write(wr_buffer);
+       	// Configure FORE multiple PRT Register
+       	wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = PrtScheme;
+       	mem_write(wr_buffer); 
+
+       	// AFT
+       	Timer = TX_AFT_TP;
+       	printf(" AFT TP Timer = %i\n", Timer>>4);
+        // Configure FORE Control Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+        wr_buffer[0x1] = control; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Delay Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+        wr_buffer[0x1] = TP_Delay; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Width Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+        wr_buffer[0x1] = TP_Width; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Period Register 
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+        wr_buffer[0x1] = periodCount; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE multiple PRT Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = PrtScheme;
+        mem_write(wr_buffer);     	   
+    
+    // Initialize FORE & AFT RX Pulses
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        //FORE
+        Timer = (i<<4) + RX_FORE_CH1 ;
+        //printf(" FORE RX Timer = %i\n", Timer>>4);
+        
+        // Configure FORE Control Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+        wr_buffer[0x1] = control; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Delay Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+        wr_buffer[0x1] = RX_Delay[i]; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Width Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+        wr_buffer[0x1] = RX_Width[i]; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Period Register 
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+        wr_buffer[0x1] = periodCount; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE multiple PRT Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = PrtScheme;
+        mem_write(wr_buffer); 
+
+        // AFT
+        Timer = (i<<4) + RX_AFT_CH1;   
+        
+        //printf(" AFT RX Timer = %i\n", Timer>>4);
+        // Configure FORE Control Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+        wr_buffer[0x1] = control; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Delay Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+        wr_buffer[0x1] = RX_Delay[i]; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Width Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+        wr_buffer[0x1] = RX_Width[i]; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE Period Register 
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+        wr_buffer[0x1] = periodCount; //Data Line
+        mem_write(wr_buffer);
+        // Configure FORE multiple PRT Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = PrtScheme;
+        mem_write(wr_buffer);     	
+    }
+                
+    // Configure the Midbeam Inrt
+    	Timer = MIDBEAM_INTR;
+    	    	
+    	// Configure Control Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
+        wr_buffer[0x1] = control; //Data Line
+        mem_write(wr_buffer);
+        // Configure Delay Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
+        wr_buffer[0x1] = Midbeam_Delay; //Data Line
+        mem_write(wr_buffer);
+        // Configure Width Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
+        wr_buffer[0x1] = Midbeam_Width; //Data Line
+        mem_write(wr_buffer);
+        // Configure Period Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
+        wr_buffer[0x1] = Midbeam_periodCount; //Data Line
+        mem_write(wr_buffer);
+        // Configure multiple PRT Register
+        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
+        wr_buffer[0x1] = Midbeam_Prt;
         mem_write(wr_buffer);
         
-        // Read Back Timer 1 multiple PRT Register
-        wr_buffer[0x0] = BW_READ | Timer | BW_PRT_REG; //Address Line
-        mem_write(wr_buffer);
-        reg_buf = mem_read(rd_buffer);
-    
-    
+        
+        
     std::cout << "Remora configured\n";
 }
 
