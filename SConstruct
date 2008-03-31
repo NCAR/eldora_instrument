@@ -28,6 +28,7 @@ SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
 SConscript('eldoragui/SConscript')
+SConscript('dorade_lib/SConscript')
 
 # Only build eldoradrx if the DSP21KSF environment variable is set.  This
 # allows for still building everythin else on systems without the bittware 
@@ -44,6 +45,9 @@ SConscript('qttoolbox/SConscript')
 
 # A DDS test harness
 SConscript('testdds/SConscript')
+
+# ECB
+SConscript('ecb/SConscript')
 
 # Tom's original code
 SConscript('tmp/SConscript')
