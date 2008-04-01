@@ -81,31 +81,46 @@ void Bittware::configure(unsigned int gates,
     double prtClock = (10e6);      // Timer Input Clock Freq
     int periodCount;               // Period Count for all Timers
     int PrtScheme;                 // PRT Scheme for all Timers
-    _dualPrt = 0;
-    _gates = 500;
-    _samples = 3;
+    //_dualPrt = 0;
+    //_gates = 400;
+    //_samples = 3;
     
 // Timer Variables Parsed from Header
     float IPP1 = 0.5;              // Inter Pulse Period 1
     float IPP2 = 0.625;            // Inter Pulse Period 2
     int Gate_Dist[2];              // TP [Delay, Counts/Gate]
-       Gate_Dist[0] = 90;
-       Gate_Dist[1] = 60;    
-  
+       //Gate_Dist[0] = 90;
+       //Gate_Dist[1] = 60;    
+       Gate_Dist[0] = 15;          //Values for 10 MHz Clk
+       Gate_Dist[1] = 10;    
+      
+    
     U32 TX_Delay[5];               // TX Pulse Delays
-        TX_Delay[0] = 17;
-        TX_Delay[1] = 77;
-        TX_Delay[2] = 137;
-        TX_Delay[3] = 197;
+        //TX_Delay[0] = 17;
+        //TX_Delay[1] = 77;
+        //TX_Delay[2] = 137;
+        //TX_Delay[3] = 197;
+        //TX_Delay[4] = 0;
+        TX_Delay[0] = 3;           //Values for 10 MHz Clk
+        TX_Delay[1] = 13;
+        TX_Delay[2] = 23;
+        TX_Delay[3] = 33;
         TX_Delay[4] = 0;
+                
         
     U32 TX_Width[5];               // TX Pulse Widths
-        TX_Width[0] = 60;
-        TX_Width[1] = 60;
-        TX_Width[2] = 60;
-        TX_Width[3] = 60;
-        TX_Width[4] = 257;
+        //TX_Width[0] = 60;
+        //TX_Width[1] = 60;
+        //TX_Width[2] = 60;
+        //TX_Width[3] = 60;
+        //TX_Width[4] = 257;
+        TX_Width[0] = 10;          //Values for 10 MHz Clk
+        TX_Width[1] = 10;
+        TX_Width[2] = 10;
+        TX_Width[3] = 10;
+        TX_Width[4] = 43;
             
+    
 // Calculated Timing Variables from Header Variables
     
     // Test Pulse Calculations
@@ -137,8 +152,8 @@ void Bittware::configure(unsigned int gates,
     }
     else  //single prt
     {
-    	periodCount = (int) (IPP1 * prtClock / 1e3);    
-    	//periodCount = (int) (prtClock / _prf);  
+    	//periodCount = (int) (IPP1 * prtClock / 1e3);    
+    	periodCount = (int) (prtClock / _prf);  
     	PrtScheme = 0x0000;
     }
     
@@ -177,14 +192,13 @@ void Bittware::configure(unsigned int gates,
     //mem_write(wr_buffer);
     //reg_buf = mem_read(rd_buffer);
     //printf("Timer 1 Control = %i\n", *(reg_buf+2));
-    
+                
     // Initialize FORE & AFT TX Pulses
     for (int i = 0; i < 5; i++)
     {
     	//FORE
     	Timer = (i<<4) + TX_FORE_CH1 ;
     	
-    	printf(" FORE TX Timer = %i\n", Timer>>4);
     	// Configure FORE Control Register
     	wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
     	wr_buffer[0x1] = control; //Data Line
@@ -209,8 +223,7 @@ void Bittware::configure(unsigned int gates,
     	// AFT
     	Timer = (i<<4) + TX_AFT_CH1;
     	
-    	printf(" AFT TX Timer = %i\n", Timer>>4);
-        // Configure FORE Control Register
+    	// Configure FORE Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
         wr_buffer[0x1] = control; //Data Line
         mem_write(wr_buffer);
@@ -232,11 +245,10 @@ void Bittware::configure(unsigned int gates,
         mem_write(wr_buffer);     	
     }
  
-    // Initialize FORE & AFT TX Pulses
-    
+    // Initialize FORE & AFT TX Pulses        
+        
         //FORE
        	Timer = TX_FORE_TP;
-       	printf(" FORE TP Timer = %i\n", Timer>>4);
        	// Configure FORE Control Register
        	wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
        	wr_buffer[0x1] = control; //Data Line
@@ -260,8 +272,7 @@ void Bittware::configure(unsigned int gates,
 
        	// AFT
        	Timer = TX_AFT_TP;
-       	printf(" AFT TP Timer = %i\n", Timer>>4);
-        // Configure FORE Control Register
+       	// Configure FORE Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
         wr_buffer[0x1] = control; //Data Line
         mem_write(wr_buffer);
@@ -287,7 +298,6 @@ void Bittware::configure(unsigned int gates,
     {
         //FORE
         Timer = (i<<4) + RX_FORE_CH1 ;
-        //printf(" FORE RX Timer = %i\n", Timer>>4);
         
         // Configure FORE Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
@@ -313,7 +323,6 @@ void Bittware::configure(unsigned int gates,
         // AFT
         Timer = (i<<4) + RX_AFT_CH1;   
         
-        //printf(" AFT RX Timer = %i\n", Timer>>4);
         // Configure FORE Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
         wr_buffer[0x1] = control; //Data Line
