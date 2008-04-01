@@ -41,8 +41,8 @@ BEGIN SCHEMATIC
         PORT Output Period(21:0)
         PORT Output Mult(15:0)
         PORT BiDirectional DataInOut(31:0)
-        BEGIN BLOCKDEF Register_16bit
-            TIMESTAMP 2008 3 27 21 5 54
+        BEGIN BLOCKDEF register_16bit
+            TIMESTAMP 2008 3 31 22 27 15
             LINE N 64 -160 0 -160 
             RECTANGLE N 320 -172 384 -148 
             LINE N 320 -160 384 -160 
@@ -70,16 +70,16 @@ BEGIN SCHEMATIC
             LINE N 0 -128 64 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF Register_19bit
-            TIMESTAMP 2008 3 27 21 6 38
+            TIMESTAMP 2008 3 31 22 31 59
             RECTANGLE N 64 -256 320 0 
             LINE N 64 -224 0 -224 
             RECTANGLE N 320 -236 384 -212 
             LINE N 320 -224 384 -224 
-            LINE N 0 -32 64 -32 
+            LINE N 64 -176 0 -176 
             RECTANGLE N 0 -44 64 -20 
+            LINE N 0 -32 64 -32 
             LINE N 64 -80 0 -80 
             LINE N 64 -128 0 -128 
-            LINE N 64 -176 0 -176 
         END BLOCKDEF
         BEGIN BLOCK XLXI_23 d3_8e
             PIN A0 AddrIn(0)
@@ -95,7 +95,7 @@ BEGIN SCHEMATIC
             PIN D6 En6
             PIN D7 En7
         END BLOCK
-        BEGIN BLOCK XLXI_1 Register_16bit
+        BEGIN BLOCK XLXI_1 register_16bit
             PIN Clk Clk
             PIN Reset Reset
             PIN Enable En0
@@ -103,7 +103,7 @@ BEGIN SCHEMATIC
             PIN DataIn(15:0) DataInOut(15:0)
             PIN DataOut(15:0) Cntrl(15:0)
         END BLOCK
-        BEGIN BLOCK XLXI_19 Register_16bit
+        BEGIN BLOCK XLXI_19 register_16bit
             PIN Clk Clk
             PIN Reset Reset
             PIN Enable En4
@@ -113,27 +113,27 @@ BEGIN SCHEMATIC
         END BLOCK
         BEGIN BLOCK XLXI_31 Register_19bit
             PIN Clk Clk
-            PIN Reset Reset
-            PIN Enable En3
-            PIN WR WR
-            PIN DataIn(21:0) DataInOut(21:0)
             PIN DataOut(21:0) Period(21:0)
+            PIN Reset Reset
+            PIN DataIn(21:0) DataInOut(21:0)
+            PIN WR WR
+            PIN Enable En3
         END BLOCK
         BEGIN BLOCK XLXI_32 Register_19bit
             PIN Clk Clk
-            PIN Reset Reset
-            PIN Enable En2
-            PIN WR WR
-            PIN DataIn(21:0) DataInOut(21:0)
             PIN DataOut(21:0) Width(21:0)
+            PIN Reset Reset
+            PIN DataIn(21:0) DataInOut(21:0)
+            PIN WR WR
+            PIN Enable En2
         END BLOCK
         BEGIN BLOCK XLXI_33 Register_19bit
             PIN Clk Clk
-            PIN Reset Reset
-            PIN Enable En1
-            PIN WR WR
-            PIN DataIn(21:0) DataInOut(21:0)
             PIN DataOut(21:0) Delay(21:0)
+            PIN Reset Reset
+            PIN DataIn(21:0) DataInOut(21:0)
+            PIN WR WR
+            PIN Enable En1
         END BLOCK
     END NETLIST
     BEGIN SHEET 1 3520 2720
