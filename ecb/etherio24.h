@@ -20,9 +20,9 @@ class EtherIO24
 {
 public:
   /// Constructor
-  /// @param ipAddress The ipAddress of the board
+  /// @param hostname The host name of the board
   /// @param port The port number.
-  EtherIO24(std::string ipAddress, int port);
+  EtherIO24(std::string hostname, int port);
 
   /// Destructor
   ~EtherIO24();
@@ -55,8 +55,8 @@ protected:
   /// The udp socket file descriptor.
   int _udpSocketFd;
 
-  /// The IP name
-  std::string _ipAddress;
+  /// The host name
+  std::string _hostName;
 
   /// The IP port
   int _port;

@@ -8,7 +8,6 @@
 #include "sa.h"
 #include "samenu.h"
 #include "trigmuxmenu.h"
-#include "IPAddress.h"
 
 using namespace std;
 
@@ -78,7 +77,7 @@ int main()
               getchar();
               for(ddsunit=0;ddsunit<numdds;ddsunit++)
               {
-                dds[ddsunit] = new DDS(DDSFOREIP, 2424, ddsunit);
+                dds[ddsunit] = new DDS("etherio-fore", 2424, ddsunit);
 
               }
 
@@ -92,7 +91,7 @@ int main()
               getchar();
               for(ddsunit=0;ddsunit<numdds;ddsunit++)
               {
-                dds[ddsunit] = new DDS(DDSAFTIP, 2424, ddsunit);
+                dds[ddsunit] = new DDS("etherio-aft", 2424, ddsunit);
 
               }
 
@@ -127,7 +126,7 @@ int main()
             }
             radarchoice = radarchoice * 8;
 
-            SA sa(SAIP, 2424, radarchoice);
+            SA sa("etherio-sa", 2424, radarchoice);
 
             SAMenu menu(sa);
 
@@ -159,7 +158,7 @@ int main()
             }
             radarchoice = radarchoice * 8;
 
-            TrigMux mux(SAIP, 2424, radarchoice);
+            TrigMux mux("etherio-sa", 2424, radarchoice);
 
             TrigMuxMenu menu(mux);
 

@@ -1,19 +1,13 @@
 //Ether class
 //Created by Charlie/Drew
 //July 5/6, 2007
+#include <netdb.h>
 #include "etherio24.h"
 
-EtherIO24::EtherIO24(std::string ipAddress, int port)
+EtherIO24::EtherIO24(std::string hostname, int port) :
+	_hostName(hostname), _port(port)
 {
-  _isGood = true;
-  _ipAddress = ipAddress;
-  _port = port;
-
-  if (UDPSocketInit())
-  {
-    _isGood = false;
-  }
-
+  _isGood = (UDPSocketInit() == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -71,9 +65,16 @@ EtherIO24::UDPSocketInit()
   }
 
   //Initializes socket
+  struct hostent* hent = gethostbyname(_hostName.c_str());
+  if (! hent)
+  {
+	  printf("Lookup of host '%s' failed.\n", _hostName.c_str());
+	  return -1;
+  }
+  
   _etherTo.sin_family = AF_INET;
   _etherTo.sin_port = htons(_port);
-  _etherTo.sin_addr.s_addr = inet_addr(_ipAddress.c_str());
+  _etherTo.sin_addr.s_addr = *(long*)hent->h_addr_list[0];
 
   return 0;
 
