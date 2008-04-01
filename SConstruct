@@ -8,11 +8,10 @@ def Eldora(env):
     env.AppendUnique(CPPDEFINES=['ELDORA_ROOT=' + 
                                  '\'"' + env.Dir('#').get_abspath() + '"\''])
     if env['CC'] == "gcc":
-        env.Append(_LIBFLAGS=['-lpthread'])
-        env.Append(CCFLAGS='-fmessage-length=0')
-#        env.Append(CCFLAGS='-O2')
+        env.AppendUnique(_LIBFLAGS=['-lpthread'])
+        env.AppendUnique(CCFLAGS=['-fmessage-length=0'])
     else:
-        env.Append(CCFLAGS=['/EHsc','/MDd','/GR','/GX'])
+        env.AppendUnique(CCFLAGS=['/EHsc','/MDd','/GR','/GX'])
         env.PassEnv(r'VC.*')
         env.PassEnv(r'VS.*')
         env.PassEnv(r'DevEnvDir')
@@ -28,6 +27,7 @@ SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
 SConscript('eldoragui/SConscript')
+SConscript('dorade/tool_dorade.py')
 
 # Only build eldoradrx if the DSP21KSF environment variable is set.  This
 # allows for still building everythin else on systems without the bittware 
