@@ -1,5 +1,4 @@
 env = Environment(tools = ['default'])
-env.AppendUnique(CCFLAGS = ['-O0', '-g'])
 
 sources = Split("""
 ddsmenu.cpp
