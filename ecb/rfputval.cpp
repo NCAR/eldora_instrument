@@ -56,6 +56,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 		Address[2] = 0x00; 
 		Address[3] = 'B'; 
 		Address[4] = 96+64*(uin-1); //$60 (96) - $E0 (224)
+		printf("1-3 DDS Address = %x\n", Address[4]);
 		ether.Output(Address, 5);
 		
 		DDS67 = Address[4]; //takes value of port B (includes addr<5>)
@@ -86,6 +87,7 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 		Address[2] = 0x00; 
 		Address[3] = 'B'; 
 		Address[4] = 32+64*(uin-4); //$20 (32) - $E0 (224)
+		printf("4+ DDS Address = %x\n", Address[4]);
 		ether.Output(Address, 5);
 	
 		DDS67 = Address[4];
@@ -107,8 +109,8 @@ void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 		ether.Output(Data, 5);
 	
 		}
-	
-
+	    
+		
 	//Set AMC Register (0x0A) to either 0x0C or 0x0F
 	//Set DS=1, W/R=0 before setting AMC register
 	Select[0]='!';

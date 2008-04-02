@@ -65,6 +65,7 @@ SA::SendToBoard(unsigned char portletter, unsigned char data)
   send[2] = 0x00;
   send[3] = portletter;
   send[4] = data;
+    
   _ether2.Output(send,5);
 }
 //////////////////////////////////////////////////////////////////////////////

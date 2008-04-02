@@ -18,8 +18,7 @@ DDS::Toggle()
 {
 
   _q =0;
-  _DDS89=0;
-
+  
   //Toggle DS bit to 0 so DDS can grab what is on the Bus
   _Select[1]='C';
   //0000 000(1/0); keep addr, DS=0, W/R=0
@@ -201,7 +200,7 @@ DDS::Rfputval(double freqin, int nrin)
 
   //////////Set Upper Four Bits for DDS Address
   SetDDSAddress();
-
+    
   //////////Set AMC Register (0x0A) to either 0x0C or 0x0F
   //Set DS=1, W/R=0 before setting AMC register
   _Select[1]='C';
@@ -449,7 +448,7 @@ DDS:: SetDDSAddress()
 {
 
 switch(_ddsunit){
-   case 0: case 1: case 2:
+  case 0: case 1: case 2:
   {
 
     _Address[1]='B';
@@ -477,6 +476,7 @@ switch(_ddsunit){
   }
 
    case 3: case 4: case 5: case 6:
+   
   {
     _Address[1] = 'B';
     _Address[2] = 32+64*(_ddsunit-3); 
@@ -488,7 +488,7 @@ switch(_ddsunit){
     //xxxx xx01
     _Address[2] = 0x01; 
     SendToBoard(_Address[1], _Address[2]);
-
+      
     _DDS89 = _Address[2];
 
     _Data[1] = 'A';
