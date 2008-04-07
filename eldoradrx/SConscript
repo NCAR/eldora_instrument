@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'rr314', 'bittware', 'deploy']
+tools = ['ddssvc', 'rr314', 'bittware', 'utilities', 'deploy']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
@@ -18,7 +18,7 @@ rr314""")
 env.Append(LIBS = libs)
 
 # build dual board application
-eldoradrx = env.Program('eldoradrx', 'RR314dual.cpp')
+eldoradrx = env.Program('eldoradrx', ['RR314dual.cpp', 'DrxRPC.cpp'])
 
 Default(eldoradrx)
 

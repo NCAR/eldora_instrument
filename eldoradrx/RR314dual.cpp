@@ -21,6 +21,8 @@
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 
+#include "DrxRPC.h"
+
 using namespace RedRapids;
 using namespace EldoraDDS;
 namespace po = boost::program_options;
@@ -445,6 +447,10 @@ void showStats(runParams& params,
 int main(int argc,
          char** argv) {
     printf("Starting\n");
+    
+    // create our RPC handler
+    DrxRPC rpcHandler(60000);
+    
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
