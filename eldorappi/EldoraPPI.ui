@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>721</width>
-    <height>971</height>
+    <height>936</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -44,7 +44,7 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="PPI" name="ppiFor" >
+          <widget class="PPI" native="1" name="ppiFor" >
            <property name="sizePolicy" >
             <sizepolicy>
              <hsizetype>3</hsizetype>
@@ -62,7 +62,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ColorBar" name="colorBarFor" >
+          <widget class="ColorBar" native="1" name="colorBarFor" >
            <property name="minimumSize" >
             <size>
              <width>60</width>
@@ -107,7 +107,7 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="PPI" name="ppiAft" >
+          <widget class="PPI" native="1" name="ppiAft" >
            <property name="sizePolicy" >
             <sizepolicy>
              <hsizetype>3</hsizetype>
@@ -125,7 +125,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ColorBar" name="colorBarAft" >
+          <widget class="ColorBar" native="1" name="colorBarAft" >
            <property name="minimumSize" >
             <size>
              <width>60</width>
@@ -225,9 +225,9 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QPushButton" name="pause" >
+           <widget class="QPushButton" name="pauseRunButton" >
             <property name="text" >
-             <string>Pause</string>
+             <string>Run</string>
             </property>
             <property name="checkable" >
              <bool>true</bool>

@@ -36,7 +36,7 @@ EldoraPPI::EldoraPPI(std::string title,
     setupUi(parent);
 
     // configure pause
-    _paused = pause->isChecked();
+    _paused = pauseRunButton->isChecked();
 
     // set the title
     parent->setWindowTitle(title.c_str());
@@ -75,7 +75,7 @@ EldoraPPI::EldoraPPI(std::string title,
     connect(&_lowerButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeLowerSlot(int)));
     
     //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
-    connect(pause, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
+    connect(pauseRunButton, SIGNAL(toggled(bool)), this, SLOT(pauseRunSlot(bool)));
 
     // set the checkbox selections
     //    _pauseButton->setChecked(false);
@@ -219,9 +219,10 @@ void EldoraPPI::timerEvent(
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraPPI::pauseSlot(
+void EldoraPPI::pauseRunSlot(
         bool p) {
     _paused = p;
+    pauseRunButton->setText(p ? "Run" : "Pause");
 }
 
 //////////////////////////////////////////////////////////////////////

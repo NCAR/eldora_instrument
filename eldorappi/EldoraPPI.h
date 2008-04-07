@@ -89,9 +89,9 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         //                int plotType);
         /// Save the ppi display to a PNG file.
         void saveImageSlot();
-        /// Pause the plotting. Any received data are ignored.
+        /// Pause/Run the plotting. Any data received while paused are ignored.
         /// @param p True to enable pause.
-        void pauseSlot(
+        void pauseRunSlot(
                 bool p);
         /// Activated when a mouse click is released for the upper color bar.
         void colorBarUpperSlot();
