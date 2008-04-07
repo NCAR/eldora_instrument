@@ -4,5 +4,5 @@
 testtools = ['default', 'svninfo', 'utilities']
 testenv = Environment(tools = testtools)
 
-rpcservertest = testenv.Program('rpcservertest', ['RPCmain.cpp', 'RPCServerTest.cpp'])
+rpcservertest = testenv.Program('rpcservertest', ['RPCmain.cpp', 'MyRPCHandler.cpp'])
 Default (rpcservertest)

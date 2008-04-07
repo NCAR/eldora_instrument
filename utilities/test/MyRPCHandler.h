@@ -1,17 +1,17 @@
-#ifndef RPCSERVERTEST_H_
-#define RPCSERVERTEST_H_
+#ifndef MYRPCSERVER_H_
+#define MYRPCSERVER_H_
 
 #include <string>
 #include "xmlrpc++/XmlRpc.h"
 
 
-class RPCServerTest {
+class MyRPCHandler {
 public:
-	RPCServerTest();
+	MyRPCHandler();
 	void start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
 	void stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
 	void shutdown(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
 	
 protected:
 };
-#endif /*RPCSERVERTEST_H_*/
+#endif /*MYRPCSERVER_H_*/

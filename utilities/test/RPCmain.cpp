@@ -1,21 +1,19 @@
-#include "RPCServerTest.h"
-
+#include "MyRPCHandler.h"
 #include "RPCServer.h"
-
 #include "RPCCmd.h"
 
 int main (int argc, char** argv) {
 	
 	// The client that will respond to the rpc commands
-	RPCServerTest rpcCmdHandler;
+	MyRPCHandler rpcCmdHandler;
 	
 	// The RPC server
 	RPCServer server(60000, 0);
 	
 	// The RPC commands that the client implements
-	RPCCmd<RPCServerTest>     startCmd(&server, rpcCmdHandler, "start",    &RPCServerTest::start);
-	RPCCmd<RPCServerTest>      stopCmd(&server, rpcCmdHandler, "stop",     &RPCServerTest::stop);
-	RPCCmd<RPCServerTest>  shutdownCmd(&server, rpcCmdHandler, "shutdown", &RPCServerTest::shutdown);
+	RPCCmd<MyRPCHandler>     startCmd(&server, rpcCmdHandler, "start",    &MyRPCHandler::start);
+	RPCCmd<MyRPCHandler>      stopCmd(&server, rpcCmdHandler, "stop",     &MyRPCHandler::stop);
+	RPCCmd<MyRPCHandler>  shutdownCmd(&server, rpcCmdHandler, "shutdown", &MyRPCHandler::shutdown);
 	
 	server.start();
 	

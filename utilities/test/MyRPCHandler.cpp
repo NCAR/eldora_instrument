@@ -1,12 +1,12 @@
-#include "RPCServerTest.h"
+#include "MyRPCHandler.h"
 #include <iostream>
 
-RPCServerTest::RPCServerTest()
+MyRPCHandler::MyRPCHandler()
 {
 }
 
 void
-RPCServerTest::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+MyRPCHandler::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the start command\n";
 	result = "Started via a function pointer!";
@@ -15,7 +15,7 @@ RPCServerTest::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 }
 
 void
-RPCServerTest::stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+MyRPCHandler::stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the stop command\n";
 	result = "Stopped via a function pointer!";
@@ -24,7 +24,7 @@ RPCServerTest::stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 }
 
 void
-RPCServerTest::shutdown(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+MyRPCHandler::shutdown(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	std::cout << "I got the shutdown command\n";
 	result = "Shutdown via a function pointer!";
