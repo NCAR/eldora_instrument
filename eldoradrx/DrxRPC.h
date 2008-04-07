@@ -3,17 +3,25 @@
 
 #include "RPCServer.h"
 #include "RPCCmd.h"
+#include "RR314.h"
 
-/// A handler for RPC calls to the drx application
+/// A handler for RPC calls to the drx application. This handler
+/// expects two RR314 instances to be available, and will query
+/// them for status information.
 class DrxRPC {
 public:
 	/// @param port The XMLRPC port number
-	DrxRPC(int port);
+	DrxRPC(int port, RedRapids::RR314& board0, RedRapids::RR314& board1);
 	virtual ~DrxRPC();
 	
 protected:
 	/// The XMLRPC port number
 	int _port;
+	
+	/// The first RR314 board
+	RedRapids::RR314& _board0;
+	/// The second RR314 board
+	RedRapids::RR314& _board1;
 	
 	/// The RPC server
 	RPCServer _server;

@@ -448,9 +448,6 @@ int main(int argc,
          char** argv) {
     printf("Starting\n");
     
-    // create our RPC handler
-    DrxRPC rpcHandler(60000);
-    
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
@@ -583,6 +580,10 @@ int main(int argc,
                 	bwtimer->start();
                 }
                 int loopCount = 0;
+        
+                // create our RPC handler
+                DrxRPC rpcHandler(60000, rr314_0, rr314_1);
+                
                 // periodically display the card activity.
                 while(1)
                 {

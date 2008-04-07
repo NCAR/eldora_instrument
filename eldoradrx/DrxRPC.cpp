@@ -4,8 +4,10 @@
 #include <string>
 
 ///////////////////////////////////////////////////////////////////
-DrxRPC::DrxRPC(int port) :
-	_port(port),
+DrxRPC::DrxRPC(int rpcport, RedRapids::RR314& board0, RedRapids::RR314& board1) :
+	_port(rpcport),
+	_board0(board0),
+	_board1(board1),
 	_server(_port, 0),
 	_startCmd(&_server, *this, "start", &DrxRPC::start),
 	_stopCmd(&_server, *this, "stop", &DrxRPC::stop),
@@ -50,8 +52,10 @@ DrxRPC::status(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	std::cout << "status received\n";
 	
 	XmlRpc::XmlRpcValue retval;
-	retval["state"] = "running";
-	retval["rate"] = 2.0e6;
+	
+    std::vector<unsigned long> bytes0 = _board0.bytes();
+    std::vector<unsigned long> bytes1 = _board1.bytes();
+
 	result = retval;	
 }
 
