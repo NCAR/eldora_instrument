@@ -1,0 +1,8 @@
+#
+# Build utilities test apps
+#
+testtools = ['default', 'svninfo', 'utilities']
+testenv = Environment(tools = testtools)
+
+rpcservertest = testenv.Program('rpcservertest', ['RPCmain.cpp', 'RPCServerTest.cpp'])
+Default (rpcservertest)

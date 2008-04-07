@@ -42,6 +42,9 @@ else:
 # The qttoobox support
 SConscript('qttoolbox/SConscript')
 
+# Test apps for the utilities
+SConscript('utilities/test/SConscript')
+
 # A DDS test harness
 SConscript('testdds/SConscript')
 
