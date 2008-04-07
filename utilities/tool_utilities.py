@@ -29,10 +29,3 @@ RPCServer.cpp
 utilities = env.Library('utilities', sources)
 Default(utilities)
 
-# Now build together the test programs. In this tool_*.py scheme,
-# these will not get built unless another application requests this tool
-testtools = ['default', 'utilities']
-testenv = Environment(tools = testtools)
-
-rpcservertest = testenv.Program('rpcservertest', ['RPCmain.cpp', 'RPCServerTest.cpp'])
-Default (rpcservertest)
