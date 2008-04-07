@@ -5,53 +5,75 @@
 #include "xmlrpc++/XmlRpc.h"
 using namespace XmlRpc;
 
-/// This class acts as a proxy between an RPC server and arbitrary 
+/// This class acts as a proxy between an RPCServer and arbitrary 
 /// handlers which implement the desired RPC methods. 
 /// The RPC infrastructure is based on the XmlRpc++ 
-/// library (http://xmlrpcpp.sourceforge.net/).
+/// library (http://xmlrpcpp.sourceforge.net/). Refer to the 
+/// XmlRpc++ documentation for details about parameter passing and
+/// return value semantics.
 ///
-/// The handler methods which implement the RPC methods must
-/// have the standard XmlRpc++ signature and return value semantics:
+/// Let's look at the command handlers first. 
+/// Conveniently, the handler methods which implement the RPC methods 
+/// use the same XmlRpc++ signature and return value semantics. An example of
+/// handler methods follows:
 /// @code
-/// void Handler::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
-///    int data  = params;
-///    result = "Success";
-/// }
+/// #include "xmlrpc++/XmlRpc.h"
+/// 
+/// class Handler {
+/// public:
+///    Handler();
+///
+///    void Handler::start(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+///       int data  = params;
+///       result = "Success";
+///    }
+///
+///    void Handler::stop(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
+///       int data  = params;
+///       result = 100;
+///    }
+/// };
 /// @endcode
 ///
-/// The implementation trick is to use a pointer
-/// to the member function which will be called to handle the 
+/// Now let's examine how RPCCmd is used to connect an RPCServer and the 
+/// handler methods. The implementation trick is to use a pointer
+/// to a member function; this member function will be called to handle the 
 /// given command. The member function pointer is provided to the 
-/// RPCCmd constructor, so that it knows where to send the RPC command.
-///
-/// An example of usage is:
+/// RPCCmd constructor:
 /// @code
-/// #include "XmlRpc/XmlRpc++.h"
+/// #include "RPCServer.h"
+/// #include "RPCCmd.h"
+/// #include "Handler.h"
 ///
 /// // The RPC server
-/// RPCServer server(6000, 0);
+/// RPCServer rpcServer(6000, 0);
 ///
 /// // The handler that will respond to the rpc commands
-/// Handler cmdHandler;
+/// Handler handler;
 ///
 /// // The command handler RPC methods are defined next:
-/// RPCCmd<Handler>     startCmd(&server, cmdHandler, "start",    &Handler::start);
-/// RPCCmd<Handler>      stopCmd(&server, cmdHandler, "stop",     &Handler::stop);
-/// RPCCmd<Handler>  shutdownCmd(&server, cmdHandler, "shutdown", &Handler::shutdown);
+/// RPCCmd<Handler>     rpcStartCmd(&rpcServer, handler, "start",    &Handler::start);
+/// RPCCmd<Handler>      rpcStopCmd(&rpcServer, handler, "stop",     &Handler::stop);
 ///
-/// // start the server
+/// // start the XMLRPC server
 /// server.start();
 /// @endcode
 ///
+/// Recall that RPCServer runs in its own thread, and so the RPCCmd 
+/// handlers will also execute in that context. They must address
+/// thread synchronization issues that might exist between 
+/// RPC command handling and other threads of the application.
 template<class T> class RPCCmd : public XmlRpcServerMethod {
 
 public:
 	/// @param s The RPC server
 	/// @param cmdHandler The RPC command handler. 
 	/// @param cmdName The RPC name of the method.
-	/// @param funcPtr The pointer to the meber function of the handler object. Incoming RPC calls are forwarded to this method. 
+	/// @param funcPtr The pointer to the member function of the handler object. Incoming RPC calls are forwarded to this method. 
 	/// @param helpMsg The RPC help string, used by the RPC introspection facility.
-	RPCCmd(XmlRpc::XmlRpcServer* s, T& cmdHandler, std::string cmdName, void (T::*funcPtr)(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result),
+	RPCCmd(XmlRpc::XmlRpcServer* s, 
+			T& cmdHandler, std::string cmdName, 
+			void (T::*funcPtr)(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result),
 			std::string helpMsg = "") :
 		XmlRpc::XmlRpcServerMethod(cmdName, s), _cmdHandler(cmdHandler),
 				_cmdName(cmdName), _funcPtr(funcPtr) {
@@ -60,7 +82,9 @@ public:
 
 protected:
 
-	/// Called by the RPC server when this RPC method is requested
+	/// Called by the RPC server when this RPC method is requested.
+	/// @param params The standard XMLRPC parameters.
+	/// @param result The standard XMLRPC return values.
 	void execute(XmlRpcValue& params, XmlRpcValue& result) {
 		(_cmdHandler.*_funcPtr)(params, result);
 	}
