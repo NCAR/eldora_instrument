@@ -23,10 +23,10 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.runcallback = None
         self.shutdownFunction = shutdownFunction
         self.statusFunction = statusFunction
-        # the status function will be called every multiple
-        # of the timer timeouts.
+        # the status function will be called on multiples
+        # of the main timer.
         self.statusCount = 0
-        self.statusPeriod = 10
+        self.statusPeriod = 5
         # create labels in the table cells
         for i in range(self.statusTable.rowCount()):
             item = QTableWidgetItem("x")

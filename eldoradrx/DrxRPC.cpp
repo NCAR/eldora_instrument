@@ -60,14 +60,11 @@ DrxRPC::status(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
     
     // create return values for each
     for (unsigned int i = 0; i < bytes0.size(); i++) {
-        std::stringstream key0, key1;
-        std::stringstream val0, val1;
+        std::stringstream  key0, key1;
         key0 << "board0-" << i;
-        val0 << bytes0[i];
-        retval[key0.str()] = val0.str();
+        retval[key0.str()] = (int)bytes0[i];
         key1 << "board1-" << i;
-        val1 << bytes1[i];
-        retval[key1.str()] = val1.str();        
+        retval[key1.str()] = (int)bytes1[i];        
     }
 
 	// return it

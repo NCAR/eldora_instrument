@@ -40,7 +40,7 @@ def status():
           label = main.statusTable.item(i,0)
           label.setText(k)
           val = main.statusTable.item(i,1)
-          val.setText(r[k])
+          val.setText(QString("%1").arg(r[k]))
           i = i + 1
     except Exception, e:
         print "Error trying to contact ", rpc, e

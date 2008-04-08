@@ -57,12 +57,33 @@ using namespace XmlRpc;
 ///
 /// // start the XMLRPC server
 /// server.start();
+///
+/// while (1)
+///     sleep(1);
 /// @endcode
 ///
 /// Recall that RPCServer runs in its own thread, and so the RPCCmd 
 /// handlers will also execute in that context. They must address
 /// thread synchronization issues that might exist between 
 /// RPC command handling and other threads of the application.
+///
+/// @note 
+/// The XmlRpcValue class provides a rich selection of assignment operators,
+/// so that it can be used as a variant type. Thus you can send data types
+/// that match the application needs, without having to make your own 
+/// conversions into and out of a single type (such as string). In fact,
+/// even the data types for individual items can have different types within
+/// a map, e.g.:
+/// @code
+/// XmlRpcValue result;
+/// result["status"] = std::string("running");
+/// result["counts"] = 500;
+/// @endcode
+/// You will want to be rational and consistent in the parameter and
+/// result type usage, especially so that the python applications are
+/// robust. And naturally, the parameter passing convention for each
+/// RPC interface must be documented.
+/// @endnote
 template<class T> class RPCCmd : public XmlRpcServerMethod {
 
 public:
