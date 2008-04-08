@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////
 DrxRPC::DrxRPC(int rpcport, RedRapids::RR314& board0, RedRapids::RR314& board1) :
@@ -53,10 +54,24 @@ DrxRPC::status(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result) {
 	
 	XmlRpc::XmlRpcValue retval;
 	
-    std::vector<unsigned long> bytes0 = _board0.bytes();
+    // get the current byte counts from the board
+	std::vector<unsigned long> bytes0 = _board0.bytes();
     std::vector<unsigned long> bytes1 = _board1.bytes();
+    
+    // create return values for each
+    for (unsigned int i = 0; i < bytes0.size(); i++) {
+        std::stringstream key0, key1;
+        std::stringstream val0, val1;
+        key0 << "board0-" << i;
+        val0 << bytes0[i];
+        retval[key0.str()] = val0.str();
+        key1 << "board1-" << i;
+        val1 << bytes1[i];
+        retval[key1.str()] = val1.str();        
+    }
 
-	result = retval;	
+	// return it
+    result = retval;	
 }
 
 

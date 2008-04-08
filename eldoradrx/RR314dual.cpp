@@ -72,6 +72,7 @@ struct runParams {
         DDSPublisher* publisher; ///< the DDS publisher.
         PulseWriter* pulseWriter; ///< the DDS pulse writer.
         TSWriter* tsWriter; ///< the DDS TS writer.
+        int rpcPort; ///< the rpc port number
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -109,7 +110,8 @@ struct runParams parseOptions(int argc,
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
     ("binary", "binary capture")
-    ("text", "text capture") ("publish", "publish data");
+    ("text", "text capture") ("publish", "publish data")
+    ("rpcport", po::value<int>(&params.rpcPort)->default_value(60000), "RPC port number");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, descripts), vm);
@@ -582,7 +584,7 @@ int main(int argc,
                 int loopCount = 0;
         
                 // create our RPC handler
-                DrxRPC rpcHandler(60000, rr314_0, rr314_1);
+                DrxRPC rpcHandler(params0.rpcPort, rr314_0, rr314_1);
                 
                 // periodically display the card activity.
                 while(1)

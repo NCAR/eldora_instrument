@@ -16,12 +16,25 @@ false = 0
 # functions specified to the constructor.
 #
 class EldoraMain(QMainWindow, Ui_EldoraMain):
-    def __init__(self, runStopFunction=None, shutdownFunction=None, parent=None):
+    def __init__(self, runStopFunction=None, shutdownFunction=None, statusFunction=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
         self.runcallback = None
         self.shutdownFunction = shutdownFunction
+        self.statusFunction = statusFunction
+        # the status function will be called every multiple
+        # of the timer timeouts.
+        self.statusCount = 0
+        self.statusPeriod = 10
+        # create labels in the table cells
+        for i in range(self.statusTable.rowCount()):
+            item = QTableWidgetItem("x")
+            self.statusTable.setItem(i, 0, item)
+            item = QTableWidgetItem("y")
+            self.statusTable.setItem(i, 1, item)
+
+
         
         # initialize the runstop button
         self.toggleRun(false)
@@ -42,6 +55,12 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         
     def timerEvent(self, event):
         self.dateTimeLabel.setText(asctime(gmtime()))
+        self.statusCount = self.statusCount+1
+        if self.statusCount >= self.statusPeriod:
+            self.statusCount = 0
+            # execute the status function
+            if (self.statusFunction != None):
+                self.statusFunction()
         
     # change the run state
     def toggleRun(self, runChecked):
@@ -58,7 +77,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # execute the runStop callback if we have one
         if (self.runcallback != None):
            self.runcallback(runChecked)
-
+           
                
            
     
