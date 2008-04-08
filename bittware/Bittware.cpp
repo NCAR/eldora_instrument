@@ -135,10 +135,15 @@ void Bittware::configure(unsigned int gates,
       RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
       RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];
     U32 RX_Width[4];
-      RX_Width[0] = _gates; 
-      RX_Width[1] = _gates;
-      RX_Width[2] = _gates;
-      RX_Width[3] = _gates;
+      //RX_Width[0] = _gates; 
+      //RX_Width[1] = _gates;
+      //RX_Width[2] = _gates;
+      //RX_Width[3] = _gates;
+      RX_Width[0] = _gates * decimationFactor / 8 * 10; 
+      RX_Width[1] = _gates * decimationFactor / 8 * 10;
+      RX_Width[2] = _gates * decimationFactor / 8 * 10;
+      RX_Width[3] = _gates * decimationFactor / 8 * 10;
+            
       
     // Calculate the period and PRT Scheme for dual prt or single prt
     int X, Y;
@@ -182,10 +187,10 @@ void Bittware::configure(unsigned int gates,
     mem_write(wr_buffer);
     
     // Check DCM Lock Status
-    reg_buf = mem_read(rd_buffer);
+    //reg_buf = mem_read(rd_buffer);
     //printf("Status Reg = %08x\n", *reg_buf);
-    if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");
-    else printf("Timer DCM Failed to Lock!\n");
+    //if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");
+    //else printf("Timer DCM Failed to Lock!\n");
     
     // Example - Read Back Timer 1 Control Register
     //wr_buffer[0x0] = BW_READ | Timer | BW_CONTROL_REG; //Address Line
@@ -245,7 +250,7 @@ void Bittware::configure(unsigned int gates,
         mem_write(wr_buffer);     	
     }
  
-    // Initialize FORE & AFT TX Pulses        
+    // Initialize FORE & AFT Test Pulses        
         
         //FORE
        	Timer = TX_FORE_TP;
@@ -268,8 +273,8 @@ void Bittware::configure(unsigned int gates,
        	// Configure FORE multiple PRT Register
        	wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
         wr_buffer[0x1] = PrtScheme;
-       	mem_write(wr_buffer); 
-
+       	mem_write(wr_buffer);
+       	 
        	// AFT
        	Timer = TX_AFT_TP;
        	// Configure FORE Control Register
@@ -319,7 +324,8 @@ void Bittware::configure(unsigned int gates,
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
         wr_buffer[0x1] = PrtScheme;
         mem_write(wr_buffer); 
-
+        //printf("Fore CH%i : Delay = %i: Width = %i: Period = %i: PRT = %i\n", Timer>>4, RX_Delay[i], RX_Width[i], periodCount, PrtScheme);   
+        
         // AFT
         Timer = (i<<4) + RX_AFT_CH1;   
         
@@ -342,7 +348,9 @@ void Bittware::configure(unsigned int gates,
         // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
         wr_buffer[0x1] = PrtScheme;
-        mem_write(wr_buffer);     	
+        mem_write(wr_buffer);
+        //printf("Aft CH%i : Delay = %i: Width = %i: Period = %i: PRT = %i\n", Timer>>4, RX_Delay[i], RX_Width[i], periodCount, PrtScheme);   
+                
     }
                 
     // Configure the Midbeam Inrt
@@ -368,8 +376,7 @@ void Bittware::configure(unsigned int gates,
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
         wr_buffer[0x1] = Midbeam_Prt;
         mem_write(wr_buffer);
-        
-        
+                
         
     std::cout << "Remora configured\n";
 }
