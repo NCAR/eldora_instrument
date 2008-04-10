@@ -82,7 +82,7 @@ void processDMAGroups(s_ChannelAdapter *pCA, int chan, RR314* pRR314) {
 
 			// update the last group index to indicated the next
 			// group that is available.
-			if (pRR314->lastGroup(chan) < pCA->DMA.GrpCnt[chan]) {
+			if (pRR314->lastGroup(chan) < (int)pCA->DMA.GrpCnt[chan]) {
 				pRR314->lastGroup(chan, pRR314->lastGroup(chan)+1);
 			} else {
 				// handle the wrap around
