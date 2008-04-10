@@ -11,7 +11,6 @@ from EldoraRPC import *
 
 rpc = EldoraRPC("http://localhost:60000")
 
-
 def runStop(runswitch):
     try:
         if (runswitch):
@@ -57,9 +56,6 @@ def status():
           aftRate = aftRate + rates[i]
     main.forwardBWdial.setValue(forRate)
     main.aftBWdial.setValue(aftRate)
-    # set the for and aft lcds
-    main.forwardPulsesLcd.display(forRate)
-    main.aftPulsesLcd.display(aftRate)
     # set the for and aft pulse progress bars
     main.forwardPulsesProgress.setValue(forRate)
     main.aftPulsesProgress.setValue(aftRate)
@@ -74,7 +70,7 @@ def status():
               forwardDialsList[i].setValue(rates[i])
           else:
               aftDialsList[i-8].setValue(rates[i])
-       
+                    
 app = QApplication(sys.argv)
 
 main = EldoraMain(runStopFunction=runStop, shutdownFunction=shutdown, statusFunction=status)
