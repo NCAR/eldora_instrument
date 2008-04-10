@@ -24,7 +24,13 @@ class EldoraRPC:
         # can throw an exception if the server 
         # is not available
         try:
-            return self.server.start()
+            param = {'Config':'convective', 
+                     'Mode':'simulate', 
+                     'PRF':'1000',
+                     'Gates':'500',
+                     'TSGates':'5',
+                     'TSFirst':'100'}
+            return self.server.start(param)
         except Exception, e:
             raise e
         
