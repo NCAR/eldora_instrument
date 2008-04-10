@@ -14,11 +14,8 @@ BEGIN SCHEMATIC
         SIGNAL TimerClkOut
         SIGNAL TimerEnable
         SIGNAL Enable
-        SIGNAL XLXN_1
-        SIGNAL OnePPS
         SIGNAL PulseOut
         SIGNAL Timer_Rst
-        SIGNAL AddrTrigger
         SIGNAL TimerTrigger
         SIGNAL Cntrl(4:3)
         SIGNAL CS
@@ -30,11 +27,15 @@ BEGIN SCHEMATIC
         SIGNAL TimerClk
         SIGNAL Cntrl(2)
         SIGNAL ClkSelect
+        SIGNAL XLXN_17
+        SIGNAL XLXN_18
+        SIGNAL OnePPS
+        SIGNAL AddrTrigger
+        SIGNAL XLXN_23
+        SIGNAL XLXN_24
         PORT Input Enable
-        PORT Input OnePPS
         PORT Output PulseOut
         PORT Input Timer_Rst
-        PORT Input AddrTrigger
         PORT Input CS
         PORT Input AddrIn(2:0)
         PORT BiDirectional DataInOut(31:0)
@@ -42,6 +43,8 @@ BEGIN SCHEMATIC
         PORT Input WR
         PORT Input IntTimerClk
         PORT Input TimerClk
+        PORT Input OnePPS
+        PORT Input AddrTrigger
         BEGIN BLOCKDEF TimerDecoder
             TIMESTAMP 2008 3 31 22 27 15
             LINE N 64 -544 0 -544 
@@ -119,20 +122,20 @@ BEGIN SCHEMATIC
             LINE N 64 -32 0 -32 
             LINE N 320 -160 384 -160 
         END BLOCKDEF
-        BEGIN BLOCK XLXI_5 fd
-            PIN C TimerClkOut
-            PIN D XLXN_1
-            PIN Q TimerTrigger
-        END BLOCK
+        BEGIN BLOCKDEF and2
+            TIMESTAMP 2000 1 1 10 10 10
+            LINE N 0 -64 64 -64 
+            LINE N 0 -128 64 -128 
+            LINE N 256 -96 192 -96 
+            ARC N 96 -144 192 -48 144 -48 144 -144 
+            LINE N 144 -48 64 -48 
+            LINE N 64 -144 144 -144 
+            LINE N 64 -48 64 -144 
+        END BLOCKDEF
         BEGIN BLOCK XLXI_4 fd
             PIN C TimerClkOut
             PIN D Enable
             PIN Q TimerEnable
-        END BLOCK
-        BEGIN BLOCK XLXI_6 or2
-            PIN I0 AddrTrigger
-            PIN I1 OnePPS
-            PIN O XLXN_1
         END BLOCK
         BEGIN BLOCK XLXI_2 TimerModule
             PIN Clk TimerClkOut
@@ -170,16 +173,24 @@ BEGIN SCHEMATIC
             PIN Period(21:0) Period(21:0)
             PIN Mult(15:0) Mult(15:0)
         END BLOCK
+        BEGIN BLOCK XLXI_5 fd
+            PIN C TimerClkOut
+            PIN D XLXN_17
+            PIN Q TimerTrigger
+        END BLOCK
+        BEGIN BLOCK XLXI_8 and2
+            PIN I0 XLXN_23
+            PIN I1 TimerEnable
+            PIN O XLXN_17
+        END BLOCK
+        BEGIN BLOCK XLXI_6 or2
+            PIN I0 AddrTrigger
+            PIN I1 OnePPS
+            PIN O XLXN_23
+        END BLOCK
     END NETLIST
     BEGIN SHEET 1 2720 1760
-        INSTANCE XLXI_5 576 704 R0
         INSTANCE XLXI_4 576 384 R0
-        BEGIN BRANCH TimerClkOut
-            WIRE 544 576 576 576
-            BEGIN DISPLAY 544 576 ATTR Name
-                ALIGNMENT SOFT-RIGHT
-            END DISPLAY
-        END BRANCH
         BEGIN BRANCH TimerClkOut
             WIRE 544 256 576 256
             BEGIN DISPLAY 544 256 ATTR Name
@@ -190,20 +201,14 @@ BEGIN SCHEMATIC
             WIRE 544 128 576 128
         END BRANCH
         BEGIN BRANCH TimerEnable
-            WIRE 960 128 992 128
-            BEGIN DISPLAY 992 128 ATTR Name
+            WIRE 960 128 1040 128
+            WIRE 960 128 960 336
+            WIRE 960 336 1008 336
+            BEGIN DISPLAY 1040 128 ATTR Name
                 ALIGNMENT SOFT-LEFT
             END DISPLAY
         END BRANCH
-        INSTANCE XLXI_6 288 544 R0
-        BEGIN BRANCH XLXN_1
-            WIRE 544 448 576 448
-        END BRANCH
-        BEGIN BRANCH OnePPS
-            WIRE 256 416 288 416
-        END BRANCH
         IOMARKER 544 128 Enable R180 28
-        IOMARKER 256 416 OnePPS R180 28
         BEGIN BRANCH TimerClkOut
             WIRE 1536 768 1616 768
             BEGIN DISPLAY 1536 768 ATTR Name
@@ -258,17 +263,6 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
-        BEGIN BRANCH AddrTrigger
-            WIRE 256 480 272 480
-            WIRE 272 480 288 480
-        END BRANCH
-        BEGIN BRANCH TimerTrigger
-            WIRE 960 448 992 448
-            BEGIN DISPLAY 992 448 ATTR Name
-                ALIGNMENT SOFT-LEFT
-            END DISPLAY
-        END BRANCH
-        IOMARKER 256 480 AddrTrigger R180 28
         BEGIN BRANCH TimerTrigger
             WIRE 1520 896 1616 896
             BEGIN DISPLAY 1520 896 ATTR Name
@@ -375,5 +369,39 @@ BEGIN SCHEMATIC
                 ALIGNMENT SOFT-RIGHT
             END DISPLAY
         END BRANCH
+        BEGIN BRANCH TimerClkOut
+            WIRE 560 496 576 496
+            WIRE 576 496 1296 496
+            BEGIN DISPLAY 560 496 ATTR Name
+                ALIGNMENT SOFT-RIGHT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH TimerTrigger
+            WIRE 1680 368 1744 368
+            WIRE 1744 368 1760 368
+            BEGIN DISPLAY 1760 368 ATTR Name
+                ALIGNMENT SOFT-LEFT
+            END DISPLAY
+        END BRANCH
+        BEGIN BRANCH XLXN_17
+            WIRE 1264 368 1280 368
+            WIRE 1280 368 1296 368
+        END BRANCH
+        INSTANCE XLXI_6 592 496 R0
+        BEGIN BRANCH OnePPS
+            WIRE 560 368 592 368
+        END BRANCH
+        BEGIN BRANCH AddrTrigger
+            WIRE 560 432 576 432
+            WIRE 576 432 592 432
+        END BRANCH
+        IOMARKER 560 368 OnePPS R180 28
+        IOMARKER 560 432 AddrTrigger R180 28
+        BEGIN BRANCH XLXN_23
+            WIRE 848 400 864 400
+            WIRE 864 400 1008 400
+        END BRANCH
+        INSTANCE XLXI_8 1008 464 R0
+        INSTANCE XLXI_5 1296 624 R0
     END SHEET
 END SCHEMATIC
