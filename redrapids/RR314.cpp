@@ -612,7 +612,6 @@ void RR314::newABPData(int* src,
             pBuf->beamTime = getBeamTime(pBuf->pulseCount);
             // print some info every 1000 beams
             if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->pulseCount % 1000)) {
-            	now = microsec_clock::universal_time();
                 std::cout << pBuf->pulseCount << ": ";
                 std::cout << "beam time: " << to_simple_string(pBuf->beamTime.time_of_day());
                 std::cout << ", xmit start: " << to_simple_string(_xmitStartTime.time_of_day());
