@@ -11,6 +11,7 @@
 #include <deque>
 #include <map>
 
+using namespace boost::posix_time;  // for ptime & related stuff
 using namespace RedRapids;
 
 // instantiate the map which will record all instances
@@ -34,13 +35,13 @@ RR314::RR314(int devNum,
              bool simulate,
              int usleep,
              bool catchSignals) throw(std::string) :
-    _devNum(devNum), _gates(gates), _prf(prf), _pulsewidth(pulsewidth),
-            _samples(samples), _dualPrt(dualPrt),
-            _internalTimer(internalTimer), _startGateIQ(startGateIQ),
-            _numIQ(nGatesIQ), _gaussianFile(gaussianFile),
-            _kaiserFile(kaiserFile), _xsvfFileName(xsvfFile),
-            _simulate(simulate), _catchSignals(catchSignals), _bufferNext(0),
-            _running(false), _usleep(usleep) {
+            _bufferNext(0), _devNum(devNum), _gates(gates), _prf(prf), 
+            _pulsewidth(pulsewidth), _samples(samples), _numIQ(nGatesIQ), 
+            _dualPrt(dualPrt), _startGateIQ(startGateIQ), 
+            _gaussianFile(gaussianFile), _kaiserFile(kaiserFile), 
+            _xsvfFileName(xsvfFile), _simulate(simulate), _running(false), 
+            _catchSignals(catchSignals), _usleep(usleep), 
+            _internalTimer(internalTimer) {
 
     // initalize threading constructs
     pthread_mutex_init(&_bufferMutex, NULL);
@@ -408,12 +409,9 @@ int RR314::configure314() {
     Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
 
-
     // Select Timing Source Internal/External
-    if (_internalTimer)
-        Adapter_Write32(&_chanAdapter, V4, TIMING_SEL, INTERNAL_TIMING);
-    else
-        Adapter_Write32(&_chanAdapter, V4, TIMING_SEL, EXTERNAL_TIMING);
+    Adapter_Write32(&_chanAdapter, V4, TIMING_SEL, 
+                    _internalTimer ? INTERNAL_TIMING : EXTERNAL_TIMING);
 
     //Enable GPIO
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_GPIO_ADR, BRG_M314GPIO_EN);
@@ -490,6 +488,7 @@ void RR314::newIQData(short* src,
     assert(!(chan & 1) && (chan < 8));
 
     RRIQBuffer* pBuf = _currentIQBuffer[chan];
+    
     // loop through all src samples
     for (int i = 0; i < n; i++) {
         //				std::cout << "dataIn " << pBuf->dataIn << "  nextData "
@@ -505,7 +504,7 @@ void RR314::newIQData(short* src,
         case 1:
             pBuf->chanId = (src[i]<< 16) | (pBuf->chanId & 0xffff);
             pBuf->dataIn++;
-            if (pBuf->chanId != (chan+1)) {
+            if ((int)pBuf->chanId != (chan+1)) {
                 std::cout << "RR data error, channel id should be " << chan+1
                         << ", got " << pBuf->chanId << " instead\n";
                 pBuf->chanId = chan + 1;
@@ -514,20 +513,26 @@ void RR314::newIQData(short* src,
 
             break;
         case 2:
+        	// first two bytes of the 4-byte PRT ID
             pBuf->prtId = src[i];
             pBuf->dataIn++;
             break;
         case 3:
+        	// second two bytes of the 4-byte PRT ID
             pBuf->prtId = (src[i]<< 16) | (pBuf->prtId & 0xffff);
             pBuf->dataIn++;
             break;
         case 4:
+        	// first two bytes of the 4-byte pulse count
             pBuf->pulseCount = src[i];
             pBuf->dataIn++;
             break;
         case 5:
+        	// second two bytes of the 4-byte pulse count
             pBuf->pulseCount = (src[i]<< 16) | (pBuf->pulseCount & 0xffff);
             pBuf->dataIn++;
+            // Now that we have the pulseCount, calculate the beam time
+            pBuf->beamTime = getBeamTime(pBuf->pulseCount);
             break;
         default:
             pBuf->_iq[pBuf->nextData] = src[i];
@@ -576,16 +581,16 @@ void RR314::newIQData(short* src,
 void RR314::newABPData(int* src,
                        int chan,
                        int n) {
-
+    
     // verify that we got an abp channel
     assert((chan & 1) && (chan < 8));
 
     //std::cout << "newABPData for board:" << boardNumber() << "  chan:" << chan << " src[5]:" << src[5] << "\n";
     
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
+
     // loop through all src samples
     for (int i = 0; i < n; i++) {
-
         // fill the current buffer from the source
         switch (pBuf->dataIn) {
         case 0:
@@ -603,8 +608,20 @@ void RR314::newABPData(int* src,
         case 2:
             pBuf->pulseCount = src[i];
             pBuf->dataIn++;
+            // now that we have the pulseCount, calculate the beam time
+            pBuf->beamTime = getBeamTime(pBuf->pulseCount);
+            // print some info every 1000 beams
+            if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->pulseCount % 1000)) {
+            	now = microsec_clock::universal_time();
+                std::cout << pBuf->pulseCount << ": ";
+                std::cout << "beam time: " << to_simple_string(pBuf->beamTime.time_of_day());
+                std::cout << ", xmit start: " << to_simple_string(_xmitStartTime.time_of_day());
+                std::cout << ", latency: " << 
+                	to_simple_string(microsec_clock::universal_time() - pBuf->beamTime);
+                std::cout << std::endl << std::endl;
+            }
             break;
-        default:
+       default:
             // A and B scaled by full scale
             if (((pBuf->nextData) % 3) < 2) {
                 pBuf->_abp[pBuf->nextData] = src[i]*ABPSCALE;
@@ -783,7 +800,6 @@ bool RR314::pulsepairInit() {
         return false;
     }
 
-    unsigned int Dec_Factor = decimationFactor*2 - 1;
     Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
 
     //Pulse Pair Setup
@@ -893,6 +909,9 @@ bool RR314::timerInit() {
     PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
 
+    // Get current system time as xmit start time
+    setXmitStartTime(microsec_clock::universal_time());
+
     return true;
 
 }
@@ -985,6 +1004,10 @@ double RR314::temperature() {
     return ca_GetTemp(&_chanAdapter);
 }
 
+//////////////////////////////////////////////////////////////////////
+void RR314::setXmitStartTime(ptime startTime) {
+    _xmitStartTime = startTime;
+}
 //////////////////////////////////////////////////////////////////////
 void shutdownSignalHandler(int signo,
                            void* userData) {

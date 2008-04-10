@@ -10,7 +10,8 @@
 #include <ios>
 #include <vector>
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "ArgvParams.h"
 
 #include "DDSPublisher.h"
@@ -26,6 +27,7 @@
 using namespace RedRapids;
 using namespace EldoraDDS;
 namespace po = boost::program_options;
+namespace ptime = boost::posix_time;
 
 // save pointers to RR314 instances, in case we need to try
 // to stop them during a signal.
@@ -453,7 +455,7 @@ int main(int argc,
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
-
+    
     // create timer
     if (!params0.simulate && !params0.internaltimer) {
     	bwtimer = new Bittware(0);
@@ -476,7 +478,7 @@ int main(int argc,
         argv["-ORBSvcConf"] = params0.ORB.c_str();
         argv["-DCPSConfigFile"] = params0.DCPS.c_str();
 
-        for (unsigned int i = 0;  i < argv.argc(); i++) {
+        for (int i = 0;  i < argv.argc(); i++) {
         	std::cout << "argv[" << i << "]:" << argv.argv()[i] << "\n";
         }
         // create the publisher
@@ -565,6 +567,12 @@ int main(int argc,
                 if (params1.enabled) {
                     pthread_create(&dataThread1, NULL, dataTask, (void*) &params1);
                 }
+                
+//                // and the housekeeping reader thread
+//                pthread_t hskpThread;
+//                if (params0.enabled || params1.enabled) {
+//                    pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
+//                }
 
                 // setup the signal handlers before we run the cards.
                 setupSignalHandler();
@@ -579,7 +587,31 @@ int main(int argc,
 
                 // start the timer, if we are using it.
                 if (bwtimer) {
+                    // 
+                    // Send the timer start command ~0.2 seconds after the
+                    // top of a second.  Xmit pulses start at the top of the
+                    // next second after the start command is sent, so staying
+                    // away from the *immediate* vicinity of the top of a second
+                    // means we can determine the transmit start time with 
+                    // certainty (as long as our clock is reasonably accurate),
+                    // and we can still allow plenty of time for the timer 
+                    // card actually get things started before the top of the
+                    // next second.
+                    //
+                    int wake_uSec = 200000; // 0.2 seconds
+                    ptime::ptime now(ptime::microsec_clock::universal_time());
+                    // sleep until the next 0.2 second mark
+                    int usecNow = now.time_of_day().total_microseconds() % 1000000;
+                    int sleep_uSec = (1000000 + wake_uSec - usecNow) % 1000000;
+                    // xmit starts at the top of the next second after we wake
+                    ptime::ptime xmitStartTime = now + 
+                        ptime::microseconds(1000000 - wake_uSec + sleep_uSec);
+                    // Now sleep, and then start the timer card when we wake
+                    usleep(sleep_uSec);
                 	bwtimer->start();
+                	// Tell the RedRapids cards what time xmit pulses start
+                	rr314_0.setXmitStartTime(xmitStartTime);
+                	rr314_1.setXmitStartTime(xmitStartTime);
                 }
                 int loopCount = 0;
         

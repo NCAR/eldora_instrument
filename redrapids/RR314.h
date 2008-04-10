@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "FilterSpec.h"
 #include "DDCregisters.h"
 
@@ -64,6 +66,8 @@ struct RRBuffer {
 	/// The next location to store a data value
 	/// in the data buffer.
 	unsigned int nextData;
+	/// The time for this beam (end of the integration period).
+    boost::posix_time::ptime beamTime;
 	/// The type of derived class
 	enum {IQtype, ABPtype} type;
 	/// the number of coherent integrations
@@ -250,7 +254,21 @@ public:
 	
 	/// @return The board number
 	int boardNumber();
+	
+	/// Set the time of the first transmit pulse.
+	/// @param startTime The boost::posix_time::ptime of the first transmit
+	///    pulse.
+	void setXmitStartTime(boost::posix_time::ptime startTime);
+	
+	/// Dwell duration (= nsamples / PRF).
+	boost::posix_time::time_duration dwellDuration() {
+	    return boost::posix_time::microseconds((1000000 * _samples) / _prf);
+	}
 
+	/// Beam time (at the end of the beam integration period)
+	boost::posix_time::ptime getBeamTime(unsigned int beamNum) {
+		return _xmitStartTime + dwellDuration() * (beamNum + 1);
+	}
 protected:
 
 	/// Configure the card and DMA operations.
@@ -380,6 +398,9 @@ protected:
 	
 	/// Use the internal timer
 	bool _internalTimer;
+	
+	/// Time of the first xmit pulse.
+	boost::posix_time::ptime _xmitStartTime;
 };
 
 }

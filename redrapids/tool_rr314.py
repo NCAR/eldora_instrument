@@ -3,7 +3,7 @@
 #
 import os
 
-tools = ['utilities']
+tools = ['utilities', 'boost_date_time']
 env = Environment(tools = ['default'] + tools)
 
 rr314dir = env.Dir('.').srcnode().abspath
@@ -43,7 +43,6 @@ def rr314(env):
     libs = ['rr314', 'channeladapter']
     env.Append(LIBS = libs)
     #
-    tools = ['utilities']
     env.Require(tools)
 
 Export('rr314')
