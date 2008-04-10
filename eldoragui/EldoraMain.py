@@ -27,15 +27,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # of the main timer.
         self.statusCount = 0
         self.statusPeriod = 5
-        # create labels in the table cells
-        for i in range(self.statusTable.rowCount()):
-            item = QTableWidgetItem("x")
-            self.statusTable.setItem(i, 0, item)
-            item = QTableWidgetItem("y")
-            self.statusTable.setItem(i, 1, item)
-
-
-        
         # initialize the runstop button
         self.toggleRun(false)
         # set the callback _after_ calling toggleRun, so that it does
@@ -44,6 +35,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # in place for the callback to work properly.
         self.runcallback = runStopFunction
 
+        # initialize dials
+        self.initDials()
         # connect components
         # The run/stop button
         self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
@@ -53,6 +46,48 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # use our timer for a clock
         self.startTimer(1000)
         
+    def initDials(self):
+        # create the palette for the dials
+        palette = self.palette()
+        palette.setColor(QPalette.Active, QPalette.Foreground, QColor('red'))
+        palette.setColor(QPalette.Active, QPalette.Button, QColor('lightgrey'))
+        palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor('red'))
+        palette.setColor(QPalette.Inactive, QPalette.Button, QColor('lightgrey'))
+        # configure the pulse rate displays
+        lcds = [self.forwardPulsesLcd, self.aftPulsesLcd]
+        for l in lcds:
+            l.setPalette(palette)
+        progs = [self.forwardPulsesProgress, self.aftPulsesProgress]
+        for p in progs:
+            p.setMinimum(0)
+            p.setMaximum(8000)
+            p.setPalette(palette)
+            p.setValue(0)
+        # configure the agregate BW dials
+        dials = [self.forwardBWdial, self.aftBWdial]
+        for d in dials:
+              d.setMinimum(0)
+              d.setMaximum(8000)
+              d.setNotchesVisible(1)
+              d.setValue(0)
+              d.setSingleStep(200)
+              d.setPalette(palette)
+        # configure the individual dials
+        forwardDialsList = self.forwardDials.children()
+        aftDialsList = self.aftDials.children()
+        # remove the first child, who will be the layout manager
+        forwardDialsList = forwardDialsList[1:]
+        aftDialsList = aftDialsList[1:]
+        dials = forwardDialsList + aftDialsList
+        # set the dials
+        for dial in dials:
+              dial.setMinimum(0)
+              dial.setMaximum(2000)
+              dial.setNotchesVisible(1)
+              dial.setValue(0)
+              dial.setSingleStep(50)
+              dial.setPalette(palette)
+
     def timerEvent(self, event):
         self.dateTimeLabel.setText(asctime(gmtime()))
         self.statusCount = self.statusCount+1

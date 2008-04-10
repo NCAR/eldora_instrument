@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <sys/time.h>
+#include <time.h>
 
 ///////////////////////////////////////////////////////////////////
 DrxRPC::DrxRPC(int rpcport,
@@ -14,6 +16,10 @@ DrxRPC::DrxRPC(int rpcport,
             _shutdownCmd(&_server, *this, "shutdown", &DrxRPC::shutdown),
             _statusCmd(&_server, *this, "status", &DrxRPC::status) {
 
+    struct timeval currentTimeTv;
+    gettimeofday(&currentTimeTv, 0);
+    _lastTime = currentTimeTv.tv_sec + currentTimeTv.tv_usec/1.0e6;
+    
     // start the server (in its own thread)
     _server.start();
 }
@@ -70,17 +76,35 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
     XmlRpc::XmlRpcValue retval;
 
     // get the current byte counts from the board
-    std::vector<unsigned long> bytes0 = _board0.bytes();
-    std::vector<unsigned long> bytes1 = _board1.bytes();
+    std::vector<unsigned long> bytes[2];
+    bytes[0] = _board0.bytes();
+    bytes[1] = _board1.bytes();
 
+    struct timeval currentTimeTv;
+    gettimeofday(&currentTimeTv, 0);
+    double currentTime = currentTimeTv.tv_sec + currentTimeTv.tv_usec/1.0e6;
+    
+    // calculate the rates
+    double deltaT = currentTime - _lastTime;
+    _lastTime = currentTime;
+    std::vector<double> rates[2];
+    for (unsigned int i = 0; i < 2; i++) {
+        rates[i].resize(8);
+        for (unsigned int j = 0; j < 8; j++) {
+            rates[i][j] = bytes[i][j]/deltaT;
+        }
+    }
+    
     // create return values for each
-    for (unsigned int i = 0; i < bytes0.size(); i++) {
+    for (unsigned int i = 0; i < 8; i++) {
         std::stringstream key0, key1;
         key0 << "board0-" << i;
-        retval[key0.str()] = (int)bytes0[i];
+        retval[key0.str()] = rates[0][i]/1.0e6;
         key1 << "board1-" << i;
-        retval[key1.str()] = (int)bytes1[i];
+        retval[key1.str()] = rates[1][i]/1.0e6;
     }
+    
+    
 
     // return it
     result = retval;

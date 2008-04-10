@@ -54,5 +54,7 @@ protected:
 	/// The proxy that connects status() to the RPC server.
 	RPCCmd<DrxRPC> _statusCmd;
 	
+	/// The last time we querried the RR cards for their bytecounts.
+	double _lastTime;
 };
 #endif /*DRXRPC_H_*/

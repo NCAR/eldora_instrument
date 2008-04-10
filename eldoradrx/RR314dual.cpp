@@ -409,24 +409,24 @@ void showStats(runParams& params,
     // get the current byte count for each dmaChan
     // from rr314. This call causes the byte counters
     // in r314 to be reset to zero.
-    std::vector<unsigned long> bytes = rr314.bytes();
+    //std::vector<unsigned long> bytes = rr314.bytes();
 
     std::cout << "Device:" << params.deviceNumber << "  loop:" << loopCount++
             << "\n ";
     std::cout << std::setw(8);
     std::cout << std::setprecision(2);
-    std::cout << "bytes processed ";
+    //std::cout << "bytes processed ";
     // Print the number of free buffers in the rr314 buffer
     // pool. If 0, rr314 is being overrun
-    unsigned long sum = 0;
-    for (unsigned int c = 0; c < bytes.size(); c++) {
-        std::cout << std::setw(6);
-        std::cout << bytes[c] << " ";
-        sum += bytes[c];
-    }
-    std::cout << sum << " ";
-    std::cout << sum/10.0e6 << "MB/s";
-    std::cout << "\n";
+    //unsigned long sum = 0;
+    //for (unsigned int c = 0; c < bytes.size(); c++) {
+    //    std::cout << std::setw(6);
+    //    std::cout << bytes[c] << " ";
+    //    sum += bytes[c];
+    //}
+    //std::cout << sum << " ";
+    //std::cout << sum/10.0e6 << "MB/s";
+    //std::cout << "\n";
 
     std::cout << "samples      ";
     for (int i = 0; i < 8; i++) {
