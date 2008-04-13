@@ -36,6 +36,10 @@ def runStop(runswitch):
             main.statusLabel.setText(QString(r))
     except Exception, e:
         print "Error trying to contact ", drxrpc, e
+    if runswitch:
+        startEldoraApps()
+    else:
+        stopEldoraApps()
         
 def shutdown():
     try:
@@ -85,6 +89,70 @@ def status():
               forwardDialsList[i].setValue(rates[i])
           else:
               aftDialsList[i-8].setValue(rates[i])
+              
+def startEldoraApps():
+    '''
+    Run eldora applications which have been selected in the configuration.
+    But first, stop them if they are already running.
+    '''
+    # where do the apps live?
+    eldoraDir = os.environ['ELDORADIR']
+    conf = eldoraDir + '/conf'
+    ddsRoot = os.environ['DDS_ROOT']
+    
+    # stop currently running apps
+    stopEldoraApps()
+    
+    # DCPS
+    runDcps = config.getBool('RunDcps', true)
+    if runDcps:
+        dcpscmd = [
+            ddsRoot + '/bin/DCPSInfoRepo',
+            '-NOBITS',
+            '-DCPSConfigFile',conf + '/DCPSInfoRepo.ini' ,
+            '-ORBSvcConf', conf + '/ORBSvc.conf',
+            '-ORBListenEndpoints iiop://dcpsrepo:50000',
+            '-d', conf + '/DDSDomainIds.conf'
+            ]
+        spawn(dcpscmd)
+    # drx
+    runDrx = config.getBool('RunDrx', true)
+    if runDrx:
+        drxcmd = [
+               eldoraDir + '/eldoradrx/eldoradrx',
+               '--start0',
+               '--start1'
+               ]
+        print 'drxcmd is ', drxcmd
+        drxSimMode = config.getBool('DrxSimMode', false)
+        if drxSimMode:
+            drxcmd.append('--sim')
+        print 'drxcmd is ', drxcmd
+        spawn(drxcmd)
+    # products
+    runProducts = config.getBool('RunProducts', true)
+    if  runProducts:
+        productscmd = [
+               eldoraDir + '/eldoraprod/eldoraprod',
+               ]
+        spawn(productscmd)
+        
+def stopEldoraApps():
+    pkill('eldoraprod')
+    pkill ('eldoradrx')
+    pkill ('DCPS')
+    
+def pkill(name):
+    pkill = '/usr/bin/pkill'
+    pkillcmd =  [pkill, name]
+    print pkillcmd
+    os.spawnv(os.P_WAIT, pkill, pkillcmd)
+    
+def spawn(cmd):
+    print 'cmd is: ', cmd
+    cmd0 = [cmd[0],]
+    os.spawnv(os.P_NOWAIT, cmd0, cmd)
+    
                     
 app = QApplication(sys.argv)
 
