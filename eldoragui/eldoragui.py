@@ -2,37 +2,52 @@
 
 import sys
 import time
+import os
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui  import *
 
-from EldoraMain import *
-from EldoraRPC import *
+from EldoraMain   import *
+from EldoraRPC    import *
+from QtConfig     import *
 
-rpc = EldoraRPC("http://localhost:60000")
+# get our configuration
+config = QtConfig('NCAR', 'EldoraGui')
+
+# create the rpc for the drx
+drxrpchost = config.getString('DrxRpcHost', 'localhost')
+drxrpcport = config.getInt('DrxRpcPort', 60000)
+drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
+drxrpc = EldoraRPC(drxrpcurl)
+
+# create the rpc for the housekeeper
+hskprpchost = config.getString('HousekeeperRpcHost', 'localhost')
+hskprpcport = config.getInt('HousekeeperRpcPort', 60001)
+hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
+hskprpc = EldoraRPC(hskprpcurl)
 
 def runStop(runswitch):
     try:
         if (runswitch):
-            r = rpc.radarStart()
+            r = drxrpc.radarStart()
             main.statusLabel.setText(QString(r))
         else:
-            r = rpc.radarStop()
+            r = drxrpc.radarStop()
             main.statusLabel.setText(QString(r))
     except Exception, e:
-        print "Error trying to contact ", rpc, e
+        print "Error trying to contact ", drxrpc, e
         
 def shutdown():
     try:
-       r = rpc.shutdown()
+       r = drxrpc.shutdown()
        main.statusLabel.setText(QString(r))
     except Exception, e:
-        print "Error trying to contact ", rpc, e
+        print "Error trying to contact ", drxrpc, e
         
 
 def status():
     try:
-       r = rpc.status()
+       r = drxrpc.status()
        keys = sorted(r.keys())
        i = 0
        rates = []
@@ -41,7 +56,7 @@ def status():
           rates.append(r[k]*1000.0)
           i = i + 1
     except Exception, e:
-        print "Error trying to contact ", rpc, e
+        print "Error trying to contact ", drxrpc, e
         rates = []
         for i in range(16):
             rates.append(0)

@@ -161,14 +161,14 @@
         <item>
          <widget class="QPushButton" name="forwardPpiButton" >
           <property name="text" >
-           <string>Forward PPI</string>
+           <string>PPI Forward</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="aftPpiButton" >
           <property name="text" >
-           <string>Aft PPI</string>
+           <string>PPI Aft</string>
           </property>
          </widget>
         </item>

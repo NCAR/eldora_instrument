@@ -1,39 +1,17 @@
 from time import *
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui  import *
+import os
+from PyQt4.QtCore  import *
+from PyQt4.QtGui   import *
 
 from Ui_EldoraMain import *
+from EldoraUtil    import *
+from QtConfig      import *
 
-import subprocess
 
 true = 1
 false = 0
 
-# 
-# DiskStats will privide disk statistics
-#
-class DiskStats:
-	def __init__(self):
-		stats = self.stats()
-		self.num = len(stats)
-		
-	def stats(self):
-	    cmd = ['df', '-l', '-h']
-	    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-	    	stderr=subprocess.PIPE, close_fds=1)
-	    dfout = p.stdout.read().split()
-	    dfout = dfout[7:]
-	    result = []
-	    for i in range(0, len(dfout), 6):
-	    	percent = dfout[i+4]
-	    	percent = percent.strip('%')
-	    	prcnt = int(percent)
-	    	result.append((dfout[i+5],prcnt ))
-	    return result
-	
-	def numDisks(self):
-		return self.num
 #
 # EldoraMain provides the connection between the user 
 # interface and the 'business' logic. It builds the Eldora
@@ -46,6 +24,21 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
+        
+   	# make sure that ELDORADIR is defined. This will only be done once,
+    	# until 
+        if 'ELDORADIR' not in os.environ:
+        	m = QMessageBox.critical(self, 'Error', 'The ELDORADIR environment variable must be set')
+        	# Post a close event. Note that post, rether than send, must be used
+        	# so that the event will be queued if the event loop is not running yet.
+        	QApplication.postEvent(QApplication.instance(), QCloseEvent())
+        	return
+        self.eldoraDir = os.environ['ELDORADIR']
+        
+        # get our configuration
+        config = QtConfig('NCAR', 'EldoraGui')
+  
+        # save the callback function definitions
         self.runcallback = None
         self.shutdownFunction = shutdownFunction
         self.statusFunction = statusFunction
@@ -67,8 +60,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # in place for the callback to work properly.
         self.runcallback = runStopFunction
         
-        # initialize dials
-        self.initDials()
+        # initialize bandwidth displays
+        self.initBwDisplays()
         
         # initialize disk stats
         self.initDiskStats()
@@ -78,16 +71,38 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
         # The shutdown button
         self.connect(self.shutdownButton, SIGNAL("released()"), self.shutdownFunction)
+        # the scope button
+        self.connect(self.scopeButton, SIGNAL('released()'), self.runScope)
+        # the forward ppi button
+        self.connect(self.forwardPpiButton, SIGNAL('released()'), self.runForPpi)
+        # the aft ppi button
+        self.connect(self.aftPpiButton, SIGNAL('released()'), self.runAftPpi)
         
         # use our timer for a clock
         self.startTimer(1000)
         
+    def runScope(self):
+    	cmd = self.eldoraDir + '/eldorascope/eldorascope'
+    	p = subprocess.Popen(cmd, close_fds=1)
+    	        
+    def runForPpi(self):
+    	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--forward']
+    	p = subprocess.Popen(cmd, close_fds=1)
+    	
+    def runAftPpi(self):
+    	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--aft']
+    	p = subprocess.Popen(cmd, close_fds=1)
+    	        
     def createPalette(self):
+    	fgcolor = 'blue'
+    	buttoncolor = 'red'
         self.palette = self.palette()
-        self.palette.setColor(QPalette.Active, QPalette.Foreground, QColor('red'))
-        self.palette.setColor(QPalette.Active, QPalette.Button, QColor('lightblue'))
-        self.palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor('red'))
-        self.palette.setColor(QPalette.Inactive, QPalette.Button, QColor('lightblue'))
+        self.palette.setColor(QPalette.Active, QPalette.Foreground, QColor(fgcolor))
+        self.palette.setColor(QPalette.Active, QPalette.Button, QColor(buttoncolor))
+        self.palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor(fgcolor))
+        self.palette.setColor(QPalette.Inactive, QPalette.Button, QColor(buttoncolor))
+        self.palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(fgcolor))
+        self.palette.setColor(QPalette.Disabled, QPalette.Button, QColor(buttoncolor))
     	
         
     def initDiskStats(self):
@@ -109,6 +124,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 	        d.setPalette(self.palette)
 	        d.setSingleStep(10)
 	        d.setNotchesVisible(1)
+	        d.setEnabled(0)
 	    	vlayout.addWidget(d)
 	    	
 	    	# set the dial value from the disk stats
@@ -129,7 +145,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 	    	self.diskDials.append(d)
      
         
-    def initDials(self):
+    def initBwDisplays(self):
         # configure the pulse rate displays
         progs = [self.forwardPulsesProgress, self.aftPulsesProgress]
         for p in progs:
@@ -138,6 +154,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             p.setPalette(self.palette)
             p.setValue(0)
             p.setFormat("%v")
+            p.setEnabled(0)
         # configure the agregate BW dials
         dials = [self.forwardBWdial, self.aftBWdial]
         for d in dials:
@@ -147,6 +164,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
               d.setValue(0)
               d.setSingleStep(200)
               d.setPalette(self.palette)
+              d.setEnabled(0)
         # configure the individual dials
         forwardDialsList = self.forwardDials.children()
         aftDialsList = self.aftDials.children()
@@ -162,8 +180,10 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
               dial.setValue(0)
               dial.setSingleStep(50)
               dial.setPalette(self.palette)
+              dial.setEnabled(0)
 
     def timerEvent(self, event):
+         
         self.dateTimeLabel.setText(asctime(gmtime()))
         self.statusCount = self.statusCount+1
         if self.statusCount >= self.statusPeriod:
