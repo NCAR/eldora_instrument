@@ -40,14 +40,6 @@ def runStop(runswitch):
         startEldoraApps()
     else:
         stopEldoraApps()
-        
-def shutdown():
-    try:
-       r = drxrpc.shutdown()
-       main.statusLabel.setText(QString(r))
-    except Exception, e:
-        print "Error trying to contact ", drxrpc, e
-        
 
 def status():
     try:
@@ -102,7 +94,6 @@ def startEldoraApps():
     
     # stop currently running apps
     stopEldoraApps()
-    
     # DCPS
     runDcps = config.getBool('RunDcps', true)
     if runDcps:
@@ -115,20 +106,23 @@ def startEldoraApps():
             '-d', conf + '/DDSDomainIds.conf'
             ]
         spawn(dcpscmd)
+        time.sleep(1)
     # drx
     runDrx = config.getBool('RunDrx', true)
     if runDrx:
         drxcmd = [
                eldoraDir + '/eldoradrx/eldoradrx',
+               '--ORB', conf + '/ORBSvc.conf',
+               '--DCPS', conf + '/DDSClient.ini',
                '--start0',
-               '--start1'
+               '--start1',
+               '--pub',
                ]
-        print 'drxcmd is ', drxcmd
         drxSimMode = config.getBool('DrxSimMode', false)
         if drxSimMode:
             drxcmd.append('--sim')
-        print 'drxcmd is ', drxcmd
         spawn(drxcmd)
+        time.sleep(1)
     # products
     runProducts = config.getBool('RunProducts', true)
     if  runProducts:
@@ -146,17 +140,17 @@ def pkill(name):
     pkill = '/usr/bin/pkill'
     pkillcmd =  [pkill, name]
     print pkillcmd
-    os.spawnv(os.P_WAIT, pkill, pkillcmd)
+    subprocess.call(pkillcmd)
     
-def spawn(cmd):
+def spawn(cmd, sleepSecs=1):
     print 'cmd is: ', cmd
-    cmd0 = [cmd[0],]
-    os.spawnv(os.P_NOWAIT, cmd0, cmd)
+    pid = subprocess.Popen(cmd)
+    print 'pid is ', pid
     
                     
 app = QApplication(sys.argv)
 
-main = EldoraMain(runStopFunction=runStop, shutdownFunction=shutdown, statusFunction=status)
+main = EldoraMain(runStopFunction=runStop, statusFunction=status)
 main.show()
 
 app.exec_()

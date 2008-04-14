@@ -20,7 +20,7 @@ false = 0
 # functions specified to the constructor.
 #
 class EldoraMain(QMainWindow, Ui_EldoraMain):
-    def __init__(self, runStopFunction=None, shutdownFunction=None, statusFunction=None, parent=None):
+    def __init__(self, runStopFunction=None, statusFunction=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
@@ -40,7 +40,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
   
         # save the callback function definitions
         self.runcallback = None
-        self.shutdownFunction = shutdownFunction
         self.statusFunction = statusFunction
         
         # save a palette that we can use for widget configuration
@@ -69,8 +68,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # connect components
         # The run/stop button
         self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
-        # The shutdown button
-        self.connect(self.shutdownButton, SIGNAL("released()"), self.shutdownFunction)
         # the scope button
         self.connect(self.scopeButton, SIGNAL('released()'), self.runScope)
         # the forward ppi button

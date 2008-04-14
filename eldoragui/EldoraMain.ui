@@ -113,21 +113,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="shutdownButton" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>1</hsizetype>
-            <vsizetype>3</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text" >
-           <string>Shutdown</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
@@ -357,6 +342,9 @@
              </property>
              <item>
               <widget class="QDial" name="forwardBWdial" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
                <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
                </property>
