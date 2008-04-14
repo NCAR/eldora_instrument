@@ -1,14 +1,10 @@
-tools = ['default', 'qt4']
+tools = ['default', 'boost_date_time']
 env = Environment(tools = ['default'] + tools)
-
-qt4modules = ['QtCore',]
-env.EnableQt4Modules(qt4modules)
 
 def dorade(env):
     env.AppendLibrary('dorade')
     env.AppendUnique(CPPPATH = ['#/dorade'])
     env.Require(tools)
-    env.EnableQt4Modules(qt4modules)
 
 Export('dorade')
 

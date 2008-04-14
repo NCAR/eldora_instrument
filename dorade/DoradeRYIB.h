@@ -1,7 +1,7 @@
 #ifndef DORADERYIB_H_
 #define DORADERYIB_H_
 
-#include <QtCore/QDateTime>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "DoradeDescriptor.h"
 
 /**
@@ -19,7 +19,7 @@ public:
                bool isLittleEndian) throw (DescriptorException);
     std::ostream& printTo(std::ostream& stream) const;
     
-    QDateTime getRayDateTime() const { return _rayDateTime; }
+    boost::posix_time::ptime getRayDateTime() const { return _rayDateTime; }
 
 private:
     int _sweepNumber;
@@ -34,6 +34,6 @@ private:
     float _scanRate;        // deg/s
     int _rayStatus;         // 0 normal, 1 transition, 2 bad
     
-    QDateTime _rayDateTime; /* not directly from the RYIB, but built from it */
+    boost::posix_time::ptime _rayDateTime; /* not directly from the RYIB, but built from it */
 };
 #endif /*DORADERYIB_H_*/

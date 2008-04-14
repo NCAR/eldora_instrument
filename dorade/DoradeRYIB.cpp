@@ -2,6 +2,10 @@
 #include <cstring>
 #include <iomanip>
 #include "DoradeRYIB.h"
+
+using namespace boost::posix_time;  // ptime
+using namespace boost::gregorian;   // date
+
 /**
  * <p>Title: DoradeRYIB</p>
  * <p>Description: DORADE aircraft/ship information block</p>
@@ -29,41 +33,39 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
     _rayStatus = grabInt(data, 40, isLittleEndian);         // 0 normal, 1 transition, 2 bad
 
     //
-    // Build a QDateTime, which is more usable than the five time pieces above
+    // Build a boost::posix_time::ptime, which is much more usable than the five 
+    // time pieces above
     //
     
-    // Set the date assuming the ray time is close to now.
-    QDateTime now = QDateTime::currentDateTime().toUTC();
-    int nowYear = now.date().year();
+    // Get time of day for the ray
+    int fracSeconds = _millisecond * (time_duration::ticks_per_second() / 1000);
+    time_duration rayTimeOfDay(_hour, _minute, _second, fracSeconds);
+    
+    // Get current time (and year) according to our clock.
+    ptime now = second_clock::universal_time();
     
     // difference in days between day of the year according to us and day of
     // the year according to the RYIB
-    int daydiff = now.date().dayOfYear() - _julianDay;  // -365 to 365
+    int daydiff = now.date().day_of_year() - _julianDay;  // -365 to 365
 
-    // correct year if the ray's date and our current date straddle the 
-    // year boundary
-    if (daydiff >= 364) {
-        _rayDateTime = QDateTime(QDate(nowYear + 1, 1, 1),
-                                 QTime(_hour, _minute, _second, _millisecond));
-    }
-    else if (daydiff < -364) {
-        _rayDateTime = QDateTime(QDate(nowYear - 1, 12, 31),
-                                 QTime(_hour, _minute, _second, _millisecond));
-    }
-    else {
-        QDate rayDate = QDate(nowYear, 1, 1).addDays(_julianDay - 1);
-        _rayDateTime = QDateTime(rayDate,
-                                 QTime(_hour, _minute, _second, _millisecond));
-    }
-    
-    // the time we built is UTC, so make sure the time zone in the QDateTime
-    // reflects that
-    _rayDateTime.setTimeSpec(Qt::UTC);
+    // Assign the year from our clock to the ray. If the ray's day-of-year 
+    // disagrees significantly with our day-of-year, assume that we're 
+    // near a year boundary and need to add or subtract a year when 
+    // assigning to the ray.
+    int rayYear = now.date().year();
+    if (daydiff >= 364)
+        rayYear++;
+    else if (daydiff < -364)
+        rayYear--;
+
+    date rayDate = date(rayYear, 1, 1) + date_duration(_julianDay - 1);
+    _rayDateTime = ptime(rayDate, rayTimeOfDay);
     
     // If we're not within five minutes of now, something's wrong...
-    if (abs(now.secsTo(_rayDateTime)) > 300) {
+    int diffSecs = (_rayDateTime - now).total_seconds();
+    if (abs(diffSecs) > 300) {
         std::stringstream ss;
-        ss << "Closest RYIB time we can get is " << now.secsTo(_rayDateTime) <<
+        ss << "Closest RYIB time we can get is " << diffSecs <<
             " seconds from now";
         throw DescriptorException(ss.str());
     }

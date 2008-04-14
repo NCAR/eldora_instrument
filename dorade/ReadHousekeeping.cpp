@@ -90,9 +90,8 @@ unpackHousekeeping(const unsigned char* buf, int buflen) {
         return;
     }
     
-    std::cout << frad->getRadarName() << " " <<
-        ryib->getRayDateTime().toString(DATE_FORMAT).toStdString();
-    std::cout << std::endl;
+    std::cout << frad->getRadarName() << " " << ryib->getRayDateTime() << 
+        std::endl;
 }
 
 int 
