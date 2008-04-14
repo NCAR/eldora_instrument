@@ -25,8 +25,6 @@ int getPort(const char* portname);
 int openInSocket(const struct sockaddr_in* inAddr);
 void unpackHousekeeping(const unsigned char* buf, int buflen);
 
-static const char* DATE_FORMAT = "yyyy/MM/dd hh:mm:ss.zzz";
-
 
 int
 main(int argc, char *argv[])
