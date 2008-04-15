@@ -86,7 +86,7 @@ struct RRABPBuffer : RRBuffer {
 };
 
 /// A buffer type used to collect an incoming iq sample stream and 
-/// for deliver to consumers. _samples number of iq sequences,
+/// for deliver to consumers. _hits number of iq sequences,
 /// each sequence covering the range of iq gates, are aggregated
 /// into one RRIQBuffer.
 struct RRIQBuffer : RRBuffer {
@@ -132,7 +132,8 @@ public:
     /// @param gates The number of gates.
     /// @param prf The pulse repeition frequency in Hz.
     /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
-    /// @param samples Number of pulses to analyze for a single ABP.
+    /// @param hits Number of hits in atimeseries block, or used in the 
+    /// calculation of a single ABP beam.
     /// @param dualPrt True if operating in dual prt mode.
     /// @param internalTimer True if we will use the external timer
     /// @param startGateIQ The starting gate for IQ capture.
@@ -150,7 +151,7 @@ public:
 	        unsigned int gates, 
 	        unsigned int prf,
 	        unsigned int pulsewidth, 
-	        unsigned int samples,
+	        unsigned int hits,
 	        unsigned int dualPrt, 
 	        bool internalTimer,
 	        unsigned int startGateIQ,
@@ -179,7 +180,7 @@ public:
 	/// Accept new iq data for this class. This function
 	/// may be called from other threads. It will 
 	/// copy the data into a free buffer, collecting
-	/// values in that buffer until a _numIQ pairs plus the 
+	/// values in that buffer until a _numIQgates pairs plus the 
 	/// housekeeping data have been satisfied. When a
 	/// complete series has been assembled, data availability 
 	/// is signaled with a broadcast on _dataAvailCond.
@@ -191,7 +192,7 @@ public:
 	/// Accept new abp data for this class. This function
 	/// may be called from other threads. It will 
 	/// copy the data into a free buffer, collecting
-	/// values in that buffer until a _numIQ pairs plus the 
+	/// values in that buffer until a _numIQgates pairs plus the 
 	/// housekeeping data have been satisfied. When a
 	/// complete series has been assembled, data availability 
 	/// is signaled with a broadcast on _dataAvailCond.
@@ -262,7 +263,7 @@ public:
 	
 	/// Dwell duration (= nsamples / PRF).
 	boost::posix_time::time_duration dwellDuration() {
-	    return boost::posix_time::microseconds((1000000 * _samples) / _prf);
+	    return boost::posix_time::microseconds((1000000 * _hits) / _prf);
 	}
 
 	/// Beam time (at the end of the beam integration period)
@@ -355,11 +356,11 @@ protected:
 	/// The pulsewidth in ns.
 	int _pulsewidth;
 
-	/// The number of samples.
-	unsigned int _samples;
+	/// The number of hits that go into each beam.
+	unsigned int _hits;
 
     /// The number of IQ gates to capture.
-    unsigned int _numIQ;
+    unsigned int _numIQgates;
 
 	/// Dual prt true or false.
 	unsigned int _dualPrt;

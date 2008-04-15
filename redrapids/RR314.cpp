@@ -24,7 +24,7 @@ RR314::RR314(int devNum,
              unsigned int gates,
              unsigned int prf,
              unsigned int pulsewidth,
-             unsigned int samples,
+             unsigned int hits,
              unsigned int dualPrt,
              bool internalTimer,
              unsigned int startGateIQ,
@@ -36,7 +36,7 @@ RR314::RR314(int devNum,
              int usleep,
              bool catchSignals) throw(std::string) :
             _bufferNext(0), _devNum(devNum), _gates(gates), _prf(prf), 
-            _pulsewidth(pulsewidth), _samples(samples), _numIQ(nGatesIQ), 
+            _pulsewidth(pulsewidth), _hits(hits), _numIQgates(nGatesIQ), 
             _dualPrt(dualPrt), _startGateIQ(startGateIQ), 
             _gaussianFile(gaussianFile), _kaiserFile(kaiserFile), 
             _xsvfFileName(xsvfFile), _simulate(simulate), _running(false), 
@@ -79,14 +79,14 @@ RR314::RR314(int devNum,
         abpBuf->nextData = 0;
         abpBuf->dataIn = 0;
         abpBuf->type = RRBuffer::ABPtype;
-        abpBuf->nci = _samples;
+        abpBuf->nci = _hits;
         _freeABPBuffers.push_back(abpBuf);
         RRIQBuffer* iqBuf = new RRIQBuffer;
-        iqBuf->_iq.resize(2*_numIQ*_samples);
+        iqBuf->_iq.resize(2*_numIQgates*_hits);
         iqBuf->nextData = 0;
         iqBuf->dataIn = 0;
         iqBuf->type = RRBuffer::IQtype;
-        iqBuf->nci = _samples;
+        iqBuf->nci = _hits;
         _freeIQBuffers.push_back(iqBuf);
     }
 
@@ -111,8 +111,8 @@ RR314::RR314(int devNum,
         _simulator = new RedRapids::RR314sim(this,
                 _gates,
                 _startGateIQ,
-                _numIQ,
-                _samples,
+                _numIQgates,
+                _hits,
                 _usleep);
         return;
     }
@@ -489,7 +489,7 @@ void RR314::newIQData(short* src,
 
     RRIQBuffer* pBuf = _currentIQBuffer[chan];
     
-    // loop through all src samples
+    // loop through all src hits
     for (int i = 0; i < n; i++) {
         //				std::cout << "dataIn " << pBuf->dataIn << "  nextData "
         //						<< pBuf->nextData << "   i " << i << "   src[i] " << src[i]
@@ -538,7 +538,7 @@ void RR314::newIQData(short* src,
             pBuf->_iq[pBuf->nextData] = src[i];
             pBuf->nextData++;
             pBuf->dataIn++;
-            if (pBuf->dataIn == (2*_numIQ+6))
+            if (pBuf->dataIn == (2*_numIQgates+6))
                 pBuf->dataIn = 0;
             if (pBuf->nextData == pBuf->_iq.size()) {
                 // current buffer has been filled
@@ -589,7 +589,7 @@ void RR314::newABPData(int* src,
     
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
 
-    // loop through all src samples
+    // loop through all src hits
     for (int i = 0; i < n; i++) {
         // fill the current buffer from the source
         switch (pBuf->dataIn) {
@@ -803,16 +803,16 @@ bool RR314::pulsepairInit() {
 
     //Pulse Pair Setup
     Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
-    Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of Samples
+    Adapter_Write32(&_chanAdapter, V4, N_REG, _hits); // # of hits
     Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _dualPrt); // Dual Prt(Off)
     Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ); // index of start of IQ capture
-    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQ); // # of Gate of IQ capture
+    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQgates); // # of Gate of IQ capture
 
     Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
-    Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
+    Adapter_Read32(&_chanAdapter, V4, N_REG, &_hits);
     Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
     Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
-    Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQ);
+    Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQgates);
    
     return true;
 
@@ -859,10 +859,10 @@ bool RR314::timerInit() {
 
     printf("Internal Timing Variables\n");
     printf("# of Gates          = %d\n", _gates);
-    printf("# of Samples        = %d\n", _samples);
+    printf("# of Hits           = %d\n", _hits);
     printf("Dual PRT (1=on)     = %d\n", _dualPrt);
     printf("IQ Start Gate       = %d\n", _startGateIQ);
-    printf("# of IQ Gates       = %d\n", _numIQ);
+    printf("# of IQ Gates       = %d\n", _numIQgates);
     printf("TX Pulse Width (us) = %f\n", float(decimationFactor/8.0));
     printf("RX Pulse Width (us) = %f\n", float(decimationFactor/8.0*_pulsewidth));
     printf("PRT Period     (us) = %f\n", float(1.0/_prf*1.0e6));
