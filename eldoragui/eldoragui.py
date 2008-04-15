@@ -121,6 +121,9 @@ def startEldoraApps():
         drxSimMode = config.getBool('DrxSimMode', false)
         if drxSimMode:
             drxcmd.append('--sim')
+        drxInternalTimer = config.getBool('DrxInternalTimer', false)
+        if drxInternalTimer:
+            drxcmd.append('--int')
         spawn(drxcmd)
         time.sleep(1)
     # products
