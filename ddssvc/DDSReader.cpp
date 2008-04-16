@@ -8,7 +8,7 @@ using namespace CORBA;
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> DDSReader<TEMPSIG2>::DDSReader(DDSSubscriber& ddsSubscriber,
+template<READERSIG1> DDSReader<READERSIG2>::DDSReader(DDSSubscriber& ddsSubscriber,
 		std::string topicName):
 _numSamples(0),
 _droppedSamples(0),
@@ -89,13 +89,13 @@ _topicName(topicName)
 ////////////////////////////////////////////////////////////
 
 // Implementation skeleton destructor
-template<TEMPSIG1> DDSReader<TEMPSIG2>::~DDSReader() {
+template<READERSIG1> DDSReader<READERSIG2>::~DDSReader() {
 	std::cout << __FUNCTION__ << " destructor\n";
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
+template<READERSIG1> void DDSReader<READERSIG2>::on_data_available(
 		DDS::DataReader_ptr reader) throw (CORBA::SystemException) {
 
 	// this will be set true if we need to send a notify
@@ -162,7 +162,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_data_available(
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> int DDSReader<TEMPSIG2>::itemsAvailable()
+template<READERSIG1> int DDSReader<READERSIG2>::itemsAvailable()
 {
 	guard_t guard(_queueMutex);
 	return _outQueue.size();
@@ -171,7 +171,7 @@ template<TEMPSIG1> int DDSReader<TEMPSIG2>::itemsAvailable()
 ////////////////////////////////////////////////////////////
 
 /// Get the next full item from the _outQueue. 
-template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getNextItem() {
+template<READERSIG1> DDSTYPE* DDSReader<READERSIG2>::getNextItem() {
 	guard_t guard(_queueMutex);
 	DDSTYPE* pItem;
 	if (_outQueue.size()) {
@@ -188,7 +188,7 @@ template<TEMPSIG1> DDSTYPE* DDSReader<TEMPSIG2>::getNextItem() {
 
 /// Return an item to be placed back on the _inQueue.
 /// @param pItem The item to be returned.
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnItem(DDSTYPE* pItem) {
+template<READERSIG1> void DDSReader<READERSIG2>::returnItem(DDSTYPE* pItem) {
 	guard_t guard(_queueMutex);
 
 	if (pItem)
@@ -197,7 +197,7 @@ template<TEMPSIG1> void DDSReader<TEMPSIG2>::returnItem(DDSTYPE* pItem) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_requested_deadline_missed(
+template<READERSIG1> void DDSReader<READERSIG2>::on_requested_deadline_missed(
 		DDS::DataReader_ptr, const DDS::RequestedDeadlineMissedStatus &)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_requested_deadline_missed, " << _topicName << endl;
@@ -205,7 +205,7 @@ throw (CORBA::SystemException) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_requested_incompatible_qos(
+template<READERSIG1> void DDSReader<READERSIG2>::on_requested_incompatible_qos(
 		DDS::DataReader_ptr, const DDS::RequestedIncompatibleQosStatus &)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_requested_incompatible_qos, " << _topicName << endl;
@@ -213,7 +213,7 @@ throw (CORBA::SystemException) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_liveliness_changed(
+template<READERSIG1> void DDSReader<READERSIG2>::on_liveliness_changed(
 		DDS::DataReader_ptr, const DDS::LivelinessChangedStatus &)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_liveliness_changed, " << _topicName << endl;
@@ -221,7 +221,7 @@ throw (CORBA::SystemException) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_subscription_match(
+template<READERSIG1> void DDSReader<READERSIG2>::on_subscription_match(
 		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus & status)
 throw (CORBA::SystemException ) {
 	cerr << "DDSReader::on_subscription_match, " << _topicName << endl;
@@ -229,7 +229,7 @@ throw (CORBA::SystemException ) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_sample_rejected(
+template<READERSIG1> void DDSReader<READERSIG2>::on_sample_rejected(
 		DDS::DataReader_ptr, const DDS::SampleRejectedStatus&)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_sample_rejected, " << _topicName << endl;
@@ -237,7 +237,7 @@ throw (CORBA::SystemException) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::on_sample_lost(
+template<READERSIG1> void DDSReader<READERSIG2>::on_sample_lost(
 		DDS::DataReader_ptr, const DDS::SampleLostStatus&)
 throw (CORBA::SystemException) {
 	cerr << "DDSReader::on_sample_lost, " << _topicName << endl;
@@ -245,7 +245,7 @@ throw (CORBA::SystemException) {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::numSamples() {
+template<READERSIG1> unsigned int DDSReader<READERSIG2>::numSamples() {
 	unsigned int n = _numSamples;
 	_numSamples = 0;
 	return n;
@@ -253,7 +253,7 @@ template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::numSamples() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::droppedSamples() {
+template<READERSIG1> unsigned int DDSReader<READERSIG2>::droppedSamples() {
 	unsigned int n = _droppedSamples;
 	_droppedSamples = 0;
 	return n;
@@ -261,12 +261,12 @@ template<TEMPSIG1> unsigned int DDSReader<TEMPSIG2>::droppedSamples() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1> void DDSReader<TEMPSIG2>::notify() {
+template<READERSIG1> void DDSReader<READERSIG2>::notify() {
 	return;
 }
 
 /// @todo These instantiations really belong somewhere else
 using namespace EldoraDDS;
-template class DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var>;
-template class DDSReader<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataReader, TimeSeriesDataReader_var>;
-template class DDSReader<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataReader, ProductsDataReader_var>;
+template class DDSReader<READERSIG(Pulse)>;
+template class DDSReader<READERSIG(TimeSeries)>;
+template class DDSReader<READERSIG(Products)>;

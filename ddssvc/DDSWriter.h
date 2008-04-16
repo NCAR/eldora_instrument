@@ -11,16 +11,18 @@
 
 #include "DDSPublisher.h"
 
+#include "DDSTemplateSigs.h"
+
 typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
 /// The template signature for the class declaration. 
-#undef TEMPSIG1  // avoid "TEMPSIG1 redefined" warnings
-#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER, class DDSDATAWRITER_VAR
+//#undef WRITERSIG1  // avoid "WRITERSIG1 redefined" warnings
+//#define WRITERSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER, class DDSDATAWRITER_VAR
 /// The template signature for the class member definitions
-#undef TEMPSIG2  // avoid "TEMPSIG2 redefined" warnings
-#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
+//#undef WRITERSIG2  // avoid "WRITERSIG2 redefined" warnings
+//#define WRITERSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
 
 /// A templatized writer for an arbitrary DDS datatype. A DDS
 /// publisher must be provided; it will perform 
@@ -38,7 +40,7 @@ typedef ACE_Guard<mutex_t> guard_t;
 /// is implemented using the ACE condition_t condition variables.
 /// @todo Find a way to build all of the required class names
 /// from a user supplied root. Simple CPP macros won't work here.
-template <TEMPSIG1>
+template <WRITERSIG1>
 class DDSWriter : public ACE_Task_Base {
 
 public:
@@ -136,10 +138,10 @@ private:
 
 using namespace EldoraDDS;
 /// A DDSWriter for the Pulse data type.
-typedef DDSWriter<Pulse,      PulseTypeSupportImpl,      PulseTypeSupport_var,      PulseDataWriter,      PulseDataWriter_var> PulseWriter;
+typedef DDSWriter<WRITERSIG(Pulse)> PulseWriter;
 /// A DDSWriter for the TS data type.
-typedef DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataWriter, TimeSeriesDataWriter_var> TSWriter;
+typedef DDSWriter<WRITERSIG(TimeSeries)> TSWriter;
 /// A DDSWriter for the Products data type.
-typedef DDSWriter<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataWriter, ProductsDataWriter_var> ProductsWriter;
+typedef DDSWriter<WRITERSIG(Products)> ProductsWriter;
 
-#endif
+#endif /* DDSWRITERINC_  */

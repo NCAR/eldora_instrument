@@ -10,13 +10,15 @@ typedef ACE_Guard<mutex_t> guard_t;
 
 #include "DDSSubscriber.h"
 
+#include "DDSTemplateSigs.h"
 
 /// Template signature for class definitions.
-#undef TEMPSIG1  // avoid "TEMPSIG1 redefined" warnings
-#define TEMPSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAREADER, class DDSDATAREADER_VAR
-/// Template signatures for class instantiations.
-#undef TEMPSIG2  // avoid "TEMPSIG2 redefined" warnings
-#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAREADER, DDSDATAREADER_VAR
+//#undef READERSIG1  // avoid "READERSIG1 redefined" warnings
+//#define READERSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAREADER, class DDSDATAREADER_VAR
+/// Template signature for class instantiations.
+//#undef TEMPSIG2  // avoid "TEMPSIG2 redefined" warnings
+//#define TEMPSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAREADER, DDSDATAREADER_VAR
+//#define TEMPLATESIG(T) T, T ## TypeSupportImpl, T ## TypeSupport_var, T ## DataReader, T ## DataReader_var
 
 /// A generic data reader class which is templated on the DDS data type. Instantiate
 /// this class with the desired data type to create a reader for a particular
@@ -37,7 +39,7 @@ typedef ACE_Guard<mutex_t> guard_t;
 /// can receive the asynchronous notifications via the on_data_available()
 /// function. The class creates and contains a DDS:DataReader for accessing
 /// the delivered data.
-template<TEMPSIG1>
+template<READERSIG1>
 class DDSReader: public virtual OpenDDS::DCPS::LocalObject<DDS::DataReaderListener> 
 {
 	
@@ -138,8 +140,8 @@ private:
 #include "ProductsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
-typedef DDSReader<Pulse, PulseTypeSupportImpl, PulseTypeSupport_var, PulseDataReader, PulseDataReader_var> PulseReader;
-typedef DDSReader<TimeSeries, TimeSeriesTypeSupportImpl, TimeSeriesTypeSupport_var, TimeSeriesDataReader, TimeSeriesDataReader_var> TSReader;
-typedef DDSReader<Products, ProductsTypeSupportImpl, ProductsTypeSupport_var, ProductsDataReader, ProductsDataReader_var> ProductsReader;
+typedef DDSReader<READERSIG(Pulse)> PulseReader;
+typedef DDSReader<READERSIG(TimeSeries)> TSReader;
+typedef DDSReader<READERSIG(Products)> ProductsReader;
 
-#endif /* DATAREADER_LISTENER_IMPL  */
+#endif /* DDSREADERINC_  */

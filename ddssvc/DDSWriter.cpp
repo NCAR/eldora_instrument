@@ -5,8 +5,8 @@ using namespace CORBA;
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
-DDSWriter<TEMPSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
+template<WRITERSIG1>
+DDSWriter<WRITERSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
         std::string topicName, int queueSize) :
 finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topicName), _queueSize(queueSize), _terminate(false)
 {
@@ -85,24 +85,24 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
-DDSWriter<TEMPSIG2>::~DDSWriter(){
+template<WRITERSIG1>
+DDSWriter<WRITERSIG2>::~DDSWriter(){
     std::cout << __FUNCTION__ << " destructor\n";
 }
 
 ////////////////////////////////////////////////////////////
-template<TEMPSIG1>
+template<WRITERSIG1>
 void
-DDSWriter<TEMPSIG2>::end() {
+DDSWriter<WRITERSIG2>::end() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::end \n")));
     wait();
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 int
-DDSWriter<TEMPSIG2>::svc() {
+DDSWriter<WRITERSIG2>::svc() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::svc begins.\n")));
 
     InstanceHandleSeq handles;
@@ -156,25 +156,25 @@ DDSWriter<TEMPSIG2>::svc() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 bool
-DDSWriter<TEMPSIG2>::is_finished() const {
+DDSWriter<WRITERSIG2>::is_finished() const {
     return finished_instances_ == 1;
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 int
-DDSWriter<TEMPSIG2>::get_timeout_writes() const {
+DDSWriter<WRITERSIG2>::get_timeout_writes() const {
     return timeout_writes_.value();
 }
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 int
-DDSWriter<TEMPSIG2>::itemsAvailable() {
+DDSWriter<WRITERSIG2>::itemsAvailable() {
 
     guard_t guard(_mutex);
 
@@ -183,9 +183,9 @@ DDSWriter<TEMPSIG2>::itemsAvailable() {
 }
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 DDSTYPE*
-DDSWriter<TEMPSIG2>::getEmptyItem() {
+DDSWriter<WRITERSIG2>::getEmptyItem() {
 
     guard_t guard(_mutex);
 
@@ -200,9 +200,9 @@ DDSWriter<TEMPSIG2>::getEmptyItem() {
 }
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 void
-DDSWriter<TEMPSIG2>::publishItem(
+DDSWriter<WRITERSIG2>::publishItem(
         DDSTYPE* pItem) {
 
     guard_t guard(_mutex);
@@ -214,9 +214,9 @@ DDSWriter<TEMPSIG2>::publishItem(
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 void
-DDSWriter<TEMPSIG2>::waitForItem() {
+DDSWriter<WRITERSIG2>::waitForItem() {
 
     guard_t guard(_mutex);
 
@@ -227,9 +227,9 @@ DDSWriter<TEMPSIG2>::waitForItem() {
 
 ////////////////////////////////////////////////////////////
 
-template<TEMPSIG1>
+template<WRITERSIG1>
 bool
-DDSWriter<TEMPSIG2>::publish(
+DDSWriter<WRITERSIG2>::publish(
         InstanceHandle_t handle) {
 
     guard_t guard(_mutex);
