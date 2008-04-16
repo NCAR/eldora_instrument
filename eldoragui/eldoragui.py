@@ -11,21 +11,6 @@ from EldoraMain   import *
 from EldoraRPC    import *
 from QtConfig     import *
 
-# get our configuration
-config = QtConfig('NCAR', 'EldoraGui')
-
-# create the rpc for the drx
-drxrpchost = config.getString('DrxRpcHost', 'localhost')
-drxrpcport = config.getInt('DrxRpcPort', 60000)
-drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
-drxrpc = EldoraRPC(drxrpcurl)
-
-# create the rpc for the housekeeper
-hskprpchost = config.getString('HousekeeperRpcHost', 'localhost')
-hskprpcport = config.getInt('HousekeeperRpcPort', 60001)
-hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
-hskprpc = EldoraRPC(hskprpcurl)
-
 def runStop(runswitch):
     try:
         if (runswitch):
@@ -52,7 +37,7 @@ def status():
           rates.append(r[k]*1000.0)
           i = i + 1
     except Exception, e:
-        print "Error trying to contact ", drxrpc, e
+        print "Error trying to contact ", drxrpc, '(', drxrpc.URI, '): ', e
         rates = []
         for i in range(16):
             rates.append(0)
@@ -87,28 +72,12 @@ def startEldoraApps():
     Run eldora applications which have been selected in the configuration.
     But first, stop them if they are already running.
     '''
-    # where do the apps live?
-    eldoraDir = os.environ['ELDORADIR']
-    conf = eldoraDir + '/conf'
-    ddsRoot = os.environ['DDS_ROOT']
-    
+    # restart DCPS, if configured for this
+    restartDCPS()
     # stop currently running apps
     stopEldoraApps()
-    # DCPS
-    runDcps = config.getBool('RunDcps', true)
-    if runDcps:
-        dcpscmd = [
-            ddsRoot + '/bin/DCPSInfoRepo',
-            '-NOBITS',
-            '-DCPSConfigFile',conf + '/DCPSInfoRepo.ini' ,
-            '-ORBSvcConf', conf + '/ORBSvc.conf',
-            '-ORBListenEndpoints iiop://dcpsrepo:50000',
-            '-d', conf + '/DDSDomainIds.conf'
-            ]
-        spawn(dcpscmd)
-        time.sleep(1)
     # drx
-    runDrx = config.getBool('RunDrx', true)
+    runDrx = config.getBool('Drx/RunDrx', true)
     if runDrx:
         drxcmd = [
                eldoraDir + '/eldoradrx/eldoradrx',
@@ -118,16 +87,16 @@ def startEldoraApps():
                '--start1',
                '--pub',
                ]
-        drxSimMode = config.getBool('DrxSimMode', false)
+        drxSimMode = config.getBool('Drx/DrxSimMode', false)
         if drxSimMode:
             drxcmd.append('--sim')
-        drxInternalTimer = config.getBool('DrxInternalTimer', false)
+        drxInternalTimer = config.getBool('Drx/DrxInternalTimer', false)
         if drxInternalTimer:
             drxcmd.append('--int')
         spawn(drxcmd)
         time.sleep(1)
     # products
-    runProducts = config.getBool('RunProducts', true)
+    runProducts = config.getBool('Products/RunProducts', true)
     if  runProducts:
         productscmd = [
                eldoraDir + '/eldoraprod/eldoraprod',
@@ -137,7 +106,33 @@ def startEldoraApps():
 def stopEldoraApps():
     pkill('eldoraprod')
     pkill ('eldoradrx')
-    pkill ('DCPS')
+    autoRestartDcps = config.getBool('Dcps/AutoRestartDcps', true)
+    if autoRestartDcps:
+    	pkill ('DCPS')
+    	
+def restartDCPS():
+    # DCPS
+    runDcps = config.getBool('Dcps/RunDcps', true)
+    if runDcps:
+    	# if we are told to auto start dcps everytime, then
+    	# make sure that it is not running already
+    	autoRestartDcps = config.getBool('Dcps/AutoRestartDcps', true)
+    	if autoRestartDcps:
+    		pkill ('DCPS')
+		# see if it is already running before starting again
+    	dcpsIsRunning = not subprocess.call(['/usr/bin/pgrep', 'DCPS'])
+    	print 'dcpsIsRunning is ', dcpsIsRunning
+    	if not dcpsIsRunning:
+	        dcpscmd = [
+	            ddsRoot + '/bin/DCPSInfoRepo',
+	            '-NOBITS',
+	            '-DCPSConfigFile',conf + '/DCPSInfoRepo.ini' ,
+	            '-ORBSvcConf', conf + '/ORBSvc.conf',
+	            '-ORBListenEndpoints iiop://dcpsrepo:50000',
+	            '-d', conf + '/DDSDomainIds.conf'
+	            ]
+	        spawn(dcpscmd)
+	        time.sleep(1)
     
 def pkill(name):
     pkill = '/usr/bin/pkill'
@@ -149,7 +144,37 @@ def spawn(cmd, sleepSecs=1):
     print 'cmd is: ', cmd
     pid = subprocess.Popen(cmd)
     print 'pid is ', pid
-    
+
+############################################################
+#
+# This is where it all happens
+#
+
+# get our configuration
+config = QtConfig('NCAR', 'EldoraGui')
+
+# where do the apps live?
+eldoraDir = os.environ['ELDORADIR']
+ddsRoot = os.environ['DDS_ROOT']
+
+# where are the DDS configuration files?
+conf = eldoraDir + '/conf'
+
+# create the rpc for the drx
+drxrpchost = config.getString('Drx/DrxRpcHost', 'drx')
+drxrpcport = config.getInt('Drx/DrxRpcPort', 60000)
+drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
+drxrpc = EldoraRPC(drxrpcurl)
+
+# create the rpc for the housekeeper
+hskprpchost = config.getString('Hksp/HousekeeperRpcHost', 'hskp')
+hskprpcport = config.getInt('Hksp/HousekeeperRpcPort', 60001)
+hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
+hskprpc = EldoraRPC(hskprpcurl)
+
+# start up DCPS, if configured to be running it here
+restartDCPS()
+
                     
 app = QApplication(sys.argv)
 

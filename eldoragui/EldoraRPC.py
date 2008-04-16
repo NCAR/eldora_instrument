@@ -2,7 +2,8 @@ from xmlrpclib import *
 
 class EldoraRPC:
     def __init__(self, URI):
-        self.server = ServerProxy(URI)
+        self.URI = URI
+        self.server = ServerProxy(self.URI)
         
     def listMethods(self):
         # can throw an exception if the server 
