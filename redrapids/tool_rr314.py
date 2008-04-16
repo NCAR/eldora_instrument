@@ -39,8 +39,10 @@ def rr314(env):
     # channel adapter library paths:
     env.AppendUnique(LIBPATH = [rr314dir, redRapidsDevelLibDir])
     #
-    # rr314 and channeladapter libraries:
-    libs = ['rr314', 'channeladapter']
+    # rr314 and channeladapter libraries
+    # Cross-dependencies require having rr314 there before
+    # and after channeladapter...
+    libs = ['rr314', 'channeladapter', 'rr314']
     env.Append(LIBS = libs)
     #
     env.Require(tools)
