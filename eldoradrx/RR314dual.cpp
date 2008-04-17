@@ -562,9 +562,6 @@ int main(int argc,
         argv["-ORBSvcConf"] = params0.ORB.c_str();
         argv["-DCPSConfigFile"] = params0.DCPS.c_str();
 
-        for (int i = 0;  i < argv.argc(); i++) {
-        	std::cout << "argv[" << i << "]:" << argv.argv()[i] << "\n";
-        }
         // create the publisher
                 params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
                 params1.publisher = params0.publisher;
