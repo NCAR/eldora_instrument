@@ -20,7 +20,7 @@ false = 0
 # functions specified to the constructor.
 #
 class EldoraMain(QMainWindow, Ui_EldoraMain):
-    def __init__(self, runStopFunction=None, statusFunction=None, parent=None):
+    def __init__(self, stopFunction=None, restartFunction=None, statusFunction=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
@@ -50,15 +50,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.statusCount = 0
         self.statusPeriod = 5
         
-        # initialize the runstop button
-        self.toggleRun(false)
-        
-        # set the callback _after_ calling toggleRun, so that it does
-        # not get called during our construction. Otherwise, the 
-        # routine that is constructing us might not yet have everything
-        # in place for the callback to work properly.
-        self.runcallback = runStopFunction
-        
         # initialize bandwidth displays
         self.initBwDisplays()
         
@@ -66,8 +57,12 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.initDiskStats()
         
         # connect components
-        # The run/stop button
-        self.connect(self.runButton, SIGNAL("toggled(bool)"), self.toggleRun)
+        # The stop button
+        if (stopFunction != None):
+            self.connect(self.stopButton, SIGNAL("released()"), stopFunction)
+        # the restart button
+        if (restartFunction != None):
+            self.connect(self.restartButton, SIGNAL("released()"), restartFunction)
         # the scope button
         self.connect(self.scopeButton, SIGNAL('released()'), self.runScope)
         # the forward ppi button
@@ -193,23 +188,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             for i in range(len(stats)):
             	dial = self.diskDials[i]
             	dial.setValue(stats[i][1])
-        
-    # change the run state
-    def toggleRun(self, runChecked):
-           
-        if (runChecked):
-            # we have been put into the run state
-            # set the button label to Stop
-            self.runButton.setText("Stop")
-        else:
-            # we have been put into the stop state
-            # set the button label to Run
-            self.runButton.setText("Run")
-
-        # execute the runStop callback if we have one
-        if (self.runcallback != None):
-           self.runcallback(runChecked)
-           
+                   
                
            
     

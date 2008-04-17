@@ -11,21 +11,38 @@ from EldoraMain   import *
 from EldoraRPC    import *
 from QtConfig     import *
 
-def runStop(runswitch):
+#-----------------------------------------------------------
+def restart():
     try:
-        if (runswitch):
-            r = drxrpc.radarStart()
-            main.statusLabel.setText(QString(r))
-        else:
-            r = drxrpc.radarStop()
-            main.statusLabel.setText(QString(r))
+        # send a stop and a start comand, although these may not
+        # not be used in the final implementation
+        r = drxrpc.radarStop()
+        main.statusLabel.setText(QString(r))
+        r = drxrpc.radarStart()
+        main.statusLabel.setText(QString(r))
     except Exception, e:
         print "Error trying to contact ", drxrpc, e
-    if runswitch:
-        startEldoraApps()
-    else:
-        stopEldoraApps()
-
+        
+    # stop the eldora apps
+    stopEldoraApps()
+    
+    # start the eldora apps
+    startEldoraApps()
+    
+#-----------------------------------------------------------
+def stop():
+    try:
+        # send a stop comand, although this may not
+        # not be used in the final implementation
+        r = drxrpc.radarStop()
+        main.statusLabel.setText(QString(r))
+    except Exception, e:
+        print "Error trying to contact ", drxrpc, e
+        
+    # stop the eldora apps
+    stopEldoraApps()
+    
+#-----------------------------------------------------------
 def status():
     try:
        r = drxrpc.status()
@@ -67,83 +84,107 @@ def status():
           else:
               aftDialsList[i-8].setValue(rates[i])
               
+#-----------------------------------------------------------
 def startEldoraApps():
     '''
     Run eldora applications which have been selected in the configuration.
-    But first, stop them if they are already running.
+    If they are already running, they will be restarted only if restart is true.
     '''
-    # restart DCPS, if configured for this
-    restartDCPS()
-    # stop currently running apps
-    stopEldoraApps()
     # drx
-    runDrx = config.getBool('Drx/RunDrx', true)
-    if runDrx:
-        drxcmd = [
-               eldoraDir + '/eldoradrx/eldoradrx',
-               '--ORB', conf + '/ORBSvc.conf',
-               '--DCPS', conf + '/DDSClient.ini',
-               '--start0',
-               '--start1',
-               '--pub',
-               ]
-        drxSimMode = config.getBool('Drx/DrxSimMode', false)
-        if drxSimMode:
-            drxcmd.append('--sim')
-        drxInternalTimer = config.getBool('Drx/DrxInternalTimer', false)
-        if drxInternalTimer:
-            drxcmd.append('--int')
-        spawn(drxcmd)
-        time.sleep(1)
+    runDrx()
+    
     # products
-    runProducts = config.getBool('Products/RunProducts', true)
-    if  runProducts:
-        productscmd = [
-               eldoraDir + '/eldoraprod/eldoraprod',
-               ]
-        spawn(productscmd)
+    runProducts()
         
+#-----------------------------------------------------------
 def stopEldoraApps():
     pkill('eldoraprod')
     pkill ('eldoradrx')
-    autoRestartDcps = config.getBool('Dcps/AutoRestartDcps', true)
-    if autoRestartDcps:
-    	pkill ('DCPS')
-    	
-def restartDCPS():
-    # DCPS
-    runDcps = config.getBool('Dcps/RunDcps', true)
-    if runDcps:
-    	# if we are told to auto start dcps everytime, then
-    	# make sure that it is not running already
-    	autoRestartDcps = config.getBool('Dcps/AutoRestartDcps', true)
-    	if autoRestartDcps:
-    		pkill ('DCPS')
-		# see if it is already running before starting again
-    	dcpsIsRunning = not subprocess.call(['/usr/bin/pgrep', 'DCPS'])
-    	print 'dcpsIsRunning is ', dcpsIsRunning
-    	if not dcpsIsRunning:
-	        dcpscmd = [
-	            ddsRoot + '/bin/DCPSInfoRepo',
-	            '-NOBITS',
-	            '-DCPSConfigFile',conf + '/DCPSInfoRepo.ini' ,
-	            '-ORBSvcConf', conf + '/ORBSvc.conf',
-	            '-ORBListenEndpoints iiop://dcpsrepo:50000',
-	            '-d', conf + '/DDSDomainIds.conf'
-	            ]
-	        spawn(dcpscmd)
-	        time.sleep(1)
+    # at the moment, kill eldoraprod twice, becasue for some reason it needs this
+    pkill ('eldoraprod')
     
+#-----------------------------------------------------------
+def runDcps():
+    '''
+    Run the DCPSInfoRepo, but only if the configuration has
+    called for that.
+    '''
+    runDcps = config.getBool('Dcps/RunDcps', true)
+    if  not runDcps:
+        return
+    
+    restart = config.getBool('Dcps/AutoRestartDcps', false)
+    # see if it is already running
+    isRunning = not subprocess.call(['/usr/bin/pgrep', 'DCPSInfoRepo'])
+    if isRunning:
+        if not restart:
+            return
+        else:
+            pkill('DCPSInfoRepo')
+
+    # start a new instance
+    dcpscmd = [
+        ddsRoot + '/bin/DCPSInfoRepo',
+        '-NOBITS',
+        '-DCPSConfigFile', conf + '/DCPSInfoRepo.ini' ,
+        '-ORBSvcConf', conf + '/ORBSvc.conf',
+        '-ORBListenEndpoints iiop://dcpsrepo:50000',
+        '-d', conf + '/DDSDomainIds.conf'
+        ]
+    spawn(dcpscmd)
+    time.sleep(1)
+
+#-----------------------------------------------------------
+def runDrx():
+    '''
+    Run the drx if called for by the configuration. 
+    '''
+    doDrx = config.getBool('Drx/RunDrx', true)
+    if not doDrx:
+        return
+    
+    # start a new instance
+    drxcmd = [
+           eldoraDir + '/eldoradrx/eldoradrx',
+           '--ORB', conf + '/ORBSvc.conf',
+           '--DCPS', conf + '/DDSClient.ini',
+           '--start0',
+           '--start1',
+           '--pub',
+           ]
+    drxSimMode = config.getBool('Drx/DrxSimMode', false)
+    if drxSimMode:
+        drxcmd.append('--sim')
+    drxInternalTimer = config.getBool('Drx/DrxInternalTimer', false)
+    if drxInternalTimer:
+        drxcmd.append('--int')
+    spawn(drxcmd)
+    time.sleep(1)
+    
+#-----------------------------------------------------------
+def runProducts():
+    '''
+    Run the products generator if called for by the configuration. 
+    '''
+    doProducts = config.getBool('Products/RunProducts', true)
+    if  not doProducts:
+        return
+    
+    # start a new instance
+    productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
+    spawn(productscmd)
+    
+#-----------------------------------------------------------
 def pkill(name):
     pkill = '/usr/bin/pkill'
     pkillcmd =  [pkill, name]
     print pkillcmd
-    subprocess.call(pkillcmd)
+    subprocess.Popen(pkillcmd)
     
+#-----------------------------------------------------------
 def spawn(cmd, sleepSecs=1):
-    print 'cmd is: ', cmd
+    print  cmd
     pid = subprocess.Popen(cmd)
-    print 'pid is ', pid
 
 ############################################################
 #
@@ -172,15 +213,20 @@ hskprpcport = config.getInt('Hksp/HousekeeperRpcPort', 60001)
 hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
 hskprpc = EldoraRPC(hskprpcurl)
 
-# start up DCPS, if configured to be running it here
-restartDCPS()
+# start up DCPS
+runDcps()
 
-                    
+# start the eldora applications
+startEldoraApps()
+
+# create the qt application               
 app = QApplication(sys.argv)
 
-main = EldoraMain(runStopFunction=runStop, statusFunction=status)
+# instantiate an Edora controller
+main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status)
 main.show()
 
+# start the event loop
 app.exec_()
 
 

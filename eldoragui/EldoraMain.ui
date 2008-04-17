@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>904</width>
-    <height>653</height>
+    <width>558</width>
+    <height>602</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -88,32 +88,55 @@
        <number>6</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
+       <widget class="QGroupBox" name="groupBox_4" >
+        <property name="title" >
+         <string>Eldora Applications</string>
         </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QPushButton" name="runButton" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>1</hsizetype>
-            <vsizetype>3</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text" >
-           <string>Run</string>
-          </property>
-          <property name="checkable" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="restartButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>Restart</string>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>Stop</string>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <spacer>
@@ -129,72 +152,64 @@
        </spacer>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
+       <widget class="QGroupBox" name="groupBox_5" >
+        <property name="title" >
+         <string>Displays</string>
         </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QPushButton" name="scopeButton" >
-          <property name="text" >
-           <string>Scope</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="forwardPpiButton" >
-          <property name="text" >
-           <string>PPI Forward</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="aftPpiButton" >
-          <property name="text" >
-           <string>PPI Aft</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="scopeButton" >
+           <property name="text" >
+            <string>Scope</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="forwardPpiButton" >
+           <property name="text" >
+            <string>PPI Forward</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="aftPpiButton" >
+           <property name="text" >
+            <string>PPI Aft</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
-     <widget class="QTabWidget" name="tabWidget" >
-      <property name="currentIndex" >
-       <number>0</number>
+     <widget class="QGroupBox" name="groupBox_6" >
+      <property name="title" >
+       <string>Views</string>
       </property>
-      <widget class="QWidget" name="tab_2" >
-       <attribute name="title" >
-        <string>Main</string>
-       </attribute>
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>9</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_3" >
-          <property name="title" >
-           <string>KB per second</string>
-          </property>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QTabWidget" name="tabWidget" >
+         <property name="currentIndex" >
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab_2" >
+          <attribute name="title" >
+           <string>Main</string>
+          </attribute>
           <layout class="QVBoxLayout" >
            <property name="margin" >
             <number>9</number>
@@ -203,408 +218,387 @@
             <number>6</number>
            </property>
            <item>
-            <layout class="QGridLayout" >
+            <widget class="QGroupBox" name="groupBox_3" >
+             <property name="title" >
+              <string>KB per second</string>
+             </property>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item row="0" column="1" >
+                 <widget class="QProgressBar" name="forwardPulsesProgress" >
+                  <property name="value" >
+                   <number>24</number>
+                  </property>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_2" >
+                  <property name="text" >
+                   <string>Forward</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QProgressBar" name="aftPulsesProgress" >
+                  <property name="value" >
+                   <number>24</number>
+                  </property>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="label_3" >
+                  <property name="text" >
+                   <string>Aft</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="diskStatsBox" >
+             <property name="minimumSize" >
+              <size>
+               <width>0</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="title" >
+              <string>Disk Status</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab" >
+          <attribute name="title" >
+           <string>Data Bandwidth</string>
+          </attribute>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>9</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" >
              <property name="margin" >
               <number>0</number>
              </property>
              <property name="spacing" >
               <number>6</number>
              </property>
-             <item row="0" column="1" >
-              <widget class="QProgressBar" name="forwardPulsesProgress" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" >
-              <widget class="QLabel" name="label_2" >
-               <property name="text" >
-                <string>Forward</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1" >
-              <widget class="QProgressBar" name="aftPulsesProgress" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" >
-              <widget class="QLabel" name="label_3" >
-               <property name="text" >
-                <string>Aft</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="diskStatsBox" >
-          <property name="minimumSize" >
-           <size>
-            <width>0</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="title" >
-           <string>Disk Status</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab" >
-       <attribute name="title" >
-        <string>Data Bandwidth</string>
-       </attribute>
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>9</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox" >
-            <property name="title" >
-             <string>Forward Bandwith (0 - 8000 KB/s)</string>
-            </property>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>9</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
              <item>
-              <widget class="QDial" name="forwardBWdial" >
-               <property name="enabled" >
-                <bool>true</bool>
-               </property>
+              <spacer>
                <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
                </property>
-              </widget>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_2" >
-            <property name="title" >
-             <string>    Aft Bandwith (0 - 8000 KB/s)</string>
-            </property>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>9</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
              <item>
-              <widget class="QDial" name="aftBWdial" >
+              <widget class="QGroupBox" name="groupBox" >
+               <property name="title" >
+                <string>Forward Bandwith (0 - 8000 KB/s)</string>
+               </property>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>9</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QDial" name="forwardBWdial" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer>
                <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
                </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_2" >
+               <property name="title" >
+                <string>    Aft Bandwith (0 - 8000 KB/s)</string>
+               </property>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>9</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QDial" name="aftBWdial" >
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line_2" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="forwardDials" >
-          <property name="title" >
-           <string>Forward Channel Bandwidths (0 - 2000 KB/s)</string>
-          </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
+           </item>
            <item>
-            <widget class="QDial" name="dial" >
+            <widget class="Line" name="line_2" >
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QDial" name="dial_2" >
+            <widget class="QGroupBox" name="forwardDials" >
+             <property name="title" >
+              <string>Forward Channel Bandwidths (0 - 2000 KB/s)</string>
+             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QDial" name="dial" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_2" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_3" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_4" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_5" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_6" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_7" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_8" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line" >
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QDial" name="dial_3" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
+            <widget class="QGroupBox" name="aftDials" >
+             <property name="title" >
+              <string>Aft Channel Bandwidths (0 - 2000 KB/s)</string>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_4" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_5" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_6" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_7" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_8" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="aftDials" >
-          <property name="title" >
-           <string>Aft Channel Bandwidths (0 - 2000 KB/s)</string>
-          </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QDial" name="dial_9" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_10" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_11" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_12" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_13" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_14" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_15" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDial" name="dial_16" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QDial" name="dial_9" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_10" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_11" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_12" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_13" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_14" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_15" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDial" name="dial_16" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
          </widget>
-        </item>
-       </layout>
-      </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
+     <widget class="QLabel" name="statusLabel" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>3</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="spacing" >
-       <number>6</number>
+      <property name="text" >
+       <string>Status</string>
       </property>
-      <item>
-       <widget class="QLabel" name="label" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>3</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>Status: </string>
-        </property>
-        <property name="alignment" >
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="statusLabel" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>3</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>Status</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>3</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text" >
+       <string>Status: </string>
+      </property>
+      <property name="alignment" >
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -613,7 +607,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>904</width>
+     <width>558</width>
      <height>29</height>
     </rect>
    </property>
