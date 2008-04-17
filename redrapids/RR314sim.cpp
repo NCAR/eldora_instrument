@@ -73,8 +73,8 @@ void RR314sim::simulate() {
                 _iq[2] = 0;
                 _iq[3] = 0;
                 // pulse number
-                _iq[4] = (_pulseNum >> 16) & 0xffff;
-                _iq[5] = _pulseNum & 0xffff;
+                _iq[5] = (_pulseNum >> 16) & 0xffff;
+                _iq[4] = _pulseNum & 0xffff;
                 for (unsigned int k = 6; k < _iq.size(); k += 2) {
                     // create Is and Qs
                 	short int I = (rand() - RAND_MAX/2) & 0xffff;
