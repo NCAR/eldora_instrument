@@ -24,7 +24,7 @@ RR314::RR314(int devNum,
              unsigned int gates,
              unsigned int prf,
              unsigned int pulsewidth,
-             unsigned int hits,
+             unsigned int samples,
              unsigned int dualPrt,
              bool internalTimer,
              unsigned int startGateIQ,
@@ -36,7 +36,7 @@ RR314::RR314(int devNum,
              int usleep,
              bool catchSignals) throw(std::string) :
             _bufferNext(0), _devNum(devNum), _gates(gates), _prf(prf), 
-            _pulsewidth(pulsewidth), _hits(hits), _numIQgates(nGatesIQ), 
+            _pulsewidth(pulsewidth), _samples(samples), _numIQGates(nGatesIQ), 
             _dualPrt(dualPrt), _startGateIQ(startGateIQ), 
             _gaussianFile(gaussianFile), _kaiserFile(kaiserFile), 
             _xsvfFileName(xsvfFile), _simulate(simulate), _running(false), 
@@ -76,17 +76,16 @@ RR314::RR314(int devNum,
     for (int i = 0; i < BUFFERPOOLSIZE; i++) {
         RRABPBuffer* abpBuf = new RRABPBuffer;
         abpBuf->_abp.resize(3*_gates);
-        abpBuf->nextData = 0;
-        abpBuf->dataIn = 0;
+        abpBuf->_posInRay = 0;
         abpBuf->type = RRBuffer::ABPtype;
-        abpBuf->nci = _hits;
+        abpBuf->nci = _samples;
         _freeABPBuffers.push_back(abpBuf);
         RRIQBuffer* iqBuf = new RRIQBuffer;
-        iqBuf->_iq.resize(2*_numIQgates*_hits);
-        iqBuf->nextData = 0;
-        iqBuf->dataIn = 0;
+        iqBuf->_iq.resize(2*_numIQGates*_samples);
+        iqBuf->_posInSample = 0;
         iqBuf->type = RRBuffer::IQtype;
-        iqBuf->nci = _hits;
+        iqBuf->nci = _samples;
+        iqBuf->_samplesFilled = 0;
         _freeIQBuffers.push_back(iqBuf);
     }
 
@@ -95,13 +94,11 @@ RR314::RR314(int devNum,
     for (int chan = 0; chan < 8; chan += 2) {
         // even DMA channels are IQ
         _currentIQBuffer[chan] = _freeIQBuffers[0];
-        _currentIQBuffer[chan]->nextData = 0;
         _currentIQBuffer[chan]->dmaChan = chan;
         _freeIQBuffers.pop_front();
 
         // odd DMA channels are ABP
         _currentABPBuffer[chan+1] = _freeABPBuffers[0];
-        _currentABPBuffer[chan+1]->nextData = 0;
         _currentABPBuffer[chan+1]->dmaChan = chan;
         _freeABPBuffers.pop_front();
     }
@@ -111,8 +108,8 @@ RR314::RR314(int devNum,
         _simulator = new RedRapids::RR314sim(this,
                 _gates,
                 _startGateIQ,
-                _numIQgates,
-                _hits,
+                _numIQGates,
+                _samples,
                 _usleep);
         return;
     }
@@ -488,59 +485,78 @@ void RR314::newIQData(short* src,
     assert(!(chan & 1) && (chan < 8));
 
     RRIQBuffer* pBuf = _currentIQBuffer[chan];
-    
-    // loop through all src hits
+
+    // loop through all data we were given
+    unsigned int nextData;
+
     for (int i = 0; i < n; i++) {
-        //				std::cout << "dataIn " << pBuf->dataIn << "  nextData "
-        //						<< pBuf->nextData << "   i " << i << "   src[i] " << src[i]
-        //						<< "\n";
         //  fill the current buffer from the source
-        switch (pBuf->dataIn) {
+        switch (pBuf->_posInSample) {
         case 0:
+            // first two bytes of the 4-byte channel ID
             pBuf->chanId = src[i];
+            pBuf->_posInSample++;
+            // other initialization
             pBuf->dmaChan = chan;
-            pBuf->dataIn++;
             break;
         case 1:
+            // second two bytes of the 4-byte channel ID
             pBuf->chanId = (src[i]<< 16) | (pBuf->chanId & 0xffff);
-            pBuf->dataIn++;
-            if ((int)pBuf->chanId != (chan+1)) {
-                std::cout << "RR data error, channel id should be " << chan+1
-                        << ", got " << pBuf->chanId << " instead\n";
+            pBuf->_posInSample++;
+
+            if ((int)pBuf->chanId != chan + 1) {
+                std::cout << "RR data error, channel id should be " << 
+                chan + 1 << ", got " << pBuf->chanId << " instead\n";
                 pBuf->chanId = chan + 1;
             }
+            /// @todo A hack for the moment; for some reason the channel ID from
+            /// the card is all fouled up. Map the DMA channel (0, 2, 4, 6) to 
+            /// (1, 2, 3, 4).
             pBuf->chanId = pBuf->chanId/2 + 1;
 
             break;
         case 2:
-        	// first two bytes of the 4-byte PRT ID
+            // first two bytes of the 4-byte PRT ID
             pBuf->prtId = src[i];
-            pBuf->dataIn++;
+            pBuf->_posInSample++;
             break;
         case 3:
-        	// second two bytes of the 4-byte PRT ID
+            // second two bytes of the 4-byte PRT ID
             pBuf->prtId = (src[i]<< 16) | (pBuf->prtId & 0xffff);
-            pBuf->dataIn++;
+            pBuf->_posInSample++;
             break;
         case 4:
-        	// first two bytes of the 4-byte pulse count
-            pBuf->pulseCount = src[i];
-            pBuf->dataIn++;
+            // first two bytes of the 4-byte pulse count
+            pBuf->_pulseCount = src[i];
+            pBuf->_posInSample++;
             break;
         case 5:
-        	// second two bytes of the 4-byte pulse count
-            pBuf->pulseCount = (src[i]<< 16) | (pBuf->pulseCount & 0xffff);
-            pBuf->dataIn++;
-            // Now that we have the pulseCount, calculate the beam time
-            pBuf->beamTime = getBeamTime(pBuf->pulseCount);
+            // second two bytes of the 4-byte pulse count
+            pBuf->_pulseCount = (src[i]<< 16) | (pBuf->_pulseCount & 0xffff);
+            pBuf->_posInSample++;
+            // Now that we have the _pulseCount, calculate the ray number and
+            // ray time
+            pBuf->rayNum = pBuf->_pulseCount / _samples;
+            pBuf->rayTime = getRayTime(pBuf->rayNum);
+            // Pulse order sanity check
+            if ((pBuf->_pulseCount % _samples) != pBuf->_samplesFilled) {
+                std::cerr << __FUNCTION__ << ": got IQ sample " << 
+                    pBuf->_pulseCount % _samples << " when expecting " <<
+                    pBuf->_samplesFilled << " in ray at " << 
+                    pBuf->rayTime << std::endl;
+            }
             break;
         default:
-            pBuf->_iq[pBuf->nextData] = src[i];
-            pBuf->nextData++;
-            pBuf->dataIn++;
-            if (pBuf->dataIn == (2*_numIQgates+6))
-                pBuf->dataIn = 0;
-            if (pBuf->nextData == pBuf->_iq.size()) {
+            nextData = (pBuf->_posInSample - 6) + 
+                _numIQGates * pBuf->_samplesFilled * 2;
+            pBuf->_iq[nextData] = src[i];
+            pBuf->_posInSample++;
+            if (pBuf->_posInSample == (2 * _numIQGates + 6)) {
+                // end of this sample, get ready for the next
+                pBuf->_posInSample = 0;
+                pBuf->_samplesFilled++;
+            }
+            if (pBuf->_samplesFilled == _samples) {
                 // current buffer has been filled
                 // lock access to the queues
                 pthread_mutex_lock(&_bufferMutex);
@@ -552,10 +568,10 @@ void RR314::newIQData(short* src,
                     _fullBuffers.push_back(pBuf);
                     // signal that new data is available
                     pthread_cond_broadcast(&_dataAvailCond);
-                    // get a new buffer empty buffer from the free list
+                    // get a new buffer from the free list and initialize it
                     pBuf = _freeIQBuffers[0];
-                    pBuf->nextData = 0;
-                    pBuf->dataIn = 0;
+                    pBuf->_posInSample = 0;
+                    pBuf->_samplesFilled = 0;
                     pBuf->dmaChan = chan;
                     // save it as the current buffer being filled
                     _currentIQBuffer[chan] = pBuf;
@@ -566,8 +582,7 @@ void RR314::newIQData(short* src,
                     // one. For right now, print out an error complaint.
                     // Later on we may need to add some accounting and 
                     // notification scheme.
-                    pBuf->nextData = 0;
-                    pBuf->dataIn = 0;
+                    pBuf->_posInSample = 0;
                     // std::cout << "iq buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
                 }
                 // unlock queue acess
@@ -589,48 +604,50 @@ void RR314::newABPData(int* src,
     
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
 
-    // loop through all src hits
+    // loop through all src data
+    unsigned int nextData;
+    
     for (int i = 0; i < n; i++) {
         // fill the current buffer from the source
-        switch (pBuf->dataIn) {
+        switch (pBuf->_posInRay) {
         case 0:
             pBuf->dmaChan = chan;
             pBuf->chanId = src[i];
             /// @todo A hack for the moment; for some reason the channel ID from
             /// the card is all fouled up. Map the DMA channel (1, 3, 5, 7) to (1,2,3,4)
             pBuf->chanId = chan/2 + 1;
-            pBuf->dataIn++;
+            pBuf->_posInRay++;
             break;
         case 1:
             pBuf->prtId = src[i];
-            pBuf->dataIn++;
+            pBuf->_posInRay++;
             break;
         case 2:
-            pBuf->pulseCount = src[i];
-            pBuf->dataIn++;
-            // now that we have the pulseCount, calculate the beam time
-            pBuf->beamTime = getBeamTime(pBuf->pulseCount);
-            // print some info every 1000 beams
-            if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->pulseCount % 1000)) {
-                std::cout << pBuf->pulseCount << ": ";
-                std::cout << "beam time: " << to_simple_string(pBuf->beamTime.time_of_day());
-                std::cout << ", xmit start: " << to_simple_string(_xmitStartTime.time_of_day());
+            pBuf->rayNum = src[i];
+            pBuf->_posInRay++;
+            // now that we have the pulseCount, calculate the ray time
+            pBuf->rayTime = getRayTime(pBuf->rayNum);
+            // print some info every 1000 rays
+            if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->rayNum % 1000)) {
+                std::cout << pBuf->rayNum << ": ";
+                std::cout << "ray time: " << pBuf->rayTime.time_of_day();
+                std::cout << ", xmit start: " << _xmitStartTime.time_of_day();
                 std::cout << ", latency: " << 
-                	to_simple_string(microsec_clock::universal_time() - pBuf->beamTime);
+                	(microsec_clock::universal_time() - pBuf->rayTime);
                 std::cout << std::endl << std::endl;
             }
             break;
        default:
+            nextData = pBuf->_posInRay - 3;
             // A and B scaled by full scale
-            if (((pBuf->nextData) % 3) < 2) {
-                pBuf->_abp[pBuf->nextData] = src[i]*ABPSCALE;
+            if (((nextData) % 3) < 2) {
+                pBuf->_abp[nextData] = src[i]*ABPSCALE;
             } else {
                 // P scaled by 2 times full scale
-                pBuf->_abp[pBuf->nextData] = src[i]*ABPSCALE/2.0;
+                pBuf->_abp[nextData] = src[i]*ABPSCALE/2.0;
             }
-            pBuf->nextData++;
-            pBuf->dataIn++;
-            if (pBuf->nextData == pBuf->_abp.size()) {
+            pBuf->_posInRay++;
+            if (++nextData == pBuf->_abp.size()) {
                 // current buffer has been filled
                 // lock access to the queues
                 pthread_mutex_lock(&_bufferMutex);
@@ -642,8 +659,7 @@ void RR314::newABPData(int* src,
                     // signal that new data is available
                     pthread_cond_broadcast(&_dataAvailCond);
                     pBuf = _freeABPBuffers[0];
-                    pBuf->nextData = 0;
-                    pBuf->dataIn = 0;
+                    pBuf->_posInRay = 0;
                     // save it as the current buffer being filled
                     _currentABPBuffer[chan] = pBuf;
                     // remove from the free list
@@ -653,8 +669,7 @@ void RR314::newABPData(int* src,
                     // one. For right now, print out an error complaint.
                     // Later on we may need to add some accounting and 
                     // notification scheme.
-                    pBuf->nextData = 0;
-                    pBuf->dataIn = 0;
+                    pBuf->_posInRay = 0;
                     // std::cout << "abp buffer unavailable " <<__FILE__ << ":" << __LINE__ << "\n";
                 }
                 // unlock queue acess
@@ -803,16 +818,16 @@ bool RR314::pulsepairInit() {
 
     //Pulse Pair Setup
     Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
-    Adapter_Write32(&_chanAdapter, V4, N_REG, _hits); // # of hits
+    Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of samples
     Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _dualPrt); // Dual Prt(Off)
     Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ); // index of start of IQ capture
-    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQgates); // # of Gate of IQ capture
+    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQGates); // # of Gate of IQ capture
 
     Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
-    Adapter_Read32(&_chanAdapter, V4, N_REG, &_hits);
+    Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
     Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
     Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
-    Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQgates);
+    Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQGates);
    
     return true;
 
@@ -859,10 +874,10 @@ bool RR314::timerInit() {
 
     printf("Internal Timing Variables\n");
     printf("# of Gates          = %d\n", _gates);
-    printf("# of Hits           = %d\n", _hits);
+    printf("# of Samples        = %d\n", _samples);
     printf("Dual PRT (1=on)     = %d\n", _dualPrt);
     printf("IQ Start Gate       = %d\n", _startGateIQ);
-    printf("# of IQ Gates       = %d\n", _numIQgates);
+    printf("# of IQ Gates       = %d\n", _numIQGates);
     printf("TX Pulse Width (us) = %f\n", float(decimationFactor/8.0));
     printf("RX Pulse Width (us) = %f\n", float(decimationFactor/8.0*_pulsewidth));
     printf("PRT Period     (us) = %f\n", float(1.0/_prf*1.0e6));

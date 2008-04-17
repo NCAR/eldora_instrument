@@ -57,17 +57,10 @@ struct RRBuffer {
 	unsigned int chanId;
 	/// The prt id delivered by the R314
 	unsigned int prtId;
-	/// The pulse count delivered by the RR314
-	unsigned int pulseCount;
-	/// A cyclic counter that counts the housekeeping
-	/// and data items for a single iq or abp set. Used 
-	/// for blocking the iqs.
-	unsigned int dataIn;
-	/// The next location to store a data value
-	/// in the data buffer.
-	unsigned int nextData;
-	/// The time for this beam (end of the integration period).
-    boost::posix_time::ptime beamTime;
+	/// The ray number
+	unsigned int rayNum;
+	/// The time for this ray (end of the integration period).
+    boost::posix_time::ptime rayTime;
 	/// The type of derived class
 	enum {IQtype, ABPtype} type;
 	/// the number of coherent integrations
@@ -82,14 +75,24 @@ struct RRBuffer {
 /// for deliver to consumers. The buffer will always contain one
 /// complete set of ABP values for all gates.
 struct RRABPBuffer : RRBuffer {
+    // position in the data for the current ray
+    unsigned int _posInRay;
+    // the ABP data
 	std::vector<float> _abp;
 };
 
 /// A buffer type used to collect an incoming iq sample stream and 
-/// for deliver to consumers. _hits number of iq sequences,
+/// for deliver to consumers. _samples number of iq sequences,
 /// each sequence covering the range of iq gates, are aggregated
 /// into one RRIQBuffer.
 struct RRIQBuffer : RRBuffer {
+    /// xmit pulse of the current sample
+    unsigned int _pulseCount;
+    /// position in the data for the current sample
+    unsigned int _posInSample;
+    /// number of samples completely filled so far
+    unsigned int _samplesFilled;
+    /// the IQ data
 	std::vector<short> _iq;
 };
 
@@ -132,8 +135,8 @@ public:
     /// @param gates The number of gates.
     /// @param prf The pulse repeition frequency in Hz.
     /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
-    /// @param hits Number of hits in atimeseries block, or used in the 
-    /// calculation of a single ABP beam.
+    /// @param samples Number of samples in a timeseries block, or used in the 
+    /// calculation of a single ABP ray.
     /// @param dualPrt True if operating in dual prt mode.
     /// @param internalTimer True if we will use the external timer
     /// @param startGateIQ The starting gate for IQ capture.
@@ -151,7 +154,7 @@ public:
 	        unsigned int gates, 
 	        unsigned int prf,
 	        unsigned int pulsewidth, 
-	        unsigned int hits,
+	        unsigned int samples,
 	        unsigned int dualPrt, 
 	        bool internalTimer,
 	        unsigned int startGateIQ,
@@ -180,10 +183,10 @@ public:
 	/// Accept new iq data for this class. This function
 	/// may be called from other threads. It will 
 	/// copy the data into a free buffer, collecting
-	/// values in that buffer until a _numIQgates pairs plus the 
+	/// values in that buffer until a _numIQGates pairs plus the 
 	/// housekeeping data have been satisfied. When a
-	/// complete series has been assembled, data availability 
-	/// is signaled with a broadcast on _dataAvailCond.
+	/// complete series has been assembled (_samples samples), data 
+	/// availability is signaled with a broadcast on _dataAvailCond.
 	/// @param src The source of the data
 	/// @param chan The channel of this data
 	/// @param n The number of items
@@ -192,7 +195,7 @@ public:
 	/// Accept new abp data for this class. This function
 	/// may be called from other threads. It will 
 	/// copy the data into a free buffer, collecting
-	/// values in that buffer until a _numIQgates pairs plus the 
+	/// values in that buffer until a _numIQGates pairs plus the 
 	/// housekeeping data have been satisfied. When a
 	/// complete series has been assembled, data availability 
 	/// is signaled with a broadcast on _dataAvailCond.
@@ -263,12 +266,14 @@ public:
 	
 	/// Dwell duration (= nsamples / PRF).
 	boost::posix_time::time_duration dwellDuration() {
-	    return boost::posix_time::microseconds((1000000 * _hits) / _prf);
+	    return boost::posix_time::microseconds((1000000 * _samples) / _prf);
 	}
 
-	/// Beam time (at the end of the beam integration period)
-	boost::posix_time::ptime getBeamTime(unsigned int beamNum) {
-		return _xmitStartTime + dwellDuration() * (beamNum + 1);
+	/// Ray time (at the middle of the ray integration period)
+	boost::posix_time::ptime getRayTime(unsigned int rayNum) {
+	    // The math is a little convoluted here because multiply and divide
+	    // operations for posix_time::time_duration only take integer operands
+		return _xmitStartTime + (dwellDuration() * (2 * rayNum + 1)) / 2;
 	}
 protected:
 
@@ -356,11 +361,11 @@ protected:
 	/// The pulsewidth in ns.
 	int _pulsewidth;
 
-	/// The number of hits that go into each beam.
-	unsigned int _hits;
+	/// The number of samples that go into each ray.
+	unsigned int _samples;
 
     /// The number of IQ gates to capture.
-    unsigned int _numIQgates;
+    unsigned int _numIQGates;
 
 	/// Dual prt true or false.
 	unsigned int _dualPrt;

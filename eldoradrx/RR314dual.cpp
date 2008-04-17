@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <ios>
 #include <vector>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -23,6 +25,10 @@
 #include "TimeSeriesTypeSupportImpl.h"
 
 #include "DrxRPC.h"
+
+#include <DoradeASIB.h>
+#include <DoradeFRAD.h>
+#include <DoradeRYIB.h>
 
 using namespace RedRapids;
 using namespace EldoraDDS;
@@ -291,7 +297,7 @@ static void * dataTask(void* threadArg) {
         // next buffer will block until a new buffer is ready.
         RRBuffer* pBuf = pRR314->nextBuffer();
         //	std::cout << (pBuf->type == RRBuffer::IQtype ? "IQ  ":"ABP ") <<
-        //	  pBuf->dmaChan << " " << pBuf->chanId << " " << pBuf->pulseCount << "\n";
+        //	  pBuf->dmaChan << " " << pBuf->chanId << " " << pBuf->rayNum << "\n";
         // get the details of this buffer
         int channel = pBuf->dmaChan;
         // bump the sample count
@@ -326,7 +332,7 @@ static void * dataTask(void* threadArg) {
                         pPulse->abp[p] = data;
                     }
                     // set the timestamp
-                    pPulse->timestamp = pABP->pulseCount;
+                    pPulse->timestamp = pABP->rayNum;
 
                     // send the pulse to the pulse publisher
                     pulseWriter->publishItem(pPulse);
@@ -348,7 +354,7 @@ static void * dataTask(void* threadArg) {
                         pTS->tsdata[p] = pIQ->_iq[p];
                     }
                     // set the timestamp
-                    pTS->timestamp = pIQ->pulseCount;
+                    pTS->timestamp = pIQ->rayNum;
                     // device 0 is the aft radar, 1 is fore
                     pTS->radarId =
                     (pParams->deviceNumber == 0) ?
@@ -398,6 +404,84 @@ static void * dataTask(void* threadArg) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+void unpackHousekeeping(const unsigned char* buf, int buflen) {
+    const unsigned char* data = buf;
+    int datalen = buflen;
+    
+    if (buflen != 176) {
+        std::cerr << __FUNCTION__ << ": Got " << buflen << 
+            "bytes instead of the expected 176" << std::endl;
+        return;
+    }
+    
+    DoradeRYIB *ryib = 0;
+    DoradeASIB *asib = 0;
+    DoradeFRAD *frad = 0;
+
+    try {
+        ryib = new DoradeRYIB(data, datalen, false);
+        data += ryib->getDescLen();
+        datalen -= ryib->getDescLen();
+        
+        asib = new DoradeASIB(data, datalen, false);
+        data += asib->getDescLen();
+        datalen -= asib->getDescLen();
+        
+        frad = new DoradeFRAD(data, datalen, false);
+    } catch (DescriptorException dex) {
+        std::cerr << std::string("Descriptor exception: ") + dex.what() << 
+            std::endl;
+        return;
+    }
+    
+//    std::cout << frad->getRadarName() << " " << ryib->getRayDateTime() << 
+//        std::endl;
+}
+
+//////////////////////////////////////////////////////////////////////
+// a task to read data from the housekeeper
+
+static void* hskpReadTask(void* threadArg) {
+    // listen address for incoming data (port 2222, any sender)
+    int portNum = 2222;
+    struct sockaddr_in inAddr;
+    memset(&inAddr, 0, sizeof(inAddr));
+    inAddr.sin_family = AF_INET;
+    inAddr.sin_port = htons(portNum);
+    inAddr.sin_addr.s_addr = INADDR_ANY;
+
+    // Create the UDP socket
+    int inSocket;
+    int on = 1;
+
+    if ((inSocket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ||
+            setsockopt(inSocket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0 ||
+            bind(inSocket, (struct sockaddr*)&inAddr, sizeof(inAddr)) < 0)
+    {
+        if (inSocket >= 0)
+            close(inSocket);
+        perror("creating incoming UDP socket");
+        return NULL;
+    }
+
+    // Now just deal with incoming packets
+    unsigned char buf[4096];
+
+    while (1)
+    {
+        int nread;
+        if ((nread = recv(inSocket, buf, sizeof(buf) - 1, 0)) < 0)
+        {
+            perror("reading from housekeeping socket");
+            continue;
+        }
+        unpackHousekeeping(buf, nread);
+    }
+    
+    close(inSocket);
+    return NULL;
+}
 //////////////////////////////////////////////////////////////////////
 
 void showStats(runParams& params,
@@ -568,11 +652,11 @@ int main(int argc,
                     pthread_create(&dataThread1, NULL, dataTask, (void*) &params1);
                 }
                 
-//                // and the housekeeping reader thread
-//                pthread_t hskpThread;
-//                if (params0.enabled || params1.enabled) {
-//                    pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
-//                }
+                // and the housekeeping reader thread
+                pthread_t hskpThread;
+                if (params0.enabled || params1.enabled) {
+                    pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
+                }
 
                 // setup the signal handlers before we run the cards.
                 setupSignalHandler();

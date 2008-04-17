@@ -1,10 +1,17 @@
 import os
-tools = ['ddssvc', 'rr314', 'bittware', 'utilities', 'deploy']
+tools = Split("""
+ddssvc
+rr314
+boost_program_options
+dorade
+bittware
+utilities
+deploy
+""")
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
 libs = Split("""
-boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
@@ -13,7 +20,7 @@ TAO_PortableServer
 TAO_AnyTypeCode
 dl
 rt
-rr314""")
+""")
 
 env.Append(LIBS = libs)
 
