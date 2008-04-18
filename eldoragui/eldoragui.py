@@ -10,6 +10,7 @@ from PyQt4.QtGui  import *
 from EldoraMain   import *
 from EldoraRPC    import *
 from QtConfig     import *
+from SubThread    import *
 
 #-----------------------------------------------------------
 def restart():
@@ -131,10 +132,16 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', conf + '/DDSDomainIds.conf'
         ]
-    spawn(dcpscmd)
+    #spawn(dcpscmd)
+    s = SubThread(dcpscmd)
+    s.start()
     time.sleep(1)
 
 #-----------------------------------------------------------
+
+def callback(line):
+    print 'line: ', line
+    
 def runDrx():
     '''
     Run the drx if called for by the configuration. 
@@ -152,13 +159,15 @@ def runDrx():
            '--start1',
            '--pub',
            ]
-    drxSimMode = config.getBool('Drx/DrxSimMode', false)
+    drxSimMode = config.getBool('Drx/DrxSimMode', False)
     if drxSimMode:
         drxcmd.append('--sim')
-    drxInternalTimer = config.getBool('Drx/DrxInternalTimer', false)
+    drxInternalTimer = config.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
-    spawn(drxcmd)
+    #spawn(drxcmd)
+    s = SubThread(drxcmd, callback=callback)
+    s.start()
     time.sleep(1)
     
 #-----------------------------------------------------------
@@ -166,13 +175,15 @@ def runProducts():
     '''
     Run the products generator if called for by the configuration. 
     '''
-    doProducts = config.getBool('Products/RunProducts', true)
+    doProducts = config.getBool('Products/RunProducts', True)
     if  not doProducts:
         return
     
     # start a new instance
     productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
-    spawn(productscmd)
+    #spawn(productscmd)
+    s = SubThread(productscmd, callback)
+    s.start()
     
 #-----------------------------------------------------------
 def pkill(name):
