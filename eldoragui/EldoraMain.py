@@ -80,17 +80,20 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     ###############################################################################
     def runScope(self):
     	cmd = self.eldoraDir + '/eldorascope/eldorascope'
-    	p = subprocess.Popen(cmd, close_fds=1)
+    	p = QProcess()
+        p.startDetached(cmd)
     	        
     ###############################################################################
     def runForPpi(self):
     	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--forward']
-    	p = subprocess.Popen(cmd, close_fds=1)
+    	p = QProcess()
+        p.startDetached(cmd[0], cmd[1:])
     	
     ###############################################################################
     def runAftPpi(self):
     	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--aft']
-    	p = subprocess.Popen(cmd, close_fds=1)
+    	p = QProcess()
+        p.startDetached(cmd[0], cmd[1:])
     	        
     ###############################################################################
     def createPalette(self):

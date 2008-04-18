@@ -134,7 +134,7 @@ def runDcps():
     
     restart = config.getBool('Dcps/AutoRestartDcps', False)
     # see if it is already running
-    isRunning = not subprocess.call(['/usr/bin/pgrep', 'DCPSInfoRepo'])
+    isRunning = pgrep('DCPSInfoRepo')
     if isRunning:
         if not restart:
             return
@@ -152,7 +152,7 @@ def runDcps():
         ]
     ourThreads['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False)
     s = ourThreads['DCPSInfoRepo']
-    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
+    QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     time.sleep(1)
 
@@ -168,7 +168,7 @@ def runDrx():
         return
     
     # see if it is already running
-    isRunning = not subprocess.call(['/usr/bin/pgrep', 'eldoradrx'])
+    isRunning = not pgrep('eldoradrx')
     if isRunning:
         return
     
@@ -189,7 +189,7 @@ def runDrx():
         drxcmd.append('--int')
     ourThreads['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, textColor='blue')
     s = ourThreads['eldoradrx']
-    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
+    QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     time.sleep(1)
     
@@ -205,7 +205,7 @@ def runProducts():
         return
     
     # see if it is already running
-    isRunning = not subprocess.call(['/usr/bin/pgrep', 'eldoraprod'])
+    isRunning = not pgrep('eldoraprod')
     if isRunning:
         return
     
@@ -213,20 +213,29 @@ def runProducts():
     productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
     ourThreads['eldoraprod'] = EmitterProc(productscmd, emitText=True, textColor='red')
     s = ourThreads['eldoraprod']
-    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
+    QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     
 ####################################################################################
 def pkill(name):
-    ''' Use pkill to kill processes containing the name.
-    
-    name = The name match string
+    ''' Execute pkill <name> via QProcess. Return
+    the pkill exit status
     '''
-    pkill = '/usr/bin/pkill'
-    pkillcmd =  [pkill, name]
-    print pkillcmd
-    subprocess.Popen(pkillcmd)
-    
+    p = QProcess()
+    p.start('/usr/bin/pkill', [name,])
+    p.waitForFinished(-1)
+    return p.exitCode()
+
+####################################################################################
+def pgrep(name):
+    ''' Execute pgrep <name> via QProcess. Return
+    the pgrep exit status.
+    '''
+    p = QProcess()
+    p.start('/usr/bin/pgrep', [name,])
+    p.waitForFinished(-1)
+    return p.exitCode()
+
 ####################################################################################
 def startUs():
     '''

@@ -1,4 +1,4 @@
-import subprocess
+from PyQt4.QtCore import *
 
 # 
 # DiskStats will privide disk statistics
@@ -10,8 +10,17 @@ class DiskStats:
         
     def stats(self):
         cmd = ['df', '-l', '-h']
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        dfout = p.stdout.read().split()
+        p = QProcess()
+        p.start(cmd[0], cmd[1:])
+        p.waitForFinished()
+        # read all of the output
+        dfout = ''
+        while 1:
+            line = p.readLine()
+            if not line:
+                break
+            dfout = dfout + str(line)
+        dfout = dfout.split()
         dfout = dfout[7:]
         result = []
         for i in range(0, len(dfout), 6):

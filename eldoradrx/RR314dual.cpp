@@ -523,7 +523,7 @@ void showStats(runParams& params,
     std::cout << "free IQ:" << rr314.numFreeIQBuffers() << "   free ABP:"
             << rr314.numFreeABPBuffers() << "   dropped pulses:"
             << droppedPulse << "   dropped TS:" << droppedTS
-            << std::setprecision(4) << "   t:" << temperature << "C" << "\n\n";
+            << std::setprecision(4) << "   t:" << temperature << "C" << "\n";
     droppedPulse = 0;
     droppedTS = 0;
     

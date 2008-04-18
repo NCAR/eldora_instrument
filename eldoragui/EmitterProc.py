@@ -1,48 +1,49 @@
 import os
 import sys
 import time
-import subprocess
 import re
-import PyQt4.QtCore
+from PyQt4.QtCore import *
 
-class EmitterProc(PyQt4.QtCore.QThread):
+class EmitterProc(QProcess):
     '''
-    Spawn a process in a QThread, and emit a signal that
-    contains the text from stdout.
+    Spawn a command in a QProcess, and emit a signal that
+    contains the text from stdout and stderr.
     
-    A new thread is created, and the specified command is 
-    spawnwed as a subprocess. stdout is monitored, and the
-    returned text is emitted as a SIGNAL(text(), data, color),
-    which can be connected to other Qt slots.
+    The specified command is spawnwed as a QProcess. Stdout and
+    stderr are read when triggered by the readyReadStandardOutput 
+    signal, and the returned text is emitted as a 
+    SIGNAL(text(), data, color), which can be connected to 
+    other Qt slots.
     
-    Using a QThread allows us to utilize the Qt signal/slot
+    Using a QProcess allows us to utilize the Qt signal/slot
     mechanism between threads, and Qt will handle the 
     thread access control.
     
-    Note: If you are instantiating EmitterProc in a static function, make 
+    NB: If you are instantiating EmitterProc in a static function, make 
     that there is a global reference to the object when the function is
     exited, if you want the process to continue after the function leaves 
     scope.
     '''
     def __init__(self, command, emitText=False, textColor='black'):
-        PyQt4.QtCore.QThread.__init__(self)
+        QProcess.__init__(self)
         self.emitText = emitText
         self.textColor = textColor
         self.command = command
+        self.setProcessChannelMode(QProcess.MergedChannels)
+        self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
+
         
-    def run(self):
-        try:
-            stdout = subprocess.Popen(self.command, bufsize=1, stdout=subprocess.PIPE).stdout
-            while 1:
-                line = stdout.readline()
-                if not line:
-                    break
-                line = re.sub('\n','',line)
-                if self.emitText:
-                    self.emit(PyQt4.QtCore.SIGNAL("text"), line, self.textColor)
-        except Exception, e:
-            print 'got an exception in ', self, ': ', e
-            
+    def start(self):
+        QProcess.start(self, self.command[0], self.command[1:])
+        
+    def readyRead(self):
+        while (1):
+            line = self.readLine()
+            if not line:
+                return
+            if self.emitText:
+                self.emit(SIGNAL("text"), line, self.textColor)
+        
 ###############################################################
     @staticmethod
     def testCallback(line):
