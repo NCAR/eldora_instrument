@@ -9,13 +9,20 @@ class EmitterProc(PyQt4.QtCore.QThread):
     '''
     Spawn a process in a QThread, and emit a signal that
     contains the text from stdout.
+    
     A new thread is created, and the specified command is 
     spawnwed as a subprocess. stdout is monitored, and the
     returned text is emitted as a SIGNAL(text(), data, color),
     which can be connected to other Qt slots.
+    
     Using a QThread allows us to utilize the Qt signal/slot
     mechanism between threads, and Qt will handle the 
     thread access control.
+    
+    Note: If you are instantiating EmitterProc in a static function, make 
+    that there is a global reference to the object when the function is
+    exited, if you want the process to continue after the function leaves 
+    scope.
     '''
     def __init__(self, command, emitText=False, textColor='black'):
         PyQt4.QtCore.QThread.__init__(self)
@@ -50,8 +57,7 @@ class EmitterProc(PyQt4.QtCore.QThread):
         line = sys.stdin.readline()
         line = re.sub('\n', '', line)
         cmd = re.split(' +',line)
-        # print 'your command is ', cmd
-        s = SubThread(command=cmd, callback=SubThread.testCallback)
+        s = EmiterProc(command=cmd)
         s.start()
         while 1:
             time.sleep(1)

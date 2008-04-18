@@ -8,10 +8,7 @@ from Ui_EldoraMain import *
 from EldoraUtil    import *
 from QtConfig      import *
 
-
-true = 1
-false = 0
-
+######################################################################################
 class EldoraMain(QMainWindow, Ui_EldoraMain):
     '''
     EldoraMain provides the connection between the user 
@@ -20,6 +17,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     User actions are connected to the class in the form of callback
     functions specified to the constructor.
     '''
+    ###############################################################################
     def __init__(self, stopFunction=None, restartFunction=None, statusFunction=None, startUp=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
@@ -79,22 +77,22 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # use our timer for a clock
         self.startTimer(1000)
     
-    #-----------------------------------------------------------    
+    ###############################################################################
     def runScope(self):
     	cmd = self.eldoraDir + '/eldorascope/eldorascope'
     	p = subprocess.Popen(cmd, close_fds=1)
     	        
-    #-----------------------------------------------------------    
+    ###############################################################################
     def runForPpi(self):
     	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--forward']
     	p = subprocess.Popen(cmd, close_fds=1)
     	
-    #-----------------------------------------------------------    
+    ###############################################################################
     def runAftPpi(self):
     	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--aft']
     	p = subprocess.Popen(cmd, close_fds=1)
     	        
-    #-----------------------------------------------------------    
+    ###############################################################################
     def createPalette(self):
     	fgcolor = 'blue'
     	buttoncolor = 'red'
@@ -106,8 +104,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(fgcolor))
         self.palette.setColor(QPalette.Disabled, QPalette.Button, QColor(buttoncolor))
     	
-        
-    #-----------------------------------------------------------    
+    ###############################################################################
     def initDiskStats(self):
         # create our disk status object
         self.diskStats = DiskStats()
@@ -148,7 +145,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 	    	self.diskDials.append(d)
      
         
-    #-----------------------------------------------------------    
+    ###############################################################################
     def initBwDisplays(self):
         '''
         configure the bandwidth rate displays
@@ -188,7 +185,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
               dial.setPalette(self.palette)
               dial.setEnabled(0)
 
-    #-----------------------------------------------------------    
+    ###############################################################################
     def timerEvent(self, event):
         
         # execute the startup function
@@ -210,8 +207,13 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             	dial = self.diskDials[i]
             	dial.setValue(stats[i][1])
                    
-    #-----------------------------------------------------------    
+    ###############################################################################
     def logText(self, text, color='black'):
+        ''' Send the text to the log display.
+        
+        text = The text to be displayed
+        color = The text color
+        '''
         # make sure that we append to the end
         self.logCursor.setPosition(QTextCursor.End)
         html = '<br><font color="' + color + '">' + text + '</font>'

@@ -128,11 +128,11 @@ def runDcps():
     
     If Dcps/AutoRestartDcps
     '''
-    runDcps = config.getBool('Dcps/RunDcps', true)
+    runDcps = config.getBool('Dcps/RunDcps', True)
     if  not runDcps:
         return
     
-    restart = config.getBool('Dcps/AutoRestartDcps', false)
+    restart = config.getBool('Dcps/AutoRestartDcps', False)
     # see if it is already running
     isRunning = not subprocess.call(['/usr/bin/pgrep', 'DCPSInfoRepo'])
     if isRunning:
@@ -163,7 +163,7 @@ def runDrx():
     
     The configuration is hecked to see if Products/RunDrx is true.
     '''
-    doDrx = config.getBool('Drx/RunDrx', true)
+    doDrx = config.getBool('Drx/RunDrx', True)
     if not doDrx:
         return
     
@@ -187,7 +187,7 @@ def runDrx():
     drxInternalTimer = config.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
-    ourThreads['eldoradrx'] = EmitterProc(drxcmd, emitText=True, textColor='blue')
+    ourThreads['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, textColor='blue')
     s = ourThreads['eldoradrx']
     PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
     s.start()
