@@ -134,7 +134,7 @@ def runDcps():
     
     restart = config.getBool('Dcps/AutoRestartDcps', False)
     # see if it is already running
-    isRunning = pgrep('DCPSInfoRepo')
+    isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
         if not restart:
             return
@@ -150,10 +150,10 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', conf + '/DDSDomainIds.conf'
         ]
-    ourThreads['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False)
+    ourThreads['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, textColor='purple')
     s = ourThreads['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
-    s.start()
+    s.startDetached()
     time.sleep(1)
 
 ####################################################################################

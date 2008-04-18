@@ -36,6 +36,9 @@ class EmitterProc(QProcess):
     def start(self):
         QProcess.start(self, self.command[0], self.command[1:])
         
+    def startDetached(self):
+        QProcess.startDetached(self.command[0], self.command[1:])
+        
     def readyRead(self):
         while (1):
             line = self.readLine()
