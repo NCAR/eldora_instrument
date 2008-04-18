@@ -202,7 +202,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QTabWidget" name="tabWidget" >
+        <widget class="QTabWidget" name="tab" >
          <property name="currentIndex" >
           <number>0</number>
          </property>
@@ -559,6 +559,22 @@
               </item>
              </layout>
             </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3" >
+          <attribute name="title" >
+           <string>Logs</string>
+          </attribute>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>9</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QTextBrowser" name="logBrowser" />
            </item>
           </layout>
          </widget>

@@ -4,15 +4,15 @@ import sys
 import time
 import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui  import *
+from PyQt4.QtCore   import *
+from PyQt4.QtGui    import *
 
-from EldoraMain   import *
-from EldoraRPC    import *
-from QtConfig     import *
-from SubThread    import *
+from EldoraMain     import *
+from EldoraRPC      import *
+from QtConfig       import *
+from EmitterProc    import *
 
-#-----------------------------------------------------------
+####################################################################################
 def restart():
     try:
         # send a stop and a start comand, although these may not
@@ -30,7 +30,7 @@ def restart():
     # start the eldora apps
     startEldoraApps()
     
-#-----------------------------------------------------------
+####################################################################################
 def stop():
     try:
         # send a stop comand, although this may not
@@ -43,8 +43,11 @@ def stop():
     # stop the eldora apps
     stopEldoraApps()
     
-#-----------------------------------------------------------
+####################################################################################
 def status():
+    ''' query the eldora applications for status, and transmit this
+    status back to the main application.
+    '''
     try:
        r = drxrpc.status()
        keys = sorted(r.keys())
@@ -85,30 +88,45 @@ def status():
           else:
               aftDialsList[i-8].setValue(rates[i])
               
-#-----------------------------------------------------------
+####################################################################################
 def startEldoraApps():
-    '''
-    Run eldora applications which have been selected in the configuration.
-    If they are already running, they will be restarted only if restart is true.
+    ''' Run eldora applications which have been selected in the configuration.
     '''
     # drx
     runDrx()
     
     # products
     runProducts()
+    
+    # start the drx rpc server
+    drxrpc.start()
         
-#-----------------------------------------------------------
+####################################################################################
 def stopEldoraApps():
+    ''' Stop the standard Eldora processing apps
+    '''
+    
     pkill('eldoraprod')
     pkill ('eldoradrx')
     # at the moment, kill eldoraprod twice, becasue for some reason it needs this
     pkill ('eldoraprod')
     
-#-----------------------------------------------------------
+####################################################################################
 def runDcps():
     '''
     Run the DCPSInfoRepo, but only if the configuration has
-    called for that.
+    called for that. Automatic restart of a currently running
+    DCPSInfoRepo can be specified.
+    
+    The configuration is checked to see if Dcps/RunDcps is true. 
+    
+    If Dcps/AutoRestartDcps is false, and the process is already
+    running, nothing will happen.
+    
+    If Dcps/AutoRestartDcps is true, a running copy will be killed before 
+    a new one is started.
+    
+    If Dcps/AutoRestartDcps
     '''
     runDcps = config.getBool('Dcps/RunDcps', true)
     if  not runDcps:
@@ -132,22 +150,26 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', conf + '/DDSDomainIds.conf'
         ]
-    #spawn(dcpscmd)
-    s = SubThread(dcpscmd)
+    ourThreads['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False)
+    s = ourThreads['DCPSInfoRepo']
+    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
     s.start()
     time.sleep(1)
 
-#-----------------------------------------------------------
-
-def callback(line):
-    print 'line: ', line
-    
+####################################################################################
 def runDrx():
     '''
     Run the drx if called for by the configuration. 
+    
+    The configuration is hecked to see if Products/RunDrx is true.
     '''
     doDrx = config.getBool('Drx/RunDrx', true)
     if not doDrx:
+        return
+    
+    # see if it is already running
+    isRunning = not subprocess.call(['/usr/bin/pgrep', 'eldoradrx'])
+    if isRunning:
         return
     
     # start a new instance
@@ -165,39 +187,61 @@ def runDrx():
     drxInternalTimer = config.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
-    #spawn(drxcmd)
-    s = SubThread(drxcmd, callback=callback)
+    ourThreads['eldoradrx'] = EmitterProc(drxcmd, emitText=True, textColor='blue')
+    s = ourThreads['eldoradrx']
+    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
     s.start()
     time.sleep(1)
     
-#-----------------------------------------------------------
+####################################################################################
 def runProducts():
     '''
-    Run the products generator if called for by the configuration. 
+    Run the products generator, if called for by the configuration. 
+    
+    The configuration is checked to see if Products/RunProducts is true.
     '''
     doProducts = config.getBool('Products/RunProducts', True)
     if  not doProducts:
         return
     
+    # see if it is already running
+    isRunning = not subprocess.call(['/usr/bin/pgrep', 'eldoraprod'])
+    if isRunning:
+        return
+    
     # start a new instance
     productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
-    #spawn(productscmd)
-    s = SubThread(productscmd, callback)
+    ourThreads['eldoraprod'] = EmitterProc(productscmd, emitText=True, textColor='red')
+    s = ourThreads['eldoraprod']
+    PyQt4.QtCore.QObject.connect(s, PyQt4.QtCore.SIGNAL("text"), main.logText)
     s.start()
     
-#-----------------------------------------------------------
+####################################################################################
 def pkill(name):
+    ''' Use pkill to kill processes containing the name.
+    
+    name = The name match string
+    '''
     pkill = '/usr/bin/pkill'
     pkillcmd =  [pkill, name]
     print pkillcmd
     subprocess.Popen(pkillcmd)
     
-#-----------------------------------------------------------
-def spawn(cmd, sleepSecs=1):
-    print  cmd
-    pid = subprocess.Popen(cmd)
-
-############################################################
+####################################################################################
+def startUs():
+    '''
+    Call this to start our apps and perform other activities
+    which should take place after the main Qt app has been started.
+    For instance, any object that are created from QThread should be
+    constructed after the main app is running.
+    '''
+    # start up DCPS
+    runDcps()
+    
+    # stop any running eldora applications
+    stopEldoraApps()
+    
+####################################################################################
 #
 # This is where it all happens
 #
@@ -222,19 +266,18 @@ drxrpc = EldoraRPC(drxrpcurl)
 hskprpchost = config.getString('Hksp/HousekeeperRpcHost', 'hskp')
 hskprpcport = config.getInt('Hksp/HousekeeperRpcPort', 60001)
 hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
-hskprpc = EldoraRPC(hskprpcurl)
+#hskprpc = EldoraRPC(hskprpcurl)
 
-# start up DCPS
-runDcps()
-
-# start the eldora applications
-startEldoraApps()
+# save a list of our threads. Logically, we need to keep a
+# global reference to the threads, so that they don't get deleted
+# the functions that create them go out of scope.
+ourThreads = {}
 
 # create the qt application               
 app = QApplication(sys.argv)
 
 # instantiate an Edora controller
-main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status)
+main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status, startUp=startUs)
 main.show()
 
 # start the event loop

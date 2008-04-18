@@ -1,18 +1,26 @@
-import threading
 import os
 import sys
 import time
 import subprocess
 import re
+import PyQt4.QtCore
 
-class SubThread(threading.Thread):
+class EmitterProc(PyQt4.QtCore.QThread):
     '''
-    Spawn a process as a thread, and send the output back
-    to a callback function
+    Spawn a process in a QThread, and emit a signal that
+    contains the text from stdout.
+    A new thread is created, and the specified command is 
+    spawnwed as a subprocess. stdout is monitored, and the
+    returned text is emitted as a SIGNAL(text(), data, color),
+    which can be connected to other Qt slots.
+    Using a QThread allows us to utilize the Qt signal/slot
+    mechanism between threads, and Qt will handle the 
+    thread access control.
     '''
-    def __init__(self, command, callback=None):
-        threading.Thread.__init__(self)
-        self.callback = callback
+    def __init__(self, command, emitText=False, textColor='black'):
+        PyQt4.QtCore.QThread.__init__(self)
+        self.emitText = emitText
+        self.textColor = textColor
         self.command = command
         
     def run(self):
@@ -23,11 +31,10 @@ class SubThread(threading.Thread):
                 if not line:
                     break
                 line = re.sub('\n','',line)
-                if self.callback != None:
-                    self.callback(line)
-                
+                if self.emitText:
+                    self.emit(PyQt4.QtCore.SIGNAL("text"), line, self.textColor)
         except Exception, e:
-            print 'Exception in SubThread.run(): ', e
+            print 'got an exception in ', self, ': ', e
             
 ###############################################################
     @staticmethod

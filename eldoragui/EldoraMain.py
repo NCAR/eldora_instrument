@@ -20,7 +20,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     User actions are connected to the class in the form of callback
     functions specified to the constructor.
     '''
-    def __init__(self, stopFunction=None, restartFunction=None, statusFunction=None, parent=None):
+    def __init__(self, stopFunction=None, restartFunction=None, statusFunction=None, startUp=None, parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
@@ -38,6 +38,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # get our configuration
         config = QtConfig('NCAR', 'EldoraGui')
   
+        # save the startup callback
+        self.startUp = startUp 
         # save the callback function definitions
         self.runcallback = None
         self.statusFunction = statusFunction
@@ -55,6 +57,10 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         
         # initialize disk stats
         self.initDiskStats()
+        
+        # configure log browser
+        self.logBrowser.setLineWrapMode(QTextEdit.NoWrap)
+        self.logCursor = QTextCursor(self.logBrowser.document())
         
         # connect components
         # The stop button
@@ -184,7 +190,13 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 
     #-----------------------------------------------------------    
     def timerEvent(self, event):
-         
+        
+        # execute the startup function
+        if self.startUp != None:
+            self.startUp()
+            # and remove it so that we don't call it again
+            self.startUp = None
+            
         self.dateTimeLabel.setText(asctime(gmtime()))
         self.statusCount = self.statusCount+1
         if self.statusCount >= self.statusPeriod:
@@ -198,6 +210,18 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             	dial = self.diskDials[i]
             	dial.setValue(stats[i][1])
                    
+    #-----------------------------------------------------------    
+    def logText(self, text, color='black'):
+        # make sure that we append to the end
+        self.logCursor.setPosition(QTextCursor.End)
+        html = '<br><font color="' + color + '">' + text + '</font>'
+        self.logBrowser.insertHtml(html)
+        # set the cursor to the beginig of the last line
+        self.logCursor.setPosition(QTextCursor.End)
+        self.logCursor.setPosition(QTextCursor.StartOfLine)
+        # calling ensureCursorVisible() insures that the scrollbars
+        # will scroll to it
+        self.logBrowser.ensureCursorVisible()
                
            
     
