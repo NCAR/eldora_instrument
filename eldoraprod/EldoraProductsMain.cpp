@@ -113,6 +113,7 @@ int main(
         std::cout << "Number of samples: " << n << " (/8:)" << n/8
                 << "  product pulses:" << prodGenerator.numPulses()
                 << "  discards:" << discards[0] << "," << discards[1] << "\n";
+        std::cout.flush();
         
         for (int i = 0; i < 10; i++) {
             sleep(1);

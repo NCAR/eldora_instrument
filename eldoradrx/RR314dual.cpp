@@ -526,6 +526,8 @@ void showStats(runParams& params,
             << std::setprecision(4) << "   t:" << temperature << "C" << "\n\n";
     droppedPulse = 0;
     droppedTS = 0;
+    
+    std::cout.flush();
 }
 
 //////////////////////////////////////////////////////////////////////
