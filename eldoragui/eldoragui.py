@@ -140,7 +140,7 @@ def runDcps():
             return
         else:
             pkill('DCPSInfoRepo')
-
+            
     # start a new instance
     dcpscmd = [
         ddsRoot + '/bin/DCPSInfoRepo',
@@ -276,6 +276,22 @@ hskprpchost = config.getString('Hksp/HousekeeperRpcHost', 'hskp')
 hskprpcport = config.getInt('Hksp/HousekeeperRpcPort', 60001)
 hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
 #hskprpc = EldoraRPC(hskprpcurl)
+
+ldLibraryPath = os.getenv('LD_LIBRARY_PATH')
+if ldLibraryPath == None:
+    # it has been stripped by kde!
+    ldLibraryPath = ''
+    ldLibraryPath = ldLibraryPath + os.getenv('ACE_ROOT') + '/lib' + ':'
+    ldLibraryPath = ldLibraryPath + os.getenv('TAO_ROOT') + '/lib' + ':'
+    ldLibraryPath = ldLibraryPath + os.getenv('DDS_ROOT') + '/lib' + ':'
+    ldLibraryPath = ldLibraryPath + os.getenv('QTDIR') + '/plugins/designer'
+    try:
+        os.putenv('LD_LIBRARY_PATH', ldLibraryPath)
+        os.environ['LD_LIBRARY_PATH'] = ldLibraryPath
+        print 'put ', ldLibraryPath
+    except Exception, e:
+        print 'Exception ', e
+   
 
 # save a list of our threads. Logically, we need to keep a
 # global reference to the threads, so that they don't get deleted
