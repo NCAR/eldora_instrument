@@ -2,13 +2,13 @@ from xmlrpclib import *
 import PyQt4.QtCore
 
 class EldoraRPC(PyQt4.QtCore.QThread):
-    def __init__(self, URI):
+    def __init__(self, appName, URI):
         PyQt4.QtCore.QThread.__init__(self)
+        self.appName = appName
         self.URI = URI
         
     def run(self):
         self.server = ServerProxy(self.URI)
-        print 'EldoraRPC for ', self.URI
         
     def listMethods(self):
         # can throw an exception if the server 

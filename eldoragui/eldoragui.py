@@ -13,6 +13,19 @@ from QtConfig       import *
 from EmitterProc    import *
 
 ####################################################################################
+
+# Global variiables
+
+global eldoraDir    # used to find eldora application binaries
+global ddsRoot      # used to locate DCPSInforepo
+global ddsConfigDir # location of the DDS configuration files (for DDS apps)
+global ourConfig    # the EldoraGui.ini configuration
+global drxrpc       # RPC server for eldoradrx
+global hskprpc      # RPC server for the housekeeper
+global prodrpc      # RPC server for the products generator
+global ourProcesses # Process that we have started and are managing
+
+####################################################################################
 def restart():
     try:
         # send a stop and a start comand, although these may not
@@ -48,6 +61,14 @@ def status():
     ''' query the eldora applications for status, and transmit this
     status back to the main application.
     '''
+    global drxrpc
+    global prodrpc
+
+    try:
+        r = prodrpc.status()
+    except Exception, e:
+        print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
+        
     try:
        r = drxrpc.status()
        keys = sorted(r.keys())
@@ -58,7 +79,7 @@ def status():
           rates.append(r[k]*1000.0)
           i = i + 1
     except Exception, e:
-        print "Error trying to contact ", drxrpc, '(', drxrpc.URI, '): ', e
+        print "Error trying to contact ", drxrpc.appName, '(', drxrpc.URI, '): ', e
         rates = []
         for i in range(16):
             rates.append(0)
@@ -128,11 +149,14 @@ def runDcps():
     
     If Dcps/AutoRestartDcps
     '''
-    runDcps = config.getBool('Dcps/RunDcps', True)
+    global ourConfig
+    global ourProcesses
+
+    runDcps = ourConfig.getBool('Dcps/RunDcps', True)
     if  not runDcps:
         return
     
-    restart = config.getBool('Dcps/AutoRestartDcps', False)
+    restart = ourConfig.getBool('Dcps/AutoRestartDcps', False)
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
@@ -150,8 +174,8 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', conf + '/DDSDomainIds.conf'
         ]
-    ourThreads['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, textColor='purple')
-    s = ourThreads['DCPSInfoRepo']
+    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, textColor='purple')
+    s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
     time.sleep(1)
@@ -163,7 +187,10 @@ def runDrx():
     
     The configuration is hecked to see if Products/RunDrx is true.
     '''
-    doDrx = config.getBool('Drx/RunDrx', True)
+    global ourConfig
+    global ourProcesses
+
+    doDrx = ourConfig.getBool('Drx/RunDrx', True)
     if not doDrx:
         return
     
@@ -175,20 +202,20 @@ def runDrx():
     # start a new instance
     drxcmd = [
            eldoraDir + '/eldoradrx/eldoradrx',
-           '--ORB', conf + '/ORBSvc.conf',
-           '--DCPS', conf + '/DDSClient.ini',
+           '--ORB', ddsConfigDir + '/ORBSvc.conf',
+           '--DCPS', ddsConfigDir + '/DDSClient.ini',
            '--start0',
            '--start1',
            '--pub',
            ]
-    drxSimMode = config.getBool('Drx/DrxSimMode', False)
+    drxSimMode = ourConfig.getBool('Drx/DrxSimMode', False)
     if drxSimMode:
         drxcmd.append('--sim')
-    drxInternalTimer = config.getBool('Drx/DrxInternalTimer', False)
+    drxInternalTimer = ourConfig.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
-    ourThreads['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, textColor='blue')
-    s = ourThreads['eldoradrx']
+    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, textColor='blue')
+    s = ourProcesses['eldoradrx']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     time.sleep(1)
@@ -200,7 +227,10 @@ def runProducts():
     
     The configuration is checked to see if Products/RunProducts is true.
     '''
-    doProducts = config.getBool('Products/RunProducts', True)
+    global ourConfig
+    global ourProcesses
+    
+    doProducts = ourConfig.getBool('Products/RunProducts', True)
     if  not doProducts:
         return
     
@@ -211,8 +241,8 @@ def runProducts():
     
     # start a new instance
     productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
-    ourThreads['eldoraprod'] = EmitterProc(productscmd, emitText=True, textColor='red')
-    s = ourThreads['eldoraprod']
+    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, textColor='red')
+    s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     
@@ -267,6 +297,52 @@ def fixLdLibraryPath():
             print 'Exception ', e
     
 ####################################################################################
+def initConfig():
+    ''' Create the configuratiuon and set the path variables
+    '''
+    global ourConfig
+    # get our configuration
+    ourConfig = QtConfig('NCAR', 'EldoraGui')
+    
+    # where do the apps live?
+    global eldoraDir
+    eldoraDir = os.environ['ELDORADIR']
+    
+    # where is DCPSInfoRepo
+    global ddsRoot
+    ddsRoot = os.environ['DDS_ROOT']
+    
+    # where are the DDS configuration files?
+    global ddsConfigDir
+    ddsConfigDir = eldoraDir + '/conf'
+
+####################################################################################
+def createRpcServers():
+    global ourConfig
+    
+    # create the rpc for the drx
+    drxrpchost = ourConfig.getString('Drx/DrxHost', 'drx')
+    drxrpcport = ourConfig.getInt('Drx/DrxRpcPort', 60000)
+    drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
+    global drxrpc
+    drxrpc = EldoraRPC('drx', drxrpcurl)
+    
+    # create the rpc for the housekeeper
+    hskprpchost = ourConfig.getString('Hksp/HousekeeperHost', 'hskp')
+    hskprpcport = ourConfig.getInt('Hksp/HousekeeperRpcPort', 60001)
+    hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
+    global hskprpc
+    hskprpc = EldoraRPC('hskp', hskprpcurl)
+    
+    # create the rpc for the products generator
+    prodrpchost = ourConfig.getString('Products/ProductsHost', 'archiver')
+    prodrpcport = ourConfig.getInt('Products/ProductsRpcPort', 60002)
+    prodrpcurl = 'http://' + prodrpchost + ':' + str(prodrpcport)
+    global prodrpc
+    prodrpc = EldoraRPC('products', prodrpcurl)
+
+    
+####################################################################################
 #
 # This is where it all happens
 #
@@ -274,33 +350,14 @@ def fixLdLibraryPath():
 # make sure that LD_LIBRARY_PATH is available (kde sometimes strips it)
 fixLdLibraryPath()
 
-# get our configuration
-config = QtConfig('NCAR', 'EldoraGui')
+# save a list of our processes. 
+ourProcesses = {}
 
-# where do the apps live?
-eldoraDir = os.environ['ELDORADIR']
-ddsRoot = os.environ['DDS_ROOT']
+# initialialize path variables and our configuration
+initConfig()
 
-# where are the DDS configuration files?
-conf = eldoraDir + '/conf'
-
-# create the rpc for the drx
-drxrpchost = config.getString('Drx/DrxRpcHost', 'drx')
-drxrpcport = config.getInt('Drx/DrxRpcPort', 60000)
-drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
-drxrpc = EldoraRPC(drxrpcurl)
-
-# create the rpc for the housekeeper
-hskprpchost = config.getString('Hksp/HousekeeperRpcHost', 'hskp')
-hskprpcport = config.getInt('Hksp/HousekeeperRpcPort', 60001)
-hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
-hskprpc = EldoraRPC(hskprpcurl)
-
-
-# save a list of our threads. Logically, we need to keep a
-# global reference to the threads, so that they don't get deleted
-# the functions that create them go out of scope.
-ourThreads = {}
+# create the RPC servers for all applications
+createRpcServers()
 
 # create the qt application               
 app = QApplication(sys.argv)
