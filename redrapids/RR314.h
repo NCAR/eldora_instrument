@@ -59,7 +59,7 @@ struct RRBuffer {
 	unsigned int prtId;
 	/// The ray number
 	unsigned int rayNum;
-	/// The time for this ray (end of the integration period).
+	/// The time for this ray (middle of the integration period).
     boost::posix_time::ptime rayTime;
 	/// The type of derived class
 	enum {IQtype, ABPtype} type;
