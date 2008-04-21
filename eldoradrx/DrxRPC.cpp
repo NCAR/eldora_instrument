@@ -71,8 +71,6 @@ void DrxRPC::shutdown(XmlRpc::XmlRpcValue& params,
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::status(XmlRpc::XmlRpcValue& params,
                     XmlRpc::XmlRpcValue& result) {
-    std::cout << "status received\n";
-
     XmlRpc::XmlRpcValue retval;
 
     // get the current byte counts from the board
