@@ -17,6 +17,7 @@ rt
 env.Append(LIBS = libs)
 
 sources = Split('''
+main.cpp
 EldoraProductsMain.cpp
 EldoraProducts.cpp
 ProductsPulseReader.cpp
