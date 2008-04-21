@@ -5,8 +5,8 @@
 // For configuration management
 #include "QtConfig.h"
 
-// To get the DDSSubscriber and Pulsereader definitions
-#include "ProductsPulseReader.h"
+// To get the DDSSubscriber and Rayreader definitions
+#include "ProductsRayReader.h"
 
 // To get the DDSPublisher definition
 #include "DDSPublisher.h"
@@ -19,8 +19,7 @@
 #include "SignalCatcher.h"
 
 namespace po = boost::program_options;
-
-void EldoraProductsMain::parseArgs(std::string& pulseTopic,
+void EldoraProductsMain::parseArgs(std::string& rayTopic,
                                    std::string& productsTopic,
                                    std::string& ORB,
                                    std::string& DCPS) {
@@ -28,8 +27,8 @@ void EldoraProductsMain::parseArgs(std::string& pulseTopic,
     // get the options
     po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") ("pulsetopic",
-                                                          po::value<std::string>(&pulseTopic), "DDS pulse topic")
+    descripts.add_options() ("help", "describe options") ("raytopic",
+                                                          po::value<std::string>(&rayTopic), "DDS ray topic")
     ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -64,7 +63,7 @@ int EldoraProductsMain::run() {
     SignalCatcher::instance()->configure(&sigNumber);
 
     QtConfig config("NCAR", "EldoraProd");
-    std::string pulseTopic;
+    std::string rayTopic;
     std::string productsTopic;
     std::string ORB;
     std::string DCPS;
@@ -82,10 +81,10 @@ int EldoraProductsMain::run() {
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     DCPS = config.getString("DCPSConfigFile", dcpsFile);
 
-    pulseTopic = config.getString("TopicPulse", "EldoraPulses");
+    rayTopic = config.getString("TopicRay", "EldoraRays");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(pulseTopic, productsTopic, ORB, DCPS);
+    parseArgs(rayTopic, productsTopic, ORB, DCPS);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -111,12 +110,12 @@ int EldoraProductsMain::run() {
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource
-    ProductsPulseReader abpSource(subscriber, pulseTopic, prodGenerator);
+    ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator);
 
     while (1) {
         _numAbpBeams = abpSource.numSamples();
         _numAbpDiscards = abpSource.discards();
-        _numProductBeams = prodGenerator.numPulses();
+        _numProductBeams = prodGenerator.numRays();
 
         std::cout << "ABP beams: " << _numAbpBeams << " (/8:)" << _numAbpBeams
                 /8 << "  Product beams:" << _numProductBeams << " (/2:)"

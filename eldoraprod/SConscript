@@ -1,10 +1,9 @@
 import os
-tools = ['ddssvc', 'qtt_qtconfig', 'utilities', 'deploy']
+tools = ['ddssvc', 'qtt_qtconfig', 'utilities', 'deploy', 'boost_program_options']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
 libs = Split("""
-boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
@@ -20,8 +19,8 @@ sources = Split('''
 main.cpp
 EldoraProductsMain.cpp
 EldoraProducts.cpp
-ProductsPulseReader.cpp
-PulseCollator.cpp
+ProductsRayReader.cpp
+RayCollator.cpp
 ProductsRPC.cpp
 ''')
 

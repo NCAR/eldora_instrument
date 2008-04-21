@@ -8,12 +8,18 @@ typedef sequence<short> TS;
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
 #pragma DCPS_DATA_KEY  "EldoraDDS::TimeSeries radarId"
 
+/// test class for housekeeping data
+  typedef struct housekeeping_ {
+      float azimuth;
+      float elevation;
+  } Housekeeping;
+  
 /// TimeSeries carries I and Q pairs for a limited number 
-/// of consecutive gates, for 4 frequencies, for one radar.
-/// The packing order is [freq][gate][I,Q]
+/// of consecutive gates, for nci samples, for one radar.
+/// The packing order is [sample][gate][I,Q]
   struct TimeSeries {
     RadarChoice radarId;
-    long long timestamp;
+    long long rayNum;
     float prfSeconds;
     float azDegrees;
     long nci;
@@ -23,15 +29,15 @@ typedef sequence<short> TS;
   };
 
 
-#pragma DCPS_DATA_TYPE "EldoraDDS::Pulse"
-#pragma DCPS_DATA_KEY  "EldoraDDS::Pulse radarId"
+#pragma DCPS_DATA_TYPE "EldoraDDS::Ray"
+#pragma DCPS_DATA_KEY  "EldoraDDS::Ray radarId"
 
-/// Pulse contains A,B,P triples for all gates in a single radar beam.
+/// Ray contains A,B,P triples for all gates in a single radar beam.
 /// The packing order is [gate][A,B,P]
 ///
-  struct Pulse {
+  struct Ray {
     RadarChoice radarId;
-    long long timestamp;
+    long long rayNum;
     float prfSeconds;
     float elDegrees;
     float powerDbm;
@@ -50,10 +56,12 @@ typedef sequence<short> TS;
 /// The products are scaled to fit within a 16 bit 
 /// value, in order to reduce the overall system bandwidth.
 /// The gain and offset numbers are used to scale the
-/// original input value for translation to 16 bites, and 
+/// original input value for translation to 16 bits, and 
 /// then unscale the values by the consumer.
   struct Products {
     RadarChoice radarId;
+    Housekeeping hskp;
+    /// microseconds since 1 Jan 1970 00:00:00 UTC
     long long timestamp;
     float prfSeconds;
     float elDegrees;
@@ -104,16 +112,4 @@ typedef sequence<short> TS;
     Product ncp;
   };
 
-#pragma DCPS_DATA_TYPE "EldoraDDS::HouseKeeping"
-#pragma DCPS_DATA_KEY  "EldoraDDS::HouseKeeping radarId"
-
-/// Housekeeping is not used yet, but it is probable that we 
-/// will need something like this.
-  struct HouseKeeping {
-    RadarChoice radarId;
-    long long timestamp;
-    float pitch;
-    float roll;
-    float yaw;
-  };
 };

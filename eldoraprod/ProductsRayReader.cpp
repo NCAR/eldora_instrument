@@ -1,11 +1,11 @@
-#include "ProductsPulseReader.h"
+#include "ProductsRayReader.h"
 #include <iostream>
 /////////////////////////////////////////////////////////////////////
-ProductsPulseReader::ProductsPulseReader(
+ProductsRayReader::ProductsRayReader(
         DDSSubscriber& subscriber,
             std::string abpTopic,
             EldoraProducts& consumer) :
-    PulseReader(subscriber, abpTopic), _consumer(consumer),
+    RayReader(subscriber, abpTopic), _consumer(consumer),
             _collectorFore(EldoraDDS::Forward), _collectorAft(EldoraDDS::Aft) {
     // save references to both collectors
     _collectors.push_back(&_collectorFore);
@@ -13,48 +13,48 @@ ProductsPulseReader::ProductsPulseReader(
 }
 
 /////////////////////////////////////////////////////////////////////
-ProductsPulseReader::~ProductsPulseReader() {
+ProductsRayReader::~ProductsRayReader() {
     std::cout << __FUNCTION__ << " destructor\n";
 }
 
 /////////////////////////////////////////////////////////////////////
-void ProductsPulseReader::notify() {
-    while (Pulse* pPulse = getNextItem()) {
+void ProductsRayReader::notify() {
+    while (Ray* pRay = getNextItem()) {
 
-        // give the pulse to the fore or aft collector.
+        // give the ray to the fore or aft collector.
         // One of them should accept it. If not,
     	// we have problems (probably a corrupted
     	// radarId.
-        if (!_collectorFore.addPulse(pPulse)) {
-        	if (!_collectorAft.addPulse(pPulse)) {
-        		// neither collector wanted the pulse!
-        		returnItem(pPulse);
+        if (!_collectorFore.addRay(pRay)) {
+        	if (!_collectorAft.addRay(pRay)) {
+        		// neither collector wanted the ray!
+        		returnItem(pRay);
         	}
         }
 
-        // now process any forward and aft quad pulses that are available 
+        // now process any forward and aft quad rays that are available 
         for (unsigned int c = 0; c < _collectors.size(); c++) {
-            PulseCollator* collector = _collectors[c];
+            RayCollator* collector = _collectors[c];
 
-            // Do we have four pulses? 
-            std::vector<EldoraDDS::Pulse*> pulses = collector->pulsesReady();
-            if (pulses.size() == 4) {
+            // Do we have four rays? 
+            std::vector<EldoraDDS::Ray*> rays = collector->raysReady();
+            if (rays.size() == 4) {
                 // Send them to the consumer.
-                _consumer.newPulseData(pulses);
+                _consumer.newRayData(rays);
                 // we are finished with the current collector crop
                 for (unsigned int i = 0; i < 4; i++)
-                	returnItem(pulses[i]);
+                	returnItem(rays[i]);
             }
-            // return pulses that the collected detected as out of sequence
-            while (EldoraDDS::Pulse* p = collector->finishedPulse()) {
-                // return the finished pulses to DDS
+            // return rays that the collected detected as out of sequence
+            while (EldoraDDS::Ray* p = collector->finishedRay()) {
+                // return the finished rays to DDS
                 returnItem(p);
             }
         } // for collectors
     } // while getNextItem()
 }
 /////////////////////////////////////////////////////////////////////
-std::vector<int> ProductsPulseReader::discards() {
+std::vector<int> ProductsRayReader::discards() {
     std::vector<int> n;
     n.resize(2);
     n[0] = _collectorFore.discards();

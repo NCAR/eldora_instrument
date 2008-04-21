@@ -27,7 +27,7 @@ class EldoraProductsMain {
         void status(int& numAbpBeams, int& numProductBeams, int &discardBeamsFor, int &discardBeamsAft);
 
     protected:
-        void parseArgs(std::string& pulseTopic,
+        void parseArgs(std::string& rayTopic,
                        std::string& productsTopic,
                        std::string& ORB,
                        std::string& DCPS);

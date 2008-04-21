@@ -16,10 +16,10 @@ template<class T> TestReader<T>::~TestReader() {
 
 // Specializations for our data types.
 
-template<> void TestReader<PulseReader>::notify() {
-	while (Pulse* pItem = TestReader<PulseReader>::getNextItem()) {
+template<> void TestReader<RayReader>::notify() {
+	while (Ray* pItem = TestReader<RayReader>::getNextItem()) {
 		_numBytes += pItem->abp.length()*sizeof(pItem->abp[0]);
-		TestReader<PulseReader>::returnItem(pItem);
+		TestReader<RayReader>::returnItem(pItem);
 	}
 }
 
@@ -38,5 +38,5 @@ template<class T> unsigned long TestReader<T>::numBytes() {
 }
 
 // instantiate for the types that we need
-template class TestReader<PulseReader>;
+template class TestReader<RayReader>;
 template class TestReader<TSReader>;

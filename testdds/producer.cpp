@@ -9,7 +9,7 @@ namespace po = boost::program_options;
 int main(int argc, char* argv[])
   {
 
-    std::string pulseTopic;
+    std::string rayTopic;
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 
     descripts.add_options() ("help", "describe options") ("delta",
         po::value<int>(&delta)->default_value(50000), "publish delta (uSecs)") (
-        "pulsetopic", po::value<std::string>(&pulseTopic), "DDS pulse topic")
+        "raytopic", po::value<std::string>(&rayTopic), "DDS ray topic")
         ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
         ("ORB", po::value<std::string>(&ORB),"ORB service configuration file (Corba ORBSvcConf arg)")
         ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, descripts), vm);
         po::notify(vm);
 
-        if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS") || !vm.count("pulsetopic") || !vm.count("tstopic"))
+        if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS") || !vm.count("raytopic") || !vm.count("tstopic"))
           {
             std::cout << descripts << "\n";
             exit(1);
@@ -55,55 +55,55 @@ int main(int argc, char* argv[])
             return pubStatus;
           }
 
-        PulseWriter pulseWriter(publisher, pulseTopic);
+        RayWriter rayWriter(publisher, rayTopic);
         TSWriter tsWriter(publisher, tsTopic);
 
-        // number of ts writes per pulse writes
+        // number of ts writes per ray writes
         int tsWrites = 1;
-        // pulse counter
-        int numPulses = 0;
-        // gates in each pulse
+        // ray counter
+        int numRays = 0;
+        // gates in each ray
         int gates = 1000;
         // iq pairs in each timeseries
         int numiq = 1000;
         // a timestamp
         unsigned long timestamp = 0;
 
-        while ( !pulseWriter.is_finished())
+        while ( !rayWriter.is_finished())
           {
             for (int i = 0; i < 5; i++)
               {
-                /////////// Pulses //////////////
+                /////////// Rays //////////////
 
                   {
-                    while (!pulseWriter.itemsAvailable())
+                    while (!rayWriter.itemsAvailable())
                       {
                         ACE_OS::sleep(small);
                       }
 
-                    EldoraDDS::Pulse* pPulse;
-                    // get an available empty pulse from the publisher
-                    pPulse = pulseWriter.getEmptyItem();
-                    pPulse->abp.length(3*gates);
+                    EldoraDDS::Ray* pRay;
+                    // get an available empty ray from the publisher
+                    pRay = rayWriter.getEmptyItem();
+                    pRay->abp.length(3*gates);
 
-                    // bump the timestamp on alternating pulses
+                    // bump the timestamp on alternating rays
                     // so that forward and aft share a common timestamp
-                    timestamp += (numPulses % 2);
-                    numPulses++;
+                    timestamp += (numRays % 2);
+                    numRays++;
 
                     for (int n = 0; n < 3*gates; n += 3)
                       {
-                        pPulse->abp[n ] = timestamp + n;
-                        pPulse->abp[n+1] = timestamp + n+1;
-                        pPulse->abp[n+2] = timestamp + n+2;
+                        pRay->abp[n ] = timestamp + n;
+                        pRay->abp[n+1] = timestamp + n+1;
+                        pRay->abp[n+2] = timestamp + n+2;
                       }
 
                     // set the timestamp
-                    pPulse->timestamp = timestamp;
+                    pRay->rayNum = timestamp;
                     // alternate the radar id between forward and aft
-                    pPulse->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
-                    // send the pulse to the PulseWriter
-                    pulseWriter.publishItem(pPulse);
+                    pRay->radarId = (numRays % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
+                    // send the ray to the RayWriter
+                    rayWriter.publishItem(pRay);
                   }
 
                 /////////// TimeSeries //////////////
@@ -116,17 +116,17 @@ int main(int argc, char* argv[])
                             ACE_OS::sleep(small);
                           }
                         EldoraDDS::TimeSeries* pTS;
-                        // get an available empty pulse from the publisher
+                        // get an available empty ray from the publisher
                         pTS = tsWriter.getEmptyItem();
                         pTS->tsdata.length(2*numiq);
 
                         // don't set any data values right now
 
                         // set the timestamp
-                        pTS->timestamp = timestamp;
+                        pTS->rayNum = timestamp;
                         // alternate the radar id between forward and aft
-                        pTS->radarId = (numPulses % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
-                        // send the pulse to the PulseWriter
+                        pTS->radarId = (numRays % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
+                        // send the ray to the RayWriter
                         tsWriter.publishItem(pTS);
                       }
                   }

@@ -267,6 +267,6 @@ template<READERSIG1> void DDSReader<READERSIG2>::notify() {
 
 /// @todo These instantiations really belong somewhere else
 using namespace EldoraDDS;
-template class DDSReader<READERSIG(Pulse)>;
+template class DDSReader<READERSIG(Ray)>;
 template class DDSReader<READERSIG(TimeSeries)>;
 template class DDSReader<READERSIG(Products)>;

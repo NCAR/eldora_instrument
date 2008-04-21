@@ -132,15 +132,15 @@ private:
 	
 };
 
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
+#include "RayTypeSupportC.h"
+#include "RayTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 #include "ProductsTypeSupportC.h"
 #include "ProductsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
-typedef DDSReader<READERSIG(Pulse)> PulseReader;
+typedef DDSReader<READERSIG(Ray)> RayReader;
 typedef DDSReader<READERSIG(TimeSeries)> TSReader;
 typedef DDSReader<READERSIG(Products)> ProductsReader;
 

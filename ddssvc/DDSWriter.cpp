@@ -264,9 +264,9 @@ DDSWriter<WRITERSIG2>::publish(
 /// @todo These instantiations really belong somewhere else
 
 using namespace EldoraDDS;
-template class DDSWriter<Pulse, PulseTypeSupportImpl,
-PulseTypeSupport_var, PulseDataWriter,
-PulseDataWriter_var>;
+template class DDSWriter<Ray, RayTypeSupportImpl,
+RayTypeSupport_var, RayDataWriter,
+RayDataWriter_var>;
 
 template class DDSWriter<TimeSeries, TimeSeriesTypeSupportImpl,
 TimeSeriesTypeSupport_var, TimeSeriesDataWriter,

@@ -2,12 +2,12 @@
 #define READER_H_
 
 #include "DDSReader.h"
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
+#include "RayTypeSupportC.h"
+#include "RayTypeSupportImpl.h"
 using namespace EldoraDDS;
 
 /// A templatized class derived from DDSreader based
-/// classes such as PulseReader and TSReader. This
+/// classes such as RayReader and TSReader. This
 /// class simply collects and reports statistics 
 /// about the received sample stream from the given
 /// topic.

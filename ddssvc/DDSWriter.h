@@ -129,16 +129,16 @@ private:
 
 // create typedefs for our common types. 
 /// @todo These typedefs really belong somewhere else.
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
+#include "RayTypeSupportC.h"
+#include "RayTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 #include "ProductsTypeSupportC.h"
 #include "ProductsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
-/// A DDSWriter for the Pulse data type.
-typedef DDSWriter<WRITERSIG(Pulse)> PulseWriter;
+/// A DDSWriter for the Ray data type.
+typedef DDSWriter<WRITERSIG(Ray)> RayWriter;
 /// A DDSWriter for the TS data type.
 typedef DDSWriter<WRITERSIG(TimeSeries)> TSWriter;
 /// A DDSWriter for the Products data type.

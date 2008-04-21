@@ -19,8 +19,8 @@
 #include "DDSPublisher.h"
 #include "DDSWriter.h"
 
-#include "PulseTypeSupportC.h"
-#include "PulseTypeSupportImpl.h"
+#include "RayTypeSupportC.h"
+#include "RayTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
 
@@ -76,9 +76,9 @@ struct runParams {
         std::string ORB; ///< path to the ORB configuration file.
         std::string DCPS; ///< path to the DCPS configuration file.
         unsigned long* droppedTS; ///< the number of TS samples that could not be published.
-        unsigned long* droppedPulse; ///< the number of Pulse samples that could not be published.
+        unsigned long* droppedRay; ///< the number of Ray samples that could not be published.
         DDSPublisher* publisher; ///< the DDS publisher.
-        PulseWriter* pulseWriter; ///< the DDS pulse writer.
+        RayWriter* rayWriter; ///< the DDS ray writer.
         TSWriter* tsWriter; ///< the DDS TS writer.
         int rpcPort; ///< the rpc port number
 };
@@ -274,7 +274,7 @@ static void * dataTask(void* threadArg) {
     bool publish = pParams->publish;
     bool capture = pParams->capture;
     bool textcapture = pParams->textcapture;
-    PulseWriter* pulseWriter = pParams->pulseWriter;
+    RayWriter* rayWriter = pParams->rayWriter;
     TSWriter* tsWriter = pParams->tsWriter;
 
     float elevation[4] =
@@ -308,37 +308,37 @@ static void * dataTask(void* threadArg) {
             // send the buffer to the appropriate writer
             if (pBuf->type == RRBuffer::ABPtype) {
                 // an abp dmaChan
-                EldoraDDS::Pulse* pPulse = pulseWriter->getEmptyItem();
-                if (pPulse) {
+                EldoraDDS::Ray* pRay = rayWriter->getEmptyItem();
+                if (pRay) {
                     // device 0 is the aft radar, 1 is fore
-                    pPulse->radarId =
+                    pRay->radarId =
                     (pParams->deviceNumber == 0) ?
                     EldoraDDS::Forward : EldoraDDS::Aft;
 
                     RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
                     // set the size
-                    pPulse->abp.length(pABP->_abp.size());
+                    pRay->abp.length(pABP->_abp.size());
 
                     // simulate the elevation
                     elevation[channel/2] += 0.90;
                     if (elevation[channel/2] >= 360.0)
                     elevation[channel/2] -= 360.0;
-                    pPulse->elDegrees = elevation[channel/2];
+                    pRay->elDegrees = elevation[channel/2];
 
-                    pPulse->nci = pABP->nci;
-                    pPulse->chan = pABP->chanId;
+                    pRay->nci = pABP->nci;
+                    pRay->chan = pABP->chanId;
                     for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
                         float data = pABP->_abp[p];
-                        pPulse->abp[p] = data;
+                        pRay->abp[p] = data;
                     }
                     // set the timestamp
-                    pPulse->timestamp = pABP->rayNum;
+                    pRay->rayNum = pABP->rayNum;
 
-                    // send the pulse to the pulse publisher
-                    pulseWriter->publishItem(pPulse);
+                    // send the ray to the ray publisher
+                    rayWriter->publishItem(pRay);
                 } else {
-                    pParams->droppedPulse++;
-                    //std::cout << "can't get publisher pulse\n";
+                    pParams->droppedRay++;
+                    //std::cout << "can't get publisher ray\n";
                 }
             } else {
                 // a time series dmaChan
@@ -354,12 +354,12 @@ static void * dataTask(void* threadArg) {
                         pTS->tsdata[p] = pIQ->_iq[p];
                     }
                     // set the timestamp
-                    pTS->timestamp = pIQ->rayNum;
+                    pTS->rayNum = pIQ->rayNum;
                     // device 0 is the aft radar, 1 is fore
                     pTS->radarId =
                     (pParams->deviceNumber == 0) ?
                     EldoraDDS::Forward : EldoraDDS::Aft;
-                    // send the pulse to the pulde publisher
+                    // send the ray to the ray publisher
                     tsWriter->publishItem(pTS);
                 } else {
                     pParams->droppedTS++;
@@ -486,7 +486,7 @@ static void* hskpReadTask(void* threadArg) {
 
 void showStats(runParams& params,
                RR314& rr314,
-               unsigned long& droppedPulse,
+               unsigned long& droppedRay,
                unsigned long& droppedTS,
                int loopCount) {
     // get the current temperature
@@ -521,10 +521,10 @@ void showStats(runParams& params,
     }
     std::cout << "\n";
     std::cout << "free IQ:" << rr314.numFreeIQBuffers() << "   free ABP:"
-            << rr314.numFreeABPBuffers() << "   dropped pulses:"
-            << droppedPulse << "   dropped TS:" << droppedTS
+            << rr314.numFreeABPBuffers() << "   dropped rays:"
+            << droppedRay << "   dropped TS:" << droppedTS
             << std::setprecision(4) << "   t:" << temperature << "C" << "\n";
-    droppedPulse = 0;
+    droppedRay = 0;
     droppedTS = 0;
     
     std::cout.flush();
@@ -568,9 +568,9 @@ int main(int argc,
                 params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
                 params1.publisher = params0.publisher;
 
-                // create the pulse writer
-                params0.pulseWriter = new PulseWriter(*params0.publisher, "EldoraPulses");
-                params1.pulseWriter = params0.pulseWriter;
+                // create the ray writer
+                params0.rayWriter = new RayWriter(*params0.publisher, "EldoraRays");
+                params1.rayWriter = params0.rayWriter;
 
                 // create the time series writer
                 params0.tsWriter = new TSWriter(*params0.publisher, "EldoraTS");
@@ -632,11 +632,11 @@ int main(int argc,
                 params1.pRR314 = &rr314_1;
 
                 // also tell it where to put dropped dds counters
-                unsigned long droppedPulse[2];
+                unsigned long droppedRay[2];
                 unsigned long droppedTS[2];
 
-                params0.droppedPulse = &droppedPulse[0];
-                params0.droppedPulse = &droppedPulse[1];
+                params0.droppedRay = &droppedRay[0];
+                params0.droppedRay = &droppedRay[1];
 
                 params1.droppedTS = &droppedTS[0];
                 params1.droppedTS = &droppedTS[1];
@@ -704,8 +704,8 @@ int main(int argc,
                 // periodically display the card activity.
                 while(1)
                 {
-                    showStats(params0, rr314_0, droppedPulse[0], droppedTS[0], loopCount);
-                    showStats(params1, rr314_1, droppedPulse[1], droppedTS[1], loopCount);
+                    showStats(params0, rr314_0, droppedRay[0], droppedTS[0], loopCount);
+                    showStats(params1, rr314_1, droppedRay[1], droppedTS[1], loopCount);
                     loopCount++;
                     for (int i = 0; i < 10; i++) {
                         if (_terminate)

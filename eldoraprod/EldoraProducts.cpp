@@ -7,8 +7,8 @@
 EldoraProducts::EldoraProducts(
         DDSPublisher& publisher,
             std::string productsTopic) :
-    _pulses(0), _publisher(publisher), _productsTopic(productsTopic),
-            _productsWriter(publisher, productsTopic), _droppedPulses(0) {
+    _rays(0), _publisher(publisher), _productsTopic(productsTopic),
+            _productsWriter(publisher, productsTopic), _droppedRays(0) {
             
 }
 
@@ -18,12 +18,12 @@ EldoraProducts::~EldoraProducts() {
 }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::newPulseData(
-        std::vector<EldoraDDS::Pulse*>& pulses) {
+void EldoraProducts::newRayData(
+        std::vector<EldoraDDS::Ray*>& rays) {
 
-    _pulses++;
+    _rays++;
 
-    // We have four matched pulses. 
+    // We have four matched rays. 
     Products* products = _productsWriter.getEmptyItem();
     if (products) {
         
@@ -31,13 +31,13 @@ void EldoraProducts::newPulseData(
         initProducts(products);
         
         // transfer beam metadata
-        products->radarId = pulses[0]->radarId;
-        products->timestamp = pulses[0]->timestamp;
-        products->elDegrees = pulses[0]->elDegrees;
+        products->radarId = rays[0]->radarId;
+        products->timestamp = rays[0]->rayNum;
+        products->elDegrees = rays[0]->elDegrees;
         
-        // The abp pulses are three times as long as the
+        // The abp rays are three times as long as the
         // product beams. 
-        int productsLength = pulses[0]->abp.length()/3;
+        int productsLength = rays[0]->abp.length()/3;
         // Resize the beam lengths.
         products->p1.length(productsLength);
         products->p2.length(productsLength);
@@ -58,7 +58,7 @@ void EldoraProducts::newPulseData(
             // dbz.
             double dbz = 0.0;
             for (unsigned int f = 0; f < 4; f++) {
-                dbz += pulses[f]->abp[p+2];
+                dbz += rays[f]->abp[p+2];
             }
             
             products->dm[i] = TOSHORT(dbz/(((i+1.0)*(i+1.0))/100.0), products->dmGain, products->dmOffset);
@@ -69,17 +69,17 @@ void EldoraProducts::newPulseData(
             if (products->radarId == EldoraDDS::Aft) {
 				if (i >= 45 && i <= 60) {
 					std::cout << "ABP[2][" << i << "] "
-					<< pulses[0]->abp[p+2] << " "
-					<< pulses[1]->abp[p+2] << " "
-					<< pulses[2]->abp[p+2] << " "
-					<< pulses[3]->abp[p+2] << "\n";
+					<< rays[0]->abp[p+2] << " "
+					<< rays[1]->abp[p+2] << " "
+					<< rays[2]->abp[p+2] << " "
+					<< rays[3]->abp[p+2] << "\n";
 				}
 			}
 			**/
-            products->p1[i] = TOSHORT(pulses[0]->abp[p+2], products->p1Gain, products->p1Offset);
-            products->p2[i] = TOSHORT(pulses[1]->abp[p+2], products->p2Gain, products->p2Offset);
-            products->p3[i] = TOSHORT(pulses[2]->abp[p+2], products->p3Gain, products->p3Offset);
-            products->p4[i] = TOSHORT(pulses[3]->abp[p+2], products->p4Gain, products->p4Offset);
+            products->p1[i] = TOSHORT(rays[0]->abp[p+2], products->p1Gain, products->p1Offset);
+            products->p2[i] = TOSHORT(rays[1]->abp[p+2], products->p2Gain, products->p2Offset);
+            products->p3[i] = TOSHORT(rays[2]->abp[p+2], products->p3Gain, products->p3Offset);
+            products->p4[i] = TOSHORT(rays[3]->abp[p+2], products->p4Gain, products->p4Offset);
            
             products->vr[i] = TOSHORT((i-productsLength/2.0), products->vrGain, products->vrOffset);
             products->vs[i] = TOSHORT((i-productsLength/2.0)/10.0, products->vsGain, products->vsOffset);
@@ -91,16 +91,16 @@ void EldoraProducts::newPulseData(
         _productsWriter.publishItem(products);
     } else {
         // Oh no, we couldn't get a free products item, so
-        // we have to ignore this pulse.
-        _droppedPulses++;
+        // we have to ignore this ray.
+        _droppedRays++;
     }
     return;
 }
 ////////////////////////////////////////////////////
 
-int EldoraProducts::numPulses() {
-    int n = _pulses;
-    _pulses = 0;
+int EldoraProducts::numRays() {
+    int n = _rays;
+    _rays = 0;
     return n;
 }
 ////////////////////////////////////////////////////
