@@ -219,7 +219,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         '''
         # make sure that we append to the end
         self.logCursor.setPosition(QTextCursor.End)
-        html = '<br><font color="' + color + '">' + text + '</font>'
+        html = '<font color="' + color + '">' + text + '</font>' + '<br>'
         self.logBrowser.insertHtml(html)
         # set the cursor to the begining of the last line
         self.logCursor.setPosition(QTextCursor.End)
