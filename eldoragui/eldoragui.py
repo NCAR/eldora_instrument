@@ -66,6 +66,7 @@ def status():
 
     try:
         r = prodrpc.status()
+        print r
     except Exception, e:
         print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
         
@@ -121,6 +122,9 @@ def startEldoraApps():
     
     # start the drx rpc server
     drxrpc.start()
+    
+    # start the products rpc server
+    prodrpc.start()
         
 ####################################################################################
 def stopEldoraApps():

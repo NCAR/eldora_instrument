@@ -7,7 +7,8 @@
 #include <time.h>
 
 ///////////////////////////////////////////////////////////////////
-ProductsRPC::ProductsRPC(int rpcport, EldoraProductsMain& productsMain) :
+ProductsRPC::ProductsRPC(int rpcport,
+                         EldoraProductsMain& productsMain) :
     _port(rpcport), _server(_port, 0), _productsMain(productsMain),
             _startCmd(&_server, *this, "start", &ProductsRPC::start),
             _stopCmd(&_server, *this, "stop", &ProductsRPC::stop),
@@ -25,7 +26,7 @@ ProductsRPC::~ProductsRPC() {
 
 ///////////////////////////////////////////////////////////////////
 void ProductsRPC::start(XmlRpc::XmlRpcValue& params,
-                   XmlRpc::XmlRpcValue& result) {
+                        XmlRpc::XmlRpcValue& result) {
     std::cout << "start received\n";
 
     std::map<std::string, std::string> state;
@@ -49,14 +50,14 @@ void ProductsRPC::start(XmlRpc::XmlRpcValue& params,
 
 ///////////////////////////////////////////////////////////////////
 void ProductsRPC::stop(XmlRpc::XmlRpcValue& params,
-                  XmlRpc::XmlRpcValue& result) {
+                       XmlRpc::XmlRpcValue& result) {
     std::cout << "stop received\n";
     result = "products stop";
 }
 
 ///////////////////////////////////////////////////////////////////
 void ProductsRPC::shutdown(XmlRpc::XmlRpcValue& params,
-                      XmlRpc::XmlRpcValue& result) {
+                           XmlRpc::XmlRpcValue& result) {
     std::cout << "shutdown received\n";
     result = "products shutdown";
     exit(0);
@@ -64,8 +65,24 @@ void ProductsRPC::shutdown(XmlRpc::XmlRpcValue& params,
 
 ///////////////////////////////////////////////////////////////////
 void ProductsRPC::status(XmlRpc::XmlRpcValue& params,
-                    XmlRpc::XmlRpcValue& result) {
+                         XmlRpc::XmlRpcValue& result) {
     XmlRpc::XmlRpcValue retval;
+
+    int numAbpBeams;
+    int numProductBeams;
+    int discardBeamsFor;
+    int discardBeamsAft;
+
+    // get the statistics from the products generator
+    _productsMain.status(numAbpBeams,
+                     numProductBeams,
+                     discardBeamsFor,
+                     discardBeamsAft);
+    
+    retval["numAbpBeams"] = numAbpBeams;
+    retval["numProductBeams"] = numProductBeams;
+    retval["discardBeamsFor"] = discardBeamsFor;
+    retval["discardBeamsAft"] = discardBeamsAft;
 
     // return it
     result = retval;

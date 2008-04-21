@@ -15,15 +15,19 @@ class RPCfunctions:
 		self.name = name
 
 	def id(self):
+		print 'id()'
 		return self.name
 
 	def status(self):
+		print 'status()'
 		return "I'm alive at " + asctime(localtime())
 	
-	def radarStart(self):
+	def start(self):
+		print 'start()'
 		return "radar start command received"
 		
-	def radarStop(self):
+	def stop(self):
+		print 'stop()'
 		return "radar stop command received"
 
 ########################################################
@@ -48,7 +52,7 @@ class XMLRPCServer(SimpleXMLRPCServer):
 
 # Instantiate a server
 #
-server = XMLRPCServer("localhost", 60000)
+server = XMLRPCServer("localhost", 60002)
 
 server.register_instance(RPCfunctions("RPC"))
 
