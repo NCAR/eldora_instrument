@@ -169,10 +169,10 @@ def runDcps():
     dcpscmd = [
         ddsRoot + '/bin/DCPSInfoRepo',
         '-NOBITS',
-        '-DCPSConfigFile', conf + '/DCPSInfoRepo.ini' ,
-        '-ORBSvcConf', conf + '/ORBSvc.conf',
+        '-DCPSConfigFile', ddsConfigDir + '/DCPSInfoRepo.ini' ,
+        '-ORBSvcConf', ddsConfigDir + '/ORBSvc.conf',
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
-        '-d', conf + '/DDSDomainIds.conf'
+        '-d', ddsConfigDir + '/DDSDomainIds.conf'
         ]
     ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, textColor='purple')
     s = ourProcesses['DCPSInfoRepo']

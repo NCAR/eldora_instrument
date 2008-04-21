@@ -221,7 +221,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.logCursor.setPosition(QTextCursor.End)
         html = '<br><font color="' + color + '">' + text + '</font>'
         self.logBrowser.insertHtml(html)
-        # set the cursor to the beginig of the last line
+        # set the cursor to the begining of the last line
         self.logCursor.setPosition(QTextCursor.End)
         self.logCursor.setPosition(QTextCursor.StartOfLine)
         # calling ensureCursorVisible() insures that the scrollbars
