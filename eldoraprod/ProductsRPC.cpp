@@ -7,8 +7,8 @@
 #include <time.h>
 
 ///////////////////////////////////////////////////////////////////
-ProductsRPC::ProductsRPC(int rpcport) :
-    _port(rpcport), _server(_port, 0),
+ProductsRPC::ProductsRPC(int rpcport, EldoraProductsMain& productsMain) :
+    _port(rpcport), _server(_port, 0), _productsMain(productsMain),
             _startCmd(&_server, *this, "start", &ProductsRPC::start),
             _stopCmd(&_server, *this, "stop", &ProductsRPC::stop),
             _shutdownCmd(&_server, *this, "shutdown", &ProductsRPC::shutdown),
@@ -65,8 +65,6 @@ void ProductsRPC::shutdown(XmlRpc::XmlRpcValue& params,
 ///////////////////////////////////////////////////////////////////
 void ProductsRPC::status(XmlRpc::XmlRpcValue& params,
                     XmlRpc::XmlRpcValue& result) {
-    std::cout << "status received\n";
-
     XmlRpc::XmlRpcValue retval;
 
     // return it
