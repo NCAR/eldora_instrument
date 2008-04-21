@@ -3,12 +3,15 @@
 
 #include "RPCServer.h"
 #include "RPCCmd.h"
+#include "EldoraProductsMain.h"
 
-/// A handler for RPC calls to the products application. 
+/// A handler for RPC calls to the products application. It will contact
+/// an EldoraProductsMain instance to obtain statistics.
 class ProductsRPC {
 public:
 	/// @param port The XMLRPC port number
-    ProductsRPC(int port);
+    /// @param productsMain The object to be contacted for statistics.
+    ProductsRPC(int port, EldoraProductsMain& productsMain);
 	virtual ~ProductsRPC();
 	
 protected:
@@ -17,6 +20,10 @@ protected:
 	
 	/// The RPC server
 	RPCServer _server;
+	
+	/// The products producer that we will call for
+	/// products statistics.
+	EldoraProductsMain& _productsMain;
 	
 	/// The start command handler
 	/// @param params There are no RPC input parameters
@@ -45,7 +52,6 @@ protected:
 	void status(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
 	/// The proxy that connects status() to the RPC server.
 	RPCCmd<ProductsRPC> _statusCmd;
-	
 };
 #endif
 
