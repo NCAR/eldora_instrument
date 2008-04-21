@@ -17,7 +17,7 @@ char *dectohex(int dec)
 		dec/=16;
 		temp1 = temp1-dec;
 		temp1 *= 16;
-		temp2 = temp1;
+		temp2 = (int)temp1;
 		switch(temp2)
 			{
 			case 15:

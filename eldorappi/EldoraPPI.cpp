@@ -100,7 +100,7 @@ EldoraPPI::EldoraPPI(std::string title,
     }
     
     // add hot keys 
-    for (int i = 0; i < _productList.size(); i++) {
+    for (unsigned int i = 0; i < _productList.size(); i++) {
     	QAction* F1;
     	F1 = new QAction(fkeysActionGroup);
     	F1->setEnabled(true);
@@ -455,7 +455,7 @@ void EldoraPPI::fkeyTriggered(QAction* qa) {
 	// ignore keys that we are not expecting
 	
 	int numkey = qa->shortcut() - '1';	
-	if (numkey >= 0 && numkey < _productList.size()) {
+	if (numkey >= 0 && numkey < (int)_productList.size()) {
 		// Lower display:
 		// Got a number key. See if this product index exists in _productInfo
 		for (std::map<PRODUCT_TYPES, ProductInfo>::iterator i = _productInfo.begin();
@@ -471,7 +471,7 @@ void EldoraPPI::fkeyTriggered(QAction* qa) {
 		}
 	} else {
 		int fkey = qa->shortcut() - Qt::Key_F1;
-		if (fkey >= 0 && fkey < _productList.size()) {
+		if (fkey >= 0 && fkey < (int)_productList.size()) {
 			// Upper display:
 			// Got a function key. See if this product index exists in _productInfo
 			for (std::map<PRODUCT_TYPES, ProductInfo>::iterator i = _productInfo.begin();
