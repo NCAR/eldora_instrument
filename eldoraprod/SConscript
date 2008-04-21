@@ -21,6 +21,7 @@ EldoraProductsMain.cpp
 EldoraProducts.cpp
 ProductsPulseReader.cpp
 PulseCollator.cpp
+ProductsRPC.cpp
 ''')
 
 # build eldoraprod
