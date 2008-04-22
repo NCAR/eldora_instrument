@@ -59,6 +59,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # configure log browser
         self.logBrowser.setLineWrapMode(QTextEdit.NoWrap)
         self.logCursor = QTextCursor(self.logBrowser.document())
+        self.logBrowser.setReadOnly(True)
         
         # connect components
         # The stop button
