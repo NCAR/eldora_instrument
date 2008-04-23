@@ -18,9 +18,70 @@ public:
     DoradeRYIB(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian) throw (DescriptorException);
     std::ostream& printTo(std::ostream& stream) const;
-    
+    /**
+     * Get ray date/time.
+     * @return posix_time holding the ray's date/time.
+     */
     boost::posix_time::ptime getRayDateTime() const { return _rayDateTime; }
-
+    /**
+     * Get the sweep number.
+     * @return the ray's sweep number.
+     */
+    int getSweepNumber() const { return _sweepNumber; }
+    /**
+     * Get day of year: 1-366.
+     * @return the ray's day of year.
+     */
+    short getDayOfYear() const { return _julianDay; }
+    /**
+     * Get hour: 0-23.
+     * @return the ray's hour.
+     */
+    short getHour() const { return _hour; }
+    /**
+     * Get minute: 0-59.
+     * @return the ray's minute.
+     */
+    short getMinute() const { return _minute; }
+    /**
+     * Get second: 0-59.
+     * @return the ray's second.
+     */
+    short getSecond() const { return _second; }
+    /**
+     * Get millisecond: 0-999.
+     * @return the ray's millisecond.
+     */
+    short getMillisecond() const { return _millisecond; }
+    /**
+     * Get azimuth (deg).
+     * @return the ray's azimuth.
+     */
+    float getAzimuth() const { return _azimuth; }
+    /**
+     * Get elevation (deg).
+     * @return the ray's elevation.
+     */
+    float getElevation() const { return _elevation; }
+    /**
+     * Get peak transmit power (kW).
+     * @return the peak transmit power (kW).
+     */
+    float getPeakXmitPower() const { return _peakXmitPower; }
+    /**
+     * Get true scan rate (deg/s).
+     * @return the true radar scan rate (deg/s).
+     */
+    float getTrueScanRate() const { return _scanRate; }
+    /**
+     * Get ray status.
+     *  0 = normal
+     *  1 = transition
+     *  2 = bad
+     *  3 = questionable
+     * @return the ray's status.
+     */
+    int getRayStatus() const { return _rayStatus; }
 private:
     int _sweepNumber;
     short _julianDay;
@@ -30,7 +91,7 @@ private:
     short _millisecond;
     float _azimuth;
     float _elevation;
-    float _lastPeakPower;   // kW
+    float _peakXmitPower;   // kW
     float _scanRate;        // deg/s
     int _rayStatus;         // 0 normal, 1 transition, 2 bad
     

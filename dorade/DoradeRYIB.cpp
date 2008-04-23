@@ -28,7 +28,7 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
     _millisecond = grabShort(data, 22, isLittleEndian);
     _azimuth = grabFloat(data, 24, isLittleEndian);
     _elevation = grabFloat(data, 28, isLittleEndian);
-    _lastPeakPower = grabFloat(data, 32, isLittleEndian);   // kW
+    _peakXmitPower = grabFloat(data, 32, isLittleEndian);   // kW
     _scanRate = grabFloat(data, 36, isLittleEndian);        // deg/s
     _rayStatus = grabInt(data, 40, isLittleEndian);         // 0 normal, 1 transition, 2 bad
 
@@ -91,7 +91,7 @@ DoradeRYIB::printTo(std::ostream& os) const
         os << std::setw(3) << std::setfill('0') << _millisecond << std::endl;
         os << "azimuth: " << _azimuth << std::endl;
         os << "elevation: " << _elevation << std::endl;
-        os << "peak power: " << _lastPeakPower << std::endl;
+        os << "peak power: " << _peakXmitPower << std::endl;
         os << "scan rate: " << _scanRate << std::endl;
         os << "ray status: " << _rayStatus << std::endl;
     }

@@ -20,12 +20,12 @@ public:
     // inline accessors
     int getDataSystemStatus() const { return _dataSystemStatus; }
     std::string getRadarName() const { return _radarName; }
-    float getTestPulseLevel() const { return _testPulseLevel; }
-    float getTestPulseDistance() const { return _testPulseDist; }
+    float getTestPulsePower() const { return _testPulsePower; }
+    float getTestPulseStart() const { return _testPulseStart; }
     float getTestPulseWidth() const { return _testPulseWidth; }
     float getTestPulseFreq() const { return _testPulseFreq; }
     short getTestPulseAttenuation() const { return _testPulseAttenuation; }
-    short getTestPulseFnum() const { return _testPulseFnum; }
+    short getTestPulseFNum() const { return _testPulseFNum; }
     float getNoisePower() const { return _noisePower; }
     int getRayCount() const { return _rayCount; }
     short getFirstGate() const { return _firstRecordedGate; }
@@ -35,12 +35,12 @@ protected:
 private:
     int _dataSystemStatus;
     std::string _radarName;
-    float _testPulseLevel;  /* dBm? */
-    float _testPulseDist;   /* m? */
+    float _testPulsePower;  /* dBm? */
+    float _testPulseStart;   /* m? */
     float _testPulseWidth;  /* m? */
     float _testPulseFreq;   /* Hz? */
     short _testPulseAttenuation;    /* dB? */
-    short _testPulseFnum;           /* ? */
+    short _testPulseFNum;           /* ? */
     float _noisePower;      /* dBm? */
     int _rayCount;
     short _firstRecordedGate;

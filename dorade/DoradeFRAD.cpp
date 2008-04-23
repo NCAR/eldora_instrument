@@ -33,12 +33,12 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     tmpName[8] = '\0';
     memcpy(tmpName, data + 12, 8);
     _radarName = tmpName;
-    _testPulseLevel = grabFloat(data, 20, isLittleEndian);
-    _testPulseDist = grabFloat(data, 24, isLittleEndian);
+    _testPulsePower = grabFloat(data, 20, isLittleEndian);
+    _testPulseStart = grabFloat(data, 24, isLittleEndian);
     _testPulseWidth = grabFloat(data, 28, isLittleEndian);
     _testPulseFreq = grabFloat(data, 32, isLittleEndian);
     _testPulseAttenuation = grabShort(data, 36, isLittleEndian);
-    _testPulseFnum = grabShort(data, 38, isLittleEndian);
+    _testPulseFNum = grabShort(data, 38, isLittleEndian);
     _noisePower = grabFloat(data, 40, isLittleEndian);
     _rayCount = grabInt(data, 44, isLittleEndian);
     _firstRecordedGate = grabShort(data, 48, isLittleEndian);
@@ -58,13 +58,13 @@ DoradeFRAD::printTo(std::ostream& os) const
     if (_verbose) {
         os << "data system status: " << _dataSystemStatus << std::endl;
         os << "radar name: " << _radarName << std::endl;
-        os << "test pulse level: " << _testPulseLevel << std::endl;
-        os << "test pulse start: " << _testPulseDist << std::endl;
+        os << "test pulse level: " << _testPulsePower << std::endl;
+        os << "test pulse start: " << _testPulseStart << std::endl;
         os << "test pulse width: " << _testPulseWidth << std::endl;
         os << "test pulse freq." << _testPulseFreq << std::endl;
         os << "test pulse attenuation: " << _testPulseAttenuation << 
             std::endl;
-        os << "test pulse fnum: " << _testPulseFnum << std::endl;
+        os << "test pulse fnum: " << _testPulseFNum << std::endl;
         os << "noise power: " << _noisePower << std::endl;
         os << "ray count: " << _rayCount << std::endl;
         os << "first recorded gate: " << _firstRecordedGate << std::endl;
