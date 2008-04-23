@@ -48,53 +48,10 @@ void shutdownSignalHandler(int signo, void* userData);
 
 namespace RedRapids {
 
+class RRBuffer;
+class RRABPBuffer;
+class RRIQBuffer;
 class RR314sim;
-
-struct RRBuffer {
-	/// The DMA channel number
-	int dmaChan;
-	/// The channel id delivered by the RR314
-	unsigned int chanId;
-	/// The prt id delivered by the R314
-	unsigned int prtId;
-	/// The ray number
-	unsigned int rayNum;
-	/// The time for this ray (middle of the integration period).
-    boost::posix_time::ptime rayTime;
-	/// The type of derived class
-	enum {IQtype, ABPtype} type;
-	/// the number of coherent integrations
-	int nci;
-	/// A virtual member is required in order for dynamic_cast
-	/// to work.
-	virtual ~RRBuffer() {
-	}
-	;
-};
-/// A buffer type used to collect an incoming abp sample stream and 
-/// for deliver to consumers. The buffer will always contain one
-/// complete set of ABP values for all gates.
-struct RRABPBuffer : RRBuffer {
-    // position in the data for the current ray
-    unsigned int _posInRay;
-    // the ABP data
-	std::vector<float> _abp;
-};
-
-/// A buffer type used to collect an incoming iq sample stream and 
-/// for deliver to consumers. _samples number of iq sequences,
-/// each sequence covering the range of iq gates, are aggregated
-/// into one RRIQBuffer.
-struct RRIQBuffer : RRBuffer {
-    /// xmit pulse of the current sample
-    unsigned int _pulseCount;
-    /// position in the data for the current sample
-    unsigned int _posInSample;
-    /// number of samples completely filled so far
-    unsigned int _samplesFilled;
-    /// the IQ data
-	std::vector<short> _iq;
-};
 
 //////////////////////////////////////////////////////////////////////
 ///
@@ -208,7 +165,7 @@ public:
 	/// If there
 	/// is no data available, wait until there is.
 	/// The caller must return the buffer when finished
-	/// by calling returnBuffer().
+	/// by calling its returnBuffer() method.
 	/// @return A buffer of data
 	RRBuffer* nextBuffer();
 
@@ -407,6 +364,64 @@ protected:
 	
 	/// Time of the first xmit pulse.
 	boost::posix_time::ptime _xmitStartTime;
+};
+
+class RRBuffer {
+public:
+    /// A virtual member is required in order for dynamic_cast
+    /// to work.
+    virtual ~RRBuffer() {}
+
+    /// The DMA channel number
+    int dmaChan;
+    /// The channel id delivered by the RR314
+    unsigned int chanId;
+    /// The prt id delivered by the RR314
+    unsigned int prtId;
+    /// The ray number
+    unsigned int rayNum;
+    /// The time for this ray (middle of the integration period).
+    boost::posix_time::ptime rayTime;
+    /// The type of derived class
+    enum {IQtype, ABPtype} type;
+    /// the number of coherent integrations
+    int nci;
+    /// Return this buffer to its parent's free list.
+    void returnBuffer() { _parent->returnBuffer(this); };
+protected:
+    RRBuffer(RR314* parent) : _parent(parent) {};
+    // pointer to the parent RR314
+    RR314* _parent;
+};
+/// A buffer type used to collect an incoming abp sample stream and 
+/// for deliver to consumers. The buffer will always contain one
+/// complete set of ABP values for all gates.
+class RRABPBuffer : public RRBuffer {
+public:
+    RRABPBuffer(RR314* parent) : RRBuffer(parent) {};
+    
+    // position in the data for the current ray
+    unsigned int _posInRay;
+    // the ABP data
+    std::vector<float> _abp;
+};
+
+/// A buffer type used to collect an incoming iq sample stream and 
+/// for deliver to consumers. _samples number of iq sequences,
+/// each sequence covering the range of iq gates, are aggregated
+/// into one RRIQBuffer.
+class RRIQBuffer : public RRBuffer {
+public:
+    RRIQBuffer(RR314* parent) : RRBuffer(parent) {};
+    
+    /// xmit pulse of the current sample
+    unsigned int _pulseCount;
+    /// position in the data for the current sample
+    unsigned int _posInSample;
+    /// number of samples completely filled so far
+    unsigned int _samplesFilled;
+    /// the IQ data
+    std::vector<short> _iq;
 };
 
 }

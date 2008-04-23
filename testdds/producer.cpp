@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
                       }
 
                     // set the timestamp
-                    pRay->rayNum = timestamp;
+                    pRay->hskp.rayNum = timestamp;
                     // alternate the radar id between forward and aft
                     pRay->radarId = (numRays % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
                     // send the ray to the RayWriter
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
                         // don't set any data values right now
 
                         // set the timestamp
-                        pTS->rayNum = timestamp;
+                        pTS->hskp.rayNum = timestamp;
                         // alternate the radar id between forward and aft
                         pTS->radarId = (numRays % 2) ? EldoraDDS::Forward : EldoraDDS::Aft;
                         // send the ray to the RayWriter

@@ -32,8 +32,8 @@ void EldoraProducts::newRayData(
         
         // transfer beam metadata
         products->radarId = rays[0]->radarId;
-        products->timestamp = rays[0]->rayNum;
-        products->elDegrees = rays[0]->elDegrees;
+        products->timestamp = rays[0]->hskp.rayNum;
+        products->elDegrees = rays[0]->hskp.elevation;
         
         // The abp rays are three times as long as the
         // product beams. 

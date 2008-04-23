@@ -34,9 +34,9 @@ void EldoraQtTSSource::notify() {
 		_numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
 
 		// See if this is the channel and radar that we are interested in
-		if (pItem->chan == _channel && pItem->radarId == _radarId) {
+		if (pItem->hskp.chan == _channel && pItem->radarId == _radarId) {
 			// the number of individual timer series in each dds sample
-			unsigned int nci = pItem->nci;
+			unsigned int nci = pItem->hskp.samples;
 
 			// the length of each individual time series in the sample. This
 			// includs both I and Q.
@@ -51,8 +51,8 @@ void EldoraQtTSSource::notify() {
 				_gate = _gates[0];
 				// announce the list of gates
 	            // what is the starting gate number
-	            unsigned short firstgate = pItem->firstgate;
-emit                                 				tsGateList(_gates, firstgate);
+	            unsigned short firstgate = pItem->hskp.startIQ;
+	            emit tsGateList(_gates, firstgate);
 			}
 
 			// The data capture strategy will depend on whether we are collecting

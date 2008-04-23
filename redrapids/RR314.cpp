@@ -8,8 +8,6 @@
 #include <math.h>
 #include <assert.h>
 #include <iostream>
-#include <deque>
-#include <map>
 
 using namespace boost::posix_time;  // for ptime & related stuff
 using namespace RedRapids;
@@ -74,13 +72,13 @@ RR314::RR314(int devNum,
     // allocate the buffers
     pthread_mutex_lock(&_bufferMutex);
     for (int i = 0; i < BUFFERPOOLSIZE; i++) {
-        RRABPBuffer* abpBuf = new RRABPBuffer;
+        RRABPBuffer* abpBuf = new RRABPBuffer(this);
         abpBuf->_abp.resize(3*_gates);
         abpBuf->_posInRay = 0;
         abpBuf->type = RRBuffer::ABPtype;
         abpBuf->nci = _samples;
         _freeABPBuffers.push_back(abpBuf);
-        RRIQBuffer* iqBuf = new RRIQBuffer;
+        RRIQBuffer* iqBuf = new RRIQBuffer(this);
         iqBuf->_iq.resize(2*_numIQGates*_samples);
         iqBuf->_posInSample = 0;
         iqBuf->type = RRBuffer::IQtype;

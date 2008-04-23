@@ -31,9 +31,8 @@
 #include <DoradeRYIB.h>
 
 using namespace RedRapids;
-using namespace EldoraDDS;
+using namespace boost::posix_time;
 namespace po = boost::program_options;
-namespace ptime = boost::posix_time;
 
 // save pointers to RR314 instances, in case we need to try
 // to stop them during a signal.
@@ -50,8 +49,7 @@ bool _terminate = false;
 //////////////////////////////////////////////////////////////////////
 //
 // Not all of these fields are filled by parseOptions()
-/// The parameters that specify the configuration for each 
-/// RR314 device.
+/// The parameters that specify the configuration for each RR314 device.
 struct runParams {
         int deviceNumber; ///< card number, starting at 0
         bool enabled; ///< true if the dma transfers are to be started
@@ -83,15 +81,228 @@ struct runParams {
         int rpcPort; ///< the rpc port number
 };
 
+//
+// prototypes
+//
+static runParams parseOptions(int argc, char** argv, int deviceNumber);
+static void shutdownBoards();
+static void setupSignalHandler();
+static void* rrDataTask(void* threadArg);
+static void* hskpReadTask(void* threadArg);
+static void setupSignalHandler();
+static void createFiles(runParams& params);
+static void setupSignalHandler();
+static EldoraDDS::Housekeeping* unpackHousekeeping(const unsigned char* buf, 
+        int buflen);
+static void showStats(runParams& params, RR314& rr314, 
+        unsigned long& droppedRay, unsigned long& droppedTS, int loopCount);
+
+//////////////////////////////////////////////////////////////////////
+//
+// The main routine creates the cards, starts them, and then just
+// monitors the card activity.
+int main(int argc,
+         char** argv) {
+    printf("Starting\n");
+
+    // parse command line options
+    runParams params0 = parseOptions(argc, argv, 0);
+    runParams params1 = parseOptions(argc, argv, 1);
+
+    // create timer
+    if (!params0.simulate && !params0.internaltimer) {
+        bwtimer = new Bittware(0);
+        bwtimer->configure(params0.gates,
+                params0.prf,
+                params0.pulsewidth,
+                params0.nci,
+                false);
+        if (!bwtimer->isok()) {
+            std::cerr << "Unable to create bittware timer\n";
+            bwtimer->shutdown();
+            exit(1);
+        }
+    }
+
+    if (params0.publish) {
+        std::cout <<__FILE__ << " creating DDS services\n";
+
+        ArgvParams argv("rr314dual");
+        argv["-ORBSvcConf"] = params0.ORB.c_str();
+        argv["-DCPSConfigFile"] = params0.DCPS.c_str();
+
+        // create the publisher
+        params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
+        params1.publisher = params0.publisher;
+
+        // create the ray writer
+        params0.rayWriter = new RayWriter(*params0.publisher, "EldoraRays");
+        params1.rayWriter = params0.rayWriter;
+
+        // create the time series writer
+        params0.tsWriter = new TSWriter(*params0.publisher, "EldoraTS");
+        params1.tsWriter = params0.tsWriter;
+    }
+
+    // create data capture files
+    if (params0.capture) {
+        createFiles(params0);
+        createFiles(params1);
+    }
+
+    for (int i = 0; i < 8; i++) {
+        params0.sampleCounts[i] = 0;
+        params1.sampleCounts[i] = 0;
+    }
+    // create an RR314 card
+    try {
+        RR314 rr314_0(params0.deviceNumber,
+                params0.gates,
+                params0.prf,
+                params0.pulsewidth,
+                params0.nci,
+                0, // dual prt (0 or 1)
+                params0.internaltimer,
+                params0.startiq,
+                params0.numiq,
+                params0.gaussian,
+                params0.kaiser,
+                params0.xsvf,
+                params0.simulate,
+                params0.usleep,
+                false // do not catch signals in RR314; we will do that ourselves.
+        );
+
+        RR314 rr314_1(params1.deviceNumber,
+                params1.gates,
+                params1.prf,
+                params1.pulsewidth,
+                params1.nci,
+                0, // dual prt (0 or 1)
+                params1.internaltimer,
+                params1.startiq,
+                params1.numiq,
+                params1.gaussian,
+                params1.kaiser,
+                params1.xsvf,
+                params1.simulate,
+                params1.usleep,
+                false // do not catch signals in RR314; we will do that ourselves
+        );
+
+        // save instances of RR314 for the shutdown handler
+        rr314Instances.push_back(&rr314_0);
+        rr314Instances.push_back(&rr314_1);
+
+        // pass rr314 instance to data reading thread.
+        params0.pRR314 = &rr314_0;
+        params1.pRR314 = &rr314_1;
+
+        // also tell it where to put dropped dds counters
+        unsigned long droppedRay[2];
+        unsigned long droppedTS[2];
+
+        params0.droppedRay = &droppedRay[0];
+        params0.droppedRay = &droppedRay[1];
+
+        params1.droppedTS = &droppedTS[0];
+        params1.droppedTS = &droppedTS[1];
+
+        // create the data reading threads
+        pthread_t dataThread0;
+        pthread_t dataThread1;
+        if (params0.enabled) {
+            pthread_create(&dataThread0, NULL, rrDataTask, (void*) &params0);
+        }
+        if (params1.enabled) {
+            pthread_create(&dataThread1, NULL, rrDataTask, (void*) &params1);
+        }
+
+        // and the housekeeping reader thread
+        pthread_t hskpThread;
+        if (params0.enabled || params1.enabled) {
+            pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
+        }
+
+        // setup the signal handlers before we run the cards.
+        setupSignalHandler();
+
+        // start the processing
+        if (params0.enabled) {
+            rr314_0.start();
+        }
+        if (params1.enabled) {
+            rr314_1.start();
+        }
+
+        // start the timer, if we are using it.
+        if (bwtimer) {
+            // 
+            // Send the timer start command ~0.2 seconds after the
+            // top of a second.  Xmit pulses start at the top of the
+            // next second after the start command is sent, so staying
+            // away from the *immediate* vicinity of the top of a second
+            // means we can determine the transmit start time with 
+            // certainty (as long as our clock is reasonably accurate),
+            // and we can still allow plenty of time for the timer 
+            // card actually get things started before the top of the
+            // next second.
+            //
+            int wake_uSec = 200000; // 0.2 seconds
+            ptime now(microsec_clock::universal_time());
+            // sleep until the next 0.2 second mark
+            int usecNow = now.time_of_day().total_microseconds() % 1000000;
+            int sleep_uSec = (1000000 + wake_uSec - usecNow) % 1000000;
+            // xmit starts at the top of the next second after we wake
+            ptime xmitStartTime = now + 
+            microseconds(1000000 - wake_uSec + sleep_uSec);
+            // Now sleep, and then start the timer card when we wake
+            usleep(sleep_uSec);
+            bwtimer->start();
+            // Tell the RedRapids cards what time xmit pulses start
+            rr314_0.setXmitStartTime(xmitStartTime);
+            rr314_1.setXmitStartTime(xmitStartTime);
+        }
+        int loopCount = 0;
+
+        // create our RPC handler
+        DrxRPC rpcHandler(params0.rpcPort, rr314_0, rr314_1);
+
+        // periodically display the card activity.
+        while(1)
+        {
+            showStats(params0, rr314_0, droppedRay[0], droppedTS[0], loopCount);
+            showStats(params1, rr314_1, droppedRay[1], droppedTS[1], loopCount);
+            loopCount++;
+            for (int i = 0; i < 10; i++) {
+                if (_terminate)
+                    break;
+                sleep(1);
+            }
+            if (_terminate)
+                break;
+        }
+    }
+    catch (std::string e)
+    {
+        std::cout << e << std::endl;
+        exit(1);
+    }
+
+    std::cout << "Terminating " << argv[0] << "\n";
+    if (bwtimer) {
+        delete bwtimer;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 /// Parse the command line options, and also set some options 
 /// that are not specified on the command line.
 /// @return The runtime options that can be passed to the
 /// threads that interact with the RR314.
-struct runParams parseOptions(int argc,
-                              char** argv,
-                              int deviceNumber) {
+static runParams 
+parseOptions(int argc, char** argv, int deviceNumber) {
 
     runParams params;
 
@@ -188,13 +399,13 @@ static void createFiles(runParams& params) {
 
 //////////////////////////////////////////////////////////////////////
 //
-/// terminate the data transfers from the RR314. This MUST be called
+/// Terminate the data transfers from the RR314. This MUST be called
 /// if RR314 instances are not going to be normally destroyed, e.g. in the
 /// case of a signal leading to premature program termination, in order
 /// to safely terminate the RR314 DMA transfers. Failure to do so will
 /// lead to a Linux system crash as the RR314 DMA writes into random
 /// memory.
-static void shutdownRR314() {
+static void shutdownBoards() {
 
     std::vector<RR314*>::iterator p;
     for (p = rr314Instances.begin(); p != rr314Instances.end(); p++) {
@@ -220,8 +431,8 @@ static void signalHandler(int signo) {
 
     std::cout << "caught signal " << signo << "\n";
 
-    // try to terminate the RR314 boards
-    shutdownRR314();
+    // try to terminate the RR314 & timer boards
+    shutdownBoards();
     
     // if it was a segv, produce a core dump
     if (signo == SIGSEGV) {
@@ -266,7 +477,7 @@ static void setupSignalHandler() {
 //
 // a task which just consumes the data from the
 // rr314 as it becomes available
-static void * dataTask(void* threadArg) {
+static void* rrDataTask(void* threadArg) {
     runParams* pParams = (runParams*) threadArg;
     RR314* pRR314 = pParams->pRR314;
     int gates = pParams->gates;
@@ -277,7 +488,7 @@ static void * dataTask(void* threadArg) {
     RayWriter* rayWriter = pParams->rayWriter;
     TSWriter* tsWriter = pParams->tsWriter;
 
-    float elevation[4] =
+    float elevation[4] = 
         { 0.0,
                 0.0,
                 0.0,
@@ -323,16 +534,16 @@ static void * dataTask(void* threadArg) {
                     elevation[channel/2] += 0.90;
                     if (elevation[channel/2] >= 360.0)
                     elevation[channel/2] -= 360.0;
-                    pRay->elDegrees = elevation[channel/2];
+                    pRay->hskp.elevation = elevation[channel/2];
 
-                    pRay->nci = pABP->nci;
-                    pRay->chan = pABP->chanId;
+                    pRay->hskp.samples = pABP->nci;
+                    pRay->hskp.chan = pABP->chanId;
                     for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
                         float data = pABP->_abp[p];
                         pRay->abp[p] = data;
                     }
-                    // set the timestamp
-                    pRay->rayNum = pABP->rayNum;
+                    // set the ray number
+                    pRay->hskp.rayNum = pABP->rayNum;
 
                     // send the ray to the ray publisher
                     rayWriter->publishItem(pRay);
@@ -347,14 +558,15 @@ static void * dataTask(void* threadArg) {
                     RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
                     // set the size
                     pTS->tsdata.length(pIQ->_iq.size());
-                    pTS->nci = pIQ->nci;
-                    pTS->chan = pIQ->chanId;
-                    pTS->firstgate = pParams->startiq;
+                    pTS->hskp.samples = pIQ->nci;
+                    pTS->hskp.chan = pIQ->chanId;
+                    pTS->hskp.startIQ = pParams->startiq;
+                    pTS->hskp.numIQ = pParams->numiq;
                     for (unsigned int p = 0; p < pIQ->_iq.size(); p++) {
                         pTS->tsdata[p] = pIQ->_iq[p];
                     }
                     // set the timestamp
-                    pTS->rayNum = pIQ->rayNum;
+                    pTS->hskp.rayNum = pIQ->rayNum;
                     // device 0 is the aft radar, 1 is fore
                     pTS->radarId =
                     (pParams->deviceNumber == 0) ?
@@ -400,43 +612,8 @@ static void * dataTask(void* threadArg) {
             }
         }
 
-        pRR314->returnBuffer(pBuf);
+        pBuf->returnBuffer();
     }
-}
-
-//////////////////////////////////////////////////////////////////////
-void unpackHousekeeping(const unsigned char* buf, int buflen) {
-    const unsigned char* data = buf;
-    int datalen = buflen;
-    
-    if (buflen != 176) {
-        std::cerr << __FUNCTION__ << ": Got " << buflen << 
-            "bytes instead of the expected 176" << std::endl;
-        return;
-    }
-    
-    DoradeRYIB *ryib = 0;
-    DoradeASIB *asib = 0;
-    DoradeFRAD *frad = 0;
-
-    try {
-        ryib = new DoradeRYIB(data, datalen, false);
-        data += ryib->getDescLen();
-        datalen -= ryib->getDescLen();
-        
-        asib = new DoradeASIB(data, datalen, false);
-        data += asib->getDescLen();
-        datalen -= asib->getDescLen();
-        
-        frad = new DoradeFRAD(data, datalen, false);
-    } catch (DescriptorException dex) {
-        std::cerr << std::string("Descriptor exception: ") + dex.what() << 
-            std::endl;
-        return;
-    }
-    
-//    std::cout << frad->getRadarName() << " " << ryib->getRayDateTime() << 
-//        std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -468,6 +645,7 @@ static void* hskpReadTask(void* threadArg) {
     // Now just deal with incoming packets
     unsigned char buf[4096];
 
+    // Just read incoming packets from the housekeeper and unpack them.
     while (1)
     {
         int nread;
@@ -476,15 +654,113 @@ static void* hskpReadTask(void* threadArg) {
             perror("reading from housekeeping socket");
             continue;
         }
-        unpackHousekeeping(buf, nread);
+        EldoraDDS::Housekeeping* hskp = unpackHousekeeping(buf, nread);
     }
     
     close(inSocket);
     return NULL;
 }
+
+//////////////////////////////////////////////////////////////////////
+/// Return a new EldoraDDS::Housekeeping built from the given buf.
+/// The returned struct should be deleted by the caller.
+/// On error, NULL is returned.
+static EldoraDDS::Housekeeping*
+unpackHousekeeping(const unsigned char* buf, int buflen) {
+    const unsigned char* data = buf;
+    int datalen = buflen;
+    // data from the housekeeper currently comes 176 bytes per ray.
+    if (buflen != 176) {
+        std::cerr << __FUNCTION__ << ": Got " << buflen << 
+            "bytes instead of the expected 176" << std::endl;
+        return 0;
+    }
+    // the structure of what comes in is effectively DORADE:
+    // one RYIB descriptor, one ASIB descriptor, and one (dataless)
+    // FRAD descriptor
+    DoradeRYIB *ryib = 0;
+    DoradeASIB *asib = 0;
+    DoradeFRAD *frad = 0;
+
+    try {
+        ryib = new DoradeRYIB(data, datalen, false);
+        data += ryib->getDescLen();
+        datalen -= ryib->getDescLen();
+        
+        asib = new DoradeASIB(data, datalen, false);
+        data += asib->getDescLen();
+        datalen -= asib->getDescLen();
+        
+        frad = new DoradeFRAD(data, datalen, false);
+    } catch (DescriptorException dex) {
+        std::cerr << std::string("Descriptor exception: ") + dex.what() << 
+            std::endl;
+        return 0;
+    }
+    
+    // Get a new EldoraDDS::Housekeeping
+    EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
+    
+    // timetag is microseconds since 1970/1/1 00:00:00 UTC
+    time_duration tDiff = ryib->getRayDateTime() - 
+        ptime(boost::gregorian::date(1970, 1, 1), time_duration(0, 0, 0));
+    long diff_secs = tDiff.total_seconds();
+    long diff_usecs = (tDiff.fractional_seconds() * 1000000) / 
+        time_duration::ticks_per_second();
+    hskp->timetag = (long long)(diff_secs * 1000000) + diff_usecs;
+    
+    // Now fill the rest of the Housekeeping
+    // RYIB contents
+    hskp->sweepNum = ryib->getSweepNumber();
+    hskp->julianDay = ryib->getDayOfYear();
+    hskp->hour = ryib->getHour();
+    hskp->minute = ryib->getMinute();
+    hskp->second = ryib->getSecond();
+    hskp->millisecond = ryib->getMillisecond();
+    hskp->azimuth = ryib->getAzimuth();
+    hskp->elevation = ryib->getElevation();
+    hskp->peakXmitPower = ryib->getPeakXmitPower();
+    hskp->trueScanRate = ryib->getTrueScanRate();
+    hskp->rayStatus = ryib->getRayStatus();
+    // ASIB contents
+    hskp->longitude = asib->getLongitude();
+    hskp->latitude = asib->getLatitude();
+    hskp->altitudeMSL = asib->getAltitudeMSL();
+    hskp->altitudeAGL = asib->getAltitudeAGL();
+    hskp->groundSpeedEW = asib->getGroundSpeedEW();
+    hskp->groundSpeedNS = asib->getGroundSpeedNS();
+    hskp->vertVelocity = asib->getVerticalVelocity();
+    hskp->heading = asib->getHeading();
+    hskp->roll = asib->getRoll();
+    hskp->pitch = asib->getPitch();
+    hskp->yaw = asib->getYaw();
+    hskp->radarRotAngle = asib->getAntennaScanAngle();
+    hskp->radarTiltAngle = asib->getAntennaTiltAngle();
+    hskp->windEW = asib->getUWind();
+    hskp->windNS = asib->getVWind();
+    hskp->windVert = asib->getWWind();
+    hskp->headingChangeRate = asib->getHeadingChangeRate();
+    hskp->pitchChangeRate = asib->getPitchChangeRate();
+    // FRAD contents
+    hskp->dataSysStatus = frad->getDataSystemStatus();
+    strncpy(hskp->radarName, frad->getRadarName().c_str(), 8);
+    hskp->testPulsePower = frad->getTestPulsePower();
+    hskp->testPulseStart = frad->getTestPulseStart();
+    hskp->testPulseWidth = frad->getTestPulseWidth();
+    hskp->testPulseFreq = frad->getTestPulseFreq();
+    hskp->testPulseAtten = frad->getTestPulseAttenuation();
+    hskp->testPulseFNum = frad->getTestPulseFNum();
+    hskp->noisePower = frad->getNoisePower();
+    hskp->rayCount = frad->getRayCount();
+    hskp->firstRecGate = frad->getFirstGate();
+    hskp->lastRecGate = frad->getLastGate();
+
+    return hskp;
+}
+
 //////////////////////////////////////////////////////////////////////
 
-void showStats(runParams& params,
+static void showStats(runParams& params,
                RR314& rr314,
                unsigned long& droppedRay,
                unsigned long& droppedTS,
@@ -529,203 +805,4 @@ void showStats(runParams& params,
     
     std::cout.flush();
 }
-
-//////////////////////////////////////////////////////////////////////
-//
-// The main routine creates the card, starts it, and then just
-// monitors the card activity.
-int main(int argc,
-         char** argv) {
-    printf("Starting\n");
-    
-    // parse command line options
-    runParams params0 = parseOptions(argc, argv, 0);
-    runParams params1 = parseOptions(argc, argv, 1);
-    
-    // create timer
-    if (!params0.simulate && !params0.internaltimer) {
-    	bwtimer = new Bittware(0);
-    	bwtimer->configure(params0.gates,
-                         params0.prf,
-                         params0.pulsewidth,
-                         params0.nci,
-                         false);
-        if (!bwtimer->isok()) {
-            std::cerr << "Unable to create bittware timer\n";
-            bwtimer->shutdown();
-            exit(1);
-        }
-    }
-
-    if (params0.publish) {
-        std::cout <<__FILE__ << " creating DDS services\n";
-
-        ArgvParams argv("rr314dual");
-        argv["-ORBSvcConf"] = params0.ORB.c_str();
-        argv["-DCPSConfigFile"] = params0.DCPS.c_str();
-
-        // create the publisher
-                params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
-                params1.publisher = params0.publisher;
-
-                // create the ray writer
-                params0.rayWriter = new RayWriter(*params0.publisher, "EldoraRays");
-                params1.rayWriter = params0.rayWriter;
-
-                // create the time series writer
-                params0.tsWriter = new TSWriter(*params0.publisher, "EldoraTS");
-                params1.tsWriter = params0.tsWriter;
-            }
-
-            // create data capture files
-            if (params0.capture) {
-                createFiles(params0);
-                createFiles(params1);
-            }
-
-            for (int i = 0; i < 8; i++) {
-                params0.sampleCounts[i] = 0;
-                params1.sampleCounts[i] = 0;
-            }
-            // create an RR314 card
-            try {
-                RR314 rr314_0(params0.deviceNumber,
-                        params0.gates,
-                        params0.prf,
-                        params0.pulsewidth,
-                        params0.nci,
-                        0, // dual prt (0 or 1)
-                        params0.internaltimer,
-                        params0.startiq,
-                        params0.numiq,
-                        params0.gaussian,
-                        params0.kaiser,
-                        params0.xsvf,
-                        params0.simulate,
-                        params0.usleep,
-                        false // do not catch signals in RR314; we will do that ourselves.
-                );
-
-                RR314 rr314_1(params1.deviceNumber,
-                        params1.gates,
-                        params1.prf,
-                        params1.pulsewidth,
-                        params1.nci,
-                        0, // dual prt (0 or 1)
-                        params1.internaltimer,
-                        params1.startiq,
-                        params1.numiq,
-                        params1.gaussian,
-                        params1.kaiser,
-                        params1.xsvf,
-                        params1.simulate,
-                        params1.usleep,
-                        false // do not catch signals in RR314; we will do that ourselves
-                );
-
-                // save instances of RR314 for the shutdown handler
-                rr314Instances.push_back(&rr314_0);
-                rr314Instances.push_back(&rr314_1);
-
-                // pass rr324 instance to data reading thread.
-                params0.pRR314 = &rr314_0;
-                params1.pRR314 = &rr314_1;
-
-                // also tell it where to put dropped dds counters
-                unsigned long droppedRay[2];
-                unsigned long droppedTS[2];
-
-                params0.droppedRay = &droppedRay[0];
-                params0.droppedRay = &droppedRay[1];
-
-                params1.droppedTS = &droppedTS[0];
-                params1.droppedTS = &droppedTS[1];
-
-                // create the data reading threads
-                pthread_t dataThread0;
-                pthread_t dataThread1;
-                if (params0.enabled) {
-                    pthread_create(&dataThread0, NULL, dataTask, (void*) &params0);
-                }
-                if (params1.enabled) {
-                    pthread_create(&dataThread1, NULL, dataTask, (void*) &params1);
-                }
-                
-                // and the housekeeping reader thread
-                pthread_t hskpThread;
-                if (params0.enabled || params1.enabled) {
-                    pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
-                }
-
-                // setup the signal handlers before we run the cards.
-                setupSignalHandler();
-
-                // start the processing
-                if (params0.enabled) {
-                    rr314_0.start();
-                }
-                if (params1.enabled) {
-                    rr314_1.start();
-                }
-
-                // start the timer, if we are using it.
-                if (bwtimer) {
-                    // 
-                    // Send the timer start command ~0.2 seconds after the
-                    // top of a second.  Xmit pulses start at the top of the
-                    // next second after the start command is sent, so staying
-                    // away from the *immediate* vicinity of the top of a second
-                    // means we can determine the transmit start time with 
-                    // certainty (as long as our clock is reasonably accurate),
-                    // and we can still allow plenty of time for the timer 
-                    // card actually get things started before the top of the
-                    // next second.
-                    //
-                    int wake_uSec = 200000; // 0.2 seconds
-                    ptime::ptime now(ptime::microsec_clock::universal_time());
-                    // sleep until the next 0.2 second mark
-                    int usecNow = now.time_of_day().total_microseconds() % 1000000;
-                    int sleep_uSec = (1000000 + wake_uSec - usecNow) % 1000000;
-                    // xmit starts at the top of the next second after we wake
-                    ptime::ptime xmitStartTime = now + 
-                        ptime::microseconds(1000000 - wake_uSec + sleep_uSec);
-                    // Now sleep, and then start the timer card when we wake
-                    usleep(sleep_uSec);
-                	bwtimer->start();
-                	// Tell the RedRapids cards what time xmit pulses start
-                	rr314_0.setXmitStartTime(xmitStartTime);
-                	rr314_1.setXmitStartTime(xmitStartTime);
-                }
-                int loopCount = 0;
-        
-                // create our RPC handler
-                DrxRPC rpcHandler(params0.rpcPort, rr314_0, rr314_1);
-                
-                // periodically display the card activity.
-                while(1)
-                {
-                    showStats(params0, rr314_0, droppedRay[0], droppedTS[0], loopCount);
-                    showStats(params1, rr314_1, droppedRay[1], droppedTS[1], loopCount);
-                    loopCount++;
-                    for (int i = 0; i < 10; i++) {
-                        if (_terminate)
-                        break;
-                        sleep(1);
-                    }
-                    if (_terminate)
-                    break;
-                }
-            }
-            catch (std::string e)
-            {
-                std::cout << e << std::endl;
-                exit(1);
-            }
-
-            std::cout << "Terminating " << argv[0] << "\n";
-            if (bwtimer) {
-                delete bwtimer;
-            }
-         
-        }
 

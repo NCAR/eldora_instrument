@@ -1,115 +1,154 @@
 module EldoraDDS {
 
-enum RadarChoice {Forward, Aft};
-typedef sequence<float> A_B_P;
-typedef sequence<short> Product;
-typedef sequence<short> TS;
+    enum RadarChoice {Forward, Aft};
+    typedef sequence<float> A_B_P;
+    typedef sequence<short> Product;
+    typedef sequence<short> TS;
+    typedef struct housekeeping_ {
+        // ray time tag (built from RYIB), usecs since 1970/1/1 00:00 UTC
+        long long timetag;
+        // RYIB contents
+        short sweepNum;
+        short julianDay;
+        short hour;
+        short minute;
+        short second;
+        short millisecond;
+        float azimuth;          // deg
+        float elevation;        // deg
+        float peakXmitPower;    // kW
+        float trueScanRate;     // deg/s
+        long rayStatus;         // 0=normal, 1=transition, 2=bad
+        // ASIB contents
+        float longitude;        // deg
+        float latitude;         // deg
+        float altitudeMSL;      // km
+        float altitudeAGL;      // km
+        float groundSpeedEW;    // east-west ground speed, m/s
+        float groundSpeedNS;    // north-south ground speed, m/s
+        float vertVelocity;     // m/s
+        float heading;   // deg
+        float roll;             // deg
+        float pitch;            // deg
+        float yaw;              // deg
+        float radarRotAngle;    // antenna rotation angle, deg
+        float radarTiltAngle;   // antenna tilt angle, deg
+        float windEW;           // east-west horizontal wind, m/s
+        float windNS;           // north-south horizontal wind, m/s
+        float windVert;         // vertical wind, m/s
+        float headingChangeRate;// deg/s
+        float pitchChangeRate;  // deg/s
+        // FRAD contents
+        long dataSysStatus;
+        char radarName[8];
+        float testPulsePower;   // dBm?
+        float testPulseStart;   // km?
+        float testPulseWidth;   // km?
+        float testPulseFreq;    // Hz?
+        short testPulseAtten;   // attenuation, dB
+        short testPulseFNum;    // ?
+        float noisePower;       // dBm?
+        long rayCount;
+        short firstRecGate;     // first recorded gate
+        short lastRecGate;      // last recorded gate
+        // stuff we don't get from the housekeeper
+        long prf;               // Hz
+        long gates;             // number of gates
+        long samples;           // number of samples integrated per ray
+        long startIQ;           // IQ start gate
+        long numIQ;             // number of IQ gates
+        long pulsewidth;        // ns
+        short chan;
+        short rayNum;           // should be redundant with rayCount above...
+    } Housekeeping;
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
 #pragma DCPS_DATA_KEY  "EldoraDDS::TimeSeries radarId"
 
-/// test class for housekeeping data
-  typedef struct housekeeping_ {
-      float azimuth;
-      float elevation;
-  } Housekeeping;
-  
-/// TimeSeries carries I and Q pairs for a limited number 
-/// of consecutive gates, for nci samples, for one radar.
-/// The packing order is [sample][gate][I,Q]
-  struct TimeSeries {
-    RadarChoice radarId;
-    long long rayNum;
-    float prfSeconds;
-    float azDegrees;
-    long nci;
-    unsigned short chan;
-    unsigned short firstgate;
-    TS tsdata;
-  };
-
+    /// TimeSeries carries I and Q pairs for a limited number 
+    /// of consecutive gates, for nci samples, for one radar.
+    /// The packing order is [sample][gate][I,Q]
+    struct TimeSeries {
+        RadarChoice radarId;
+        Housekeeping hskp;
+        TS tsdata;
+    };
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::Ray"
 #pragma DCPS_DATA_KEY  "EldoraDDS::Ray radarId"
 
-/// Ray contains A,B,P triples for all gates in a single radar beam.
-/// The packing order is [gate][A,B,P]
-///
-  struct Ray {
-    RadarChoice radarId;
-    long long rayNum;
-    float prfSeconds;
-    float elDegrees;
-    float powerDbm;
-    long nci;
-    unsigned short chan;
-    A_B_P abp;
-  };
+    /// Ray contains A,B,P triples for all gates in a single radar beam.
+    /// The packing order is [gate][A,B,P]
+    struct Ray {
+        RadarChoice radarId;
+        Housekeeping hskp;
+        A_B_P abp;
+    };
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::Products"
 #pragma DCPS_DATA_KEY  "EldoraDDS::Products radarId"
 
-/// Products contains radar products computed from A,B,P. 
-/// Each product type carries that one parameter for all
-/// gates in one beam.
-///
-/// The products are scaled to fit within a 16 bit 
-/// value, in order to reduce the overall system bandwidth.
-/// The gain and offset numbers are used to scale the
-/// original input value for translation to 16 bits, and 
-/// then unscale the values by the consumer.
-  struct Products {
-    RadarChoice radarId;
-    Housekeeping hskp;
-    /// microseconds since 1 Jan 1970 00:00:00 UTC
-    long long timestamp;
-    float prfSeconds;
-    float elDegrees;
-    float gateSpacingKm;
-    
-    float p1Gain;
-    float p1Offset;
-    Product p1;
-    
-    float p2Gain;
-    float p2Offset;
-    Product p2;
-    
-    float p3Gain;
-    float p3Offset;
-    Product p3;
-    
-    float p4Gain;
-    float p4Offset;
-    Product p4;
-    
-    float vrGain;
-    float vrOffset;
-    Product vr;
-    
-    float vsGain;
-    float vsOffset;
-    Product vs;
-    
-    float vlGain;
-    float vlOffset;
-    Product vl;
-    
-    float dmGain;
-    float dmOffset;
-    Product dm;
-    
-    float dbzGain;
-    float dbzOffset;
-    Product dbz;
-    
-    float swGain;
-    float swOffset;
-    Product sw;
-    
-    float ncpGain;
-    float ncpOffset;
-    Product ncp;
-  };
+    /// Products contains radar products computed from A,B,P. 
+    /// Each product type carries that one parameter for all
+    /// gates in one beam.
+    ///
+    /// The products are scaled to fit within a 16 bit 
+    /// value, in order to reduce the overall system bandwidth.
+    /// The gain and offset numbers are used to scale the
+    /// original input value for translation to 16 bits, and 
+    /// then unscale the values by the consumer.
+    struct Products {
+        RadarChoice radarId;
+        Housekeeping hskp;
+        /// microseconds since 1 Jan 1970 00:00:00 UTC
+        long long timestamp;
+        float prfSeconds;
+        float elDegrees;
+        float gateSpacingKm;
+
+        float p1Gain;
+        float p1Offset;
+        Product p1;
+
+        float p2Gain;
+        float p2Offset;
+        Product p2;
+
+        float p3Gain;
+        float p3Offset;
+        Product p3;
+
+        float p4Gain;
+        float p4Offset;
+        Product p4;
+
+        float vrGain;
+        float vrOffset;
+        Product vr;
+
+        float vsGain;
+        float vsOffset;
+        Product vs;
+
+        float vlGain;
+        float vlOffset;
+        Product vl;
+
+        float dmGain;
+        float dmOffset;
+        Product dm;
+
+        float dbzGain;
+        float dbzOffset;
+        Product dbz;
+
+        float swGain;
+        float swOffset;
+        Product sw;
+
+        float ncpGain;
+        float ncpOffset;
+        Product ncp;
+    };
 
 };

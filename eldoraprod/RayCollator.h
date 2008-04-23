@@ -38,21 +38,21 @@ class RayCollator {
         int discards();
         
     protected:
-    	/// Remove rays associated with a given timestamp
-    	/// from _rays. remove the timestamp from _timestamps.
-    	/// @param timestamp The ray identifier.
-    	void flush(long long timestamp);
-    	/// An map keyed by timestamp, that counts the number of 
-    	/// rays collected for a given timestamp. When any entry
-    	/// in _timestamps reached 4, then we have rays from all
+    	/// Remove rays associated with a given rayNum
+    	/// from _rays. remove the rayNum from _rayNums.
+    	/// @param rayNum The ray identifier.
+    	void flush(long rayNum);
+    	/// A map keyed by rayNum, that counts the number of 
+    	/// channels collected for a given rayNum. When any entry
+    	/// in _channelCount reaches 4, then we have rays from all
     	/// 4 channels available to process.
-    	std::map<long long, int> _timestamps;
-    	/// A ray accumulator, to hold incoming rays.
-    	/// Collect all rays for all 4 channels, for a given timestamp.
-    	/// The vector is initialized to zero. When a ray for a
+    	std::map<long, int> _channelCount;
+    	/// A ray accumulator, to hold incoming Rays.
+    	/// Collect Rays for all 4 channels, for a given rayNum.
+    	/// The vector is initialized to zero.  When a ray for a
     	/// channel is received, it is placed in the corresponding
     	/// element in the vector.
-    	std::map<long long, std::vector<EldoraDDS::Ray*> > _rays;
+    	std::map<long, std::vector<EldoraDDS::Ray*> > _rays;
         /// finished rays are collected here. Call 
         /// finishedRay() to reclaim them.
         std::vector<EldoraDDS::Ray*> _finishedRays;
