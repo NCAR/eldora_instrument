@@ -218,16 +218,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         text = The text to be displayed
         color = The text color
         '''
-        # make sure that we append to the end
-        self.logCursor.setPosition(QTextCursor.End)
-        html = '<font color="' + color + '">' + text + '</font>' + '<br>'
-        self.logBrowser.insertHtml(html)
-        # set the cursor to the begining of the last line
-        self.logCursor.setPosition(QTextCursor.End)
-        self.logCursor.setPosition(QTextCursor.StartOfLine)
-        # calling ensureCursorVisible() insures that the scrollbars
-        # will scroll to it
-        self.logBrowser.ensureCursorVisible()
+        html = '<font color="' + color + '">' + text + '</font>'
+        self.logBrowser.append(html)
                
            
     
