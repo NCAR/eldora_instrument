@@ -307,12 +307,6 @@ architecture behavioral of ChannelAdapter_Top is
 	signal g_read_reg	: std_logic_vector(31 downto 0);  	--Gaussian Filter Coefficient Read Back
 	signal g_write_reg: std_logic;  								--Gaussian Filter Coefficient Write Strobe
 	
-	signal cha_gate_out	: std_logic_vector(1 downto 0);	--Gating Output from DDC
-	signal chb_gate_out	: std_logic_vector(1 downto 0);	--Gating Output from DDC
-	signal chc_gate_out	: std_logic_vector(1 downto 0);	--Gating Output from DDC
-	signal chd_gate_out	: std_logic_vector(1 downto 0);	--Gating Output from DDC
-
-
 	-- MultiTimer and Gating
 	signal mt_addr_reg : std_logic_vector(31 downto 0);	--MultiTimer Address Register
 	signal mt_data_reg : std_logic_vector(31 downto 0);	--MultiTimer Data Register
@@ -434,17 +428,31 @@ architecture behavioral of ChannelAdapter_Top is
 	
 	
 	-- Gate Splitter for Multiple PRT
-	COMPONENT Gate_Splitter 
-   PORT ( 
-			Reset   	   : in  std_logic;
-			Gate_In_Int : in  std_logic;
-			Gate_In_Ext : in  std_logic;
-			Timing_Sel  : in  std_logic;
-         Dual_PRT    : in  std_logic;
-         Gate1_Out   : out  std_logic;
-         Gate2_Out   : out  std_logic);
+	COMPONENT gate_splitter_cw  
+	PORT (
+			a_gate_in_ext: in std_logic;
+			a_gate_in_int: in std_logic;
+			b_gate_in_ext: in std_logic;
+			b_gate_in_int: in std_logic;
+			c_gate_in_ext: in std_logic;
+			c_gate_in_int: in std_logic;
+			ce: in std_logic := '1';
+			clk: in std_logic;
+			d_gate_in_ext: in std_logic;
+			d_gate_in_int: in std_logic;
+			dual_prt: in std_logic;
+			reset: in std_logic;
+			timing_sel: in std_logic;
+			a_gate1_out: out std_logic;
+			a_gate2_out: out std_logic;
+			b_gate1_out: out std_logic;
+			b_gate2_out: out std_logic;
+			c_gate1_out: out std_logic;
+			c_gate2_out: out std_logic;
+			d_gate1_out: out std_logic;
+			d_gate2_out: out std_logic);
 	END COMPONENT;
-	
+
 	
 	-- IQ Data Capture
 	COMPONENT iq_capture 
@@ -527,21 +535,14 @@ architecture behavioral of ChannelAdapter_Top is
 	 
 	
 	-- DDC 
-	COMPONENT casc_filter_cw  port (
-			a_gate1_in: in std_logic;
-			a_gate2_in: in std_logic;
-			b_gate1_in: in std_logic;
-			b_gate2_in: in std_logic;
-			c_gate1_in: in std_logic;
-			c_gate2_in: in std_logic;
+	COMPONENT casc_filter_cw  
+	PORT (
 			ce: in std_logic := '1';
 			cha_in: in std_logic_vector(13 downto 0);
 			chb_in: in std_logic_vector(13 downto 0);
 			chc_in: in std_logic_vector(13 downto 0);
 			chd_in: in std_logic_vector(13 downto 0);
 			clk: in std_logic;
-			d_gate1_in: in std_logic;
-			d_gate2_in: in std_logic;
 			g_addr: in std_logic_vector(3 downto 0);
 			g_data: in std_logic_vector(17 downto 0);
 			g_sel: in std_logic_vector(1 downto 0);
@@ -551,12 +552,6 @@ architecture behavioral of ChannelAdapter_Top is
 			k_sel: in std_logic_vector(1 downto 0);
 			k_wr: in std_logic;
 			stop: in std_logic;
-			a_gate1_out: out std_logic;
-			a_gate2_out: out std_logic;
-			b_gate1_out: out std_logic;
-			b_gate2_out: out std_logic;
-			c_gate1_out: out std_logic;
-			c_gate2_out: out std_logic;
 			cha_i_out: out std_logic_vector(15 downto 0);
 			cha_q_out: out std_logic_vector(15 downto 0);
 			chb_i_out: out std_logic_vector(15 downto 0);
@@ -565,13 +560,11 @@ architecture behavioral of ChannelAdapter_Top is
 			chc_q_out: out std_logic_vector(15 downto 0);
 			chd_i_out: out std_logic_vector(15 downto 0);
 			chd_q_out: out std_logic_vector(15 downto 0);
-			d_gate1_out: out std_logic;
-			d_gate2_out: out std_logic;
 			g_readcoef: out std_logic_vector(17 downto 0);
 			k_readcoef: out std_logic_vector(17 downto 0));
 	END COMPONENT;
-
-
+	
+	
 	-- Pulse Pair Processors 
 	COMPONENT pulsepairproc_cw PORT (
 			a_gate1: in std_logic;
@@ -1587,63 +1580,40 @@ begin
 		pulseout => pulse_out,
 		addrout => open);
 
-	
-	-- Channel A Gate Splitter
-	cha_splitter : Gate_Splitter PORT MAP (
-		Reset => reset,
-		Gate_In_Int => pulse_out(0),
-		Gate_In_Ext => gpio_buf(3),
-		Timing_Sel => timing_sel,
-      Dual_PRT => gs_dprt_reg,
-      Gate1_Out => cha_gate_in(0),
-      Gate2_Out => cha_gate_in(1));
+   
+	-- Gate Splitters
+	gate_splitters : gate_splitter_cw PORT MAP (
+		a_gate_in_ext => gpio_buf(3),
+		a_gate_in_int => pulse_out(0),
+		b_gate_in_ext => gpio_buf(2),
+		b_gate_in_int => pulse_out(1),
+		c_gate_in_ext => gpio_buf(1),
+		c_gate_in_int => pulse_out(2),
+		ce => adc_enable,
+		clk => timer_clk,
+		d_gate_in_ext => gpio_buf(0),
+		d_gate_in_int => pulse_out(3),
+		dual_prt => gs_dprt_reg,
+		reset => reset,
+		timing_sel => timing_sel,
+		a_gate1_out => cha_gate_in(0),
+		a_gate2_out => cha_gate_in(1),
+		b_gate1_out => chb_gate_in(0),
+		b_gate2_out => chb_gate_in(1),
+		c_gate1_out => chc_gate_in(0),
+		c_gate2_out => chc_gate_in(1),
+		d_gate1_out => chd_gate_in(0),
+		d_gate2_out => chd_gate_in(1));
 
-	-- Channel B Gate Splitter
-	chb_splitter : Gate_Splitter PORT MAP (
-		Reset => reset,
-		Gate_In_Int => pulse_out(1),
-		Gate_In_Ext => gpio_buf(2),
-		Timing_Sel => timing_sel,
-      Dual_PRT => gs_dprt_reg,
-      Gate1_Out => chb_gate_in(0),
-      Gate2_Out => chb_gate_in(1));
-		
-	-- Channel C Gate Splitter
-	chc_splitter : Gate_Splitter PORT MAP (
-		Reset => reset,
-		Gate_In_Int => pulse_out(2),
-		Gate_In_Ext => gpio_buf(1),
-		Timing_Sel => timing_sel,
-      Dual_PRT => gs_dprt_reg,
-      Gate1_Out => chc_gate_in(0),
-      Gate2_Out => chc_gate_in(1));
 
-	-- Channel D Gate Splitter
-	chd_splitter : Gate_Splitter PORT MAP (
-		Reset => reset,
-		Gate_In_Int => pulse_out(3),
-		Gate_In_Ext => gpio_buf(0),
-		Timing_Sel => timing_sel,
-      Dual_PRT => gs_dprt_reg,
-      Gate1_Out => chd_gate_in(0),
-      Gate2_Out => chd_gate_in(1));
- 
-   -- DDC Modules
+	-- DDC Modules
 	DDCs : casc_filter_cw PORT MAP (
-		a_gate1_in => cha_gate_in(0),
-		a_gate2_in => cha_gate_in(1),
-		b_gate1_in => chb_gate_in(0),
-		b_gate2_in => chb_gate_in(1),
-		c_gate1_in => chc_gate_in(0),
-		c_gate2_in => chc_gate_in(1),
 		ce => adc_enable,
 		cha_in => adca_in,
 		chb_in => adcb_in,
 		chc_in => adcc_in,
 		chd_in => adcd_in,
 		clk => filter_clk,
-		d_gate1_in => chd_gate_in(0),
-		d_gate2_in => chd_gate_in(1),
 		g_addr => g_addr_reg(3 downto 0),
 		g_data => g_data_reg(17 downto 0),
 		g_sel => g_addr_reg(5 downto 4),
@@ -1653,12 +1623,6 @@ begin
 		k_sel => k_addr_reg(5 downto 4),
 		k_wr => k_write_reg,
 		stop => k_addr_reg(12),
-		a_gate1_out => cha_gate_out(0),
-		a_gate2_out => cha_gate_out(1),
-		b_gate1_out => chb_gate_out(0),
-		b_gate2_out => chb_gate_out(1),
-		c_gate1_out => chc_gate_out(0),
-		c_gate2_out => chc_gate_out(1),
 		cha_i_out => cha_i,
 		cha_q_out => cha_q,
 		chb_i_out => chb_i,
@@ -1667,29 +1631,28 @@ begin
 		chc_q_out => chc_q,
 		chd_i_out => chd_i,
 		chd_q_out => chd_q,
-		d_gate1_out => chd_gate_out(0),
-		d_gate2_out => chd_gate_out(1),
 		g_readcoef => g_read_reg(17 downto 0),
 		k_readcoef => k_read_reg(17 downto 0));
 
+		
 	-- Pulse Pair Processors
 	PPPs : pulsepairproc_cw PORT MAP (
-		a_gate1 => cha_gate_out(0),
-		a_gate2 => cha_gate_out(1),
+		a_gate1 => cha_gate_in(0),
+		a_gate2 => cha_gate_in(1),
 		a_iin => cha_i,
 		a_qin => cha_q,
-		b_gate1 => chb_gate_out(0),
-		b_gate2 => chb_gate_out(1),
+		b_gate1 => chb_gate_in(0),
+		b_gate2 => chb_gate_in(1),
 		b_iin => chb_i,
 		b_qin => chb_q,
-		c_gate1 => chc_gate_out(0),
-		c_gate2 => chc_gate_out(1),
+		c_gate1 => chc_gate_in(0),
+		c_gate2 => chc_gate_in(1),
 		c_iin => chc_i,
 		c_qin => chc_q,
 		ce => adc_enable,
 		clk => dec_clk,
-		d_gate1 => chd_gate_out(0),
-		d_gate2 => chd_gate_out(1),
+		d_gate1 => chd_gate_in(0),
+		d_gate2 => chd_gate_in(1),
 		d_iin => chd_i,
 		d_qin => chd_q,
 		iq_index => iq_index_reg(9 downto 0),

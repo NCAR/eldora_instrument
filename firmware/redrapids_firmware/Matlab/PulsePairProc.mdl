@@ -1,12 +1,12 @@
 Model {
   Name			  "PulsePairProc"
-  Version		  6.4
+  Version		  6.6
   MdlSubVersion		  0
   GraphicalInterface {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.316"
+    ComputedModelVersion    "1.318"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -39,19 +39,22 @@ Model {
   BrowserShowLibraryLinks off
   BrowserLookUnderMasks	  off
   Created		  "Wed Jun 21 08:47:29 2006"
+  Creator		  "tbrimeye"
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Jan 23 15:49:15 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:316>"
+  LastModifiedDate	  "Tue Apr 22 15:27:41 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:318>"
   ConfigurationManager	  "None"
+  SimulationMode	  "normal"
   LinearizationMsg	  "none"
   Profile		  off
   ParamWorkspaceSource	  "MATLABWorkspace"
   AccelSystemTargetFile	  "accel.tlc"
   AccelTemplateMakefile	  "accel_default_tmf"
   AccelMakeCommand	  "make_rtw"
+  AccelVerboseBuild	  off
   TryForcingSFcnDF	  off
   RecordCoverage	  off
   CovPath		  "/"
@@ -175,9 +178,9 @@ Model {
 	  BufferReuse		  on
 	  EnforceIntegerDowncast  on
 	  ExpressionFolding	  on
+	  ExpressionDepthLimit	  2147483647
 	  FoldNonRolledExpr	  on
 	  LocalBlockOutputs	  on
-	  ParameterPooling	  on
 	  RollThreshold		  5
 	  SystemCodeInlineAuto	  off
 	  StateBitsets		  off
@@ -210,6 +213,7 @@ Model {
 	  SignalResolutionControl "TryResolveAllWithWarning"
 	  BlockPriorityViolationMsg "warning"
 	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
 	  MaxConsecutiveZCsMsg	  "error"
 	  SolverPrmCheckMsg	  "warning"
 	  InheritedTsInSrcMsg	  "warning"
@@ -227,6 +231,7 @@ Model {
 	  ParameterOverflowMsg	  "error"
 	  ParameterUnderflowMsg	  "none"
 	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
 	  UnderSpecifiedDataTypeMsg "none"
 	  UnnecessaryDatatypeConvMsg "none"
 	  VectorMatrixConversionMsg "none"
@@ -251,6 +256,7 @@ Model {
 	  ModelReferenceDataLoggingMessage "warning"
 	  ModelReferenceSymbolNameMessage "warning"
 	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
 	  StrictBusMsg		  "Warning"
 	}
 	Simulink.HardwareCC {
@@ -319,6 +325,7 @@ Model {
 	  LaunchReport		  off
 	  TargetLang		  "C"
 	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  on
 	  Array {
 	    Type		    "Handle"
 	    Dimension		    2
@@ -403,8 +410,6 @@ Model {
 	      IncludeMdlTerminateFcn  on
 	      CombineOutputUpdateFcns off
 	      SuppressErrorStatus     off
-	      IncludeERTFirstTime     on
-	      ERTFirstTimeCompliant   off
 	      IncludeFileDelimiter    "Auto"
 	      ERTCustomFileBanners    off
 	      SupportAbsoluteTime     on
@@ -416,6 +421,10 @@ Model {
 	      PurelyIntegerCode	      off
 	      SupportContinuousTime   on
 	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
 	      ExtMode		      off
 	      ExtModeStaticAlloc      off
 	      ExtModeTesting	      off
@@ -433,7 +442,6 @@ Model {
 	PropName		"Components"
       }
       Name		      "Configuration"
-      SimulationMode	      "normal"
       CurrentDlgPage	      "Solver"
     }
     PropName		    "ConfigurationSets"
@@ -462,6 +470,15 @@ Model {
     }
     Block {
       BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "sfix(16)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "2^0"
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
     }
     Block {
       BlockType		      DiscretePulseGenerator
@@ -547,7 +564,7 @@ Model {
     }
     Block {
       BlockType		      SubSystem
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       Permissions	      "ReadWrite"
       PermitHierarchicalResolution "All"
       TreatAsAtomicUnit	      off
@@ -567,6 +584,8 @@ Model {
       BlockType		      Sum
       IconShape		      "rectangular"
       Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
       InputSameDT	      on
       OutDataTypeMode	      "Same as first input"
       OutDataType	      "sfix(16)"
@@ -609,6 +628,7 @@ Model {
     FontSize		    10
     FontWeight		    "normal"
     FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
   }
   LineDefaults {
     FontName		    "Arial"
@@ -618,7 +638,7 @@ Model {
   }
   System {
     Name		    "PulsePairProc"
-    Location		    [0, 82, 1588, 1176]
+    Location		    [2, 78, 1678, 1000]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -644,7 +664,7 @@ Model {
       UserData		      "DataTag0"
       SourceBlock	      "xbsIndex_r4/ System Generator"
       SourceType	      "Xilinx System Generator Block"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -653,7 +673,7 @@ Model {
       RTWMemSecDataInternal   "Inherit from model"
       RTWMemSecDataParameters "Inherit from model"
       infoedit		      " System Generator"
-      xilinxfamily	      "Virtex4"
+      xilinxfamily	      "virtex4"
       part		      "xc4vlx60"
       speed		      "-11"
       package		      "ff668"
@@ -729,29 +749,13 @@ Model {
       BlockType		      Constant
       Name		      "(M)"
       Position		      [25, 320, 95, 350]
-      Value		      "26"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
+      Value		      "27"
     }
     Block {
       BlockType		      Constant
       Name		      "(N)"
       Position		      [25, 389, 95, 421]
       Value		      "4"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Block {
       BlockType		      Reference
@@ -1355,28 +1359,12 @@ Model {
       Name		      "Index"
       Position		      [15, 695, 85, 725]
       Value		      "0"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Block {
       BlockType		      Constant
       Name		      "Length"
       Position		      [15, 739, 85, 771]
       Value		      "7"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Block {
       BlockType		      Reference
@@ -1422,7 +1410,7 @@ Model {
       NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -1432,6 +1420,7 @@ Model {
       RTWMemSecDataParameters "Inherit from model"
       sw		      "0"
       action		      "0"
+      varsize		      off
     }
     Block {
       BlockType		      Reference
@@ -1441,7 +1430,7 @@ Model {
       NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -1451,6 +1440,7 @@ Model {
       RTWMemSecDataParameters "Inherit from model"
       sw		      "0"
       action		      "0"
+      varsize		      off
     }
     Block {
       BlockType		      Reference
@@ -1459,7 +1449,7 @@ Model {
       Position		      [200, 457, 230, 493]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -1469,6 +1459,7 @@ Model {
       RTWMemSecDataParameters "Inherit from model"
       sw		      "1"
       action		      "0"
+      varsize		      off
     }
     Block {
       BlockType		      Reference
@@ -1478,7 +1469,7 @@ Model {
       NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -1488,6 +1479,7 @@ Model {
       RTWMemSecDataParameters "Inherit from model"
       sw		      "1"
       action		      "0"
+      varsize		      off
     }
     Block {
       BlockType		      Reference
@@ -1496,7 +1488,7 @@ Model {
       Position		      [235, 622, 265, 658]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
-      ShowPortLabels	      on
+      ShowPortLabels	      "FromPortIcon"
       SystemSampleTime	      "-1"
       FunctionWithSeparateData off
       RTWMemSecFuncInitTerm   "Inherit from model"
@@ -1506,6 +1498,7 @@ Model {
       RTWMemSecDataParameters "Inherit from model"
       sw		      "0"
       action		      "0"
+      varsize		      off
     }
     Block {
       BlockType		      Reference
@@ -1807,7 +1800,7 @@ Model {
 	  MaskHideContents	  off
 	  System {
 	    Name		    "Calc"
-	    Location		    [2, 82, 1590, 1154]
+	    Location		    [2, 82, 1590, 1026]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -2067,7 +2060,7 @@ Model {
 	      MaskHideContents	      off
 	      System {
 		Name			"I*Id1+Q*Qd1"
-		Location		[2, 82, 1590, 1154]
+		Location		[2, 82, 1590, 1026]
 		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
@@ -2149,9 +2142,9 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult2"
+		  Name			  "Mult"
 		  Ports			  [2, 1]
-		  Position		  [125, 35, 180, 95]
+		  Position		  [125, 33, 180, 97]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -2162,38 +2155,39 @@ Model {
 		  n_bits		  "32"
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
-		  overflow		  "Saturate"
+		  overflow		  "Flag as error"
 		  en			  off
 		  latency		  "1"
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
+		  block_version		  "9.2.01"
+		  sg_icon_stat		  "55,64,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');port_label('input',1,'a');\ncolor('b"
-"lack');port_label('input',2,'b');\ncolor('black');port_label('output',1,'(ab)"
-"');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on');\nf"
-"printf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 55 55 0 ],[0 0 64 64 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[10 19 32 45 54 54 50 "
+"54 54 42 54 45 32 19 10 22 10 10 14 10 10 ],[0.98 0.96 0.92]);\nplot([0 0 55 "
+"55 0 ],[0 64 64 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'a');\nco"
+"lor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1"
+",'(ab)');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on"
+"');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult3"
+		  Name			  "Mult1"
 		  Ports			  [2, 1]
-		  Position		  [125, 110, 180, 170]
+		  Position		  [125, 108, 180, 172]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -2204,32 +2198,33 @@ Model {
 		  n_bits		  "32"
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
-		  overflow		  "Saturate"
+		  overflow		  "Flag as error"
 		  en			  off
 		  latency		  "1"
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
+		  block_version		  "9.2.01"
+		  sg_icon_stat		  "55,64,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
-"MENT: begin icon text');\ncolor('black');port_label('input',1,'a');\ncolor('b"
-"lack');port_label('input',2,'b');\ncolor('black');port_label('output',1,'(ab)"
-"');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on');\nf"
-"printf('','COMMENT: end icon text');\n"
+"phics');\npatch([0 55 55 0 ],[0 0 64 64 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[10 19 32 45 54 54 50 "
+"54 54 42 54 45 32 19 10 22 10 10 14 10 10 ],[0.98 0.96 0.92]);\nplot([0 0 55 "
+"55 0 ],[0 64 64 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('"
+"','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'a');\nco"
+"lor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1"
+",'(ab)');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on"
+"');\nfprintf('','COMMENT: end icon text');\n"
 		}
 		Block {
 		  BlockType		  Outport
@@ -2239,13 +2234,13 @@ Model {
 		  BusOutputAsStruct	  off
 		}
 		Line {
-		  SrcBlock		  "Mult2"
+		  SrcBlock		  "Mult"
 		  SrcPort		  1
 		  DstBlock		  "AddSub1"
 		  DstPort		  1
 		}
 		Line {
-		  SrcBlock		  "Mult3"
+		  SrcBlock		  "Mult1"
 		  SrcPort		  1
 		  DstBlock		  "AddSub1"
 		  DstPort		  2
@@ -2253,13 +2248,13 @@ Model {
 		Line {
 		  SrcBlock		  "I"
 		  SrcPort		  1
-		  DstBlock		  "Mult2"
+		  DstBlock		  "Mult"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "I Delay 1"
 		  SrcPort		  1
-		  DstBlock		  "Mult2"
+		  DstBlock		  "Mult"
 		  DstPort		  2
 		}
 		Line {
@@ -2272,13 +2267,13 @@ Model {
 		Line {
 		  SrcBlock		  "Q"
 		  SrcPort		  1
-		  DstBlock		  "Mult3"
+		  DstBlock		  "Mult1"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Q Delay 1"
 		  SrcPort		  1
-		  DstBlock		  "Mult3"
+		  DstBlock		  "Mult1"
 		  DstPort		  2
 		}
 	      }
@@ -2349,6 +2344,8 @@ Model {
 		  bin_pt		  "0"
 		  explicit_period	  off
 		  period		  "1"
+		  dsp48_infoedit	  "The use of this block for DSP48 ins"
+"tructions is deprecated.  Please use the Opmode block."
 		  equ			  "P=C"
 		  opselect		  "C"
 		  inp2			  "PCIN>>17"
@@ -2449,6 +2446,11 @@ Model {
 		  percent_nbits		  "1"
 		  rst			  on
 		  en			  off
+		  use_dcount		  off
+		  use_almost_empty	  off
+		  almost_empty_thresh	  "2"
+		  use_almost_full	  off
+		  almost_full_thresh	  "14"
 		  dbl_ovrd		  off
 		  mem_type		  "Block RAM"
 		  xl_use_area		  off
@@ -2481,6 +2483,11 @@ Model {
 		  percent_nbits		  "1"
 		  rst			  on
 		  en			  off
+		  use_dcount		  off
+		  use_almost_empty	  off
+		  almost_empty_thresh	  "2"
+		  use_almost_full	  off
+		  almost_full_thresh	  "14"
 		  dbl_ovrd		  off
 		  mem_type		  "Block RAM"
 		  xl_use_area		  off
@@ -2948,6 +2955,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -3830,7 +3839,7 @@ Model {
 	      MaskHideContents	      off
 	      System {
 		Name			"I^2+Q^2"
-		Location		[2, 82, 1590, 1154]
+		Location		[2, 82, 1590, 1026]
 		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
@@ -3898,9 +3907,9 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult"
+		  Name			  "Mult1"
 		  Ports			  [2, 1]
-		  Position		  [125, 35, 180, 95]
+		  Position		  [125, 35, 180, 90]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -3917,22 +3926,23 @@ Model {
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
+		  block_version		  "9.2.01"
+		  sg_icon_stat		  "55,55,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"phics');\npatch([0 55 55 0 ],[0 0 55 55 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[6 15 28 41 50 50 46 5"
+"0 50 38 50 41 28 15 6 18 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 55 55 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');port_label('input',1,'a');\ncolor('b"
 "lack');port_label('input',2,'b');\ncolor('black');port_label('output',1,'(ab)"
 "');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on');\nf"
@@ -3940,9 +3950,9 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult1"
+		  Name			  "Mult2"
 		  Ports			  [2, 1]
-		  Position		  [125, 110, 180, 170]
+		  Position		  [125, 110, 180, 165]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -3959,53 +3969,27 @@ Model {
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
+		  block_version		  "9.2.01"
+		  sg_icon_stat		  "55,55,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"phics');\npatch([0 55 55 0 ],[0 0 55 55 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[6 15 28 41 50 50 46 5"
+"0 50 38 50 41 28 15 6 18 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 55 55 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');port_label('input',1,'a');\ncolor('b"
 "lack');port_label('input',2,'b');\ncolor('black');port_label('output',1,'(ab)"
 "');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on');\nf"
 "printf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  ToWorkspace
-		  Name			  "To Workspace1"
-		  Position		  [265, 200, 325, 230]
-		  VariableName		  "Isq"
-		  MaxDataPoints		  "inf"
-		  SampleTime		  "-1"
-		  SaveFormat		  "Array"
-		}
-		Block {
-		  BlockType		  ToWorkspace
-		  Name			  "To Workspace2"
-		  Position		  [265, 250, 325, 280]
-		  VariableName		  "Qsq"
-		  MaxDataPoints		  "inf"
-		  SampleTime		  "-1"
-		  SaveFormat		  "Array"
-		}
-		Block {
-		  BlockType		  ToWorkspace
-		  Name			  "To Workspace3"
-		  Position		  [400, 135, 460, 165]
-		  VariableName		  "Ppp"
-		  MaxDataPoints		  "inf"
-		  SampleTime		  "-1"
-		  SaveFormat		  "Array"
 		}
 		Block {
 		  BlockType		  Outport
@@ -4015,44 +3999,28 @@ Model {
 		  BusOutputAsStruct	  off
 		}
 		Line {
-		  SrcBlock		  "Mult"
-		  SrcPort		  1
-		  Points		  [0, 0; 30, 0]
-		  Branch {
-		    Points		    [0, 150]
-		    DstBlock		    "To Workspace1"
-		    DstPort		    1
-		  }
-		  Branch {
-		    DstBlock		    "AddSub"
-		    DstPort		    1
-		  }
-		}
-		Line {
 		  SrcBlock		  "Mult1"
 		  SrcPort		  1
-		  Points		  [0, 0; 15, 0]
-		  Branch {
-		    Points		    [0, 125]
-		    DstBlock		    "To Workspace2"
-		    DstPort		    1
-		  }
-		  Branch {
-		    DstBlock		    "AddSub"
-		    DstPort		    2
-		  }
+		  DstBlock		  "AddSub"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Mult2"
+		  SrcPort		  1
+		  DstBlock		  "AddSub"
+		  DstPort		  2
 		}
 		Line {
 		  SrcBlock		  "I"
 		  SrcPort		  1
 		  Points		  [50, 0]
 		  Branch {
-		    DstBlock		    "Mult"
-		    DstPort		    1
+		    DstBlock		    "Mult1"
+		    DstPort		    2
 		  }
 		  Branch {
-		    DstBlock		    "Mult"
-		    DstPort		    2
+		    DstBlock		    "Mult1"
+		    DstPort		    1
 		  }
 		}
 		Line {
@@ -4060,95 +4028,21 @@ Model {
 		  SrcPort		  1
 		  Points		  [50, 0]
 		  Branch {
-		    DstBlock		    "Mult1"
+		    DstBlock		    "Mult2"
 		    DstPort		    1
 		  }
 		  Branch {
-		    DstBlock		    "Mult1"
+		    DstBlock		    "Mult2"
 		    DstPort		    2
 		  }
 		}
 		Line {
 		  SrcBlock		  "AddSub"
 		  SrcPort		  1
-		  Points		  [0, 0; 25, 0]
-		  Branch {
-		    DstBlock		    "P"
-		    DstPort		    1
-		  }
-		  Branch {
-		    Points		    [0, 45]
-		    DstBlock		    "To Workspace3"
-		    DstPort		    1
-		  }
+		  DstBlock		  "P"
+		  DstPort		  1
 		}
 	      }
-	    }
-	    Block {
-	      BlockType		      Reference
-	      Name		      "Out"
-	      Ports		      [1, 1]
-	      Position		      [130, 40, 190, 60]
-	      Orientation	      "left"
-	      NamePlacement	      "alternate"
-	      SourceBlock	      "xbsIndex_r4/Gateway Out"
-	      SourceType	      "Xilinx Gateway Out Block"
-	      infoedit		      "Gateway out block.  Converts Xilinx fix"
-"ed point inputs into ouputs of type Simulink integer, double, or fixed point."
-"<P><P>Hardware notes:  In hardware these blocks become top level output ports"
-" or are discarded, depending on how they are configured."
-	      hdl_port		      off
-	      timing_constraint	      "None"
-	      locs_specified	      off
-	      LOCs		      "{}"
-	      xl_use_area	      off
-	      xl_area		      "[0 0 0 0 0 0 0]"
-	      has_advanced_control    "0"
-	      sggui_pos		      "20,20,356,330"
-	      block_type	      "gatewayout"
-	      block_version	      "8.2"
-	      sg_icon_stat	      "60,20,1,1,white,grey,0,422cd57d"
-	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
-"s');\npatch([0 60 60 0 ],[0 0 20 20 ],[0.88 0.88 0.88]);\npatch([24 21 26 21 "
-"24 29 30 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 1"
-"8 14 18 15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20"
-" 20 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: "
-"begin icon text');\ncolor('black');port_label('input',1,' ');\ncolor('black')"
-";port_label('output',1,'\\fontsize{11pt} Out ','texmode','on');\nfprintf('','"
-"COMMENT: end icon text');\n"
-	    }
-	    Block {
-	      BlockType		      Reference
-	      Name		      "Out1"
-	      Ports		      [1, 1]
-	      Position		      [130, 85, 190, 105]
-	      Orientation	      "left"
-	      NamePlacement	      "alternate"
-	      SourceBlock	      "xbsIndex_r4/Gateway Out"
-	      SourceType	      "Xilinx Gateway Out Block"
-	      infoedit		      "Gateway out block.  Converts Xilinx fix"
-"ed point inputs into ouputs of type Simulink integer, double, or fixed point."
-"<P><P>Hardware notes:  In hardware these blocks become top level output ports"
-" or are discarded, depending on how they are configured."
-	      hdl_port		      off
-	      timing_constraint	      "None"
-	      locs_specified	      off
-	      LOCs		      "{}"
-	      xl_use_area	      off
-	      xl_area		      "[0 0 0 0 0 0 0]"
-	      has_advanced_control    "0"
-	      sggui_pos		      "20,20,356,330"
-	      block_type	      "gatewayout"
-	      block_version	      "8.2"
-	      sg_icon_stat	      "60,20,1,1,white,grey,0,422cd57d"
-	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
-"s');\npatch([0 60 60 0 ],[0 0 20 20 ],[0.88 0.88 0.88]);\npatch([24 21 26 21 "
-"24 29 30 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 1"
-"8 14 18 15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20"
-" 20 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: "
-"begin icon text');\ncolor('black');port_label('input',1,' ');\ncolor('black')"
-";port_label('output',1,'\\fontsize{11pt} Out ','texmode','on');\nfprintf('','"
-"COMMENT: end icon text');\n"
 	    }
 	    Block {
 	      BlockType		      SubSystem
@@ -4162,7 +4056,7 @@ Model {
 	      MaskHideContents	      off
 	      System {
 		Name			"Q*Id1-I*Qd1"
-		Location		[340, 452, 726, 668]
+		Location		[2, 82, 1670, 1004]
 		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
@@ -4244,9 +4138,9 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult4"
+		  Name			  "Mult"
 		  Ports			  [2, 1]
-		  Position		  [105, 35, 160, 95]
+		  Position		  [110, 37, 165, 93]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -4257,28 +4151,29 @@ Model {
 		  n_bits		  "32"
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
-		  overflow		  "Saturate"
+		  overflow		  "Flag as error"
 		  en			  off
 		  latency		  "1"
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
-		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
+		  block_version		  "9.2.01"
+		  sg_icon_stat		  "55,56,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
-"phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
-"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[8 17 30 43 52 52 48 5"
-"2 52 40 52 43 30 17 8 20 8 8 12 8 8 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
-",[0 60 60 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
+"phics');\npatch([0 55 55 0 ],[0 0 56 56 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
+"4 13 28 32 36 52 40 28 19 32 19 28 40 52 36 32 28 13 ],[6 15 28 41 50 50 46 5"
+"0 50 38 50 41 28 15 6 18 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 55 55 0 ]"
+",[0 56 56 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COM"
 "MENT: begin icon text');\ncolor('black');port_label('input',1,'a');\ncolor('b"
 "lack');port_label('input',2,'b');\ncolor('black');port_label('output',1,'(ab)"
 "');\ncolor('black');disp('\\newline\\bf{}\\newlinez^{-1}','texmode','on');\nf"
@@ -4286,9 +4181,9 @@ Model {
 		}
 		Block {
 		  BlockType		  Reference
-		  Name			  "Mult5"
+		  Name			  "Mult1"
 		  Ports			  [2, 1]
-		  Position		  [105, 110, 160, 170]
+		  Position		  [110, 110, 165, 170]
 		  SourceBlock		  "xbsIndex_r4/Mult"
 		  SourceType		  "Xilinx Multiplier Block"
 		  infoedit		  "Hardware notes: To use the internal"
@@ -4299,22 +4194,23 @@ Model {
 		  n_bits		  "32"
 		  bin_pt		  "31"
 		  quantization		  "Round  (unbiased: +/- Inf)"
-		  overflow		  "Saturate"
+		  overflow		  "Flag as error"
 		  en			  off
 		  latency		  "1"
 		  dbl_ovrd		  off
 		  use_behavioral_HDL	  off
 		  use_embedded		  on
+		  opt			  "Speed"
 		  optimum_pipeline	  off
-		  use_rpm		  on
-		  placement_style	  "Rectangular shape"
 		  xl_use_area		  off
 		  xl_area		  "[0,0,0,0,0,0,0]"
 		  pipeline		  "on"
+		  use_rpm		  "on"
+		  placement_style	  "Triangular"
 		  has_advanced_control	  "0"
-		  sggui_pos		  "20,20,356,451"
+		  sggui_pos		  "20,20,386,434"
 		  block_type		  "mult"
-		  block_version		  "8.2"
+		  block_version		  "9.2.01"
 		  sg_icon_stat		  "55,60,2,1,white,blue,0,2b745779"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon gra"
 "phics');\npatch([0 55 55 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([13 4 17 "
@@ -4334,13 +4230,13 @@ Model {
 		  BusOutputAsStruct	  off
 		}
 		Line {
-		  SrcBlock		  "Mult4"
+		  SrcBlock		  "Mult"
 		  SrcPort		  1
 		  DstBlock		  "AddSub2"
 		  DstPort		  1
 		}
 		Line {
-		  SrcBlock		  "Mult5"
+		  SrcBlock		  "Mult1"
 		  SrcPort		  1
 		  DstBlock		  "AddSub2"
 		  DstPort		  2
@@ -4348,13 +4244,13 @@ Model {
 		Line {
 		  SrcBlock		  "Q"
 		  SrcPort		  1
-		  DstBlock		  "Mult4"
+		  DstBlock		  "Mult"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "I Delay 1"
 		  SrcPort		  1
-		  DstBlock		  "Mult4"
+		  DstBlock		  "Mult"
 		  DstPort		  2
 		}
 		Line {
@@ -4366,13 +4262,13 @@ Model {
 		Line {
 		  SrcBlock		  "I"
 		  SrcPort		  1
-		  DstBlock		  "Mult5"
+		  DstBlock		  "Mult1"
 		  DstPort		  1
 		}
 		Line {
 		  SrcBlock		  "Q Delay 1"
 		  SrcPort		  1
-		  DstBlock		  "Mult5"
+		  DstBlock		  "Mult1"
 		  DstPort		  2
 		}
 	      }
@@ -4439,28 +4335,6 @@ Model {
 " 34 34 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMEN"
 "T: begin icon text');\ncolor('black');disp('reinterpret');\nfprintf('','COMME"
 "NT: end icon text');\n"
-	    }
-	    Block {
-	      BlockType		      ToWorkspace
-	      Name		      "To Workspace1"
-	      Position		      [25, 80, 85, 110]
-	      Orientation	      "left"
-	      NamePlacement	      "alternate"
-	      VariableName	      "I"
-	      MaxDataPoints	      "inf"
-	      SampleTime	      "-1"
-	      SaveFormat	      "Array"
-	    }
-	    Block {
-	      BlockType		      ToWorkspace
-	      Name		      "To Workspace2"
-	      Position		      [25, 35, 85, 65]
-	      Orientation	      "left"
-	      NamePlacement	      "alternate"
-	      VariableName	      "Q"
-	      MaxDataPoints	      "inf"
-	      SampleTime	      "-1"
-	      SaveFormat	      "Array"
 	    }
 	    Block {
 	      BlockType		      Outport
@@ -4754,57 +4628,29 @@ Model {
 	    Line {
 	      SrcBlock		      "I"
 	      SrcPort		      1
-	      Points		      [150, 0]
+	      Points		      [180, 0]
 	      Branch {
-		Points			[30, 0]
-		Branch {
-		  Points		  [0, -135]
-		  DstBlock		  "Reinterpret"
-		  DstPort		  1
-		}
-		Branch {
-		  DstBlock		  "Delay1"
-		  DstPort		  1
-		}
+		Points			[0, -135]
+		DstBlock		"Reinterpret"
+		DstPort			1
 	      }
 	      Branch {
-		Points			[0, -75]
-		DstBlock		"Out1"
+		DstBlock		"Delay1"
 		DstPort			1
 	      }
 	    }
 	    Line {
 	      SrcBlock		      "Q"
 	      SrcPort		      1
-	      Points		      [165, 0]
+	      Points		      [195, 0]
 	      Branch {
-		Points			[30, 0]
-		Branch {
-		  DstBlock		  "Delay2"
-		  DstPort		  1
-		}
-		Branch {
-		  DstBlock		  "Reinterpret1"
-		  DstPort		  1
-		}
-	      }
-	      Branch {
-		Points			[0, -190]
-		DstBlock		"Out"
+		DstBlock		"Delay2"
 		DstPort			1
 	      }
-	    }
-	    Line {
-	      SrcBlock		      "Out"
-	      SrcPort		      1
-	      DstBlock		      "To Workspace2"
-	      DstPort		      1
-	    }
-	    Line {
-	      SrcBlock		      "Out1"
-	      SrcPort		      1
-	      DstBlock		      "To Workspace1"
-	      DstPort		      1
+	      Branch {
+		DstBlock		"Reinterpret1"
+		DstPort			1
+	      }
 	    }
 	  }
 	}
@@ -5143,6 +4989,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -5496,6 +5347,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -5529,6 +5382,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -5562,6 +5417,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -6610,6 +6467,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -6963,6 +6825,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -6996,6 +6860,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -7029,6 +6895,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -8240,6 +8108,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -8561,6 +8434,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -8594,6 +8469,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -8627,6 +8504,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -9611,6 +9490,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -9932,6 +9816,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -9965,6 +9851,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -9998,6 +9886,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -11627,7 +11517,6 @@ Model {
 		Line {
 		  SrcBlock		  "Logical1"
 		  SrcPort		  1
-		  Points		  [30, 0]
 		  DstBlock		  "Logical"
 		  DstPort		  2
 		}
@@ -11648,7 +11537,6 @@ Model {
 		Line {
 		  SrcBlock		  "Relational"
 		  SrcPort		  1
-		  Points		  [100, 0]
 		  DstBlock		  "Register1"
 		  DstPort		  1
 		}
@@ -11738,7 +11626,6 @@ Model {
 		Line {
 		  SrcBlock		  "Logical3"
 		  SrcPort		  1
-		  Points		  [30, 0]
 		  DstBlock		  "Logical2"
 		  DstPort		  2
 		}
@@ -11759,7 +11646,6 @@ Model {
 		Line {
 		  SrcBlock		  "Relational1"
 		  SrcPort		  1
-		  Points		  [100, 0]
 		  DstBlock		  "Register2"
 		  DstPort		  1
 		}
@@ -13166,6 +13052,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -13487,6 +13378,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -13520,6 +13413,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -13553,6 +13448,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -14537,6 +14434,11 @@ Model {
 		    percent_nbits	    "1"
 		    rst			    on
 		    en			    off
+		    use_dcount		    off
+		    use_almost_empty	    off
+		    almost_empty_thresh	    "2"
+		    use_almost_full	    off
+		    almost_full_thresh	    "14"
 		    dbl_ovrd		    off
 		    mem_type		    "Block RAM"
 		    xl_use_area		    off
@@ -14858,6 +14760,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -14891,6 +14795,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -14924,6 +14830,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    off
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -16690,7 +16598,7 @@ Model {
       sggui_pos		      "24,50,508,295"
       block_type	      "resource_estimator"
       block_version	      "8.2"
-      sg_icon_stat	      "53,53,0,0,white,blue,0,07734"
+      sg_icon_stat	      "53,53,0,0,white,blue,0,0"
       sg_mask_display	      "fprintf('','COMMENT: begin icon graphics ');\np"
 "atch([0 53 53 0 ],[0 0 53 53 ],[0.77 0.82 0.91]);\npatch([13 4 16 4 13 27 31 "
 "35 50 38 27 19 31 19 27 38 50 35 31 27 13 ],[6 15 27 39 48 48 44 48 48 36 47 "
@@ -16823,42 +16731,18 @@ Model {
       Name		      "const"
       Position		      [75, 569, 120, 591]
       Value		      "0"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Block {
       BlockType		      Constant
       Name		      "const1"
       Position		      [75, 629, 120, 651]
       Value		      "0"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Block {
       BlockType		      Constant
       Name		      "const2"
       Position		      [20, 484, 65, 506]
       Value		      "0"
-      VectorParams1D	      on
-      SamplingMode	      "Sample based"
-      OutDataTypeMode	      "Inherit from 'Constant value'"
-      OutDataType	      "sfix(16)"
-      ConRadixGroup	      "Use specified scaling"
-      OutScaling	      "2^0"
-      SampleTime	      "inf"
-      FramePeriod	      "inf"
     }
     Line {
       SrcBlock		      "I_In"
@@ -17340,7 +17224,7 @@ MatData {
 "            <WEN=&AE<VES7VQA;F=U86=E &-E7V-L<@                !P<F5S97)V95]H:"
 "65R87)C:'D <&]S=&=E;F5R871I;VY?9F-N '-E='1I;F=S7V9C;@        !N9V-?8V]N9FEG  "
 "             .    .     8    (    !          %    \"     $    '     0        "
-" 0    !P   %9I<G1E>#0 #@   #@    &    \"     0         !0    @    !    \"    "
+" 0    !P   '9I<G1E>#0 #@   #@    &    \"     0         !0    @    !    \"    "
 " $         $     @   !X8S1V;'@V, X    P    !@    @    $          4    (     0"
 "    ,    !         !   P M,3$ #@   #@    &    \"     0         !0    @    !  "
 "  !0    $         $     4   !F9C8V.     X    P    !@    @    $          4    "
@@ -17445,7 +17329,7 @@ MatData {
 "        !S>6YT:&5S:7-?;&%N9W5A9V4 8V5?8VQR                 '!R97-E<G9E7VAI97)"
 "A<F-H>0!P;W-T9V5N97)A=&EO;E]F8VX <V5T=&EN9W-?9F-N         &YG8U]C;VYF:6<     "
 "          X    X    !@    @    $          4    (     0    <    !         !   "
-"  '    5FER=&5X-  .    .     8    (    !          %    \"     $    (     0   "
+"  '    =FER=&5X-  .    .     8    (    !          %    \"     $    (     0   "
 "      0    \"    'AC-'9L>#8P#@   #     &    \"     0         !0    @    !    "
 " P    $         $  # \"TQ,0 .    .     8    (    !          %    \"     $    "
 "%     0         0    !0   &9F-C8X    #@   #     &    \"     0         !0    @"

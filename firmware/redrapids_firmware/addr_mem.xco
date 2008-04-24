@@ -1,59 +1,73 @@
+##############################################################
+#
+# Xilinx Core Generator version J.40
+# Date: Tue Apr 22 17:56:25 2008
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
 # BEGIN Project Options
-SET flowvendor = Other
-SET vhdlsim = True
-SET verilogsim = False
-SET workingdirectory = C:\Work_Projects\Eldora\firmware\redrapids_firmware
-SET speedgrade = -11
-SET simulationfiles = Behavioral
-SET asysymbol = False
 SET addpads = False
-SET device = xc4vsx35
-SET implementationfiletype = Edif
+SET asysymbol = False
 SET busformat = BusFormatAngleBracketNotRipped
-SET foundationsym = False
-SET package = ff668
 SET createndf = False
 SET designentry = VHDL
+SET device = xc4vsx35
 SET devicefamily = virtex4
+SET flowvendor = Other
 SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Edif
+SET package = ff668
 SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -11
+SET verilogsim = False
+SET vhdlsim = True
 # END Project Options
 # BEGIN Select
 SELECT Dual_Port_Block_Memory family Xilinx,_Inc. 6.2
 # END Select
 # BEGIN Parameters
-CSET port_a_init_value=0
-CSET port_b_init_pin=false
-CSET port_b_enable_pin_polarity=Active_High
-CSET port_a_additional_output_pipe_stages=0
-CSET port_b_initialization_pin_polarity=Active_High
-CSET select_primitive=32kx1
-CSET port_a_init_pin=false
-CSET port_b_active_clock_edge=Rising_Edge_Triggered
-CSET port_a_handshaking_pins=false
-CSET global_init_value=0
-CSET port_a_enable_pin_polarity=Active_High
-CSET port_b_init_value=0
+CSET component_name=addr_mem
+CSET configuration_port_a=Read_And_Write
+CSET configuration_port_b=Read_Only
 CSET depth_a=2048
 CSET depth_b=1024
-CSET port_a_write_enable_polarity=Active_High
-CSET component_name=addr_mem
+CSET global_init_value=0
+CSET port_a_active_clock_edge=Rising_Edge_Triggered
+CSET port_a_additional_output_pipe_stages=0
 CSET port_a_enable_pin=false
-CSET configuration_port_a=Read_And_Write
-CSET write_mode_port_a=Read_After_Write
-CSET configuration_port_b=Read_Only
-CSET write_mode_port_b=Read_After_Write
+CSET port_a_enable_pin_polarity=Active_High
+CSET port_a_handshaking_pins=false
+CSET port_a_init_pin=false
+CSET port_a_init_value=0
+CSET port_a_initialization_pin_polarity=Active_High
+CSET port_a_register_inputs=false
+CSET port_a_write_enable_polarity=Active_High
+CSET port_b_active_clock_edge=Rising_Edge_Triggered
+CSET port_b_additional_output_pipe_stages=0
+CSET port_b_enable_pin=false
+CSET port_b_enable_pin_polarity=Active_High
+CSET port_b_handshaking_pins=false
+CSET port_b_init_pin=false
+CSET port_b_init_value=0
+CSET port_b_initialization_pin_polarity=Active_High
 CSET port_b_register_inputs=false
+CSET port_b_write_enable_polarity=Active_High
 CSET primitive_selection=Optimize_For_Area
+CSET select_primitive=32kx1
 CSET width_a=32
 CSET width_b=64
-CSET port_a_active_clock_edge=Rising_Edge_Triggered
-CSET port_b_additional_output_pipe_stages=0
-CSET port_b_write_enable_polarity=Active_High
-CSET port_a_register_inputs=false
-CSET port_a_initialization_pin_polarity=Active_High
-CSET port_b_handshaking_pins=false
-CSET port_b_enable_pin=false
+CSET write_mode_port_a=Read_After_Write
+CSET write_mode_port_b=Read_After_Write
 # END Parameters
 GENERATE
+# CRC: 1b0f06e9
 
