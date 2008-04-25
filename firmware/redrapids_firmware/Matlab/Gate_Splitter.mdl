@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.228"
+    ComputedModelVersion    "1.229"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -44,8 +44,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Apr 22 15:15:40 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:228>"
+  LastModifiedDate	  "Thu Apr 24 15:16:58 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:229>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -761,7 +761,7 @@ Model {
       System {
 	Name			"Gate Splitter"
 	Location		[2, 82, 1670, 1004]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -820,7 +820,7 @@ Model {
 	  System {
 	    Name		    "Gate Splitter"
 	    Location		    [2, 82, 1590, 1026]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -980,7 +980,7 @@ Model {
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
 	      en		      off
-	      latency		      "39"
+	      latency		      "279"
 	      dbl_ovrd		      off
 	      reg_retiming	      off
 	      xl_use_area	      off
@@ -989,14 +989,14 @@ Model {
 	      sggui_pos		      "20,20,348,268"
 	      block_type	      "delay"
 	      block_version	      "8.2"
-	      sg_icon_stat	      "50,58,1,1,white,blue,0,a3db6833"
+	      sg_icon_stat	      "50,58,1,1,white,blue,0,033fea7f"
 	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
 "s');\npatch([0 50 50 0 ],[0 0 58 58 ],[0.77 0.82 0.91]);\npatch([11 3 15 3 11"
 " 24 28 32 46 35 24 16 28 16 24 35 46 32 28 24 11 ],[9 17 29 41 49 49 45 49 49"
 " 38 49 41 29 17 9 20 9 9 13 9 9 ],[0.98 0.96 0.92]);\nplot([0 0 50 50 0 ],[0 "
 "58 58 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
-": begin icon text');\ncolor('black');disp('z^{-39}','texmode','on');\nfprintf"
-"('','COMMENT: end icon text');\n"
+": begin icon text');\ncolor('black');disp('z^{-279}','texmode','on');\nfprint"
+"f('','COMMENT: end icon text');\n"
 	    }
 	    Block {
 	      BlockType		      Reference
@@ -1009,7 +1009,7 @@ Model {
 ", each link of which is an SRL16 followed by a flip-flop. If register retimin"
 "g is enabled, the delay line is a chain of flip-flops."
 	      en		      off
-	      latency		      "39"
+	      latency		      "279"
 	      dbl_ovrd		      off
 	      reg_retiming	      off
 	      xl_use_area	      off
@@ -1018,14 +1018,14 @@ Model {
 	      sggui_pos		      "20,20,348,268"
 	      block_type	      "delay"
 	      block_version	      "8.2"
-	      sg_icon_stat	      "50,58,1,1,white,blue,0,a3db6833"
+	      sg_icon_stat	      "50,58,1,1,white,blue,0,033fea7f"
 	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
 "s');\npatch([0 50 50 0 ],[0 0 58 58 ],[0.77 0.82 0.91]);\npatch([11 3 15 3 11"
 " 24 28 32 46 35 24 16 28 16 24 35 46 32 28 24 11 ],[9 17 29 41 49 49 45 49 49"
 " 38 49 41 29 17 9 20 9 9 13 9 9 ],[0.98 0.96 0.92]);\nplot([0 0 50 50 0 ],[0 "
 "58 58 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT"
-": begin icon text');\ncolor('black');disp('z^{-39}','texmode','on');\nfprintf"
-"('','COMMENT: end icon text');\n"
+": begin icon text');\ncolor('black');disp('z^{-279}','texmode','on');\nfprint"
+"f('','COMMENT: end icon text');\n"
 	    }
 	    Block {
 	      BlockType		      Reference
@@ -3175,7 +3175,7 @@ Model {
       Position		      [980, 156, 1015, 694]
       Floating		      off
       Location		      [6, 34, 1606, 1035]
-      Open		      off
+      Open		      on
       NumInputPorts	      "5"
       List {
 	ListType		AxesTitles
