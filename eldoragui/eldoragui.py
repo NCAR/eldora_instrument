@@ -178,7 +178,7 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', ddsConfigDir + '/DDSDomainIds.conf'
         ]
-    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, textColor='purple')
+    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload='purple')
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
@@ -218,7 +218,7 @@ def runDrx():
     drxInternalTimer = ourConfig.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
-    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, textColor='blue')
+    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload='blue')
     s = ourProcesses['eldoradrx']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
@@ -245,7 +245,7 @@ def runProducts():
     
     # start a new instance
     productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
-    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, textColor='red')
+    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload='red')
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
