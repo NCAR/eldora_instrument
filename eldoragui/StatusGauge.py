@@ -64,11 +64,11 @@ class StatusGauge(QWidget):
                     topY = (h-diameter)/2
     
                 color = QColor (self.colors[i])
-                brush = QBrush(color)
                 if self.ison[i] == False:
-                    brush.setStyle(Qt.Dense6Pattern)
+                    color.setAlpha(30)
                 else:
-                    brush.setStyle(Qt.SolidPattern)
+                    color.setAlpha(255)
+                brush = QBrush(color)
                 p.setBrush(brush)
                 p.drawEllipse(leftX, topY, diameter, diameter)
         p.end()
@@ -116,9 +116,6 @@ class StatusGauge(QWidget):
         # redraw with the new configuration
         self.repaint()
         
-#################################################
-#################################################
-#################################################
 #################################################
     @staticmethod
     def gaugePressed(parent):
@@ -181,3 +178,6 @@ class StatusGauge(QWidget):
         # now start the event loop
         app.exec_()
 
+# Uncomment the following line in order to run the test
+# simply by invoking 'python StatusGauge.py'
+#StatusGauge.test()
