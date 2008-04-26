@@ -3,6 +3,7 @@ import sys
 import time
 import re
 from PyQt4.QtCore import *
+from PyQt4.QtGui  import *
 
 class EmitterProc(QProcess):
     '''
@@ -12,7 +13,7 @@ class EmitterProc(QProcess):
     The specified command is spawnwed as a QProcess. Stdout and
     stderr are read when triggered by the readyReadStandardOutput 
     signal, and the returned text is emitted as a 
-    SIGNAL(text(), data, color), which can be connected to 
+    SIGNAL(text(), text, payload), which can be connected to 
     other Qt slots.
     
     Using a QProcess allows us to utilize the Qt signal/slot
@@ -24,10 +25,10 @@ class EmitterProc(QProcess):
     exited, if you want the process to continue after the function leaves 
     scope.
     '''
-    def __init__(self, command, emitText=False, textColor='black'):
+    def __init__(self, command, emitText=False, payload=None):
         QProcess.__init__(self)
         self.emitText = emitText
-        self.textColor = textColor
+        self.payload = payload
         self.command = command
         self.setProcessChannelMode(QProcess.MergedChannels)
         self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
@@ -45,26 +46,38 @@ class EmitterProc(QProcess):
             if not line:
                 return
             if self.emitText:
-                self.emit(SIGNAL("text"), line, self.textColor)
+                self.emit(SIGNAL("text"), line, self.payload)
         
 ###############################################################
     @staticmethod
-    def testCallback(line):
-        print line
+    def testCallback(text, color):
+        html = '<font color="' + color + '">' + text + '</font>'
+        d.append(html)
         
     @staticmethod
     def test():
         '''
         A test routine for SubThread
         '''
+        # create a qt application so that we have an event loop.            
+        app = QApplication(sys.argv)
+        global d
+        d = QTextEdit()
+        d.resize(1000, 300)
+        d.show()
+        
+        # request the command
         print 'your command is my wish: '
         line = sys.stdin.readline()
         line = re.sub('\n', '', line)
         cmd = re.split(' +',line)
-        s = EmiterProc(command=cmd)
+        
+        # create the EmitterProc and start the process
+        s = EmitterProc(command=cmd, emitText=True, payload="magenta")
+        QObject.connect(s,SIGNAL("text"), EmitterProc.testCallback)
         s.start()
-        while 1:
-            time.sleep(1)
-            print 'sleeping...'
+        
+        # start our event loop
+        app.exec_()
             
         
