@@ -59,16 +59,37 @@ def stop():
 ####################################################################################
 def status():
     ''' query the eldora applications for status, and transmit this
-    status back to the main application.
+    status back to the main application. This really needs to be refactored, 
+    with some fnctionality going back to EldoraMain, and a new controller
+    class created containing the business logic.
     '''
     global drxrpc
     global prodrpc
 
+    prodstatus = 2
     try:
         r = prodrpc.status()
-        print r
+        ABPrate = r['numAbpBeams']
+        productRate = r['numProductBeams']
+        numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
+        prodstatus = 0
+        if numDiscards > 0 or ABPrate < 2000 or productRate < 400:
+            prodstatus = 1
+        if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
+            prodstatus = 2
+        main.forABP.setValue(ABPrate/2)
+        main.aftABP.setValue(ABPrate/2)
+        main.forProducts.setValue(productRate/2)
+        main.aftProducts.setValue(productRate/2)
     except Exception, e:
         print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
+        main.forABP.setValue(0)
+        main.aftABP.setValue(0)
+        main.forProducts.setValue(0)
+        main.aftProducts.setValue(0)
+    
+    main.setGauge('Products', prodstatus)
+    
         
     try:
        r = drxrpc.status()
@@ -95,9 +116,20 @@ def status():
           aftRate = aftRate + rates[i]
     main.forwardBWdial.setValue(forRate)
     main.aftBWdial.setValue(aftRate)
+    if (forRate < 400 or aftRate < 400):
+        main.setGauge('DRX', 2)
+    else:
+        if (forRate < 800 or aftRate < 800):
+            main.setGauge('DRX', 1)
+        else:
+            main.setGauge('DRX', 0)
+        
     # set the for and aft pulse progress bars
-    main.forwardPulsesProgress.setValue(forRate)
-    main.aftPulsesProgress.setValue(aftRate)
+    current = main.forBytes.value() + forRate
+    if current > main.forBytes.maximum():
+        current = current - main.forBytes.maximum()
+    main.forBytes.setValue(current)
+    main.aftBytes.setValue(aftRate)
     # set the individual channel dials
     forwardDialsList = main.forwardDials.children()
     aftDialsList = main.aftDials.children()

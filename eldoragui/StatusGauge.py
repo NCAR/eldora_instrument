@@ -4,7 +4,11 @@ from PyQt4.QtCore  import *
 from PyQt4.QtGui   import *
 
 class StatusGauge(QWidget):
-    def __init__(self, parent=None, colors=None, cellPercent=90.0, orient='vertical', payload=None) :
+    def __init__(self, parent=None, 
+                 colors=None, 
+                 cellPercent=90.0, 
+                 orient='vertical', 
+                 payload=None) :
         QWidget.__init__(self, parent)
         
         self.cellPercent = cellPercent

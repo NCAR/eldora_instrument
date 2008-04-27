@@ -7,6 +7,8 @@ from PyQt4.QtGui   import *
 from Ui_EldoraMain import *
 from EldoraUtil    import *
 from QtConfig      import *
+from StatusGauge   import *
+
 
 ######################################################################################
 class EldoraMain(QMainWindow, Ui_EldoraMain):
@@ -50,6 +52,9 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.statusCount = 0
         self.statusPeriod = 5
         
+        # initialize the gauges
+        self.initGauges()
+        
         # initialize bandwidth displays
         self.initBwDisplays()
         
@@ -74,7 +79,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.connect(self.forwardPpiButton, SIGNAL('released()'), self.runForPpi)
         # the aft ppi button
         self.connect(self.aftPpiButton, SIGNAL('released()'), self.runAftPpi)
-        
         # use our timer for a clock
         self.startTimer(1000)
     
@@ -108,6 +112,49 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(fgcolor))
         self.palette.setColor(QPalette.Disabled, QPalette.Button, QColor(buttoncolor))
     	
+    ###############################################################################
+    def initGauges(self):
+        ''' Create and initialize the status gauges. Reference to the 
+        gauges are stored in the gauges dictionary. The gauges are
+        placed in the main gaugeBox.
+        '''
+        self.gauges = {}
+        l = QHBoxLayout()
+        self.gaugeBox.setLayout(l)
+        self.gauges['DRX']         = self.addGauge(title='DRX',
+                                                   layout=l,
+                                                   callback=self.gaugeReleased)
+        self.gauges['Housekeeper'] = self.addGauge(title='Housekeeper',
+                                                   layout=l,
+                                                   callback=self.gaugeReleased)
+        self.gauges['Products']    = self.addGauge(title='Products',
+                                                   layout=l,
+                                                   callback=self.gaugeReleased)
+        self.gauges['Archiver']    = self.addGauge(title='Archiver',
+                                                   layout=l,
+                                                   callback=self.gaugeReleased)
+         
+    ###############################################################################
+    def addGauge(self, title, layout, initialOn=2, callback=None):
+        ''' Create a single StatusGauge. The gauge is placed
+        in a QGroupBox, becasue that provides nice titleing.
+        A callback can be specified, which wil be connected to
+        the gauge's released signal. The payload for the callback
+        will be the gauge title.
+        '''
+        g = QGroupBox()
+        g.setTitle(title)
+        g.setAlignment(Qt.AlignHCenter)
+        layout.addWidget(g)
+        vl = QVBoxLayout()
+        g.setLayout(vl)
+        s = StatusGauge(payload=title)
+        s.on(initialOn, True)
+        vl.addWidget(s)
+        if callback != None:
+            QObject.connect(s, SIGNAL('released'), callback)
+        return s
+        
     ###############################################################################
     def initDiskStats(self):
         # create our disk status object
@@ -150,23 +197,28 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
      
         
     ###############################################################################
-    def initBwDisplays(self):
-        '''
-        configure the bandwidth rate displays
-        '''
-        progs = [self.forwardPulsesProgress, self.aftPulsesProgress]
-        for p in progs:
+    def initRateBars(self, ratebars, max):
+        for p in ratebars:
             p.setMinimum(0)
-            p.setMaximum(8000)
+            p.setMaximum(max)
             p.setPalette(self.palette)
             p.setValue(0)
             p.setFormat("%v")
             p.setEnabled(0)
+
+    ###############################################################################
+    def initBwDisplays(self):
+        '''
+        configure the rate displays
+        '''
+        self.initRateBars([self.forBytes, self.aftBytes], 4000)
+        self.initRateBars([self.forABP, self.aftABP], 2000)
+        self.initRateBars([self.forProducts, self.aftProducts], 1000)
         # configure the agregate BW dials
         dials = [self.forwardBWdial, self.aftBWdial]
         for d in dials:
               d.setMinimum(0)
-              d.setMaximum(8000)
+              d.setMaximum(4000)
               d.setNotchesVisible(1)
               d.setValue(0)
               d.setSingleStep(200)
@@ -220,7 +272,20 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         '''
         html = '<font color="' + color + '">' + text + '</font>'
         self.logBrowser.append(html)
-               
+
+    ###############################################################################
+    def gaugeReleased(self, name):
+        msg = 'Gauge ' + name + ' was pressed!'
+        QMessageBox.information(self, 'Alert!', msg)
+        
+    ###############################################################################
+    def setGauge(self, name, index):     
+        ''' Turn on gauge[name] for indicator[index], and turn off all
+        other indicators.
+        '''
+        g = self.gauges[name]
+        g.allOn(False)
+        g.on(index, True) 
            
     
             
