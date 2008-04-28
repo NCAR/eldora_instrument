@@ -21,7 +21,7 @@ deploy
 env = Environment(tools = ['default'] + tools)
 
 sources = Split("""
-RR314dual.cpp
+eldoradrx.cpp
 DrxRPC.cpp
 """)
 
