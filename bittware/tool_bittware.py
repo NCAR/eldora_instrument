@@ -2,6 +2,10 @@
 # Rules to build rr314 and export it as a SCons tool
 #
 import os
+import SCons
+
+if (not os.environ.has_key('DSP21KSF')):
+    raise SCons.Errors.StopError, "Environment variable DSP21KSF must be set to use the bittware tool."
 
 def bittware(env):
     #
