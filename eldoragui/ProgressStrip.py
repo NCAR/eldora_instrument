@@ -45,7 +45,10 @@ class ProgressStrip(QWidget):
         
 ####################################################
     def setValue(self, value):
-        self.bar.setValue(value)
+    	v = value
+    	if v > self.max:
+    		v = self.max
+        self.bar.setValue(v)
         if not self.sumMode:
             self.lcd.display(value)
         else:

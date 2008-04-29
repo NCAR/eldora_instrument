@@ -20,7 +20,7 @@ class StatusGauge(QWidget):
         # set the default inidicators
         if colors == None:
             colors = []
-            colors.append("green")
+            colors.append("lightgreen")
             colors.append("yellow")
             colors.append("red")
         

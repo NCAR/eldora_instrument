@@ -211,21 +211,22 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         '''
         configure the rate displays
         '''
-        self.forBytes = ProgressStrip(max=4000,title='For',sumMode=True)
-        self.aftBytes = ProgressStrip(max=4000,title='Aft',sumMode=True)
+        sumMode = False
+        self.forBytes = ProgressStrip(max=4000,title='For',sumMode=sumMode)
+        self.aftBytes = ProgressStrip(max=4000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.DRXRateBox,[self.forBytes,self.aftBytes])
         # 
-        self.forABP = ProgressStrip(max=2000,title='For',sumMode=True)
-        self.aftABP = ProgressStrip(max=2000,title='Aft',sumMode=True)
+        self.forABP = ProgressStrip(max=2000,title='For',sumMode=sumMode)
+        self.aftABP = ProgressStrip(max=2000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.ABPRateBox,[self.forABP,self.aftABP])
         #
-        self.forProducts = ProgressStrip(max=1000,title='For',sumMode=True)
-        self.aftProducts = ProgressStrip(max=1000,title='Aft',sumMode=True)
+        self.forProducts = ProgressStrip(max=1000,title='For',sumMode=sumMode)
+        self.aftProducts = ProgressStrip(max=1000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.ProductRateBox,[self.forProducts,self.aftProducts])
         
          #
-        self.forArchive = ProgressStrip(max=1000,title='For',sumMode=True)
-        self.aftArchive = ProgressStrip(max=1000,title='Aft',sumMode=True)
+        self.forArchive = ProgressStrip(max=1000,title='For',sumMode=sumMode)
+        self.aftArchive = ProgressStrip(max=1000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.ArchiveRateBox,[self.forArchive,self.aftArchive])
         
         # configure the agregate BW dials

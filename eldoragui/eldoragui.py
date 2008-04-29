@@ -245,6 +245,9 @@ def runDrx():
     drxSimMode = ourConfig.getBool('Drx/DrxSimMode', False)
     if drxSimMode:
         drxcmd.append('--sim')
+        drxcmd.append('--usleep')
+    	drxUsleep = ourConfig.getInt('Drx/DrxSimUsleep', 7000)
+        drxcmd.append(str(drxUsleep))
     drxInternalTimer = ourConfig.getBool('Drx/DrxInternalTimer', False)
     if drxInternalTimer:
         drxcmd.append('--int')
