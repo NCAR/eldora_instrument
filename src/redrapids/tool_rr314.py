@@ -9,8 +9,8 @@ env = Environment(tools = ['default'] + tools)
 rr314dir = env.Dir('.').srcnode().abspath
 
 redRapidsDevelDir = os.path.join(rr314dir, 
-                                 'DSK-320-002-R05 (CA C API and Sample Code)', 
-                                 'channeladapterlib', 'R05')
+                                 'DSK-320-002-R07 (CA C API and Sample Code)', 
+                                 'channeladapterlib', 'R07')
 redRapidsDevelLibDir = os.path.join(redRapidsDevelDir, 'linux_x86-32')
 env.AppendUnique(CPPPATH=[redRapidsDevelDir, ])
 env.AppendUnique(CPPDEFINES = ['LINUX', ])
