@@ -14,7 +14,7 @@ from EmitterProc    import *
 
 ####################################################################################
 
-# Global variiables
+# Global variables
 
 global eldoraDir    # used to find eldora application binaries
 global ddsRoot      # used to locate DCPSInforepo
@@ -23,7 +23,7 @@ global ourConfig    # the EldoraGui.ini configuration
 global drxrpc       # RPC server for eldoradrx
 global hskprpc      # RPC server for the housekeeper
 global prodrpc      # RPC server for the products generator
-global ourProcesses # Process that we have started and are managing
+global ourProcesses # Processes that we have started and are managing
 
 ####################################################################################
 def restart():
