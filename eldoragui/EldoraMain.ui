@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>676</height>
+    <height>659</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -246,7 +246,7 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="groupBox_7" >
+         <widget class="QGroupBox" name="DRXRateBox" >
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>1</hsizetype>
@@ -258,78 +258,10 @@
           <property name="title" >
            <string>DRX KB/s</string>
           </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_2" >
-               <property name="text" >
-                <string>For</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="forBytes" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_3" >
-               <property name="text" >
-                <string>Aft</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="aftBytes" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_8" >
+         <widget class="QGroupBox" name="ABPRateBox" >
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>1</hsizetype>
@@ -341,78 +273,10 @@
           <property name="title" >
            <string>ABP Rays/s</string>
           </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_4" >
-               <property name="text" >
-                <string>For</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="forABP" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_5" >
-               <property name="text" >
-                <string>Aft</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="aftABP" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_9" >
+         <widget class="QGroupBox" name="ProductRateBox" >
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>1</hsizetype>
@@ -424,74 +288,21 @@
           <property name="title" >
            <string>Product Rays/s</string>
           </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_6" >
-               <property name="text" >
-                <string>For</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="forProducts" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_7" >
-               <property name="text" >
-                <string>Aft</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QProgressBar" name="aftProducts" >
-               <property name="value" >
-                <number>24</number>
-               </property>
-               <property name="orientation" >
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="ArchiveRateBox" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>1</hsizetype>
+            <vsizetype>1</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title" >
+           <string>Archive Rays/s</string>
+          </property>
          </widget>
         </item>
        </layout>
@@ -811,39 +622,6 @@
       <property name="spacing" >
        <number>6</number>
       </property>
-      <item>
-       <widget class="QLabel" name="statusLabel" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>3</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>Status</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>3</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>Status: </string>
-        </property>
-        <property name="alignment" >
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>

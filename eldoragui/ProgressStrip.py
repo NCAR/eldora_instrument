@@ -6,10 +6,15 @@ from PyQt4.QtGui   import *
 
 class ProgressStrip(QWidget):
 ####################################################
-    def __init__(self, parent=None, max=100, title=''):
+    def __init__(self, parent=None, max=100, title='', format='%v', sumMode=False):
+        '''
+        If sumMode is true, then the LCD presents a running total
+        '''
         QWidget.__init__(self, parent)
         self.current = 0
         self.max = max
+        self.format = format
+        self.sumMode = sumMode
 
         # create the layout
         vl = QVBoxLayout()
@@ -23,7 +28,8 @@ class ProgressStrip(QWidget):
         self.bar = QProgressBar()
         self.bar.setMaximum(self.max)
         self.bar.setOrientation(Qt.Vertical)
-        self.bar.setFormat("")
+        self.bar.setFormat(self.format)
+        self.bar.setMinimumWidth(30)
         self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.MinimumExpanding)
         vl.addWidget(self.bar)
         # add the LCD
@@ -40,7 +46,10 @@ class ProgressStrip(QWidget):
 ####################################################
     def setValue(self, value):
         self.bar.setValue(value)
-        self.lcd.display(value)
+        if not self.sumMode:
+            self.lcd.display(value)
+        else:
+            self.lcd.display(self.lcd.value() + value)            
         self.current = value
 
 ####################################################
@@ -49,9 +58,19 @@ class ProgressStrip(QWidget):
         if v > self.max:
             v = v - self.max
         self.bar.setValue(v)
-        self.lcd.display(value)
+        if not self.sumMode:
+            self.lcd.display(value)
+        else:
+            self.lcd.display(self.lcd.value() + value)            
         self.current = v
-
+####################################################
+    def value(self):
+        return self.bar.value()
+    
+####################################################
+    def maximum(self):
+        return self.bar.maximum()
+    
 ####################################################
     @staticmethod
     def testtimeout():
@@ -89,7 +108,7 @@ class ProgressStrip(QWidget):
         app.exec_()
         
 # To run the test, uncoment the following line and run 'python ProgressStrip.pf'
-ProgressStrip.test()
+#ProgressStrip.test()
         
         
         

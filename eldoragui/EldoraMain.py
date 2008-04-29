@@ -8,6 +8,7 @@ from Ui_EldoraMain import *
 from EldoraUtil    import *
 from QtConfig      import *
 from StatusGauge   import *
+from ProgressStrip import *
 
 
 ######################################################################################
@@ -50,7 +51,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # the status function will be called on multiples
         # of the main timer.
         self.statusCount = 0
-        self.statusPeriod = 5
+        self.statusPeriod = 1
         
         # initialize the gauges
         self.initGauges()
@@ -137,7 +138,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     ###############################################################################
     def addGauge(self, title, layout, initialOn=2, callback=None):
         ''' Create a single StatusGauge. The gauge is placed
-        in a QGroupBox, becasue that provides nice titleing.
+        in a QGroupBox, becasue that provides nice titling.
         A callback can be specified, which wil be connected to
         the gauge's released signal. The payload for the callback
         will be the gauge title.
@@ -197,23 +198,36 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
      
         
     ###############################################################################
-    def initRateBars(self, ratebars, max):
-        for p in ratebars:
-            p.setMinimum(0)
-            p.setMaximum(max)
-            p.setPalette(self.palette)
-            p.setValue(0)
-            p.setFormat("%v")
-            p.setEnabled(0)
-
+    def layoutRateBox(self,
+                    box,
+                    rateStrips):
+        l = QHBoxLayout()
+        box.setLayout(l)
+        for r in rateStrips:
+            l.addWidget(r)
+                       
     ###############################################################################
     def initBwDisplays(self):
         '''
         configure the rate displays
         '''
-        self.initRateBars([self.forBytes, self.aftBytes], 4000)
-        self.initRateBars([self.forABP, self.aftABP], 2000)
-        self.initRateBars([self.forProducts, self.aftProducts], 1000)
+        self.forBytes = ProgressStrip(max=4000,title='For',sumMode=True)
+        self.aftBytes = ProgressStrip(max=4000,title='Aft',sumMode=True)
+        self.layoutRateBox(self.DRXRateBox,[self.forBytes,self.aftBytes])
+        # 
+        self.forABP = ProgressStrip(max=2000,title='For',sumMode=True)
+        self.aftABP = ProgressStrip(max=2000,title='Aft',sumMode=True)
+        self.layoutRateBox(self.ABPRateBox,[self.forABP,self.aftABP])
+        #
+        self.forProducts = ProgressStrip(max=1000,title='For',sumMode=True)
+        self.aftProducts = ProgressStrip(max=1000,title='Aft',sumMode=True)
+        self.layoutRateBox(self.ProductRateBox,[self.forProducts,self.aftProducts])
+        
+         #
+        self.forArchive = ProgressStrip(max=1000,title='For',sumMode=True)
+        self.aftArchive = ProgressStrip(max=1000,title='Aft',sumMode=True)
+        self.layoutRateBox(self.ArchiveRateBox,[self.forArchive,self.aftArchive])
+        
         # configure the agregate BW dials
         dials = [self.forwardBWdial, self.aftBWdial]
         for d in dials:

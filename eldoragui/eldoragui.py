@@ -87,6 +87,7 @@ def status():
         main.aftABP.setValue(0)
         main.forProducts.setValue(0)
         main.aftProducts.setValue(0)
+        prodstatus = 2
     
     main.setGauge('Products', prodstatus)
     
@@ -124,11 +125,8 @@ def status():
         else:
             main.setGauge('DRX', 0)
         
-    # set the for and aft pulse progress bars
-    current = main.forBytes.value() + forRate
-    if current > main.forBytes.maximum():
-        current = current - main.forBytes.maximum()
-    main.forBytes.setValue(current)
+    # set the for and aft pulse progress strips
+    main.forBytes.setValue(forRate)
     main.aftBytes.setValue(aftRate)
     # set the individual channel dials
     forwardDialsList = main.forwardDials.children()
