@@ -17,6 +17,7 @@ dorade
 bittware
 utilities
 deploy
+qtt_qtconfig
 """)
 env = Environment(tools = ['default'] + tools)
 

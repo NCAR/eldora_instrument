@@ -14,18 +14,22 @@
 
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "ArgvParams.h"
 
+// For configuration management
+#include "QtConfig.h"
+// Proxy argc/argv
+#include "ArgvParams.h"
+// DDS publisher interface
 #include "DDSPublisher.h"
 #include "DDSWriter.h"
-
+// The types that go along with DDS
 #include "RayTypeSupportC.h"
 #include "RayTypeSupportImpl.h"
 #include "TimeSeriesTypeSupportC.h"
 #include "TimeSeriesTypeSupportImpl.h"
-
+// The XML-RPC interface.
 #include "DrxRPC.h"
-
+// Housekeeping related
 #include <DoradeASIB.h>
 #include <DoradeFRAD.h>
 #include <DoradeRYIB.h>
@@ -103,8 +107,7 @@ static void showStats(runParams& params, RR314& rr314,
 // monitors the card activity.
 int main(int argc,
          char** argv) {
-    printf("Starting\n");
-
+	
     // parse command line options
     runParams params0 = parseOptions(argc, argv, 0);
     runParams params1 = parseOptions(argc, argv, 1);
@@ -295,6 +298,38 @@ int main(int argc,
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+///
+/// get parameters that are spcified in the configuration file.
+/// These can be overriden by command line specifications.
+static  void 
+getConfigParams(runParams &params) {
+
+
+    QtConfig config("NCAR", "EldoraProd");
+    
+    std::string ORB;
+    std::string DCPS;
+    std::string rayTopic;
+    std::string productsTopic;
+
+    // set up the default configuration directory path
+    char* e = getenv("ELDORADIR");
+    std::string EldoraDir("/conf/");
+    if (e) {
+        EldoraDir = e + EldoraDir;
+    }
+
+    std::string orbFile = EldoraDir + "ORBSvc.conf";
+    ORB = config.getString("ORBConfigFile", orbFile);
+
+    std::string dcpsFile = EldoraDir + "DDSClient.ini";
+    DCPS = config.getString("DCPSConfigFile", dcpsFile);
+
+    rayTopic = config.getString("TopicRay", "EldoraRays");
+    productsTopic = config.getString("TopicProducts", "EldoraProducts");
+
+}
 //////////////////////////////////////////////////////////////////////
 //
 /// Parse the command line options, and also set some options 
