@@ -118,7 +118,7 @@ extern int readHeaderFile(HeaderPtr ptr, char *file);
 #ifdef __cplusplus
 } /* end extern "C" */
 
-#include <fstream.h>
+#include <fstream>
 
 class Header {
   protected:
@@ -169,8 +169,8 @@ class Header {
 
     Header &operator=(TAPEHEADER *th);
 
-    friend ostream& operator<<(ostream &os, Header &hdr);
-    friend istream& operator>>(istream &is, Header &hdr);
+    friend std::ostream& operator<<(std::ostream &os, Header &hdr);
+    friend std::istream& operator>>(std::istream &is, Header &hdr);
 
     ~Header(void);
 };

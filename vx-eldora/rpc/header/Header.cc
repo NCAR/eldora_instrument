@@ -89,6 +89,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 #include <stdlib.h>
 #include <cstring>
+#include <iostream>
 
 #ifdef UNIX
 #include <signal.h>
@@ -106,7 +107,7 @@ Header::Header(void)
 {
   if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
     {
-      cerr << "Cannot allocate space for header!" << endl;
+      std::cerr << "Cannot allocate space for header!" << std::endl;
       exit(1);
     }
     
@@ -117,7 +118,7 @@ Header::Header(FAST TAPEHEADER *t)
 {
   if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
     {
-      cerr << "Cannot allocate space for header!" << endl;
+      std::cerr << "Cannot allocate space for header!" << std::endl;
       exit(1);
     }
 
@@ -130,7 +131,7 @@ Header::Header(void *v)
 {
   if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
     {
-      cerr << "Cannot allocate space for header!" << endl;
+      std::cerr << "Cannot allocate space for header!" << std::endl;
       exit(1);
     }
     
@@ -175,7 +176,7 @@ Header::Header(const char *file)
 {
   if ((th = (TAPEHEADER *)malloc(sizeof(TAPEHEADER))) == NULL)
     {
-      cerr << "Cannot allocate space for header!" << endl;
+      std::cerr << "Cannot allocate space for header!" << std::endl;
       exit(1);
     }
   readFile(file);
@@ -418,7 +419,7 @@ int Header::GetRealHeader(void *header)
 int Header::readFile(const char *file)
 {
 
-  ifstream input(file);
+  std::ifstream input(file);
 
   if (!input.good())
     return 1;
@@ -646,13 +647,13 @@ int readHeaderFile(HeaderPtr ptr, char *file)
   return h->readFile(file);
 }
 
-ostream& operator<<(ostream &os, Header &hdr)
+std::ostream& operator<<(std::ostream &os, Header &hdr)
 {
   TAPEHEADER *th = hdr.GetRpcHeader();
 
-  os.write((unsigned char *)&th->Volume,sizeof(VOLUME));
-  os.write((unsigned char *)&th->Wave,sizeof(WAVEFORM));
-  os.write((unsigned char *)&th->Fore.Radar,sizeof(RADARDESC));
+  os.write((char *)&th->Volume,sizeof(VOLUME));
+  os.write((char *)&th->Wave,sizeof(WAVEFORM));
+  os.write((char *)&th->Fore.Radar,sizeof(RADARDESC));
 
 #ifdef linux
   int des = ntohs(th->Fore.Radar.num_parameter_des);
@@ -663,29 +664,29 @@ ostream& operator<<(ostream &os, Header &hdr)
   int size = (des * sizeof(PARAMETER)) +  sizeof(CELLSPACING) + 
     sizeof(FIELDRADAR);
 
-  os.write((unsigned char *)&th->Fore.FieldInfo,size);
+  os.write((char *)&th->Fore.FieldInfo,size);
 
   size += sizeof(RADARDESC);
 
-  os.write((unsigned char *)&th->Aft,size);
+  os.write((char *)&th->Aft,size);
 
-  os.write((unsigned char *)&th->Nav,sizeof(struct nav_descript));
+  os.write((char *)&th->Nav,sizeof(struct nav_descript));
 
-  os.write((unsigned char *)&th->Insitu,sizeof(struct insitu_descript));
+  os.write((char *)&th->Insitu,sizeof(struct insitu_descript));
 
   return(os);
 }
 
-istream& operator>>(istream &is, Header &hdr)
+std::istream& operator>>(std::istream &is, Header &hdr)
 {
   TAPEHEADER th;
 
   memset(&th.Fore.FieldInfo.file_name[0],0,80);
   memset(&th.Aft.FieldInfo.file_name[0],0,80);
 
-  is.read((unsigned char *)&th.Volume,sizeof(VOLUME));
-  is.read((unsigned char *)&th.Wave,sizeof(WAVEFORM));
-  is.read((unsigned char *)&th.Fore.Radar,sizeof(RADARDESC));
+  is.read((char *)&th.Volume,sizeof(VOLUME));
+  is.read((char *)&th.Wave,sizeof(WAVEFORM));
+  is.read((char *)&th.Fore.Radar,sizeof(RADARDESC));
 
   int fsize = sizeof(FIELDRADAR);
 
@@ -707,21 +708,21 @@ istream& operator>>(istream &is, Header &hdr)
 #endif
     }
 
-  is.read((unsigned char *)&th.Fore.FieldInfo,fsize);
+  is.read((char *)&th.Fore.FieldInfo,fsize);
 
   int size = (des * sizeof(PARAMETER)) + sizeof(CELLSPACING);
 
-  is.read((unsigned char *)&th.Fore.CellSpacing,size);
+  is.read((char *)&th.Fore.CellSpacing,size);
 
-  is.read((unsigned char *)&th.Aft.Radar,sizeof(RADARDESC));
+  is.read((char *)&th.Aft.Radar,sizeof(RADARDESC));
 
-  is.read((unsigned char *)&th.Aft.FieldInfo,fsize);
+  is.read((char *)&th.Aft.FieldInfo,fsize);
 
-  is.read((unsigned char *)&th.Aft.CellSpacing,size);
+  is.read((char *)&th.Aft.CellSpacing,size);
 
-  is.read((unsigned char *)&th.Nav,sizeof(struct nav_descript));
+  is.read((char *)&th.Nav,sizeof(struct nav_descript));
 
-  is.read((unsigned char *)&th.Insitu,sizeof(struct insitu_descript));
+  is.read((char *)&th.Insitu,sizeof(struct insitu_descript));
 
 #ifdef linux
   size = htonl(sizeof(FIELDRADAR));

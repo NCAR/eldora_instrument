@@ -1,14 +1,17 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:		 RadarGbls.h
- *	Original Author: Richard E. Neitzel
+ * Module:   RadarGbls.h
+ * Original Author: Richard E. Neitzel
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: RadarGbls.h,v $
+ * Revision 1.6  2005/08/03 20:28:30  granger
+ * updates from /net/eldora/eldora/rpc/mhen
+ *
  * Revision 1.5  1996/09/10  14:03:53  thor
  * Added new item for ts.
  *
@@ -44,14 +47,15 @@
 #endif
 #include "Header.h"
 
-struct RadarCommand {
-    u_long cmd;
-    double dist;
-    int dc_points;
-#ifdef TASS
-    TSACQ tass_info;
-#endif
-};
+//Tom 3/20/08
+//struct RadarCommand {
+//    u_long cmd;
+//    double dist;
+//    int dc_points;
+//#ifdef TASS
+//    TSACQ tass_info;
+//#endif
+//};
 
 struct RadarStatus {
     char rp7;
@@ -67,7 +71,8 @@ typedef struct RadarStatus RadarStatus;
 #ifndef UNIX
 #include "semLib.h"
 
-SCOPE RadarStatus *currStatus;
+// Tom 3/20/08
+//SCOPE RadarStatus *currStatus;
 RP7_SCOPE  volatile int fill_busy, fill_ts_array, pts, ts_flag, ts_samps; /* array fill globals */
 RP7_SCOPE  volatile int fft_flag, radar_fore_aft, send_ray[3][2], send_nav, send_ads;
 RP7_SCOPE  unsigned long ad_freq;
