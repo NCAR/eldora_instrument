@@ -21,11 +21,15 @@ rrsources = [os.path.join(redRapidsDevelDir, 'ca_functions.c'),
 libsources = Split("""
 FilterSpec.cpp
 RR314.cpp
-RR314isr.cpp
 RR314sim.cpp
 """)
 
+isrsources = Split("""
+RR314isr.cpp
+""")
+
 librr314 = env.Library('rr314', rrsources + libsources)
+librr314isr = env.Library('rr314isr', isrsources)
 
 Default(librr314)
 
@@ -39,10 +43,8 @@ def rr314(env):
     # channel adapter library paths:
     env.AppendUnique(LIBPATH = [rr314dir, redRapidsDevelLibDir])
     #
-    # rr314 and channeladapter libraries
-    # Cross-dependencies require having rr314 there before
-    # and after channeladapter...
-    libs = ['rr314', 'channeladapter', 'rr314']
+    # librr314 depends on libchanneladapter which depends on librr314isr
+    libs = ['rr314', 'channeladapter', 'rr314isr']
     env.Append(LIBS = libs)
     #
     env.Require(tools)
