@@ -1,14 +1,19 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	hskpGbl.h	 
- *	Original Author: Craig Walther
+ * Module: hskpGbl.h  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: hskpGbl.h,v $
+ * Revision 1.16  2005/08/04 22:27:39  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.15  2003/10/01  20:10:25  kapoor
  * *** empty log message ***
  *
@@ -112,15 +117,15 @@ scope float fore_lna_radar_const;  /* radar consant modified for the @ LNA */
 scope float aft_lna_radar_const;   /* radar consant modified for the @ LNA */
 scope float log_testpulse_range2;  /* lOG10 of testpulse range squared */
 scope int tp_sum_start, tp_sum_end; /* Starting and ending dwell
-				       counts for sum */
+           counts for sum */
 scope int tp_sum_count;             /* Summation counter */
 scope float fore_dbz_sum, aft_dbz_sum;  /* Sums of the dbz values */
 scope float fore_tp_level, aft_tp_level; /* sums of the
-						    testpulse power */
+          testpulse power */
 scope float fore_vel_sum, aft_vel_sum;  /* Sums of the velocities */
 scope float f_vscale, a_vscale;       /* fore and aft velocity scale factors */
 scope float fore_tp_velocity[8], aft_tp_velocity[8];  /* what the velocities
-							 should be */
+        should be */
 
 
 /* Parameters to hold the sine and cosine of the tilt angles */
@@ -133,7 +138,7 @@ scope float cos_atilt;
    out of it */
 scope int mcpl_error[3];
 scope short mcpl_xfer_processor; /* Indicates which radar processor is allowed
-				    to perform mcpl transfers */
+        to perform mcpl transfers */
 
 /* global parameters to handle the waveguide switch */
 
@@ -147,14 +152,15 @@ scope int wg_sw_flag;
 /* global command flags for bancomm clock board */
 
 scope int use_IRIGB;        /* True -> use IRIG-B for time source, false ->
-				  use real time clock as time source */
+      use real time clock as time source */
 scope int modulate_IRIGB;   /* True -> use modulated IRIG-B for time source,                                  false -> use DC shift IRIG-B as time source */
 
 scope int clkstart;        /* Tells Bancomm start_clock function not to run
                               designed only for startup.cc, as a safegaurd if
                               TOD board is used again. Will not affect TOD */ 
 
-
+//Tom 3/20/08
+scope int fake_intrs;
 
 
 

@@ -1,14 +1,17 @@
 /*
  *	$Id$
  *
- *	Module:	startup	 
- *	Original Author: Craig Walther 
+ * Module: startup  
+ * Original Author: Craig Walther 
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: startup.cc,v $
+ * Revision 1.13  2008/01/30 22:43:33  burghart
+ * Hskp.hh is now HskpControl.h
+ *
  * Revision 1.12  2008/01/29 17:37:11  burghart
  * Merged rpc/include/Header.hh into rpc/include/Header.h to create a single
  * header file to be used for both C and C++ source.
@@ -44,7 +47,7 @@
  * description: This module initializes RPC in Housekeeping Processor.
  *              
  */
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Date$ $RCSfile: startup.cc,v $ $Revision$";
 
 #define HSKP_RPC_SCOPE
 
@@ -108,64 +111,64 @@ static void startCmd(void)
       int bytes = svr.recvfrom((void *)&cmdBlk,sizeof(cmdBlk.cmd),MSG_PEEK);
 
       if ((cmdBlk.cmd == STOP) || (cmdBlk.cmd == START) ||
-	  (cmdBlk.cmd == HEADER) || (cmdBlk.cmd == SEND_STATUS))
-	svr.recvfrom((void *)&cmdBlk,sizeof(cmdBlk.cmd));
+   (cmdBlk.cmd == HEADER) || (cmdBlk.cmd == SEND_STATUS))
+ svr.recvfrom((void *)&cmdBlk,sizeof(cmdBlk.cmd));
       else
-	{
-	  bytes = svr.recvfrom((void *)&cmdBlk,sizeof(cmdBlk));
+ {
+   bytes = svr.recvfrom((void *)&cmdBlk,sizeof(cmdBlk));
 
-	  if ( bytes < sizeof(cmdBlk))
-	    {
-	      if (bytes < 0)
-		{
-		  cerr << "udpSvr: " << strerror(errno) << endl;
-		  continue;
-		}
-	    }
-	}
+   if ( bytes < sizeof(cmdBlk))
+     {
+       if (bytes < 0)
+  {
+    cerr << "udpSvr: " << strerror(errno) << endl;
+    continue;
+  }
+     }
+ }
       u_long cmd = cmdBlk.cmd;
 
       hex(cout);
       cout << "command received: " << cmd << endl;
 
       if (cmd == SEND_STATUS)
-	cmd = 0;
+ cmd = 0;
 
       if (cmd & INIT)
-	;
+ ;
       else if (cmd == HEADER)
-	{
-	  char *file = "/usr/local/vxbin/headers/current.hdr";
+ {
+   //char *file = "/usr/local/vxbin/headers/current.hdr";
+          char *file = "/vxroot/headers/current.hdr";
+   int i = 0;
 
-	  int i = 0;
+   if (Hdr == (Header *)NULL)
+     Hdr = new Header(file);
+   else
+     {
+       if (Hdr->readFile(file))
+  {
+    cout << "Bad open of file: " << file << endl;
+    i = 1;
+  }
+     }
+   svr.setAddr((struct sockaddr_in *)svr.getAddr());
 
-	  if (Hdr == (Header *)NULL)
-	    Hdr = new Header(file);
-	  else
-	    {
-	      if (Hdr->readFile(file))
-		{
-		  cout << "Bad open of file: " << file << endl;
-		  i = 1;
-		}
-	    }
-	  svr.setAddr((struct sockaddr_in *)svr.getAddr());
-
-	  svr.sendto((void *)&i,sizeof(i));
-	  continue;
-	}
+   svr.sendto((void *)&i,sizeof(i));
+   continue;
+ }
       else
-	{
-	  /***********************************************/
-	  /**** Start of code inserted by Craig Walther **/
-	  /***********************************************/
-	  if(cmd & START_CLOCK)  /* Has Control processor told us to
-				    start clock? */
-	    {
-	      clkstart = 1;
-	      start_clock(); 
-	      currStatus->clock = 0;
-	    }
+ {
+   /***********************************************/
+   /**** Start of code inserted by Craig Walther **/
+   /***********************************************/
+   if(cmd & START_CLOCK)  /* Has Control processor told us to
+        start clock? */
+     {
+       clkstart = 1;
+       start_clock(); 
+       currStatus->clock = 0;
+     }
 	  if(cmd & START)  /* Has control Processor told us to start? */
 	    {
 	      stop_flag = 0;
@@ -176,55 +179,55 @@ static void startCmd(void)
 	    }
 	  if(cmd & RELOAD)   /* Has control Processor told us to reload? */
 	    {
-	      reload_flag = 1;
-	    }
-	  if(cmd & REBOOT)   /* Has control Processor told us to reboot? */
-	    reboot((int)BOOT_NORMAL);
-	  if(cmd & GPS_START)  /* Has the control processor told us to
-				  program the TANS II GPS receiver? */
-	    {
-	      command_gps((short)2);
-	    }
-	  if(cmd & IRIGB_SYNC) /* Has the control processor told us to sync
-				  the time of day card to the ADS's
-				  IRIG-B signal? */
-	    {
-	      
-	      currStatus->clock = IRIGB_SYNCING;
-	      char test = sync_irig();
-	      if(test)          /* Were we successful? */
-		currStatus->clock = 0;
-	      else
-		 currStatus->clock = IRIGB_SYNC_FAILED; 
-	    }
-	  if(cmd & SET_TIME)  /* Has the Control Processor told us to set
-				 the time? */
-	    {
-	      char year = cmdBlk.year;
-	      char month = cmdBlk.month;
-	      char date = cmdBlk.day;
-	      char hour = cmdBlk.hour;
-	      char minute = cmdBlk.minute;
-	      char second = cmdBlk.second;
-	      set_time(hour,minute,second,month,date,year); 
+       reload_flag = 1;
+     }
+   if(cmd & REBOOT)   /* Has control Processor told us to reboot? */
+     reboot((int)BOOT_NORMAL);
+   if(cmd & GPS_START)  /* Has the control processor told us to
+      program the TANS II GPS receiver? */
+     {
+       command_gps((short)2);
+     }
+   if(cmd & IRIGB_SYNC) /* Has the control processor told us to sync
+      the time of day card to the ADS's
+      IRIG-B signal? */
+     {
+       
+       currStatus->clock = IRIGB_SYNCING;
+       char test = sync_irig();
+       if(test)          /* Were we successful? */
+  currStatus->clock = 0;
+       else
+   currStatus->clock = IRIGB_SYNC_FAILED; 
+     }
+   if(cmd & SET_TIME)  /* Has the Control Processor told us to set
+     the time? */
+     {
+       char year = cmdBlk.year;
+       char month = cmdBlk.month;
+       char date = cmdBlk.day;
+       char hour = cmdBlk.hour;
+       char minute = cmdBlk.minute;
+       char second = cmdBlk.second;
+       set_time(hour,minute,second,month,date,year); 
 
-      	      /******* This is for TOD card *******/
-	      /* Check for leap year, update the jday_calc array if it is *
-	      if((((int)(year/4))*4 == year) && (jday_calc[2] == 60))
-		{
-		  for(int i = 2; i < 12; i++)
-		    jday_calc[i]++;
-		}
-	      */
+             /******* This is for TOD card *******/
+       /* Check for leap year, update the jday_calc array if it is *
+       if((((int)(year/4))*4 == year) && (jday_calc[2] == 60))
+  {
+    for(int i = 2; i < 12; i++)
+      jday_calc[i]++;
+  }
+       */
 
-	      /* Checks for leap year, updates the day of the mon array */
-	      if(((int)(year/4))*4 == year)
-		day_mon_calc[1] = 29; 
+       /* Checks for leap year, updates the day of the mon array */
+       if(((int)(year/4))*4 == year)
+  day_mon_calc[1] = 29; 
 
 
-	      currStatus->clock = TIME_SET_READY;
-	    }
-	}
+       currStatus->clock = TIME_SET_READY;
+     }
+ }
       svr.setAddr((struct sockaddr_in *)svr.getAddr());
 
       svr.sendto((void *)currStatus,sizeof(status));

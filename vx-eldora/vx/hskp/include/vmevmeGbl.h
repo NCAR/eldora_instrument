@@ -1,14 +1,18 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	vmevmeGbl.h	 
- *	Original Author: Craig Walther
+ * Module: vmevmeGbl.h  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: vmevmeGbl.h,v $
+ * Revision 1.10  1999/09/27 15:51:23  eric
+ * added support for Radar Processor/housekeeper synchronization
+ * testing.
+ *
  * Revision 1.9  1997/08/26  21:25:36  craig
  * *** empty log message ***
  *
@@ -79,6 +83,11 @@ scope int fake_angles;
 /* Global variables to set and test Housekeeper/Radar Processor synchronization */
 
 scope int Intr_cnt, Proc_dly_sync;
+
+// Global Variable for UDP Socket
+
+scope int UDPSocket;
+
 
 
 

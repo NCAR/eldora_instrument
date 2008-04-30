@@ -1,14 +1,19 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	midbeam	 
- *	Original Author: Craig Walther
+ * Module: midbeam  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: midbeam.c,v $
+ * Revision 1.10  2005/08/04 22:27:36  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.9  2003/10/01  19:31:31  kapoor
  * *** empty log message ***
  *
@@ -39,7 +44,7 @@
  *
  */
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Date$ $RCSfile: midbeam.c,v $ $Revision$";
 
 #define OK_RPC
 #define scope extern
@@ -51,6 +56,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 int ERR_CHK; 
 static int proc_offset_f, proc_offset_a;
+
+
 void midbeam()
 {
 /* Define some general purpose variables */
@@ -65,12 +72,13 @@ int dumb_start, dumb_index, test, delta_f, delta_a;
 long msecs_today;
 ERR_CHK = 1;
 dumb_start = 0;
+dumb_index = 0;
+
 
 for (;;)
   {
 /* Wait for the semaphore. */
 semTake(vmeSem,WAIT_FOREVER);
-
 
 /* Read the Position of the rotodome */
 
@@ -83,49 +91,49 @@ semTake(vmeSem,WAIT_FOREVER);
 
 /* Put in a fake rotational position if global variable fake_angles is true */
 
-    if(fake_angles)
-      {
-	dumb_position += 1.2;
-	if(dumb_position > 360.0) dumb_position = 0;
-	if(dumb_position < 0.0) dumb_position = 0;
-	position = dumb_position;
+   if(fake_angles)
+   {
+    
+     dumb_position += 1.2;
+     if(dumb_position > 360.0) dumb_position = 0;
+     if(dumb_position < 0.0) dumb_position = 0;
+     position = dumb_position;
 
-/* Put in a fake parameters if global variable fake_angles is true */
+     /* Put in a fake parameters if global variable fake_angles is true */
 
-	if(dumb_start == 0)
-	  {
-	    dumb_start = 1;  
-	    dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
-	    /* 2 pi radians per second */
-	    dumb_stepp = 0.000757 / (float)dwelltime_msec;
-	    /* Is about 120 m/s if lat step = long step */ 
-	    dumb_rads = 0;
-	    last_iru_data.longitude = -105.;
-	    last_iru_data.latitude = 40.;
-	  }
+     if(dumb_start == 0)
+     {
+       dumb_start = 1;  
+       dumb_stepr = 6.2831 / (60000.0 / (float)dwelltime_msec);
+       /* 2 pi radians per second */
+       dumb_stepp = 0.000757 / (float)dwelltime_msec;
+       /* Is about 120 m/s if lat step = long step */ 
+       dumb_rads = 0;
+       last_iru_data.longitude = -105.;
+       last_iru_data.latitude = 40.;
+     }
 
       /* Dummy up the INS parameters */
-	dumb_rads += dumb_stepr;
-	if(dumb_rads > 6.28318) dumb_rads = 0;
-	anglesin = sin(dumb_rads);
-	last_iru_data.longitude += dumb_stepp;
-	last_iru_data.latitude += dumb_stepp;
-/* 	last_iru_data.pitch = 2.0 * anglesin; */
-/* 	last_iru_data.roll = 15.0 * anglesin; */
-	last_iru_data.pitch = 0.0;
-	last_iru_data.roll = 1.0;
-	last_iru_data.heading = 45.0 + 0.5 * anglesin;
-	last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
-	last_iru_data.sec_longitude = sec;
-	last_iru_data.msec_longitude = msec;
-	last_iru_data.ew_velocity = fake_vel;
-	last_iru_data.ns_velocity = fake_vel;
-	dumb_index++;
-	if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
-	fill_platform(msecs_ray[dumb_index]);
-	
-      }
-
+     dumb_rads += dumb_stepr;
+     if(dumb_rads > 6.28318) dumb_rads = 0;
+     anglesin = sin(dumb_rads);
+     last_iru_data.longitude += dumb_stepp;
+     last_iru_data.latitude += dumb_stepp;
+     /*  last_iru_data.pitch = 2.0 * anglesin; */
+     /*  last_iru_data.roll = 15.0 * anglesin; */
+     //Tom 3/28/08 testing
+     last_iru_data.pitch = 0.0;
+     last_iru_data.roll = 1.0;
+     last_iru_data.heading = 45.0 + 0.5 * anglesin;
+     last_iru_data.altitude = 4.572 + 0.3048 * anglesin;
+     last_iru_data.sec_longitude = sec;
+     last_iru_data.msec_longitude = msec;
+     last_iru_data.ew_velocity = fake_vel;
+     last_iru_data.ns_velocity = fake_vel;
+     dumb_index++;
+     if(dumb_index >= NUM_RADAR_HNDSHK) dumb_index=0;
+     fill_platform(msecs_ray[dumb_index]);
+  }
 
 /* Clear the polled handshake words */
 
@@ -145,10 +153,10 @@ semTake(vmeSem,WAIT_FOREVER);
     if(fore_vmehndshk->radar_hndshk[iru_lag_index] == 0)
       {
 #if defined(USE_INT_HNDSHK)
-	triggerVMEInts(iru_lag_index);
+ triggerVMEInts(iru_lag_index);
 #endif
-	fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
-	aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
+ fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
+ aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
       }
     else
       mcpl_error[2] = 1;
@@ -158,16 +166,16 @@ semTake(vmeSem,WAIT_FOREVER);
 
     if(platform_status[iru_lag_index] == 0)
       {
-	currStatus->iru |= ARINC_INT_BAD;
-	fore_ray_pntr->this_rayi.ray_status = 1;
-	aft_ray_pntr->this_rayi.ray_status = 1;
+ currStatus->iru |= ARINC_INT_BAD;
+ fore_ray_pntr->this_rayi.ray_status = 1;
+ aft_ray_pntr->this_rayi.ray_status = 1;
       }
     else
       {
-	platform_status[iru_lag_index] = 0;
-	currStatus->iru &= (char)(~ARINC_INT_BAD);
-	fore_ray_pntr->this_rayi.ray_status = 0;
-	aft_ray_pntr->this_rayi.ray_status = 0;
+ platform_status[iru_lag_index] = 0;
+ currStatus->iru &= (char)(~ARINC_INT_BAD);
+ fore_ray_pntr->this_rayi.ray_status = 0;
+ aft_ray_pntr->this_rayi.ray_status = 0;
       }
 
 
@@ -177,8 +185,8 @@ semTake(vmeSem,WAIT_FOREVER);
     iru_lag_index++;
     if(iru_lag_index >= NUM_RADAR_HNDSHK)
       {
-	iru_lag_offset = FIRST_RADAR_OFFSET;
-	iru_lag_index = 0;
+ iru_lag_offset = FIRST_RADAR_OFFSET;
+ iru_lag_index = 0;
       }
 
 /* Create a pointer to a data ray structure at the current radar data
@@ -188,8 +196,8 @@ semTake(vmeSem,WAIT_FOREVER);
     current_index++;
     if(current_index >= NUM_RADAR_HNDSHK)
       {
-	current_offset = FIRST_RADAR_OFFSET;
-	current_index = 0;
+ current_offset = FIRST_RADAR_OFFSET;
+ current_index = 0;
       }
 
 /* 
@@ -197,59 +205,62 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
 */
 
     Intr_cnt += 1;
-if(Proc_dly_sync)
+
+/* Tom 3/18/08
+  if(Proc_dly_sync)
   {
     if(Intr_cnt > 10)
-      {
-/*	delta_f = Intr_cnt - fore_vmehndshk->radar_proc_idx; */
-	delta_f = current_index - fore_vmehndshk->radar_proc_idx;
-	delta_a = current_index - aft_vmehndshk->radar_proc_idx;
-	proc_offset_f = delta_f;
-	proc_offset_a = delta_a;
-	printf("fore proc_offset = %d\n",proc_offset_f);
-	printf("aft proc_offset = %d\n",proc_offset_a);
-	Proc_dly_sync = 0;
-      }
+    {
+      //delta_f = Intr_cnt - fore_vmehndshk->radar_proc_idx; 
+      delta_f = current_index - fore_vmehndshk->radar_proc_idx;
+      delta_a = current_index - aft_vmehndshk->radar_proc_idx;
+      proc_offset_f = delta_f;
+      proc_offset_a = delta_a;
+      printf("fore proc_offset = %d\n",proc_offset_f);
+      printf("aft proc_offset = %d\n",proc_offset_a);
+      Proc_dly_sync = 0;
+    }
   }
-if(ERR_CHK)
+
+  if(ERR_CHK)
   {
     if(!Proc_dly_sync)
-      {
-	delta_f = current_index - fore_vmehndshk->radar_proc_idx;
-	delta_a = current_index - aft_vmehndshk->radar_proc_idx;
-	if(delta_f < 0)
-	  delta_f += NUM_RADAR_HNDSHK;
-	if(delta_a < 0)
-	  delta_a += NUM_RADAR_HNDSHK;
-	if(delta_f < (proc_offset_f - 1) || delta_a < (proc_offset_a - 1))
-	  {
-	    
-	    printf("ERROR: Got Extra INTERRUPT!;%d %d %d\n",delta_f,delta_a,Intr_cnt);
-	    proc_offset_f = delta_f;
-	    proc_offset_a = delta_a;
-	  }
-	else
-	  {
-	    if(delta_f > proc_offset_f) 
-	      {
-		printf("ERROR: Missed FORE INTERRUPT!;%d %d\n",delta_f,Intr_cnt);
-		proc_offset_f = delta_f;
-	      }
-	    if(delta_a > proc_offset_a)
-	      {
-		printf("ERROR: Missed AFT INTERRUPT!;%d %d\n",delta_a,Intr_cnt);
-		proc_offset_a = delta_a;
-	      }
-	  }
-	/*
-    printf("Track: %d %d %d %d\n",delta_f,delta_a,fore_vmehndshk->radar_proc_idx,aft_vmehndshk->radar_proc_idx);
-	*/
-      }
+    {
+        delta_f = current_index - fore_vmehndshk->radar_proc_idx;
+        delta_a = current_index - aft_vmehndshk->radar_proc_idx;
+        if(delta_f < 0)
+          delta_f += NUM_RADAR_HNDSHK;
+        if(delta_a < 0)
+          delta_a += NUM_RADAR_HNDSHK;
+        if(delta_f < (proc_offset_f - 1) || delta_a < (proc_offset_a - 1))
+        {
+          printf("ERROR: Got Extra INTERRUPT!;%d %d %d\n",delta_f,delta_a,Intr_cnt);
+          proc_offset_f = delta_f;
+          proc_offset_a = delta_a;
+        }
+        else
+        {
+          if(delta_f > proc_offset_f) 
+          {
+            printf("ERROR: Missed FORE INTERRUPT!;%d %d\n",delta_f,Intr_cnt);
+            proc_offset_f = delta_f;
+          }
+          if(delta_a > proc_offset_a)
+          {
+            printf("ERROR: Missed AFT INTERRUPT!;%d %d\n",delta_a,Intr_cnt);
+            proc_offset_a = delta_a;
+          }
+        }
+ 
+        // printf("Track: %d %d %d %d\n",delta_f,delta_a,fore_vmehndshk->radar_proc_idx,aft_vmehndshk->radar_proc_idx);
+ 
+    }
   }
+  */
     fore_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE +
-				       FORE_STAND_START); 
+           FORE_STAND_START); 
     aft_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE +
-				      AFT_STAND_START); 
+          AFT_STAND_START); 
     
 /* Place the time read into the proper words of the data ray */
 
@@ -322,7 +333,7 @@ if(ERR_CHK)
       if(degrees_moved > 300.) position = position + 360.;
     
       else                            /* Trying to spin in negative direction */
-	if(degrees_moved > 300.) position = position - 360.;
+ if(degrees_moved > 300.) position = position - 360.;
     
     degrees_moved = position - last_position;
     
@@ -372,100 +383,104 @@ if(ERR_CHK)
       {
 
       /* If we are really transmiting out the aft antenna, change the FORE
-	 data ray's rotation angle and tilt angle to reflect this */
+  data ray's rotation angle and tilt angle to reflect this */
 
-	if(wg_sw_current_set == WG_SW_AFT)
-	  {
-	    fore_ray_pntr->this_plat.tilt = afrad->E_plane_angle;
-	    fore_ray_pntr->this_plat.rotation_angle = aft_angle;
-	  }
-	else
-	  fore_ray_pntr-> this_plat.tilt = ffrad->E_plane_angle;
+ if(wg_sw_current_set == WG_SW_AFT)
+   {
+     fore_ray_pntr->this_plat.tilt = afrad->E_plane_angle;
+     fore_ray_pntr->this_plat.rotation_angle = aft_angle;
+   }
+ else
+   fore_ray_pntr-> this_plat.tilt = ffrad->E_plane_angle;
 
       /* wg_sw_counter makes sure we only switch
-	 once each switch over point */
+  once each switch over point */
 
-	wg_sw_counter +=1;
-	if(wg_sw_counter > 10)
-	  {
+ wg_sw_counter +=1;
+ if(wg_sw_counter > 10)
+   {
 
-	    /* Now test to see if we are at a switch over point */
+     /* Now test to see if we are at a switch over point */
 
-	    test = 0;
-	    if (wg_sw_big_angle > 357.0)
-	      {
-		if(fore_angle > wg_sw_big_angle || 
-		   fore_angle < wg_sw_small_angle) test = 1;
-	      }
-	    else
-	      {
-		if(fore_angle < wg_sw_big_angle &&
-		   fore_angle > wg_sw_small_angle) test = 1;
-	      }
+     test = 0;
+     if (wg_sw_big_angle > 357.0)
+       {
+  if(fore_angle > wg_sw_big_angle || 
+     fore_angle < wg_sw_small_angle) test = 1;
+       }
+     else
+       {
+  if(fore_angle < wg_sw_big_angle &&
+     fore_angle > wg_sw_small_angle) test = 1;
+       }
 
-	    if(test == 1)
-	      {
-		wg_sw_counter = 0;
+     if(test == 1)
+       {
+  wg_sw_counter = 0;
 
-		  /* We are at a switch over point, handle each type of
-		     scanning in it own unique manner */
+    /* We are at a switch over point, handle each type of
+       scanning in it own unique manner */
 
-		switch(wg_sw_flag)
-		  {
-		  case 1:      /* Complete rotations */
-		    
-		    if(wg_sw_current_set == WG_SW_FORE)
-		      wg_sw_current_set = WG_SW_AFT;
-		    else 
-		      wg_sw_current_set = WG_SW_FORE;
-		    
-		    break;
-		    
-		  case 2:     /* Right side only */
-		    if(wg_sw_current_set == WG_SW_FORE)
-		      {
-			wg_sw_current_set = WG_SW_AFT;
-			wg_sw_big_angle = 358.0;
-			wg_sw_small_angle = 2.0;
-		      }
-		    else
-		      {
-			wg_sw_current_set = WG_SW_FORE;
-			wg_sw_big_angle = 182.0;
-			wg_sw_small_angle = 178.0;
-		      }
+  switch(wg_sw_flag)
+    {
+    case 1:      /* Complete rotations */
+      
+      if(wg_sw_current_set == WG_SW_FORE)
+        wg_sw_current_set = WG_SW_AFT;
+      else 
+        wg_sw_current_set = WG_SW_FORE;
+      
+      break;
+      
+    case 2:     /* Right side only */
+      if(wg_sw_current_set == WG_SW_FORE)
+        {
+   wg_sw_current_set = WG_SW_AFT;
+   wg_sw_big_angle = 358.0;
+   wg_sw_small_angle = 2.0;
+        }
+      else
+        {
+   wg_sw_current_set = WG_SW_FORE;
+   wg_sw_big_angle = 182.0;
+   wg_sw_small_angle = 178.0;
+        }
 
-		    break;
-		    
-		  case 3:     /* left side only */
-		    if(wg_sw_current_set == WG_SW_FORE)
-		      {
-			wg_sw_current_set = WG_SW_AFT;
-			wg_sw_big_angle = 182.0;
-			wg_sw_small_angle = 178.0;
-		      }
-		    else
-		      {
-			wg_sw_current_set = WG_SW_FORE;
-			wg_sw_big_angle = 358.0;
-			wg_sw_small_angle = 2.0;
-		      }
+      break;
+      
+    case 3:     /* left side only */
+      if(wg_sw_current_set == WG_SW_FORE)
+        {
+   wg_sw_current_set = WG_SW_AFT;
+   wg_sw_big_angle = 182.0;
+   wg_sw_small_angle = 178.0;
+        }
+      else
+        {
+   wg_sw_current_set = WG_SW_FORE;
+   wg_sw_big_angle = 358.0;
+   wg_sw_small_angle = 2.0;
+        }
 
-		    break;
-		  default:
-		    break;
+      break;
+    default:
+      break;
 
-		  }    /* switch on wg_sw_flag */
+    }    /* switch on wg_sw_flag */
 
-		/* Now switch the switch */
+  /* Now switch the switch */
 
-	      *wg_sw_pntr = wg_sw_current_set;
+       *wg_sw_pntr = wg_sw_current_set;
 
-	      } /* test for switch over point (test == 1) */
+       } /* test for switch over point (test == 1) */
 
-	  } /* Test of wg_sw_counter > 10 */
+   } /* Test of wg_sw_counter > 10 */
 
       } /* Test of wg_sw_flag != 0 */
+ 
+  //Added Tom 3/25/08
+  SendUDP(fore_ray_pntr);
+  SendUDP(aft_ray_pntr);
 
 
 } /* Infinite for loop */

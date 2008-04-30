@@ -1,10 +1,10 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	clockDef.h	 
- *	Original Author: Craig Walther
+ * Module: clockDef.h  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  *
  * Description: This include module contains all of the addresses
@@ -12,7 +12,12 @@
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: clockDef.h,v $
+ * Revision 1.1  2005/08/04 22:27:39  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.1  2003/09/23  20:15:23  kapoor
  * Initial revision
  *
@@ -48,6 +53,12 @@
 #define  CLK_CMD 0x24            /* Command register */
 #define  CLK_INTSTAT  0x2A       /* Interrupt status register */
 #define  CLK_FIFO 0x26           /* FIFO for clock commends */
+
+//Tom 3/24/08
+#define  CLK_VECTOR 0x2C         // Interrupt Vector
+#define  CLK_LEVEL 0x2E          // Interrupt Level
+#define  CLK_MASK 0x28           // Interrupt Mask
+
 
 
 

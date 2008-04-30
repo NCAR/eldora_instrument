@@ -144,8 +144,11 @@ hskpIntInit.c
 s['vmevme'] = """
 fill_nav_info.c
 fill_platform.c
+init_info_blocks.c
+init_UDP.cc
 init_vmevme.c
 midbeam.c
+SendUDP.cc
 start_vmevme.c
 stop_vmevme.c
 vmevme_isr.c

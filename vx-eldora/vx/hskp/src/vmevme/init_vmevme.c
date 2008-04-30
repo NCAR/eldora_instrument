@@ -1,10 +1,10 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	init_vmevme	 
- *	Original Author: Craig Walther
+ * Module: init_vmevme  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
@@ -17,7 +17,7 @@
  *              
  */
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Date$ $RCSfile: init_vmevme.c,v $ $Revision$";
 
 #define OK_RPC
 #define scope extern
@@ -35,19 +35,13 @@ fore_vmehndshk = (struct vmevmehndshk *)(FORE_STAND_START + STANDARD_BASE);
 aft_vmehndshk = (struct vmevmehndshk *)(AFT_STAND_START + STANDARD_BASE); 
 
 fore_local_status = (char *)(LOCAL_STATUS_REG + FORE_SHORT_START + SHORT_BASE);
-fore_local_command = (char *)(LOCAL_COMMAND_REG +
-			      FORE_SHORT_START + SHORT_BASE);
-fore_remote_status = (char *)(REMOTE_STATUS_REG +
-			      FORE_SHORT_START + SHORT_BASE);
-fore_remote_command = (char *)(REMOTE_COMMAND_REG +
-			       FORE_SHORT_START + SHORT_BASE);
+fore_local_command = (char *)(LOCAL_COMMAND_REG + FORE_SHORT_START + SHORT_BASE);
+fore_remote_status = (char *)(REMOTE_STATUS_REG + FORE_SHORT_START + SHORT_BASE);
+fore_remote_command = (char *)(REMOTE_COMMAND_REG + FORE_SHORT_START + SHORT_BASE);
 aft_local_status = (char *)(LOCAL_STATUS_REG + AFT_SHORT_START + SHORT_BASE);
-aft_local_command = (char *)(LOCAL_COMMAND_REG +
-			      AFT_SHORT_START + SHORT_BASE);
-aft_remote_status = (char *)(REMOTE_STATUS_REG +
-			      AFT_SHORT_START + SHORT_BASE);
-aft_remote_command = (char *)(REMOTE_COMMAND_REG +
-			       AFT_SHORT_START + SHORT_BASE);
+aft_local_command = (char *)(LOCAL_COMMAND_REG + AFT_SHORT_START + SHORT_BASE);
+aft_remote_status = (char *)(REMOTE_STATUS_REG + AFT_SHORT_START + SHORT_BASE);
+aft_remote_command = (char *)(REMOTE_COMMAND_REG + AFT_SHORT_START + SHORT_BASE);
 
 /* Clear the fore and aft test pulse handshake areas */
 

@@ -1,14 +1,19 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	start_vmevme	 
- *	Original Author: Craig Walther
+ * Module: start_vmevme  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: start_vmevme.c,v $
+ * Revision 1.16  2005/08/04 22:27:36  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.15  2003/10/01  19:31:44  kapoor
  * *** empty log message ***
  *
@@ -36,7 +41,7 @@
  *              
  */
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Date$ $RCSfile: start_vmevme.c,v $ $Revision$";
 
 #define OK_RPC
 #define scope extern
@@ -82,7 +87,7 @@ ads_current_offset = FIRST_ADS_OFFSET;
 Begin by calculating the number of lags the iru data will lag behind */
 
 iru_lags = 200/dwelltime_msec + 4;  /* +4 because this should lag
-				       at a safe distance */
+           at a safe distance */
 
 iru_lag_index = current_index - iru_lags;
 if(iru_lag_index < 0) iru_lag_index += 27;
@@ -115,7 +120,7 @@ for(i=0; i<NUM_RADAR_HNDSHK; i++)
       msecs_ray[i] = msecs_today;
       /* Put things in each record that only change with a header */
       ray_pntr = (struct DATARAY *)(radar_offset + STANDARD_BASE +
-				    FORE_STAND_START);
+        FORE_STAND_START);
       ray_pntr->this_rayi.peak_power = -999.0;
       ray_pntr->this_rayi.ray_status = 0;
       ray_pntr->this_plat.altitude_agl = -999.0;
@@ -123,7 +128,7 @@ for(i=0; i<NUM_RADAR_HNDSHK; i++)
       ray_pntr->this_fdata.data_sys_status = 0;
 
       ray_pntr = (struct DATARAY *)(radar_offset + STANDARD_BASE +
-				    AFT_STAND_START);
+        AFT_STAND_START);
       ray_pntr->this_rayi.peak_power = -999.0;
       ray_pntr->this_rayi.ray_status = 0;
       ray_pntr->this_plat.altitude_agl = -999.0;
@@ -155,13 +160,13 @@ Intr_cnt = 0;
 Proc_dly_sync = 1;
 
 /* Wait for the radar processors to get ready */
-
+/* Tom 3/20/08
 do{
     taskDelay(2);
 }while((fore_vmehndshk->start_hndshk == 0) ||
        (aft_vmehndshk->start_hndshk == 0)); 
 
-/* Now write "Hi Radar" to the radars to get them going */
+// Now write "Hi Radar" to the radars to get them going 
 
 
 aft_vmehndshk->salute[0] = 'H';
@@ -181,6 +186,7 @@ fore_vmehndshk->salute[4] = 'A';
 fore_vmehndshk->salute[5] = 'D';
 fore_vmehndshk->salute[6] = 'A';
 fore_vmehndshk->salute[7] = 'R';
+*/
 
 }
 

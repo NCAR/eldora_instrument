@@ -1,14 +1,19 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	init_clock.c	 
- *	Original Author: Craig Walther
+ * Module: init_clock.c  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: init_clock.c,v $
+ * Revision 1.3  2005/08/04 22:27:38  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.2  2003/09/25  17:25:13  kapoor
  * change of time global variable names
  *
@@ -55,7 +60,7 @@
  *              array for leap yr
  */
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Date$ $RCSfile: init_clock.c,v $ $Revision$";
 
 #define OK_RPC
 #define scope extern
@@ -69,6 +74,21 @@ clk_ack = (short *)(SHORT_BASE + BASE_CLOCK + CLK_ACK);
 clk_cmd = (short *)(SHORT_BASE + BASE_CLOCK + CLK_CMD);
 clk_intstat = (short *)(SHORT_BASE + BASE_CLOCK + CLK_INTSTAT);
 clk_fifo = (short *)(SHORT_BASE + BASE_CLOCK + CLK_FIFO);
+//Tom 3/24/08
+clk_vector = (short *)(SHORT_BASE + BASE_CLOCK + CLK_VECTOR);
+clk_level = (short *)(SHORT_BASE + BASE_CLOCK + CLK_LEVEL);
+clk_mask = (short *)(SHORT_BASE + BASE_CLOCK + CLK_MASK);
+
+
+// Initialize the clock card to receive external interrupt
+// code from 5-2 of Symmetricom Bc635VME manual
+*clk_cmd = 0x8;                         // Enable external event 
+*clk_vector = VME_VME_VEC;              // Map the VME interrupt vector
+*clk_level = VME_VME_IRQ;               // Set the VME IRQ level
+*clk_intstat = 0x01;                     // Clear the INSTAT bit
+*clk_mask = 0x1;                        // Enable the external interrupt
+
+
 
 /* Set to sync to IRIGB or the real time clock (RTC) */
 
@@ -77,9 +97,9 @@ if(use_IRIGB)
       /* Use IRIG-B as the time source */
       send_packet("A0");
       if(modulate_IRIGB)
-	send_packet("HBM");
+ send_packet("HBM");
       else
-	send_packet("HBD");
+ send_packet("HBD");
   }
 else
   {

@@ -1,10 +1,10 @@
 /*
- *	$Id$
+ * $Id$
  *
- *	Module:	clockGbl.h	 
- *	Original Author: Craig Walther
+ * Module: clockGbl.h  
+ * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
- *	Date:		 $Date$
+ * Date:   $Date$
  *
  *
  * Description: This include module contains all of the global 
@@ -12,7 +12,12 @@
  *
  * revision history
  * ----------------
- * $Log$
+ * $Log: clockGbl.h,v $
+ * Revision 1.6  2005/08/04 22:27:39  granger
+ * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
+ * (afaik) directories were removed, like hskp/src/clock/newclk and
+ * hskp/src/arinc_NCAR
+ *
  * Revision 1.5  2003/09/25  21:00:22  kapoor
  * added more global variables forgotten in the last rev.
  *
@@ -69,6 +74,10 @@ scope short *clk_ack;            /* Acknowledge register */
 scope short *clk_cmd;            /* Command register */
 scope short *clk_intstat;        /* Interrupt status register */
 scope short *clk_fifo;           /* clock command fifo */
+//Tom 3/24/08
+scope short *clk_vector;         // clock interrupt vector
+scope short *clk_level;          // clock interrupt level
+scope short *clk_mask;           // clock interrupt mask
 
 /* array used to calculate month and day */
 scope int day_mon_calc[13];
@@ -85,7 +94,7 @@ scope unsigned char mon;
 scope unsigned char yr;
 
 scope char *time_date;    /* date array in which time data format for 
-			    RTC is entered. */
+       RTC is entered. */
 
 
 /******** THESE Addl Gbl vars need to be here to make housekeeper happy **/
