@@ -186,11 +186,11 @@ def runDcps():
     global ourConfig
     global ourProcesses
 
-    runDcps = ourConfig.getBool('Dcps/RunDcps', True)
+    runDcps = ourConfig.getBool('Dcps/Run', True)
     if  not runDcps:
         return
     
-    restart = ourConfig.getBool('Dcps/AutoRestartDcps', False)
+    restart = ourConfig.getBool('Dcps/AutoRestart', False)
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
@@ -200,13 +200,16 @@ def runDcps():
             pkill('DCPSInfoRepo')
             
     # start a new instance
+    dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
+    orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
+    domainConfigPath = ourConfig.getString('Dcps/DomainConfig',ddsConfigDir+'/DDSDomainIds.conf')
     dcpscmd = [
         ddsRoot + '/bin/DCPSInfoRepo',
         '-NOBITS',
-        '-DCPSConfigFile', ddsConfigDir + '/DCPSInfoRepo.ini' ,
-        '-ORBSvcConf', ddsConfigDir + '/ORBSvc.conf',
+        '-DCPSConfigFile', dcpsConfigPath,
+        '-ORBSvcConf', orbConfigPath,
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
-        '-d', ddsConfigDir + '/DDSDomainIds.conf'
+        '-d', domainConfigPath,
         ]
     ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload='purple')
     s = ourProcesses['DCPSInfoRepo']
@@ -224,7 +227,7 @@ def runDrx():
     global ourConfig
     global ourProcesses
 
-    doDrx = ourConfig.getBool('Drx/RunDrx', True)
+    doDrx = ourConfig.getBool('Drx/Run', True)
     if not doDrx:
         return
     
@@ -236,21 +239,13 @@ def runDrx():
     # start a new instance
     drxcmd = [
            eldoraDir + '/eldoradrx/eldoradrx',
-           '--ORB', ddsConfigDir + '/ORBSvc.conf',
-           '--DCPS', ddsConfigDir + '/DDSClient.ini',
            '--start0',
            '--start1',
            '--pub',
            ]
-    drxSimMode = ourConfig.getBool('Drx/DrxSimMode', False)
+    drxSimMode = ourConfig.getBool('Mode/Simulate', False)
     if drxSimMode:
         drxcmd.append('--sim')
-        drxcmd.append('--usleep')
-    	drxUsleep = ourConfig.getInt('Drx/DrxSimUsleep', 7000)
-        drxcmd.append(str(drxUsleep))
-    drxInternalTimer = ourConfig.getBool('Drx/DrxInternalTimer', False)
-    if drxInternalTimer:
-        drxcmd.append('--int')
     ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload='blue')
     s = ourProcesses['eldoradrx']
     QObject.connect(s, SIGNAL("text"), main.logText)
@@ -267,7 +262,7 @@ def runProducts():
     global ourConfig
     global ourProcesses
     
-    doProducts = ourConfig.getBool('Products/RunProducts', True)
+    doProducts = ourConfig.getBool('Products/Run', True)
     if  not doProducts:
         return
     
@@ -358,22 +353,22 @@ def createRpcServers():
     global ourConfig
     
     # create the rpc for the drx
-    drxrpchost = ourConfig.getString('Drx/DrxHost', 'drx')
-    drxrpcport = ourConfig.getInt('Drx/DrxRpcPort', 60000)
+    drxrpchost = ourConfig.getString('Drx/Host', 'drx')
+    drxrpcport = ourConfig.getInt('Drx/RpcPort', 60000)
     drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
     global drxrpc
     drxrpc = EldoraRPC('drx', drxrpcurl)
     
     # create the rpc for the housekeeper
-    hskprpchost = ourConfig.getString('Hksp/HousekeeperHost', 'hskp')
-    hskprpcport = ourConfig.getInt('Hksp/HousekeeperRpcPort', 60001)
+    hskprpchost = ourConfig.getString('Hksp/Host', 'hskp')
+    hskprpcport = ourConfig.getInt('Hksp/RpcPort', 60001)
     hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
     global hskprpc
     hskprpc = EldoraRPC('hskp', hskprpcurl)
     
     # create the rpc for the products generator
-    prodrpchost = ourConfig.getString('Products/ProductsHost', 'archiver')
-    prodrpcport = ourConfig.getInt('Products/ProductsRpcPort', 60002)
+    prodrpchost = ourConfig.getString('Products/Host', 'archiver')
+    prodrpcport = ourConfig.getInt('Products/RpcPort', 60002)
     prodrpcurl = 'http://' + prodrpchost + ':' + str(prodrpcport)
     global prodrpc
     prodrpc = EldoraRPC('products', prodrpcurl)

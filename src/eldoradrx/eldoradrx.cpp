@@ -55,7 +55,7 @@ bool _terminate = false;
 // Not all of these fields are filled by parseOptions()
 /// The parameters that specify the configuration for each RR314 device.
 struct runParams {
-        int deviceNumber; ///< card number, starting at 0
+        // radar parameters
         bool enabled; ///< true if the dma transfers are to be started
         int gates; ///< number of gates
         int nci; ///< number of coherent integrations. Also known as "samples"
@@ -63,32 +63,46 @@ struct runParams {
         int numiq; ///< the number of gates for iq capture.
         int pulsewidth; ///< the pulse width in ns. Must map to oe of the values in DDCregisters.h
         int prf; ///< the pulse repetition frequency, hz.
+        
+        // operating mode parameters
+        bool capture; ///< set true if the data should be captured to files in binary mode.
+        bool textcapture; ///< set true if the data should be captured to files in text mode.
         bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
         int usleep; ///< The usleep value for sleeps between frames
+        
+        // signal processing parameters
         std::string xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
         std::string kaiser; ///< path to a file containing coefficients for the kaiser filter.
         std::string gaussian; ///< path to a file containing coefficients for the gaussian filter.
         bool internaltimer; ///< If true, use the rr314 builtin timer rather than an external
+        
+        // DDS parameters
+        bool publish; ///< set ture if the rr314 data should be published to DDS.
+        std::string ORB; ///< path to the ORB configuration file.
+        std::string DCPS; ///< path to the DCPS configuration file.
+        std::string rayTopic; ///< The published ray topic
+        std::string productsTopic; /// The published product topic
+        
+        // RPC parameters
+        int rpcPort; ///< the rpc port number
+        
+        // global objects
+        int deviceNumber; ///< card number, starting at 0
         RR314* pRR314; ///< pointer to the instance of RR314 representing this card.
         std::ofstream* ofstreams[8]; ///< pointers to output streams for test or binary data capture.
         unsigned long sampleCounts[8]; ///< collect the number of DDS samples written for each dma channel.
-        bool publish; ///< set ture if the rr314 data should be published to DDS.
-        bool capture; ///< set true if the data should be captured to files in binary mode.
-        bool textcapture; ///< set true if the data should be captured to files in text mode.
-        std::string ORB; ///< path to the ORB configuration file.
-        std::string DCPS; ///< path to the DCPS configuration file.
         unsigned long* droppedTS; ///< the number of TS samples that could not be published.
         unsigned long* droppedRay; ///< the number of Ray samples that could not be published.
         DDSPublisher* publisher; ///< the DDS publisher.
         RayWriter* rayWriter; ///< the DDS ray writer.
         TSWriter* tsWriter; ///< the DDS TS writer.
-        int rpcPort; ///< the rpc port number
 };
 
 //
 // prototypes
 //
-static runParams parseOptions(int argc, char** argv, int deviceNumber);
+static void getConfigParams(runParams&);
+static void parseOptions(runParams&, int argc, char** argv, int deviceNumber);
 static void shutdownBoards();
 static void setupSignalHandler();
 static void* rrDataTask(void* threadArg);
@@ -107,10 +121,19 @@ static void showStats(runParams& params, RR314& rr314,
 // monitors the card activity.
 int main(int argc,
          char** argv) {
-	
-    // parse command line options
-    runParams params0 = parseOptions(argc, argv, 0);
-    runParams params1 = parseOptions(argc, argv, 1);
+	// get the parameters specified in the configuration. These
+    // may be overriden by command line options in the call to parseOptions.
+    runParams configParams;
+    getConfigParams(configParams);
+    
+    // parse command line options. Initialize with values from
+    // the configuration, and then allow them to be overriden
+    // from the command line.
+    runParams params0 = configParams;
+    runParams params1 = configParams;
+
+    parseOptions(params0, argc, argv, 0);
+    parseOptions(params1, argc, argv, 1);
 
     // create timer
     if (!params0.simulate && !params0.internaltimer) {
@@ -305,30 +328,55 @@ int main(int argc,
 static  void 
 getConfigParams(runParams &params) {
 
-
-    QtConfig config("NCAR", "EldoraProd");
+    QtConfig config("NCAR", "EldoraDrx");
     
-    std::string ORB;
-    std::string DCPS;
-    std::string rayTopic;
-    std::string productsTopic;
-
     // set up the default configuration directory path
-    char* e = getenv("ELDORADIR");
     std::string EldoraDir("/conf/");
+    char* e = getenv("ELDORADIR");
     if (e) {
         EldoraDir = e + EldoraDir;
+    } else {
+        std::cerr << "Environment varable ELDORADIR must be set.\n";
+        exit(1);        
     }
 
+    // and create the default DDS configuration file paths, since these
+    // depend upon ELDORADIR
     std::string orbFile = EldoraDir + "ORBSvc.conf";
-    ORB = config.getString("ORBConfigFile", orbFile);
-
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
-    DCPS = config.getString("DCPSConfigFile", dcpsFile);
-
-    rayTopic = config.getString("TopicRay", "EldoraRays");
-    productsTopic = config.getString("TopicProducts", "EldoraProducts");
-
+    std::string rayTopic;
+    std::string productsTopic;
+    
+    // radar parameters
+    params.gates         = config.getInt   ("Radar/Gates",       500); 
+    params.nci           = config.getInt   ("Radar/Samples",     25); 
+    params.startiq       = config.getInt   ("Radar/StartIQ",     100); 
+    params.numiq         = config.getInt   ("Radar/NumIQGates",  5); 
+    params.pulsewidth    = config.getInt   ("Radar/PulseWidthNs",1000); 
+    params.prf           = config.getInt   ("Radar/PrfHz",       1000);
+    
+    // operating mode parameters
+    params.enabled       = config.getBool  ("Mode/Enabled",       true); 
+    params.simulate      = config.getBool  ("Mode/Simulate",      false); 
+    params.usleep        = config.getInt   ("Mode/Usleep",        9000);
+    params.capture       = config.getBool  ("Mode/BinaryCapture", false); 
+    params.textcapture   = config.getBool  ("Mode/TextCapture",   false);
+    params.internaltimer = config.getBool  ("Mode/InernalTimer",  false);
+    
+    // RR314 signal processing parameters
+    params.xsvf          = config.getString("DSP/XsvfFile",        "./"); 
+    params.kaiser        = config.getString("DSP/KaiserFile",      "./"); 
+    params.gaussian      = config.getString("DSP/GaussianFile",    "./"); 
+    
+    // DDS parameters
+    params.publish       = config.getBool  ("DDS/Publish",         true); 
+    params.ORB           = config.getString("DDS/ORBConfigFile",   orbFile);
+    params.DCPS          = config.getString("DDS/DCPSConfigFile",  dcpsFile);
+    rayTopic             = config.getString("DDS/TopicRay",        "EldoraRays");
+    productsTopic        = config.getString("DDS/TopicProducts",   "EldoraProducts");
+    
+    // RPC parameters
+    params.rpcPort       = config.getInt   ("Rpc/RpcPort",         6000);
 }
 //////////////////////////////////////////////////////////////////////
 //
@@ -336,35 +384,34 @@ getConfigParams(runParams &params) {
 /// that are not specified on the command line.
 /// @return The runtime options that can be passed to the
 /// threads that interact with the RR314.
-static runParams 
-parseOptions(int argc, char** argv, int deviceNumber) {
-
-    runParams params;
+static void
+parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
 
     // set the device number
     params.deviceNumber = deviceNumber;
 
     // get the option34
     po::options_description descripts("Options");
-    descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
+    descripts.add_options() ("help", "describe options") 
+    ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simulate", "run in simulation mode")
     ("usleep", po::value<int>(&params.usleep)->default_value(50000),"usleep value for simulation")
-    ("start0","start RR314 device 0")
+    ("start0", "start RR314 device 0")
     ("start1", "start RR314 device 1")
     ("gates",po::value<int>(&params.gates)->default_value(500), "number of gates")
     ("nci", po::value<int>(&params.nci)->default_value(25), "number of coherent integrations")
     ("startiq", po::value<int>(&params.startiq)->default_value(100), "start gate for iq capture")
     ("numiq", po::value<int>(&params.numiq)->default_value(5),"number of gates for iq capture")
-    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500),
-    "pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
+    ("pulsewidth", po::value<int>(&params.pulsewidth)->default_value(500),"pulse width, nS (250, 500, 750, 1000, 1250, 1500, 1750, 2000)")
     ("prf", po::value<int>(&params.prf)->default_value(2500), "pulse repetition frequency")
     ("internaltimer",  "use RR314 internal timer")
     ("xsvf", po::value<std::string>(&params.xsvf)->default_value(""), "path to xsvf file")
     ("kaiser", po::value<std::string>(&params.kaiser)->default_value(""),"path to kaiser coefficient file")
     ("gaussian",po::value<std::string>(&params.gaussian)->default_value(""),"path to gaussian coefficient file")
     ("binary", "binary capture")
-    ("text", "text capture") ("publish", "publish data")
+    ("text", "text capture") 
+    ("publish", "publish data")
     ("rpcport", po::value<int>(&params.rpcPort)->default_value(60000), "RPC port number");
 
     po::variables_map vm;
@@ -408,7 +455,6 @@ parseOptions(int argc, char** argv, int deviceNumber) {
     if ((deviceNumber == 1) && vm.count("start1"))
     params.enabled = true;
 
-    return params;
 }
 
 //////////////////////////////////////////////////////////////////////
