@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Usage rundrx.sh [<rr314dual args> ...]
+# Usage rundrx.sh [<eldoradrx_arg> ...]
 #
 
 # source the .bashrc file, since KDE seems to strip 
@@ -23,7 +23,7 @@ dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -ORBListenEndpoints iiop://dcpsrepo:50000 \
    -d $CONF/DDSDomainIds.conf"
 
-# the RR314 application
+# the eldoradrx application
 eldoradrx="$ELDORADIR/eldoradrx/eldoradrx \
    --ORB $CONF/ORBSvc.conf \
    --DCPS $CONF/DDSClient.ini \
