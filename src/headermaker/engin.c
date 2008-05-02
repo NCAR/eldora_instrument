@@ -56,7 +56,7 @@ int calculate_engin()
 {
 
 double temp;
-int number_to_calculate, i;
+int number_to_calculate;
 number_to_calculate = 2;
 
 if(engin_st.avg_freq[0] > 0)

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #define scope extern
 #include "mkrDef.h"
 #include "mkrGbl.h"
@@ -128,7 +129,7 @@ void fprint_cellspacing(cellspacing_pntr, print_pntr)
 	    cellspacing_pntr->cell_spacing_des[1],
 	    cellspacing_pntr->cell_spacing_des[2],
 	    cellspacing_pntr->cell_spacing_des[3]);
-    fprintf(print_pntr,"CELL SPACING DESCRIPTOR LENGTH : %d\n",
+    fprintf(print_pntr,"CELL SPACING DESCRIPTOR LENGTH : %ld\n",
                           cellspacing_pntr->cell_spacing_des_len);
     fprintf(print_pntr,"NUMBER OF SEQMENTS THAT CONTAIN CELLS OF EQUAL WIDTHS : %d\n",
                           cellspacing_pntr->num_segments);

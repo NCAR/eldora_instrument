@@ -285,7 +285,7 @@ void fprint_waveform(waveform_pntr, print_pntr)
      fprintf(print_pntr,"WAVEFORM IDENTIFIER        :");
      for(i=0; i<4; i++)
        fprintf(print_pntr,"%c",waveform_pntr->waveform_des[i]);
-     fprintf(print_pntr,"\nWAVEFORM DESCRIPTOR LENGTH : %d\n",
+     fprintf(print_pntr,"\nWAVEFORM DESCRIPTOR LENGTH : %ld\n",
              waveform_pntr->waveform_des_length);
      fprintf(print_pntr,"PULSING SCHEME FILE NAME   : ");
      for(i = 0; i < 16; i++)
@@ -347,8 +347,12 @@ int calculate_waveform()
   #define NS_TO_60MHZ       0.06           /* Multiplier for nano-sec to 60 MHz
 					      clock periods */
 
-  int i, an_int, hpa_on_time, hpa_off_time, fst_gate_60mhz;
-  float afloat, width, delay_roundtrip_antennas;
+  int i;
+  int hpa_on_time;
+  int hpa_off_time;
+  int fst_gate_60mhz;
+  float afloat;
+  int width;
   int number_to_calculate;
 
   number_to_calculate = 6;

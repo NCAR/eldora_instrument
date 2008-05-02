@@ -11,8 +11,11 @@ float get_input();
 void re_cal()
 {
 
- char input[80];
- int i, j, num_calculate_left, old_num, dual_prt,temp_i;
+ int i;
+ int num_calculate_left = 0;
+ int old_num;
+ int dual_prt;
+ int temp_i;
  /*
  initialize_volume(&volume); 
  initialize_waveform(&waveform);

@@ -19,8 +19,6 @@
  *        
  */
 
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
-
 #define scope extern
 #include "mkrDef.h"
 #include "mkrGbl.h"

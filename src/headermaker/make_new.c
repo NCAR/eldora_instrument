@@ -12,7 +12,11 @@ void make_new()
 {
 
  char input[80];
- int i, j, num_calculate_left, old_num, good;
+ int i;
+ int j;
+ int num_calculate_left = 0;
+ int old_num;
+ int good;
 
  initialize_volume(&volume);
  initialize_waveform(&waveform);

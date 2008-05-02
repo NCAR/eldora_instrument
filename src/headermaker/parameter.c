@@ -72,13 +72,20 @@ void edit_parameter(param_pntr)
       struct parameter_d *param_pntr;
 
    {
-      int i,choice;
+      int choice;
       char string[80];
-      float bandwidth,velocity,rng,value,scale,bias;
-      short width,polarization,samples,format,bad;
-      short time,freq;
-      long  fflag;
-    
+      float bandwidth;
+      float value;
+      float scale;
+      float bias;
+      short width;
+      short polarization;
+      short samples;
+      short format;
+      short bad;
+      short time;
+      short freq;
+
 
       for(;;){
         do{
@@ -231,7 +238,7 @@ void fprint_parameter(param_pntr,print_pntr)
       fprintf(print_pntr,"PARAMETER DESCRIPTOR        : ");
       for(i=0; i<4; i++)
 	fprintf(print_pntr,"%c",param_pntr->parameter_des[i]);
-      fprintf(print_pntr,"\nPARAMETER DESCRIPTOR LENGTH : %d\n",
+      fprintf(print_pntr,"\nPARAMETER DESCRIPTOR LENGTH : %ld\n",
                   param_pntr->parameter_des_length);
       fprintf(print_pntr,"PARAMETER NAME              : ");
        for(i = 0; i < 8; i++)
@@ -269,7 +276,7 @@ void fprint_parameter(param_pntr,print_pntr)
                        param_pntr->parameter_scale);
        fprintf(print_pntr,"PARAMETER BIAS              : %f\n",
                        param_pntr->parameter_bias);
-       fprintf(print_pntr,"BAD DATA FLAG               : %d\n",
+       fprintf(print_pntr,"BAD DATA FLAG               : %ld\n",
                        param_pntr->bad_data);
 }
 

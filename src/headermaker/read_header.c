@@ -2,6 +2,7 @@
 #define scope extern
 #include "mkrDef.h"
 #include "mkrGbl.h"
+#include "mkrFunc.h"
 
 void read_header()
  {
@@ -135,7 +136,7 @@ void read_header()
        return;
      }
 
-     close(filepntr);
+     fclose(filepntr);
  }
 
 
