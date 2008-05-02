@@ -598,7 +598,7 @@
       </widget>
       <widget class="QWidget" name="tab_3" >
        <attribute name="title" >
-        <string>Geeks Only</string>
+        <string>Console</string>
        </attribute>
        <layout class="QVBoxLayout" >
         <property name="margin" >
