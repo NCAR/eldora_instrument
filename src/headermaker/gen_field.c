@@ -5,19 +5,15 @@
 #include "mkrGbl.h"
 #include "mkrFunc.h"
 
-void num_params();
 int foreaft();
-int specific_param();
-void menu();
 void initialize_menu();
 void edit_menu();
 void print_menu_screen();
 void print_menu_printer();
-void cleanup();
-void make_new();
 void re_cal();
-void initialize_cellspacing();
-
+void menu(int*);
+void num_params(int radarnum);
+ 
 int
 main(int argc,
      char** argv) {
@@ -149,6 +145,7 @@ main(int argc,
             byteswritten += fwrite((char *)&insitudata, size, 1, outfdf);
 
             fclose(outfdf);
+            outfdf = 0;
 
             unpack_hd(); /* byte-swap header if on little Endian machine */
             unpk_short(&radar[FORE].num_parameter_des, 1, 0);
@@ -236,8 +233,7 @@ main(int argc,
 /**************************************************************************/
 /*                            MAIN MENU                                   */
 /**************************************************************************/
-void menu(choice)
-    int *choice; {
+void menu(int* choice) {
     int ansr;
     char string[80];
     do {
@@ -269,7 +265,9 @@ void menu(choice)
 /*************************************************************************/
 
 void initialize_menu() {
-    int choice, i, radarnum;
+    int choice;
+    int i;
+    int radarnum;
     char input[80];
 
     for (;;) {
@@ -386,8 +384,7 @@ int foreaft() {
 /*          Function num_params gets the number of parameters           */
 /*                 they want to define for a radar                      */
 /************************************************************************/
-void num_params(radarnum)
-    int radarnum; {
+void num_params(int radarnum) {
     char input[80];
     int num;
 
@@ -411,8 +408,7 @@ void num_params(radarnum)
 /*            parameter selected by the user                            */
 /************************************************************************/
 
-int specific_param(radarnum)
-    int radarnum; {
+int specific_param(int radarnum) {
     char input[80];
     int num, i;
 
@@ -449,7 +445,8 @@ int specific_param(radarnum)
 /***********************************************************************/
 void edit_menu() {
     int choice;
-    int paramnum, radarnum;
+    int paramnum;
+    int radarnum;
     char input[80];
 
     for (;;) {
@@ -519,7 +516,11 @@ void edit_menu() {
 /****************************************************************************/
 
 void print_menu_screen() {
-    int choice, i, j, radarnum, paramnum;
+    int choice;
+    int i;
+    int j;
+    int radarnum;
+    int paramnum;
     char input[80];
 
     for (;;) {
@@ -601,9 +602,14 @@ void print_menu_screen() {
 /*                   SUBROUTINE PRINT MENU PRINTER                          */
 /****************************************************************************/
 void print_menu_printer() {
-    int choice, i, j, radarnum, paramnum;
+    int choice;
+    int i;
+    int j;
+    int radarnum;
+    int paramnum;
     char input[80];
-    FILE *printer, *popen();
+    FILE *printer;
+//    , *popen();
     char *debug_file = getenv("Debug_Output");
     if (debug_file) {
         if ((printer = fopen(debug_file, "w")) == NULL) {
@@ -709,9 +715,8 @@ void print_menu_printer() {
 /*******************************************************************/
 /****    Function to cleanup ascii arrays so they look better   ****/
 /*******************************************************************/
-void cleanup(array,
-             size)
-    unsigned char *array;int size; {
+void cleanup(char* array, int size)
+{
     int i, endfound;
 
     endfound = 0;

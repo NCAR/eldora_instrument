@@ -1,8 +1,8 @@
-void cleanup();
-
 void read_header();
 
 void gen_field();
+
+void make_new();
 
 void fprint_cellspacing();
 void edit_cellspacing();
@@ -64,6 +64,8 @@ void set_attenuator();
 void verify();
 
 int  big_little(void);
+
+void cleanup(char*, int);
 
 void unpk_short(short *,int,int);
 void unpk_long(long *,int,int);
