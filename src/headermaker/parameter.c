@@ -8,9 +8,8 @@
 /*            SUBROUTINE INITIALIZE PARAMETER DESCRIPTOR                    */
 /***************************************************************************/
 
-void initialize_parameter(param_pntr,num)
+void initialize_parameter(param_pntr)
        struct parameter_d *param_pntr;
-      int *num;
   {
       int size,i;
        

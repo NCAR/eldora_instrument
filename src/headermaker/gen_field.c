@@ -304,7 +304,7 @@ void initialize_menu() {
             break;
         case 3:
             radarnum = foreaft();
-            initialize_radar(&radar[radarnum]);
+            initialize_radar(&radar[radarnum], radarnum);
             fprint_radar(&radar[radarnum], stdout);
             break;
         case 4:
@@ -337,8 +337,8 @@ void initialize_menu() {
             initialize_volume(&volume);
             initialize_waveform(&waveform);
             actual_num_radars = 2;
-            initialize_radar(&radar[FORE]);
-            initialize_radar(&radar[AFT]);
+            initialize_radar(&radar[FORE], FORE);
+            initialize_radar(&radar[AFT], AFT);
             initialize_fieldradar(&fradar[FORE]);
             initialize_fieldradar(&fradar[AFT]);
             initialize_cellspacing(&cell[FORE]);
