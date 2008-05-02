@@ -27,6 +27,7 @@ SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
 SConscript('eldorascope/SConscript')
 SConscript('eldoragui/SConscript')
+SConscript('headermaker/SConscript')
 SConscript('dorade/tool_dorade.py')
 
 # The eldoradrx program

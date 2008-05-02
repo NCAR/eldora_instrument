@@ -1,0 +1,29 @@
+GENERAL PARAMETERS
+ File Name: ./headers/conv4.hd
+ Project Name: BAMEX              
+ENGINEERING PARAMETERS:
+ Pulsing Scheme Name: 4F_2PRF_6P_5/4 
+ Pulse Repetition Frequency #1:  2500 Hertz
+ Pulse Repetition Frequency #2:  2000 Hertz
+ Number Of Gates Sampled:   376 
+ Chip Width:   1.000 us
+ Data Reduction Top Altitude:  25.0 km
+ Data Reduction Bottom Altitude:  -5.0 km
+ Independent Frequency Data Being Recorded At Gate:   56
+ Time Series Data Not Being Recorded
+ Data Rate Out Of The Radar Processors:  951.11 Kbytes/sec
+ Data Rate Recorded To Tape:  527.56 Kbytes/sec
+ The Duty Cycle Is:  0.95 percent
+ Rotation Rate:   129.63 deg/sec
+SCIENTIFIC PARAMETERS:
+ Total Number Of Data Cells:  376
+ Cell Spacing: 150 m
+ Distance To The First Cell:   0 m
+ Rotational Spacing Of Data Beams:   1.40 deg
+ Along Track Spacing Of Data Beams:   333.26 m
+ Dwell Time For A Data Beam Is:  10.8 ms
+ The Number Of Samples In A Dwell Period:   24
+ The Number Of Independent Samples In A Dwell Period:  12.64
+ The Maximum Sampled Range Is:   56.62 km
+ The Maximum Possible Range Is:   60.00 km
+ The Unambiguous Velocity Range Is: +/-  77.24 m/s

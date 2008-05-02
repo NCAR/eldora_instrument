@@ -1,0 +1,31 @@
+GENERAL PARAMETERS:
+ File Name: ./headers/clear_air1_20MHz.hd
+ Project Name: IHOP               
+
+ENGINEERING PARAMETERS:
+ Pulsing Scheme Name: 4Frq_1PRF_4Prm 
+ Pulse Repetition Frequency #1:  3000 Hertz
+ Pulse Repetition Frequency #2:     0 Hertz
+ Number Of Gates Sampled:   400 
+ Chip Width:   0.750 us
+ Data Reduction Top Altitude:  25.0 km
+ Data Reduction Bottom Altitude:  -5.0 km
+ Independent Frequency Data Being Recorded At Gate:   72
+ Time Series Data Not Being Recorded
+ Data Rate Out Of The Radar Processors:  534.40 Kbytes/sec
+ Data Rate Recorded To Tape:  396.52 Kbytes/sec
+ The Duty Cycle Is:  0.99 percent
+ Rotation Rate:    75.00 deg/sec
+
+SCIENTIFIC PARAMETERS:
+ Total Number Of Data Cells:  400
+ Cell Spacing: 112 m
+ Distance To The First Cell:   0 m
+ Rotational Spacing Of Data Beams:   1.50 deg
+ Along Track Spacing Of Data Beams:   576.00 m
+ Dwell Time For A Data Beam Is:  20.0 ms
+ The Number Of Samples In A Dwell Period:   60
+ The Number Of Independent Samples In A Dwell Period:  20.00
+ The Maximum Sampled Range Is:   45.17 km
+ The Maximum Possible Range Is:   50.00 km
+ The Unambiguous Velocity Range Is: +/-  23.15 m/s
