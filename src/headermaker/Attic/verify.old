@@ -1,0 +1,316 @@
+/***** Checks to make sure that a header is possible for the hardware ******/
+
+#define scope extern
+#include "mkrDef.h"
+#include "mkrGbl.h"
+#include "mkrFunc.h"
+#include "Ray.h"
+#include "Platform.h"
+#include "FieldParam.h"
+
+void verify(int flag, int *num_errors)
+{
+
+int num_beams, i, cells_top, cells_bot, bytes_per_cell, total_cells;
+int max_possible_cells, total_recorded_cells, overhead, recorded_cells;
+int max_gates;
+float len_opp_top, len_opp_bot, hypt_top, hypt_bot, duty_cycle, temp;
+float beam_spacing, current_dist, diff, sweep_time, max_possible_rate;
+float recording_rate, max_range_gates, max_range_pcp, unambig_velocity; 
+double angle_top, angle_bot;
+float dwelltime, percent_of_prt, min_dwelltime, prt, along_tk_res;
+
+/* Caluculate the along track resolution */
+along_tk_res = 120.0 * (360.0 / radar[0].req_rotat_vel);
+
+/* Calculate the total number of cells in a beam */
+total_cells = 0;
+for(i=0; i < cell[0].num_segments; i++)
+  total_cells += cell[0].num_cells[i];
+
+beam_spacing = waveform.repeat_seq_dwel * waveform.repeat_seq / 1000. *
+  radar[0].req_rotat_vel;
+
+bytes_per_cell = 0;
+for(i=0; i<radar[0].num_parameter_des; i++)
+  bytes_per_cell += parameter[i][0].binary_format;
+
+/* Is "between two altitudes" data reduction turned on? */
+
+if(radar[0].data_reduction == 3)
+  {
+
+      /* assume aircraft is flying at approximately 10000 feet (3 km) */
+
+      len_opp_top = (radar[0].data_red_parm0 - 3.0) * 1000; 
+      len_opp_bot = (3.0 - radar[0].data_red_parm1) * 1000; 
+
+/* First, go through 90 degrees of motion calculating reduction of data */ 
+
+   num_beams = 0;
+   angle_bot = 0;
+   cells_top = 0;
+   cells_bot = 0;
+
+   do
+     {
+
+	 num_beams += 1;
+
+	 /* calculate number of cells out to the top restriction */
+
+	 angle_top = 90.0 - angle_bot;
+	 if(angle_top > 0)
+	   hypt_top = len_opp_top / sin((double)(angle_top/57.295));
+	 else
+	   hypt_top = 1000000.;
+
+	 current_dist = cell[0].distToFirst;
+	 recorded_cells = 0;
+
+	 for(i=0; i<cell[0].num_segments; i++)
+	   {
+	       current_dist += cell[0].num_cells[i]*cell[0].spacing[i];
+	       if(current_dist >= hypt_top)
+		 {
+		     current_dist -= cell[0].num_cells[i]*cell[0].spacing[i];
+		     diff = hypt_top - current_dist;
+		     recorded_cells += 1 + (diff / cell[0].spacing[i]);
+
+		     if(recorded_cells > total_cells)
+		       recorded_cells = total_cells;
+		     break;
+		 }
+	       recorded_cells += cell[0].num_cells[i];
+	   }
+	 cells_top += recorded_cells;
+
+	 /* Calculate the number of cells down to the bottom restriction */
+
+	 if(angle_bot > 0)
+	   hypt_bot = len_opp_bot / sin((double)(angle_bot/57.295));
+	 else
+	   hypt_bot = 1000000.;
+
+
+	 current_dist = cell[0].distToFirst;
+	 recorded_cells = 0;
+
+	 for(i=0; i<cell[0].num_segments; i++)
+	   {
+	       current_dist += cell[0].num_cells[i]*cell[0].spacing[i];
+	       if(current_dist >= hypt_bot)
+		 {
+		     current_dist -= cell[0].num_cells[i]*cell[0].spacing[i];
+		     diff = hypt_bot - current_dist;
+		     recorded_cells += 1 + (diff / cell[0].spacing[i]);
+
+		     if(recorded_cells > total_cells)
+		       recorded_cells = total_cells;
+		     break;
+		 }
+	       recorded_cells += cell[0].num_cells[i];
+	   }
+	 cells_bot += recorded_cells;
+
+	 /*increment angle one ray and stop if > 90 degrees */
+	 angle_bot += beam_spacing;
+
+     }while(angle_bot <= 90.0);
+
+      total_recorded_cells = 2 * (cells_bot + cells_top);
+      overhead = sizeof(struct ray_i) + sizeof(struct platform_i) +
+	sizeof(struct field_parameter_data);
+      if(fradar[0].indepf_times_flg > 0)
+	overhead = overhead + 8 + radar[0].num_parameter_des * 
+	  radar[0].num_freq_trans * 2;
+      if(fradar[0].indepf_times_flg > 1)
+	overhead = overhead + 8 + radar[0].num_freq_trans * 4 * 2 *
+	  parameter[0][0].num_samples;
+
+      sweep_time = num_beams * 4 * waveform.repeat_seq_dwel *
+	waveform.repeat_seq / 1000.;
+
+      max_possible_cells = num_beams * 4 * total_cells;
+
+      /* calculate data rates: 2 is for fore and aft radars, 4 is due to
+       num_beams being the number of beams in 90 degrees and we want 360 deg*/
+
+      max_possible_rate = 2 * (num_beams * 4 * overhead + max_possible_cells *
+			   bytes_per_cell) / sweep_time;
+      recording_rate = 2 * (num_beams * 4 * overhead + total_recorded_cells *
+			   bytes_per_cell) / sweep_time;
+  }
+
+/* Is no data reduction turned on? */
+
+else if(radar[0].data_reduction == 0)
+  {
+      num_beams = 0;
+      angle_bot = 0;
+
+      do{
+	  num_beams =+ 1;
+	  angle_bot += 1;
+      }while(angle_bot <= 90);
+
+
+      overhead = sizeof(struct ray_i) + sizeof(struct platform_i) +
+	sizeof(struct field_parameter_data);
+      if(fradar[0].indepf_times_flg > 0)
+	overhead = overhead + 8 + radar[0].num_parameter_des * 
+	  radar[0].num_freq_trans * 2;
+      if(fradar[0].indepf_times_flg > 1)
+	overhead = overhead + 8 + radar[0].num_freq_trans * 4 * 2 *
+	  parameter[0][0].num_samples;
+
+      sweep_time = num_beams * 4 * waveform.repeat_seq_dwel *
+	waveform.repeat_seq / 1000.;
+
+      max_possible_cells = num_beams * 4 * total_cells;
+
+      /* calculate data rates (first 2 is for fore and aft radars) */
+
+      max_possible_rate = 2 * (num_beams * 4 * overhead + max_possible_cells *
+			   bytes_per_cell) / sweep_time;
+
+
+      recording_rate = max_possible_rate;
+  }
+
+/* Other types of data reduction are not supported */
+
+else
+  {
+  recording_rate = -999;
+  max_possible_rate = -999;
+  }
+/* Calculate the dwell time */
+
+dwelltime = waveform.repeat_seq_dwel * waveform.repeat_seq;
+
+/* Calculate the duty cycle */
+
+duty_cycle = (float)(1.6667e-3 * waveform.num_chips[5] * 
+		     waveform.chip_width[5]) / waveform.repeat_seq;
+
+/* Calculate the maximum range, using gates and PCP */
+
+max_range_gates = 0;
+if(waveform.num_chips[0] > 0)
+  {
+      temp = waveform.gate_dist1[0]*2.5 + waveform.gate_dist1[1]*
+	2.5*waveform.num_gates[0];
+      if(temp > max_range_gates) max_range_gates = temp;
+  }
+
+if(waveform.num_chips[1] > 0)
+  {
+      temp = waveform.gate_dist2[0]*2.5 + waveform.gate_dist2[1]*
+	2.5*waveform.num_gates[1];
+      if(temp > max_range_gates) max_range_gates = temp;
+  }
+
+if(waveform.num_chips[2] > 0)
+  {
+      temp = waveform.gate_dist3[0]*2.5 + waveform.gate_dist3[1]*
+	2.5*waveform.num_gates[2];
+      if(temp > max_range_gates) max_range_gates = temp;
+  }
+
+if(waveform.num_chips[3] > 0)
+  {
+      temp = waveform.gate_dist4[0]*2.5 + waveform.gate_dist4[1]*
+	2.5*waveform.num_gates[3];
+      if(temp > max_range_gates) max_range_gates = temp;
+  }
+
+if(waveform.num_chips[4] > 0)
+  {
+      temp = waveform.gate_dist5[0]*2.5 + waveform.gate_dist5[1]*
+	2.5*waveform.num_gates[4];
+      if(temp > max_range_gates) max_range_gates = temp;
+  }
+
+max_range_pcp = (waveform.ur_pcp * waveform.repeat_seq / 
+		 waveform.total_pcp) * 150000;
+
+/* Calculate the unambiguous velocity */
+unambig_velocity = 3.0e8 / (waveform.uv_pcp * waveform.repeat_seq /
+			    waveform.total_pcp * 1.0e-3 * 4 * 
+			    radar[0].freq1 * 1.0e9);
+
+/* Calculate the minimum dwell time the radar processors can process */
+min_dwelltime = waveform.num_gates[0] * 0.0012 * radar[0].num_freq_trans;
+
+/* Calculate the maximum number of gates that can be processed by the
+   radar processor */
+
+for(i=0; i<waveform.total_pcp; i++)
+max_gates = prt/6.25e-7; 
+
+/* If flag is true, give a summary of all checks we have made, otherwise
+   only warn of potential hazards */
+
+diff = (max_possible_rate - recording_rate) / max_possible_rate * 100.;
+max_possible_rate /= 1000.;
+recording_rate /= 1000.;
+max_range_gates /= 1000.;
+max_range_pcp /= 1000.;
+
+if(flag)
+  {
+      printf("\nData Rate Out of The Radar Processors: %7.2f Kbytes/sec\n",
+	     max_possible_rate);
+      printf("Data Rate Recorded to Tape: %7.2f Kbytes/sec\n",
+       recording_rate);
+      printf("Percent Savings Due to Data Reduction: %5.1f percent\n",
+	     diff);
+      printf("Dwell Time of This Header is: %5.3f ms\n",dwelltime);
+      printf("Duty Cycle of This Header is: %5.2f percent\n",duty_cycle);
+      printf("Maximum Sampled Range of This Header Is: %7.2f km\n",
+	     max_range_gates);
+      printf("Maximum Possible Range of This Header Is: %7.2f km\n",
+	     max_range_pcp);
+      printf("Unambiguous Velocity Range of This Header Is: +/-%7.2f m/s\n",
+	     unambig_velocity);
+      printf("Rotation rate:  %7.2f deg/sec\n",radar[0].req_rotat_vel);
+      printf("Along Track Resolution:  %7.2f m\n",along_tk_res);
+
+  }
+
+printf("\n");
+
+if(unambig_velocity < 12.0)
+  printf("!!! WARNING low unambiguous velocity range could lead to problems\n");
+
+if(recording_rate > 1200.)
+  {
+      printf("!!! ERROR record data rate exceeds what is possible\n");
+      *num_errors += 1;
+  }
+
+if(dwelltime < 10.)
+  {
+      printf("!!! ERROR dwell time is less than possible\n");
+      *num_errors += 1;
+  }
+
+if(duty_cycle > 1.0)
+  {
+      printf("!!! ERROR duty cycle exceeds what is possible\n");
+      *num_errors += 1;
+  }
+
+percent_of_prt = max_range_gates / max_range_pcp;
+if(percent_of_prt > 0.98)
+  {
+      printf("!!! ERROR Number of gates exceeds what is possible,");
+      printf(" or gate spacing is too large\n");
+      *num_errors += 1;
+  }
+
+
+
+printf("\n\n");
+}

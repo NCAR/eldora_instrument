@@ -1,0 +1,31 @@
+GENERAL PARAMETERS:
+ File Name: headers/highres2
+ Project Name: MAP                
+
+ENGINEERING PARAMETERS:
+ Pulsing Scheme Name: 3F_2PRF_6P_5/4 
+ Pulse Repetition Frequency #1:  2312 Hertz
+ Pulse Repetition Frequency #2:  1850 Hertz
+ Number Of Gates Sampled:   272 
+ Chip Width:   1.500 us
+ Data Reduction Top Altitude:  25.0 km
+ Data Reduction Bottom Altitude:  -5.0 km
+ Independent Frequency Data Being Recorded At Gate:   36
+ Time Series Data Not Being Recorded
+ Data Rate Out Of The Radar Processors:  647.50 Kbytes/sec
+ Data Rate Recorded To Tape:  349.97 Kbytes/sec
+ The Duty Cycle Is:  0.99 percent
+ Rotation Rate:   123.33 deg/sec
+
+SCIENTIFIC PARAMETERS:
+ Total Number Of Data Cells:  272
+ Cell Spacing: 225 m
+ Distance To The First Cell:   0 m
+ Rotational Spacing Of Data Beams:   1.44 deg
+ Along Track Spacing Of Data Beams:   350.27 m
+ Dwell Time For A Data Beam Is:  11.7 ms
+ The Number Of Samples In A Dwell Period:   24
+ The Number Of Independent Samples In A Dwell Period:  10.01
+ The Maximum Sampled Range Is:   61.54 km
+ The Maximum Possible Range Is:   64.86 km
+ The Unambiguous Velocity Range Is: +/-  72.27 m/s

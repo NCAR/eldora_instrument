@@ -1,0 +1,30 @@
+import os
+
+tools = Split("""
+""")
+env = Environment(tools = ['default'] + tools)
+env.AppendUnique(CPPPATH='#/vx-eldora/rpc/include')
+env.AppendUnique(LIBS=['m',])
+
+srcs = Split('''
+gen_field.c
+read_header.c 
+fieldradar.c 
+cellspacing.c
+waveform.c 
+volume.c 
+radar.c 
+parameter.c 
+engin.c
+navigation.c 
+insitudata.c 
+set_physical.c 
+big_little.c
+make_new.c 
+verify.c 
+unpack_hd.c
+re_cal.c
+''')
+	  
+maker = env.Program('headermaker', srcs)
+env.Default(maker)
