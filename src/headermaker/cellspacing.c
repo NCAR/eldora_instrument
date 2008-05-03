@@ -135,13 +135,13 @@ void fprint_cellspacing(cellspacing_pntr, print_pntr)
                           cellspacing_pntr->num_segments);
      fprintf(print_pntr,"DISTANCE FOR FIRST GATE(m)    : %d\n",
                           cellspacing_pntr->distToFirst);
-     fprintf(print_pntr,"WIDTH OF CELLS IN EACH SEGMENT IN METERS              :\n");
+     fprintf(print_pntr,"WIDTH OF CELLS IN EACH SEGMENT IN METERS              : ");
      for(i = 0; i < 6; i++)
-        fprintf(print_pntr," %d",cellspacing_pntr->spacing[i]);
+        fprintf(print_pntr,"%d ",cellspacing_pntr->spacing[i]);
 
-     fprintf(print_pntr,"\nNUMBER OF CELL IN EACH SEGMENT\n");
+     fprintf(print_pntr,"\nNUMBER OF CELL IN EACH SEGMENT: ");
      for(i = 0; i < 6; i++)
-        fprintf(print_pntr," %d",cellspacing_pntr->num_cells[i]);
+        fprintf(print_pntr,"%d ",cellspacing_pntr->num_cells[i]);
      fprintf(print_pntr,"\n");
 
  }/*end fprint_cellspacing*/

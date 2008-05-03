@@ -290,13 +290,13 @@ void fprint_waveform(waveform_pntr, print_pntr)
      fprintf(print_pntr,"PULSING SCHEME FILE NAME   : ");
      for(i = 0; i < 16; i++)
         fprintf(print_pntr,"%c",waveform_pntr->ps_file_name[i]);
-     fprintf(print_pntr,"\nNUMBER OF CHIPS IN A REPEAT:\n");
+     fprintf(print_pntr,"\nNUMBER OF CHIPS IN A REPEAT: ");
      for(i = 0; i< 6; i++) 
-        fprintf(print_pntr," %d",waveform_pntr->num_chips[i]);
-      fprintf(print_pntr,"\nBLANKING RAM SEQUENCE      :\n");
+        fprintf(print_pntr,"%d ",waveform_pntr->num_chips[i]);
+      fprintf(print_pntr,"\nBLANKING RAM SEQUENCE      : ");
          k = 0;
           do{
-             fprintf(print_pntr,"%3d: ",k);      
+             fprintf(print_pntr,"%3d> ",k);      
              for(i=0; i<10; i++)
 	       {
 		   fprintf(print_pntr,"%2x ",waveform_pntr->blank_chip[k]);
@@ -311,12 +311,12 @@ void fprint_waveform(waveform_pntr, print_pntr)
 		 waveform_pntr->repeat_seq_dwel);
       fprintf(print_pntr,"TOTAL NUMBER OF PCP IN A REPEAT SEQUENCE  : %d\n",
                  waveform_pntr->total_pcp);
-      fprintf(print_pntr,"CHIP OFFSET (60 MHz counts)       :\n");
+      fprintf(print_pntr,"CHIP OFFSET (60 MHz counts)       : ");
        for(i = 0; i < 6; i++)  
-         fprintf(print_pntr," %d",waveform_pntr->chip_offset[i]);
-      fprintf(print_pntr,"\nCHIP WIDTH (60 MHz counts)\n");
+         fprintf(print_pntr,"% d",waveform_pntr->chip_offset[i]);
+      fprintf(print_pntr,"\nCHIP WIDTH (60 MHz counts): ");
       for(i = 0; i < 6; i++)
-         fprintf(print_pntr," %d",waveform_pntr->chip_width[i]);
+         fprintf(print_pntr,"%d ",waveform_pntr->chip_width[i]);
       fprintf(print_pntr,"\nPCP THAT SET THE UNAMBIGIOUS RANGE : %f\n",
                                      waveform_pntr->ur_pcp);
       fprintf(print_pntr,"PCP THAT SET THE UNAMBIGIOUS VELOCITY : %f\n",

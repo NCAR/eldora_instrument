@@ -4,7 +4,10 @@
 #include "mkrGbl.h"
 #include "mkrFunc.h"
 
-void read_header()
+/// Read a header into the global variables. 
+/// @param filename If zero, then prompt the user for the file name
+/// @return 1 if able to parse, 1 otherwise.
+int read_header(char* filename)
  {
   
      int bytesread, bytestoread, i, version;
@@ -12,13 +15,23 @@ void read_header()
 
      /*open inupt file*/
 
-     printf("NAME OF INPUT FILE?\n");
-     gets(inname);
+     if (!filename) {
+         printf("NAME OF INPUT FILE?\n");
+         gets(inname);
+     } else {
+         strcpy(inname, filename);
+     }
+     
      if((filepntr = fopen(inname,"rb")) == NULL){
         printf("UNABLE TO OPEN INPUT FILE: %s\n",inname);
-        return;
+        return 1;
      }
-     printf("INPUT FILE %s IS OPEN\n",inname);
+     if (!filename) {
+         // don't print gratuitous items for programs that
+         // are supplying a filename. That's because we have hijacked this 
+         // function to use in another application besides headermaker.
+         printf("INPUT FILE %s IS OPEN\n",inname);
+     }
 
      /*START READING IN THE DATA FROM THE FILE*/
      
@@ -31,13 +44,13 @@ void read_header()
      bytesread = fread(&volume,bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on volume descriptor\n");
-       return;
+       return 1;
      }
      bytestoread = sizeof(waveform);
      bytesread = fread(&waveform,bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on Waveform descriptor\n");
-       return;
+       return 1;
      }
 
 /*** read the fore radar information ***/
@@ -46,7 +59,7 @@ void read_header()
      bytesread = fread(&radar[FORE],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on fore radar descriptor\n");
-       return;
+       return 1;
      }
      if(version == 2)      /* New Format with header filename */
        bytestoread = sizeof(struct field_radar_i);
@@ -57,13 +70,13 @@ void read_header()
      bytesread = fread(&fradar[FORE],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on fore field radar info\n");
-       return;
+       return 1;
      }
      bytestoread = sizeof(struct cell_spacing_d);
      bytesread = fread(&cell[FORE],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on fore cell spacing descriptor\n");
-       return;
+       return 1;
      }
 
      actual_num_radars = 2;
@@ -77,7 +90,7 @@ void read_header()
 	   bytesread = fread(&parameter[i][FORE],bytestoread,1,filepntr);
 	   if(bytesread <= 0){
 	       printf("EOF or bad read on fore parameter number: %d\n",i);
-	       return;
+	       return 1;
 	   }
        }
 
@@ -87,7 +100,7 @@ void read_header()
      bytesread = fread(&radar[AFT],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on AFT radar descriptor\n");
-       return;
+       return 1;
      }
      if(version == 2)      /* New Format with header filename */
        bytestoread = sizeof(struct field_radar_i);
@@ -98,13 +111,13 @@ void read_header()
      bytesread = fread(&fradar[AFT],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on AFT field radar info\n");
-       return;
+       return 1;
      }
      bytestoread = sizeof(struct cell_spacing_d);
      bytesread = fread(&cell[AFT],bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on AFT cell spacing descriptor\n");
-       return;
+       return 1;
      }
 
      unpk_short(&radar[AFT].num_parameter_des,1,0);
@@ -117,7 +130,7 @@ void read_header()
 	   bytesread = fread(&parameter[i][AFT],bytestoread,1,filepntr);
 	   if(bytesread <= 0){
 	       printf("EOF or bad read on AFT parameter number: %d\n",i);
-	       return;
+	       return 1;
 	   }
        }
 
@@ -127,16 +140,18 @@ void read_header()
      bytesread = fread(&navigation,bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on navigational data descriptor\n");
-       return;
+       return 1;
      }
      bytestoread = sizeof(struct insitu_descript);
      bytesread = fread(&insitudata,bytestoread,1,filepntr);
      if(bytesread <= 0){
         printf("EOF or bad read on insitu data descriptor\n");
-       return;
+       return 1;
      }
 
      fclose(filepntr);
+     
+     return 0;
  }
 
 

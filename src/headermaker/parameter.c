@@ -243,7 +243,7 @@ void fprint_parameter(param_pntr,print_pntr)
        for(i = 0; i < 8; i++)
            fprintf(print_pntr,"%c",
                   param_pntr->parameter_name[i]);
-      fprintf(print_pntr,"\nPARAMETER DESCRIPTION       :\n");
+      fprintf(print_pntr,"\nPARAMETER DESCRIPTION       : ");
        for(i = 0; i < 40; i++)
       fprintf(print_pntr,"%c",
                    param_pntr->param_description[i]);

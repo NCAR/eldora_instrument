@@ -1,4 +1,4 @@
-void read_header();
+int  read_header(char* filename);
 
 void gen_field();
 

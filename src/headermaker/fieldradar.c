@@ -252,27 +252,27 @@ void fprint_fieldradar(fradar_pntr,
     fprintf(print_pntr,
             "RECEIVER NOISE FIGURE (dB)              :%f\n",
             fradar_pntr->r_noise_figure);
-    fprintf(print_pntr, "PEAK TRANSMIT POWER BY CHANNEL (dBm) \n");
+    fprintf(print_pntr, "PEAK TRANSMIT POWER BY CHANNEL (dBm): ");
     for (i = 0; i < 5; i++)
-        fprintf(print_pntr, "%d = %f  ", i+1, fradar_pntr->xmit_power[i]);
+        fprintf(print_pntr, "%f ", fradar_pntr->xmit_power[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
             "X BAND GAIN (dB)                         :%f\n",
             fradar_pntr->x_band_gain);
-    fprintf(print_pntr, "RECEIVER GAIN BY CHANNEL (dB)\n");
+    fprintf(print_pntr, "RECEIVER GAIN BY CHANNEL (dB): ");
     for (i = 0; i < 5; i++)
-        fprintf(print_pntr, "%d = %f  ", i+1, fradar_pntr->receiver_gain[i]);
+        fprintf(print_pntr, "%f ", fradar_pntr->receiver_gain[i]);
     fprintf(print_pntr, "\n");
-    fprintf(print_pntr, "IF GAIN BY CHANNEL (dB)\n");
+    fprintf(print_pntr, "IF GAIN BY CHANNEL (dB): ");
     for (i = 0; i < 5; i++)
-        fprintf(print_pntr, "%d = %f  ", i+1, fradar_pntr->if_gain[i]);
+        fprintf(print_pntr, "%f ", fradar_pntr->if_gain[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
             "A to D CONVERSION GAIN (dB)               :%f\n",
             fradar_pntr->conversion_gain);
-    fprintf(print_pntr, "SCALE FACTOR BY CHANNEL (voltage counts) \n");
+    fprintf(print_pntr, "SCALE FACTOR BY CHANNEL (voltage counts) : ");
     for (i = 0; i < 5; i++)
-        fprintf(print_pntr, "%d = %g  ", i+1, fradar_pntr->scale_factor[i]);
+        fprintf(print_pntr, "%g  ", fradar_pntr->scale_factor[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
             "PROCESSOR CONSTANT (scaled dBZ)           :%f\n",

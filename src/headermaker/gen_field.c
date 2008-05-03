@@ -156,7 +156,7 @@ main(int argc,
 
         case 4:
 
-            read_header();
+            read_header(0);
             unpack_hd(); /* byte swap header -- on little endian machine */
             fprint_volume(&volume, stdout);
             printf("\n");
