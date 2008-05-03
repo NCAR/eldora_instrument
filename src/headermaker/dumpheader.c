@@ -7,10 +7,15 @@
 
 int main(int argc, char** argv) {
     
+    if (argc != 2) {
+        printf("usage: dumpheader header_file\n");
+        exit(1);
+    }
+    
     /* Determine Processor Type */
     processor_type = big_little();
     
-    if (read_header(0)) {
+    if (read_header(argv[1])) {
         exit(1);
     }
     
