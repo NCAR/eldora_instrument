@@ -387,7 +387,11 @@ public:
     /// the number of coherent integrations
     int nci;
     /// Return this buffer to its parent's free list.
-    void returnBuffer() { _parent->returnBuffer(this); };
+    void returnBuffer() { _parent->returnBuffer(this); }
+    /// Dwell duration
+    boost::posix_time::time_duration dwellDuration() const {
+        return _parent->dwellDuration();
+    }
 protected:
     RRBuffer(RR314* parent) : _parent(parent) {};
     // pointer to the parent RR314
