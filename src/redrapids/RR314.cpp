@@ -208,19 +208,19 @@ bool RR314::loadFilters(FilterSpec& gaussian,
             int addr = 0x1000 | ramSelect | ramAddr;
 
             // set the address
-            Adapter_Write32(&_chanAdapter, V4, 0x934, addr);
+            Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, addr);
 
             // write the value
-            Adapter_Write32(&_chanAdapter, V4, 0x938, kaiser[i]);
+            Adapter_Write32(&_chanAdapter, V4, KAISER_DATA, kaiser[i]);
 
             // enable writing
-            Adapter_Write32(&_chanAdapter, V4, 0x94C, 1);
+            Adapter_Write32(&_chanAdapter, V4, KAISER_WR, 1);
 
             // disable writing (kaiser readback only succeeds if we do this)
-            Adapter_Write32(&_chanAdapter, V4, 0x94C, 0);
+            Adapter_Write32(&_chanAdapter, V4, KAISER_WR, 0);
 
             // read back the programmed value
-            Adapter_Read32(&_chanAdapter, V4, 0x93c, &readBack);
+            Adapter_Read32(&_chanAdapter, V4, KAISER_READ, &readBack);
 
             if (readBack != kaiser[i]) {
                 std::cout << "kaiser readback failed for coefficient "
@@ -253,19 +253,19 @@ bool RR314::loadFilters(FilterSpec& gaussian,
             int addr = ramSelect | ramAddr;
 
             // set the address
-            Adapter_Write32(&_chanAdapter, V4, 0x940, addr);
+            Adapter_Write32(&_chanAdapter, V4, GAUSSIAN_ADDR, addr);
 
             // write the value
-            Adapter_Write32(&_chanAdapter, V4, 0x944, gaussian[i]);
+            Adapter_Write32(&_chanAdapter, V4, GAUSSIAN_DATA, gaussian[i]);
 
             // enable writing
-            Adapter_Write32(&_chanAdapter, V4, 0x950, 1);
+            Adapter_Write32(&_chanAdapter, V4, GAUSSIAN_WR, 1);
 
             //disable writing
-            Adapter_Write32(&_chanAdapter, V4, 0x950, 0);
+            Adapter_Write32(&_chanAdapter, V4, GAUSSIAN_WR, 0);
 
             // read back the programmed value
-            Adapter_Read32(&_chanAdapter, V4, 0x948, &readBack);
+            Adapter_Read32(&_chanAdapter, V4, GAUSSIAN_READ, &readBack);
 
             if (readBack != gaussian[i]) {
                 std::cout << "gaussian readback failed for coefficient "
@@ -341,13 +341,7 @@ int RR314::configure314() {
         }
     }
 
-    // set up the filters. Will do nothing if either of
-    // the filter file paths is empty.
-    if (filterSetup()) {
-        // error initializing the filters
-        return -1;
-    }
-
+        
     // set the sample clock
     _ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
     Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
@@ -366,7 +360,17 @@ int RR314::configure314() {
         Adapter_Close(&_chanAdapter);
         return -1;
     }
+    
+    // stop the filters if they are running.
+    Adapter_Write32(&_chanAdapter, V4,  KAISER_ADDR, (0x1<<12));
 
+    // set up the filters. Will do nothing if either of
+    // the filter file paths is empty.
+    if (filterSetup()) {
+      // error initializing the filters
+      return -1;
+    }
+    
     // Reset Timer DCM
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, TIMER_DCM_RST);
     sleep(1);
@@ -468,7 +472,7 @@ int RR314::configure314() {
     }
 
     // Start the DDC
-    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0);
+    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0x0);
             
     return 0;
 
