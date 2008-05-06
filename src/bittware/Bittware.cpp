@@ -56,7 +56,7 @@ void Bittware::configure(unsigned int gates,
     _gates = gates;
     _prf = prf;
     _pulsewidth = pulsewidth;
-    _samples = _samples;
+    _samples = samples;
     _dualPrt = dualPrt;
 
     // Decimation Setup
@@ -130,10 +130,15 @@ void Bittware::configure(unsigned int gates,
     // RX Pulse Calculations
     U32 RX_Delay[4];
       //RX_Delay[0] = Gate_Dist[0] + TX_Delay[0];
-      RX_Delay[0] = 0;
-      RX_Delay[1] = Gate_Dist[0] + TX_Delay[1];
-      RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
-      RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];
+      //RX_Delay[1] = Gate_Dist[0] + TX_Delay[1];
+      //RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
+      //RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];  
+    RX_Delay[0] = 0 * decimationFactor *10 / 8;
+    RX_Delay[1] = 1 * decimationFactor *10 / 8;
+    RX_Delay[2] = 2 * decimationFactor *10 / 8;
+    RX_Delay[3] = 3 * decimationFactor *10 / 8;
+      
+    
     U32 RX_Width[4];
       //RX_Width[0] = _gates; 
       //RX_Width[1] = _gates;
@@ -143,7 +148,7 @@ void Bittware::configure(unsigned int gates,
       RX_Width[1] = _gates * decimationFactor / 8 * 10;
       RX_Width[2] = _gates * decimationFactor / 8 * 10;
       RX_Width[3] = _gates * decimationFactor / 8 * 10;
-            
+               
       
     // Calculate the period and PRT Scheme for dual prt or single prt
     int X, Y;
@@ -174,7 +179,8 @@ void Bittware::configure(unsigned int gates,
     }
     else
     {
-    	Midbeam_Delay = (int) (RX_Delay[0] + ((IPP1 * 10e3) * (_samples - 1)) + _gates);
+    	//Midbeam_Delay = (int) (RX_Delay[0] + ((IPP1 * 10e3) * (_samples - 1)) + _gates);
+    	Midbeam_Delay = periodCount * _samples - 100; 
     	Midbeam_periodCount = periodCount * _samples;
     }   
     
@@ -362,7 +368,9 @@ void Bittware::configure(unsigned int gates,
         mem_write(wr_buffer);
         // Configure Delay Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-        wr_buffer[0x1] = Midbeam_Delay; //Data Line
+        //wr_buffer[0x1] = Midbeam_Delay; //Data Line
+        printf("Midbeam Delay = %d\nMidbeam Period = %d/n", Midbeam_Delay, Midbeam_periodCount);
+        wr_buffer[0x1] = 0; //Data Line
         mem_write(wr_buffer);
         // Configure Width Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
