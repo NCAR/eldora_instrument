@@ -180,7 +180,7 @@ void Bittware::configure(unsigned int gates,
     else
     {
     	//Midbeam_Delay = (int) (RX_Delay[0] + ((IPP1 * 10e3) * (_samples - 1)) + _gates);
-    	Midbeam_Delay = periodCount * _samples - 100; 
+    	Midbeam_Delay = periodCount * _samples / 2; 
     	Midbeam_periodCount = periodCount * _samples;
     }   
     
@@ -368,9 +368,7 @@ void Bittware::configure(unsigned int gates,
         mem_write(wr_buffer);
         // Configure Delay Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_DELAY_REG; //Address Line
-        //wr_buffer[0x1] = Midbeam_Delay; //Data Line
-        printf("Midbeam Delay = %d\nMidbeam Period = %d/n", Midbeam_Delay, Midbeam_periodCount);
-        wr_buffer[0x1] = 0; //Data Line
+        wr_buffer[0x1] = Midbeam_Delay; //Data Line
         mem_write(wr_buffer);
         // Configure Width Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_WIDTH_REG; //Address Line
