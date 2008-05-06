@@ -37,12 +37,13 @@ void fprint_insitudata(insitu_pntr,
 
     int i;
 
-    fprintf(print_pntr, "INSITU DATA DESCRIPTOR IDENTIFIER  :");
+    fprintf(print_pntr, 
+            "SITUID    INSITU DATA DESCRIPTOR IDENTIFIER  :");
     for (i = 0; i < 4; i++) {
         fprintf(print_pntr, "%c", insitu_pntr->insitu_descript_id[i]);
     }
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
-            "INSITU DATA LENGTH  %ld\n",
+            "SITUDATLEN INSITU DATA LENGTH  %ld\n",
             insitu_pntr->insitu_descript_len);
 }

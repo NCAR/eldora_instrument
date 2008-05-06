@@ -43,14 +43,14 @@ int big_little(void)
 
   if(tst.achar[2] == 16)
     {
-      printf("I am a Big Endian machine\n");
+      printf("*** I am a Big Endian machine\n");
       printf("\n");
       type = 0;
       return(type);
     }
   else
     {
-      printf("I am a Little Endian machine\n");
+      printf("*** I am a Little Endian machine\n");
       printf("\n");
       type = 1;
       return(type);

@@ -82,7 +82,7 @@ int read_header(char* filename)
      actual_num_radars = 2;
      unpk_short(&radar[FORE].num_parameter_des,1,0);
      actual_num_params[FORE] = radar[FORE].num_parameter_des;
-     printf("Fore radar contains %d parameters\n",actual_num_params[FORE]);
+     printf("*** Fore radar contains %d parameters\n",actual_num_params[FORE]);
      bytestoread = sizeof(struct parameter_d);
 
      for(i=0; i<actual_num_params[FORE]; i++)
@@ -122,7 +122,7 @@ int read_header(char* filename)
 
      unpk_short(&radar[AFT].num_parameter_des,1,0);
      actual_num_params[AFT] = radar[AFT].num_parameter_des;
-     printf("AFT radar contains %d parameters\n",actual_num_params[AFT]);
+     printf("*** AFT radar contains %d parameters\n",actual_num_params[AFT]);
      bytestoread = sizeof(struct parameter_d);
 
      for(i=0; i<actual_num_params[AFT]; i++)

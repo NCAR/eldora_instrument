@@ -217,46 +217,55 @@ void fprint_volume(vol_pntr,
 
     fprintf(print_pntr,
             "************VOLUME DESCRIPTOR************************\n");
-    fprintf(print_pntr, "VOLUME IDENTIFIER          :");
+    fprintf(print_pntr, 
+            "VOLDID     VOLUME IDENTIFIER                : ");
     for (i=0; i<4; i++)
         fprintf(print_pntr, "%c", vol_pntr->volume_des[i]);
-    fprintf(print_pntr,
-            "\nVOLUME DESCRIPTOR LENGTH : %ld\n",
+    fprintf(print_pntr, "\n");
+    fprintf(print_pntr, 
+            "VOLDDESLEN VOLUME DESCRIPTOR LENGTH         : %ld\n",
             vol_pntr->volume_des_length);
     fprintf(print_pntr,
-            "FORMAT VERSION NUMBER IS :%d\n",
+            "VOLDFORVER FORMAT VERSION NUMBER IS         : %d\n",
             vol_pntr->format_version);
-    fprintf(print_pntr, "VOLUME NUMBER IS         :%d\n", vol_pntr->volume_num);
+    fprintf(print_pntr, 
+            "VOLDVOLNUM VOLUME NUMBER IS                 : %d\n", vol_pntr->volume_num);
     fprintf(print_pntr,
-            "MAXIMUM NUMBER OF BYTES IN DATA RECORD IS  : %ld\n",
+            "VOLDMAXBYT MAXIMUM NUM BYTES IN DATA RECORD : %ld\n",
             vol_pntr->
             maximum_bytes);
-    fprintf(print_pntr, "PROJECT NAME             : ");
+    fprintf(print_pntr, 
+            "VOLDPROJ   PROJECT NAME                     : ");
     for (i = 0; i < 20; i++)
         fprintf(print_pntr, "%c", vol_pntr->proj_name[i]);
+    fprintf(print_pntr,"\n");
     fprintf(print_pntr,
-            "\nDATE  %2d/%2d/%4d (dy/mn/yr)\n",
+            "VOLDDATE   DATE                             : %2d/%2d/%4d (dy/mn/yr)\n",
             vol_pntr->day,
             vol_pntr->month,
             vol_pntr->year);
     fprintf(print_pntr,
-            "TIME  %d  : %d : %d\n",
+            "VOLDTIME   TIME                             : %d  : %d : %d\n",
             vol_pntr->data_set_hour,
             vol_pntr->data_set_minute,
             vol_pntr->data_set_second);
-    fprintf(print_pntr, "FLIGHT NUMBER            : ");
+    fprintf(print_pntr, 
+            "VOLDFLIGHT FLIGHT NUMBER                    : ");
     for (i = 0; i < 8; i++)
         fprintf(print_pntr, "%c", vol_pntr->flight_num[i]);
-    fprintf(print_pntr, "\nGENERATION FACILITY NAME : ");
+    fprintf(print_pntr, "\n");
+    fprintf(print_pntr, 
+            "VOLDFCILTY GENERATION FACILITY NAME         : ");
     for (i = 0; i < 8; i++)
         fprintf(print_pntr, "%c", vol_pntr->gen_facility[i]);
+    fprintf(print_pntr,"\n");
     fprintf(print_pntr,
-            "\nVOLUME GENERATION DATE   : %2d/%2d/%4d (dy/mn/yr)\n",
+            "VOLDGENDAT VOLUME GENERATION DATE           : %2d/%2d/%4d (dy/mn/yr)\n",
             vol_pntr->gen_day,
             vol_pntr->gen_month,
             vol_pntr->gen_year);
     fprintf(print_pntr,
-            "NUMBER OF SENSOR DESCRIPTORS: %d\n",
+            "VOLDNUMSEN NUMBER OF SENSOR DESCRIPTORS     : %d\n",
             vol_pntr->number_sensor_des);
 }/*end print_volume_descriptor*/
 

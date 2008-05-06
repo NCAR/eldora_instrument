@@ -110,15 +110,15 @@ void fprint_navigation(nav_pntr,
     struct nav_descript *nav_pntr;FILE *print_pntr; {
     int i;
     fprintf(print_pntr, "********* NAVIGATIONAL DATA DESCRIPTOR **********\n");
-    fprintf(print_pntr, "Indentifier:     ");
+    fprintf(print_pntr, "NDDSID     Identifier                 : ");
     for (i = 0; i < 4; i++)
         fprintf(print_pntr, "%c", nav_pntr->nav_descript_id[i]);
-    fprintf(print_pntr,
-            "\nNAVIGATIONAL DATA DESCRIPTOR LENGTH : %ld\n",
+    fprintf(print_pntr, "\n");
+    fprintf(print_pntr, "NDDSDESLEN NAV DATA DESCRIPTOR LENGTH : %ld\n",
             nav_pntr->nav_descript_len);
-    fprintf(print_pntr, "INS FLAG     : %d\n", nav_pntr->ins_flag);
-    fprintf(print_pntr, "GPS FLAG     : %d\n", nav_pntr->gps_flag);
-    fprintf(print_pntr, "MINIRIMS FLAG: %d\n", nav_pntr->minirims_flag);
-    fprintf(print_pntr, "KALMAN FLAG  : %d\n", nav_pntr->kalman_flag);
+    fprintf(print_pntr, "NDDSINSFLG INS FLAG                   : %d\n", nav_pntr->ins_flag);
+    fprintf(print_pntr, "NDDSGPSFLG GPS FLAG                   : %d\n", nav_pntr->gps_flag);
+    fprintf(print_pntr, "NDDSRIMFLG MINIRIMS FLAG              : %d\n", nav_pntr->minirims_flag);
+    fprintf(print_pntr, "NDDSKALFLG KALMAN FLAG                : %d\n", nav_pntr->kalman_flag);
 }/*end print_navigational_descriptor*/
 

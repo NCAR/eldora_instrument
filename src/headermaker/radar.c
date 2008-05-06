@@ -440,100 +440,115 @@ void fprint_radar(radar_pntr,
     int i;
 
     fprintf(print_pntr, "******************* RADAR DESCRIPTOR ***********\n");
-    fprintf(print_pntr, "RADAR DESCRIPTOR     :");
+    fprintf(print_pntr, 
+            "RADDDES    RADAR DESCRIPTOR                        : ");
     for (i=0; i<4; i++)
         fprintf(print_pntr, "%c", radar_pntr->radar_des[i]);
-    fprintf(print_pntr,
-            "\nRADAR DESCRIPTOR SIZE: %ld\n",
+    fprintf(print_pntr,"\n");
+    fprintf(print_pntr, 
+            "RADDDESLEN RADAR DESCRIPTOR SIZE                   : %ld\n",
             radar_pntr->radar_des_length);
-    fprintf(print_pntr, "RADAR NAME           : ");
+    fprintf(print_pntr, 
+            "RADDNAME   RADAR NAME                              : ");
     for (i = 0; i < 8; i++)
         fprintf(print_pntr, "%c", radar_pntr->radar_name[i]);
+    fprintf(print_pntr,"\n");
     fprintf(print_pntr,
-            "\nRADAR CONSTANT (db)    : %f\n",
+            "RADDCONST  RADAR CONSTANT (db)                     : %f\n",
             radar_pntr->radar_const);
-    fprintf(print_pntr, "PEAK POWER (kw)        : %f\n", radar_pntr->peak_power);
+    fprintf(print_pntr, 
+            "RADDPKPOW  PEAK POWER (kw)                         : %f\n", radar_pntr->peak_power);
     fprintf(print_pntr,
-            "NOISE POWER (dBm)      : %f\n",
+            "RADDNOIPOW NOISE POWER (dBm)                       : %f\n",
             radar_pntr->noise_power);
     fprintf(print_pntr,
-            "RECIEVER GAIN (dB)     : %f\n",
+            "RADDRXGAIN RECIEVER GAIN (dB)                      : %f\n",
             radar_pntr->receiver_gain);
     fprintf(print_pntr,
-            "ANTENNA GAIN (dB)      : %f\n",
+            "RADDANTGAI ANTENNA GAIN (dB)                       : %f\n",
             radar_pntr->antenna_gain);
     fprintf(print_pntr,
-            "SYSTEM GAIN (dB)       : %f\n",
+            "RADDSYSGAI SYSTEM GAIN (dB)                        : %f\n",
             radar_pntr->system_gain);
     fprintf(print_pntr,
-            "HORIZONTAL BEAM WIDTH (deg): %f\n",
+            "RADDHORWID HORIZONTAL BEAM WIDTH (deg)             : %f\n",
             radar_pntr->horz_beam_width);
     fprintf(print_pntr,
-            "VERTICAL BEAM WIDTH (deg)  : %f\n",
+            "RADDVERWID VERTICAL BEAM WIDTH (deg)               : %f\n",
             radar_pntr->vert_beam_width);
-    fprintf(print_pntr, "RADAR TYPE           : %d\n", radar_pntr->radar_type);
-    fprintf(print_pntr, "SCAN MODE            : %d\n", radar_pntr->scan_mode);
+    fprintf(print_pntr, 
+            "RADDTYPE   RADAR TYPE                              : %d\n", radar_pntr->radar_type);
+    fprintf(print_pntr, 
+            "RADDSCAN   SCAN MODE                               : %d\n", radar_pntr->scan_mode);
     fprintf(print_pntr,
-            "ROTATIONAL VELOCITY (deg/s): %f\n",
+            "RADDROTVEL ROTATIONAL VELOCITY (deg/s)             : %f\n",
             radar_pntr->req_rotat_vel);
     fprintf(print_pntr,
-            "SCAN MODE PARAMETER #0: %f\n",
+            "RADDSCAN1  SCAN MODE PARAMETER #0                  : %f\n",
             radar_pntr->scan_mode_pram0);
     fprintf(print_pntr,
-            "SCAN MODE PARAMETER #1: %f\n",
+            "RADDSCAN2  SCAN MODE PARAMETER #1                  : %f\n",
             radar_pntr->scan_mode_pram1);
     fprintf(print_pntr,
-            "NUMBER OF PARAMETER DESCRIPTOR BLOCKS :%d\n",
+            "RADDNPARM  NUMBER OF PARAMETER DESCRIPTOR BLOCKS   : %d\n",
             radar_pntr->num_parameter_des);
     fprintf(print_pntr,
-            "TOTAL NUMBER OF DESCRIPTOR BLOCKS :%d\n",
+            "RADDNDESC  TOTAL NUMBER OF DESCRIPTOR BLOCKS       : %d\n",
             radar_pntr->total_num_des);
     fprintf(print_pntr,
-            "DATA COMPRESSION SCHEME               : %d\n",
-            radar_pntr->data_compress);
+            "RADDCOMP   DATA COMPRESSION SCHEME                 : %d\n",
+            radar_pntr->data_compress); 
     fprintf(print_pntr,
-            "DATA REDUCTION ALGORITHM IN USE        : %d\n",
+            "RADDDATRED DATA REDUCTION ALGORITHM IN USE         : %d\n",
             radar_pntr->data_reduction);
     fprintf(print_pntr,
-            "REDUCTION ALGORITHM SPECIFIC PARAMETER 0: %f\n",
+            "RADDRED0   REDUCTION ALGORITHM SPECIFIC PARAMETER 0: %f\n",
             radar_pntr->data_red_parm0);
     fprintf(print_pntr,
-            "REDUCTION ALGORITHM SPECIFIC PARAMETER 1: %f\n",
+            "RADDRED1   REDUCTION ALGORITHM SPECIFIC PARAMETER 1: %f\n",
             radar_pntr->data_red_parm1);
-    fprintf(print_pntr, "LATITUDE (deg) :%f\n", radar_pntr->radar_latitude);
-    fprintf(print_pntr, "LONGITUDE (deg):%f\n", radar_pntr->radar_longitude);
-    fprintf(print_pntr, "ALTITUDE (m)   :%f\n", radar_pntr->radar_altitude);
+    fprintf(print_pntr, 
+            "RADDLAT    LATITUDE (deg)                          : %f\n", radar_pntr->radar_latitude);
+    fprintf(print_pntr, 
+            "RADDLON    LONGITUDE (deg)                         : %f\n", radar_pntr->radar_longitude);
+    fprintf(print_pntr, 
+            "RADDALT    ALTITUDE (m)                            : %f\n", radar_pntr->radar_altitude);
     fprintf(print_pntr,
-            "EFFECTIVE UNAMBIGIOUS VELOCITY (m/s)    : %f\n",
+            "RADDUNVEL  EFFECTIVE UNAMBIGIOUS VELOCITY (m/s)    : %f\n",
             radar_pntr->eff_unamb_vel);
     fprintf(print_pntr,
-            "EFFECTIVE UNAMBIGIOUS RANGE (km)        : %f\n",
+            "RADDUNRNG  EFFECTIVE UNAMBIGIOUS RANGE (km)        : %f\n",
             radar_pntr->eff_unamb_range);
     fprintf(print_pntr,
-            "NUMBER OF TRANSMITTED FREQUENCIES       : %d\n",
+            "RADDNFREQ  NUMBER OF TX FREQS                      : %d\n",
             radar_pntr->num_freq_trans);
     fprintf(print_pntr,
-            "NUMBER OF DIFFERENT INTER-PULSE PERIODS : %d\n",
+            "RADDNIPP   NUM OF DIFF IPPS                        : %d\n",
             radar_pntr->num_ipps_trans);
-    fprintf(print_pntr, "FREQUENCY 1 (GHz)    : %f\n", radar_pntr->freq1);
-    fprintf(print_pntr, "FREQUENCY 2 (GHz)    : %f\n", radar_pntr->freq2);
-    fprintf(print_pntr, "FREQUENCY 3 (GHz)    : %f\n", radar_pntr->freq3);
-    fprintf(print_pntr, "FREQUENCY 4 (GHz)    : %f\n", radar_pntr->freq4);
-    fprintf(print_pntr, "FREQUENCY 5 (GHz)    : %f\n", radar_pntr->freq5);
+    fprintf(print_pntr, 
+            "RADDFREQ1  FREQUENCY 1 (GHz)                       : %f\n", radar_pntr->freq1);
     fprintf(print_pntr,
-            "INTERPULSE PERIOD 1 (ms): %f\n",
+            "RADDFREQ2  FREQUENCY 2 (GHz)                       : %f\n", radar_pntr->freq2);
+    fprintf(print_pntr, 
+            "RADDFREQ3  FREQUENCY 3 (GHz)                       : %f\n", radar_pntr->freq3);
+    fprintf(print_pntr, 
+            "RADDFREQ4  FREQUENCY 4 (GHz)                       : %f\n", radar_pntr->freq4);
+    fprintf(print_pntr, 
+            "RADDFREQ5  FREQUENCY 5 (GHz)                       : %f\n", radar_pntr->freq5);
+    fprintf(print_pntr,
+            "RADDIPP1   INTERPULSE PERIOD 1 (ms)                : %f\n",
             radar_pntr->interpulse_per1);
     fprintf(print_pntr,
-            "INTERPULSE PERIOD 2 (ms): %f\n",
+            "RADDIPP2   INTERPULSE PERIOD 2 (ms)                : %f\n",
             radar_pntr->interpulse_per2);
     fprintf(print_pntr,
-            "INTERPULSE PERIOD 3 (ms): %f\n",
+            "RADDIPP3   INTERPULSE PERIOD 3 (ms)                : %f\n",
             radar_pntr->interpulse_per3);
     fprintf(print_pntr,
-            "INTERPULSE PERIOD 4 (ms): %f\n",
+            "RADDIPP4   INTERPULSE PERIOD 4 (ms)                : %f\n",
             radar_pntr->interpulse_per4);
     fprintf(print_pntr,
-            "INTERPULSE PERIOD 5 (ms): %f\n",
+            "RADDIPP5   INTERPULSE PERIOD 5 (ms)                : %f\n",
             radar_pntr->interpulse_per5);
 }/*end print radar descriptor */
 

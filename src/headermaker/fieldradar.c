@@ -222,105 +222,111 @@ void fprint_fieldradar(fradar_pntr,
     int i;
 
     fprintf(print_pntr, "************** FIELD RADAR INFO BLOCK *********\n");
-    fprintf(print_pntr, "FIELD RADAR IDENTIFIER : ");
+    fprintf(print_pntr, 
+            "FRIBID      FIELD RADAR IDENTIFIER                   : ");
     for (i=0; i<4; i++)
         fprintf(print_pntr, "%c", fradar_pntr->field_radar_info[i]);
+    fprintf(print_pntr,"\n");
     fprintf(print_pntr,
-            "\nFIELD RADAR LENGTH     : %ld\n",
+            "FRIBDESLEN FIELD RADAR LENGTH                        : %ld\n",
             fradar_pntr->field_radar_info_len);
     fprintf(print_pntr,
-            "DATA SYSTEM ID         : %ld\n",
+            "FRIBSYSID  DATA SYSTEM ID                            : %ld\n",
             fradar_pntr->data_sys_id);
     fprintf(print_pntr,
-            "LOSSES BETWEEN TRANSMITTER AND ANTENNA (dB):%f\n",
+            "FRIBANTLOS LOSSES BTWN TX AND ANTENNA (dB)           : %f\n",
             fradar_pntr->loss_out);
     fprintf(print_pntr,
-            "LOSSES BETWEEN ANTENNA AND LOW NOISE AMP (dB):%f\n",
+            "FRIBLNALOS LOSSES BTWN ANTENNA AND LNA (dB)          : %f\n",
             fradar_pntr->loss_in);
     fprintf(print_pntr,
-            "LOSSES IN ROTARY JOINT (dB)             :%f\n",
+            "FRIBRJLOS  LOSSES IN ROTARY JOINT (dB)               : %f\n",
             fradar_pntr->loss_rjoint);
     fprintf(print_pntr,
-            "ANTENNA VERTICAL DIMENSION (m)          :%f\n",
+            "FRIBANTVERT ANTENNA VERTICAL DIMENSION (m)           : %f\n",
             fradar_pntr->ant_v_dim);
     fprintf(print_pntr,
-            "ANTENNA HORIZONTAL DIMENSION (m)        :%f\n",
+            "FRIBANTHOR ANTENNA HORIZONTAL DIMENSION (m)          : %f\n",
             fradar_pntr->ant_h_dim);
     fprintf(print_pntr,
-            "ANTENNA NOISE TEMPERATURE (K)           :%f\n",
+            "FRIBANTNOI ANTENNA NOISE TEMPERATURE (K)             : %f\n",
             fradar_pntr->ant_noise_temp);
     fprintf(print_pntr,
-            "RECEIVER NOISE FIGURE (dB)              :%f\n",
+            "FRIBRXNOI  RECEIVER NOISE FIGURE (dB)                : %f\n",
             fradar_pntr->r_noise_figure);
-    fprintf(print_pntr, "PEAK TRANSMIT POWER BY CHANNEL (dBm): ");
+    fprintf(print_pntr, 
+            "FRIBPEAKTX PEAK TRANSMIT POWER BY CHANNEL (dBm)      : ");
     for (i = 0; i < 5; i++)
         fprintf(print_pntr, "%f ", fradar_pntr->xmit_power[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
-            "X BAND GAIN (dB)                         :%f\n",
+            "FRIBXGAIN  X BAND GAIN (dB)                          : %f\n",
             fradar_pntr->x_band_gain);
-    fprintf(print_pntr, "RECEIVER GAIN BY CHANNEL (dB): ");
+    fprintf(print_pntr, 
+            "FRIBRXGAIN RECEIVER GAIN BY CHANNEL (dB)             : ");
     for (i = 0; i < 5; i++)
         fprintf(print_pntr, "%f ", fradar_pntr->receiver_gain[i]);
     fprintf(print_pntr, "\n");
-    fprintf(print_pntr, "IF GAIN BY CHANNEL (dB): ");
+    fprintf(print_pntr, 
+            "FRIBIFGAIN IF GAIN BY CHANNEL (dB)                   : ");
     for (i = 0; i < 5; i++)
         fprintf(print_pntr, "%f ", fradar_pntr->if_gain[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
-            "A to D CONVERSION GAIN (dB)               :%f\n",
+            "FRIBADGAIN A to D CONVERSION GAIN (dB)               : %f\n",
             fradar_pntr->conversion_gain);
-    fprintf(print_pntr, "SCALE FACTOR BY CHANNEL (voltage counts) : ");
+    fprintf(print_pntr, 
+            "FRIBSCALE SCALE FACTOR BY CHAN (volt counts)         : ");
     for (i = 0; i < 5; i++)
         fprintf(print_pntr, "%g  ", fradar_pntr->scale_factor[i]);
     fprintf(print_pntr, "\n");
     fprintf(print_pntr,
-            "PROCESSOR CONSTANT (scaled dBZ)           :%f\n",
+            "FRIBPROCON PROCESSOR CONSTANT (scaled dBZ)           : %f\n",
             fradar_pntr->processor_const);
     fprintf(print_pntr,
-            "TIME DELAY TWT TUBE TO ANTENNA (ns)       :%ld\n",
+            "FRIB TIME  DELAY TWT TUBE TO ANTENNA (ns)            : %ld\n",
             fradar_pntr->dly_tube_antenna);
     fprintf(print_pntr,
-            "TIME DELAY (round trip) CHIP TO A TO D CONVERTER (ns):%ld\n",
+            "FRIBDLYAD  TIME DELAY(round trip) CHIP TO A TO D(ns) : %ld\n",
             fradar_pntr->dly_rndtrip_chip_atod);
     fprintf(print_pntr,
-            "TIME DELAY TIMING MOD TO TESTPULSE (ns)   :%ld\n",
+            "FRIBDLYTP  TIME DELAY TIMING MOD TO TESTPULSE (ns)   : %ld\n",
             fradar_pntr->dly_timmod_testpulse);
     fprintf(print_pntr,
-            "HPA MODULATOR RISE TIME (ns)            :%ld\n",
+            "FRIBHPARISE HPA MODULATOR RISE TIME (ns)             : %ld\n",
             fradar_pntr->dly_modulator_on);
     fprintf(print_pntr,
-            "HPA MODULATOR FALL TIME (ns)           :%ld\n",
+            "FRIBHPAFALL HPA MODULATOR FALL TIME (ns)             : %ld\n",
             fradar_pntr->dly_modulator_off);
     fprintf(print_pntr,
-            "PEAK POWER METER OFFSET (dB)             :%f\n",
+            "FRIBPEAKOFF PEAK POWER METER OFFSET (dB)             : %f\n",
             fradar_pntr->peak_power_offset);
     fprintf(print_pntr,
-            "TEST PULSE POWER METER OFFSET (dB)       :%f\n",
+            "FRIBTESTOFF TEST PULSE POWER METER OFFSET (dB)       : %f\n",
             fradar_pntr->test_pulse_offset);
     fprintf(print_pntr,
-            "ANTENNA E PLANE ANGLE (deg) (AKA TILT)   :%f\n",
+            "FRIB ANTENNA E PLANE ANGLE (deg) (AKA TILT)          : %f\n",
             fradar_pntr->E_plane_angle);
     fprintf(print_pntr,
-            "ANTENNA H PLANE ANGLE (deg)              :%f\n",
+            "FRIBHORZANGL ANTENNA H PLANE ANGLE (deg)             : %f\n",
             fradar_pntr->H_plane_angle);
     fprintf(print_pntr,
-            "ENCODER ANGLE ANTENNA FACING UP (deg)    :%f\n",
+            "FRIBENCUPANG ENCODER ANGLE ANTENNA FACING UP (deg)   : %f\n",
             fradar_pntr->encoder_antenna_up);
     fprintf(print_pntr,
-            "ANTENNA PITCH ANGLE ANTENNA FACING UP (deg):%f\n",
+            "FRIB ANTENNA PITCH ANGLE ANTENNA FACING UP (deg)     : %f\n",
             fradar_pntr->pitch_antenna_up);
     fprintf(print_pntr,
-            "INDEPENDENT FREQUENCY FLAG :%d\n",
+            "FRIBFREQFLG  INDEPENDENT FREQUENCY FLAG              : %d\n",
             fradar_pntr->indepf_times_flg);
     fprintf(print_pntr,
-            "INDEPENDENT FREQUENCY GATE     : %d\n",
+            "FRIBFREQGATE INDEPENDENT FREQUENCY GATE              : %d\n",
             fradar_pntr->indep_freq_gate);
     fprintf(print_pntr,
-            "TIME SERIES GATE               : %d\n",
+            "FRIBTSGATE   TIME SERIES GATE                        : %d\n",
             fradar_pntr->time_series_gate);
     fprintf(print_pntr,
-            "HEADER FILE NAME               : %s\n",
+            "FRIBHDRNAME  HEADER FILE NAME                        : %s\n",
             fradar_pntr->file_name);
 }
 
