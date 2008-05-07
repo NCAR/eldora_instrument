@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import sys
 import time
@@ -80,4 +82,8 @@ class EmitterProc(QProcess):
         # start our event loop
         app.exec_()
             
+# Run the test when invoked standalone
+if __name__ == '__main__':
+    EmitterProc.test()
+
         

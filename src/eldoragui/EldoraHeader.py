@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import sys
 import time
@@ -35,7 +37,7 @@ class EldoraHeader(list):
         Read and parse the header file, and save it in self.blocks
         self.blocks is a list of EldoraBlock
         '''
-        cmd = [self.headerDumpCmd, self.headerFile]
+        cmd = self.headerDumpCmd + [self.headerFile,]
         c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
         self[:] = list()
         blockstart = False
@@ -126,16 +128,16 @@ class EldoraHeader(list):
         print 'enter the header file name: '
         line = sys.stdin.readline()
         file = re.sub('\n', '', line)
-        cmd = '../headermaker/dumpheader'
+        cmd = ['../headermaker/dumpheader','-h']
         eldoraHdr = EldoraHeader(headerDumpCmd=cmd, headerFile=file)
         for b in eldoraHdr:
-            print 'Block ', b.type
+            print '*************************** ', b.type, '*************************** '
             for f in b.items():
                 print f
             
             
-# To run the test, uncomment the following line and run
-# 'python EldoraHeader.py'        
-EldoraHeader.test()
+# Run the test when invoked standalone
+if __name__ == '__main__':
+    EldoraHeader.test()
 
     

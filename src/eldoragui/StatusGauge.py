@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import sys
 from PyQt4.QtCore  import *
@@ -182,6 +184,8 @@ class StatusGauge(QWidget):
         # now start the event loop
         app.exec_()
 
-# Uncomment the following line in order to run the test
-# simply by invoking 'python StatusGauge.py'
-#StatusGauge.test()
+# Run the test when invoked standalone
+if __name__ == '__main__':
+    StatusGauge.test()
+
+ 

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from PyQt4.QtCore  import *
 
 class QtConfig:
@@ -214,3 +216,8 @@ class QtConfig:
         v = c.getBool('Bool', 1)
         print v, type(v)
                    
+# Run the test when invoked standalone
+if __name__ == '__main__':
+    QtConfig.test()
+
+ 

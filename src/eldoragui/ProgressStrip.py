@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import sys
 import random
@@ -110,8 +112,10 @@ class ProgressStrip(QWidget):
         # run the event loop
         app.exec_()
         
-# To run the test, uncoment the following line and run 'python ProgressStrip.pf'
-#ProgressStrip.test()
-        
+# Run the test when invoked standalone
+if __name__ == '__main__':
+    ProgressStrip.test()
+
+     
         
         
