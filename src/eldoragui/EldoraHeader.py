@@ -4,6 +4,15 @@ import time
 import re
 import subprocess
 
+class EldoraHeaderBlock:
+    def __init__(self, type):
+        self.type = type
+        self.fields = list()
+        
+    def addField(self, key, comment,value):
+        field = [key, comment, value]
+        self.fields.append(field)
+        
 class EldoraHeader:
     ''' A class for reading and decoding the information in 
     an eldora header file. An external header dump command
@@ -13,29 +22,51 @@ class EldoraHeader:
     def __init__(self, headerDumpCmd, headerFile):
         self.headerDumpCmd = headerDumpCmd
         self.headerFile = headerFile
-        self.dict = dict()
+        self.blocks = list()
         self.readHeader()
         
 ###############################################################
     def readHeader(self):
+        ''' 
+        Read and parse the header file, and save it in self.blocks
+        self.blocks is a list of EldoraBlock
+        '''
         cmd = [self.headerDumpCmd, self.headerFile]
         c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
+        self.blocks = list()
+        blockstart = False
         while 1:
             line = c.stdout.readline()
             if len(line) == 0:
                 break
-            mainkey, subkey, comment, value = self.parseLine(line)
-            if mainkey != '':
-                print mainkey, subkey
+            if line.find('****') != -1:
+                # the next non-comment line will be the start of a block
+                blockstart = True
+            else:
+                mainkey, subkey, comment, value = self.parseLine(line)
+                if mainkey != '':
+                    if blockstart:
+                        block = EldoraHeaderBlock(mainkey)
+                        block.addField(subkey, comment, value)
+                        self.blocks.append(block)
+                        blockstart = False
+                    else:
+                        block = self.blocks[-1]
+                        block.addField(subkey, comment, value)
+                        
            
 ###############################################################
     def parseLine(self, line):
-        ''' Decode a header data line. This line must have
+        ''' 
+        Decode a header data line. This line must have
         an initial key, comment text, a colon, and value text. E.g:
         PARMSAMPLS NUM SAMPLES USED IN ESTIMATE: 40
+        
         The first four characters of the key define the main
         key, the following characters are a sub key.
+        
         Return a four element list containing [mainkey, subkey, comment, value]
+        
         Ignore outright lines begining with ***, as these are 
         known to be comment lines
         '''
@@ -90,7 +121,14 @@ class EldoraHeader:
         cmd = '../headermaker/dumpheader'
         file = './testheader.hd'
         eldoraHdr = EldoraHeader(headerDumpCmd=cmd, headerFile=file)
-        
+        blocks = eldoraHdr.blocks
+        for b in blocks:
+            print 'Block ', b.type
+            for f in b.fields:
+                print f
+            
+# To run the test, uncomment the following line and run
+# 'python EldoraHeader.py'        
 EldoraHeader.test()
 
     
