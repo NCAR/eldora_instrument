@@ -41,6 +41,7 @@ parameter.c
 navigation.c
 big_little.c
 unpack_hd.c
+verify.c
 ''')
 
 dumpheader = env.Program('dumpheader', dumpsrcs)

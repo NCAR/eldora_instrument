@@ -60,7 +60,7 @@ void set_pscheme();
 
 void set_attenuator();
 
-void verify();
+void verify(int flag, int* num_errors);
 
 int  big_little(void);
 
