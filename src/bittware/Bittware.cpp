@@ -401,8 +401,8 @@ void Bittware::start() {
     // Trigger Timers
 
     //Set Address Trigger bit on Address Line
-    wr_buffer[0x0] |= BW_ADDR_TRIG; //Address Line
-    mem_write(wr_buffer);
+    //wr_buffer[0x0] |= BW_ADDR_TRIG; //Address Line
+    //mem_write(wr_buffer);
 
     std::cout << "Remora started\n";
 
