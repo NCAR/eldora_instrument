@@ -4,16 +4,20 @@ import time
 import re
 import subprocess
 
-class EldoraHeaderBlock:
+class EldoraHeaderBlock(dict):
+    ''' 
+    Represent a single header block.
+    The fields within the block are dictionary entries
+    withing this class (note dict as superclass).
+    '''
     def __init__(self, type):
         self.type = type
-        self.fields = list()
         
     def addField(self, key, comment,value):
-        field = [key, comment, value]
-        self.fields.append(field)
+        payload = [comment, value]
+        self[key] = payload
         
-class EldoraHeader:
+class EldoraHeader(list):
     ''' A class for reading and decoding the information in 
     an eldora header file. An external header dump command
     is used to dump a specified header, and the output from
@@ -33,7 +37,7 @@ class EldoraHeader:
         '''
         cmd = [self.headerDumpCmd, self.headerFile]
         c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
-        self.blocks = list()
+        self[:] = list()
         blockstart = False
         while 1:
             line = c.stdout.readline()
@@ -48,10 +52,10 @@ class EldoraHeader:
                     if blockstart:
                         block = EldoraHeaderBlock(mainkey)
                         block.addField(subkey, comment, value)
-                        self.blocks.append(block)
+                        self.append(block)
                         blockstart = False
                     else:
-                        block = self.blocks[-1]
+                        block = self[-1]
                         block.addField(subkey, comment, value)
                         
            
@@ -118,14 +122,17 @@ class EldoraHeader:
     @staticmethod
     def test():
         print 'This test expects to find dumpheader in ../headermaker'
+        #
+        print 'enter the header file name: '
+        line = sys.stdin.readline()
+        file = re.sub('\n', '', line)
         cmd = '../headermaker/dumpheader'
-        file = './testheader.hd'
         eldoraHdr = EldoraHeader(headerDumpCmd=cmd, headerFile=file)
-        blocks = eldoraHdr.blocks
-        for b in blocks:
+        for b in eldoraHdr:
             print 'Block ', b.type
-            for f in b.fields:
+            for f in b.items():
                 print f
+            
             
 # To run the test, uncomment the following line and run
 # 'python EldoraHeader.py'        
