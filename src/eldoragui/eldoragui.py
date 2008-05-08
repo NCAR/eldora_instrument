@@ -4,13 +4,14 @@ import sys
 import time
 import os
 
-from PyQt4.QtCore   import *
-from PyQt4.QtGui    import *
+from PyQt4.QtCore    import *
+from PyQt4.QtGui     import *
 
-from EldoraMain     import *
-from EldoraRPC      import *
-from QtConfig       import *
-from EmitterProc    import *
+from EldoraMain      import *
+from EldoraRPC       import *
+from QtConfig        import *
+from EmitterProc     import *
+from EldoraHeaderGUI import *
 
 ####################################################################################
 
@@ -394,9 +395,13 @@ createRpcServers()
 # create the qt application               
 app = QApplication(sys.argv)
 
-# instantiate an Edora controller
+# instantiate an Edora controller gui
 main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status, startUp=startUs)
 main.show()
+
+# create the header management gui. It needs to know where 
+# the header name will be displayed.
+headerGui = EldoraHeaderGUI(main.hdrCombo, ['.',])
 
 # start the event loop
 app.exec_()

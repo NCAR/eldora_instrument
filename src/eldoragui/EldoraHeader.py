@@ -8,14 +8,20 @@ import subprocess
 
 class EldoraBlock(dict):
     ''' 
-    Represent a single header block.
-    The fields within the block are dictionary entries
-    withing this class (note dict as superclass).
+    Represent a single header block. Derived from dict.
+    Consolidates all fields within a block.
+    The fields are referenced by the identifier 
+    assigned by dumpheader.
     '''
     def __init__(self, type):
+        ''' Constructor. The type is the block type,
+        such as RYIB, VOLD, etc.
+        '''
         self.type = type
         
     def addField(self, key, comment,value):
+        ''' Add a field to this block. 
+        '''
         payload = [comment, value]
         self[key] = payload
         
@@ -34,6 +40,7 @@ class EldoraHeader(list):
         self.hdrDumpCmd = hdrDumpCmd
         self.hdrVerifyCmd = hdrVerifyCmd
         self.headerFile = headerFile
+        self.projectName = 'unamed'
         # collect the header blocks
         self.readHeader()
         self.verifyBlocks = []
@@ -66,9 +73,13 @@ class EldoraHeader(list):
                             block.addField(subkey, comment, value)
                             self.append(block)
                             blockstart = False
+                            if mainkey == 'VOLD' and subkey == 'PROJ':
+                                self.projectName = value
                         else:
                             block = self[-1]
                             block.addField(subkey, comment, value)
+                            if mainkey == 'VOLD' and subkey == 'PROJ':
+                                self.projectName = value
                             
 ###############################################################
     def verify(self):
