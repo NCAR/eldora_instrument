@@ -270,51 +270,51 @@ void verify(int flag,
 
     if (flag) {
         printf("************** GENERAL PARAMETERS **************\n");
-        printf("VGENFILNAM  File Name: %s\n", inname);
+        printf("VGENFILNAM  File Name   : %s\n", inname);
         volume.proj_name[19] = 0;
         printf("VGENPROJ    Project Name: %s\n", volume.proj_name);
 
         printf("************** ENGINEERING PARAMETERS **************\n");
         waveform.ps_file_name[15] = 0;
-        printf("VENGPULSE   Pulsing Scheme Name: %s\n", waveform.ps_file_name);
-        printf("VENGPRF1    Pulse Repetition Frequency #1: %5.0f Hertz\n", prf1);
-        printf("VENGPRF2    Pulse Repetition Frequency #2: %5.0f Hertz\n", prf2);
-        printf("VENGGATES   Number Of Gates Sampled: %5d \n", waveform.num_gates[0]);
-        printf("VENGCHIP    Chip Width: %7.3f us\n", chip_width);
-        printf("VENGREDTOP  Data Reduction Top Altitude: %5.1f km\n",
+        printf("VENGPULSE   Pulsing Scheme Name                  : %s\n", waveform.ps_file_name);
+        printf("VENGPRF1    Pulse Repetition Frequency #1        : %5.0f Hertz\n", prf1);
+        printf("VENGPRF2    Pulse Repetition Frequency #2        : %5.0f Hertz\n", prf2);
+        printf("VENGGATES   Number Of Gates Sampled              : %5d \n", waveform.num_gates[0]);
+        printf("VENGCHIP    Chip Width                           : %7.3f us\n", chip_width);
+        printf("VENGREDTOP  Data Reduction Top Altitude          : %5.1f km\n",
                radar[0].data_red_parm0);
-        printf("VENGREDBOT  Data Reduction Bottom Altitude: %5.1f km\n",
+        printf("VENGREDBOT  Data Reduction Bottom Altitude       : %5.1f km\n",
                radar[0].data_red_parm1);
         if (fradar[0].indepf_times_flg >= 1)
-            printf("VENG        Independent Frequency Data Being Recorded At Gate: %4d\n",
+        printf("VENGFRQGAT  Indep Freq Data Recorded At Gate     : %4d\n",
                    fradar[0].indep_freq_gate);
         else
-            printf("VENG        Independent Frequency Data Not Being Recorded\n");
+           printf("VENGNOFRQ   Indep Freq Data Not Recorded         : Warning\n");
         if (fradar[0].indepf_times_flg == 2)
-            printf("VENG        Time Series Data Being Recorded At Gate: %4d\n",
+           printf("VENGTIMGAT  Time Series Data Recorded At Gate    : %4d\n",
                    fradar[0].time_series_gate);
         else
-            printf("VENG        Time Series Data Not Being Recorded\n");
-        printf("VENG        Data Rate Out Of The Radar Processors: %7.2f Kbytes/sec\n",
+            printf("VENGNOTIM   Time Series Data Not Being Recorded  : Warning\n");
+        printf("VENGDATRAT  Data Rate Out Of The Radar Processors: %7.2f Kbytes/sec\n",
                max_possible_rate);
-        printf("VENG        Data Rate Recorded To Tape: %7.2f Kbytes/sec\n",
+        printf("VENGTAPRAT  Data Rate Recorded To Tape           : %7.2f Kbytes/sec\n",
                recording_rate);
-        printf("VENG        The Duty Cycle Is: %5.2f percent\n", duty_cycle);
-        printf("VENG        Rotation Rate:  %7.2f deg/sec\n", radar[0].req_rotat_vel);
+        printf("VENGDUTY    The Duty Cycle Is                    : %5.2f percent\n", duty_cycle);
+        printf("VENGROTRAT  Rotation Rate                        :  %7.2f deg/sec\n", radar[0].req_rotat_vel);
 
         printf("************** SCIENTIFIC PARAMETERS **************\n");
-        printf("VSCI        Total Number Of Data Cells: %4d\n", total_cells);
-        printf("VSCI        Cell Spacing: %3d m\n", cell[0].spacing[0]);
-        printf("VSCI        Distance To The First Cell: %3d m\n", cell[0].distToFirst);
-        printf("VSCI        Rotational Spacing Of Data Beams:  %5.2f deg\n", beam_spacing);
-        printf("VSCI        Along Track Spacing Of Data Beams:  %7.2f m\n", along_tk_res);
-        printf("VSCI        Dwell Time For A Data Beam Is: %5.1f ms\n", dwelltime);
-        printf("VSCI        The Number Of Samples In A Dwell Period: %4d\n", num_samples);
-        printf("VSCI        The Number Of Independent Samples In A Dwell Period: %6.2f\n",
+        printf("VSCIDATCEL  Total Number Of Data Cells                   : %4d\n", total_cells);
+        printf("VSCICELSPC  Cell Spacing                                 : %3d m\n", cell[0].spacing[0]);
+        printf("VSCI1STCEL  Distance To The First Cell                   : %3d m\n", cell[0].distToFirst);
+        printf("VSCIROTSPC  Rotational Spacing Of Data Beams             :  %5.2f deg\n", beam_spacing);
+        printf("VSCITRKSPC  Along Track Spacing Of Data Beams            :  %7.2f m\n", along_tk_res);
+        printf("VSCIDWELL   Dwell Time For A Data Beam Is                : %5.1f ms\n", dwelltime);
+        printf("VSCISMPLS   The Number Of Samples In A Dwell Period      : %4d\n", num_samples);
+        printf("VSCIINDSMP  The Number Of Indep Samples In A Dwell Period: %6.2f\n",
                num_indep_samples);
-        printf("VSCI        The Maximum Sampled Range Is: %7.2f km\n", max_range_gates);
-        printf("VSCI        The Maximum Possible Range Is: %7.2f km\n", max_range_pcp);
-        printf("VSCI        The Unambiguous Velocity Range Is: +/-%7.2f m/s\n",
+        printf("VSCISMPRNG  The Maximum Sampled Range Is                 : %7.2f km\n", max_range_gates);
+        printf("VSCIMAXRNG  The Maximum Possible Range Is                : %7.2f km\n", max_range_pcp);
+        printf("VSCIUNVEL   The Unambiguous Velocity Range Is            : +/-%7.2f m/s\n",
                unambig_velocity);
 
     }
