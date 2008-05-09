@@ -219,7 +219,7 @@ def runDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000',
         '-d', domainConfigPath,
         ]
-    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload='purple')
+    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload=nextTaskColor())
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
@@ -254,7 +254,7 @@ def runDrx():
     drxSimMode = ourConfig.getBool('Mode/Simulate', False)
     if drxSimMode:
         drxcmd.append('--sim')
-    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload='blue')
+    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoradrx']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
@@ -281,11 +281,35 @@ def runProducts():
     
     # start a new instance
     productscmd = [os.path.join(eldoraDir, 'eldoraprod', 'eldoraprod'),]
-    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload='red')
+    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     
+####################################################################################
+def runScope():
+    cmd = [eldoraDir + '/eldorascope/eldorascope',]
+    ourProcesses['eldorascope'] = EmitterProc(cmd, 
+                                              emitText=True, 
+                                              payload=nextTaskColor())
+    s = ourProcesses['eldorascope']
+    QObject.connect(s, SIGNAL("text"), main.logText)
+    s.start()
+####################################################################################
+def runPPI(forradar=True):
+    cmd = [eldoraDir + '/eldorappi/eldorappi',]
+    if forradar:
+        cmd.append('--forward')
+        cmdkey = 'eldorappifor'
+    else:
+        cmd.append('--aft')
+        cmdkey = 'eldorappiaft'
+    ourProcesses[cmdkey] = EmitterProc(cmd, 
+                                       emitText=True, 
+                                       payload=nextTaskColor())
+    s = ourProcesses[cmdkey]
+    QObject.connect(s, SIGNAL("text"), main.logText)
+    s.start()
 ####################################################################################
 def pkill(name):
     ''' Execute pkill <name> via QProcess. Return
@@ -391,10 +415,29 @@ def createRpcServers():
     global prodrpc
     prodrpc = EldoraRPC('products', prodrpcurl)
 
+####################################################################################
 def initHeader():
     # the header name will be displayed.
     headerGui = EldoraHeaderGUI(main.hdrCombo, ['.',])
     
+####################################################################################
+def nextTaskColor():
+    global taskColors
+    global currentColor
+    # define taskColors on the first call
+    try:
+        taskColors
+    except NameError:
+        taskColors = ['red','blue','green','orange','purple','grey','cyan']
+        currentColor = 0
+    
+    if currentColor < len(taskColors)-1:
+        currentColor = currentColor+1
+    else:
+        currentColor = 0
+
+    return taskColors[currentColor]
+        
 ####################################################################################
 #
 # This is where it all happens
@@ -416,7 +459,12 @@ createRpcServers()
 app = QApplication(sys.argv)
 
 # instantiate an Edora controller gui
-main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status, startUp=startUs)
+main = EldoraMain(restartFunction=restart, 
+                  stopFunction=stop, 
+                  statusFunction=status, 
+                  startUp=startUs,
+                  ppiFunction=runPPI,
+                  scopeFunction=runScope)
 main.show()
 
 # initializre the header management

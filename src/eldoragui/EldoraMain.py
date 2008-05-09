@@ -21,11 +21,30 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     functions specified to the constructor.
     '''
     ###############################################################################
-    def __init__(self, stopFunction=None, restartFunction=None, statusFunction=None, startUp=None, parent=None):
+    def __init__(self, stopFunction=None, 
+                 restartFunction=None, 
+                 statusFunction=None, 
+                 startUp=None, 
+                 parent=None,
+                 scopeFunction=None,
+                 ppiFunction=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
-                
+        
+        self.ppiFunction = ppiFunction
+        self.scopeFunction = scopeFunction
+        
+   	# make sure that ELDORADIR is defined. This will only be done once,
+    	# until 
+        if 'ELDORADIR' not in os.environ:
+        	m = QMessageBox.critical(self, 'Error', 'The ELDORADIR environment variable must be set')
+        	# Post a close event. Note that post, rether than send, must be used
+        	# so that the event will be queued if the event loop is not running yet.
+        	QApplication.postEvent(QApplication.instance(), QCloseEvent())
+        	return
+        self.eldoraDir = os.environ['ELDORADIR']
+
         # get our configuration
         config = QtConfig('NCAR', 'EldoraGui')
   
@@ -75,22 +94,19 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     
     ###############################################################################
     def runScope(self):
-    	cmd = self.eldoraDir + '/eldorascope/eldorascope'
-    	p = QProcess()
-        p.startDetached(cmd)
-    	        
+        if (self.scopeFunction):
+            self.scopeFunction()
+
     ###############################################################################
     def runForPpi(self):
-    	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--forward']
-    	p = QProcess()
-        p.startDetached(cmd[0], cmd[1:])
+        if (self.ppiFunction != None):
+            self.ppiFunction(forradar=True)
     	
     ###############################################################################
     def runAftPpi(self):
-    	cmd = [self.eldoraDir + '/eldorappi/eldorappi', '--aft']
-    	p = QProcess()
-        p.startDetached(cmd[0], cmd[1:])
-    	        
+        if (self.ppiFunction != None):
+            self.ppiFunction(forradar=False)
+
     ###############################################################################
     def createPalette(self):
     	fgcolor = 'blue'

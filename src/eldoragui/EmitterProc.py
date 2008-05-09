@@ -32,13 +32,17 @@ class EmitterProc(QProcess):
         self.emitText = emitText
         self.payload = payload
         self.command = command
+        # prefix lines that are emmitted on text with the command name
+        self.lineprefix = os.path.split(os.path.splitext(command[0])[0])[1]
+        print self.lineprefix
+        self.lineprefix = self.lineprefix + ': '
         self.setProcessChannelMode(QProcess.MergedChannels)
         self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
 
         
     def start(self):
         QProcess.start(self, self.command[0], self.command[1:])
-        line= 'Process started: '
+        line= self.lineprefix
         for p in self.command:
             line = line + ' ' + p
         self.emit(SIGNAL("text"), line, self.payload)
@@ -52,7 +56,10 @@ class EmitterProc(QProcess):
             if not line:
                 return
             if self.emitText:
-                self.emit(SIGNAL("text"), line, self.payload)
+                text = self.lineprefix + line
+                self.emit(SIGNAL("text"), 
+                          text, 
+                          self.payload)
         
 ###############################################################
     @staticmethod
