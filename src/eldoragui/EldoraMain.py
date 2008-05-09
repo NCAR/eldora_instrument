@@ -25,17 +25,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
-        
-   	# make sure that ELDORADIR is defined. This will only be done once,
-    	# until 
-        if 'ELDORADIR' not in os.environ:
-        	m = QMessageBox.critical(self, 'Error', 'The ELDORADIR environment variable must be set')
-        	# Post a close event. Note that post, rether than send, must be used
-        	# so that the event will be queued if the event loop is not running yet.
-        	QApplication.postEvent(QApplication.instance(), QCloseEvent())
-        	return
-        self.eldoraDir = os.environ['ELDORADIR']
-        
+                
         # get our configuration
         config = QtConfig('NCAR', 'EldoraGui')
   

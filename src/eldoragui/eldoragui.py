@@ -246,7 +246,7 @@ def runDrx():
     
     # start a new instance
     drxcmd = [
-           eldoraDir + '/eldoradrx/eldoradrx',
+           os.path.join(eldoraDir, 'eldoradrx', 'eldoradrx'),
            '--start0',
            '--start1',
            '--pub',
@@ -280,7 +280,7 @@ def runProducts():
         return
     
     # start a new instance
-    productscmd = [eldoraDir + '/eldoraprod/eldoraprod',]
+    productscmd = [os.path.join(eldoraDir, 'eldoraprod', 'eldoraprod'),]
     ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload='red')
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
@@ -346,7 +346,14 @@ def initConfig():
     
     # where do the apps live?
     global eldoraDir
-    eldoraDir = os.environ['ELDORADIR']
+    try:
+        eldoraDir = os.environ['ELDORADIR']
+    except:
+        # If the environment variable is not set, use the parent directory
+        # of the location of this script
+        mydir, myname = os.path.split(sys.argv[0])
+        eldoraDir = os.path.abspath(os.path.join(mydir, '..'))
+        os.environ['ELDORADIR'] = eldoraDir
     
     # where is DCPSInfoRepo
     global ddsRoot
@@ -354,7 +361,7 @@ def initConfig():
     
     # where are the DDS configuration files?
     global ddsConfigDir
-    ddsConfigDir = eldoraDir + '/conf'
+    ddsConfigDir = os.path.join(eldoraDir, 'conf')
     
     # where are the Eldora header files?
     headersDir = ourConfig.getString('Headers/HeaderDir', '/home/workspace/eldora/src/headermaker/headers')
