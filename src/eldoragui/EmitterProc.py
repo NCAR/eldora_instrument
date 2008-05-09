@@ -34,7 +34,6 @@ class EmitterProc(QProcess):
         self.command = command
         # prefix lines that are emmitted on text with the command name
         self.lineprefix = os.path.split(os.path.splitext(command[0])[0])[1]
-        print self.lineprefix
         self.lineprefix = self.lineprefix + ': '
         self.setProcessChannelMode(QProcess.MergedChannels)
         self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
