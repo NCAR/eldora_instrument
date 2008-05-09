@@ -19,7 +19,7 @@ class EldoraHeaderGUI:
         # set the combobox to use fixed pitch font,
         # so that we can arrange justification in the entries
         font = self.hdrCombo.font()
-        font.setFamily('Courier New')
+        font.setFamily('Courier')
         font.setBold(True)
         font.setPointSize(12)
         self.hdrCombo.setFont(font)
@@ -55,9 +55,12 @@ class EldoraHeaderGUI:
         
 #####################################################################
     def addHeader(self, header):
-        headername = header.projectName + ''
+        headername = header.projectName + ' '
         path = os.path.split(header.headerFile)[-1]
-        while len(headername) < 50 - len(path):
+        # create the combo text, combining the project
+        # name and the file name. Justify with the
+        # project left algined and file right aligned.
+        while len(headername) < 40 - len(path):
             headername = headername + ' '
         headername = headername + path
         self.headers.append(header)
@@ -85,7 +88,7 @@ if __name__ == '__main__':
         combo.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         l1.addWidget(combo)
         
-        headerDirs = ['./', '../headermaker/headers/']
+        headerDirs = ['./',]
         
         EldoraHeaderGUI(combo, headerDirs)
     

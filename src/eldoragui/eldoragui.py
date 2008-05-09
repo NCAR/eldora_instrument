@@ -15,16 +15,23 @@ from EldoraHeaderGUI import *
 
 ####################################################################################
 
-# Global variables
+# Global variables. These don't need to be declared global here, but
+# we do this in order to keep global objects identified.
+
+global ourConfig    # the EldoraGui.ini configuration
 
 global eldoraDir    # used to find eldora application binaries
 global ddsRoot      # used to locate DCPSInforepo
 global ddsConfigDir # location of the DDS configuration files (for DDS apps)
-global ourConfig    # the EldoraGui.ini configuration
+global headersDir   # location of the Eldora header files
+
 global drxrpc       # RPC server for eldoradrx
 global hskprpc      # RPC server for the housekeeper
 global prodrpc      # RPC server for the products generator
+
 global ourProcesses # Processes that we have started and are managing
+
+global headerGui    # the header management gui
 
 ####################################################################################
 def restart():
@@ -348,6 +355,9 @@ def initConfig():
     # where are the DDS configuration files?
     global ddsConfigDir
     ddsConfigDir = eldoraDir + '/conf'
+    
+    # where are the Eldora header files?
+    headersDir = ourConfig.getString('Headers/HeaderDir', '/home/workspace/eldora/src/headermaker/headers')
 
 ####################################################################################
 def createRpcServers():
@@ -374,6 +384,9 @@ def createRpcServers():
     global prodrpc
     prodrpc = EldoraRPC('products', prodrpcurl)
 
+def initHeader():
+    # the header name will be displayed.
+    headerGui = EldoraHeaderGUI(main.hdrCombo, ['.',])
     
 ####################################################################################
 #
@@ -399,9 +412,8 @@ app = QApplication(sys.argv)
 main = EldoraMain(restartFunction=restart, stopFunction=stop, statusFunction=status, startUp=startUs)
 main.show()
 
-# create the header management gui. It needs to know where 
-# the header name will be displayed.
-headerGui = EldoraHeaderGUI(main.hdrCombo, ['.',])
+# initializre the header management
+initHeader()
 
 # start the event loop
 app.exec_()

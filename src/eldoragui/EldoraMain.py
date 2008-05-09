@@ -265,7 +265,6 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             # and remove it so that we don't call it again
             self.startUp = None
             
-        self.dateTimeLabel.setText(asctime(gmtime()))
         self.statusCount = self.statusCount+1
         if self.statusCount >= self.statusPeriod:
             self.statusCount = 0
