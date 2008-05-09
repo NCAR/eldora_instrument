@@ -38,6 +38,10 @@ class EmitterProc(QProcess):
         
     def start(self):
         QProcess.start(self, self.command[0], self.command[1:])
+        line= 'Process started: '
+        for p in self.command:
+            line = line + ' ' + p
+        self.emit(SIGNAL("text"), line, self.payload)
         
     def startDetached(self):
         QProcess.startDetached(self.command[0], self.command[1:])
