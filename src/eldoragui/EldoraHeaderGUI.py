@@ -16,6 +16,7 @@ class EldoraHeaderGUI:
     def __init__(self, hdrCombo, headerDirs):
         # the combobox used to select a header
         self.hdrCombo = hdrCombo
+        QObject.connect(self.hdrCombo,SIGNAL("activated(int)"), self.hdrChosen)    
         # set the combobox to use fixed pitch font,
         # so that we can arrange justification in the entries
         font = self.hdrCombo.font()
@@ -29,6 +30,7 @@ class EldoraHeaderGUI:
         self.headers = list()
         # load up the headers
         self.scan()
+
 
 #####################################################################
     def scan(self):
@@ -68,7 +70,16 @@ class EldoraHeaderGUI:
                               QVariant(len(self.headers)-1))
         
 #####################################################################
-
+    def hdrChosen(self, index):
+        ''' Called when the selected item in the list of headers
+        is changed.
+        '''
+        text = 'You selected the ' \
+            + self.headers[index].projectName \
+            + ' header'
+        print text
+        QMessageBox.information(None,'Header Selection', text)
+        
 #####################################################################
 #####################################################################
 #####################################################################

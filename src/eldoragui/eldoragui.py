@@ -15,7 +15,7 @@ from EldoraHeaderGUI import *
 
 ####################################################################################
 
-# Global variables. These don't need to be declared global here, but
+# Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
 
 global ourConfig    # the EldoraGui.ini configuration
@@ -23,7 +23,6 @@ global ourConfig    # the EldoraGui.ini configuration
 global eldoraDir    # used to find eldora application binaries
 global ddsRoot      # used to locate DCPSInforepo
 global ddsConfigDir # location of the DDS configuration files (for DDS apps)
-global headersDir   # location of the Eldora header files
 
 global drxrpc       # RPC server for eldoradrx
 global hskprpc      # RPC server for the housekeeper
@@ -387,8 +386,6 @@ def initConfig():
     global ddsConfigDir
     ddsConfigDir = os.path.join(eldoraDir, 'conf')
     
-    # where are the Eldora header files?
-    headersDir = ourConfig.getString('Headers/HeaderDir', '/home/workspace/eldora/src/headermaker/headers')
 
 ####################################################################################
 def createRpcServers():
@@ -417,8 +414,13 @@ def createRpcServers():
 
 ####################################################################################
 def initHeader():
-    # the header name will be displayed.
-    headerGui = EldoraHeaderGUI(main.hdrCombo, ['.',])
+   # where are the Eldora header files?
+    headersDir = ourConfig.getString('Headers/HeaderDir', 
+                                     '/home/eldora/workspace/eldora/src/headermaker/headers')
+    # Be sure to make headergui global, becasue it won't be able to 
+    # receive signals otherwise!
+    global headerGui
+    headerGui = EldoraHeaderGUI(main.hdrCombo, [headersDir,])
     
 ####################################################################################
 def nextTaskColor():
