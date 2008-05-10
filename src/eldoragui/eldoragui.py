@@ -413,6 +413,13 @@ def createRpcServers():
     prodrpc = EldoraRPC('products', prodrpcurl)
 
 ####################################################################################
+def headerChoice(selectedHeader):
+    ''' Called to indicte that a new header has been selected.
+    The header is provided as a parameter.
+    '''
+    print 'He selected ', selectedHeader.projectName
+    
+####################################################################################
 def initHeader():
    # where are the Eldora header files?
     headersDir = ourConfig.getString('Headers/HeaderDir', 
@@ -421,6 +428,7 @@ def initHeader():
     # receive signals otherwise!
     global headerGui
     headerGui = EldoraHeaderGUI(main.hdrCombo, [headersDir,])
+    headerGui.connect(headerGui, SIGNAL("headerChoice"), headerChoice)
     
 ####################################################################################
 def nextTaskColor():

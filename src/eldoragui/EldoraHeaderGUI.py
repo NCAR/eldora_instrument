@@ -6,7 +6,7 @@ from PyQt4.QtGui   import *
 from EldoraHeader  import *
 
 #####################################################################
-class EldoraHeaderGUI:
+class EldoraHeaderGUI(QObject):
     ''' EldoraHeaderGUI manages the user interface presentation
     for the Eldora system header management. 
     
@@ -14,9 +14,10 @@ class EldoraHeaderGUI:
     
     '''
     def __init__(self, hdrCombo, headerDirs):
+        QObject.__init__(self)
         # the combobox used to select a header
         self.hdrCombo = hdrCombo
-        QObject.connect(self.hdrCombo,SIGNAL("activated(int)"), self.hdrChosen)    
+        self.connect(self.hdrCombo,SIGNAL("activated(int)"), self.hdrChosen)    
         # set the combobox to use fixed pitch font,
         # so that we can arrange justification in the entries
         font = self.hdrCombo.font()
@@ -74,11 +75,8 @@ class EldoraHeaderGUI:
         ''' Called when the selected item in the list of headers
         is changed.
         '''
-        text = 'You selected the ' \
-            + self.headers[index].projectName \
-            + ' header'
-        print text
-        QMessageBox.information(None,'Header Selection', text)
+        selectedHeader = self.headers[index]
+        self.emit(SIGNAL("headerChoice"), selectedHeader)
         
 #####################################################################
 #####################################################################
