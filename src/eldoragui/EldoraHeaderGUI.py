@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 import os
-from PyQt4.QtCore  import *
-from PyQt4.QtGui   import *
-from EldoraHeader  import *
+from PyQt4.QtCore     import *
+from PyQt4.QtGui      import *
+from EldoraHeader     import *
+from EldoraHeaderView import *
 
 #####################################################################
-class EldoraHeaderGUI(QObject):
+class EldoraHeaderGUI(QWidget):
     ''' EldoraHeaderGUI manages the user interface presentation
     for the Eldora system header management. 
     
@@ -31,6 +32,11 @@ class EldoraHeaderGUI(QObject):
         self.headers = list()
         # load up the headers
         self.scan()
+        # save the chosen one. Use None if there were no headers
+        if len(self.headers) == 0:
+            self.selectedHeader = None
+        else:
+            self.selectedHeader = self.headers[0]
 
 
 #####################################################################
@@ -69,7 +75,7 @@ class EldoraHeaderGUI(QObject):
         self.headers.append(header)
         self.hdrCombo.addItem(headername, 
                               QVariant(len(self.headers)-1))
-        
+      
 #####################################################################
     def hdrChosen(self, index):
         ''' Called when the selected item in the list of headers
@@ -79,7 +85,14 @@ class EldoraHeaderGUI(QObject):
         self.emit(SIGNAL("headerChoice"), selectedHeader)
         
 #####################################################################
-#####################################################################
+    def viewHeader(self):
+        ''' Called when the user wants to see what is in the header.
+        Popup a display of the header
+        '''
+       # create an EldoraHeaderView
+        e = EldoraHeaderView(header=self.selectedHeader,parent=self)
+        e.show()
+          
 #####################################################################
 
 # Run the test when invoked standalone
@@ -93,13 +106,17 @@ if __name__ == '__main__':
         l1 = QHBoxLayout()
         d.setLayout(l1)
         
+        viewbtn = QPushButton('View')
+        l1.addWidget(viewbtn)
+
         combo = QComboBox()
         combo.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         l1.addWidget(combo)
         
         headerDirs = ['./',]
         
-        EldoraHeaderGUI(combo, headerDirs)
+        gui = EldoraHeaderGUI(combo, headerDirs)
+        gui.connect(viewbtn, SIGNAL("released()"), gui.viewHeader)
     
         # run the event loop
         d.show()

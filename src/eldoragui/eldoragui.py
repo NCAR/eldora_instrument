@@ -428,7 +428,12 @@ def initHeader():
     # receive signals otherwise!
     global headerGui
     headerGui = EldoraHeaderGUI(main.hdrCombo, [headersDir,])
+    # When a header has been chose, EldoraHeaderGUI emits a 'headerChoice' signal.
+    # Connect that signal to our own headerChoise() function.
     headerGui.connect(headerGui, SIGNAL("headerChoice"), headerChoice)
+    # Connect the view header button on the main interface to
+    # eldoraHeaderGUI.viewHdr().
+    headerGui.connect(main.viewHdrBtn, SIGNAL('released()'),headerGui.viewHeader)
     
 ####################################################################################
 def nextTaskColor():
