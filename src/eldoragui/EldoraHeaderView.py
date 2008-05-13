@@ -33,18 +33,19 @@ class EldoraHeaderView(QDialog, Ui_EldoraHeaderView):
         col0size = QSize(20*charWidth, charHeight)
         col1size = QSize(60*charWidth, charHeight)
         tree.setColumnCount(2)
-        labels = [QString('Item'), QString('Values')]
+        labels = [QString('Category'), QString('Values')]
         tree.setHeaderLabels(labels)
-        for b in items:
+        # items contains EldoraBlock instances
+        for block in items:
             bitem = QTreeWidgetItem(tree)
             bitem.setFont(0,font)
             bitem.setSizeHint(0, col0size)
-            bitem.setText(0, QString(b.description))
-            for name in b.keys():
-                text = b[name][0] + ': '
-                while len(text)+len(b[name][1]) < 60:
+            bitem.setText(0, QString(block.description))
+            for field in block:
+                text = field[1] + ': '
+                while len(text)+len(field[2]) < 60:
                     text = text + ' '
-                text = text +  b[name][1]
+                text = text +  field[2]
                 fitem = QTreeWidgetItem(bitem)
                 fitem.setFont(1,font)
                 fitem.setSizeHint(1,col1size)

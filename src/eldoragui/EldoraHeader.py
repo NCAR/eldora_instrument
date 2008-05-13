@@ -6,12 +6,11 @@ import time
 import re
 import subprocess
 
-class EldoraBlock(dict):
+class EldoraBlock(list):
     ''' 
-    Represent a single header block. Derived from dict.
-    Consolidates all fields within a block.
-    The fields are referenced by the identifier 
-    assigned by dumpheader.
+    Represent a single header block. Derived from list.
+    Consolidates all fields within a block. The list
+    contains entries of the tuple (key, comment, value)
     '''
     def __init__(self, type, description):
         ''' Constructor. The type is the block type,
@@ -23,8 +22,7 @@ class EldoraBlock(dict):
     def addField(self, key, comment,value):
         ''' Add a field to this block. 
         '''
-        payload = [comment, value]
-        self[key] = payload
+        self.append((key, comment, value))
         
 class EldoraHeader(list):
     ''' A class for reading and decoding the information in 
@@ -195,11 +193,11 @@ class EldoraHeader(list):
         eldoraHdr = EldoraHeader(hdrDumpCmd=dumpcmd, hdrVerifyCmd=verifycmd, headerFile=file)
         for b in eldoraHdr:
             print '*************************** ', b.type, '*************************** '
-            for f in b.items():
+            for f in b:
                 print f
         for b in eldoraHdr.verifyBlocks:
             print '*************************** ', b.type, '*************************** '
-            for f in b.items():
+            for f in b:
                 print f
             
             
