@@ -421,8 +421,8 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     descripts.add_options() ("help", "describe options") 
     ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
-    ("simulate", "run in simulation mode")
-    ("simulateHskp", "generate fake housekeeping data")
+    ("simRR314", "run RR314 in simulation mode")
+    ("simHskp", "generate fake housekeeping data")
     ("usleep", po::value<int>(&params.usleep)->default_value(50000),"usleep value for simulation")
     ("start0", "start RR314 device 0")
     ("start1", "start RR314 device 1")
@@ -448,8 +448,8 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     params.publish = vm.count("publish") != 0;
     params.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
     params.textcapture = vm.count("text") != 0;
-    params.simulate = vm.count("simulate") != 0;
-    params.simulateHskp = vm.count("simulateHskp") != 0;
+    params.simulate = vm.count("simRR314") != 0;
+    params.simulateHskp = vm.count("simHskp") != 0;
     params.internaltimer = vm.count("internaltimer") != 0;
 
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
