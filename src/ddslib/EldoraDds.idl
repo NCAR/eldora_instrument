@@ -58,8 +58,8 @@ module EldoraDDS {
         long startIQ;           // IQ start gate
         long numIQ;             // number of IQ gates
         long pulsewidth;        // ns
+        long rayNum;            // should be redundant with rayCount above...
         short chan;
-        short rayNum;           // should be redundant with rayCount above...
     } Housekeeping;
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"

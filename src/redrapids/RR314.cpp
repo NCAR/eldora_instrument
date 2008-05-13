@@ -485,13 +485,15 @@ void RR314::newIQData(short* src,
 
     // verify that we got an iq dmaChan
     assert(!(chan & 1) && (chan < 8));
-
+    
     RRIQBuffer* pBuf = _currentIQBuffer[chan];
 
     // loop through all data we were given
     unsigned int nextData;
 
     for (int i = 0; i < n; i++) {
+    	if (! _running)
+    		return;
         //  fill the current buffer from the source
         switch (pBuf->_posInSample) {
         case 0:
@@ -510,6 +512,9 @@ void RR314::newIQData(short* src,
                 std::cout << "RR data error, channel id should be " << 
                 chan + 1 << ", got " << pBuf->chanId << " instead\n";
                 pBuf->chanId = chan + 1;
+                std::cerr << __FUNCTION__ << ": stopping card " << _devNum << 
+                	std::endl;
+                RR314shutdown();
             }
             /// @todo A hack for the moment; for some reason the channel ID from
             /// the card is all fouled up. Map the DMA channel (0, 2, 4, 6) to 
@@ -539,13 +544,16 @@ void RR314::newIQData(short* src,
             // Now that we have the _pulseCount, calculate the ray number and
             // ray time
             pBuf->rayNum = pBuf->_pulseCount / _samples;
-            pBuf->rayTime = getRayTime(pBuf->rayNum);
+            pBuf->rayTime = rayTime(pBuf->rayNum);
             // Pulse order sanity check
             if ((pBuf->_pulseCount % _samples) != pBuf->_samplesFilled) {
                 std::cerr << __FUNCTION__ << ": got IQ sample " << 
                     pBuf->_pulseCount % _samples << " when expecting " <<
                     pBuf->_samplesFilled << " in ray at " << 
                     pBuf->rayTime << std::endl;
+                std::cerr << __FUNCTION__ << ": stopping card " << _devNum << 
+                	std::endl;
+                RR314shutdown();
             }
             break;
         default:
@@ -628,7 +636,7 @@ void RR314::newABPData(int* src,
             pBuf->rayNum = src[i];
             pBuf->_posInRay++;
             // now that we have the pulseCount, calculate the ray time
-            pBuf->rayTime = getRayTime(pBuf->rayNum);
+            pBuf->rayTime = rayTime(pBuf->rayNum);
             // print some info every 1000 rays
             if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->rayNum % 1000)) {
                 std::cout << pBuf->rayNum << ": ";

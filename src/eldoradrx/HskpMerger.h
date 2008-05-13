@@ -9,19 +9,20 @@
 
 using namespace RedRapids;
 
-/// HskpMergerEntry a pointer to an RRBuffer and an associated insert time
+/// RREntry keeps a pointer to an RRBuffer and an associated insert time
 /// (which is set to current time when the object is instantiated).  This class
 /// is only used in HskpMerger's list of RRBuffer-s waiting to be merged with
 /// housekeeping.
-class HskpMergerEntry {
+class RREntry {
 public:
-    /// HskpMergerEntry constructor.
+    /// RREntry constructor.
     /// @param buf_p pointer to an RRBuffer awaiting housekeeping
     /// @param publish flag to tell whether the buffer should be published
     ///     after housekeeping is added
     /// @param capture flag to tell whether the buffer should be captured
     ///     after housekeeping is added
-    HskpMergerEntry(RRBuffer* buf_p, bool publish, bool capture, 
+	/// @param textcapture flag to tell if captured data should be saved as text
+    RREntry(RRBuffer* buf_p, bool publish, bool capture, 
     		bool textcapture) : 
         _rrbuf_p(buf_p), 
         _insertTime(boost::posix_time::microsec_clock::universal_time()),
@@ -46,6 +47,28 @@ private:
     bool _textcapture;
 };
 
+/// HskpEntry keeps a pointer to an EldoraDDS::Housekeeping and an associated 
+/// insert time (which is set to current time when the object is instantiated).  
+/// This class is only used in HskpMerger's list of Housekeeping-s waiting to 
+/// be merged with RRBuffer-s.
+class HskpEntry {
+public:
+    /// HskpEntry constructor.
+    /// @param buf_p EldoraDDS::Housekeeping waiting to be merged
+    HskpEntry(EldoraDDS::Housekeeping* hskp) : 
+        _hskp(hskp), 
+        _insertTime(boost::posix_time::microsec_clock::universal_time()) {}
+    /// Return a pointer to the Housekeeping.
+    /// @return pointer to the Housekeeping.
+    EldoraDDS::Housekeeping* hskp() const { return _hskp; }
+    /// Return the insert time associated with this object.
+    /// @return the insert time for this object.
+    boost::posix_time::ptime insertTime() const { return _insertTime; }
+private:
+    EldoraDDS::Housekeeping* _hskp;
+    boost::posix_time::ptime _insertTime;
+};
+
 /// HskpMerger keeps a list of RRBuffer-s which are complete except for 
 /// housekeeping, merges incoming houskeeping with them, and will call 
 /// functions to publish and/or capture completed buffers.  If RRBuffers are 
@@ -59,9 +82,8 @@ public:
     ///     kept for at least maxLatency milliseconds before being dropped.
     /// @param publishFunction function to be called when an RRBuffer has had
     ///     housekeeping merged.
-    HskpMerger(int maxLatencyMsec, 
-        void (*publishFunction)(RRBuffer* rbuf, EldoraDDS::Housekeeping* hskp, 
-        	  bool publish, bool capture, bool textcapture));
+    HskpMerger(RR314* rr314, int maxLatencyMsec, 
+        void (*publishFunction)(RREntry* rentry, EldoraDDS::Housekeeping* hskp)); 
     
     ~HskpMerger();
     
@@ -92,28 +114,49 @@ public:
     /// RRBuffer-s?
     unsigned int droppedHskpCount() { return _droppedHskpCount; }
 private:
-    typedef std::multimap<unsigned int, HskpMergerEntry*> UnmergedEntryMap;
+	/// Our associated RedRapids card
+	RR314* _rr314;
+	
+    typedef std::multimap<unsigned int, RREntry*> UnmergedRREntryMap;
     /// Multimap of RRBuffer-s which are ready to be merged with housekeeping,
     /// with insert times for each one.  Entries are keyed by ray number.
-    UnmergedEntryMap _unmergedRRBufs;
+    /// We use a multimap since there can be multiple RRBuffer-s for each
+    /// ray number.
+    UnmergedRREntryMap _unmergedRRBufs;
+    
+    typedef std::map<unsigned int, HskpEntry*> UnmergedHskpEntryMap;
+    /// Map of Housekeeping-s which are ready to be merged with RRBuffer-s
+    /// with insert times for each one.  Entries are keyed by ray number.
+    UnmergedHskpEntryMap _unmergedHskps;
+    
+    /// lock for unmergedRRBufs and unmergedHskp, since they may be accessed 
+    /// via multiple threads
+    pthread_mutex_t _unmergedRRMutex;
+    pthread_mutex_t _unmergedHskpMutex;
     
     /// Remove a single entry from the list of unmerged RRBuffer-s
-    void removeEntry(UnmergedEntryMap::iterator it);
+    void removeRREntry(UnmergedRREntryMap::iterator it);
     
-    /// Clear RRBuffer-s that we have kept for more than _maxLatency
-    /// milliseconds
-    void removeOldBuffers();
+    /// Remove a single entry from the list of unmerged Housekeeping-s
+    void removeHskpEntry(UnmergedHskpEntryMap::iterator it);
+
+    /// Merge matching RRBuffer-s and Housekeeping-s at rayNum and send out the
+    /// results.
+    /// @param rayNum the ray number to test for matches
+    /// @return the number of RRBuffer-s that were matched with housekeeping
+    ///	    and sent out
+    int mergeAndSend(unsigned int rayNum);
     
-    /// lock for unmergedRRBufs, since it may be accessed via multiple threads
-    pthread_mutex_t _unmergedMutex;
+    /// Clear RRBuffer-s and Housekeeping-s that we have kept for more than 
+    /// _maxLatency milliseconds
+    void clearOldEntries();
     
     /// maximum latency (in milliseconds) before incomplete RRBuffer-s may
     /// be dropped
     boost::posix_time::time_duration _maxLatency;
     
     /// function to publish completed RRBuffer-s
-    void (*_publishFunction)(RRBuffer* rbuf, EldoraDDS::Housekeeping* hskp, 
-    		bool publish, bool capture, bool textcapture);
+    void (*_publishFunction)(RREntry* rbuf, EldoraDDS::Housekeeping* hskp);
     
     /// How many RRBuffers have we dropped with no housekeeping match?
     unsigned int _droppedBufCount;

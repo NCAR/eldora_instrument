@@ -24,6 +24,7 @@ ArgvParams.cpp
 SignalCatcher.cpp
 SvnVersion.cpp
 RPCServer.cpp
+TimetagUtils.cpp
 """)
 
 utilities = env.Library('utilities', sources)

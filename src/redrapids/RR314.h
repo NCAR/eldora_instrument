@@ -221,17 +221,31 @@ public:
 	///    pulse.
 	void setXmitStartTime(boost::posix_time::ptime startTime);
 	
+	/// Time of first transmit pulse
+	boost::posix_time::ptime xmitStartTime() {
+	    return _xmitStartTime;
+	}
+	
 	/// Dwell duration (= nsamples / PRF).
 	boost::posix_time::time_duration dwellDuration() {
 	    return boost::posix_time::microseconds((1000000 * _samples) / _prf);
 	}
 
 	/// Ray time (at the middle of the ray integration period)
-	boost::posix_time::ptime getRayTime(unsigned int rayNum) {
+	boost::posix_time::ptime rayTime(unsigned int rayNum) {
 	    // The math is a little convoluted here because multiply and divide
-	    // operations for posix_time::time_duration only take integer operands
+	    // operations for posix_time::time_duration only take integer operands.
 		return _xmitStartTime + (dwellDuration() * (2 * rayNum + 1)) / 2;
 	}
+	
+	/// Samples per ray
+	unsigned int samples() { return _samples; }
+	
+	/// First IQ gate
+	unsigned int firstIQGate() { return _startGateIQ; }
+	
+	/// Number of IQ gates
+	unsigned int numIQGates() { return _numIQGates; }
 protected:
 
 	/// Configure the card and DMA operations.
@@ -388,10 +402,22 @@ public:
     int nci;
     /// Return this buffer to its parent's free list.
     void returnBuffer() { _parent->returnBuffer(this); }
-    /// Dwell duration
-    boost::posix_time::time_duration dwellDuration() const {
-        return _parent->dwellDuration();
+
+    /// board number
+    int boardNumber() const { return _parent->boardNumber(); }
+    
+    /// time of the first transmit pulse
+    boost::posix_time::ptime xmitStartTime() const { 
+        return _parent->xmitStartTime(); 
     }
+    
+    /// dwell time
+    boost::posix_time::time_duration dwellDuration() const { 
+        return _parent->dwellDuration(); 
+    }
+    
+    /// Parent RR314
+    RR314* parent() const { return _parent; }
 protected:
     RRBuffer(RR314* parent) : _parent(parent) {};
     // pointer to the parent RR314

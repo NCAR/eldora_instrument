@@ -24,6 +24,7 @@ env = Environment(tools = ['default'] + tools)
 sources = Split("""
 eldoradrx.cpp
 DrxRPC.cpp
+HskpMerger.cpp
 """)
 
 # libraries:

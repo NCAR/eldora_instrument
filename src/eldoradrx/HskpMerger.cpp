@@ -1,155 +1,188 @@
 #include "HskpMerger.h"
+#include <limits.h> // for UINT_MAX
+#include <TimetagUtils.h>
 using namespace boost::posix_time;
 
-/// Convert a time tag (microseconds since 1970/01/01 00:00 UTC) into
-/// a boost::posix_time::ptime
-ptime timetagToPtime(long long timetag) {
-    return(from_time_t(timetag / 1000000) + microseconds(timetag % 1000000));
-}
-
-/// Convert a boost::posix_time::ptime into a time tag (microseconds since 
-/// 1970/01/01 00:00 UTC)
-long long ptimeToTimetag(ptime pt) {
-    time_duration tDiff = pt - from_time_t(0); // since 1970/1/1 0:00 UTC
-    long long usecs = ((long long)tDiff.fractional_seconds() * 1000000) /
-        time_duration::ticks_per_second();
-    return (((long long)tDiff.total_seconds()) * 1000000 + usecs);
-}
-
 /// Compute ray number from a time tag (microseconds since 1970/01/01 00:00 
-/// UTC), a transmit start time, and dwell time
-unsigned int timetagToRayNum(long long timetag, ptime xmitStart, 
-        time_duration dwellTime) {
+/// UTC), a transmit start time, and dwell time.  If the given time is
+/// before the transmit start time, return BAD_RAYNUM.
+static const unsigned int BAD_RAYNUM = UINT_MAX;
+static unsigned int 
+timetagToRayNum(long long timetag, ptime xmitStart, time_duration dwellTime) {
     long long usecDiff = timetag - ptimeToTimetag(xmitStart);
+    if (usecDiff < 0)
+        return BAD_RAYNUM;
     unsigned int usecsPerDwell = dwellTime.total_microseconds();
-    return((usecDiff / usecsPerDwell) + 1); // ray count starts at 1
+    return(usecDiff / usecsPerDwell); // ray count starts at 0
 }
 
-HskpMerger::HskpMerger(int maxLatencyMsec, 
-        void (*publishFunction)(RRBuffer* rbuf, EldoraDDS::Housekeeping* hskp, 
-        	  bool publish, bool capture, bool textcapture)) : 
+HskpMerger::HskpMerger(RR314* rr314, int maxLatencyMsec, 
+        void (*publishFunction)(RREntry* rentry, EldoraDDS::Housekeeping* hskp)) : 
+    _rr314(rr314),
     _maxLatency(milliseconds(maxLatencyMsec)),
     _publishFunction(publishFunction),
     _droppedBufCount(0),
     _droppedHskpCount(0) {
-    pthread_mutex_init(&_unmergedMutex, NULL);
+    pthread_mutex_init(&_unmergedRRMutex, NULL);
+    pthread_mutex_init(&_unmergedHskpMutex, NULL);
 }
 
 HskpMerger::~HskpMerger() {
-    pthread_mutex_destroy(&_unmergedMutex);
+    pthread_mutex_destroy(&_unmergedRRMutex);
+    pthread_mutex_destroy(&_unmergedHskpMutex);
 }
 
 void 
 HskpMerger::newRRBuffer(RRBuffer* rrbuf, bool publish, bool capture, 
 		bool textcapture) {
-	return;
+    RREntry* entry = new RREntry(rrbuf, publish, capture, textcapture);
     // lock the list of unmerged RRBuffer-s, so nobody steps on us (and
     // vice versa) while we're adding this RRBuffer
-    pthread_mutex_lock(&_unmergedMutex);
-    HskpMergerEntry* entry = 
-        new HskpMergerEntry(rrbuf, publish, capture, textcapture);
-    _unmergedRRBufs.insert(std::pair<unsigned int, HskpMergerEntry*>(rrbuf->rayNum, entry));
-    pthread_mutex_unlock(&_unmergedMutex);
-    // Clear out any entries in _unmergedRRBufs which are older than
-    // the max latency time
-    removeOldBuffers();
+    pthread_mutex_lock(&_unmergedRRMutex);
+    _unmergedRRBufs.insert(std::pair<unsigned int, RREntry*>(rrbuf->rayNum, entry));
+    pthread_mutex_unlock(&_unmergedRRMutex);
+    
+//    // As a rule, housekeeping should arrive *after* the associated RRBuffer-s,
+//    // so we expect zero matches from this mergeAndSend().
+//    int nsent = mergeAndSend(rrbuf->rayNum);
+//    if (nsent != 0)
+//        std::cerr << __FUNCTION__ << ": housekeeping arrived before RRBuf " <<
+//            rrbuf->rayNum << ", dev " << rrbuf->boardNumber() <<
+//            ", channel " << rrbuf->chanId << std::endl;
+    
+    // Clear out any entries which are older than the max latency time
+    clearOldEntries();
 }
 
 void 
 HskpMerger::newHskp(EldoraDDS::Housekeeping* hskp) {
-    int nmatches = 0;
-    // lock _unmergedRRBufs to prevent thread problems
-    pthread_mutex_lock(&_unmergedMutex);
-
-    // Figure out the housekeeping's ray number.  We use info from the first 
-    // RRBuffer in our list, assuming that *all* RRBuffer-s in our list will 
-    // have the same transmit start time and dwell duration.
-    UnmergedEntryMap::iterator it = _unmergedRRBufs.begin();
-    if (it == _unmergedRRBufs.end()) {
-        _droppedHskpCount++;
-        std::cerr << __FUNCTION__ << ": no RRBuffer-s; dropped hskp @ " <<
-            timetagToPtime(hskp->timetag).time_of_day() << std::endl;
-        pthread_mutex_unlock(&_unmergedMutex);
+    unsigned int rayNum = timetagToRayNum(hskp->timetag, _rr314->xmitStartTime(),
+    		_rr314->dwellDuration());
+    if (rayNum == BAD_RAYNUM) {
+        std::cerr << __FUNCTION__ << ": unexpected hskp time " << 
+            timetagToPtime(hskp->timetag).time_of_day() <<
+            " is before xmit start time " << 
+            _rr314->xmitStartTime().time_of_day() << std::endl;
         return;
     }
     
-    HskpMergerEntry* entry = it->second;
-    RRBuffer* rrbuf = entry->rrBuffer();
-    unsigned int hskpRayNum = timetagToRayNum(hskp->timetag, 
-            rrbuf->xmitStartTime(), rrbuf->dwellDuration());
+    // lock the list and add this housekeeping, then unlock
+    pthread_mutex_lock(&_unmergedHskpMutex);
+    _unmergedHskps[rayNum] = new HskpEntry(hskp);
+    pthread_mutex_unlock(&_unmergedHskpMutex);
     
-    // Get iterator bounds for all entries which match this housekeeping's 
-    // ray number
-    std::pair<UnmergedEntryMap::iterator, UnmergedEntryMap::iterator> range = 
-        _unmergedRRBufs.equal_range(hskpRayNum);
+    // If anything matches now, send it out
+    mergeAndSend(rayNum);
     
-    for (it = range.first; it != range.second; it++) {
-        entry = it->second;
-        rrbuf = entry->rrBuffer();
-        // If the radar of the RRBuffer matches the radar of the 
-        // housekeeping, we can publish & capture, and then remove
-        // the RRBuffer from our list.
-    	bool rrbufIsFore = (rrbuf->boardNumber() == 0);
-    	bool radarMatch = 
-    		(! strncmp(hskp->radarName, "FORE", 4) && rrbufIsFore) ||
-    		(! strncmp(hskp->radarName, "AFT", 3) && ! rrbufIsFore);
-
-    	std::cerr << "rrbuf is " << (rrbufIsFore ? "fore" : "aft") << 
-    		", and hskp is '" << hskp->radarName << "'" << std::endl;
-    	std::cerr << "ray num match @ " << rrbuf->rayNum << 
-    		(radarMatch ? " with " : " without ") << "radar match" << std::endl;
-    	if (radarMatch) {
-    	    nmatches++;
-        	_publishFunction(rrbuf, hskp, entry->publish(), entry->capture(),
-        			entry->textcapture());
-        	// We're done with this entry
-        	removeEntry(it);
-    	}
-    }
-    
-    if (nmatches == 0) {
-        _droppedHskpCount++;
-        std::cerr << __FUNCTION__ << ": dropped unmatched hskp @ " <<
-            hskpRayNum << std::endl;
-    }
-    
-    pthread_mutex_unlock(&_unmergedMutex);
+    // Clear out any entries which are older than the max latency time
+    clearOldEntries();
 }
 
-// Caller should hold the _unmergedMutex lock when calling this...
+int
+HskpMerger::mergeAndSend(unsigned int rayNum) {
+	pthread_mutex_lock(&_unmergedRRMutex);
+	pthread_mutex_lock(&_unmergedHskpMutex);
+
+	int nmatches = 0;
+
+	if ((_unmergedRRBufs.find(rayNum) == _unmergedRRBufs.end()) || 
+	    (_unmergedHskps.find(rayNum) == _unmergedHskps.end())) {
+		pthread_mutex_unlock(&_unmergedRRMutex);
+		pthread_mutex_unlock(&_unmergedHskpMutex);
+		return 0;
+	}
+
+	// Get the Housekeeping for this rayNum
+    HskpEntry* hentry = _unmergedHskps.find(rayNum)->second;
+	EldoraDDS::Housekeeping* hskp = hentry->hskp();
+    pthread_mutex_unlock(&_unmergedHskpMutex); // done with the hskp list
+	
+    // Get iterator bounds for all RRBuffer entries which match this ray number
+	typedef UnmergedRREntryMap::iterator UREMIterator;
+    std::pair<UREMIterator, UREMIterator> range = _unmergedRRBufs.equal_range(rayNum);
+    
+    for (UREMIterator it = range.first; it != range.second; /* inc in loop */) {
+        // Keep the current iterator and increment now, since incrementing
+        // after "removeRREntry()" seems to create intermittent problems.
+        UREMIterator current = it++;
+        RREntry* rentry = current->second;
+        _publishFunction(rentry, hskp);
+        // We're done with this entry
+        removeRREntry(current);
+        nmatches++;
+   }
+    
+    pthread_mutex_unlock(&_unmergedRRMutex);
+    return nmatches;
+}
+
+// Caller must hold the _unmergedRRMutex lock when calling this...
 void
-HskpMerger::removeEntry(UnmergedEntryMap::iterator it) {
-    HskpMergerEntry* entry = it->second;
-    _unmergedRRBufs.erase(it);
+HskpMerger::removeRREntry(UnmergedRREntryMap::iterator it) {
+    RREntry* entry = it->second;
     entry->rrBuffer()->returnBuffer();
     delete entry;
+    _unmergedRRBufs.erase(it);
+}
+
+// Caller must hold the _unmergedHskpMutex lock when calling this...
+void
+HskpMerger::removeHskpEntry(UnmergedHskpEntryMap::iterator it) {
+	HskpEntry* entry = it->second;
+	delete entry->hskp();
+	delete entry;
+    _unmergedHskps.erase(it);
 }
 
 void
-HskpMerger::removeOldBuffers() {
+HskpMerger::clearOldEntries() {
     ptime now = microsec_clock::universal_time();
     
-    pthread_mutex_lock(&_unmergedMutex);
-    
-    // Pass through our list, removing entries that are too old until the list 
-    // is empty, or until we hit the first entry that is recent enough to keep
-    for (UnmergedEntryMap::iterator it = _unmergedRRBufs.begin(); 
-         it != _unmergedRRBufs.end(); it++) {
-        HskpMergerEntry* entry = it->second;
+    // Pass through our RRBuffer list, removing entries that are too old until 
+    // the list is empty, or until we hit the first entry that is recent enough 
+    // to keep
+    pthread_mutex_lock(&_unmergedRRMutex);
+    for (UnmergedRREntryMap::iterator it = _unmergedRRBufs.begin(); 
+         it != _unmergedRRBufs.end(); /* incremented in loop */) {
+        // Increment the iterator now (and keep its current value), since 
+        // we'll be removing the current entry, and doing "it++" *after*
+        // the removal seems to give intermittent problems.
+        UnmergedRREntryMap::iterator current = it++;
+        RREntry* entry = current->second;
         time_duration latency = now - entry->insertTime();
         if (latency > _maxLatency) {
-            std::cerr << "@" << now.time_of_day() << ": Removing entry " << 
-                entry->rrBuffer()->rayTime.time_of_day() <<
-                " after " << to_simple_string(latency) << 
-                " seconds waiting for housekeeping" << std::endl;
-            // Clear this entry from our queue, and return the associated 
-            // RRBuffer to its parent's free list.
-            removeEntry(it);
+//            std::cerr << "@" << now.time_of_day() << ": Removing entry " << 
+//                _rr314->boardNumber() << "/" << it->first << "/" << 
+//                entry->rrBuffer()->dmaChan << " after " << latency << 
+//                " seconds waiting for housekeeping" << std::endl;
+            // Clear this entry from our list
+            removeRREntry(current);
             
             _droppedBufCount++;
         } else {
             break;
         }
     }
-    pthread_mutex_unlock(&_unmergedMutex);    
+    pthread_mutex_unlock(&_unmergedRRMutex);   
+    
+    // Pass through our Housekeeping list, removing entries that are too old 
+    // until the list is empty, or until we hit the first entry that is recent 
+    // enough to keep
+    pthread_mutex_lock(&_unmergedHskpMutex);
+    for (UnmergedHskpEntryMap::iterator it = _unmergedHskps.begin(); 
+         it != _unmergedHskps.end(); /* incremented in loop */) {
+        // Increment the iterator now (and keep its current value), since 
+        // we may remove the current entry, and doing "it++" *after*
+        // the removal seems to give intermittent problems.
+        UnmergedHskpEntryMap::iterator current = it++;
+        HskpEntry* entry = current->second;
+        time_duration latency = now - entry->insertTime();
+        if (latency > _maxLatency) {
+            // Clear this entry from our list
+            removeHskpEntry(current);
+        } else {
+            break;
+        }
+    }
+    pthread_mutex_unlock(&_unmergedHskpMutex);    
 }

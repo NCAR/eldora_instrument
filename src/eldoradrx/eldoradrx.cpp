@@ -9,30 +9,39 @@
 #include <iomanip>
 #include <ios>
 #include <vector>
-#include <sys/socket.h>
-#include <netinet/in.h>
 
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 // For configuration management
-#include "QtConfig.h"
+#include <QtConfig.h>
 // Proxy argc/argv
-#include "ArgvParams.h"
+#include <ArgvParams.h>
 // DDS publisher interface
-#include "DDSPublisher.h"
-#include "DDSWriter.h"
+#include <DDSPublisher.h>
+#include <DDSWriter.h>
 // The types that go along with DDS
-#include "RayTypeSupportC.h"
-#include "RayTypeSupportImpl.h"
-#include "TimeSeriesTypeSupportC.h"
-#include "TimeSeriesTypeSupportImpl.h"
+#include <RayTypeSupportC.h>
+#include <RayTypeSupportImpl.h>
+#include <TimeSeriesTypeSupportC.h>
+#include <TimeSeriesTypeSupportImpl.h>
 // The XML-RPC interface.
-#include "DrxRPC.h"
+#include <DrxRPC.h>
+// Timetag handling
+#include <TimetagUtils.h>
+// Class for merging housekeeping into incomplete RRBuffer-s
+#include "HskpMerger.h"
 // Housekeeping related
 #include <DoradeASIB.h>
 #include <DoradeFRAD.h>
 #include <DoradeRYIB.h>
+
+// Socket stuff for sending fake housekeeping
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 
 using namespace RedRapids;
 using namespace boost::posix_time;
@@ -41,14 +50,25 @@ namespace po = boost::program_options;
 // save pointers to RR314 instances, in case we need to try
 // to stop them during a signal.
 /// All of the RR314 instances that we are manipulating.
-std::vector<RR314*> rr314Instances;
+std::vector<RR314*> _rr314Instances;
 
 /// The Bittware timer
-Bittware* bwtimer = 0;
+Bittware* _bwtimer = 0;
 
 /// Set this flag to true in order to request the main loop to
 /// shut everything down.
 bool _terminate = false;
+
+// drop counters
+unsigned long _droppedRay[2] = { 0, 0 };
+unsigned long _droppedTS[2] = { 0, 0 };
+
+/// Our DDS writers
+static RayWriter* _rayWriter = 0;
+static TSWriter* _tsWriter = 0;
+
+static const unsigned int DEFAULT_HSKP_PORT = 2222;
+unsigned int _hskpPort;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -68,6 +88,7 @@ struct runParams {
         bool capture; ///< set true if the data should be captured to files in binary mode.
         bool textcapture; ///< set true if the data should be captured to files in text mode.
         bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
+        bool simulateHskp;  ///< set true to generate fake housekeeping data
         int usleep; ///< The usleep value for sleeps between frames
         
         // signal processing parameters
@@ -93,9 +114,7 @@ struct runParams {
         unsigned long sampleCounts[8]; ///< collect the number of DDS samples written for each dma channel.
         unsigned long* droppedTS; ///< the number of TS samples that could not be published.
         unsigned long* droppedRay; ///< the number of Ray samples that could not be published.
-        DDSPublisher* publisher; ///< the DDS publisher.
-        RayWriter* rayWriter; ///< the DDS ray writer.
-        TSWriter* tsWriter; ///< the DDS TS writer.
+        HskpMerger* hskpMerger; ///< the object which merges housekeeping with RRBuffer-s
 };
 
 //
@@ -108,12 +127,15 @@ static void setupSignalHandler();
 static void* rrDataTask(void* threadArg);
 static void* hskpReadTask(void* threadArg);
 static void setupSignalHandler();
-static void createFiles(runParams& params);
+//static void createFiles(runParams& params);
 static void setupSignalHandler();
 static EldoraDDS::Housekeeping* unpackHousekeeping(const unsigned char* buf, 
         int buflen);
 static void showStats(runParams& params, RR314& rr314, 
         unsigned long& droppedRay, unsigned long& droppedTS, int loopCount);
+static void publishAndCapture(RREntry* rentry, Housekeeping* hskp);
+static EldoraDDS::Housekeeping* genFakeHousekeeping(const RRBuffer* rrbuf);
+static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -136,44 +158,19 @@ int main(int argc,
     parseOptions(params1, argc, argv, 1);
 
     // create timer
+    printf("samples = %d\n", params0.nci);
     if (!params0.simulate && !params0.internaltimer) {
-        bwtimer = new Bittware(0);
-        bwtimer->configure(params0.gates,
+        _bwtimer = new Bittware(0);
+        _bwtimer->configure(params0.gates,
                 params0.prf,
                 params0.pulsewidth,
                 params0.nci,
                 false);
-        if (!bwtimer->isok()) {
+        if (!_bwtimer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
-            bwtimer->shutdown();
+            _bwtimer->shutdown();
             exit(1);
         }
-    }
-
-    if (params0.publish) {
-        std::cout <<__FILE__ << " creating DDS services\n";
-
-        ArgvParams argv("rr314dual");
-        argv["-ORBSvcConf"] = params0.ORB.c_str();
-        argv["-DCPSConfigFile"] = params0.DCPS.c_str();
-
-        // create the publisher
-        params0.publisher = new DDSPublisher(argv.argc(), argv.argv());
-        params1.publisher = params0.publisher;
-
-        // create the ray writer
-        params0.rayWriter = new RayWriter(*params0.publisher, "EldoraRays");
-        params1.rayWriter = params0.rayWriter;
-
-        // create the time series writer
-        params0.tsWriter = new TSWriter(*params0.publisher, "EldoraTS");
-        params1.tsWriter = params0.tsWriter;
-    }
-
-    // create data capture files
-    if (params0.capture) {
-        createFiles(params0);
-        createFiles(params1);
     }
 
     for (int i = 0; i < 8; i++) {
@@ -217,22 +214,46 @@ int main(int argc,
         );
 
         // save instances of RR314 for the shutdown handler
-        rr314Instances.push_back(&rr314_0);
-        rr314Instances.push_back(&rr314_1);
+        _rr314Instances.push_back(&rr314_0);
+        _rr314Instances.push_back(&rr314_1);
 
         // pass rr314 instance to data reading thread.
         params0.pRR314 = &rr314_0;
         params1.pRR314 = &rr314_1;
 
-        // also tell it where to put dropped dds counters
-        unsigned long droppedRay[2];
-        unsigned long droppedTS[2];
+        params0.droppedRay = &_droppedRay[0];
+        params0.droppedRay = &_droppedRay[1];
 
-        params0.droppedRay = &droppedRay[0];
-        params0.droppedRay = &droppedRay[1];
+        params1.droppedTS = &_droppedTS[0];
+        params1.droppedTS = &_droppedTS[1];
 
-        params1.droppedTS = &droppedTS[0];
-        params1.droppedTS = &droppedTS[1];
+        // our housekeeping mergers, with 500 ms max retention time waiting to 
+    	// make matches
+        HskpMerger hskpMerger[2] = { 
+            HskpMerger(&rr314_0, 500, publishAndCapture),
+            HskpMerger(&rr314_1, 500, publishAndCapture)
+        };
+        
+        if (params0.publish) {
+            std::cout <<__FILE__ << " creating DDS services\n";
+
+            ArgvParams argv("eldoradrx");
+            argv["-ORBSvcConf"] = params0.ORB.c_str();
+            argv["-DCPSConfigFile"] = params0.DCPS.c_str();
+
+            // create our DDS publisher
+            DDSPublisher* publisher = new DDSPublisher(argv.argc(), argv.argv());
+
+            // create the ray writer
+            _rayWriter = new RayWriter(*publisher, "EldoraRays");
+
+            // create the time series writer
+            _tsWriter = new TSWriter(*publisher, "EldoraTS");
+            
+            // housekeeping mergers
+            params0.hskpMerger = &(hskpMerger[0]);
+            params1.hskpMerger = &(hskpMerger[1]);
+        }
 
         // create the data reading threads
         pthread_t dataThread0;
@@ -244,11 +265,15 @@ int main(int argc,
             pthread_create(&dataThread1, NULL, rrDataTask, (void*) &params1);
         }
 
+        // Shift the default port for simulated housekeeping off of the 
+        // normal default, so that we can simulate even if the real housekeeper
+        // is running.
+        _hskpPort = (params0.simulateHskp) ? 
+                (DEFAULT_HSKP_PORT + 1) : DEFAULT_HSKP_PORT;
+
         // and the housekeeping reader thread
         pthread_t hskpThread;
-        if (params0.enabled || params1.enabled) {
-            pthread_create(&hskpThread, NULL, hskpReadTask, NULL);
-        }
+        pthread_create(&hskpThread, NULL, hskpReadTask, (void*)&hskpMerger);
 
         // setup the signal handlers before we run the cards.
         setupSignalHandler();
@@ -262,7 +287,7 @@ int main(int argc,
         }
 
         // start the timer, if we are using it.
-        if (bwtimer) {
+        if (_bwtimer) {
             // 
             // Send the timer start command ~0.2 seconds after the
             // top of a second.  Xmit pulses start at the top of the
@@ -284,7 +309,7 @@ int main(int argc,
             microseconds(1000000 - wake_uSec + sleep_uSec);
             // Now sleep, and then start the timer card when we wake
             usleep(sleep_uSec);
-            bwtimer->start();
+            _bwtimer->start();
             // Tell the RedRapids cards what time xmit pulses start
             rr314_0.setXmitStartTime(xmitStartTime);
             rr314_1.setXmitStartTime(xmitStartTime);
@@ -297,8 +322,8 @@ int main(int argc,
         // periodically display the card activity.
         while(1)
         {
-            showStats(params0, rr314_0, droppedRay[0], droppedTS[0], loopCount);
-            showStats(params1, rr314_1, droppedRay[1], droppedTS[1], loopCount);
+            showStats(params0, rr314_0, _droppedRay[0], _droppedTS[0], loopCount);
+            showStats(params1, rr314_1, _droppedRay[1], _droppedTS[1], loopCount);
             loopCount++;
             for (int i = 0; i < 10; i++) {
                 if (_terminate)
@@ -316,8 +341,8 @@ int main(int argc,
     }
 
     std::cout << "Terminating " << argv[0] << "\n";
-    if (bwtimer) {
-        delete bwtimer;
+    if (_bwtimer) {
+        delete _bwtimer;
     }
 }
 
@@ -358,6 +383,7 @@ getConfigParams(runParams &params) {
     // operating mode parameters
     params.enabled       = config.getBool  ("Mode/Enabled",       true); 
     params.simulate      = config.getBool  ("Mode/Simulate",      false); 
+    params.simulateHskp  = config.getBool  ("Mode/SimulateHskp",  false);
     params.usleep        = config.getInt   ("Mode/Usleep",        9000);
     params.capture       = config.getBool  ("Mode/BinaryCapture", false); 
     params.textcapture   = config.getBool  ("Mode/TextCapture",   false);
@@ -396,6 +422,7 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     ("ORB", po::value<std::string>(&params.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&params.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simulate", "run in simulation mode")
+    ("simulateHskp", "generate fake housekeeping data")
     ("usleep", po::value<int>(&params.usleep)->default_value(50000),"usleep value for simulation")
     ("start0", "start RR314 device 0")
     ("start1", "start RR314 device 1")
@@ -422,6 +449,7 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     params.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
     params.textcapture = vm.count("text") != 0;
     params.simulate = vm.count("simulate") != 0;
+    params.simulateHskp = vm.count("simulateHskp") != 0;
     params.internaltimer = vm.count("internaltimer") != 0;
 
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
@@ -459,27 +487,6 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
 
 //////////////////////////////////////////////////////////////////////
 //
-/// Create data capture files. The files will have the 
-/// name "data<devNum>-<dmaChannel>.
-/// @params runParams The configuration options for 
-/// one RR314 device.
-static void createFiles(runParams& params) {
-    for (int i = 0; i < 8; i++) {
-        std::stringstream s;
-        s << "data";
-        s.width(2);
-        s.fill('0');
-        s << params.deviceNumber;
-        s << "-";
-        s << i;
-        params.ofstreams[i] = new std::ofstream(s.str().c_str(), std::ios::trunc);
-
-    }
-
-}
-
-//////////////////////////////////////////////////////////////////////
-//
 /// Terminate the data transfers from the RR314. This MUST be called
 /// if RR314 instances are not going to be normally destroyed, e.g. in the
 /// case of a signal leading to premature program termination, in order
@@ -489,14 +496,14 @@ static void createFiles(runParams& params) {
 static void shutdownBoards() {
 
     std::vector<RR314*>::iterator p;
-    for (p = rr314Instances.begin(); p != rr314Instances.end(); p++) {
+    for (p = _rr314Instances.begin(); p != _rr314Instances.end(); p++) {
         std::cout << "stopping RR314 device " << (*p)->boardNumber() << std::endl;
         (*p)->RR314shutdown();
     }
     
-    if (bwtimer) {
+    if (_bwtimer) {
     	std::cout << "stopping Bittware device\n";
-        bwtimer->shutdown();
+        _bwtimer->shutdown();
     }
 }
 
@@ -566,134 +573,35 @@ static void* rrDataTask(void* threadArg) {
     bool publish = pParams->publish;
     bool capture = pParams->capture;
     bool textcapture = pParams->textcapture;
-    RayWriter* rayWriter = pParams->rayWriter;
-    TSWriter* tsWriter = pParams->tsWriter;
-
-    float elevation[4] = 
-        { 0.0,
-                0.0,
-                0.0,
-                0.0 };
-    // the aft radar is 180 degrees different from the forward.
-    if (pParams->deviceNumber != 0) {
-        for (int i = 0; i < 4; i++)
-            elevation[i] = 180.0;
-    }
-
-    ACE_Time_Value small(0, 100000);
-
+    bool simulateHskp = pParams->simulateHskp;
+    HskpMerger* hskpMerger = pParams->hskpMerger;
+    ptime lastTime(not_a_date_time); // time of the last RRBuffer we saw
+    
     std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " nci:" << pParams->nci << "\n";
 
     // loop while waiting for new buffers
     while (1) {
-        // next buffer will block until a new buffer is ready.
+        // nextBuffer() will block until a new buffer is ready.
         RRBuffer* pBuf = pRR314->nextBuffer();
-        //	std::cout << (pBuf->type == RRBuffer::IQtype ? "IQ  ":"ABP ") <<
-        //	  pBuf->dmaChan << " " << pBuf->chanId << " " << pBuf->rayNum << "\n";
+        
         // get the details of this buffer
         int channel = pBuf->dmaChan;
         // bump the sample count
         pParams->sampleCounts[channel]++;
 
-        // Are we publishing?
-        if (publish) {
-            // send the buffer to the appropriate writer
-            if (pBuf->type == RRBuffer::ABPtype) {
-                // an abp dmaChan
-                EldoraDDS::Ray* pRay = rayWriter->getEmptyItem();
-                if (pRay) {
-                    // device 0 is the aft radar, 1 is fore
-                    pRay->radarId =
-                    (pParams->deviceNumber == 0) ?
-                    EldoraDDS::Forward : EldoraDDS::Aft;
-
-                    RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
-                    // set the size
-                    pRay->abp.length(pABP->_abp.size());
-
-                    // simulate the elevation
-                    elevation[channel/2] += 0.90;
-                    if (elevation[channel/2] >= 360.0)
-                    elevation[channel/2] -= 360.0;
-                    pRay->hskp.elevation = elevation[channel/2];
-
-                    pRay->hskp.samples = pABP->nci;
-                    pRay->hskp.chan = pABP->chanId;
-                    for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
-                        float data = pABP->_abp[p];
-                        pRay->abp[p] = data;
-                    }
-                    // set the ray number
-                    pRay->hskp.rayNum = pABP->rayNum;
-
-                    // send the ray to the ray publisher
-                    rayWriter->publishItem(pRay);
-                } else {
-                    pParams->droppedRay++;
-                    //std::cout << "can't get publisher ray\n";
-                }
-            } else {
-                // a time series dmaChan
-                EldoraDDS::TimeSeries* pTS = tsWriter->getEmptyItem();
-                if (pTS) {
-                    RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
-                    // set the size
-                    pTS->tsdata.length(pIQ->_iq.size());
-                    pTS->hskp.samples = pIQ->nci;
-                    pTS->hskp.chan = pIQ->chanId;
-                    pTS->hskp.startIQ = pParams->startiq;
-                    pTS->hskp.numIQ = pParams->numiq;
-                    for (unsigned int p = 0; p < pIQ->_iq.size(); p++) {
-                        pTS->tsdata[p] = pIQ->_iq[p];
-                    }
-                    // set the timestamp
-                    pTS->hskp.rayNum = pIQ->rayNum;
-                    // device 0 is the aft radar, 1 is fore
-                    pTS->radarId =
-                    (pParams->deviceNumber == 0) ?
-                    EldoraDDS::Forward : EldoraDDS::Aft;
-                    // send the ray to the ray publisher
-                    tsWriter->publishItem(pTS);
-                } else {
-                    pParams->droppedTS++;
-                    //std::cout << "can't get publisher TS\n";
-                }
+        hskpMerger->newRRBuffer(pBuf, publish, capture, textcapture);
+        
+        if (simulateHskp && pBuf->rayTime != lastTime) {
+            if (! lastTime.is_not_a_date_time()) {
+                EldoraDDS::Housekeeping* hskp = genFakeHousekeeping(pBuf);
+                pParams->hskpMerger->newHskp(hskp);
+//// When sendFakeHousekeeping() works, we'll use it to send via the UDP
+//// port instead of going directly to hskpMerger->newHskp()
+//                sendFakeHousekeeping(hskp);
+//                delete hskp;
             }
+            lastTime = pBuf->rayTime;
         }
-
-        // Are we capturing?
-        if (capture) {
-            // get the file  that this dmaChan is saved to.
-            std::ofstream* pStream = pParams->ofstreams[channel];
-            if (pBuf->type == RRBuffer::ABPtype) {
-                // ABP buffer
-                RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(pBuf);
-                assert (pABP != 0);
-                if (textcapture) {
-                    for (unsigned int i = 0; i < pABP->_abp.size(); i += 3) {
-                        *pStream << pABP->_abp[i] << " "
-                        << pABP->_abp[i+1] << " "
-                        << pABP->_abp[i+2] << " "
-                        << std::endl;
-                    }
-                } else {
-                    pStream->write((char*)(&pABP->_abp[0]), pABP->_abp.size()*sizeof(pABP->_abp[0]));
-                }
-            } else {
-                // IQ buffer
-                RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(pBuf);
-                assert(pIQ != 0);
-                if (textcapture) {
-                    for (unsigned int i = 0; i < pIQ->_iq.size(); i += 2) {
-                        *pStream << pIQ->_iq[i] << " " << pIQ->_iq[i+1] << " "<< std::endl;
-                    }
-                } else {
-                    pStream->write((char*)(&pIQ->_iq[0]), pIQ->_iq.size()*sizeof(pIQ->_iq[0]));
-                }
-            }
-        }
-
-        pBuf->returnBuffer();
     }
 }
 
@@ -701,12 +609,11 @@ static void* rrDataTask(void* threadArg) {
 // a task to read data from the housekeeper
 
 static void* hskpReadTask(void* threadArg) {
-    // listen address for incoming data (port 2222, any sender)
-    int portNum = 2222;
+    HskpMerger *hskpMerger = (HskpMerger*)threadArg;
     struct sockaddr_in inAddr;
     memset(&inAddr, 0, sizeof(inAddr));
     inAddr.sin_family = AF_INET;
-    inAddr.sin_port = htons(portNum);
+    inAddr.sin_port = htons(_hskpPort); // normally 2222
     inAddr.sin_addr.s_addr = INADDR_ANY;
 
     // Create the UDP socket
@@ -736,6 +643,15 @@ static void* hskpReadTask(void* threadArg) {
             continue;
         }
         EldoraDDS::Housekeeping* hskp = unpackHousekeeping(buf, nread);
+        if (hskp == 0) {
+            std::cerr << __FUNCTION__ << ": dropping bad housekeeping" << 
+                std::endl;
+            continue;
+        }
+        if (! strncmp(hskp->radarName, "FORE", 4))
+        	hskpMerger[0].newHskp(hskp);
+        else
+        	hskpMerger[1].newHskp(hskp);
     }
     
     close(inSocket);
@@ -774,7 +690,7 @@ unpackHousekeeping(const unsigned char* buf, int buflen) {
         
         frad = new DoradeFRAD(data, datalen, false);
     } catch (DescriptorException dex) {
-        std::cerr << std::string("Descriptor exception: ") + dex.what() << 
+        std::cerr << "Descriptor exception: " << dex.what() << 
             std::endl;
         return 0;
     }
@@ -783,12 +699,7 @@ unpackHousekeeping(const unsigned char* buf, int buflen) {
     EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
     
     // timetag is microseconds since 1970/1/1 00:00:00 UTC
-    time_duration tDiff = ryib->getRayDateTime() - 
-        ptime(boost::gregorian::date(1970, 1, 1), time_duration(0, 0, 0));
-    long diff_secs = tDiff.total_seconds();
-    long diff_usecs = (tDiff.fractional_seconds() * 1000000) / 
-        time_duration::ticks_per_second();
-    hskp->timetag = (long long)(diff_secs * 1000000) + diff_usecs;
+    hskp->timetag = ptimeToTimetag(ryib->getRayDateTime());
     
     // Now fill the rest of the Housekeeping
     // RYIB contents
@@ -856,20 +767,20 @@ static void showStats(runParams& params,
 
     std::cout << "Device:" << params.deviceNumber << "  loop:" << loopCount++
             << "\n ";
-    std::cout << std::setw(8);
-    std::cout << std::setprecision(2);
-    //std::cout << "bytes processed ";
-    // Print the number of free buffers in the rr314 buffer
-    // pool. If 0, rr314 is being overrun
-    //unsigned long sum = 0;
-    //for (unsigned int c = 0; c < bytes.size(); c++) {
-    //    std::cout << std::setw(6);
-    //    std::cout << bytes[c] << " ";
-    //    sum += bytes[c];
-    //}
-    //std::cout << sum << " ";
-    //std::cout << sum/10.0e6 << "MB/s";
-    //std::cout << "\n";
+//    std::cout << std::setw(8);
+//    std::cout << std::setprecision(2);
+//    std::cout << "bytes processed ";
+//    // Print the number of free buffers in the rr314 buffer
+//    // pool. If 0, rr314 is being overrun
+//    unsigned long sum = 0;
+//    for (unsigned int c = 0; c < bytes.size(); c++) {
+//        std::cout << std::setw(6);
+//        std::cout << bytes[c] << " ";
+//        sum += bytes[c];
+//    }
+//    std::cout << sum << " ";
+//    std::cout << sum/10.0e6 << "MB/s";
+//    std::cout << "\n";
 
     std::cout << "samples      ";
     for (int i = 0; i < 8; i++) {
@@ -887,3 +798,178 @@ static void showStats(runParams& params,
     std::cout.flush();
 }
 
+//////////////////////////////////////////////////////////////////////
+void
+publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
+    static std::ofstream* outFiles[2][8]; // outFiles[board][channel]
+
+    RRBuffer* rbuf = rentry->rrBuffer();
+    int channel = rbuf->dmaChan;
+    int boardNum = rbuf->boardNumber();
+
+    // Set a few things in the housekeeping that are extracted from the RRBuffer
+    // and its parent RR314
+    hskp->samples = rbuf->parent()->samples();
+    hskp->startIQ = rbuf->parent()->firstIQGate();
+    hskp->numIQ = rbuf->parent()->numIQGates();
+    
+    hskp->chan = rbuf->chanId;
+    hskp->rayNum = rbuf->rayNum;
+    hskp->timetag = ptimeToTimetag(rbuf->rayTime);
+
+    // Publish if requested to
+    if (rentry->publish()) {
+        // send the buffer to the appropriate writer
+        if (rbuf->type == RRBuffer::ABPtype) {
+            // an abp dmaChan
+            EldoraDDS::Ray* pRay = _rayWriter->getEmptyItem();
+            if (pRay) {
+                pRay->hskp = *hskp;
+                // device 0 is the aft radar, 1 is fore
+                pRay->radarId = (boardNum == 0) ?
+                        EldoraDDS::Forward : EldoraDDS::Aft;
+
+                RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(rbuf);
+                // set the size
+                pRay->abp.length(pABP->_abp.size());
+
+                for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
+                    float data = pABP->_abp[p];
+                    pRay->abp[p] = data;
+                }
+
+                // send the ray to the ray publisher
+                _rayWriter->publishItem(pRay);
+            } else {
+                _droppedRay[boardNum]++;
+                //std::cout << "can't get publisher ray\n";
+            }
+        } else {
+            // a time series dmaChan
+            EldoraDDS::TimeSeries* pTS = _tsWriter->getEmptyItem();
+            if (pTS) {
+                pTS->hskp = *hskp;
+                RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(rbuf);
+                // set the size
+                pTS->tsdata.length(pIQ->_iq.size());
+
+                for (unsigned int p = 0; p < pIQ->_iq.size(); p++) {
+                    pTS->tsdata[p] = pIQ->_iq[p];
+                }
+                // set the timestamp
+                pTS->hskp.rayNum = pIQ->rayNum;
+                // device 0 is the aft radar, 1 is fore
+                pTS->radarId = (boardNum == 0) ?
+                    EldoraDDS::Forward : EldoraDDS::Aft;
+                // send the ray to the ray publisher
+                _tsWriter->publishItem(pTS);
+            } else {
+                _droppedTS[boardNum]++;
+                //std::cout << "can't get publisher TS\n";
+            }
+        }
+    }
+
+    // Capture if requested to
+    if (rentry->capture()) {
+        // get the file that this dmaChan is saved to.
+    	std::ofstream* oStream = outFiles[boardNum][channel];
+    	if (! oStream) {
+	        std::stringstream s;
+	        s.width(2);
+	        s.fill('0');
+	        s << "data" << boardNum << "-" << channel;
+	        oStream = outFiles[boardNum][channel] = 
+	        	new std::ofstream(s.str().c_str(), std::ios::trunc);
+    	}
+        if (rbuf->type == RRBuffer::ABPtype) {
+            // ABP buffer
+            RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(rbuf);
+            assert (pABP != 0);
+            if (rentry->textcapture()) {
+                for (unsigned int i = 0; i < pABP->_abp.size(); i += 3) {
+                    *oStream << pABP->_abp[i] << " "
+                    << pABP->_abp[i+1] << " "
+                    << pABP->_abp[i+2] << " "
+                    << std::endl;
+                }
+            } else {
+                oStream->write((char*)(&pABP->_abp[0]), 
+                		pABP->_abp.size() * sizeof(pABP->_abp[0]));
+            }
+        } else {
+            // IQ buffer
+            RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(rbuf);
+            assert(pIQ != 0);
+            if (rentry->textcapture()) {
+                for (unsigned int i = 0; i < pIQ->_iq.size(); i += 2) {
+                    *oStream << pIQ->_iq[i] << " " << pIQ->_iq[i+1] << 
+                    	" " << std::endl;
+                }
+            } else {
+                oStream->write((char*)(&pIQ->_iq[0]), 
+                		pIQ->_iq.size() * sizeof(pIQ->_iq[0]));
+            }
+        }
+    }
+}
+//////////////////////////////////////////////////////////////////////
+EldoraDDS::Housekeeping*
+genFakeHousekeeping(const RRBuffer* rrbuf) {
+    RR314* rrcard = rrbuf->parent();
+    EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
+    unsigned int msecsIntoDay = rrbuf->rayTime.time_of_day().total_milliseconds();
+    float secOfDay = (float)msecsIntoDay / 1000.0;
+    bool isFore = (rrcard->boardNumber() == 0);
+    
+    // Fake rotation angle: Fore antenna points 0.0 deg at the start of a day,
+    // and scans at rotRate deg/s clockwise forever.  Aft antenna points 180
+    // degrees away from fore.
+    float rotRate = 30.0; // deg/s
+    float rotAngle = fmodf(secOfDay * rotRate + (isFore ? 0.0 : 180.0), 360.0);
+    hskp->radarRotAngle = rotAngle;
+
+    // Elevation angle is directly related to rotation angle.
+    float elAngle = 90.0 - rotAngle;
+    if (elAngle < 0.0)
+        elAngle += 360.0;
+    hskp->elevation = elAngle;
+    hskp->timetag = ptimeToTimetag(rrbuf->rayTime);
+
+    strncpy(hskp->radarName, isFore ? "FORE" : "AFT",  sizeof(hskp->radarName));
+    return hskp;
+}
+//////////////////////////////////////////////////////////////////////
+void
+sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp) {    
+    static int outSocket = -1;
+    static struct sockaddr_in destAddr;
+    
+    // Create our socket and destination addr if we haven't already
+    if (outSocket < 0) {
+        // Open our outgoing socket
+        if ((outSocket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+        {
+            perror("creating outgoing UDP socket for housekeeping");
+            exit(1);
+        }
+        // Create the destination address
+        memset(&destAddr, 0, sizeof(destAddr));
+        destAddr.sin_family = AF_INET;
+        destAddr.sin_port = htons(_hskpPort);
+        std::cerr << "housekeeping port: " << _hskpPort << ", addr: " <<
+            inet_addr("localhost") << std::endl;
+        if (! inet_aton("localhost", &(destAddr.sin_addr))) {
+            std::cerr << __FILE__ << ":" << __LINE__ << 
+            ": bad address for outgoing housekeeping" << std::endl;
+        }
+    }
+    
+    // Now actually send the packet of housekeeping as if we were the 
+    // housekeeper machine
+//    int nwrote;
+//    if ((nwrote = sendto(outSocket, hskp, sizeof(*hskp), 0, 
+//            (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
+//        std::cerr << __FILE__ << ":" << __LINE__ << ": error sending housekeeping: " <<
+//            strerror(errno) << std::endl;
+}
