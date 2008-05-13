@@ -252,7 +252,8 @@ def runDrx():
            ]
     drxSimMode = ourConfig.getBool('Mode/Simulate', False)
     if drxSimMode:
-        drxcmd.append('--sim')
+        drxcmd.append('--simRR314')
+        drxcmd.append('--simHskp')
     ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoradrx']
     QObject.connect(s, SIGNAL("text"), main.logText)

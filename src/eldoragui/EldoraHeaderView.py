@@ -16,6 +16,9 @@ class EldoraHeaderView(QDialog, Ui_EldoraHeaderView):
                 # initialize
         super(EldoraHeaderView, self).__init__(parent)
         self.setupUi(self)
+        # set the title
+        filename = os.path.basename(header.headerFile)
+        self.title.setText('<h3>' + header.projectName + ' (' + filename + ')</h3>')
         # fill the fields tree with the header fields
         self.fillTreeWidget(self.fieldsTree, header)
         # fill the summary tree with the verify items

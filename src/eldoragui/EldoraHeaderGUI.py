@@ -89,7 +89,7 @@ class EldoraHeaderGUI(QWidget):
         ''' Called when the selected item in the list of headers
         is changed.
         '''
-        selectedHeader = self.headers[index]
+        self.selectedHeader = self.headers[index]
         self.emit(SIGNAL("headerChoice"), selectedHeader)
         
 #####################################################################
@@ -98,7 +98,8 @@ class EldoraHeaderGUI(QWidget):
         Popup a display of the header
         '''
        # create an EldoraHeaderView
-        e = EldoraHeaderView(header=self.selectedHeader,parent=self)
+        e = EldoraHeaderView(header=self.selectedHeader,
+                             parent=self)
         e.show()
           
 #####################################################################
