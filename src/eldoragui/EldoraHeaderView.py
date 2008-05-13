@@ -50,4 +50,7 @@ class EldoraHeaderView(QDialog, Ui_EldoraHeaderView):
                 fitem.setFont(1,font)
                 fitem.setSizeHint(1,col1size)
                 fitem.setText(1, QString(text))
+        tree.resizeColumnToContents(0);
+        tree.resizeColumnToContents(1);
+        
                 
