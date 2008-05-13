@@ -78,7 +78,7 @@ void Bittware::configure(unsigned int gates,
     U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     U32 Timer;
     
-    double prtClock = (10e6);      // Timer Input Clock Freq
+    double prtClock = (60e6);      // Timer Input Clock Freq
     int periodCount;               // Period Count for all Timers
     int PrtScheme;                 // PRT Scheme for all Timers
     //_dualPrt = 0;
@@ -89,37 +89,23 @@ void Bittware::configure(unsigned int gates,
     float IPP1 = 0.5;              // Inter Pulse Period 1
     float IPP2 = 0.625;            // Inter Pulse Period 2
     int Gate_Dist[2];              // TP [Delay, Counts/Gate]
-       //Gate_Dist[0] = 90;
-       //Gate_Dist[1] = 60;    
-       Gate_Dist[0] = 15;          //Values for 10 MHz Clk
-       Gate_Dist[1] = 10;    
-      
+       Gate_Dist[0] = 90;
+       Gate_Dist[1] = 60;    
     
     U32 TX_Delay[5];               // TX Pulse Delays
-        //TX_Delay[0] = 17;
-        //TX_Delay[1] = 77;
-        //TX_Delay[2] = 137;
-        //TX_Delay[3] = 197;
-        //TX_Delay[4] = 0;
-        TX_Delay[0] = 3;           //Values for 10 MHz Clk
-        TX_Delay[1] = 13;
-        TX_Delay[2] = 23;
-        TX_Delay[3] = 33;
+        TX_Delay[0] = 17;
+        TX_Delay[1] = 77;
+        TX_Delay[2] = 137;
+        TX_Delay[3] = 197;
         TX_Delay[4] = 0;
                 
         
     U32 TX_Width[5];               // TX Pulse Widths
-        //TX_Width[0] = 60;
-        //TX_Width[1] = 60;
-        //TX_Width[2] = 60;
-        //TX_Width[3] = 60;
-        //TX_Width[4] = 257;
-        TX_Width[0] = 10;          //Values for 10 MHz Clk
-        TX_Width[1] = 10;
-        TX_Width[2] = 10;
-        TX_Width[3] = 10;
-        TX_Width[4] = 43;
-            
+        TX_Width[0] = 60;
+        TX_Width[1] = 60;
+        TX_Width[2] = 60;
+        TX_Width[3] = 60;
+        TX_Width[4] = 257;         
     
 // Calculated Timing Variables from Header Variables
     
@@ -133,10 +119,10 @@ void Bittware::configure(unsigned int gates,
       //RX_Delay[1] = Gate_Dist[0] + TX_Delay[1];
       //RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
       //RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];  
-    RX_Delay[0] = 0 * decimationFactor *10 / 8;
-    RX_Delay[1] = 1 * decimationFactor *10 / 8;
-    RX_Delay[2] = 2 * decimationFactor *10 / 8;
-    RX_Delay[3] = 3 * decimationFactor *10 / 8;
+    RX_Delay[0] = 0 * decimationFactor *60 / 8;
+    RX_Delay[1] = 1 * decimationFactor *60 / 8;
+    RX_Delay[2] = 2 * decimationFactor *60 / 8;
+    RX_Delay[3] = 3 * decimationFactor *60 / 8;
       
     
     U32 RX_Width[4];
@@ -144,10 +130,10 @@ void Bittware::configure(unsigned int gates,
       //RX_Width[1] = _gates;
       //RX_Width[2] = _gates;
       //RX_Width[3] = _gates;
-      RX_Width[0] = _gates * decimationFactor / 8 * 10; 
-      RX_Width[1] = _gates * decimationFactor / 8 * 10;
-      RX_Width[2] = _gates * decimationFactor / 8 * 10;
-      RX_Width[3] = _gates * decimationFactor / 8 * 10;
+      RX_Width[0] = _gates * decimationFactor / 8 * 60; 
+      RX_Width[1] = _gates * decimationFactor / 8 * 60;
+      RX_Width[2] = _gates * decimationFactor / 8 * 60;
+      RX_Width[3] = _gates * decimationFactor / 8 * 60;
                
       
     // Calculate the period and PRT Scheme for dual prt or single prt
@@ -168,7 +154,7 @@ void Bittware::configure(unsigned int gates,
     }
     
     // Midbeam Interrupt Calculation
-    U32 Midbeam_Width = 5;
+    U32 Midbeam_Width = 30;
     U32 Midbeam_Prt = 0x0;
     U32 Midbeam_Delay;
     U32 Midbeam_periodCount;
