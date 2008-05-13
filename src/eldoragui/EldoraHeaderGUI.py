@@ -41,6 +41,11 @@ class EldoraHeaderGUI(QWidget):
 
 #####################################################################
     def scan(self):
+        ''' Find all files ending with .hd in the directories
+        listed in self.headerDirs. Extract an eldoraHeader
+        from each file, and ad that header to our collection 
+        of headers. The headers are collected in self.headers.
+        '''
         # find all files with extension '.hd'
         hdrfiles = []
         for d in self.headerDirs:
@@ -64,6 +69,9 @@ class EldoraHeaderGUI(QWidget):
         
 #####################################################################
     def addHeader(self, header):
+        ''' Append header to self.headers. Add a selection
+        for this header to the combo box.
+        '''
         headername = header.projectName + ' '
         path = os.path.split(header.headerFile)[-1]
         # create the combo text, combining the project
