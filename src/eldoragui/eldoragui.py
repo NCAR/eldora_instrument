@@ -33,7 +33,7 @@ global ourProcesses # Processes that we have started and are managing
 global headerGui    # the header management gui
 
 ####################################################################################
-def restart():
+def start():
     try:
         # send a stop and a start comand, although these may not
         # not be used in the final implementation
@@ -475,13 +475,17 @@ createRpcServers()
 app = QApplication(sys.argv)
 
 # instantiate an Edora controller gui
-main = EldoraMain(restartFunction=restart, 
-                  stopFunction=stop, 
+main = EldoraMain( 
                   statusFunction=status, 
                   startUp=startUs,
                   ppiFunction=runPPI,
                   scopeFunction=runScope)
+
 main.show()
+
+# connect signals from main back to us
+QObject.connect(main, SIGNAL('start'), start)
+QObject.connect(main, SIGNAL('stop'), stop)
 
 # initializre the header management
 initHeader()

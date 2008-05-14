@@ -19,10 +19,13 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     GUI, based on the designer generated Ui_EldoraMain main window.
     User actions are connected to the class in the form of callback
     functions specified to the constructor.
+    
+    The following signals are emitted:
+       start
+       stop
     '''
     ###############################################################################
-    def __init__(self, stopFunction=None, 
-                 restartFunction=None, 
+    def __init__(self,
                  statusFunction=None, 
                  startUp=None, 
                  parent=None,
@@ -45,7 +48,8 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.statusFunction = statusFunction
         
         # save a palette that we can use for widget configuration
-        self.createPalette()
+        # Several useful palletes will be created
+        self.createPalettes()
         
         # the status function will be called on multiples
         # of the main timer.
@@ -68,11 +72,9 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         
         # connect components
         # The stop button
-        if (stopFunction != None):
-            self.connect(self.stopButton, SIGNAL("released()"), stopFunction)
-        # the restart button
-        if (restartFunction != None):
-            self.connect(self.restartButton, SIGNAL("released()"), restartFunction)
+        self.connect(self.stopButton, SIGNAL("released()"), self.stop)
+        # the start button
+        self.connect(self.startButton, SIGNAL("released()"), self.start)
         # the scope button
         self.connect(self.scopeButton, SIGNAL('released()'), self.runScope)
         # the forward ppi button
@@ -82,6 +84,24 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # use our timer for a clock
         self.startTimer(1000)
     
+    ###############################################################################
+    def start(self):
+        ''' A start() signal will be emitted.
+        '''
+        self.emit(SIGNAL('start'))
+        self.stopButton.setChecked(False)
+        self.stopButton.setPalette(self.stdPalette)
+        self.startButton.setPalette(self.greenButtonPalette)
+
+    ###############################################################################
+    def stop(self):
+        ''' A stop() signal will be emitted.
+        '''
+        self.emit(SIGNAL('stop'))
+        self.startButton.setChecked(False)
+        self.stopButton.setPalette(self.redButtonPalette)
+        self.startButton.setPalette(self.stdPalette)
+
     ###############################################################################
     def runScope(self):
         if (self.scopeFunction):
@@ -98,16 +118,26 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
             self.ppiFunction(forradar=False)
 
     ###############################################################################
-    def createPalette(self):
-    	fgcolor = 'blue'
-    	buttoncolor = 'red'
-        self.palette = self.palette()
-        self.palette.setColor(QPalette.Active, QPalette.Foreground, QColor(fgcolor))
-        self.palette.setColor(QPalette.Active, QPalette.Button, QColor(buttoncolor))
-        self.palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor(fgcolor))
-        self.palette.setColor(QPalette.Inactive, QPalette.Button, QColor(buttoncolor))
-        self.palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(fgcolor))
-        self.palette.setColor(QPalette.Disabled, QPalette.Button, QColor(buttoncolor))
+    def createPalettes(self):
+        self.stdPalette = self.palette()
+        
+        self.greenButtonPalette = QPalette(self.stdPalette)
+        self.setPaletteColors(self.greenButtonPalette, button='lime')
+        
+        self.redButtonPalette = QPalette(self.stdPalette)
+        self.setPaletteColors(self.redButtonPalette, button='crimson')
+        
+
+    ###############################################################################
+    def setPaletteColors(self, palette, window=None, button=None):
+        if window != None:
+            palette.setColor(QPalette.Active, QPalette.Window, QColor(window))
+            palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor(window))
+            palette.setColor(QPalette.Disabled, QPalette.Button, QColor(window))
+        if button != None:
+            palette.setColor(QPalette.Active, QPalette.Button, QColor(button))
+            palette.setColor(QPalette.Inactive, QPalette.Button, QColor(button))
+            palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(button))
     	
     ###############################################################################
     def initGauges(self):
@@ -169,7 +199,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 	        d = QDial(self.diskStatsBox)
 	        d.setMinimum(0)
 	        d.setMaximum(100)
-	        d.setPalette(self.palette)
+	        d.setPalette(self.stdPalette)
 	        d.setSingleStep(10)
 	        d.setNotchesVisible(1)
 	        d.setEnabled(0)
@@ -180,7 +210,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 	    	
 	    	# create label and add to layout
 	    	l = QLabel(stats[i][0])
-	    	l.setPalette(self.palette)
+	    	l.setPalette(self.stdPalette)
 	    	vlayout.addWidget(l)
 	    	
 	    	# assign the layout to the box
@@ -233,7 +263,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
               d.setNotchesVisible(1)
               d.setValue(0)
               d.setSingleStep(200)
-              d.setPalette(self.palette)
+              d.setPalette(self.stdPalette)
               d.setEnabled(0)
         # configure the individual dials
         forwardDialsList = self.forwardDials.children()
@@ -249,7 +279,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
               dial.setNotchesVisible(1)
               dial.setValue(0)
               dial.setSingleStep(50)
-              dial.setPalette(self.palette)
+              dial.setPalette(self.stdPalette)
               dial.setEnabled(0)
 
     ###############################################################################
