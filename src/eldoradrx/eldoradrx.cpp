@@ -134,7 +134,7 @@ static EldoraDDS::Housekeeping* unpackHousekeeping(const unsigned char* buf,
 static void showStats(runParams& params, RR314& rr314, 
         unsigned long& droppedRay, unsigned long& droppedTS, int loopCount);
 static void publishAndCapture(RREntry* rentry, Housekeeping* hskp);
-static EldoraDDS::Housekeeping* genFakeHousekeeping(const RRBuffer* rrbuf);
+static EldoraDDS::Housekeeping* genFakeHousekeeping(ptime hskpTime, bool isFore);
 static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 
 //////////////////////////////////////////////////////////////////////
@@ -590,10 +590,16 @@ static void* rrDataTask(void* threadArg) {
         pParams->sampleCounts[channel]++;
 
         hskpMerger->newRRBuffer(pBuf, publish, capture, textcapture);
-        
+
+        // If we're simulating housekeeping, make new housekeeping for the
+        // *previous* ray when we see the data time change.  This makes sure
+        // that housekeeping is not delivered until after all of the associated
+        // data have arrived.
         if (simulateHskp && pBuf->rayTime != lastTime) {
             if (! lastTime.is_not_a_date_time()) {
-                EldoraDDS::Housekeeping* hskp = genFakeHousekeeping(pBuf);
+                // device 0 is aft, 1 is fore
+                EldoraDDS::Housekeeping* hskp = 
+                    genFakeHousekeeping(lastTime, (pParams->deviceNumber == 1));
                 pParams->hskpMerger->newHskp(hskp);
 //// When sendFakeHousekeeping() works, we'll use it to send via the UDP
 //// port instead of going directly to hskpMerger->newHskp()
@@ -649,9 +655,9 @@ static void* hskpReadTask(void* threadArg) {
             continue;
         }
         if (! strncmp(hskp->radarName, "FORE", 4))
-        	hskpMerger[0].newHskp(hskp);
-        else
         	hskpMerger[1].newHskp(hskp);
+        else
+        	hskpMerger[0].newHskp(hskp);
     }
     
     close(inSocket);
@@ -827,7 +833,7 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
                 pRay->hskp = *hskp;
                 // device 0 is the aft radar, 1 is fore
                 pRay->radarId = (boardNum == 0) ?
-                        EldoraDDS::Forward : EldoraDDS::Aft;
+                        EldoraDDS::Aft : EldoraDDS::Forward;
 
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(rbuf);
                 // set the size
@@ -860,7 +866,7 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
                 pTS->hskp.rayNum = pIQ->rayNum;
                 // device 0 is the aft radar, 1 is fore
                 pTS->radarId = (boardNum == 0) ?
-                    EldoraDDS::Forward : EldoraDDS::Aft;
+                    EldoraDDS::Aft : EldoraDDS::Forward;
                 // send the ray to the ray publisher
                 _tsWriter->publishItem(pTS);
             } else {
@@ -915,12 +921,10 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
 }
 //////////////////////////////////////////////////////////////////////
 EldoraDDS::Housekeeping*
-genFakeHousekeeping(const RRBuffer* rrbuf) {
-    RR314* rrcard = rrbuf->parent();
+genFakeHousekeeping(ptime hskpTime, bool isFore) {
     EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
-    unsigned int msecsIntoDay = rrbuf->rayTime.time_of_day().total_milliseconds();
+    unsigned int msecsIntoDay = hskpTime.time_of_day().total_milliseconds();
     float secOfDay = (float)msecsIntoDay / 1000.0;
-    bool isFore = (rrcard->boardNumber() == 0);
     
     // Fake rotation angle: Fore antenna points 0.0 deg at the start of a day,
     // and scans at rotRate deg/s clockwise forever.  Aft antenna points 180
@@ -934,7 +938,7 @@ genFakeHousekeeping(const RRBuffer* rrbuf) {
     if (elAngle < 0.0)
         elAngle += 360.0;
     hskp->elevation = elAngle;
-    hskp->timetag = ptimeToTimetag(rrbuf->rayTime);
+    hskp->timetag = ptimeToTimetag(hskpTime);
 
     strncpy(hskp->radarName, isFore ? "FORE" : "AFT",  sizeof(hskp->radarName));
     return hskp;
