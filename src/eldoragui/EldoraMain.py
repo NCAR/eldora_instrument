@@ -8,6 +8,7 @@ from Ui_EldoraMain import *
 from EldoraUtil    import *
 from StatusGauge   import *
 from ProgressStrip import *
+from EldoraHeaderGUI import *
 
 
 ######################################################################################
@@ -29,11 +30,20 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     '''
     ###############################################################################
     def __init__(self, 
+                 headersDir,
                  parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
         
+        # save the location of the headers
+        self.headersDir = headersDir
+        
+        # create a eldoraHeaderGUI to manage header interaction
+        self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,])
+        # The 'header' signal indicates a new header has been chosen
+        self.connect(self.headerGui, SIGNAL("header"), self.header)
+            
         # Several useful palletes will be created
         self.createPalettes()
         
@@ -74,11 +84,68 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.connect(self.forwardPpiButton, SIGNAL('released()'), self.forPpi)
         # the aft ppi button
         self.connect(self.aftPpiButton, SIGNAL('released()'), self.aftPpi)
+        # The view header button
+        self.connect(self.viewHdrBtn, SIGNAL('released()'),self.headerGui.viewHeader)
         
         # use our timer for a clock. Remember that the first tick will 
         # casue a ready signal to be emitted.
         self.startTimer(1000)
     
+    ###############################################################################
+    def showStatus(self, 
+                   ABPrate, 
+                   productRate, 
+                   productStatus, 
+                   rates):
+
+        #
+        # set the for and aft bw dials
+        forRate = 0.0
+        aftRate = 0.0
+        for i in range(16):
+          if i < 8:
+              forRate = forRate + rates[i]
+          else:
+              aftRate = aftRate + rates[i]
+              
+        self.forABP.setValue(ABPrate/2)
+        self.aftABP.setValue(ABPrate/2)
+        self.forProducts.setValue(productRate/2)
+        self.aftProducts.setValue(productRate/2)
+        self.setGauge('Products', productStatus)
+         
+        # set the for and aft pulse progress strips
+        self.forBytes.setValue(forRate)
+        self.aftBytes.setValue(aftRate)
+        # set the individual channel dials
+        forwardDialsList = self.forwardDials.children()
+        aftDialsList = self.aftDials.children()
+        # remove the first child, who will be the layout manager
+        forwardDialsList = forwardDialsList[1:]
+        aftDialsList = aftDialsList[1:]
+        for i in range(16):
+              if i < 8:
+                  forwardDialsList[i].setValue(rates[i])
+              else:
+                  aftDialsList[i-8].setValue(rates[i])
+                  
+        self.forwardBWdial.setValue(forRate)
+        self.aftBWdial.setValue(aftRate)
+        if (forRate < 400 or aftRate < 400):
+            self.setGauge('DRX', 2)
+        else:
+            if (forRate < 800 or aftRate < 800):
+                self.setGauge('DRX', 1)
+            else:
+                self.setGauge('DRX', 0)
+
+    ###############################################################################
+    def header(self):
+        ''' Emit a signal saying that a new header has been chosen,
+        and send the selected header with it
+        '''
+        self.emit(SIGNAL('header'), self.headerGui.selectedHeader)
+        
     ###############################################################################
     def start(self):
         ''' A start() signal will be emitted.

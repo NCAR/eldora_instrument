@@ -13,6 +13,9 @@ class EldoraHeaderGUI(QWidget):
     
     headerDirs is a list of directories to search for header files
     
+    signals:
+    header(selectedHeader) - emitted when a new header is chosen
+    
     '''
     def __init__(self, hdrCombo, headerDirs):
         QObject.__init__(self)
@@ -90,7 +93,7 @@ class EldoraHeaderGUI(QWidget):
         is changed.
         '''
         self.selectedHeader = self.headers[index]
-        self.emit(SIGNAL("headerChoice"), selectedHeader)
+        self.emit(SIGNAL("header"), self.selectedHeader)
         
 #####################################################################
     def viewHeader(self):

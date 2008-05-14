@@ -11,7 +11,6 @@ from EldoraMain      import *
 from EldoraRPC       import *
 from QtConfig        import *
 from EmitterProc     import *
-from EldoraHeaderGUI import *
 
 ####################################################################################
 
@@ -23,6 +22,7 @@ global ourConfig    # the EldoraGui.ini configuration
 global eldoraDir    # used to find eldora application binaries
 global ddsRoot      # used to locate DCPSInforepo
 global ddsConfigDir # location of the DDS configuration files (for DDS apps)
+global headerDirs   # where the headers are stored
 
 global drxrpc       # RPC server for eldoradrx
 global hskprpc      # RPC server for the housekeeper
@@ -30,7 +30,6 @@ global prodrpc      # RPC server for the products generator
 
 global ourProcesses # Processes that we have started and are managing
 
-global headerGui    # the header management gui
 
 ####################################################################################
 def start():
@@ -67,88 +66,51 @@ def stop():
     
 ####################################################################################
 def status():
-    ''' query the eldora applications for status, and transmit this
-    status back to the main application. This really needs to be refactored, 
-    with some fnctionality going back to EldoraMain, and a new controller
-    class created containing the business logic.
+    ''' Query the eldora applications for status, and transmit this
+    information back to the main display.
     '''
     global drxrpc
     global prodrpc
 
-    prodstatus = 2
+    # determine the product status and product rates
+    productRate = 0
+    productStatus = 2
     try:
         r = prodrpc.status()
         ABPrate = r['numAbpBeams']
         productRate = r['numProductBeams']
         numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
-        prodstatus = 0
+        productStatus = 0
         if numDiscards > 0 or ABPrate < 2000 or productRate < 400:
-            prodstatus = 1
+            productStatus = 1
         if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
-            prodstatus = 2
-        main.forABP.setValue(ABPrate/2)
-        main.aftABP.setValue(ABPrate/2)
-        main.forProducts.setValue(productRate/2)
-        main.aftProducts.setValue(productRate/2)
+            productStatus = 2
     except Exception, e:
         #print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
-        main.forABP.setValue(0)
-        main.aftABP.setValue(0)
-        main.forProducts.setValue(0)
-        main.aftProducts.setValue(0)
-        prodstatus = 2
+        ABPrate = 0
+        productStatus = 2
     
-    main.setGauge('Products', prodstatus)
-    
-        
+    # determine the DRX status and rates.
     try:
        r = drxrpc.status()
        keys = sorted(r.keys())
-       i = 0
        rates = []
        for k in keys:
           # convert rate from MB/s to KB/s and save
           rates.append(r[k]*1000.0)
-          i = i + 1
+          
     except Exception, e:
         #print "Error trying to contact ", drxrpc.appName, '(', drxrpc.URI, '): ', e
         rates = []
         for i in range(16):
             rates.append(0)
-    #
-    # set the for and aft bw dials
-    forRate = 0.0
-    aftRate = 0.0
-    for i in range(16):
-      if i < 8:
-          forRate = forRate + rates[i]
-      else:
-          aftRate = aftRate + rates[i]
-    main.forwardBWdial.setValue(forRate)
-    main.aftBWdial.setValue(aftRate)
-    if (forRate < 400 or aftRate < 400):
-        main.setGauge('DRX', 2)
-    else:
-        if (forRate < 800 or aftRate < 800):
-            main.setGauge('DRX', 1)
-        else:
-            main.setGauge('DRX', 0)
-        
-    # set the for and aft pulse progress strips
-    main.forBytes.setValue(forRate)
-    main.aftBytes.setValue(aftRate)
-    # set the individual channel dials
-    forwardDialsList = main.forwardDials.children()
-    aftDialsList = main.aftDials.children()
-    # remove the first child, who will be the layout manager
-    forwardDialsList = forwardDialsList[1:]
-    aftDialsList = aftDialsList[1:]
-    for i in range(16):
-          if i < 8:
-              forwardDialsList[i].setValue(rates[i])
-          else:
-              aftDialsList[i-8].setValue(rates[i])
-              
+            
+    main.showStatus(ABPrate=ABPrate, 
+                    productRate=productRate, 
+                    productStatus=productStatus, 
+                    rates=rates)
+            
+       
 ####################################################################################
 def startEldoraApps():
     ''' Run eldora applications which have been selected in the configuration.
@@ -394,6 +356,10 @@ def initConfig():
     global ddsConfigDir
     ddsConfigDir = os.path.join(eldoraDir, 'conf')
     
+   # where are the Eldora header files?
+    global headerDirs
+    headerDirs = ourConfig.getString('Headers/HeaderDir', 
+                                     '/home/eldora/workspace/eldora/src/headermaker/headers')
 
 ####################################################################################
 def createRpcServers():
@@ -421,27 +387,11 @@ def createRpcServers():
     prodrpc = EldoraRPC('products', prodrpcurl)
 
 ####################################################################################
-def headerChoice(selectedHeader):
-    ''' Called to indicte that a new header has been selected.
+def header(selectedHeader):
+    ''' Called to indicate that a new header has been selected.
     The header is provided as a parameter.
     '''
     print 'He selected ', selectedHeader.projectName
-    
-####################################################################################
-def initHeader():
-   # where are the Eldora header files?
-    headersDir = ourConfig.getString('Headers/HeaderDir', 
-                                     '/home/eldora/workspace/eldora/src/headermaker/headers')
-    # Be sure to make headergui global, becasue it won't be able to 
-    # receive signals otherwise!
-    global headerGui
-    headerGui = EldoraHeaderGUI(main.hdrCombo, [headersDir,])
-    # When a header has been chose, EldoraHeaderGUI emits a 'headerChoice' signal.
-    # Connect that signal to our own headerChoise() function.
-    headerGui.connect(headerGui, SIGNAL("headerChoice"), headerChoice)
-    # Connect the view header button on the main interface to
-    # eldoraHeaderGUI.viewHdr().
-    headerGui.connect(main.viewHdrBtn, SIGNAL('released()'),headerGui.viewHeader)
     
 ####################################################################################
 def nextTaskColor():
@@ -482,7 +432,7 @@ createRpcServers()
 app = QApplication(sys.argv)
 
 # instantiate an Edora controller gui
-main = EldoraMain()
+main = EldoraMain(headerDirs)
 
 main.show()
 
@@ -493,11 +443,8 @@ QObject.connect(main, SIGNAL('status'),  status)
 QObject.connect(main, SIGNAL('ready'),   mainIsReady)
 QObject.connect(main, SIGNAL('ppi'),     ppi)
 QObject.connect(main, SIGNAL('scope'),   scope)
-
-# initializre the header management
-initHeader()
+QObject.connect(main, SIGNAL("header"),  header)
 
 # start the event loop
 app.exec_()
-
 
