@@ -6,7 +6,6 @@ from PyQt4.QtGui   import *
 
 from Ui_EldoraMain import *
 from EldoraUtil    import *
-from QtConfig      import *
 from StatusGauge   import *
 from ProgressStrip import *
 
@@ -21,36 +20,30 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     functions specified to the constructor.
     
     The following signals are emitted:
-       start
-       stop
+       start:   start has been requested
+       stop:    stop has been requested
+       status:  time to do a stus update
+       ready:   the GUI is ready. This will be emitted once, on the first timer tick.
+       scope:   scope has been requested
+       ppi(for):ppi has been requested, for==true for forward scope
     '''
     ###############################################################################
-    def __init__(self,
-                 statusFunction=None, 
-                 startUp=None, 
-                 parent=None,
-                 scopeFunction=None,
-                 ppiFunction=None):
+    def __init__(self, 
+                 parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
         
-        self.ppiFunction = ppiFunction
-        self.scopeFunction = scopeFunction
-        
-        # get our configuration
-        config = QtConfig('NCAR', 'EldoraGui')
-  
-        # save the startup callback
-        self.startUp = startUp 
-        # save the callback function definitions
-        self.runcallback = None
-        self.statusFunction = statusFunction
-        
-        # save a palette that we can use for widget configuration
         # Several useful palletes will be created
         self.createPalettes()
         
+        # set the stop button to red:
+        self.stopButton.setPalette(self.redButtonPalette)
+        
+        # prime the ready signal, which will be emitted
+        # on the first timer tick
+        self.ready = False 
+
         # the status function will be called on multiples
         # of the main timer.
         self.statusCount = 0
@@ -76,12 +69,14 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # the start button
         self.connect(self.startButton, SIGNAL("released()"), self.start)
         # the scope button
-        self.connect(self.scopeButton, SIGNAL('released()'), self.runScope)
+        self.connect(self.scopeButton, SIGNAL('released()'), self.scope)
         # the forward ppi button
-        self.connect(self.forwardPpiButton, SIGNAL('released()'), self.runForPpi)
+        self.connect(self.forwardPpiButton, SIGNAL('released()'), self.forPpi)
         # the aft ppi button
-        self.connect(self.aftPpiButton, SIGNAL('released()'), self.runAftPpi)
-        # use our timer for a clock
+        self.connect(self.aftPpiButton, SIGNAL('released()'), self.aftPpi)
+        
+        # use our timer for a clock. Remember that the first tick will 
+        # casue a ready signal to be emitted.
         self.startTimer(1000)
     
     ###############################################################################
@@ -103,19 +98,16 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.startButton.setPalette(self.stdPalette)
 
     ###############################################################################
-    def runScope(self):
-        if (self.scopeFunction):
-            self.scopeFunction()
-
+    def scope(self):
+        self.emit(SIGNAL('scope'))
+                  
     ###############################################################################
-    def runForPpi(self):
-        if (self.ppiFunction != None):
-            self.ppiFunction(forradar=True)
+    def forPpi(self):
+        self.emit(SIGNAL('ppi'), True)
     	
     ###############################################################################
-    def runAftPpi(self):
-        if (self.ppiFunction != None):
-            self.ppiFunction(forradar=False)
+    def aftPpi(self):
+        self.emit(SIGNAL('ppi'), False)
 
     ###############################################################################
     def createPalettes(self):
@@ -125,7 +117,7 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.setPaletteColors(self.greenButtonPalette, button='lime')
         
         self.redButtonPalette = QPalette(self.stdPalette)
-        self.setPaletteColors(self.redButtonPalette, button='crimson')
+        self.setPaletteColors(self.redButtonPalette, button='red')
         
 
     ###############################################################################
@@ -284,19 +276,22 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
 
     ###############################################################################
     def timerEvent(self, event):
+        ''' Called at regular intervals to handle periodic
+        tasks, such as emiiting the startup signal and the 
+        status signal.
+        '''
         
         # execute the startup function
-        if self.startUp != None:
-            self.startUp()
-            # and remove it so that we don't call it again
-            self.startUp = None
+        if not self.ready:
+            self.emit(SIGNAL('ready'))
+            # disable startup signal
+            self.ready = True
             
         self.statusCount = self.statusCount+1
         if self.statusCount >= self.statusPeriod:
             self.statusCount = 0
             # execute the status function
-            if (self.statusFunction != None):
-                self.statusFunction()
+            self.emit(SIGNAL('status'))
             # do the disk status
             stats = self.diskStats.stats()
             for i in range(len(stats)):

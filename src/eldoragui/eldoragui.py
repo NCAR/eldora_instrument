@@ -42,7 +42,8 @@ def start():
         r = drxrpc.radarStart()
         main.statusLabel.setText(QString(r))
     except Exception, e:
-        print "Error trying to contact ", drxrpc, e
+        #print "Error trying to contact ", drxrpc, e
+        pass
         
     # stop the eldora apps
     stopEldoraApps()
@@ -58,7 +59,8 @@ def stop():
         r = drxrpc.radarStop()
         main.statusLabel.setText(QString(r))
     except Exception, e:
-        print "Error trying to contact ", drxrpc, e
+        #print "Error trying to contact ", drxrpc, e
+        pass
         
     # stop the eldora apps
     stopEldoraApps()
@@ -89,7 +91,7 @@ def status():
         main.forProducts.setValue(productRate/2)
         main.aftProducts.setValue(productRate/2)
     except Exception, e:
-        print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
+        #print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
         main.forABP.setValue(0)
         main.aftABP.setValue(0)
         main.forProducts.setValue(0)
@@ -109,7 +111,7 @@ def status():
           rates.append(r[k]*1000.0)
           i = i + 1
     except Exception, e:
-        print "Error trying to contact ", drxrpc.appName, '(', drxrpc.URI, '): ', e
+        #print "Error trying to contact ", drxrpc.appName, '(', drxrpc.URI, '): ', e
         rates = []
         for i in range(16):
             rates.append(0)
@@ -287,7 +289,9 @@ def runProducts():
     s.start()
     
 ####################################################################################
-def runScope():
+def scope():
+    ''' Start the scope display
+    '''
     cmd = [eldoraDir + '/eldorascope/eldorascope',]
     ourProcesses['eldorascope'] = EmitterProc(cmd, 
                                               emitText=True, 
@@ -296,7 +300,10 @@ def runScope():
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
 ####################################################################################
-def runPPI(forradar=True):
+def ppi(forradar=True):
+    ''' Start the ppi display. forradar == True for the
+    forward radar, False for the aft radar.
+    '''
     cmd = [eldoraDir + '/eldorappi/eldorappi',]
     if forradar:
         cmd.append('--forward')
@@ -331,7 +338,7 @@ def pgrep(name):
     return p.exitCode()
 
 ####################################################################################
-def startUs():
+def mainIsReady():
     '''
     Call this to start our apps and perform other activities
     which should take place after the main Qt app has been started.
@@ -475,17 +482,17 @@ createRpcServers()
 app = QApplication(sys.argv)
 
 # instantiate an Edora controller gui
-main = EldoraMain( 
-                  statusFunction=status, 
-                  startUp=startUs,
-                  ppiFunction=runPPI,
-                  scopeFunction=runScope)
+main = EldoraMain()
 
 main.show()
 
 # connect signals from main back to us
-QObject.connect(main, SIGNAL('start'), start)
-QObject.connect(main, SIGNAL('stop'), stop)
+QObject.connect(main, SIGNAL('start'),   start)
+QObject.connect(main, SIGNAL('stop'),    stop)
+QObject.connect(main, SIGNAL('status'),  status)
+QObject.connect(main, SIGNAL('ready'),   mainIsReady)
+QObject.connect(main, SIGNAL('ppi'),     ppi)
+QObject.connect(main, SIGNAL('scope'),   scope)
 
 # initializre the header management
 initHeader()
