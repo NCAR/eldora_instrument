@@ -55,13 +55,13 @@ DDS::SendToBoard(unsigned char portletter, unsigned char data)
 void
 DDS::Rfinit()
 {
-
+  
   int i;
   _DDS67=0;
   _DDS89=0;
   _q=0;
-
-
+    
+  
   //Set Upper Four bits to select a DDS Unit (0x01 to 0x0F)
   SetDDSAddress();
 

@@ -15,7 +15,7 @@ int main()
 {
 
   int ddsunit;
-  int numdds=0;
+  int numdds=6;
   int device;
   int radarchoice;
   DDS* dds[numdds];
@@ -57,16 +57,16 @@ int main()
             //Setup of DDS Fore
             if(radarchoice == 0)
             {
-              for(int ddsunit = 0; ddsunit < 6 ; ddsunit++) 
+              for(int ddsunit = 0; ddsunit < numdds ; ddsunit++)
             	  dds[ddsunit] = new DDS("etherio-fore", 2424, ddsunit);
-              menu = new DDSMenu(dds, 6);
-            }
+        	  menu = new DDSMenu(dds, numdds);
+        	}
             //Setup of DDS Aft
             if(radarchoice == 1)
             {
-              for(int ddsunit = 0; ddsunit < 6; ddsunit++)
+              for(int ddsunit = 0; ddsunit < numdds; ddsunit++)
                   dds[ddsunit] = new DDS("etherio-aft", 2424, ddsunit);
-              menu = new DDSMenu(dds, 6);
+              menu = new DDSMenu(dds, numdds);
             }
           }
         }

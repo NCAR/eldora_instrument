@@ -11,7 +11,8 @@
 void rfinit(EtherIO24 ether,DDS dds, int unit)
 {
 
-
+  printf("TP 1\n");
+      
   unsigned char Address[5];
   unsigned char Select[5];
   unsigned char Data[5];
@@ -27,7 +28,8 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
   DDS89=0;
   q=0;
 
-
+  
+  
   //Set Upper Four bits
   if(unit>=1 && unit<4)
   {
@@ -37,8 +39,9 @@ void rfinit(EtherIO24 ether,DDS dds, int unit)
     Address[2] = 0x00;
     Address[3] = 'B';
     Address[4] = 96+64*(unit-1); //$60 (96) - $E0 (224)
+    printf("TP 2\n");
     ether.Output(Address, 5);
-
+    printf("TP 3\n");
     //takes value of port B (includes addr<5>)
     DDS67 = Address[4];
 

@@ -10,6 +10,7 @@ DDSMenu::DDSMenu(DDS* dds[], int numdds):
     _numdds(numdds)
 {
 
+    
   //Initialize NRflag and freq array to 0
   for(int i=0;i<_numdds;i++)
   {
@@ -52,24 +53,24 @@ DDSMenu::OpenMenu()
   //Initialize All DDS Units
   for(unit=0;unit<_numdds;unit++)
   {
-    _dds[unit]-> Rfinit();
+      _dds[unit]->Rfinit();    
   }
-
+    
   //Load DDS Text File
   LoadFile();
 
   //Load Previously Programmed Values onto DDS
   for(unit=0;unit<_numdds;unit++)
   {
-    _dds[unit]->Rfputval(_freq[unit],_NRflag[unit]);
-  }
+      _dds[unit]->Rfputval(_freq[unit],_NRflag[unit]);
+  }  
 
   while(1)
   {
     printf("\n----------DDS Frequency Generator Menu-----------------\n\n");
     if(LoadFile())
     {
-
+        
       printf("Last values programmed were: \n");
       printf("DDS  Frequency          Noise Reduction   \n");
       for(_idx=0;_idx<_numdds;_idx++)
