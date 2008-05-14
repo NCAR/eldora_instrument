@@ -39,7 +39,8 @@ RR314sim::~RR314sim() {
 void RR314sim::start() {
 
     pthread_t thread;
-
+    // set the transmitter start time to now
+    _pRR314->setXmitStartTime(boost::posix_time::second_clock::universal_time());
     // spawn the thread that will deliver the bogus data
     pthread_create(&thread, NULL, simThread, (void*) this);
 
