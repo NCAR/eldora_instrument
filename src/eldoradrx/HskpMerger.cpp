@@ -110,7 +110,7 @@ HskpMerger::mergeAndSend(unsigned int rayNum) {
         // We're done with this entry
         removeRREntry(current);
         nmatches++;
-   }
+    }
     
     pthread_mutex_unlock(&_unmergedRRMutex);
     return nmatches;
