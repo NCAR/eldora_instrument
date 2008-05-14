@@ -947,13 +947,13 @@ void RR314::start() {
     _running = true;
     if (_simulate) {
         _simulator->start();
-        return;
+    } else {
+        // Enable the DMAs and turn on the ADCs
+        Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP);
     }
 
-    // Enable the DMAs and turn on the ADCs
-    Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, DMA_EN | ADCA_CAP);
-
-    std::cout << "RR314 device " << _devNum << " started\n";
+    std::cout << (_simulate ? "simulated " : "") << "RR314 device " << 
+        _devNum << " started\n";
 
 }
 
