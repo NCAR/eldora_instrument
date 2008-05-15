@@ -29,7 +29,7 @@
 --						Local_Bus_Interface_Wrapper.vhd, Local_Bus_Interface.ngc addr_mem.xco & tx_dma_fifo -LB Interface
 --						**Note** PWB R00 required D02 of LB interface.
 --*******************************************************************************************
- 
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
@@ -134,7 +134,10 @@ architecture behavioral of ChannelAdapter_Top is
 	signal timing_seln : std_logic;		--0xA58
 	-- SVN Revision #
 	signal svn_rev_seln: std_logic;		--0xA5C
-	
+	-- DC Removal
+	signal dc_en_seln  : std_logic;     --0xA60
+	signal dc_done_seln: std_logic;     --0xA64
+		
 	
 	--Status and Interrupt signals
 	signal status_reg	 	: std_logic_vector(31 downto 0);	--Status Reg
@@ -197,6 +200,7 @@ architecture behavioral of ChannelAdapter_Top is
 	-- ADC and Filter Clks
 	signal adc_clk						: std_logic; -- ADC Sample Clk
 	signal filter_clk					: std_logic; -- ADCx3 Filter Clk
+	signal start_clk              : std_logic; -- ADC div 4 Clk
 	signal adc_dcmrst					: std_logic; -- ADC DCM Reset
 	signal adc_dcmlocked				: std_logic; -- ADC DCM Locked
 	
@@ -356,7 +360,10 @@ architecture behavioral of ChannelAdapter_Top is
 	signal d_sync_error  : std_logic;							--Timing Sync Error Signal
 	signal pp_rst		: std_logic;								--Pulse Pair Reset
 	
+	signal dc_enable  : std_logic;                        --DC Removal Enable
+	signal dc_done    : std_logic;                        --DC Removal Done
 	
+		
 	-- Gate Splitter
 	signal gs_dprt_reg: std_logic;							-- Dual PRT Register
 	signal cha_gate_in: std_logic_vector(1 downto 0);	-- Gate 1
@@ -388,6 +395,7 @@ architecture behavioral of ChannelAdapter_Top is
 			sampleclk_n	: in std_logic;
 			adc_clk		: out std_logic;
 			filter_clk	: out std_logic;
+			start_clk   : out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
@@ -527,6 +535,7 @@ architecture behavioral of ChannelAdapter_Top is
 	COMPONENT decimator
 	PORT ( 
 			clk_in 		: in  std_logic;
+			trigger     : in  std_logic;
 			reset 		: in  std_logic;
 			decimation 	: in  std_logic_vector(7 downto 0);
 			dec_clk     : out std_logic;
@@ -537,12 +546,16 @@ architecture behavioral of ChannelAdapter_Top is
 	-- DDC 
 	COMPONENT casc_filter_cw  
 	PORT (
-			ce: in std_logic := '1';
+			ce_1: in std_logic;
+			ce_12: in std_logic;
+			ce_3: in std_logic;
 			cha_in: in std_logic_vector(13 downto 0);
 			chb_in: in std_logic_vector(13 downto 0);
 			chc_in: in std_logic_vector(13 downto 0);
 			chd_in: in std_logic_vector(13 downto 0);
-			clk: in std_logic;
+			clk_1: in std_logic;
+			clk_12: in std_logic;
+			clk_3: in std_logic;
 			g_addr: in std_logic_vector(3 downto 0);
 			g_data: in std_logic_vector(17 downto 0);
 			g_sel: in std_logic_vector(1 downto 0);
@@ -585,6 +598,7 @@ architecture behavioral of ChannelAdapter_Top is
 			d_gate2: in std_logic;
 			d_iin: in std_logic_vector(15 downto 0);
 			d_qin: in std_logic_vector(15 downto 0);
+			dc_enable: in std_logic;
 			iq_index: in std_logic_vector(9 downto 0);
 			iq_length: in std_logic_vector(9 downto 0);
 			m: in std_logic_vector(9 downto 0);
@@ -625,7 +639,8 @@ architecture behavioral of ChannelAdapter_Top is
 			d_pdata: out std_logic_vector(31 downto 0);
 			d_ppgate1: out std_logic;
 			d_ppgate2: out std_logic;
-			d_sync_error: out std_logic);
+			d_sync_error: out std_logic;
+			dc_remove: out std_logic);
 	END COMPONENT;
 
 	
@@ -721,6 +736,7 @@ begin
 			sampleclk_n	=> sampleclk_n,
 			adc_clk		=> adc_clk,
 			filter_clk	=> filter_clk,
+			start_clk   => start_clk,
 			locked		=> adc_dcmlocked);
 	 
 	-- ===== Decimation Clk DCM ====================================================
@@ -730,6 +746,7 @@ begin
 	-- Decimator Instantiation
 	ADC_Clk_Decimator : decimator PORT MAP (
 		clk_in      => adc_clk,
+		trigger     => start_clk,
 		reset       => dec_rst,
       decimation  => dec_reg(7 downto 0),
       dec_clk     => dec_clk,
@@ -798,6 +815,8 @@ begin
 			gs_dprt_seln	<= '1';
 			timing_seln    <= '1';
 			svn_rev_seln   <= '1';
+			dc_en_seln     <= '1';
+			dc_done_seln   <= '1';
 			addr_decode_en <= '0';
 			Local_Data_Rdy  <= '0';
         elsif rising_edge (user_clk) 
@@ -1084,13 +1103,29 @@ begin
 	                end if;	
 						 
 					--SVN Revision Register
-					--PCI Adr = 0xA58	                                 						 
+					--PCI Adr = 0xA5C	                                 						 
 	                if (Local_Data_Addr(11 downto 2) = "1010010111") then 
 	                    svn_rev_seln <= '0';
 	                else
 	                    svn_rev_seln <= '1';
 	                end if;	
 						 
+					--DC Enable Register
+					--PCI Adr = 0xA60	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011000") then 
+	                    dc_en_seln <= '0';
+	                else
+	                    dc_en_seln <= '1';
+	                end if;	
+					
+					--DC Done Register
+					--PCI Adr = 0xA64	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011001") then 
+	                    dc_done_seln <= '0';
+	                else
+	                    dc_done_seln <= '1';
+	                end if;	
+					
 						 
             else -- clear all of the selects if data rdy isn't active
 	            rev_seln      <= '1';	
@@ -1126,7 +1161,9 @@ begin
 					gs_dprt_seln	<= '1';
 					timing_seln    <= '1';
 					svn_rev_seln   <= '1';
-					
+					dc_en_seln     <= '1';
+					dc_done_seln   <= '1';
+										
             end if;
         end if;
     end process; -- selects
@@ -1159,6 +1196,7 @@ begin
 			iq_length_reg<= (others => '0');
 			gs_dprt_reg	 <= '0';
 			timing_sel   <= '0';
+			dc_enable    <= '0';
     	elsif rising_edge (user_clk) 
 		then
 			--Control
@@ -1315,6 +1353,13 @@ begin
 				timing_sel <= timing_sel;
 			end if;
 			
+			--DC Enable Register
+			if (wrl = '0' and dc_en_seln = '0') then
+				dc_enable <= Local_Data_In(0);
+			else
+				dc_enable <= dc_enable;
+			end if;
+			
     	end if;
     end process; -- input_data
     
@@ -1415,7 +1460,7 @@ begin
 							dec_seln, mt_addr_seln, mt_data_seln,
 							pp_m_seln, pp_n_seln, iq_index_seln, iq_length_seln,
 							gs_dprt_seln, dec_rst_seln, pp_rst_seln, timing_seln,
-							svn_rev_seln)
+							svn_rev_seln, dc_en_seln, dc_done_seln)
 	 begin
 		if (reset = '1') then
 			Local_Data_Out <= (others => 'Z');
@@ -1504,6 +1549,12 @@ begin
 			elsif (svn_rev_seln = '0' and rdl ='0') then
 				Local_Data_Out(63 downto 32) <= (others => '0');
 				Local_Data_Out(31 downto 0)  <= svn_rev_reg;	
+			elsif (dc_en_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 1) <= (others => '0');
+				Local_Data_Out(0)  <= dc_enable;	
+			elsif (dc_done_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 1) <= (others => '0');
+				Local_Data_Out(0)  <= dc_done;	
 			else
 				Local_Data_Out <= (others => 'Z');
 			end if;
@@ -1608,12 +1659,16 @@ begin
 
 	-- DDC Modules
 	DDCs : casc_filter_cw PORT MAP (
-		ce => adc_enable,
+		ce_1 => '1',
+		ce_12 => '1',
+		ce_3 => '1',
 		cha_in => adca_in,
 		chb_in => adcb_in,
 		chc_in => adcc_in,
 		chd_in => adcd_in,
-		clk => filter_clk,
+		clk_1 => filter_clk,
+		clk_12 => start_clk,
+		clk_3 => adc_clk,
 		g_addr => g_addr_reg(3 downto 0),
 		g_data => g_data_reg(17 downto 0),
 		g_sel => g_addr_reg(5 downto 4),
@@ -1655,6 +1710,7 @@ begin
 		d_gate2 => chd_gate_in(1),
 		d_iin => chd_i,
 		d_qin => chd_q,
+		dc_enable => dc_enable,
 		iq_index => iq_index_reg(9 downto 0),
 		iq_length => iq_length_reg(9 downto 0),
 		m => pp_m_reg(9 downto 0),
@@ -1695,7 +1751,8 @@ begin
 		d_pdata => chd_p,
 		d_ppgate1 => chd_pp_g(0),
 		d_ppgate2 => chd_pp_g(1),
-		d_sync_error => d_sync_error);
+		d_sync_error => d_sync_error,
+		dc_remove => dc_done);
 
 -- ==================================================
 -- = Channel A Data Flow

@@ -22,6 +22,7 @@ entity adc_dcm_m314 is
 		 CLKIN_PERIOD 	  		: real := 20.8333;
 		 DLL_FREQUENCY_MODE	: string := "LOW" ;
 		 DFS_FREQUENCY_MODE	: string := "LOW" ;
+		 CLKDV_DIVIDE        : real := 4.0;
 		 CLKFX_MULTIPLY		: integer := 3;
 		 CLKFX_DIVIDE			: integer := 1;
 		 PHASE_SHIFT        	: integer := 0);
@@ -32,6 +33,7 @@ entity adc_dcm_m314 is
     	
     	adc_clk		: out std_logic;
     	filter_clk	: out std_logic;
+		start_clk   : out std_logic;
     	locked		: out std_logic); 
 end adc_dcm_m314;
     	
@@ -41,11 +43,13 @@ architecture behavioral of adc_dcm_m314 is
 	signal adc_dcm_clk0		: std_logic;
 	signal adc_dcm_clk3x 	: std_logic;
 	signal adc_clk_int		: std_logic;
+	signal adc_dcm_clk3d    : std_logic;
 	
 begin 
    ADC_CLK_IBUFG_INST 		: IBUFGDS PORT MAP (I => sampleclk_p, IB=> sampleclk_n, O=> adc_clk_ibufg);
 	ADC_CLK_BUFG_INST 		: BUFG PORT MAP(I => adc_dcm_clk0, O => adc_clk_int);
 	FILTER_CLK_BUFG_INST  	: BUFG PORT MAP(I => adc_dcm_clk3x, O => filter_clk);
+	DEC_CLK_BUFG_INST       : BUFG PORT MAP(I => adc_dcm_clk3d, O => start_clk);
 	
 	adc_clk <= adc_clk_int;
 
@@ -55,6 +59,7 @@ begin
 	       CLKIN_PERIOD 	   	=> CLKIN_PERIOD,	--48 MHz  
 	       DLL_FREQUENCY_MODE  => DLL_FREQUENCY_MODE,
 	       DFS_FREQUENCY_MODE  => DFS_FREQUENCY_MODE,
+			 CLKDV_DIVIDE        => CLKDV_DIVIDE,
 	       CLKOUT_PHASE_SHIFT  => "FIXED",
 	       CLKFX_MULTIPLY		=> CLKFX_MULTIPLY,
 			 CLKFX_DIVIDE			=> CLKFX_DIVIDE,
@@ -70,7 +75,7 @@ begin
 		   
 		   	LOCKED       =>  locked,
 				CLK0         =>  adc_dcm_clk0,
-				CLKDV        =>  open,
+				CLKDV        =>  adc_dcm_clk3d,
 				CLK180       =>  open,
 				CLK270       =>  open,
 				CLK2X        =>  open,

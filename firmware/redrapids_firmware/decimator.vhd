@@ -29,6 +29,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity decimator is
     Port ( clk_in : in  STD_LOGIC;
+			  trigger : in STD_LOGIC;
 			  reset : in STD_LOGIC;
            decimation : in  STD_LOGIC_VECTOR (7 downto 0);
            dec_clk : out  STD_LOGIC;
@@ -44,31 +45,70 @@ signal out_clk2 : std_logic;
 signal dec_reg1 : std_logic_vector(7 downto 0);
 signal dec_reg2 : std_logic_vector(7 downto 0);
 
+signal trigger_flag : std_logic;
+
 begin
 
 dec_reg1 <= decimation - 1 ;
 dec_reg2 <= decimation + decimation + decimation - 1;
 
-process (clk_in, reset) 
+process (trigger, reset)
 begin
-	if (reset = '1') then 
+	if (reset = '1') then
+		trigger_flag <= '0';
+	elsif rising_edge(trigger) then 
+		trigger_flag <= '1';
+	else 
+		trigger_flag <= trigger_flag;
+	end if;
+end process;
+
+--process (clk_in, reset) 
+--begin
+--	if (reset = '1') then 
+--		count1 <= (others => '0');
+--		count2 <= (others => '0');
+--		out_clk1 <= '0';
+--		out_clk2 <= '0';
+--		trigger_flag <= '0';
+--	elsif rising_edge(clk_in) and (trigger = '1' or trigger_flag = '1') then
+--	   trigger_flag <= '1';
+--		if (count1 = 0) then
+--			out_clk1 <= not out_clk1;
+--			count1 <= dec_reg1;
+--		else
+--			count1 <= count1 - 1;
+--		end if;
+--		if (count2 = 0) then
+--			out_clk2 <= not out_clk2;
+--			count2 <= dec_reg2;
+--		else
+--			count2 <= count2 - 1;
+--		end if;
+--	end if;
+--end process;
+
+process (clk_in, reset, trigger_flag) 
+begin
+	if (reset = '1' or trigger_flag = '0') then 
 		count1 <= (others => '0');
 		count2 <= (others => '0');
 		out_clk1 <= '0';
 		out_clk2 <= '0';
-	elsif rising_edge(clk_in) then
-		count1 <= count1 + 1;
-		count2 <= count2 + 1;
-		if (count1 = dec_reg1) then
-			count1 <= (others => '0');
+	elsif rising_edge(clk_in) and (trigger_flag = '1') then
+		if (count1 = 0) then
 			out_clk1 <= not out_clk1;
+			count1 <= dec_reg1;
+		else
+			count1 <= count1 - 1;
 		end if;
-		if (count2 = dec_reg2) then
-			count2 <= (others => '0');
+		if (count2 = 0) then
 			out_clk2 <= not out_clk2;
+			count2 <= dec_reg2;
+		else
+			count2 <= count2 - 1;
 		end if;
 	end if;
-	
 end process;
 
 fifo_clk <= out_clk1;

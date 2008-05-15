@@ -35,7 +35,7 @@ entity timer_dcm_m314 is
 		 PHASE_SHIFT        	: integer := 0);
     PORT(
     	rst			: in std_logic;
-    	adc_clk   	: in std_logic;  	
+    	adc_clk  	: in std_logic;  	
     	timer_clk   : out std_logic;
     	locked		: out std_logic); 
 end timer_dcm_m314;
