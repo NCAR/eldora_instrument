@@ -106,17 +106,17 @@ int EldoraProducts::numRays() {
 ////////////////////////////////////////////////////
 void EldoraProducts::initProducts(EldoraDDS::Products* p) {
     
-    p->p1Gain = 1.0e9;
-    p->p1Offset = 0.0;
+    p->p1Gain = 1.0e2;
+    p->p1Offset = 9000.0;
     
-    p->p2Gain = 1.0e9;
-    p->p2Offset = 0.0;
+    p->p2Gain = 1.0e2;
+    p->p2Offset = 9000.0;
     
-    p->p3Gain = 1.0e9;
-    p->p3Offset = 0.0;
+    p->p3Gain = 1.0e2;
+    p->p3Offset = 9000.0;
     
-    p->p4Gain = 1.0e9;
-    p->p4Offset = 0.0;
+    p->p4Gain = 1.0e2;
+    p->p4Offset = 9000.0;
     
     p->dmGain = 1000.0;
     p->dmOffset = 0.0;
