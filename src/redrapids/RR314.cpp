@@ -651,10 +651,10 @@ void RR314::newABPData(int* src,
             nextData = pBuf->_posInRay - 3;
             // A and B scaled by full scale
             if (((nextData) % 3) < 2) {
-                pBuf->_abp[nextData] = src[i]*ABPSCALE;
+                pBuf->_abp[nextData] = src[i]*ABSCALE;
             } else {
                 // P scaled by 2 times full scale
-                pBuf->_abp[nextData] = src[i]*ABPSCALE/2.0;
+                pBuf->_abp[nextData] = src[i]*PSCALE;
             }
             pBuf->_posInRay++;
             if (++nextData == pBuf->_abp.size()) {
