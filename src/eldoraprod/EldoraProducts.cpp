@@ -76,10 +76,15 @@ void EldoraProducts::newRayData(
 				}
 			}
 			**/
-            products->p1[i] = TOSHORT(rays[0]->abp[p+2], products->p1Gain, products->p1Offset);
-            products->p2[i] = TOSHORT(rays[1]->abp[p+2], products->p2Gain, products->p2Offset);
-            products->p3[i] = TOSHORT(rays[2]->abp[p+2], products->p3Gain, products->p3Offset);
-            products->p4[i] = TOSHORT(rays[3]->abp[p+2], products->p4Gain, products->p4Offset);
+            double pdbm1 = 10.0*log10(rays[0]->abp[p+2]);
+            double pdbm2 = 10.0*log10(rays[1]->abp[p+2]);
+            double pdbm3 = 10.0*log10(rays[2]->abp[p+2]);
+            double pdbm4 = 10.0*log10(rays[3]->abp[p+2]);
+            
+            products->p1[i] = TOSHORT(pdbm1, products->p1Gain, products->p1Offset);
+            products->p2[i] = TOSHORT(pdbm2, products->p2Gain, products->p2Offset);
+            products->p3[i] = TOSHORT(pdbm3, products->p3Gain, products->p3Offset);
+            products->p4[i] = TOSHORT(pdbm4, products->p4Gain, products->p4Offset);
            
             products->vr[i] = TOSHORT((i-productsLength/2.0), products->vrGain, products->vrOffset);
             products->vs[i] = TOSHORT((i-productsLength/2.0)/10.0, products->vsGain, products->vsOffset);
