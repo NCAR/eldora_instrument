@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.218"
+    ComputedModelVersion    "1.227"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -44,8 +44,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Apr 22 15:07:18 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:218>"
+  LastModifiedDate	  "Thu May 15 07:54:08 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:227>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -636,6 +636,16 @@ Model {
       PortCounts	      "[]"
     }
     Block {
+      BlockType		      SignalSpecification
+      Dimensions	      "-1"
+      SampleTime	      "-1"
+      DataType		      "auto"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+    }
+    Block {
       BlockType		      Sin
       SineType		      "Time based"
       TimeSource	      "Use simulation time"
@@ -647,6 +657,15 @@ Model {
       Offset		      "0"
       SampleTime	      "-1"
       VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Step
+      Time		      "1"
+      Before		      "0"
+      After		      "1"
+      SampleTime	      "-1"
+      VectorParams1D	      on
+      ZeroCross		      on
     }
     Block {
       BlockType		      SubSystem
@@ -665,6 +684,21 @@ Model {
       SimViewingDevice	      off
       DataTypeOverride	      "UseLocalSettings"
       MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Sum
+      IconShape		      "rectangular"
+      Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
     }
     Block {
       BlockType		      Switch
@@ -688,6 +722,13 @@ Model {
       SampleTime	      "0"
       FixptAsFi		      off
     }
+    Block {
+      BlockType		      UnitDelay
+      X0		      "0"
+      SampleTime	      "1"
+      StateMustResolveToSignalObject off
+      RTWStateStorageClass    "Auto"
+    }
   }
   AnnotationDefaults {
     HorizontalAlignment	    "center"
@@ -709,7 +750,7 @@ Model {
   }
   System {
     Name		    "Casc_Filter"
-    Location		    [2, 82, 1598, 1026]
+    Location		    [6, 82, 1674, 996]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -744,7 +785,7 @@ Model {
       RTWMemSecDataInternal   "Inherit from model"
       RTWMemSecDataParameters "Inherit from model"
       infoedit		      " System Generator"
-      xilinxfamily	      "Virtex4"
+      xilinxfamily	      "virtex4"
       part		      "xc4vsx35"
       speed		      "-11"
       package		      "ff668"
@@ -828,13 +869,13 @@ Model {
 "rdware notes:  In hardware these blocks become top level output ports or are "
 "discarded, depending on how they are configured."
       hdl_port		      on
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
       xl_area		      "[0 0 0 0 16 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "20,20,356,330"
+      sggui_pos		      "20,20,356,370"
       block_type	      "gatewayout"
       block_version	      "8.2"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -864,7 +905,7 @@ Model {
       overflow		      "Saturate"
       period		      "1/sampling_freq"
       dbl_ovrd		      off
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
@@ -895,13 +936,13 @@ Model {
 "rdware notes:  In hardware these blocks become top level output ports or are "
 "discarded, depending on how they are configured."
       hdl_port		      on
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
       xl_area		      "[0 0 0 0 16 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
+      sggui_pos		      "20,20,336,384"
       block_type	      "gatewayout"
       block_version	      "8.2"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -949,13 +990,13 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Constant1"
-      Position		      [105, 255, 135, 285]
-      Value		      "0"
+      Position		      [15, 400, 45, 430]
     }
     Block {
       BlockType		      Constant
       Name		      "Constant10"
       Position		      [105, 615, 135, 645]
+      Value		      "0"
     }
     Block {
       BlockType		      Constant
@@ -979,6 +1020,7 @@ Model {
       BlockType		      Constant
       Name		      "Constant5"
       Position		      [105, 435, 135, 465]
+      Value		      "0"
     }
     Block {
       BlockType		      Constant
@@ -999,6 +1041,24 @@ Model {
       Value		      "0"
     }
     Block {
+      BlockType		      Reference
+      Name		      "Counter\nFree-Running"
+      Ports		      [0, 1]
+      Position		      [15, 335, 45, 365]
+      SourceBlock	      "simulink/Sources/Counter\nFree-Running"
+      SourceType	      "Counter Free-Running"
+      ShowPortLabels	      "FromPortIcon"
+      SystemSampleTime	      "-1"
+      FunctionWithSeparateData off
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      NumBits		      "16"
+      tsamp		      "1/sampling_freq"
+    }
+    Block {
       BlockType		      SubSystem
       Name		      "DDC"
       Ports		      [10, 4]
@@ -1010,7 +1070,7 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"DDC"
-	Location		[2, 83, 1270, 978]
+	Location		[6, 83, 1274, 978]
 	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -1026,7 +1086,7 @@ Model {
 	Block {
 	  BlockType		  Inport
 	  Name			  "ChA In"
-	  Position		  [275, 173, 305, 187]
+	  Position		  [510, 173, 540, 187]
 	  IconDisplay		  "Port number"
 	}
 	Block {
@@ -1096,7 +1156,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Coefficients"
 	  Ports			  [10, 9]
-	  Position		  [145, 196, 245, 514]
+	  Position		  [350, 196, 450, 514]
 	  BackgroundColor	  "orange"
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
@@ -1380,6 +1440,7 @@ Model {
 		    bitexpr		    "<html><head><meta name=\"qrichtex"
 "t\" content=\"1\" /></head><body style=\"font-size:8pt;font-family:MS Shell D"
 "lg\">\n<p>Sel0={Sel[0]}<br />Sel1={Sel[1]}<br /></p>\n</body></html>\n"
+		    display_expr	    "off"
 		    sr_1		    "1"
 		    arith_type1		    "Unsigned"
 		    bin_pt1		    "0"
@@ -1975,6 +2036,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -2010,6 +2072,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -2045,6 +2108,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -2454,6 +2518,7 @@ Model {
 		    bitexpr		    "<html><head><meta name=\"qrichtex"
 "t\" content=\"1\" /></head><body style=\"font-size:8pt;font-family:MS Shell D"
 "lg\">\n<p>Sel0={Sel[0]}<br />Sel1={Sel[1]}<br /></p>\n</body></html>\n"
+		    display_expr	    "off"
 		    sr_1		    "1"
 		    arith_type1		    "Unsigned"
 		    bin_pt1		    "0"
@@ -3122,6 +3187,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -3157,6 +3223,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -3192,6 +3259,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -3227,6 +3295,7 @@ Model {
 		  en			  "off"
 		  latency		  "11"
 		  dbl_ovrd		  "off"
+		  optimize		  "Area"
 		  use_rpm		  "off"
 		  xl_use_area		  "off"
 		  xl_area		  "[18 0 0 36 0 0 0]"
@@ -3689,9 +3758,41 @@ Model {
 	}
 	Block {
 	  BlockType		  Reference
+	  Name			  "Convert"
+	  Ports			  [1, 1]
+	  Position		  [140, 180, 185, 210]
+	  SourceBlock		  "xbsIndex_r4/Convert"
+	  SourceType		  "Xilinx Type Converter Block"
+	  infoedit		  "Hardware notes: rounding and saturating req"
+"uire hardware resources; truncating and wrapping do not."
+	  arith_type		  "Boolean"
+	  n_bits		  "16"
+	  bin_pt		  "14"
+	  quantization		  "Truncate"
+	  overflow		  "Wrap"
+	  latency		  "0"
+	  dbl_ovrd		  "off"
+	  pipeline		  "off"
+	  xl_use_area		  "off"
+	  xl_area		  "[0,0,0,0,0,0,0]"
+	  has_advanced_control	  "0"
+	  sggui_pos		  "20,20,470,336"
+	  block_type		  "convert"
+	  block_version		  "9.2.01"
+	  sg_icon_stat		  "45,30,1,1,white,blue,0,0eb6e735"
+	  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');"
+"\npatch([0 45 45 0 ],[0 0 30 30 ],[0.77 0.82 0.91]);\npatch([15 10 17 10 15 2"
+"3 25 27 35 28 22 17 23 17 22 28 35 27 25 23 15 ],[3 8 15 22 27 27 25 27 27 20"
+" 26 21 15 9 4 10 3 3 5 3 3 ],[0.98 0.96 0.92]);\nplot([0 0 45 45 0 ],[0 30 30"
+" 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: beg"
+"in icon text');\ncolor('black');port_label('output',1,'cast');\nfprintf('','C"
+"OMMENT: end icon text');\n"
+	}
+	Block {
+	  BlockType		  Reference
 	  Name			  "Counter"
-	  Ports			  [0, 1]
-	  Position		  [25, 73, 70, 117]
+	  Ports			  [1, 1]
+	  Position		  [230, 73, 275, 117]
 	  NamePlacement		  "alternate"
 	  SourceBlock		  "xbsIndex_r4/Counter"
 	  SourceType		  "Xilinx Counter Block"
@@ -3707,7 +3808,7 @@ Model {
 	  n_bits		  "4"
 	  bin_pt		  "0"
 	  load_pin		  "off"
-	  rst			  "off"
+	  rst			  "on"
 	  en			  "off"
 	  explicit_period	  "on"
 	  period		  "1/filter_clk"
@@ -3717,23 +3818,23 @@ Model {
 	  xl_use_area		  "off"
 	  xl_area		  "[0,0,0,0,0,0,0]"
 	  has_advanced_control	  "0"
-	  sggui_pos		  "20,20,356,615"
+	  sggui_pos		  "20,20,356,618"
 	  block_type		  "counter"
 	  block_version		  "8.2"
-	  sg_icon_stat		  "45,44,0,1,white,blue,0,115399eb"
+	  sg_icon_stat		  "45,44,1,1,white,blue,0,fa73fe1c"
 	  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');"
 "\npatch([0 60 60 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([14 4 18 4 14 30 "
 "34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[6 16 30 44 54 54 50 54 54 41 "
 "54 45 30 15 6 19 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 60 6"
 "0 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: be"
-"gin icon text');\ncolor('black');port_label('output',1,'out');\nfprintf('','C"
-"OMMENT: end icon text');\n"
+"gin icon text');\ncolor('black');port_label('input',1,'rst');\ncolor('black')"
+";port_label('output',1,'out');\nfprintf('','COMMENT: end icon text');\n"
 	}
 	Block {
 	  BlockType		  Reference
 	  Name			  "Counter Inv"
-	  Ports			  [0, 1]
-	  Position		  [25, 123, 70, 167]
+	  Ports			  [1, 1]
+	  Position		  [230, 123, 275, 167]
 	  SourceBlock		  "xbsIndex_r4/Counter"
 	  SourceType		  "Xilinx Counter Block"
 	  infoedit		  "Hardware notes: Free running counters are t"
@@ -3748,7 +3849,7 @@ Model {
 	  n_bits		  "4"
 	  bin_pt		  "0"
 	  load_pin		  "off"
-	  rst			  "off"
+	  rst			  "on"
 	  en			  "off"
 	  explicit_period	  "on"
 	  period		  "1/filter_clk"
@@ -3758,23 +3859,23 @@ Model {
 	  xl_use_area		  "off"
 	  xl_area		  "[0,0,0,0,0,0,0]"
 	  has_advanced_control	  "0"
-	  sggui_pos		  "20,20,356,615"
+	  sggui_pos		  "20,20,356,618"
 	  block_type		  "counter"
 	  block_version		  "8.2"
-	  sg_icon_stat		  "45,44,0,1,white,blue,0,115399eb"
+	  sg_icon_stat		  "45,44,1,1,white,blue,0,fa73fe1c"
 	  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');"
 "\npatch([0 60 60 0 ],[0 0 60 60 ],[0.77 0.82 0.91]);\npatch([14 4 18 4 14 30 "
 "34 38 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[6 16 30 44 54 54 50 54 54 41 "
 "54 45 30 15 6 19 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 60 6"
 "0 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: be"
-"gin icon text');\ncolor('black');port_label('output',1,'out');\nfprintf('','C"
-"OMMENT: end icon text');\n"
+"gin icon text');\ncolor('black');port_label('input',1,'rst');\ncolor('black')"
+";port_label('output',1,'out');\nfprintf('','COMMENT: end icon text');\n"
 	}
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "DDC A"
 	  Ports			  [10, 2]
-	  Position		  [405, 87, 520, 448]
+	  Position		  [610, 87, 725, 448]
 	  BackgroundColor	  "lightBlue"
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
@@ -4119,6 +4220,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -4153,6 +4256,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -4187,6 +4292,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(P)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -4221,6 +4328,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -4255,6 +4364,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(C)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -4289,6 +4400,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -4354,7 +4467,7 @@ Model {
 		    xl_use_area		    "off"
 		    xl_area		    "[0,0,0,0,0,0,0]"
 		    has_advanced_control    "0"
-		    sggui_pos		    "-1,-1,-1,-1"
+		    sggui_pos		    "20,20,478,404"
 		    block_type		    "dsp48"
 		    block_version	    "VER_STRING_GOES_HERE"
 		    sg_icon_stat	    "75,168,5,1,white,blue,0,4181286f"
@@ -4453,7 +4566,7 @@ Model {
 		    xl_use_area		    "off"
 		    xl_area		    "[63 0 0 126 0 0 0]"
 		    has_advanced_control    "0"
-		    sggui_pos		    "-1,-1,-1,-1"
+		    sggui_pos		    "20,20,348,306"
 		    block_type		    "mux"
 		    block_version	    "VER_STRING_GOES_HERE"
 		    sg_icon_stat	    "40,122,3,1,white,blue,3,03f9c9b9"
@@ -4823,6 +4936,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -4857,6 +4972,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -4891,6 +5008,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=+(A*B)"
 		    opselect		    "A * B"
 		    inp2		    "PCIN>>17"
@@ -7122,6 +7241,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -7156,6 +7277,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -7190,6 +7313,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(P)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -7224,6 +7349,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -7258,6 +7385,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(C)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -7292,6 +7421,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=P+1"
 		    opselect		    "Custom"
 		    inp2		    "P"
@@ -7456,7 +7587,7 @@ Model {
 		    xl_use_area		    "off"
 		    xl_area		    "[63 0 0 126 0 0 0]"
 		    has_advanced_control    "0"
-		    sggui_pos		    "-1,-1,-1,-1"
+		    sggui_pos		    "20,20,348,306"
 		    block_type		    "mux"
 		    block_version	    "VER_STRING_GOES_HERE"
 		    sg_icon_stat	    "40,122,3,1,white,blue,3,03f9c9b9"
@@ -7826,6 +7957,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -7860,6 +7993,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -7894,6 +8029,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=+(A*B)"
 		    opselect		    "A * B"
 		    inp2		    "PCIN>>17"
@@ -10126,7 +10263,7 @@ Model {
 	      DialogControllerArgs    "DataTag1"
 	      SourceBlock	      "dspsnks4/Spectrum\nScope"
 	      SourceType	      "Spectrum Scope"
-	      ShowPortLabels	      "off"
+	      ShowPortLabels	      "none"
 	      SystemSampleTime	      "-1"
 	      FunctionWithSeparateData "off"
 	      RTWMemSecFuncInitTerm   "Inherit from model"
@@ -10158,7 +10295,10 @@ Model {
 	      InheritXIncr	      "on"
 	      XIncr		      "1.0"
 	      XLabel		      "Samples"
+	      XLimit		      "Auto"
 	      YUnits		      "dB"
+	      XMax		      "1"
+	      XMin		      "0"
 	      YMin		      "-120"
 	      YMax		      "0"
 	      YLabel		      "Magnitude-squared, dB"
@@ -10180,7 +10320,7 @@ Model {
 	      MaskHideContents	      off
 	      System {
 		Name			"Polyphase Kaiser FIR Filter"
-		Location		[154, 199, 1254, 880]
+		Location		[154, 199, 1237, 880]
 		Open			off
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
@@ -10341,6 +10481,30 @@ Model {
 "[0 45 45 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMM"
 "ENT: begin icon text');\ncolor('black');disp('z^{-1}','texmode','on');\nfprin"
 "tf('','COMMENT: end icon text');\n"
+		}
+		Block {
+		  BlockType		  Display
+		  Name			  "Display1"
+		  Ports			  [1]
+		  Position		  [410, 35, 500, 65]
+		  Decimation		  "1"
+		  Lockdown		  off
+		}
+		Block {
+		  BlockType		  Display
+		  Name			  "Display2"
+		  Ports			  [1]
+		  Position		  [215, 635, 305, 665]
+		  Decimation		  "1"
+		  Lockdown		  off
+		}
+		Block {
+		  BlockType		  Display
+		  Name			  "Display3"
+		  Ports			  [1]
+		  Position		  [290, 500, 380, 530]
+		  Decimation		  "1"
+		  Lockdown		  off
 		}
 		Block {
 		  BlockType		  Reference
@@ -10586,6 +10750,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -10619,6 +10785,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -10652,6 +10820,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -10685,6 +10855,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -10719,6 +10891,8 @@ Model {
 		    bin_pt		    "14"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(P)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -10752,6 +10926,8 @@ Model {
 		    bin_pt		    "14"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(C)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -10889,8 +11065,8 @@ Model {
 " 50 50 37 49 40 28 16 7 19 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0"
 " ],[0 56 56 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','C"
 "OMMENT: begin icon text');\ncolor('black');disp('\\newline{\\fontsize{14pt}\\"
-"bf\\downarrow}2\\newlinez^{-1}','texmode','on');\nfprintf('','COMMENT: end ic"
-"on text');\n"
+"bf\\downarrow}12\\newlinez^{-1}','texmode','on');\nfprintf('','COMMENT: end i"
+"con text');\n"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -11391,6 +11567,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=+(A*B)"
 		    opselect		    "A * B"
 		    inp2		    "PCIN>>17"
@@ -11950,6 +12128,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=+(A*B)"
 		    opselect		    "A * B"
 		    inp2		    "PCIN>>17"
@@ -12516,6 +12696,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -12909,7 +13091,7 @@ Model {
 		  MaskIconUnits		  "autoscale"
 		  System {
 		    Name		    "MAC3"
-		    Location		    [2, 82, 1012, 722]
+		    Location		    [460, 248, 1470, 888]
 		    Open		    off
 		    ModelBrowserVisibility  off
 		    ModelBrowserWidth	    200
@@ -13090,6 +13272,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -13123,6 +13307,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN-(A*B)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -13260,6 +13446,30 @@ Model {
 "],[0 40 40 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','CO"
 "MMENT: begin icon text');\ncolor('black');disp('z^{-11}','texmode','on');\nfp"
 "rintf('','COMMENT: end icon text');\n"
+		    }
+		    Block {
+		    BlockType		    Display
+		    Name		    "Display"
+		    Ports		    [1]
+		    Position		    [740, 45, 830, 75]
+		    Decimation		    "1"
+		    Lockdown		    off
+		    }
+		    Block {
+		    BlockType		    Display
+		    Name		    "Display1"
+		    Ports		    [1]
+		    Position		    [740, 90, 830, 120]
+		    Decimation		    "1"
+		    Lockdown		    off
+		    }
+		    Block {
+		    BlockType		    Display
+		    Name		    "Display2"
+		    Ports		    [1]
+		    Position		    [340, 160, 430, 190]
+		    Decimation		    "1"
+		    Lockdown		    off
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -13431,14 +13641,30 @@ Model {
 		    Line {
 		    SrcBlock		    "ASR"
 		    SrcPort		    1
+		    Points		    [45, 0]
+		    Branch {
 		    DstBlock		    "Register1"
 		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [0, -95]
+		    DstBlock		    "Display2"
+		    DstPort		    1
+		    }
 		    }
 		    Line {
 		    SrcBlock		    "AddSub"
 		    SrcPort		    1
+		    Points		    [20, 0]
+		    Branch {
 		    DstBlock		    "Reinterpret"
 		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [0, -225]
+		    DstBlock		    "Display"
+		    DstPort		    1
+		    }
 		    }
 		    Line {
 		    SrcBlock		    "Coeff"
@@ -13449,9 +13675,16 @@ Model {
 		    Line {
 		    SrcBlock		    "Delay1"
 		    SrcPort		    1
-		    Points		    [65, 0; 0, -170]
+		    Points		    [65, 0; 0, -170; 95, 0]
+		    Branch {
 		    DstBlock		    "Reinterpret1"
 		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [0, -225]
+		    DstBlock		    "Display1"
+		    DstPort		    1
+		    }
 		    }
 		    Line {
 		    SrcBlock		    "PCIN"
@@ -13604,6 +13837,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -13637,6 +13872,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=C"
 		    opselect		    "C"
 		    inp2		    "PCIN>>17"
@@ -13670,6 +13907,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -13703,6 +13942,8 @@ Model {
 		    bin_pt		    "0"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(A*B)"
 		    opselect		    "PCIN + A*B"
 		    inp2		    "PCIN>>17"
@@ -13737,6 +13978,8 @@ Model {
 		    bin_pt		    "14"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(P)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -13770,6 +14013,8 @@ Model {
 		    bin_pt		    "14"
 		    explicit_period	    "off"
 		    period		    "1"
+		    dsp48_infoedit	    "The use of this block for DSP48 i"
+"nstructions is deprecated.  Please use the Opmode block."
 		    equ			    "P=PCIN+(C)"
 		    opselect		    "Custom"
 		    inp2		    "PCIN"
@@ -13907,8 +14152,8 @@ Model {
 " 50 50 37 49 40 28 16 7 19 6 6 10 6 6 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0"
 " ],[0 56 56 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','C"
 "OMMENT: begin icon text');\ncolor('black');disp('\\newline{\\fontsize{14pt}\\"
-"bf\\downarrow}2\\newlinez^{-1}','texmode','on');\nfprintf('','COMMENT: end ic"
-"on text');\n"
+"bf\\downarrow}12\\newlinez^{-1}','texmode','on');\nfprintf('','COMMENT: end i"
+"con text');\n"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -14270,6 +14515,11 @@ Model {
 		    DstBlock		    "Delay"
 		    DstPort		    1
 		  }
+		  Branch {
+		    Points		    [0, -75]
+		    DstBlock		    "Display1"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  SrcBlock		  "Delay"
@@ -14301,8 +14551,15 @@ Model {
 		  SrcBlock		  "Delay2"
 		  SrcPort		  1
 		  Points		  [0, 35]
-		  DstBlock		  "Down Sample3"
-		  DstPort		  1
+		  Branch {
+		    DstBlock		    "Down Sample3"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 80]
+		    DstBlock		    "Display2"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  SrcBlock		  "Coef0"
@@ -14454,6 +14711,11 @@ Model {
 		    DstBlock		    "MAC3"
 		    DstPort		    2
 		  }
+		  Branch {
+		    Points		    [0, -55]
+		    DstBlock		    "Display3"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  SrcBlock		  "MAC"
@@ -14548,7 +14810,7 @@ Model {
 	      Ports		      [2]
 	      Position		      [555, 436, 600, 494]
 	      Floating		      off
-	      Location		      [5, 56, 1285, 997]
+	      Location		      [6, 56, 1286, 997]
 	      Open		      off
 	      NumInputPorts	      "2"
 	      List {
@@ -14767,14 +15029,14 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "ChA I Out"
-	  Position		  [585, 173, 615, 187]
+	  Position		  [790, 173, 820, 187]
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
 	}
 	Block {
 	  BlockType		  Outport
 	  Name			  "ChA Q Out"
-	  Position		  [585, 353, 615, 367]
+	  Position		  [790, 353, 820, 367]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -14782,7 +15044,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "k Coef"
-	  Position		  [305, 453, 335, 467]
+	  Position		  [510, 453, 540, 467]
 	  Port			  "3"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -14790,7 +15052,7 @@ Model {
 	Block {
 	  BlockType		  Outport
 	  Name			  "g Coef"
-	  Position		  [305, 488, 335, 502]
+	  Position		  [510, 488, 540, 502]
 	  Port			  "4"
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
@@ -14798,14 +15060,14 @@ Model {
 	Line {
 	  SrcBlock		  "Counter"
 	  SrcPort		  1
-	  Points		  [40, 0]
+	  Points		  [45, 0]
 	  Branch {
 	    Points		    [0, 125]
 	    DstBlock		    "Coefficients"
 	    DstPort		    1
 	  }
 	  Branch {
-	    Points		    [265, 0; 0, 15]
+	    Points		    [270, 0]
 	    DstBlock		    "DDC A"
 	    DstPort		    1
 	  }
@@ -14867,8 +15129,15 @@ Model {
 	Line {
 	  SrcBlock		  "Stop"
 	  SrcPort		  1
-	  DstBlock		  "Coefficients"
-	  DstPort		  2
+	  Points		  [45, 0]
+	  Branch {
+	    DstBlock		    "Coefficients"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Convert"
+	    DstPort		    1
+	  }
 	}
 	Line {
 	  SrcBlock		  "k addr"
@@ -14933,16 +15202,28 @@ Model {
 	Line {
 	  SrcBlock		  "DDC A"
 	  SrcPort		  1
-	  Points		  [0, 0]
 	  DstBlock		  "ChA I Out"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "DDC A"
 	  SrcPort		  2
-	  Points		  [0, 0]
 	  DstBlock		  "ChA Q Out"
 	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Convert"
+	  SrcPort		  1
+	  Points		  [20, 0; 0, -50]
+	  Branch {
+	    DstBlock		    "Counter Inv"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -50]
+	    DstBlock		    "Counter"
+	    DstPort		    1
+	  }
 	}
       }
     }
@@ -15281,8 +15562,31 @@ Model {
       Position		      [25, 220, 55, 250]
       SineType		      "Time based"
       Amplitude		      ".99"
-      Frequency		      "2*pi*60.001e6"
-      SampleTime	      "1/48e6"
+      Frequency		      "2*pi*60.5e6"
+      SampleTime	      "1/sampling_freq"
+    }
+    Block {
+      BlockType		      Step
+      Name		      "Step"
+      Position		      [105, 255, 135, 285]
+      Time		      "00/filter_clk"
+      Before		      "1"
+      After		      "0"
+      SampleTime	      "1/filter_clk"
+    }
+    Block {
+      BlockType		      Sum
+      Name		      "Sum"
+      Ports		      [2, 1]
+      Position		      [65, 340, 85, 360]
+      NamePlacement	      "alternate"
+      ShowName		      off
+      IconShape		      "round"
+      Inputs		      "|++"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      SaturateOnIntegerOverflow	off
     }
     Block {
       BlockType		      Reference
@@ -15374,7 +15678,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15411,7 +15715,7 @@ Model {
       bin_pt		      "17"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15445,13 +15749,13 @@ Model {
 "rdware notes:  In hardware these blocks become top level output ports or are "
 "discarded, depending on how they are configured."
       hdl_port		      on
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
       xl_area		      "[0 0 0 0 18 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
+      sggui_pos		      "20,20,336,384"
       block_type	      "gatewayout"
       block_version	      "VER_STRING_GOES_HERE"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -15481,7 +15785,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15518,7 +15822,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15555,7 +15859,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15592,7 +15896,7 @@ Model {
       bin_pt		      "17"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15626,13 +15930,13 @@ Model {
 "rdware notes:  In hardware these blocks become top level output ports or are "
 "discarded, depending on how they are configured."
       hdl_port		      on
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
       xl_area		      "[0 0 0 0 18 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
+      sggui_pos		      "20,20,336,384"
       block_type	      "gatewayout"
       block_version	      "VER_STRING_GOES_HERE"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -15662,7 +15966,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15699,7 +16003,7 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/sampling_freq"
       dbl_ovrd		      off
       timing_constraint	      "None"
       locs_specified	      off
@@ -15736,9 +16040,9 @@ Model {
       bin_pt		      "0"
       quantization	      "Round  (unbiased: +/- Inf)"
       overflow		      "Saturate"
-      period		      "1/filter_clk"
+      period		      "1/12e6"
       dbl_ovrd		      off
-      timing_constraint	      "None"
+      timing_constraint	      "Data Rate"
       locs_specified	      off
       LOCs		      "{}"
       xl_use_area	      off
@@ -15776,12 +16080,12 @@ Model {
 	Branch {
 	  Points		  [0, -35]
 	  Branch {
-	    Points		    [0, -70]
-	    DstBlock		    "Gateway Out"
+	    DstBlock		    "Gateway Out1"
 	    DstPort		    1
 	  }
 	  Branch {
-	    DstBlock		    "Gateway Out1"
+	    Points		    [0, -70]
+	    DstBlock		    "Gateway Out"
 	    DstPort		    1
 	  }
 	}
@@ -15806,7 +16110,6 @@ Model {
 	DstPort			1
       }
       Branch {
-	Points			[0, 0]
 	DstBlock		"Complex to\nReal-Imag2"
 	DstPort			1
       }
@@ -15883,12 +16186,6 @@ Model {
       SrcBlock		      "DDC"
       SrcPort		      3
       DstBlock		      "k_readcoef"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Constant1"
-      SrcPort		      1
-      DstBlock		      "stop"
       DstPort		      1
     }
     Line {
@@ -16057,9 +16354,27 @@ Model {
       }
     }
     Line {
-      SrcBlock		      "Random\nSource"
+      SrcBlock		      "Step"
       SrcPort		      1
-      Points		      [40, 0; 0, -50]
+      DstBlock		      "stop"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Counter\nFree-Running"
+      SrcPort		      1
+      DstBlock		      "Sum"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Constant1"
+      SrcPort		      1
+      Points		      [25, 0]
+      DstBlock		      "Sum"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Sine Wave"
+      SrcPort		      1
       DstBlock		      "Switch"
       DstPort		      2
     }
@@ -16150,7 +16465,7 @@ MatData {
 "  &-L;V-K7VQO8P            !S>6YT:&5S:7-?;&%N9W5A9V4 8V5?8VQR                "
 " '!R97-E<G9E7VAI97)A<F-H>0!P;W-T9V5N97)A=&EO;E]F8VX <V5T=&EN9W-?9F-N         "
 "&YG8U]C;VYF:6<               X    X    !@    @    $          4    (     0    "
-"<    !         !     '    5FER=&5X-  .    .     8    (    !          %    \" "
+"<    !         !     '    =FER=&5X-  .    .     8    (    !          %    \" "
 "    $    (     0         0    \"    'AC-'9S>#,U#@   #     &    \"     0      "
 "   !0    @    !     P    $         $  # \"TQ,0 .    .     8    (    !        "
 "  %    \"     $    %     0         0    !0   &9F-C8X    #@   #     &    \"   "
@@ -16255,7 +16570,7 @@ MatData {
 "FEE;&0           !C;&]C:U]L;V,             <WEN=&AE<VES7VQA;F=U86=E &-E7V-L<@"
 "                !P<F5S97)V95]H:65R87)C:'D <&]S=&=E;F5R871I;VY?9F-N '-E='1I;F="
 "S7V9C;@        !N9V-?8V]N9FEG               .    .     8    (    !          %"
-"    \"     $    '     0         0    !P   %9I<G1E>#0 #@   #@    &    \"     0"
+"    \"     $    '     0         0    !P   '9I<G1E>#0 #@   #@    &    \"     0"
 "         !0    @    !    \"     $         $     @   !X8S1V<W@S-0X    P    !@ "
 "   @    $          4    (     0    ,    !         !   P M,3$ #@   #@    &    "
 "\"     0         !0    @    !    !0    $         $     4   !F9C8V.     X    P"
