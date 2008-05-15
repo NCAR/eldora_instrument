@@ -43,12 +43,16 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,])
         # The 'header' signal indicates a new header has been chosen
         self.connect(self.headerGui, SIGNAL("header"), self.header)
+        # save the current header
+        self.selectedHeader = self.headerGui.selectedHeader
             
         # Several useful palletes will be created
         self.createPalettes()
         
         # set the stop button to red:
         self.stopButton.setPalette(self.redButtonPalette)
+        self.stopButton.setDown(True)
+        self.startOn = False
         
         # prime the ready signal, which will be emitted
         # on the first timer tick
@@ -145,6 +149,10 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         and send the selected header with it
         '''
         self.emit(SIGNAL('header'), self.headerGui.selectedHeader)
+        if self.startOn and self.selectedHeader != self.headerGui.selectedHeader:
+            self.controlMsg.setPalette(self.redTextPalette)
+            self.controlMsg.setText('Header changed, but Eldora was not restarted')
+        self.selectedHeader = self.headerGui.selectedHeader
         
     ###############################################################################
     def start(self):
@@ -153,7 +161,11 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.emit(SIGNAL('start'))
         self.stopButton.setChecked(False)
         self.stopButton.setPalette(self.stdPalette)
+        self.stopButton.setDown(False)
         self.startButton.setPalette(self.greenButtonPalette)
+        self.startButton.setDown(True)
+        self.controlMsg.setText('')
+        self.startOn = True
 
     ###############################################################################
     def stop(self):
@@ -162,7 +174,11 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.emit(SIGNAL('stop'))
         self.startButton.setChecked(False)
         self.stopButton.setPalette(self.redButtonPalette)
+        self.stopButton.setDown(True)
         self.startButton.setPalette(self.stdPalette)
+        self.startButton.setDown(False)
+        self.controlMsg.setText('')
+        self.startOn = False
 
     ###############################################################################
     def scope(self):
@@ -186,17 +202,24 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         self.redButtonPalette = QPalette(self.stdPalette)
         self.setPaletteColors(self.redButtonPalette, button='red')
         
+        self.redTextPalette = QPalette(self.stdPalette)
+        self.setPaletteColors(self.redTextPalette, text='red')
+        
 
     ###############################################################################
-    def setPaletteColors(self, palette, window=None, button=None):
+    def setPaletteColors(self, palette, window=None, button=None, text=None):
         if window != None:
             palette.setColor(QPalette.Active, QPalette.Window, QColor(window))
-            palette.setColor(QPalette.Inactive, QPalette.Foreground, QColor(window))
-            palette.setColor(QPalette.Disabled, QPalette.Button, QColor(window))
+            palette.setColor(QPalette.Inactive, QPalette.Window, QColor(window))
+            palette.setColor(QPalette.Disabled, QPalette.Window, QColor(window))
+        if text != None:
+            palette.setColor(QPalette.Active, QPalette.WindowText, QColor(text))
+            palette.setColor(QPalette.Inactive, QPalette.WindowText, QColor(text))
+            palette.setColor(QPalette.Disabled, QPalette.WindowText, QColor(text))
         if button != None:
             palette.setColor(QPalette.Active, QPalette.Button, QColor(button))
             palette.setColor(QPalette.Inactive, QPalette.Button, QColor(button))
-            palette.setColor(QPalette.Disabled, QPalette.Foreground, QColor(button))
+            palette.setColor(QPalette.Disabled, QPalette.Button, QColor(button))
     	
     ###############################################################################
     def initGauges(self):
