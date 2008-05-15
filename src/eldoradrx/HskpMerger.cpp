@@ -21,7 +21,8 @@ HskpMerger::HskpMerger(RR314* rr314, int maxLatencyMsec,
     _rr314(rr314),
     _maxLatency(milliseconds(maxLatencyMsec)),
     _publishFunction(publishFunction),
-    _droppedBufCount(0),
+    _droppedABPCount(0),
+    _droppedTSCount(0),
     _droppedHskpCount(0) {
     pthread_mutex_init(&_unmergedRRMutex, NULL);
     pthread_mutex_init(&_unmergedHskpMutex, NULL);
@@ -109,6 +110,9 @@ HskpMerger::mergeAndSend(unsigned int rayNum) {
         _publishFunction(rentry, hskp);
         // We're done with this entry
         removeRREntry(current);
+        // Increment the match counts for the housekeeping entry and for 
+        // this call.
+        hentry->incMatchCount();
         nmatches++;
     }
     
@@ -155,10 +159,13 @@ HskpMerger::clearOldEntries() {
 //                _rr314->boardNumber() << "/" << it->first << "/" << 
 //                entry->rrBuffer()->dmaChan << " after " << latency << 
 //                " seconds waiting for housekeeping" << std::endl;
+            // Increment the appropriate dropped buffer count
+            if (entry->rrBuffer()->type == RRBuffer::ABPtype)
+                _droppedABPCount++;
+            else
+                _droppedTSCount++;
             // Clear this entry from our list
             removeRREntry(current);
-            
-            _droppedBufCount++;
         } else {
             break;
         }
@@ -178,6 +185,10 @@ HskpMerger::clearOldEntries() {
         HskpEntry* entry = current->second;
         time_duration latency = now - entry->insertTime();
         if (latency > _maxLatency) {
+            // If we never matched anything to this hskp entry, increment the
+            // dropped housekeeping count
+            if (entry->matchCount() == 0)
+                _droppedHskpCount++;
             // Clear this entry from our list
             removeHskpEntry(current);
         } else {

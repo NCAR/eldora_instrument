@@ -322,8 +322,20 @@ int main(int argc,
         // periodically display the card activity.
         while(1)
         {
+            // stats for card 0
             showStats(params0, rr314_0, _droppedRay[0], _droppedTS[0], loopCount);
+            // hskp merger info for 0
+            std::cout << "\t\t hskp merge drops - " <<
+                "ABP: " << hskpMerger[0].droppedABPCount() << 
+                ", TS: " << hskpMerger[0].droppedTSCount() << 
+                ", hskp: " << hskpMerger[0].droppedHskpCount() << std::endl;
+            // stats for card 1
             showStats(params1, rr314_1, _droppedRay[1], _droppedTS[1], loopCount);
+            // hskp merger info for 1
+            std::cout << "\t\t hskp merge drops - " <<
+                "ABP: " << hskpMerger[1].droppedABPCount() << 
+                ", TS: " << hskpMerger[1].droppedTSCount() << 
+                ", hskp: " << hskpMerger[1].droppedHskpCount() << std::endl;
             loopCount++;
             for (int i = 0; i < 10; i++) {
                 if (_terminate)

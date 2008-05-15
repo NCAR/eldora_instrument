@@ -47,8 +47,9 @@ private:
     bool _textcapture;
 };
 
-/// HskpEntry keeps a pointer to an EldoraDDS::Housekeeping and an associated 
-/// insert time (which is set to current time when the object is instantiated).  
+/// HskpEntry keeps a pointer to an EldoraDDS::Housekeeping, an associated 
+/// insert time (which is set to current time when the object is instantiated),
+/// and a count of RRBuffer-s it has been matched with.  
 /// This class is only used in HskpMerger's list of Housekeeping-s waiting to 
 /// be merged with RRBuffer-s.
 class HskpEntry {
@@ -57,16 +58,28 @@ public:
     /// @param buf_p EldoraDDS::Housekeeping waiting to be merged
     HskpEntry(EldoraDDS::Housekeeping* hskp) : 
         _hskp(hskp), 
-        _insertTime(boost::posix_time::microsec_clock::universal_time()) {}
+        _insertTime(boost::posix_time::microsec_clock::universal_time()),
+        _matchCount(0) {}
     /// Return a pointer to the Housekeeping.
     /// @return pointer to the Housekeeping.
     EldoraDDS::Housekeeping* hskp() const { return _hskp; }
     /// Return the insert time associated with this object.
     /// @return the insert time for this object.
     boost::posix_time::ptime insertTime() const { return _insertTime; }
+    
+    /// Return the current count of RRBuffer-s to which this housekeeping
+    /// entry has been matched.
+    /// @return the current match count.
+    unsigned int matchCount() const { return _matchCount; }
+    
+    /// Increment the count of RRBuffer-s to which this housekeeping
+    /// entry has been matched.
+    /// @return the new match count.
+    unsigned int incMatchCount() { return _matchCount++; }
 private:
     EldoraDDS::Housekeeping* _hskp;
     boost::posix_time::ptime _insertTime;
+    unsigned int _matchCount;
 };
 
 /// HskpMerger keeps a list of RRBuffer-s which are complete except for 
@@ -108,9 +121,10 @@ public:
     void newHskp(EldoraDDS::Housekeeping* hskp);
     
     /// How many RRBuffer-s have been dropped with no housekeeping match?
-    unsigned int droppedBufCount() { return _droppedBufCount; }
+    unsigned int droppedABPCount() { return _droppedABPCount; }
+    unsigned int droppedTSCount() { return _droppedTSCount; }
     
-    /// How many housekeeping packets have we gotten with no matching
+    /// How many housekeeping packets have we dropped with no matching
     /// RRBuffer-s?
     unsigned int droppedHskpCount() { return _droppedHskpCount; }
 private:
@@ -159,7 +173,8 @@ private:
     void (*_publishFunction)(RREntry* rbuf, EldoraDDS::Housekeeping* hskp);
     
     /// How many RRBuffers have we dropped with no housekeeping match?
-    unsigned int _droppedBufCount;
+    unsigned int _droppedABPCount;
+    unsigned int _droppedTSCount;
     
     /// How many housekeeping packets have we gotten with no matching 
     /// RRBuffer-s?
