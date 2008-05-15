@@ -1,6 +1,6 @@
 #include "EldoraProducts.h"
 #include <iostream>
-
+#include <math.h>
 #define TOSHORT(data, gain, offset) ((short)(((data)*(gain))-(offset)))
 
 ////////////////////////////////////////////////////
