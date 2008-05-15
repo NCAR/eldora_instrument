@@ -21,9 +21,11 @@ HskpMerger::HskpMerger(RR314* rr314, int maxLatencyMsec,
     _rr314(rr314),
     _maxLatency(milliseconds(maxLatencyMsec)),
     _publishFunction(publishFunction),
+    _lateRRBufCount(0),
     _droppedABPCount(0),
     _droppedTSCount(0),
-    _droppedHskpCount(0) {
+    _droppedHskpCount(0),
+    _sentCount(0) {
     pthread_mutex_init(&_unmergedRRMutex, NULL);
     pthread_mutex_init(&_unmergedHskpMutex, NULL);
 }
@@ -43,13 +45,15 @@ HskpMerger::newRRBuffer(RRBuffer* rrbuf, bool publish, bool capture,
     _unmergedRRBufs.insert(std::pair<unsigned int, RREntry*>(rrbuf->rayNum, entry));
     pthread_mutex_unlock(&_unmergedRRMutex);
     
-//    // As a rule, housekeeping should arrive *after* the associated RRBuffer-s,
-//    // so we expect zero matches from this mergeAndSend().
-//    int nsent = mergeAndSend(rrbuf->rayNum);
-//    if (nsent != 0)
+    // As a rule, housekeeping should arrive *after* the associated RRBuffer-s,
+    // so we expect zero matches from this mergeAndSend().
+    int nsent = mergeAndSend(rrbuf->rayNum);
+    if (nsent != 0) {
+        _lateRRBufCount += nsent;
 //        std::cerr << __FUNCTION__ << ": housekeeping arrived before RRBuf " <<
 //            rrbuf->rayNum << ", dev " << rrbuf->boardNumber() <<
 //            ", channel " << rrbuf->chanId << std::endl;
+    }
     
     // Clear out any entries which are older than the max latency time
     clearOldEntries();
@@ -108,6 +112,7 @@ HskpMerger::mergeAndSend(unsigned int rayNum) {
         UREMIterator current = it++;
         RREntry* rentry = current->second;
         _publishFunction(rentry, hskp);
+        _sentCount++;
         // We're done with this entry
         removeRREntry(current);
         // Increment the match counts for the housekeeping entry and for 
@@ -196,4 +201,19 @@ HskpMerger::clearOldEntries() {
         }
     }
     pthread_mutex_unlock(&_unmergedHskpMutex);    
+}
+
+void
+HskpMerger::showStats(std::ostream& os) {
+    os << "hskp merger " << _rr314->boardNumber() << ": " <<
+        "sent: " << _sentCount << 
+        ", late RRBufs: " << _lateRRBufCount << ", ABP drops: " << 
+        _droppedABPCount << ", TS drops: " << _droppedTSCount << 
+        ", hskp drops: " << _droppedHskpCount << std::endl;
+    // reset the counts
+    _sentCount = 0;
+    _lateRRBufCount = 0;
+    _droppedABPCount = 0;
+    _droppedTSCount = 0;
+    _droppedHskpCount = 0;
 }

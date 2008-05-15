@@ -1,6 +1,7 @@
 #ifndef HSKPMERGER_H_
 #define HSKPMERGER_H_
 
+#include <iostream>
 #include <map>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -120,13 +121,9 @@ public:
     /// @param hskp the new housekeeping
     void newHskp(EldoraDDS::Housekeeping* hskp);
     
-    /// How many RRBuffer-s have been dropped with no housekeeping match?
-    unsigned int droppedABPCount() { return _droppedABPCount; }
-    unsigned int droppedTSCount() { return _droppedTSCount; }
+    /// Print stats to a stream (resets the status counters)
+    void showStats(std::ostream& os);
     
-    /// How many housekeeping packets have we dropped with no matching
-    /// RRBuffer-s?
-    unsigned int droppedHskpCount() { return _droppedHskpCount; }
 private:
 	/// Our associated RedRapids card
 	RR314* _rr314;
@@ -171,6 +168,9 @@ private:
     
     /// function to publish completed RRBuffer-s
     void (*_publishFunction)(RREntry* rbuf, EldoraDDS::Housekeeping* hskp);
+
+    /// How many RRBuffer-s arrived later than their housekeeping?
+    unsigned int _lateRRBufCount;
     
     /// How many RRBuffers have we dropped with no housekeeping match?
     unsigned int _droppedABPCount;
@@ -179,5 +179,8 @@ private:
     /// How many housekeeping packets have we gotten with no matching 
     /// RRBuffer-s?
     unsigned int _droppedHskpCount;
+    
+    /// How many matched RRBuffer-s have we sent out?
+    unsigned int _sentCount;
 };
 #endif /*HSKPMERGER_H_*/
