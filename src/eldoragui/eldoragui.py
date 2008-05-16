@@ -233,14 +233,25 @@ def runDrx():
            '--start1',
            '--pub',
            ]
-    # see if RR314 should be simulated
-    drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
-    if drxSimRRMode:
-        drxcmd.append('--simRR314')
+    
+    # get the rpc port number
+    rpcport = ourConfig.getInt('Drx/RpcPort', 60000)
+    drxcmd.append('--rpcport')
+    drxcmd.append(str(rpcport))
+    
     # see if hskp should be simulated
     drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
     if drxSimHskpMode:
         drxcmd.append('--simHskp')
+        
+    # see if RR314 should be simulated
+    drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
+    if drxSimRRMode:
+        drxcmd.append('--simRR314')
+        # get the usleep rate
+        usleep = ourConfig.getInt('Mode/Usleep', 9000)
+        drxcmd.append('--usleep')
+        drxcmd.append(str(usleep))
         
     # create the process
     s = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
