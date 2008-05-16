@@ -396,9 +396,9 @@ getConfigParams(runParams &params) {
     params.internaltimer = config.getBool  ("Mode/InernalTimer",  false);
     
     // RR314 signal processing parameters
-    params.xsvf          = config.getString("DSP/XsvfFile",        "./"); 
-    params.kaiser        = config.getString("DSP/KaiserFile",      "./"); 
-    params.gaussian      = config.getString("DSP/GaussianFile",    "./"); 
+    params.xsvf          = config.getString("DSP/XsvfFile",        ""); 
+    params.kaiser        = config.getString("DSP/KaiserFile",      ""); 
+    params.gaussian      = config.getString("DSP/GaussianFile",    ""); 
     
     // DDS parameters
     params.publish       = config.getBool  ("DDS/Publish",         true); 
