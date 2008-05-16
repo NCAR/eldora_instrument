@@ -265,6 +265,10 @@ int main(int argc,
             pthread_create(&dataThread1, NULL, rrDataTask, (void*) &params1);
         }
 
+        // note if we're simulating housekeeping
+        if (params0.simulateHskp)
+            std::cout << "Housekeeping will be simulated" << std::endl;
+        
         // Shift the default port for simulated housekeeping off of the 
         // normal default, so that we can simulate even if the real housekeeper
         // is running.
