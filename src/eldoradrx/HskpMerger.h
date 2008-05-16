@@ -154,9 +154,10 @@ private:
     /// Merge matching RRBuffer-s and Housekeeping-s at rayNum and send out the
     /// results.
     /// @param rayNum the ray number to test for matches
+    /// @param newHskp is this call based on new housekeeping?
     /// @return the number of RRBuffer-s that were matched with housekeeping
     ///	    and sent out
-    int mergeAndSend(unsigned int rayNum);
+    int mergeAndSend(unsigned int rayNum, bool newHskp);
     
     /// Clear RRBuffer-s and Housekeeping-s that we have kept for more than 
     /// _maxLatency milliseconds
@@ -170,7 +171,8 @@ private:
     void (*_publishFunction)(RREntry* rbuf, EldoraDDS::Housekeeping* hskp);
 
     /// How many RRBuffer-s arrived later than their housekeeping?
-    unsigned int _lateRRBufCount;
+    unsigned int _lateABPCount;
+    unsigned int _lateTSCount;
     
     /// How many RRBuffers have we dropped with no housekeeping match?
     unsigned int _droppedABPCount;

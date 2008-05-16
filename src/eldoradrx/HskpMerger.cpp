@@ -21,7 +21,8 @@ HskpMerger::HskpMerger(RR314* rr314, int maxLatencyMsec,
     _rr314(rr314),
     _maxLatency(milliseconds(maxLatencyMsec)),
     _publishFunction(publishFunction),
-    _lateRRBufCount(0),
+    _lateABPCount(0),
+    _lateTSCount(0),
     _droppedABPCount(0),
     _droppedTSCount(0),
     _droppedHskpCount(0),
@@ -45,16 +46,9 @@ HskpMerger::newRRBuffer(RRBuffer* rrbuf, bool publish, bool capture,
     _unmergedRRBufs.insert(std::pair<unsigned int, RREntry*>(rrbuf->rayNum, entry));
     pthread_mutex_unlock(&_unmergedRRMutex);
     
-    // As a rule, housekeeping should arrive *after* the associated RRBuffer-s,
-    // so we expect zero matches from this mergeAndSend().
-    int nsent = mergeAndSend(rrbuf->rayNum);
-    if (nsent != 0) {
-        _lateRRBufCount += nsent;
-//        std::cerr << __FUNCTION__ << ": housekeeping arrived before RRBuf " <<
-//            rrbuf->rayNum << ", dev " << rrbuf->boardNumber() <<
-//            ", channel " << rrbuf->chanId << std::endl;
-    }
-    
+    // If anything matches now, send it out.
+    mergeAndSend(rrbuf->rayNum, false);
+
     // Clear out any entries which are older than the max latency time
     clearOldEntries();
 }
@@ -77,14 +71,14 @@ HskpMerger::newHskp(EldoraDDS::Housekeeping* hskp) {
     pthread_mutex_unlock(&_unmergedHskpMutex);
     
     // If anything matches now, send it out
-    mergeAndSend(rayNum);
+    mergeAndSend(rayNum, true);
     
     // Clear out any entries which are older than the max latency time
     clearOldEntries();
 }
 
 int
-HskpMerger::mergeAndSend(unsigned int rayNum) {
+HskpMerger::mergeAndSend(unsigned int rayNum, bool newHskp) {
 	pthread_mutex_lock(&_unmergedRRMutex);
 	pthread_mutex_lock(&_unmergedHskpMutex);
 
@@ -113,6 +107,14 @@ HskpMerger::mergeAndSend(unsigned int rayNum) {
         RREntry* rentry = current->second;
         _publishFunction(rentry, hskp);
         _sentCount++;
+        // If this call was not triggered by new housekeeping, increment
+        // the appropriate RRBuffer-arrived-after-hskp count
+        if (! newHskp) {
+            if (rentry->rrBuffer()->type == RRBuffer::ABPtype)
+                _lateABPCount++;
+            else
+                _lateTSCount++;
+        }
         // We're done with this entry
         removeRREntry(current);
         // Increment the match counts for the housekeeping entry and for 
@@ -207,12 +209,15 @@ void
 HskpMerger::showStats(std::ostream& os) {
     os << "hskp merger " << _rr314->boardNumber() << ": " <<
         "sent: " << _sentCount << 
-        ", late RRBufs: " << _lateRRBufCount << ", ABP drops: " << 
-        _droppedABPCount << ", TS drops: " << _droppedTSCount << 
+        ", late ABPs: " << _lateABPCount << 
+        ", late TSs:" << _lateTSCount << 
+        ", ABP drops: " << _droppedABPCount << 
+        ", TS drops: " << _droppedTSCount << 
         ", hskp drops: " << _droppedHskpCount << std::endl;
     // reset the counts
     _sentCount = 0;
-    _lateRRBufCount = 0;
+    _lateABPCount = 0;
+    _lateTSCount = 0;
     _droppedABPCount = 0;
     _droppedTSCount = 0;
     _droppedHskpCount = 0;
