@@ -172,6 +172,10 @@ semTake(vmeSem,WAIT_FOREVER);
       }
     else
       {
+ //Added Tom 3/25/08
+  SendUDP(fore_ray_pntr);
+  SendUDP(aft_ray_pntr);
+
  platform_status[iru_lag_index] = 0;
  currStatus->iru &= (char)(~ARINC_INT_BAD);
  fore_ray_pntr->this_rayi.ray_status = 0;
@@ -477,11 +481,7 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
    } /* Test of wg_sw_counter > 10 */
 
       } /* Test of wg_sw_flag != 0 */
- 
-  //Added Tom 3/25/08
-  SendUDP(fore_ray_pntr);
-  SendUDP(aft_ray_pntr);
-
+  
 
 } /* Infinite for loop */
 }
