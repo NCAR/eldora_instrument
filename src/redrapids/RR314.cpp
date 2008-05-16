@@ -53,7 +53,8 @@ RR314::RR314(int devNum,
 
     if (simulate) {
         std::cout
-                << "*** RR314 operating in simulation mode, without hardware\n";
+                << "*** RR314 operating in simulation mode, without hardware. Usleep = " 
+                << usleep << "\n";
     } else {
         std::cout << "*** This version of RR314 works with CA_DDC_4.xsvf\n";
     }
