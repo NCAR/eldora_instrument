@@ -132,16 +132,29 @@ def startEldoraApps():
         
 ####################################################################################
 def stopEldoraApps():
-    ''' Stop the standard Eldora processing apps
+    ''' Stop the standard Eldora processing apps. Try first with a SIGTERM. If
+    that fails, try a SIGKILL. Remove them from ourProcesses. Note that 
+    removing a an entry from ourProcesses removes its reference, and it
+    will go out of scope. This causes the QProcess to kill the job.
     '''
     global ourProcesses
     for key in ('eldoradrx', 'eldoraprod'):
         if key in ourProcesses.keys():
             msg = 'Terminating ' + key
             main.logText(msg)
-            ourProcesses[key].terminate() 
-    # we don't erase the entry in ourProcesses because 
-    # it takes awhile for the process to terminate
+            proc = ourProcesses[key]
+            proc.terminate() 
+            terminated = proc.waitForFinished(500)
+            if not terminated:
+                msg = 'Killing ' + key
+                main.logText(msg)
+                proc.kill()
+                killed = proc.waitForFinished(500)
+                if not killed:
+                    msg = 'Could not kill ' + key
+                    main.logText(msg)
+            # remove reference to the processes.
+            del ourProcesses[key]
     
 ####################################################################################
 def runDcps():
@@ -213,21 +226,33 @@ def runDrx():
     if isRunning:
         return
     
-    # start a new instance
+    # start a new instance with standard options
     drxcmd = [
            os.path.join(eldoraDir, 'eldoradrx', 'eldoradrx'),
            '--start0',
            '--start1',
            '--pub',
            ]
-    drxSimMode = ourConfig.getBool('Mode/Simulate', False)
-    if drxSimMode:
+    # see if RR314 should be simulated
+    drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
+    if drxSimRRMode:
         drxcmd.append('--simRR314')
+    # see if hskp should be simulated
+    drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
+    if drxSimHskpMode:
         drxcmd.append('--simHskp')
-    ourProcesses['eldoradrx'] = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
-    s = ourProcesses['eldoradrx']
+        
+    # create the process
+    s = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
+    ourProcesses['eldoradrx'] = s
+    
+    # send text output to the text logger in the main gui
     QObject.connect(s, SIGNAL("text"), main.logText)
+    
+    # start eldoradrx
     s.start()
+    
+    # and puase to catch our breath
     time.sleep(1)
     
 ####################################################################################
@@ -308,7 +333,7 @@ def pgrep(name):
 ####################################################################################
 def mainIsReady():
     '''
-    Call this to start our apps and perform other activities
+    Call this to perform any activities
     which should take place after the main Qt app has been started.
     For instance, any object that are created from QThread should be
     constructed after the main app is running.
