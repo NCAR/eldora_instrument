@@ -388,7 +388,7 @@ getConfigParams(runParams &params) {
     params.startiq       = config.getInt   ("Radar/StartIQ",     100); 
     params.numiq         = config.getInt   ("Radar/NumIQGates",  5); 
     params.pulsewidth    = config.getInt   ("Radar/PulseWidthNs",1000); 
-    params.prf           = config.getInt   ("Radar/PrfHz",       1000);
+    params.prf           = config.getInt   ("Radar/PrfHz",       2500);
     
     // operating mode parameters
     params.enabled       = config.getBool  ("Mode/Enabled",       true); 
