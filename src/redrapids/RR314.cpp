@@ -474,7 +474,30 @@ int RR314::configure314() {
 
     // Start the DDC
     Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0x0);
-            
+    
+    // Remove DC
+    printf("Removing DC... ");
+    sleep(1);
+    //Adapter_Write32(&_chanAdapter, V4, 0xA60, 1);
+    sleep(1);
+    Adapter_Read32(&_chanAdapter, V4, 0xA64, &result);
+    if(result) printf("DC Removed\n");
+    else printf("DC Not Removed\n");
+    Adapter_Read32(&_chanAdapter, V4, 0xA70, &result);
+    printf("Ch A I DC = %x\n", (result>>16));
+    printf("Ch A Q DC = %x\n", (result & 0xFFFF));
+    Adapter_Read32(&_chanAdapter, V4, 0xA74, &result);
+    printf("Ch B I DC = %x\n", (result>>16));
+    printf("Ch B Q DC = %x\n", (result & 0xFFFF));
+    Adapter_Read32(&_chanAdapter, V4, 0xA78, &result);
+    printf("Ch C I DC = %x\n", (result>>16));
+    printf("Ch C Q DC = %x\n", (result & 0xFFFF));
+    Adapter_Read32(&_chanAdapter, V4, 0xA7C, &result);
+    printf("Ch D I DC = %x\n", (result>>16));
+    printf("Ch D Q DC = %x\n", (result & 0xFFFF));
+                    
+    
+    
     return 0;
 
 }
@@ -654,8 +677,9 @@ void RR314::newABPData(int* src,
             if (((nextData) % 3) < 2) {
                 pBuf->_abp[nextData] = src[i]*ABSCALE;
             } else {
-                // P scaled by 2 times full scale
-                pBuf->_abp[nextData] = src[i]*PSCALE;
+                // P is actually unsigned...
+                unsigned int* usrc = (unsigned int*)src;
+                pBuf->_abp[nextData] = usrc[i]*PSCALE;
             }
             pBuf->_posInRay++;
             if (++nextData == pBuf->_abp.size()) {

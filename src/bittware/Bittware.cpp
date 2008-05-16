@@ -110,7 +110,8 @@ void Bittware::configure(unsigned int gates,
 // Calculated Timing Variables from Header Variables
     
     // Test Pulse Calculations
-    U32 TP_Delay = ((int) ((TX_Delay[0] + Gate_Dist[0] + (_gates - 4) * Gate_Dist[1]) / 10)) * 10;
+    //U32 TP_Delay = ((int) ((TX_Delay[0] + Gate_Dist[0] + (_gates - 4) * Gate_Dist[1]) / 10)) * 10;
+    U32 TP_Delay = 197+60;
     U32 TP_Width = (int) (Gate_Dist[1] * 5);
     
     // RX Pulse Calculations
@@ -154,7 +155,7 @@ void Bittware::configure(unsigned int gates,
     }
     
     // Midbeam Interrupt Calculation
-    U32 Midbeam_Width = 30;
+    U32 Midbeam_Width = 60;
     U32 Midbeam_Prt = 0x0;
     U32 Midbeam_Delay;
     U32 Midbeam_periodCount;
