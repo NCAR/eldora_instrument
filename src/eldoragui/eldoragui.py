@@ -144,12 +144,12 @@ def stopEldoraApps():
             main.logText(msg)
             proc = ourProcesses[key]
             proc.terminate() 
-            terminated = proc.waitForFinished(500)
+            terminated = proc.waitForFinished(1500)
             if not terminated:
                 msg = 'Killing ' + key
                 main.logText(msg)
                 proc.kill()
-                killed = proc.waitForFinished(500)
+                killed = proc.waitForFinished(1500)
                 if not killed:
                     msg = 'Could not kill ' + key
                     main.logText(msg)
