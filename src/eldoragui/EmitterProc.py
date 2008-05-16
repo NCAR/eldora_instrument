@@ -48,12 +48,17 @@ class EmitterProc(QProcess):
         
     def startDetached(self):
         QProcess.startDetached(self.command[0], self.command[1:])
+        line= self.lineprefix
+        for p in self.command:
+            line = line + ' ' + p
+        self.emit(SIGNAL("text"), line, self.payload)
         
     def readyRead(self):
         while (1):
             line = self.readLine()
             if not line:
                 return
+            #print line.replace("\n",'')
             if self.emitText:
                 text = self.lineprefix + line
                 self.emit(SIGNAL("text"), 

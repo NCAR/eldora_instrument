@@ -115,6 +115,9 @@ def status():
 def startEldoraApps():
     ''' Run eldora applications which have been selected in the configuration.
     '''
+    # @todo must add logic to insure that the processes are not still running.
+    # it is possible that previous terminate() calls did not work.
+    
     # drx
     runDrx()
     
@@ -131,11 +134,14 @@ def startEldoraApps():
 def stopEldoraApps():
     ''' Stop the standard Eldora processing apps
     '''
-    
-    pkill('eldoraprod')
-    pkill ('eldoradrx')
-    # at the moment, kill eldoraprod twice, becasue for some reason it needs this
-    pkill ('eldoraprod')
+    global ourProcesses
+    for key in ('eldoradrx', 'eldoraprod'):
+        if key in ourProcesses.keys():
+            msg = 'Terminating ' + key
+            main.logText(msg)
+            ourProcesses[key].terminate() 
+    # we don't erase the entry in ourProcesses because 
+    # it takes awhile for the process to terminate
     
 ####################################################################################
 def runDcps():
@@ -285,7 +291,7 @@ def pkill(name):
     the pkill exit status
     '''
     p = QProcess()
-    p.start('/usr/bin/pkill', [name,])
+    p.start('/usr/bin/kill', [name,])
     p.waitForFinished(-1)
     return p.exitCode()
 
@@ -412,6 +418,29 @@ def nextTaskColor():
     return taskColors[currentColor]
         
 ####################################################################################
+def lastWindowClosed():
+    # Terminate processes by sending them SIGTERM. Otherwise
+    # it appears that they are killed with SIGKILL when PyQt
+    # exists. In the case of eldoradrx, it's use of the 
+    # rr314 Jungo driver can cause Linux to crash if eldoradrx
+    # is not able to run it's signal cleaup code.
+    for key in ourProcesses.keys():
+        ourProcesses[key].terminate()
+        print 'waiting for ' + key + ' to finish...'
+        terminated = ourProcesses[key].waitForFinished(2000)
+        if terminated:
+            print '...done'
+        else:
+            print 'could not terminate, trying a kill...'
+            ourProcesses[key].kill()
+            killed = ourProcesses[key].waitForFinished(2000)
+            if killed:
+                print '...done'
+            else:
+                print '...kill did not work either'
+            
+
+####################################################################################
 #
 # This is where it all happens
 #
@@ -437,13 +466,14 @@ main = EldoraMain(headerDirs)
 main.show()
 
 # connect signals from main back to us
-QObject.connect(main, SIGNAL('start'),   start)
-QObject.connect(main, SIGNAL('stop'),    stop)
-QObject.connect(main, SIGNAL('status'),  status)
-QObject.connect(main, SIGNAL('ready'),   mainIsReady)
-QObject.connect(main, SIGNAL('ppi'),     ppi)
-QObject.connect(main, SIGNAL('scope'),   scope)
-QObject.connect(main, SIGNAL("header"),  header)
+QObject.connect(main, SIGNAL('start'),              start)
+QObject.connect(main, SIGNAL('stop'),               stop)
+QObject.connect(main, SIGNAL('status'),             status)
+QObject.connect(main, SIGNAL('ready'),              mainIsReady)
+QObject.connect(main, SIGNAL('ppi'),                ppi)
+QObject.connect(main, SIGNAL('scope'),              scope)
+QObject.connect(main, SIGNAL('header'),             header)
+QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
 
 # start the event loop
 app.exec_()
