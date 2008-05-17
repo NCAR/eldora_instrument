@@ -12,7 +12,7 @@ from EldoraHeaderGUI import *
 
 
 ######################################################################################
-class EldoraMain(QMainWindow, Ui_EldoraMain):
+class EldoraMain(QDialog, Ui_EldoraMain):
     '''
     EldoraMain provides the connection between the user 
     interface and the 'business' logic. It builds the Eldora
@@ -89,7 +89,9 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
         # the aft ppi button
         self.connect(self.aftPpiButton, SIGNAL('released()'), self.aftPpi)
         # The view header button
-        self.connect(self.viewHdrBtn, SIGNAL('released()'),self.headerGui.viewHeader)
+        self.connect(self.viewHdrBtn, SIGNAL('released()'), self.headerGui.viewHeader)
+        # the expand button
+        self.connect(self.expandButton, SIGNAL('released()'), self.showHide)
         
         # use our timer for a clock. Remember that the first tick will 
         # casue a ready signal to be emitted.
@@ -192,6 +194,24 @@ class EldoraMain(QMainWindow, Ui_EldoraMain):
     def aftPpi(self):
         self.emit(SIGNAL('ppi'), False)
 
+    ###############################################################################
+    def showHide(self):
+        # I had to fiddle around a bunch before hitting on the 
+        # sequence below to get the dilog to resize correctly.
+        # I honestly don't know why it works.
+        if self.expandButton.isChecked():
+            self.statusTab.hide()
+            self.expandButton.setText('Show')
+            QCoreApplication.sendPostedEvents()
+            self.updateGeometry()
+            self.resize(1,1)
+        else:
+            self.statusTab.show()
+            self.expandButton.setText('Hide')
+            QCoreApplication.sendPostedEvents()
+            self.updateGeometry()
+            self.resize(1,1)
+           
     ###############################################################################
     def createPalettes(self):
         self.stdPalette = self.palette()
