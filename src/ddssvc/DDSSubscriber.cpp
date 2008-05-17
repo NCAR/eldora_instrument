@@ -63,6 +63,11 @@ int DDSSubscriber::run(
     try
     {
         _dpf = TheParticipantFactoryWithArgs(argc, argv);
+        if (!_dpf) {
+            cerr << __FILE__ <<":" << __FUNCTION__ << " TheParticipantFactoryWithArgs() failed\n";
+            return 1;
+        }
+
         _participant = _dpf->create_participant(411,
                 PARTICIPANT_QOS_DEFAULT,
                 DDS::DomainParticipantListener::_nil());

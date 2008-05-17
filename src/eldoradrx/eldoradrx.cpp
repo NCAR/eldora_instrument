@@ -243,6 +243,10 @@ int main(int argc,
 
             // create our DDS publisher
             DDSPublisher* publisher = new DDSPublisher(argv.argc(), argv.argv());
+            if (publisher->status()) {
+                std::cout << "Unable to create a publisher, exiting.\n";
+                exit(1);
+            }
 
             // create the ray writer
             _rayWriter = new RayWriter(*publisher, "EldoraRays");
