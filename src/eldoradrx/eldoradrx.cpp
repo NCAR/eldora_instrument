@@ -416,7 +416,7 @@ getConfigParams(runParams &params) {
     productsTopic        = config.getString("DDS/TopicProducts",   "EldoraProducts");
     
     // RPC parameters
-    params.rpcPort       = config.getInt   ("Rpc/RpcPort",         6000);
+    params.rpcPort       = config.getInt   ("Rpc/RpcPort",         60000);
 }
 //////////////////////////////////////////////////////////////////////
 //
