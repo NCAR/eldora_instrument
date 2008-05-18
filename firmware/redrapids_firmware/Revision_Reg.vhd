@@ -35,7 +35,7 @@ architecture Behavioral of Revision_Reg is
 
 begin
 
-Revision_Number <= conv_std_logic_vector(1885, 32);
+Revision_Number <= conv_std_logic_vector(2016, 32);
 
 end Behavioral;
 

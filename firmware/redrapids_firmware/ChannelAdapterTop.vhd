@@ -137,6 +137,10 @@ architecture behavioral of ChannelAdapter_Top is
 	-- DC Removal
 	signal dc_en_seln  : std_logic;     --0xA60
 	signal dc_done_seln: std_logic;     --0xA64
+	signal a_dc_seln   : std_logic;     --0xA70
+	signal b_dc_seln   : std_logic;     --0xA74
+	signal c_dc_seln   : std_logic;     --0xA78
+	signal d_dc_seln   : std_logic;     --0xA7C
 		
 	
 	--Status and Interrupt signals
@@ -293,14 +297,10 @@ architecture behavioral of ChannelAdapter_Top is
 	
 
 	-- DDC & Filter 
-	signal cha_i		: std_logic_vector(15 downto 0);		-- Ch A I Data 
-	signal cha_q		: std_logic_vector(15 downto 0);		-- Ch A Q Data 
-	signal chb_i		: std_logic_vector(15 downto 0);		-- Ch B I Data 
-	signal chb_q		: std_logic_vector(15 downto 0);		-- Ch B Q Data 
-	signal chc_i		: std_logic_vector(15 downto 0);		-- Ch C I Data 
-	signal chc_q		: std_logic_vector(15 downto 0);		-- Ch C Q Data 
-	signal chd_i		: std_logic_vector(15 downto 0);		-- Ch D I Data 
-	signal chd_q		: std_logic_vector(15 downto 0);		-- Ch D Q Data 
+	signal cha_out		: std_logic_vector(31 downto 0);		-- Ch A I Data 
+	signal chb_out		: std_logic_vector(31 downto 0);		-- Ch B I Data 
+	signal chc_out		: std_logic_vector(31 downto 0);		-- Ch C I Data 
+	signal chd_out		: std_logic_vector(31 downto 0);		-- Ch D I Data 
 
 	signal k_addr_reg	: std_logic_vector(31 downto 0);  	--Kaiser Filter Coefficient Address
 	signal k_data_reg	: std_logic_vector(31 downto 0);  	--Kaiser Filter Coefficient Data
@@ -318,8 +318,8 @@ architecture behavioral of ChannelAdapter_Top is
 	signal mt_data_wr  : std_logic;								--MultiTimer Data Write
 	signal pulse_out   : std_logic_vector(3 downto 0);		--MultiTimer Output Pulses
 	signal timer_clk   : std_logic;								--MultiTimer Clk (60 MHz)
-	signal timer_dcmlocked : std_logic;							--Timer DCM lock status bit.
-	signal timer_dcmrst: std_logic;								--Timer DCM reset bit.
+	signal filter_dcmlocked : std_logic;							--Timer DCM lock status bit.
+	signal filter_dcmrst: std_logic;								--Timer DCM reset bit.
 	
 
 	-- Pulse Pair Processor
@@ -363,6 +363,15 @@ architecture behavioral of ChannelAdapter_Top is
 	signal dc_enable  : std_logic;                        --DC Removal Enable
 	signal dc_done    : std_logic;                        --DC Removal Done
 	
+	signal a_i_dc     : std_logic_vector(15 downto 0);    -- Ch A I DC Offset
+	signal a_q_dc     : std_logic_vector(15 downto 0);    -- Ch A Q DC Offset
+	signal b_i_dc     : std_logic_vector(15 downto 0);    -- Ch B I DC Offset
+	signal b_q_dc     : std_logic_vector(15 downto 0);    -- Ch B Q DC Offset
+	signal c_i_dc     : std_logic_vector(15 downto 0);    -- Ch C I DC Offset
+	signal c_q_dc     : std_logic_vector(15 downto 0);    -- Ch C Q DC Offset
+	signal d_i_dc     : std_logic_vector(15 downto 0);    -- Ch D I DC Offset
+	signal d_q_dc     : std_logic_vector(15 downto 0);    -- Ch D Q DC Offset
+	
 		
 	-- Gate Splitter
 	signal gs_dprt_reg: std_logic;							-- Dual PRT Register
@@ -394,18 +403,18 @@ architecture behavioral of ChannelAdapter_Top is
 			sampleclk_p	: in std_logic;
 			sampleclk_n	: in std_logic;
 			adc_clk		: out std_logic;
-			filter_clk	: out std_logic;
+			timer_clk	: out std_logic;
 			start_clk   : out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
 	
-	-- Timer Clk DCM
-	COMPONENT timer_dcm_m314
+	-- Filter Clk DCM
+	COMPONENT filter_dcm_m314
 	PORT (
 			rst			: in std_logic;
 			adc_clk		: in std_logic;
-			timer_clk	: out std_logic;
+			filter_clk	: out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
@@ -444,8 +453,8 @@ architecture behavioral of ChannelAdapter_Top is
 			b_gate_in_int: in std_logic;
 			c_gate_in_ext: in std_logic;
 			c_gate_in_int: in std_logic;
-			ce: in std_logic := '1';
-			clk: in std_logic;
+			ce_1: in std_logic;
+			clk_1: in std_logic;
 			d_gate_in_ext: in std_logic;
 			d_gate_in_int: in std_logic;
 			dual_prt: in std_logic;
@@ -565,14 +574,10 @@ architecture behavioral of ChannelAdapter_Top is
 			k_sel: in std_logic_vector(1 downto 0);
 			k_wr: in std_logic;
 			stop: in std_logic;
-			cha_i_out: out std_logic_vector(15 downto 0);
-			cha_q_out: out std_logic_vector(15 downto 0);
-			chb_i_out: out std_logic_vector(15 downto 0);
-			chb_q_out: out std_logic_vector(15 downto 0);
-			chc_i_out: out std_logic_vector(15 downto 0);
-			chc_q_out: out std_logic_vector(15 downto 0);
-			chd_i_out: out std_logic_vector(15 downto 0);
-			chd_q_out: out std_logic_vector(15 downto 0);
+			cha_out: out std_logic_vector(31 downto 0);
+			chb_out: out std_logic_vector(31 downto 0);
+			chc_out: out std_logic_vector(31 downto 0);
+			chd_out: out std_logic_vector(31 downto 0);
 			g_readcoef: out std_logic_vector(17 downto 0);
 			k_readcoef: out std_logic_vector(17 downto 0));
 	END COMPONENT;
@@ -582,22 +587,18 @@ architecture behavioral of ChannelAdapter_Top is
 	COMPONENT pulsepairproc_cw PORT (
 			a_gate1: in std_logic;
 			a_gate2: in std_logic;
-			a_iin: in std_logic_vector(15 downto 0);
-			a_qin: in std_logic_vector(15 downto 0);
+			a_in: in std_logic_vector(31 downto 0);
 			b_gate1: in std_logic;
 			b_gate2: in std_logic;
-			b_iin: in std_logic_vector(15 downto 0);
-			b_qin: in std_logic_vector(15 downto 0);
+			b_in: in std_logic_vector(31 downto 0);
 			c_gate1: in std_logic;
 			c_gate2: in std_logic;
-			c_iin: in std_logic_vector(15 downto 0);
-			c_qin: in std_logic_vector(15 downto 0);
-			ce: in std_logic := '1';
-			clk: in std_logic;
+			c_in: in std_logic_vector(31 downto 0);
+			ce_1: in std_logic;
+			clk_1: in std_logic;
 			d_gate1: in std_logic;
 			d_gate2: in std_logic;
-			d_iin: in std_logic_vector(15 downto 0);
-			d_qin: in std_logic_vector(15 downto 0);
+			d_in: in std_logic_vector(31 downto 0);
 			dc_enable: in std_logic;
 			iq_index: in std_logic_vector(9 downto 0);
 			iq_length: in std_logic_vector(9 downto 0);
@@ -640,7 +641,7 @@ architecture behavioral of ChannelAdapter_Top is
 			d_ppgate1: out std_logic;
 			d_ppgate2: out std_logic;
 			d_sync_error: out std_logic;
-			dc_remove: out std_logic);
+			dc_done: out std_logic);
 	END COMPONENT;
 
 	
@@ -720,12 +721,6 @@ begin
       O => gpio_buf(0), -- Buffer output
       I => gpio(0));    -- Buffer input (connect directly to top-level port)
 	
---	-- ==== GPIO =====================================================================
---	gpio(3) <= cha_gate_in(1);
---	gpio(2) <= cha_gate_in(0);
---	gpio(1) <= cha_gate_out(1);
---	gpio(0) <= cha_gate_out(0);
-	
 	-- ===== Analog Sample Clk DCM ====================================================
 	--This DCM is used for the incomming LVDS ADC sample clock.  
 	--A Multiplied (3x) version is used for the filter clk.
@@ -735,7 +730,7 @@ begin
 			sampleclk_p	=> sampleclk_p,
 			sampleclk_n	=> sampleclk_n,
 			adc_clk		=> adc_clk,
-			filter_clk	=> filter_clk,
+			timer_clk	=> timer_clk,
 			start_clk   => start_clk,
 			locked		=> adc_dcmlocked);
 	 
@@ -755,12 +750,12 @@ begin
 	-- ===== Timer Clk DCM ====================================================
 	--This DCM is used for the timer sample clock.  
 	--Produces a 60 MHz clock for timers from 48 MHz adc clock.
-	timer_dcmrst <= ctl_reg(1) or ctl_reg(15);  --reset with Timer DCM Reset or soft reset
-	Timer_clkmanager: timer_dcm_m314 PORT MAP(
-			rst		  	=> timer_dcmrst,
+	filter_dcmrst <= ctl_reg(1) or ctl_reg(15);  --reset with Timer DCM Reset or soft reset
+	Filter_clkmanager: filter_dcm_m314 PORT MAP(
+			rst		  	=> filter_dcmrst,
 			adc_clk		=> adc_clk,
-			timer_clk	=> timer_clk,
-			locked		=> timer_dcmlocked);
+			filter_clk	=> filter_clk,
+			locked		=> filter_dcmlocked);
 
     -- ===== Address Decoder =========================================================
     --This logic will detect that a Rd/Wr is being done but looking at the Local_Data_ADS_N
@@ -817,6 +812,10 @@ begin
 			svn_rev_seln   <= '1';
 			dc_en_seln     <= '1';
 			dc_done_seln   <= '1';
+			a_dc_seln      <= '1';
+			b_dc_seln      <= '1';
+			c_dc_seln      <= '1';
+			d_dc_seln      <= '1';			
 			addr_decode_en <= '0';
 			Local_Data_Rdy  <= '0';
         elsif rising_edge (user_clk) 
@@ -1125,6 +1124,38 @@ begin
 	                else
 	                    dc_done_seln <= '1';
 	                end if;	
+						 
+					--A DC Offset Register
+					--PCI Adr = 0xA70	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011100") then 
+	                    a_dc_seln <= '0';
+	                else
+	                    a_dc_seln <= '1';
+	                end if;	
+					
+					--B DC Offset Register
+					--PCI Adr = 0xA74	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011101") then 
+	                    b_dc_seln <= '0';
+	                else
+	                    b_dc_seln <= '1';
+	                end if;	
+					
+					--C DC Offset Register
+					--PCI Adr = 0xA78	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011110") then 
+	                    c_dc_seln <= '0';
+	                else
+	                    c_dc_seln <= '1';
+	                end if;	
+					
+					--D DC Offset Register
+					--PCI Adr = 0xA7C	                                 						 
+	                if (Local_Data_Addr(11 downto 2) = "1010011111") then 
+	                    d_dc_seln <= '0';
+	                else
+	                    d_dc_seln <= '1';
+	                end if;	
 					
 						 
             else -- clear all of the selects if data rdy isn't active
@@ -1163,6 +1194,10 @@ begin
 					svn_rev_seln   <= '1';
 					dc_en_seln     <= '1';
 					dc_done_seln   <= '1';
+					a_dc_seln      <= '1';
+					b_dc_seln      <= '1';
+					c_dc_seln      <= '1';
+					d_dc_seln      <= '1';		
 										
             end if;
         end if;
@@ -1411,7 +1446,7 @@ begin
 			status_reg(4)    <= adcb_or or status_reg(4);
 			status_reg(3)    <= adcc_or or status_reg(3);
 			status_reg(2)    <= adcd_or or status_reg(2);
-			status_reg(1)    <= not timer_dcmlocked or status_reg(1); --Timer DCM out of lock
+			status_reg(1)    <= not filter_dcmlocked or status_reg(1); --Filter DCM out of lock
 			status_reg(0)    <= not adc_dcmlocked  or status_reg(0); --ADC DCM out of lock
 		end if;
 	end process;
@@ -1460,7 +1495,8 @@ begin
 							dec_seln, mt_addr_seln, mt_data_seln,
 							pp_m_seln, pp_n_seln, iq_index_seln, iq_length_seln,
 							gs_dprt_seln, dec_rst_seln, pp_rst_seln, timing_seln,
-							svn_rev_seln, dc_en_seln, dc_done_seln)
+							svn_rev_seln, dc_en_seln, dc_done_seln,
+							a_dc_seln, b_dc_seln, c_dc_seln, d_dc_seln)
 	 begin
 		if (reset = '1') then
 			Local_Data_Out <= (others => 'Z');
@@ -1555,6 +1591,23 @@ begin
 			elsif (dc_done_seln = '0' and rdl ='0') then
 				Local_Data_Out(63 downto 1) <= (others => '0');
 				Local_Data_Out(0)  <= dc_done;	
+			elsif (a_dc_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 32) <= (others => '0');
+				Local_Data_Out(31 downto 16) <= a_i_dc;	
+				Local_Data_Out(15 downto 0)  <= a_q_dc;	
+			elsif (b_dc_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 32) <= (others => '0');
+				Local_Data_Out(31 downto 16) <= b_i_dc;	
+				Local_Data_Out(15 downto 0)  <= b_q_dc;	
+			elsif (c_dc_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 32) <= (others => '0');
+				Local_Data_Out(31 downto 16) <= c_i_dc;	
+				Local_Data_Out(15 downto 0)  <= c_q_dc;	
+			elsif (d_dc_seln = '0' and rdl ='0') then
+				Local_Data_Out(63 downto 32) <= (others => '0');
+				Local_Data_Out(31 downto 16) <= d_i_dc;	
+				Local_Data_Out(15 downto 0)  <= d_q_dc;	
+
 			else
 				Local_Data_Out <= (others => 'Z');
 			end if;
@@ -1640,8 +1693,8 @@ begin
 		b_gate_in_int => pulse_out(1),
 		c_gate_in_ext => gpio_buf(1),
 		c_gate_in_int => pulse_out(2),
-		ce => adc_enable,
-		clk => timer_clk,
+		ce_1 => '1',
+		clk_1 => timer_clk,
 		d_gate_in_ext => gpio_buf(0),
 		d_gate_in_int => pulse_out(3),
 		dual_prt => gs_dprt_reg,
@@ -1678,14 +1731,10 @@ begin
 		k_sel => k_addr_reg(5 downto 4),
 		k_wr => k_write_reg,
 		stop => k_addr_reg(12),
-		cha_i_out => cha_i,
-		cha_q_out => cha_q,
-		chb_i_out => chb_i,
-		chb_q_out => chb_q,
-		chc_i_out => chc_i,
-		chc_q_out => chc_q,
-		chd_i_out => chd_i,
-		chd_q_out => chd_q,
+		cha_out => cha_out,
+		chb_out => chb_out,
+		chc_out => chc_out,
+		chd_out => chd_out,
 		g_readcoef => g_read_reg(17 downto 0),
 		k_readcoef => k_read_reg(17 downto 0));
 
@@ -1694,22 +1743,18 @@ begin
 	PPPs : pulsepairproc_cw PORT MAP (
 		a_gate1 => cha_gate_in(0),
 		a_gate2 => cha_gate_in(1),
-		a_iin => cha_i,
-		a_qin => cha_q,
+		a_in => cha_out,
 		b_gate1 => chb_gate_in(0),
 		b_gate2 => chb_gate_in(1),
-		b_iin => chb_i,
-		b_qin => chb_q,
+		b_in => chb_out,
 		c_gate1 => chc_gate_in(0),
 		c_gate2 => chc_gate_in(1),
-		c_iin => chc_i,
-		c_qin => chc_q,
-		ce => adc_enable,
-		clk => dec_clk,
+		c_in => chc_out,
+		ce_1 => '1',
+		clk_1 => dec_clk,
 		d_gate1 => chd_gate_in(0),
 		d_gate2 => chd_gate_in(1),
-		d_iin => chd_i,
-		d_qin => chd_q,
+		d_in => chd_out,
 		dc_enable => dc_enable,
 		iq_index => iq_index_reg(9 downto 0),
 		iq_length => iq_length_reg(9 downto 0),
@@ -1752,7 +1797,7 @@ begin
 		d_ppgate1 => chd_pp_g(0),
 		d_ppgate2 => chd_pp_g(1),
 		d_sync_error => d_sync_error,
-		dc_remove => dc_done);
+		dc_done => dc_done);
 
 -- ==================================================
 -- = Channel A Data Flow

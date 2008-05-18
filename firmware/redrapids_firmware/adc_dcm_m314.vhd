@@ -23,8 +23,8 @@ entity adc_dcm_m314 is
 		 DLL_FREQUENCY_MODE	: string := "LOW" ;
 		 DFS_FREQUENCY_MODE	: string := "LOW" ;
 		 CLKDV_DIVIDE        : real := 4.0;
-		 CLKFX_MULTIPLY		: integer := 3;
-		 CLKFX_DIVIDE			: integer := 1;
+		 CLKFX_MULTIPLY		: integer := 5;
+		 CLKFX_DIVIDE			: integer := 4;
 		 PHASE_SHIFT        	: integer := 0);
     PORT(
     	rst			: in std_logic;
@@ -32,7 +32,7 @@ entity adc_dcm_m314 is
     	sampleclk_n	: in std_logic;
     	
     	adc_clk		: out std_logic;
-    	filter_clk	: out std_logic;
+    	timer_clk	: out std_logic;
 		start_clk   : out std_logic;
     	locked		: out std_logic); 
 end adc_dcm_m314;
@@ -41,14 +41,14 @@ architecture behavioral of adc_dcm_m314 is
 	
 	signal adc_clk_ibufg 	: std_logic;
 	signal adc_dcm_clk0		: std_logic;
-	signal adc_dcm_clk3x 	: std_logic;
+	signal adc_dcm_clk5x4d 	: std_logic;
 	signal adc_clk_int		: std_logic;
 	signal adc_dcm_clk3d    : std_logic;
 	
 begin 
    ADC_CLK_IBUFG_INST 		: IBUFGDS PORT MAP (I => sampleclk_p, IB=> sampleclk_n, O=> adc_clk_ibufg);
 	ADC_CLK_BUFG_INST 		: BUFG PORT MAP(I => adc_dcm_clk0, O => adc_clk_int);
-	FILTER_CLK_BUFG_INST  	: BUFG PORT MAP(I => adc_dcm_clk3x, O => filter_clk);
+	TIMER_CLK_BUFG_INST  	: BUFG PORT MAP(I => adc_dcm_clk5x4d, O => timer_clk);
 	DEC_CLK_BUFG_INST       : BUFG PORT MAP(I => adc_dcm_clk3d, O => start_clk);
 	
 	adc_clk <= adc_clk_int;
@@ -81,7 +81,7 @@ begin
 				CLK2X        =>  open,
 				CLK2X180     =>  open,
 				CLK90        =>  open,
-				CLKFX        =>  adc_dcm_clk3x,
+				CLKFX        =>  adc_dcm_clk5x4d,
 				CLKFX180     =>  open);
         
 end behavioral;

@@ -25,32 +25,32 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity timer_dcm_m314 is
+entity filter_dcm_m314 is
 	GENERIC(
 		 CLKIN_PERIOD 	  		: real := 20.8333;
 		 DLL_FREQUENCY_MODE	: string := "LOW" ;
 		 DFS_FREQUENCY_MODE	: string := "LOW" ;
-		 CLKFX_MULTIPLY		: integer := 5;
-		 CLKFX_DIVIDE			: integer := 4;
+		 CLKFX_MULTIPLY		: integer := 3;
+		 CLKFX_DIVIDE			: integer := 1;
 		 PHASE_SHIFT        	: integer := 0);
     PORT(
     	rst			: in std_logic;
     	adc_clk  	: in std_logic;  	
-    	timer_clk   : out std_logic;
+    	filter_clk   : out std_logic;
     	locked		: out std_logic); 
-end timer_dcm_m314;
+end filter_dcm_m314;
 
-architecture Behavioral of timer_dcm_m314 is
+architecture Behavioral of filter_dcm_m314 is
 
 
 	signal adc_clk0			: std_logic;
-	signal adc_clk5x4d   	: std_logic;
+	signal adc_clk3x     	: std_logic;
 	signal adc_clk_int		: std_logic;
 
 begin
 
 	ADC_CLK_BUFG_INST 		: BUFG PORT MAP(I => adc_clk0, O => adc_clk_int);
-	TIMER_CLK_BUFG_INST		: BUFG PORT MAP(I => adc_clk5x4d, O => timer_clk);
+	FILTER_CLK_BUFG_INST		: BUFG PORT MAP(I => adc_clk3x, O => filter_clk);
 
 	
 	DCM_ADV_HI_INST2 : DCM_ADV
@@ -79,7 +79,7 @@ begin
 				CLK2X        =>  open,
 				CLK2X180     =>  open,
 				CLK90        =>  open,
-				CLKFX        =>  adc_clk5x4d,
+				CLKFX        =>  adc_clk3x,
 				CLKFX180     =>  open);
 
 end Behavioral;
