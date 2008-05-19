@@ -202,8 +202,8 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// is assigned an id equal to the PRODUCT_TYPE for that 
         /// product.
         QButtonGroup _lowerButtonGroup;
-        /// elevation angle
-        double _elevation;
+        /// rotation angle
+        double _rotAngle;
         /// Action group for the fkeys shortcuts
         QActionGroup* fkeysActionGroup;
 

@@ -30,7 +30,7 @@ EldoraPPI::EldoraPPI(std::string title,
         QDialog* parent) :
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
-    _gates(0), _elevation(0.0)
+    _gates(0), _rotAngle(0.0)
     {
     // Set up our form
     setupUi(parent);
@@ -132,7 +132,7 @@ EldoraPPI::~EldoraPPI() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
-        std::vector<double> p, int radarId, float elDegrees, int prodType) {
+        std::vector<double> p, int radarId, float rotAngle, int prodType) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
@@ -157,9 +157,9 @@ void EldoraPPI::productSlot(
     int index = _productInfo[productType].getUserData();
     
     // send the product to the appropriate ppi manager
-    if (_upperManager.newProduct(p, elDegrees, index))
-        	_elevation = elDegrees;
-    _lowerManager.newProduct(p, elDegrees, index);
+    if (_upperManager.newProduct(p, rotAngle, index))
+        	_rotAngle = rotAngle;
+    _lowerManager.newProduct(p, rotAngle, index);
 }
 
 
@@ -213,7 +213,7 @@ void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
     QString angle;
-    angle.setNum(_elevation, 'f', 1);
+    angle.setNum(_rotAngle, 'f', 1);
     elevation->setText(angle);
  
 }

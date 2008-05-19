@@ -99,11 +99,10 @@ module EldoraDDS {
     /// then unscale the values by the consumer.
     struct Products {
         RadarChoice radarId;
-        Housekeeping hskp;
-        /// microseconds since 1 Jan 1970 00:00:00 UTC
-        long long timestamp;
+        Housekeeping hskp;   
+        long long timestamp; // microseconds since 1 Jan 1970 00:00:00 UTC
         float prfSeconds;
-        float elDegrees;
+        float rotAngle; // antenna rotation angle, degrees
         float gateSpacingKm;
 
         float p1Gain;
