@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <ios>
 #include <vector>
+#include <set>
 
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -590,7 +591,12 @@ static void* rrDataTask(void* threadArg) {
     bool textcapture = pParams->textcapture;
     bool simulateHskp = pParams->simulateHskp;
     HskpMerger* hskpMerger = pParams->hskpMerger;
-    ptime lastTime(not_a_date_time); // time of the last RRBuffer we saw
+    // When generating fake housekeeping, keep a set of the last few 
+    // housekeeping times we've sent, so that we don't send out duplicate 
+    // housekeeping.  The history only needs to be long enough to handle data 
+    // times that arrive out of order.
+    std::set<ptime> sentFakeHskp;
+    const unsigned int FAKE_HSKP_HISTORY_LEN = 10;
     
     std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " nci:" << pParams->nci << "\n";
 
@@ -606,22 +612,26 @@ static void* rrDataTask(void* threadArg) {
 
         hskpMerger->newRRBuffer(pBuf, publish, capture, textcapture);
 
-        // If we're simulating housekeeping, make new housekeeping for the
-        // *previous* ray when we see the data time change.  This makes sure
-        // that housekeeping is not delivered until after all of the associated
-        // data have arrived.
-        if (simulateHskp && pBuf->rayTime != lastTime) {
-            if (! lastTime.is_not_a_date_time()) {
-                // device 0 is aft, 1 is fore
+        // If we're doing fake housekeeping, deal with it now.
+        if (simulateHskp) {
+            // If we don't have this time in our history, generate and send
+            // some fake housekeeping.
+            if (sentFakeHskp.find(pBuf->rayTime) == sentFakeHskp.end()) {
+                // Generate and send the housekeeping
                 EldoraDDS::Housekeeping* hskp = 
-                    genFakeHousekeeping(lastTime, (pParams->deviceNumber == 1));
-                pParams->hskpMerger->newHskp(hskp);
-//// When sendFakeHousekeeping() works, we'll use it to send via the UDP
-//// port instead of going directly to hskpMerger->newHskp()
-//                sendFakeHousekeeping(hskp);
-//                delete hskp;
+                    genFakeHousekeeping(pBuf->rayTime, (pParams->deviceNumber == 1));
+                hskpMerger->newHskp(hskp);
+                //// @todo When sendFakeHousekeeping() works, we'll use that to 
+                //// send via the UDP port instead of going directly to 
+                //// hskpMerger->newHskp()
+                //                sendFakeHousekeeping(hskp);
+                //                delete hskp;
+                
+                // add this time to our history of delivered fake housekeeping
+                if (sentFakeHskp.size() == FAKE_HSKP_HISTORY_LEN)
+                    sentFakeHskp.erase(sentFakeHskp.begin());
+                sentFakeHskp.insert(pBuf->rayTime);
             }
-            lastTime = pBuf->rayTime;
         }
     }
 }
