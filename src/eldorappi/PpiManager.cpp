@@ -22,7 +22,7 @@ PPIManager::~PPIManager() {
 
 /////////////////////////////////////////////////////////////////////////////
 bool PPIManager::newProduct(
-        std::vector<double>& p, float elDegrees, int prodIndex) {
+        std::vector<double>& p, float rotAngle, int prodIndex) {
 
     bool retval = false;
     
@@ -40,8 +40,8 @@ bool PPIManager::newProduct(
 
     // if we have a complete set, send them to the display
     if (_currentProducts.size() == (unsigned int)_nProducts) {
-        double startAng = elDegrees-0.45;
-        double stopAng = elDegrees+0.45;
+        double startAng = rotAngle-0.45;
+        double stopAng = rotAngle+0.45;
         if (startAng < 0.0) {
             startAng += 360.0;
             stopAng += 360.0;

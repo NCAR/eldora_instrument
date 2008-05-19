@@ -28,10 +28,10 @@ class PPIManager {
         /// received, i.e. when _currentProducts.size() == _nProducts,
         /// _productData are sent to _ppi.
         /// @param p Data for a single product
-        /// @param elDegrees The elevation pointing angle
+        /// @param rotAngle The radar rotation angle
         /// @param prodIndex DEnotes which product in the display this belongs to.
         /// @returns True if a complete set was assembled on this call.
-        bool newProduct(std::vector<double>& p, float elDegrees, int prodIndex);
+        bool newProduct(std::vector<double>& p, float rotAngle, int prodIndex);
         /// Configure the PPI displays when there is a change in the operating
         /// configuration, such as the number of gates, etc.
         /// @param numProducts The number of products that the ppi will provide
