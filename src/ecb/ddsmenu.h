@@ -4,6 +4,7 @@
 
 #ifndef DDSMENU_H
 #define DDSMENU_H
+#include <string>
 #include "dds.h"
 /**
 	@author Drew
@@ -16,8 +17,10 @@ public:
    * @param dds[] array of dds
    * @param numdds number of dds
    */
-  DDSMenu(DDS* dds[], int numdds);
+  DDSMenu(std::string ipAddress, DDS* dds[], int numdds);
 
+  std::string _ipAddress;
+  
   DDS** _dds;
 
   ///Number of DDS

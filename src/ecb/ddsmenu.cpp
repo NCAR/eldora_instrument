@@ -4,8 +4,9 @@
 
 #include "ddsmenu.h"
 
-DDSMenu::DDSMenu(DDS* dds[], int numdds):
-
+DDSMenu::DDSMenu(std::string ipAddress, DDS* dds[], int numdds):
+    
+    _ipAddress(ipAddress),
     _dds(dds),
     _numdds(numdds)
 {
@@ -181,8 +182,9 @@ DDSMenu::LoadFile()
 
   FILE *fin;
 
-  fin = fopen("DDS_Data.txt","r");
-
+  if (_ipAddress == "etherio-fore") fin = fopen("DDS_FORE_Data.txt","r");
+  else fin = fopen("DDS_AFT_Data.txt","r");
+  
   if(!fin)
   {
     return 0;
@@ -206,7 +208,10 @@ DDSMenu::InitFile()
 
   FILE *fout;
 
-  fout = fopen("DDS_Data.txt","w");
+  if (_ipAddress == "etherio-fore") fout = fopen("DDS_FORE_Data.txt","w");
+  else fout = fopen("DDS_AFT_Data.txt","w");
+    
+  //fout = fopen("DDS_Data.txt","w");
 
   if(!fout)
   {
@@ -228,7 +233,10 @@ DDSMenu::AppendFile()
 {
   FILE *fout;
 
-  fout = fopen("DDS_Data.txt","w");
+  if (_ipAddress == "etherio-fore") fout = fopen("DDS_FORE_Data.txt","w");
+  else fout = fopen("DDS_AFT_Data.txt","w");
+    
+  //fout = fopen("DDS_Data.txt","w");
 
   if(!fout)
   {

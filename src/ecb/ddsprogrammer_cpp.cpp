@@ -59,14 +59,14 @@ int main()
             {
               for(int ddsunit = 0; ddsunit < numdds ; ddsunit++)
             	  dds[ddsunit] = new DDS("etherio-fore", 2424, ddsunit);
-        	  menu = new DDSMenu(dds, numdds);
+        	  menu = new DDSMenu("etherio-fore", dds, numdds);
         	}
             //Setup of DDS Aft
             if(radarchoice == 1)
             {
               for(int ddsunit = 0; ddsunit < numdds; ddsunit++)
                   dds[ddsunit] = new DDS("etherio-aft", 2424, ddsunit);
-              menu = new DDSMenu(dds, numdds);
+              menu = new DDSMenu("etherio-aft", dds, numdds);
             }
           }
         }
