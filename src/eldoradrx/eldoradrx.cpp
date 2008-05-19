@@ -851,6 +851,10 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
                         EldoraDDS::Aft : EldoraDDS::Forward;
 
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(rbuf);
+
+                // get the prt identifier
+                pRay->prtId = pABP->prtId;
+
                 // set the size
                 pRay->abp.length(pABP->_abp.size());
 

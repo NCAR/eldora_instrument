@@ -81,6 +81,7 @@ module EldoraDDS {
     /// The packing order is [gate][A,B,P]
     struct Ray {
         RadarChoice radarId;
+        long prtId;               // The id of this prt (for staggered prts)
         Housekeeping hskp;
         A_B_P abp;
     };
