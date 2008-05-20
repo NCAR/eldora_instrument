@@ -14,6 +14,20 @@ from EmitterProc     import *
 
 ####################################################################################
 
+# Basically a dictionary which will return either the value set for a key,
+# or the key itself if no value has been set.
+class ApplicationDict:
+    def __init__(self):
+        self.dict = {}
+        
+    def __getitem__(self, key):
+        # return the appropriate entry from our dictionary, or return the
+        # key itself if we have no entry for it
+        return (self.dict.has_key(key) and self.dict[key]) or key
+    
+    def __setitem__(self, key, value):
+        self.dict[key] = value
+    
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
 
@@ -34,7 +48,7 @@ global ourProcesses # Processes that we have started and are managing
 ####################################################################################
 def start():
     try:
-        # send a stop and a start comand, although these may not
+        # send a stop and a start command, although these may not
         # not be used in the final implementation
         r = drxrpc.radarStop()
         main.statusLabel.setText(QString(r))
@@ -192,14 +206,14 @@ def runDcps():
     # start a new instance
     dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
     orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
-    domainConfigPath = ourConfig.getString('Dcps/DomainConfig',ddsConfigDir+'/DDSDomainIds.conf')
+    domainConfigPath = ourConfig.getString('Dcps/DomainConfig', ddsConfigDir+'/DDSDomainIds.conf')
     dcpscmd = [
-        ddsRoot + '/bin/DCPSInfoRepo',
-        '-NOBITS',
-        '-DCPSConfigFile', dcpsConfigPath,
-        '-ORBSvcConf', orbConfigPath,
-        '-ORBListenEndpoints iiop://dcpsrepo:50000',
-        '-d', domainConfigPath,
+        os.path.join(ddsRoot, 'bin', 'DCPSInfoRepo'), 
+        '-NOBITS', 
+        '-DCPSConfigFile', dcpsConfigPath, 
+        '-ORBSvcConf', orbConfigPath, 
+        '-ORBListenEndpoints iiop://dcpsrepo:50000', 
+        '-d', domainConfigPath, 
         ]
     ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload=nextTaskColor())
     s = ourProcesses['DCPSInfoRepo']
@@ -228,10 +242,10 @@ def runDrx():
     
     # start a new instance with standard options
     drxcmd = [
-           os.path.join(eldoraDir, 'eldoradrx', 'eldoradrx'),
-           '--start0',
-           '--start1',
-           '--pub',
+           appDict['eldoradrx'], 
+           '--start0', 
+           '--start1', 
+           '--pub', 
            ]
     
     # get the rpc port number
@@ -286,7 +300,7 @@ def runProducts():
         return
     
     # start a new instance
-    productscmd = [os.path.join(eldoraDir, 'eldoraprod', 'eldoraprod'),]
+    productscmd = [appDict['eldoraprod'], ]
     ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
@@ -296,7 +310,7 @@ def runProducts():
 def scope():
     ''' Start the scope display
     '''
-    cmd = [eldoraDir + '/eldorascope/eldorascope',]
+    cmd = [appDict['eldorascope'],]
     ourProcesses['eldorascope'] = EmitterProc(cmd, 
                                               emitText=True, 
                                               payload=nextTaskColor())
@@ -308,7 +322,7 @@ def ppi(forradar=True):
     ''' Start the ppi display. forradar == True for the
     forward radar, False for the aft radar.
     '''
-    cmd = [eldoraDir + '/eldorappi/eldorappi',]
+    cmd = [appDict['eldorappi'],]
     if forradar:
         cmd.append('--forward')
         cmdkey = 'eldorappifor'
@@ -337,7 +351,7 @@ def pgrep(name):
     the pgrep exit status.
     '''
     p = QProcess()
-    p.start('/usr/bin/pgrep', [name,])
+    p.start('/usr/bin/pgrep', [name, ])
     p.waitForFinished(-1)
     return p.exitCode()
 
@@ -379,7 +393,7 @@ def initConfig():
     # get our configuration
     ourConfig = QtConfig('NCAR', 'EldoraGui')
     
-    # where do the apps live?
+    # top (source) directory for finding our apps
     global eldoraDir
     try:
         eldoraDir = os.environ['ELDORADIR']
@@ -389,7 +403,6 @@ def initConfig():
         mydir, myname = os.path.split(sys.argv[0])
         eldoraDir = os.path.abspath(os.path.join(mydir, '..'))
         os.environ['ELDORADIR'] = eldoraDir
-    
     # where is DCPSInfoRepo
     global ddsRoot
     ddsRoot = os.environ['DDS_ROOT']
@@ -401,7 +414,21 @@ def initConfig():
    # where are the Eldora header files?
     global headerDirs
     headerDirs = ourConfig.getString('Headers/HeaderDir', 
-                                     '/home/eldora/workspace/eldora/src/headermaker/headers')
+                                     os.path.join(eldoraDir, 'headermaker', 'headers'))
+
+    # build a special dictionary of apps which returns a specific path for
+    # an app, if set, otherwise just the app name
+    global appDict
+    appDict = ApplicationDict()
+
+    # add apps that are found in eldoraDir/<appName>/<appName>
+    for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope']:
+        appDict[app] = os.path.join(eldoraDir, app, app)
+    # dumpheader lives in the headermaker dir
+    appDict['dumpheader'] = os.path.join(eldoraDir, 'headermaker', 'dumpheader')
+    # DcpsInfoRepo location
+    appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
+    
 
 ####################################################################################
 def createRpcServers():
@@ -443,7 +470,7 @@ def nextTaskColor():
     try:
         taskColors
     except NameError:
-        taskColors = ['red','blue','green','orange','purple','grey','cyan']
+        taskColors = ['red', 'blue', 'green', 'orange', 'purple', 'grey', 'cyan']
         currentColor = 0
     
     if currentColor < len(taskColors)-1:
@@ -496,8 +523,8 @@ createRpcServers()
 # create the qt application               
 app = QApplication(sys.argv)
 
-# instantiate an Edora controller gui
-main = EldoraMain(headerDirs)
+# instantiate an Eldora controller gui
+main = EldoraMain(headerDirs, appDict['dumpheader'])
 
 main.show()
 

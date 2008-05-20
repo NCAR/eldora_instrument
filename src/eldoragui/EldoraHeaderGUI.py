@@ -17,7 +17,7 @@ class EldoraHeaderGUI(QWidget):
     header(selectedHeader) - emitted when a new header is chosen
     
     '''
-    def __init__(self, hdrCombo, headerDirs):
+    def __init__(self, hdrCombo, headerDirs, hdrDumpApp):
         QObject.__init__(self)
         # the combobox used to select a header
         self.hdrCombo = hdrCombo
@@ -29,6 +29,8 @@ class EldoraHeaderGUI(QWidget):
         font.setBold(True)
         font.setPointSize(12)
         self.hdrCombo.setFont(font)
+        # Path to the dumpheader command
+        self.hdrDumpApp = hdrDumpApp
         # The directories to be searched for header files
         self.headerDirs = headerDirs
         # create a list of our headers
@@ -62,8 +64,8 @@ class EldoraHeaderGUI(QWidget):
 
         # create header objects from these files
         for hfile in hdrfiles:
-            dumpcmd = ['../headermaker/dumpheader','-h']
-            verifycmd = ['../headermaker/dumpheader','-v']
+            dumpcmd = [self.hdrDumpApp,'-h']
+            verifycmd = [self.hdrDumpApp,'-v']
             eldoraHdr = EldoraHeader(hdrDumpCmd=dumpcmd, 
                                      hdrVerifyCmd=verifycmd, 
                                      headerFile=hfile)

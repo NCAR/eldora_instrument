@@ -23,7 +23,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     The following signals are emitted:
        start:   start has been requested
        stop:    stop has been requested
-       status:  time to do a stus update
+       status:  time to do a status update
        ready:   the GUI is ready. This will be emitted once, on the first timer tick.
        scope:   scope has been requested
        ppi(for):ppi has been requested, for==true for forward scope
@@ -31,6 +31,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     ###############################################################################
     def __init__(self, 
                  headersDir,
+                 hdrDumpApp,
                  parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
@@ -40,13 +41,13 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.headersDir = headersDir
         
         # create a eldoraHeaderGUI to manage header interaction
-        self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,])
+        self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,], hdrDumpApp)
         # The 'header' signal indicates a new header has been chosen
         self.connect(self.headerGui, SIGNAL("header"), self.header)
         # save the current header
         self.selectedHeader = self.headerGui.selectedHeader
             
-        # Several useful palletes will be created
+        # Several useful palettes will be created
         self.createPalettes()
         
         # set the stop button to red:
