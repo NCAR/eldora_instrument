@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.346"
+    ComputedModelVersion    "1.348"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -44,8 +44,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Apr 25 10:10:28 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:346>"
+  LastModifiedDate	  "Mon May 19 08:46:54 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:348>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -748,20 +748,20 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "(M)"
-      Position		      [25, 320, 95, 350]
+      Position		      [25, 315, 95, 345]
       Value		      "27"
     }
     Block {
       BlockType		      Constant
       Name		      "(N)"
-      Position		      [25, 389, 95, 421]
+      Position		      [25, 384, 95, 416]
       Value		      "4"
     }
     Block {
       BlockType		      Reference
       Name		      "AData"
       Ports		      [1, 1]
-      Position		      [690, 255, 750, 275]
+      Position		      [880, 255, 940, 275]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -792,7 +792,7 @@ Model {
       BlockType		      Sum
       Name		      "Add1"
       Ports		      [2, 1]
-      Position		      [815, 580, 845, 720]
+      Position		      [1005, 580, 1035, 720]
       CollapseMode	      "All dimensions"
       InputSameDT	      off
       OutDataTypeMode	      "Inherit via internal rule"
@@ -803,7 +803,7 @@ Model {
       BlockType		      Sum
       Name		      "Add3"
       Ports		      [2, 1]
-      Position		      [785, 440, 815, 580]
+      Position		      [975, 440, 1005, 580]
       CollapseMode	      "All dimensions"
       InputSameDT	      off
       OutDataTypeMode	      "Inherit via internal rule"
@@ -814,7 +814,7 @@ Model {
       BlockType		      Reference
       Name		      "BData"
       Ports		      [1, 1]
-      Position		      [690, 325, 750, 345]
+      Position		      [880, 325, 940, 345]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -850,9 +850,64 @@ Model {
     }
     Block {
       BlockType		      Reference
+      Name		      "Concat"
+      Ports		      [2, 1]
+      Position		      [590, 174, 650, 261]
+      SourceBlock	      "xbsIndex_r4/Concat"
+      SourceType	      "Xilinx Bus Concatenator Block"
+      infoedit		      "Concatenates two or more inputs.  Output will b"
+"e cast to an unsigned value with the binary point at zero."
+      num_inputs	      "2"
+      dbl_ovrd		      off
+      has_advanced_control    "0"
+      sggui_pos		      "-1,-1,-1,-1"
+      block_type	      "concat"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,87,2,1,white,blue,0,59d62d82"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 87 87 ],[0.77 0.82 0.91]);\npatch([14 4 18 4 14 30 34 3"
+"8 55 42 29 20 35 20 29 42 55 38 34 30 14 ],[20 30 44 58 68 68 64 68 68 55 68 "
+"59 44 29 20 33 20 20 24 20 20 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 87"
+" 87 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: "
+"begin icon text');\ncolor('black');port_label('input',1,'hi');\ncolor('black'"
+");port_label('input',2,'lo');\nfprintf('','COMMENT: end icon text');\n"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "DC_Done"
+      Ports		      [1, 1]
+      Position		      [880, 815, 940, 835]
+      SourceBlock	      "xbsIndex_r4/Gateway Out"
+      SourceType	      "Xilinx Gateway Out Block"
+      infoedit		      "Gateway out block.  Converts Xilinx fixed point"
+" inputs into ouputs of type Simulink integer, double, or fixed point.<P><P>Ha"
+"rdware notes:  In hardware these blocks become top level output ports or are "
+"discarded, depending on how they are configured."
+      hdl_port		      on
+      timing_constraint	      "None"
+      locs_specified	      off
+      LOCs		      "{}"
+      xl_use_area	      off
+      xl_area		      "[0 0 0 0 1 0 0]"
+      has_advanced_control    "0"
+      sggui_pos		      "-1,-1,-1,-1"
+      block_type	      "gatewayout"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 20 20 ],[0.95 0.93 0.65]);\npatch([24 21 26 21 24 29 30"
+" 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 18 14 18 "
+"15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20 20 0 0 "
+"]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin ic"
+"on text');\ncolor('black');port_label('input',1,' ');\ncolor('black');port_la"
+"bel('output',1,'\\fontsize{11pt}\\bf Out ','texmode','on');\nfprintf('','COMM"
+"ENT: end icon text');\n"
+    }
+    Block {
+      BlockType		      Reference
       Name		      "DC_Enable"
       Ports		      [1, 1]
-      Position		      [360, 815, 425, 835]
+      Position		      [360, 930, 425, 950]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -885,41 +940,10 @@ Model {
 "NT: end icon text');\n"
     }
     Block {
-      BlockType		      Reference
-      Name		      "DC_Remove"
-      Ports		      [1, 1]
-      Position		      [690, 815, 750, 835]
-      SourceBlock	      "xbsIndex_r4/Gateway Out"
-      SourceType	      "Xilinx Gateway Out Block"
-      infoedit		      "Gateway out block.  Converts Xilinx fixed point"
-" inputs into ouputs of type Simulink integer, double, or fixed point.<P><P>Ha"
-"rdware notes:  In hardware these blocks become top level output ports or are "
-"discarded, depending on how they are configured."
-      hdl_port		      on
-      timing_constraint	      "None"
-      locs_specified	      off
-      LOCs		      "{}"
-      xl_use_area	      off
-      xl_area		      "[0 0 0 0 1 0 0]"
-      has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
-      block_type	      "gatewayout"
-      block_version	      "8.2"
-      sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
-      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
-"tch([0 60 60 0 ],[0 0 20 20 ],[0.95 0.93 0.65]);\npatch([24 21 26 21 24 29 30"
-" 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 18 14 18 "
-"15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20 20 0 0 "
-"]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin ic"
-"on text');\ncolor('black');port_label('input',1,' ');\ncolor('black');port_la"
-"bel('output',1,'\\fontsize{11pt}\\bf Out ','texmode','on');\nfprintf('','COMM"
-"ENT: end icon text');\n"
-    }
-    Block {
       BlockType		      SubSystem
       Name		      "Data Display"
       Ports		      [8, 5]
-      Position		      [970, 164, 1090, 716]
+      Position		      [1160, 164, 1280, 716]
       BackgroundColor	      "gray"
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
@@ -1190,7 +1214,7 @@ Model {
       BlockType		      Reference
       Name		      "Delay1"
       Ports		      [1, 1]
-      Position		      [120, 837, 175, 873]
+      Position		      [120, 952, 175, 988]
       SourceBlock	      "dspsigops/Delay"
       SourceType	      "Delay"
       dly_unit		      "Samples"
@@ -1202,10 +1226,26 @@ Model {
       reset_popup	      "None"
     }
     Block {
+      BlockType		      Display
+      Name		      "Display"
+      Ports		      [1]
+      Position		      [965, 880, 1055, 910]
+      Decimation	      "1"
+      Lockdown		      off
+    }
+    Block {
+      BlockType		      Display
+      Name		      "Display1"
+      Ports		      [1]
+      Position		      [965, 950, 1055, 980]
+      Decimation	      "1"
+      Lockdown		      off
+    }
+    Block {
       BlockType		      Reference
       Name		      "Gate1"
       Ports		      [1, 1]
-      Position		      [360, 465, 425, 485]
+      Position		      [360, 480, 425, 500]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1241,7 +1281,7 @@ Model {
       BlockType		      Reference
       Name		      "Gate2"
       Ports		      [1, 1]
-      Position		      [360, 535, 425, 555]
+      Position		      [360, 570, 425, 590]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1283,7 +1323,7 @@ Model {
       BlockType		      Reference
       Name		      "IQData"
       Ports		      [1, 1]
-      Position		      [690, 185, 750, 205]
+      Position		      [880, 185, 940, 205]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1314,7 +1354,7 @@ Model {
       BlockType		      Reference
       Name		      "IQGate1"
       Ports		      [1, 1]
-      Position		      [690, 465, 750, 485]
+      Position		      [880, 465, 940, 485]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1345,7 +1385,7 @@ Model {
       BlockType		      Reference
       Name		      "IQGate2"
       Ports		      [1, 1]
-      Position		      [690, 535, 750, 555]
+      Position		      [880, 535, 940, 555]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1376,7 +1416,7 @@ Model {
       BlockType		      Reference
       Name		      "IQ_Index"
       Ports		      [1, 1]
-      Position		      [355, 675, 420, 695]
+      Position		      [360, 750, 425, 770]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1412,7 +1452,7 @@ Model {
       BlockType		      Reference
       Name		      "IQ_Length"
       Ports		      [1, 1]
-      Position		      [360, 745, 425, 765]
+      Position		      [360, 840, 425, 860]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1446,9 +1486,40 @@ Model {
     }
     Block {
       BlockType		      Reference
+      Name		      "I_DC"
+      Ports		      [1, 1]
+      Position		      [880, 885, 940, 905]
+      SourceBlock	      "xbsIndex_r4/Gateway Out"
+      SourceType	      "Xilinx Gateway Out Block"
+      infoedit		      "Gateway out block.  Converts Xilinx fixed point"
+" inputs into ouputs of type Simulink integer, double, or fixed point.<P><P>Ha"
+"rdware notes:  In hardware these blocks become top level output ports or are "
+"discarded, depending on how they are configured."
+      hdl_port		      on
+      timing_constraint	      "None"
+      locs_specified	      off
+      LOCs		      "{}"
+      xl_use_area	      off
+      xl_area		      "[0 0 0 0 1 0 0]"
+      has_advanced_control    "0"
+      sggui_pos		      "-1,-1,-1,-1"
+      block_type	      "gatewayout"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 20 20 ],[0.95 0.93 0.65]);\npatch([24 21 26 21 24 29 30"
+" 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 18 14 18 "
+"15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20 20 0 0 "
+"]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin ic"
+"on text');\ncolor('black');port_label('input',1,' ');\ncolor('black');port_la"
+"bel('output',1,'\\fontsize{11pt}\\bf Out ','texmode','on');\nfprintf('','COMM"
+"ENT: end icon text');\n"
+    }
+    Block {
+      BlockType		      Reference
       Name		      "I_In"
       Ports		      [1, 1]
-      Position		      [360, 185, 425, 205]
+      Position		      [320, 185, 385, 205]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1483,20 +1554,20 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "Index"
-      Position		      [15, 670, 85, 700]
+      Position		      [20, 745, 90, 775]
       Value		      "0"
     }
     Block {
       BlockType		      Constant
       Name		      "Length"
-      Position		      [15, 739, 85, 771]
+      Position		      [15, 834, 85, 866]
       Value		      "7"
     }
     Block {
       BlockType		      Reference
       Name		      "M"
       Ports		      [1, 1]
-      Position		      [360, 325, 425, 345]
+      Position		      [360, 320, 425, 340]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1532,7 +1603,7 @@ Model {
       BlockType		      Reference
       Name		      "N"
       Ports		      [1, 1]
-      Position		      [360, 395, 425, 415]
+      Position		      [360, 390, 425, 410]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -1568,7 +1639,7 @@ Model {
       BlockType		      Reference
       Name		      "Out"
       Ports		      [1, 1]
-      Position		      [485, 55, 545, 75]
+      Position		      [675, 55, 735, 75]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1599,7 +1670,7 @@ Model {
       BlockType		      Reference
       Name		      "Out1"
       Ports		      [1, 1]
-      Position		      [485, 110, 545, 130]
+      Position		      [675, 110, 735, 130]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1630,7 +1701,7 @@ Model {
       BlockType		      Reference
       Name		      "PData"
       Ports		      [1, 1]
-      Position		      [690, 395, 750, 415]
+      Position		      [880, 395, 940, 415]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1661,7 +1732,7 @@ Model {
       BlockType		      Reference
       Name		      "PPGate1"
       Ports		      [1, 1]
-      Position		      [690, 605, 750, 625]
+      Position		      [880, 605, 940, 625]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1692,7 +1763,7 @@ Model {
       BlockType		      Reference
       Name		      "PPGate2"
       Ports		      [1, 1]
-      Position		      [690, 675, 750, 695]
+      Position		      [880, 675, 940, 695]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -1723,7 +1794,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse"
       Ports		      [0, 1]
-      Position		      [20, 441, 65, 469]
+      Position		      [20, 456, 65, 484]
       PulseType		      "Time based"
       Period		      "54/12e6"
       PulseWidth	      "50"
@@ -1732,8 +1803,8 @@ Model {
     Block {
       BlockType		      SubSystem
       Name		      "Pulse Pair Processor"
-      Ports		      [10, 10]
-      Position		      [500, 164, 610, 856]
+      Ports		      [9, 12]
+      Position		      [700, 165, 810, 995]
       BackgroundColor	      "lightBlue"
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
@@ -1756,78 +1827,71 @@ Model {
 	ZoomFactor		"100"
 	Block {
 	  BlockType		  Inport
-	  Name			  "I_in"
-	  Position		  [25, 48, 55, 62]
-	  IconDisplay		  "Port number"
-	}
-	Block {
-	  BlockType		  Inport
-	  Name			  "Q_in"
-	  Position		  [25, 98, 55, 112]
-	  Port			  "2"
+	  Name			  "In"
+	  Position		  [25, 73, 55, 87]
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "M"
-	  Position		  [25, 148, 55, 162]
-	  Port			  "3"
+	  Position		  [25, 133, 55, 147]
+	  Port			  "2"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "N"
-	  Position		  [25, 198, 55, 212]
-	  Port			  "4"
+	  Position		  [25, 193, 55, 207]
+	  Port			  "3"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "Gate1_in"
-	  Position		  [25, 248, 55, 262]
-	  Port			  "5"
+	  Position		  [25, 253, 55, 267]
+	  Port			  "4"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "Gate2_in"
-	  Position		  [25, 298, 55, 312]
-	  Port			  "6"
+	  Position		  [25, 313, 55, 327]
+	  Port			  "5"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "Reset_in"
-	  Position		  [25, 348, 55, 362]
-	  Port			  "7"
+	  Position		  [25, 373, 55, 387]
+	  Port			  "6"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "IQ Index"
-	  Position		  [25, 398, 55, 412]
-	  Port			  "8"
+	  Position		  [25, 433, 55, 447]
+	  Port			  "7"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "IQ Length"
-	  Position		  [25, 448, 55, 462]
-	  Port			  "9"
+	  Position		  [25, 493, 55, 507]
+	  Port			  "8"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  Inport
 	  Name			  "DC Enable"
-	  Position		  [25, 498, 55, 512]
-	  Port			  "10"
+	  Position		  [25, 553, 55, 567]
+	  Port			  "9"
 	  IconDisplay		  "Port number"
 	}
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Calc"
-	  Ports			  [10, 12]
-	  Position		  [120, 29, 240, 531]
+	  Ports			  [9, 14]
+	  Position		  [120, 48, 240, 592]
 	  BackgroundColor	  "cyan"
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
@@ -1850,79 +1914,72 @@ Model {
 	    ZoomFactor		    "100"
 	    Block {
 	      BlockType		      Inport
-	      Name		      "I"
-	      Position		      [20, 153, 50, 167]
+	      Name		      "In"
+	      Position		      [20, 188, 50, 202]
 	      NamePlacement	      "alternate"
-	      IconDisplay	      "Port number"
-	    }
-	    Block {
-	      BlockType		      Inport
-	      Name		      "Q"
-	      Position		      [20, 213, 50, 227]
-	      Port		      "2"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "M"
 	      Position		      [30, 558, 60, 572]
-	      Port		      "3"
+	      Port		      "2"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "N"
 	      Position		      [30, 588, 60, 602]
-	      Port		      "4"
+	      Port		      "3"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "Gate1_In"
 	      Position		      [30, 623, 60, 637]
-	      Port		      "5"
+	      Port		      "4"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "Gate2_In"
 	      Position		      [30, 668, 60, 682]
-	      Port		      "6"
+	      Port		      "5"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "Reset_In"
 	      Position		      [30, 703, 60, 717]
-	      Port		      "7"
+	      Port		      "6"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "IQ Index"
 	      Position		      [30, 738, 60, 752]
-	      Port		      "8"
+	      Port		      "7"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "IQ Length"
 	      Position		      [30, 773, 60, 787]
-	      Port		      "9"
+	      Port		      "8"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Inport
 	      Name		      "DC Enable"
-	      Position		      [20, 183, 50, 197]
-	      Port		      "10"
+	      Position		      [20, 258, 50, 272]
+	      Port		      "9"
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
 	      BlockType		      Reference
 	      Name		      "Concat"
 	      Ports		      [2, 1]
-	      Position		      [395, 14, 455, 101]
+	      Position		      [655, 14, 715, 101]
 	      SourceBlock	      "xbsIndex_r4/Concat"
 	      SourceType	      "Xilinx Bus Concatenator Block"
 	      infoedit		      "Concatenates two or more inputs.  Outpu"
@@ -1946,8 +2003,8 @@ Model {
 	    Block {
 	      BlockType		      SubSystem
 	      Name		      "DC Removal"
-	      Ports		      [4, 3]
-	      Position		      [110, 149, 195, 261]
+	      Ports		      [4, 5]
+	      Position		      [360, 151, 445, 329]
 	      BackgroundColor	      "green"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -1977,15 +2034,15 @@ Model {
 		}
 		Block {
 		  BlockType		  Inport
-		  Name			  "Enable"
-		  Position		  [30, 238, 60, 252]
+		  Name			  "Q In"
+		  Position		  [30, 358, 60, 372]
 		  Port			  "2"
 		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Inport
-		  Name			  "Q In"
-		  Position		  [30, 358, 60, 372]
+		  Name			  "Enable"
+		  Position		  [30, 238, 60, 252]
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
@@ -2228,22 +2285,6 @@ Model {
 "MENT: begin icon text');\ncolor('black');port_label('input',1,'rst');\ncolor("
 "'black');port_label('input',2,'en');\ncolor('black');port_label('output',1,'o"
 "ut');\nfprintf('','COMMENT: end icon text');\n"
-		}
-		Block {
-		  BlockType		  Display
-		  Name			  "Display"
-		  Ports			  [1]
-		  Position		  [890, 200, 980, 230]
-		  Decimation		  "1"
-		  Lockdown		  off
-		}
-		Block {
-		  BlockType		  Display
-		  Name			  "Display1"
-		  Ports			  [1]
-		  Position		  [900, 470, 990, 500]
-		  Decimation		  "1"
-		  Lockdown		  off
 		}
 		Block {
 		  BlockType		  Reference
@@ -2509,6 +2550,22 @@ Model {
 		  IconDisplay		  "Port number"
 		  BusOutputAsStruct	  off
 		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "I DC"
+		  Position		  [935, 208, 965, 222]
+		  Port			  "4"
+		  IconDisplay		  "Port number"
+		  BusOutputAsStruct	  off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Q DC"
+		  Position		  [930, 498, 960, 512]
+		  Port			  "5"
+		  IconDisplay		  "Port number"
+		  BusOutputAsStruct	  off
+		}
 		Line {
 		  SrcBlock		  "AddSub"
 		  SrcPort		  1
@@ -2598,14 +2655,14 @@ Model {
 		Line {
 		  SrcBlock		  "Register"
 		  SrcPort		  1
-		  Points		  [30, 0]
+		  Points		  [25, 0]
 		  Branch {
 		    DstBlock		    "AddSub1"
 		    DstPort		    2
 		  }
 		  Branch {
 		    Points		    [0, 60]
-		    DstBlock		    "Display"
+		    DstBlock		    "I DC"
 		    DstPort		    1
 		  }
 		}
@@ -2652,14 +2709,14 @@ Model {
 		Line {
 		  SrcBlock		  "Register2"
 		  SrcPort		  1
-		  Points		  [30, 0]
+		  Points		  [25, 0]
 		  Branch {
 		    DstBlock		    "AddSub3"
 		    DstPort		    2
 		  }
 		  Branch {
-		    Points		    [0, 60]
-		    DstBlock		    "Display1"
+		    Points		    [0, 80]
+		    DstBlock		    "Q DC"
 		    DstPort		    1
 		  }
 		}
@@ -2735,7 +2792,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Delay"
 	      Ports		      [1, 1]
-	      Position		      [195, 612, 230, 648]
+	      Position		      [550, 612, 585, 648]
 	      NamePlacement	      "alternate"
 	      SourceBlock	      "xbsIndex_r4/Delay"
 	      SourceType	      "Xilinx Delay Block"
@@ -2765,7 +2822,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Delay1"
 	      Ports		      [1, 1]
-	      Position		      [335, 152, 370, 188]
+	      Position		      [595, 152, 630, 188]
 	      SourceBlock	      "xbsIndex_r4/Delay"
 	      SourceType	      "Xilinx Delay Block"
 	      infoedit		      "Hardware notes: A delay line is a chain"
@@ -2794,7 +2851,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Delay2"
 	      Ports		      [1, 1]
-	      Position		      [335, 222, 370, 258]
+	      Position		      [595, 222, 630, 258]
 	      SourceBlock	      "xbsIndex_r4/Delay"
 	      SourceType	      "Xilinx Delay Block"
 	      infoedit		      "Hardware notes: A delay line is a chain"
@@ -2823,7 +2880,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Delay3"
 	      Ports		      [1, 1]
-	      Position		      [195, 657, 230, 693]
+	      Position		      [550, 657, 585, 693]
 	      SourceBlock	      "xbsIndex_r4/Delay"
 	      SourceType	      "Xilinx Delay Block"
 	      infoedit		      "Hardware notes: A delay line is a chain"
@@ -2852,7 +2909,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Delay4"
 	      Ports		      [1, 1]
-	      Position		      [555, 42, 590, 78]
+	      Position		      [815, 42, 850, 78]
 	      SourceBlock	      "xbsIndex_r4/Delay"
 	      SourceType	      "Xilinx Delay Block"
 	      infoedit		      "Hardware notes: A delay line is a chain"
@@ -2881,7 +2938,7 @@ Model {
 	      BlockType		      SubSystem
 	      Name		      "I*Id1+Q*Qd1"
 	      Ports		      [4, 1]
-	      Position		      [515, 297, 595, 408]
+	      Position		      [775, 297, 855, 408]
 	      BackgroundColor	      "yellow"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -3111,7 +3168,7 @@ Model {
 	      BlockType		      SubSystem
 	      Name		      "IQ_Delay"
 	      Ports		      [4, 2]
-	      Position		      [295, 310, 390, 415]
+	      Position		      [555, 310, 650, 415]
 	      BackgroundColor	      "orange"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -4584,7 +4641,7 @@ Model {
 	      BlockType		      SubSystem
 	      Name		      "I^2+Q^2"
 	      Ports		      [2, 1]
-	      Position		      [515, 135, 595, 275]
+	      Position		      [775, 135, 855, 275]
 	      BackgroundColor	      "yellow"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -4801,7 +4858,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Out"
 	      Ports		      [1, 1]
-	      Position		      [130, 40, 190, 60]
+	      Position		      [390, 40, 450, 60]
 	      Orientation	      "left"
 	      NamePlacement	      "alternate"
 	      SourceBlock	      "xbsIndex_r4/Gateway Out"
@@ -4834,7 +4891,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Out1"
 	      Ports		      [1, 1]
-	      Position		      [130, 85, 190, 105]
+	      Position		      [390, 85, 450, 105]
 	      Orientation	      "left"
 	      NamePlacement	      "alternate"
 	      SourceBlock	      "xbsIndex_r4/Gateway Out"
@@ -4867,7 +4924,7 @@ Model {
 	      BlockType		      SubSystem
 	      Name		      "Q*Id1-I*Qd1"
 	      Ports		      [4, 1]
-	      Position		      [515, 434, 595, 546]
+	      Position		      [775, 434, 855, 546]
 	      BackgroundColor	      "yellow"
 	      MinAlgLoopOccurrences   off
 	      RTWSystemCode	      "Auto"
@@ -5096,7 +5153,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Reinterpret"
 	      Ports		      [1, 1]
-	      Position		      [270, 18, 330, 52]
+	      Position		      [530, 18, 590, 52]
 	      NamePlacement	      "alternate"
 	      SourceBlock	      "xbsIndex_r4/Reinterpret"
 	      SourceType	      "Xilinx Type Reinterpreter Block"
@@ -5128,7 +5185,7 @@ Model {
 	      BlockType		      Reference
 	      Name		      "Reinterpret1"
 	      Ports		      [1, 1]
-	      Position		      [270, 63, 330, 97]
+	      Position		      [530, 63, 590, 97]
 	      SourceBlock	      "xbsIndex_r4/Reinterpret"
 	      SourceType	      "Xilinx Type Reinterpreter Block"
 	      infoedit		      "Changes signal type without altering th"
@@ -5156,9 +5213,135 @@ Model {
 "NT: end icon text');\n"
 	    }
 	    Block {
+	      BlockType		      Reference
+	      Name		      "Reinterpret2"
+	      Ports		      [1, 1]
+	      Position		      [250, 159, 300, 191]
+	      SourceBlock	      "xbsIndex_r4/Reinterpret"
+	      SourceType	      "Xilinx Type Reinterpreter Block"
+	      infoedit		      "Changes signal type without altering th"
+"e binary representation.   You can changed the signal between signed and unsi"
+"gned, and relocate the binary point.<P><P>Hardware notes: In hardware this bl"
+"ock costs nothing.<P><P>Example:  Suppose the input is 6 bits wide, signed, w"
+"ith 2 fractional bits, and the output is forced to unsigned with 0 fractional"
+" bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes an o"
+"utput of 56 (111000 in binary)."
+	      force_arith_type	      on
+	      arith_type	      "Signed  (2's comp)"
+	      force_bin_pt	      on
+	      bin_pt		      "15"
+	      has_advanced_control    "0"
+	      sggui_pos		      "20,20,336,312"
+	      block_type	      "reinterpret"
+	      block_version	      "9.2.01"
+	      sg_icon_stat	      "50,32,1,1,white,blue,0,8982c1db"
+	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
+"s');\npatch([0 50 50 0 ],[0 0 32 32 ],[0.77 0.82 0.91]);\npatch([16 11 18 11 "
+"16 24 26 28 37 30 23 18 25 18 23 30 37 28 26 24 16 ],[3 8 15 22 27 27 25 27 2"
+"7 20 27 22 15 8 3 10 3 3 5 3 3 ],[0.98 0.96 0.92]);\nplot([0 0 50 50 0 ],[0 3"
+"2 32 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT:"
+" begin icon text');\ncolor('black');disp('reinterpret');\nfprintf('','COMMENT"
+": end icon text');\n"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Reinterpret3"
+	      Ports		      [1, 1]
+	      Position		      [250, 204, 300, 236]
+	      SourceBlock	      "xbsIndex_r4/Reinterpret"
+	      SourceType	      "Xilinx Type Reinterpreter Block"
+	      infoedit		      "Changes signal type without altering th"
+"e binary representation.   You can changed the signal between signed and unsi"
+"gned, and relocate the binary point.<P><P>Hardware notes: In hardware this bl"
+"ock costs nothing.<P><P>Example:  Suppose the input is 6 bits wide, signed, w"
+"ith 2 fractional bits, and the output is forced to unsigned with 0 fractional"
+" bits.  Then an input of -2.0 (1110.00 in binary 2's complement) becomes an o"
+"utput of 56 (111000 in binary)."
+	      force_arith_type	      on
+	      arith_type	      "Signed  (2's comp)"
+	      force_bin_pt	      on
+	      bin_pt		      "15"
+	      has_advanced_control    "0"
+	      sggui_pos		      "20,20,336,312"
+	      block_type	      "reinterpret"
+	      block_version	      "9.2.01"
+	      sg_icon_stat	      "50,32,1,1,white,blue,0,8982c1db"
+	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
+"s');\npatch([0 50 50 0 ],[0 0 32 32 ],[0.77 0.82 0.91]);\npatch([16 11 18 11 "
+"16 24 26 28 37 30 23 18 25 18 23 30 37 28 26 24 16 ],[3 8 15 22 27 27 25 27 2"
+"7 20 27 22 15 8 3 10 3 3 5 3 3 ],[0.98 0.96 0.92]);\nplot([0 0 50 50 0 ],[0 3"
+"2 32 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT:"
+" begin icon text');\ncolor('black');disp('reinterpret');\nfprintf('','COMMENT"
+": end icon text');\n"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Slice I"
+	      Ports		      [1, 1]
+	      Position		      [130, 160, 190, 190]
+	      SourceBlock	      "xbsIndex_r4/Slice"
+	      SourceType	      "Xilinx Bit Slice Extractor Block"
+	      infoedit		      "Extracts a given range of bits from eac"
+"h input sample and presents it at the output.  The output type is ordinarily "
+"unsigned with binary point at zero, but can be Boolean when the slice is one "
+"bit wide.<P><P>Hardware notes: In hardware this block costs nothing."
+	      nbits		      "16"
+	      boolean_output	      off
+	      mode		      "Lower Bit Location + Width"
+	      bit1		      "0"
+	      base1		      "MSB of Input"
+	      bit0		      "16"
+	      base0		      "LSB of Input"
+	      dbl_ovrd		      off
+	      has_advanced_control    "0"
+	      sggui_pos		      "20,20,460,380"
+	      block_type	      "slice"
+	      block_version	      "9.2.01"
+	      sg_icon_stat	      "60,30,1,1,white,blue,0,fe24a11e"
+	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
+"s');\npatch([0 60 60 0 ],[0 0 30 30 ],[0.77 0.82 0.91]);\npatch([22 17 24 17 "
+"22 30 32 34 42 35 29 24 30 24 29 35 42 34 32 30 22 ],[3 8 15 22 27 27 25 27 2"
+"7 20 26 21 15 9 4 10 3 3 5 3 3 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 3"
+"0 30 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT:"
+" begin icon text');\ncolor('black');port_label('output',1,'[a:b]');\nfprintf("
+"'','COMMENT: end icon text');\n"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Slice Q"
+	      Ports		      [1, 1]
+	      Position		      [130, 205, 190, 235]
+	      SourceBlock	      "xbsIndex_r4/Slice"
+	      SourceType	      "Xilinx Bit Slice Extractor Block"
+	      infoedit		      "Extracts a given range of bits from eac"
+"h input sample and presents it at the output.  The output type is ordinarily "
+"unsigned with binary point at zero, but can be Boolean when the slice is one "
+"bit wide.<P><P>Hardware notes: In hardware this block costs nothing."
+	      nbits		      "16"
+	      boolean_output	      off
+	      mode		      "Lower Bit Location + Width"
+	      bit1		      "0"
+	      base1		      "MSB of Input"
+	      bit0		      "0"
+	      base0		      "LSB of Input"
+	      dbl_ovrd		      off
+	      has_advanced_control    "0"
+	      sggui_pos		      "20,20,460,380"
+	      block_type	      "slice"
+	      block_version	      "9.2.01"
+	      sg_icon_stat	      "60,30,1,1,white,blue,0,fe24a11e"
+	      sg_mask_display	      "fprintf('','COMMENT: begin icon graphic"
+"s');\npatch([0 60 60 0 ],[0 0 30 30 ],[0.77 0.82 0.91]);\npatch([22 17 24 17 "
+"22 30 32 34 42 35 29 24 30 24 29 35 42 34 32 30 22 ],[3 8 15 22 27 27 25 27 2"
+"7 20 26 21 15 9 4 10 3 3 5 3 3 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 3"
+"0 30 0 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT:"
+" begin icon text');\ncolor('black');port_label('output',1,'[a:b]');\nfprintf("
+"'','COMMENT: end icon text');\n"
+	    }
+	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace1"
-	      Position		      [25, 80, 85, 110]
+	      Position		      [285, 80, 345, 110]
 	      Orientation	      "left"
 	      NamePlacement	      "alternate"
 	      VariableName	      "I"
@@ -5169,7 +5352,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace2"
-	      Position		      [25, 35, 85, 65]
+	      Position		      [285, 35, 345, 65]
 	      Orientation	      "left"
 	      NamePlacement	      "alternate"
 	      VariableName	      "Q"
@@ -5180,14 +5363,14 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ_Data"
-	      Position		      [665, 53, 695, 67]
+	      Position		      [925, 53, 955, 67]
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
 	    }
 	    Block {
 	      BlockType		      Outport
 	      Name		      "A Data"
-	      Position		      [665, 348, 695, 362]
+	      Position		      [925, 348, 955, 362]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5195,7 +5378,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "B_Data"
-	      Position		      [665, 483, 695, 497]
+	      Position		      [925, 483, 955, 497]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5203,7 +5386,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "P_Data"
-	      Position		      [665, 198, 695, 212]
+	      Position		      [925, 198, 955, 212]
 	      Port		      "4"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5211,7 +5394,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "M_Out"
-	      Position		      [665, 558, 695, 572]
+	      Position		      [925, 558, 955, 572]
 	      Port		      "5"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5219,7 +5402,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "N_Out"
-	      Position		      [665, 588, 695, 602]
+	      Position		      [925, 588, 955, 602]
 	      Port		      "6"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5227,7 +5410,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "Gate1_Out"
-	      Position		      [665, 623, 695, 637]
+	      Position		      [925, 623, 955, 637]
 	      Port		      "7"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5235,7 +5418,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "Gate2_Out"
-	      Position		      [665, 668, 695, 682]
+	      Position		      [925, 668, 955, 682]
 	      Port		      "8"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5243,7 +5426,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "Reset_Out"
-	      Position		      [665, 703, 695, 717]
+	      Position		      [925, 703, 955, 717]
 	      Port		      "9"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5251,7 +5434,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ Index_Out"
-	      Position		      [665, 738, 695, 752]
+	      Position		      [925, 738, 955, 752]
 	      Port		      "10"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5259,7 +5442,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "IQ Length_Out"
-	      Position		      [665, 773, 695, 787]
+	      Position		      [925, 773, 955, 787]
 	      Port		      "11"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
@@ -5267,15 +5450,31 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "DC Rem Done"
-	      Position		      [665, 808, 695, 822]
+	      Position		      [925, 808, 955, 822]
 	      Port		      "12"
+	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "I DC"
+	      Position		      [925, 838, 955, 852]
+	      Port		      "13"
+	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Q DC"
+	      Position		      [925, 868, 955, 882]
+	      Port		      "14"
 	      IconDisplay	      "Port number"
 	      BusOutputAsStruct	      off
 	    }
 	    Line {
 	      SrcBlock		      "Gate1_In"
 	      SrcPort		      1
-	      Points		      [0, 0; 85, 0]
+	      Points		      [345, 0]
 	      Branch {
 		DstBlock		"Delay"
 		DstPort			1
@@ -5289,7 +5488,7 @@ Model {
 	    Line {
 	      SrcBlock		      "Gate2_In"
 	      SrcPort		      1
-	      Points		      [0, 0; 105, 0]
+	      Points		      [365, 0]
 	      Branch {
 		DstBlock		"Delay3"
 		DstPort			1
@@ -5333,7 +5532,6 @@ Model {
 	    Line {
 	      SrcBlock		      "M"
 	      SrcPort		      1
-	      Points		      [0, 0]
 	      DstBlock		      "M_Out"
 	      DstPort		      1
 	    }
@@ -5372,7 +5570,7 @@ Model {
 	    Line {
 	      SrcBlock		      "Reset_In"
 	      SrcPort		      1
-	      Points		      [0, 0; 15, 0]
+	      Points		      [275, 0]
 	      Branch {
 		Points			[180, 0]
 		Branch {
@@ -5386,7 +5584,7 @@ Model {
 		}
 	      }
 	      Branch {
-		Points			[0, -460]
+		Points			[0, -400]
 		DstBlock		"DC Removal"
 		DstPort			4
 	      }
@@ -5472,7 +5670,6 @@ Model {
 	    Line {
 	      SrcBlock		      "IQ Index"
 	      SrcPort		      1
-	      Points		      [0, 0]
 	      DstBlock		      "IQ Index_Out"
 	      DstPort		      1
 	    }
@@ -5495,15 +5692,9 @@ Model {
 	      DstPort		      1
 	    }
 	    Line {
-	      SrcBlock		      "I"
-	      SrcPort		      1
-	      DstBlock		      "DC Removal"
-	      DstPort		      1
-	    }
-	    Line {
 	      SrcBlock		      "DC Removal"
 	      SrcPort		      1
-	      Points		      [20, 0]
+	      Points		      [30, 0]
 	      Branch {
 		Points			[20, 0]
 		Branch {
@@ -5525,7 +5716,7 @@ Model {
 	    Line {
 	      SrcBlock		      "DC Removal"
 	      SrcPort		      3
-	      Points		      [30, 0]
+	      Points		      [40, 0]
 	      Branch {
 		Points			[20, 0]
 		Branch {
@@ -5545,15 +5736,9 @@ Model {
 	      }
 	    }
 	    Line {
-	      SrcBlock		      "Q"
-	      SrcPort		      1
-	      DstBlock		      "DC Removal"
-	      DstPort		      3
-	    }
-	    Line {
 	      SrcBlock		      "DC Removal"
 	      SrcPort		      2
-	      Points		      [40, 0; 0, 610]
+	      Points		      [50, 0; 0, 610]
 	      DstBlock		      "DC Rem Done"
 	      DstPort		      1
 	    }
@@ -5561,7 +5746,60 @@ Model {
 	      SrcBlock		      "DC Enable"
 	      SrcPort		      1
 	      DstBlock		      "DC Removal"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Slice I"
+	      SrcPort		      1
+	      DstBlock		      "Reinterpret2"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Slice Q"
+	      SrcPort		      1
+	      DstBlock		      "Reinterpret3"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Reinterpret2"
+	      SrcPort		      1
+	      DstBlock		      "DC Removal"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Reinterpret3"
+	      SrcPort		      1
+	      DstBlock		      "DC Removal"
 	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "In"
+	      SrcPort		      1
+	      Points		      [55, 0]
+	      Branch {
+		Points			[0, -20]
+		DstBlock		"Slice I"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, 25]
+		DstBlock		"Slice Q"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "DC Removal"
+	      SrcPort		      4
+	      Points		      [30, 0; 0, 570]
+	      DstBlock		      "I DC"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "DC Removal"
+	      SrcPort		      5
+	      Points		      [10, 0; 0, 565]
+	      DstBlock		      "Q DC"
+	      DstPort		      1
 	    }
 	  }
 	}
@@ -17205,6 +17443,22 @@ Model {
 	  IconDisplay		  "Port number"
 	  BusOutputAsStruct	  off
 	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "I DC"
+	  Position		  [495, 533, 525, 547]
+	  Port			  "11"
+	  IconDisplay		  "Port number"
+	  BusOutputAsStruct	  off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Q DC"
+	  Position		  [495, 573, 525, 587]
+	  Port			  "12"
+	  IconDisplay		  "Port number"
+	  BusOutputAsStruct	  off
+	}
 	Line {
 	  SrcBlock		  "Calc"
 	  SrcPort		  2
@@ -17266,34 +17520,28 @@ Model {
 	  DstPort		  1
 	}
 	Line {
-	  SrcBlock		  "I_in"
+	  SrcBlock		  "In"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
 	  DstPort		  1
 	}
 	Line {
-	  SrcBlock		  "Q_in"
+	  SrcBlock		  "M"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
 	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "M"
+	  SrcBlock		  "N"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
 	  DstPort		  3
 	}
 	Line {
-	  SrcBlock		  "N"
-	  SrcPort		  1
-	  DstBlock		  "Calc"
-	  DstPort		  4
-	}
-	Line {
 	  SrcBlock		  "Gate1_in"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  5
+	  DstPort		  4
 	}
 	Line {
 	  SrcBlock		  "Sum"
@@ -17311,7 +17559,7 @@ Model {
 	  SrcBlock		  "Gate2_in"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  6
+	  DstPort		  5
 	}
 	Line {
 	  SrcBlock		  "Sum"
@@ -17323,7 +17571,7 @@ Model {
 	  SrcBlock		  "Reset_in"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  7
+	  DstPort		  6
 	}
 	Line {
 	  SrcBlock		  "Sum"
@@ -17353,13 +17601,13 @@ Model {
 	  SrcBlock		  "IQ Index"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  8
+	  DstPort		  7
 	}
 	Line {
 	  SrcBlock		  "IQ Length"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  9
+	  DstPort		  8
 	}
 	Line {
 	  SrcBlock		  "Calc"
@@ -17389,7 +17637,19 @@ Model {
 	  SrcBlock		  "DC Enable"
 	  SrcPort		  1
 	  DstBlock		  "Calc"
-	  DstPort		  10
+	  DstPort		  9
+	}
+	Line {
+	  SrcBlock		  "Calc"
+	  SrcPort		  13
+	  DstBlock		  "I DC"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Calc"
+	  SrcPort		  14
+	  DstBlock		  "Q DC"
+	  DstPort		  1
 	}
       }
     }
@@ -17397,7 +17657,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse1"
       Ports		      [0, 1]
-      Position		      [20, 521, 65, 549]
+      Position		      [20, 556, 65, 584]
       PulseType		      "Time based"
       Period		      "900/40e6"
       PulseWidth	      "10"
@@ -17407,7 +17667,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse2"
       Ports		      [0, 1]
-      Position		      [20, 581, 65, 609]
+      Position		      [20, 636, 65, 664]
       PulseType		      "Time based"
       Period		      "500/12e6"
       PhaseDelay	      "0010/12e6"
@@ -17416,7 +17676,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse3"
       Ports		      [0, 1]
-      Position		      [110, 491, 155, 519]
+      Position		      [110, 506, 155, 534]
       PulseType		      "Time based"
       Period		      "900/40e6"
       PulseWidth	      "10"
@@ -17426,7 +17686,7 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse4"
       Ports		      [0, 1]
-      Position		      [115, 636, 160, 664]
+      Position		      [115, 691, 160, 719]
       PulseType		      "Time based"
       Period		      "50000/12e6"
       PhaseDelay	      "100/12e6"
@@ -17435,11 +17695,42 @@ Model {
       BlockType		      DiscretePulseGenerator
       Name		      "Pulse5"
       Ports		      [0, 1]
-      Position		      [35, 801, 80, 829]
+      Position		      [35, 916, 80, 944]
       PulseType		      "Time based"
       Period		      "500/12e6"
       PulseWidth	      "10"
       PhaseDelay	      "0/12e6"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Q DC"
+      Ports		      [1, 1]
+      Position		      [880, 955, 940, 975]
+      SourceBlock	      "xbsIndex_r4/Gateway Out"
+      SourceType	      "Xilinx Gateway Out Block"
+      infoedit		      "Gateway out block.  Converts Xilinx fixed point"
+" inputs into ouputs of type Simulink integer, double, or fixed point.<P><P>Ha"
+"rdware notes:  In hardware these blocks become top level output ports or are "
+"discarded, depending on how they are configured."
+      hdl_port		      on
+      timing_constraint	      "None"
+      locs_specified	      off
+      LOCs		      "{}"
+      xl_use_area	      off
+      xl_area		      "[0 0 0 0 1 0 0]"
+      has_advanced_control    "0"
+      sggui_pos		      "-1,-1,-1,-1"
+      block_type	      "gatewayout"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 20 20 ],[0.95 0.93 0.65]);\npatch([24 21 26 21 24 29 30"
+" 31 37 33 29 26 31 26 29 33 37 31 30 29 24 ],[2 5 10 15 18 18 17 18 18 14 18 "
+"15 10 5 2 6 2 2 3 2 2 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 20 20 0 0 "
+"]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin ic"
+"on text');\ncolor('black');port_label('input',1,' ');\ncolor('black');port_la"
+"bel('output',1,'\\fontsize{11pt}\\bf Out ','texmode','on');\nfprintf('','COMM"
+"ENT: end icon text');\n"
     }
     Block {
       BlockType		      Constant
@@ -17451,7 +17742,7 @@ Model {
       BlockType		      Reference
       Name		      "Q_In"
       Ports		      [1, 1]
-      Position		      [360, 255, 425, 275]
+      Position		      [320, 255, 385, 275]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -17537,9 +17828,72 @@ Model {
     }
     Block {
       BlockType		      Reference
+      Name		      "Reinterpret"
+      Ports		      [1, 1]
+      Position		      [470, 178, 530, 212]
+      NamePlacement	      "alternate"
+      SourceBlock	      "xbsIndex_r4/Reinterpret"
+      SourceType	      "Xilinx Type Reinterpreter Block"
+      infoedit		      "Changes signal type without altering the binary"
+" representation.   You can changed the signal between signed and unsigned, an"
+"d relocate the binary point.<P><P>Hardware notes: In hardware this block cost"
+"s nothing.<P><P>Example:  Suppose the input is 6 bits wide, signed, with 2 fr"
+"actional bits, and the output is forced to unsigned with 0 fractional bits.  "
+"Then an input of -2.0 (1110.00 in binary 2's complement) becomes an output of"
+" 56 (111000 in binary)."
+      force_arith_type	      on
+      arith_type	      "Unsigned"
+      force_bin_pt	      on
+      bin_pt		      "0"
+      has_advanced_control    "0"
+      sggui_pos		      "20,20,356,306"
+      block_type	      "reinterpret"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,34,1,1,white,blue,0,8982c1db"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([21 15 23 15 21 30 32"
+" 34 44 36 29 24 32 24 29 36 44 34 32 30 21 ],[4 10 18 26 32 32 30 32 32 24 31"
+" 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 34 34 0"
+" 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin"
+" icon text');\ncolor('black');disp('reinterpret');\nfprintf('','COMMENT: end "
+"icon text');\n"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Reinterpret1"
+      Ports		      [1, 1]
+      Position		      [470, 223, 530, 257]
+      SourceBlock	      "xbsIndex_r4/Reinterpret"
+      SourceType	      "Xilinx Type Reinterpreter Block"
+      infoedit		      "Changes signal type without altering the binary"
+" representation.   You can changed the signal between signed and unsigned, an"
+"d relocate the binary point.<P><P>Hardware notes: In hardware this block cost"
+"s nothing.<P><P>Example:  Suppose the input is 6 bits wide, signed, with 2 fr"
+"actional bits, and the output is forced to unsigned with 0 fractional bits.  "
+"Then an input of -2.0 (1110.00 in binary 2's complement) becomes an output of"
+" 56 (111000 in binary)."
+      force_arith_type	      on
+      arith_type	      "Unsigned"
+      force_bin_pt	      on
+      bin_pt		      "0"
+      has_advanced_control    "0"
+      sggui_pos		      "20,20,356,306"
+      block_type	      "reinterpret"
+      block_version	      "8.2"
+      sg_icon_stat	      "60,34,1,1,white,blue,0,8982c1db"
+      sg_mask_display	      "fprintf('','COMMENT: begin icon graphics');\npa"
+"tch([0 60 60 0 ],[0 0 34 34 ],[0.77 0.82 0.91]);\npatch([21 15 23 15 21 30 32"
+" 34 44 36 29 24 32 24 29 36 44 34 32 30 21 ],[4 10 18 26 32 32 30 32 32 24 31"
+" 26 18 10 5 12 4 4 6 4 4 ],[0.98 0.96 0.92]);\nplot([0 0 60 60 0 ],[0 34 34 0"
+" 0 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin"
+" icon text');\ncolor('black');disp('reinterpret');\nfprintf('','COMMENT: end "
+"icon text');\n"
+    }
+    Block {
+      BlockType		      Reference
       Name		      "Reset"
       Ports		      [1, 1]
-      Position		      [355, 605, 420, 625]
+      Position		      [355, 660, 420, 680]
       SourceBlock	      "xbsIndex_r4/Gateway In"
       SourceType	      "Xilinx Gateway In Block"
       infoedit		      "Gateway in block.  Converts inputs of type Simu"
@@ -17609,7 +17963,7 @@ Model {
       BlockType		      Scope
       Name		      "Scope"
       Ports		      [5]
-      Position		      [1170, 164, 1225, 716]
+      Position		      [1360, 164, 1415, 716]
       Floating		      off
       Location		      [6, 56, 1286, 997]
       Open		      off
@@ -17633,7 +17987,7 @@ Model {
       BlockType		      Scope
       Name		      "Scope1"
       Ports		      [7]
-      Position		      [1130, 842, 1175, 978]
+      Position		      [1320, 962, 1365, 1098]
       Floating		      off
       Location		      [115, 103, 1393, 1044]
       Open		      off
@@ -17663,7 +18017,7 @@ Model {
       Position		      [15, 123, 60, 167]
       SourceBlock	      "dspsrcs4/Sine Wave"
       SourceType	      "Sine Wave"
-      Amplitude		      "0"
+      Amplitude		      ".99"
       Frequency		      "100e3"
       Phase		      "0"
       SampleMode	      "Discrete"
@@ -17711,7 +18065,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch"
       Ports		      [2, 1]
-      Position		      [175, 527, 205, 563]
+      Position		      [175, 562, 205, 598]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      "FromPortIcon"
@@ -17730,7 +18084,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch1"
       Ports		      [2, 1]
-      Position		      [160, 587, 190, 623]
+      Position		      [160, 642, 190, 678]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      "FromPortIcon"
@@ -17749,7 +18103,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch2"
       Ports		      [2, 1]
-      Position		      [200, 457, 230, 493]
+      Position		      [200, 472, 230, 508]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      "FromPortIcon"
@@ -17768,7 +18122,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch3"
       Ports		      [2, 1]
-      Position		      [115, 447, 145, 483]
+      Position		      [115, 462, 145, 498]
       NamePlacement	      "alternate"
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
@@ -17788,7 +18142,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch4"
       Ports		      [2, 1]
-      Position		      [230, 597, 260, 633]
+      Position		      [230, 652, 260, 688]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      "FromPortIcon"
@@ -17807,7 +18161,7 @@ Model {
       BlockType		      Reference
       Name		      "Switch6"
       Ports		      [2, 1]
-      Position		      [215, 807, 245, 843]
+      Position		      [215, 922, 245, 958]
       SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
       SourceType	      "Manual Switch"
       ShowPortLabels	      "FromPortIcon"
@@ -17826,7 +18180,7 @@ Model {
       BlockType		      Reference
       Name		      "Sync_Error"
       Ports		      [1, 1]
-      Position		      [690, 745, 750, 765]
+      Position		      [880, 745, 940, 765]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -17856,7 +18210,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace"
-      Position		      [845, 420, 905, 450]
+      Position		      [1035, 420, 1095, 450]
       VariableName	      "Pout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -17865,7 +18219,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace1"
-      Position		      [610, 50, 670, 80]
+      Position		      [800, 50, 860, 80]
       VariableName	      "Iin"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -17874,7 +18228,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace2"
-      Position		      [610, 105, 670, 135]
+      Position		      [800, 105, 860, 135]
       VariableName	      "Qin"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -17883,7 +18237,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace3"
-      Position		      [845, 350, 905, 380]
+      Position		      [1035, 350, 1095, 380]
       VariableName	      "Bout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -17892,7 +18246,7 @@ Model {
     Block {
       BlockType		      ToWorkspace
       Name		      "To Workspace4"
-      Position		      [845, 280, 905, 310]
+      Position		      [1035, 280, 1095, 310]
       VariableName	      "Aout"
       MaxDataPoints	      "inf"
       SampleTime	      "-1"
@@ -17901,52 +18255,52 @@ Model {
     Block {
       BlockType		      Constant
       Name		      "const"
-      Position		      [75, 544, 120, 566]
+      Position		      [75, 579, 120, 601]
       Value		      "0"
     }
     Block {
       BlockType		      Constant
       Name		      "const1"
-      Position		      [70, 604, 115, 626]
+      Position		      [70, 659, 115, 681]
       Value		      "0"
     }
     Block {
       BlockType		      Constant
       Name		      "const2"
-      Position		      [20, 484, 65, 506]
+      Position		      [20, 499, 65, 521]
       Value		      "0"
     }
     Block {
       BlockType		      Constant
       Name		      "const3"
-      Position		      [35, 844, 80, 866]
+      Position		      [35, 959, 80, 981]
       SampleTime	      "1/12e6"
     }
     Line {
       SrcBlock		      "I_In"
       SrcPort		      1
-      Points		      [10, 0]
+      Points		      [45, 0]
       Branch {
 	Points			[0, -130]
 	DstBlock		"Out"
 	DstPort			1
       }
       Branch {
-	DstBlock		"Pulse Pair Processor"
+	DstBlock		"Reinterpret"
 	DstPort			1
       }
     }
     Line {
       SrcBlock		      "Q_In"
       SrcPort		      1
-      Points		      [25, 0]
+      Points		      [65, 0; 0, -25]
       Branch {
-	DstBlock		"Pulse Pair Processor"
-	DstPort			2
+	Points			[0, -120]
+	DstBlock		"Out1"
+	DstPort			1
       }
       Branch {
-	Points			[0, -145]
-	DstBlock		"Out1"
+	DstBlock		"Reinterpret1"
 	DstPort			1
       }
     }
@@ -17959,14 +18313,15 @@ Model {
     Line {
       SrcBlock		      "M"
       SrcPort		      1
+      Points		      [255, 0]
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      3
+      DstPort		      2
     }
     Line {
       SrcBlock		      "N"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      4
+      DstPort		      3
     }
     Line {
       SrcBlock		      "Pulse1"
@@ -17990,13 +18345,13 @@ Model {
       SrcBlock		      "Gate1"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      5
+      DstPort		      4
     }
     Line {
       SrcBlock		      "Gate2"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      6
+      DstPort		      5
     }
     Line {
       SrcBlock		      "Pulse Pair Processor"
@@ -18094,7 +18449,7 @@ Model {
       SrcBlock		      "Reset"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      7
+      DstPort		      6
     }
     Line {
       SrcBlock		      "Pulse2"
@@ -18158,7 +18513,7 @@ Model {
 	DstPort			6
       }
       Branch {
-	Points			[0, 220]
+	Points			[0, 340]
 	DstBlock		"Scope1"
 	DstPort			2
       }
@@ -18178,7 +18533,7 @@ Model {
 	DstPort			5
       }
       Branch {
-	Points			[0, 375]
+	Points			[0, 495]
 	DstBlock		"Scope1"
 	DstPort			1
       }
@@ -18187,13 +18542,13 @@ Model {
       SrcBlock		      "IQ_Index"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      8
+      DstPort		      7
     }
     Line {
       SrcBlock		      "IQ_Length"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      9
+      DstPort		      8
     }
     Line {
       SrcBlock		      "Index"
@@ -18240,7 +18595,7 @@ Model {
 	DstPort			1
       }
       Branch {
-	Points			[0, 415]
+	Points			[0, 520]
 	DstBlock		"Scope1"
 	DstPort			3
       }
@@ -18286,7 +18641,7 @@ Model {
 	DstPort			1
       }
       Branch {
-	Points			[0, 315]
+	Points			[0, 380]
 	DstBlock		"Scope1"
 	DstPort			5
       }
@@ -18307,7 +18662,7 @@ Model {
 	DstPort			1
       }
       Branch {
-	Points			[0, 615]
+	Points			[0, 740]
 	DstBlock		"Scope1"
 	DstPort			6
       }
@@ -18361,7 +18716,7 @@ Model {
     Line {
       SrcBlock		      "Pulse Pair Processor"
       SrcPort		      10
-      DstBlock		      "DC_Remove"
+      DstBlock		      "DC_Done"
       DstPort		      1
     }
     Line {
@@ -18374,7 +18729,7 @@ Model {
 	DstPort			7
       }
       Branch {
-	Points			[0, 155]
+	Points			[0, 275]
 	DstBlock		"Scope1"
 	DstPort			4
       }
@@ -18388,7 +18743,7 @@ Model {
 	DstPort			1
       }
       Branch {
-	Points			[0, 145]
+	Points			[0, 150]
 	DstBlock		"Scope1"
 	DstPort			7
       }
@@ -18409,7 +18764,7 @@ Model {
       SrcBlock		      "DC_Enable"
       SrcPort		      1
       DstBlock		      "Pulse Pair Processor"
-      DstPort		      10
+      DstPort		      9
     }
     Line {
       SrcBlock		      "Data Display"
@@ -18418,7 +18773,7 @@ Model {
       DstPort		      5
     }
     Line {
-      SrcBlock		      "DC_Remove"
+      SrcBlock		      "DC_Done"
       SrcPort		      1
       Points		      [200, 0]
       DstBlock		      "Data Display"
@@ -18444,6 +18799,48 @@ Model {
       Points		      [30, 0; 0, 20; 130, 0]
       DstBlock		      "Sum"
       DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Reinterpret"
+      SrcPort		      1
+      DstBlock		      "Concat"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Reinterpret1"
+      SrcPort		      1
+      DstBlock		      "Concat"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Concat"
+      SrcPort		      1
+      DstBlock		      "Pulse Pair Processor"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Pulse Pair Processor"
+      SrcPort		      12
+      DstBlock		      "Q DC"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Pulse Pair Processor"
+      SrcPort		      11
+      DstBlock		      "I_DC"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "I_DC"
+      SrcPort		      1
+      DstBlock		      "Display"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Q DC"
+      SrcPort		      1
+      DstBlock		      "Display1"
+      DstPort		      1
     }
   }
 }
