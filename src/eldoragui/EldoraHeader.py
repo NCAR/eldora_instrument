@@ -45,6 +45,8 @@ class EldoraHeader(list):
         self.readHeader()
         # collect the verify blocks
         self.readVerify()
+        # calculate checksum
+        self.doCheckSum()
         
 ###############################################################
     def readHeader(self):
@@ -181,6 +183,17 @@ class EldoraHeader(list):
         return retval
 
 ###############################################################
+    def doCheckSum(self):
+        cmd = ['/usr/bin/cksum',] + [self.headerFile,]
+        c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
+        self.checksum = 0
+        while 1:
+            line = c.stdout.readline()
+            if len(line) == 0:
+                break
+            self.checksum = int(line.split()[0])
+       
+###############################################################
     @staticmethod
     def test():
         print 'This test expects to find dumpheader in ../headermaker'
@@ -199,6 +212,7 @@ class EldoraHeader(list):
             print '*************************** ', b.type, '*************************** '
             for f in b:
                 print f
+        print 'checksum is ',eldoraHdr.checksum
             
             
 # Run the test when invoked standalone
