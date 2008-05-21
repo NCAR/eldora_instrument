@@ -174,6 +174,9 @@ void RR314::RR314shutdown() {
     if (_simulate)
         return;
 
+    // stop the filters if they are running.
+    Adapter_Write32(&_chanAdapter, V4,  KAISER_ADDR, DDC_STOP);
+    
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_INTRMASK_ADR, BRG_INTR_DIS);
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
 
@@ -323,6 +326,12 @@ int RR314::configure314() {
         printf("Opened ChannelAdapter device %d\n", _chanAdapter.DevNum);
     }
 
+    // Reset the ADC Clk and CLK Distribution
+    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_ADCCLKCTL_ADR, 0);
+    sleep(1);
+    Adapter_Write32(&_chanAdapter, BRIDGE, BRG_ADCCLKCTL_ADR, 1);
+    sleep(1);
+    
     // send a hard reset to the card
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 1);
     Adapter_Write32(&_chanAdapter, BRIDGE, BRG_FPGARESET_ADR, 0);
@@ -331,22 +340,22 @@ int RR314::configure314() {
     Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
 
     //Load the v4 if needed
-    if (_xsvfFileName.size() > 0) {
-        std::cout << "Loading bitstream " << _xsvfFileName << std::endl;
-        char name[_xsvfFileName.size()+1];
-        strcpy(name, _xsvfFileName.c_str());
-        if (Adapter_LoadXSVF(&_chanAdapter, name, 1)) {
-            printf("V4 and / or PROM failed to load, will now exit...\n");
-            Adapter_Close(&_chanAdapter);
-            return -1;
-        }
-    }
+    //if (_xsvfFileName.size() > 0) {
+    //    std::cout << "Loading bitstream " << _xsvfFileName << std::endl;
+    //    char name[_xsvfFileName.size()+1];
+    //    strcpy(name, _xsvfFileName.c_str());
+    //    if (Adapter_LoadXSVF(&_chanAdapter, name, 1)) {
+    //        printf("V4 and / or PROM failed to load, will now exit...\n");
+    //        Adapter_Close(&_chanAdapter);
+    //        return -1;
+    //    }
+    //}
 
-        
     // set the sample clock
     _ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
     Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
     sleep(1); //Allow time for synthesizer to lock.
+    
     // Code here should reset your DCMs and allow time for them to lock,
     // then check their status
     // Soft Reset, self clearing
@@ -361,17 +370,7 @@ int RR314::configure314() {
         Adapter_Close(&_chanAdapter);
         return -1;
     }
-    
-    // stop the filters if they are running.
-    Adapter_Write32(&_chanAdapter, V4,  KAISER_ADDR, (0x1<<12));
-
-    // set up the filters. Will do nothing if either of
-    // the filter file paths is empty.
-    if (filterSetup()) {
-      // error initializing the filters
-      return -1;
-    }
-    
+        
     // Reset Timer DCM
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, TIMER_DCM_RST);
     sleep(1);
@@ -383,12 +382,19 @@ int RR314::configure314() {
         Adapter_Close(&_chanAdapter);
         return -1;
     }
+   
+    // stop the filters if they are running.
+    Adapter_Write32(&_chanAdapter, V4,  KAISER_ADDR, DDC_STOP);
+    usleep(1e3);
 
-    // Reset Decimator clocks
-    Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_ACT);
-    Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_CLR);
-
-    // Set M314 VRANGE mode.  This will touch the register that controls the sample
+     // set up the filters. Will do nothing if either of
+     // the filter file paths is empty.
+     //if (filterSetup()) {
+       // error initializing the filters
+     //  return -1;
+     //}
+    
+     // Set M314 VRANGE mode.  This will touch the register that controls the sample
     // clk select, so it is done as RMW.
     // Set ADC range to 2Vpp 
     Adapter_Read32(&_chanAdapter, BRIDGE, BRG_HWCONF_ADR, &result);
@@ -397,15 +403,15 @@ int RR314::configure314() {
 
     // Flush FIFOs
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
-    sleep(1);
+    usleep(1e3);
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
-    sleep(1);
+    usleep(1e3);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
 
 
     // reset Pulse Pair Processor
     Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
-    sleep(1);
+    usleep(1e3);
     Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
 
@@ -466,38 +472,56 @@ int RR314::configure314() {
     	return -1;
     }    
     
+    // Reset Decimator clocks
+    Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_ACT);
+    usleep(1e3);
+    Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_CLR);
+    usleep(1e3);    
+    
+    // Start the DDC
+    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, DDC_START);
+    usleep(1e3);
+    
+    // Remove DC
+//    int ddc_error = 0;
+//    int diagnostic = 1;
+//    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 1);
+//    sleep(1);
+//    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 0);
+//    Adapter_Read32(&_chanAdapter, V4, DC_REMOVE_DONE, &result);
+//    if (result) 
+//    {
+//    	Adapter_Read32(&_chanAdapter, V4, CH_A_DC, &result);
+//    	if ((result>>16) > 2) ddc_error = 1;
+//    	if ((result&0xFFFF) > 2) ddc_error = 1;
+//    	printf("A I DC = %x\nA Q DC = %x\n", (result>>16), result&0xffff);
+//    	Adapter_Read32(&_chanAdapter, V4, CH_B_DC, &result);
+//    	if ((result>>16) > 2) ddc_error = 1;
+//    	if ((result&0xFFFF) > 2) ddc_error = 1;
+//    	printf("B I DC = %x\nB Q DC = %x\n", (result>>16), result&0xffff);
+//    	Adapter_Read32(&_chanAdapter, V4, CH_C_DC, &result);
+//    	if ((result>>16) > 2) ddc_error = 1;
+//    	if ((result&0xFFFF) > 2) ddc_error = 1;
+//   	printf("C I DC = %x\nC Q DC = %x\n", (result>>16), result&0xffff);
+//    	Adapter_Read32(&_chanAdapter, V4, CH_D_DC, &result);
+//    	if ((result>>16) > 2) ddc_error = 1;
+//    	if ((result&0xFFFF) > 2) ddc_error = 1;
+//    	printf("D I DC = %x\nD Q DC = %x\n", (result>>16), result&0xffff);
+//    }
+//    else ddc_error = 1;
+//    if (ddc_error) {
+//   	printf("Digital Down Converter Unlocked. Exiting Now...\n");
+//    	//return -1;
+//    }
+
+      
     // initialize the timers
     if (_internalTimer) {
         if (!timerInit())
-            return -1;
+             return -1;
     }
-
-    // Start the DDC
-    Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, 0x0);
     
-    // Remove DC
-    printf("Removing DC... ");
-    sleep(1);
-    //Adapter_Write32(&_chanAdapter, V4, 0xA60, 1);
-    sleep(1);
-    Adapter_Read32(&_chanAdapter, V4, 0xA64, &result);
-    if(result) printf("DC Removed\n");
-    else printf("DC Not Removed\n");
-    Adapter_Read32(&_chanAdapter, V4, 0xA70, &result);
-    printf("Ch A I DC = %x\n", (result>>16));
-    printf("Ch A Q DC = %x\n", (result & 0xFFFF));
-    Adapter_Read32(&_chanAdapter, V4, 0xA74, &result);
-    printf("Ch B I DC = %x\n", (result>>16));
-    printf("Ch B Q DC = %x\n", (result & 0xFFFF));
-    Adapter_Read32(&_chanAdapter, V4, 0xA78, &result);
-    printf("Ch C I DC = %x\n", (result>>16));
-    printf("Ch C Q DC = %x\n", (result & 0xFFFF));
-    Adapter_Read32(&_chanAdapter, V4, 0xA7C, &result);
-    printf("Ch D I DC = %x\n", (result>>16));
-    printf("Ch D Q DC = %x\n", (result & 0xFFFF));
-                    
-    
-    
+   
     return 0;
 
 }
@@ -850,7 +874,7 @@ bool RR314::pulsepairInit() {
     }
 
     Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
-
+    
     //Pulse Pair Setup
     Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
     Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of samples
@@ -956,6 +980,7 @@ bool RR314::timerInit() {
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
     PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
+    usleep(1e3);
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
 
     // Get current system time as xmit start time

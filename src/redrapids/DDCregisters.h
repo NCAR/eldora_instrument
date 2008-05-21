@@ -22,6 +22,7 @@
   #define KAISER_WR   0xA0C
 //Values
   #define DDC_START 0x0
+  #define DDC_STOP  (0x01<<12)
 
 
 //Gaussian Filter Registers
@@ -118,3 +119,11 @@
 #define B_SYNC_ERROR (0x1<<22)
 #define C_SYNC_ERROR (0x1<<21)
 #define D_SYNC_ERROR (0x1<<20)
+
+// DC Removal
+#define DC_REMOVE_ENABLE 0xA60
+#define DC_REMOVE_DONE   0xA64
+#define CH_A_DC                   0xA70
+#define CH_B_DC                   0xA74
+#define CH_C_DC                   0xA78
+#define CH_D_DC                   0xA7C

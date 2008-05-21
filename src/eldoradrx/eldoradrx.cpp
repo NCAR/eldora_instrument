@@ -159,7 +159,6 @@ int main(int argc,
     parseOptions(params1, argc, argv, 1);
 
     // create timer
-    printf("samples = %d\n", params0.nci);
     if (!params0.simulate && !params0.internaltimer) {
         _bwtimer = new Bittware(0);
         _bwtimer->configure(params0.gates,

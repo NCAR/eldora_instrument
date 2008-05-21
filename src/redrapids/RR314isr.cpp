@@ -118,6 +118,21 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 	
 	//printf("STATUS REG = %x\n", Status);
 	
+	// see if either of the DCMs are out of lock
+	if (Status & ADC_DCM_UNLOCKED) {
+		printf("ADC DCM OUT OF LOCK!\n");
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
+		//Shutdown
+		pRR314->RR314shutdown();
+	}
+	
+	if (Status & TIMER_DCM_UNLOCKED)  {
+		printf("TIMER DCM OUT OF LOCK!\n");
+		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
+		//Shutdown
+		pRR314->RR314shutdown();
+	}
+		
 	// see if we have a DMA interrupt
 	if (Status & DMA_GRP_DONE) {
 		// yes, process groups for each DMA dmaChan
