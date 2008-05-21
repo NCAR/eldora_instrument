@@ -322,6 +322,11 @@ int main(int argc,
             rr314_0.setXmitStartTime(xmitStartTime);
             rr314_1.setXmitStartTime(xmitStartTime);
         }
+        else {
+        	// start internal timing for both cards 0 & 1
+        	rr314_0.startInternalTimer();
+        	rr314_1.startInternalTimer();
+        }
         int loopCount = 0;
 
         // create our RPC handler
@@ -603,6 +608,8 @@ static void* rrDataTask(void* threadArg) {
     while (1) {
         // nextBuffer() will block until a new buffer is ready.
         RRBuffer* pBuf = pRR314->nextBuffer();
+        
+        
         
         // get the details of this buffer
         int channel = pBuf->dmaChan;

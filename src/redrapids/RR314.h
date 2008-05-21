@@ -251,6 +251,9 @@ public:
 	
 	/// Number of IQ gates
 	unsigned int numIQGates() { return _numIQGates; }
+	
+	/// Starts the timers.
+	void startInternalTimer();
 protected:
 
 	/// Configure the card and DMA operations.
@@ -270,7 +273,7 @@ protected:
 	/// Configure the timers.
 	/// @return true if succesful, false otherwise.
 	bool timerInit();
-
+		
 	/// Accumlulate byte counts.
 	/// @param chan The channel
 	/// @param bytes Add these bytes

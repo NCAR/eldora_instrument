@@ -407,8 +407,7 @@ int RR314::configure314() {
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
     usleep(1e3);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
-
-
+    
     // reset Pulse Pair Processor
     Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
     usleep(1e3);
@@ -521,7 +520,6 @@ int RR314::configure314() {
              return -1;
     }
     
-   
     return 0;
 
 }
@@ -979,14 +977,37 @@ bool RR314::timerInit() {
     // Enable and Trigger All Timers 
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
-    PRT_REG|Timers|TIMER_EN|ADDR_TRIG); // Set Global Enable
+    PRT_REG|Timers|TIMER_EN); // Set Global Enable
     usleep(1e3);
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
 
     // Get current system time as xmit start time
-    setXmitStartTime(microsec_clock::universal_time());
+    //setXmitStartTime(microsec_clock::universal_time());
 
     return true;
+
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+void RR314::startInternalTimer() {
+    //
+    //    This start the internal timers.
+
+	unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
+	
+	Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
+	
+    // Enable and Trigger All Timers 
+    Adapter_Write32(&_chanAdapter, V4, 
+    MT_ADDR, 
+    PRT_REG|Timers|ADDR_TRIG); // Set Global Enable
+    usleep(1e3);
+    
+    Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
+
+    // Get current system time as xmit start time
+    setXmitStartTime(microsec_clock::universal_time());
 
 }
 
