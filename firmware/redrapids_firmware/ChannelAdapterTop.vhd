@@ -310,6 +310,7 @@ architecture behavioral of ChannelAdapter_Top is
 	signal g_data_reg	: std_logic_vector(31 downto 0);  	--Gaussian Filter Coefficient Data
 	signal g_read_reg	: std_logic_vector(31 downto 0);  	--Gaussian Filter Coefficient Read Back
 	signal g_write_reg: std_logic;  								--Gaussian Filter Coefficient Write Strobe
+	signal stop       : std_logic;								--Stop bit for DDCs
 	
 	-- MultiTimer and Gating
 	signal mt_addr_reg : std_logic_vector(31 downto 0);	--MultiTimer Address Register
@@ -391,6 +392,11 @@ architecture behavioral of ChannelAdapter_Top is
 	-- SVN Revision Register
 	signal svn_rev_reg :std_logic_vector(31 downto 0);
 	
+   -- Signals for ChipScope Pro
+	signal filterx2_clk  : std_logic;                     -- Clock
+	signal count_out     : std_logic_vector(3 downto 0);  -- DDC Filter Counter
+	signal count_inv_out : std_logic_vector(3 downto 0);  -- DDC Filter Inverted Counter
+	
 	
 --------------------------------------
 -- Component Instatantiations
@@ -415,6 +421,15 @@ architecture behavioral of ChannelAdapter_Top is
 			rst			: in std_logic;
 			adc_clk		: in std_logic;
 			filter_clk	: out std_logic;
+			locked		: out std_logic);
+	END COMPONENT;
+	
+	-- Filter x2 Clk DCM
+	COMPONENT filterx2_dcm_m314
+	PORT (
+			rst			: in std_logic;
+			adc_clk		: in std_logic;
+			filterx2_clk: out std_logic;
 			locked		: out std_logic);
 	END COMPONENT;
 	
@@ -550,7 +565,16 @@ architecture behavioral of ChannelAdapter_Top is
 			dec_clk     : out std_logic;
 			fifo_clk    : out std_logic);
 	END COMPONENT;
-	 
+	
+
+   -- Filter Start/Stop Latch	
+	COMPONENT filter_latch
+	PORT (
+			clk      : in  std_logic;
+			stop_in  : in  std_logic;
+			stop_out : out std_logic);
+	END COMPONENT;
+	
 	
 	-- DDC 
 	COMPONENT casc_filter_cw  
@@ -578,6 +602,8 @@ architecture behavioral of ChannelAdapter_Top is
 			chb_out: out std_logic_vector(31 downto 0);
 			chc_out: out std_logic_vector(31 downto 0);
 			chd_out: out std_logic_vector(31 downto 0);
+			count_inv_out: out std_logic_vector(3 downto 0);
+			count_out: out std_logic_vector(3 downto 0);
 			g_readcoef: out std_logic_vector(17 downto 0);
 			k_readcoef: out std_logic_vector(17 downto 0));
 	END COMPONENT;
@@ -607,39 +633,47 @@ architecture behavioral of ChannelAdapter_Top is
 			reset: in std_logic;
 			a_adata: out std_logic_vector(31 downto 0);
 			a_bdata: out std_logic_vector(31 downto 0);
+			a_i_dc: out std_logic_vector(15 downto 0);
 			a_iqdata: out std_logic_vector(31 downto 0);
 			a_iqgate1: out std_logic;
 			a_iqgate2: out std_logic;
 			a_pdata: out std_logic_vector(31 downto 0);
 			a_ppgate1: out std_logic;
 			a_ppgate2: out std_logic;
+			a_q_dc: out std_logic_vector(15 downto 0);
 			a_sync_error: out std_logic;
 			b_adata: out std_logic_vector(31 downto 0);
 			b_bdata: out std_logic_vector(31 downto 0);
+			b_i_dc: out std_logic_vector(15 downto 0);
 			b_iqdata: out std_logic_vector(31 downto 0);
 			b_iqgate1: out std_logic;
 			b_iqgate2: out std_logic;
 			b_pdata: out std_logic_vector(31 downto 0);
 			b_ppgate1: out std_logic;
 			b_ppgate2: out std_logic;
+			b_q_dc: out std_logic_vector(15 downto 0);
 			b_sync_error: out std_logic;
 			c_adata: out std_logic_vector(31 downto 0);
 			c_bdata: out std_logic_vector(31 downto 0);
+			c_i_dc: out std_logic_vector(15 downto 0);
 			c_iqdata: out std_logic_vector(31 downto 0);
 			c_iqgate1: out std_logic;
 			c_iqgate2: out std_logic;
 			c_pdata: out std_logic_vector(31 downto 0);
 			c_ppgate1: out std_logic;
 			c_ppgate2: out std_logic;
+			c_q_dc: out std_logic_vector(15 downto 0);
 			c_sync_error: out std_logic;
 			d_adata: out std_logic_vector(31 downto 0);
 			d_bdata: out std_logic_vector(31 downto 0);
+			d_i_dc: out std_logic_vector(15 downto 0);
 			d_iqdata: out std_logic_vector(31 downto 0);
 			d_iqgate1: out std_logic;
 			d_iqgate2: out std_logic;
 			d_pdata: out std_logic_vector(31 downto 0);
 			d_ppgate1: out std_logic;
 			d_ppgate2: out std_logic;
+			d_q_dc: out std_logic_vector(15 downto 0);
 			d_sync_error: out std_logic;
 			dc_done: out std_logic);
 	END COMPONENT;
@@ -741,7 +775,8 @@ begin
 	-- Decimator Instantiation
 	ADC_Clk_Decimator : decimator PORT MAP (
 		clk_in      => adc_clk,
-		trigger     => start_clk,
+		--trigger     => start_clk,
+		trigger     => stop,
 		reset       => dec_rst,
       decimation  => dec_reg(7 downto 0),
       dec_clk     => dec_clk,
@@ -756,6 +791,15 @@ begin
 			adc_clk		=> adc_clk,
 			filter_clk	=> filter_clk,
 			locked		=> filter_dcmlocked);
+			
+	-- ===== Timer Clk DCM ====================================================
+	--This DCM is used for the timer sample clock.  
+	--Produces a 60 MHz clock for timers from 48 MHz adc clock.
+	Filterx2_clkmanager: filterx2_dcm_m314 PORT MAP(
+			rst		  	=> filter_dcmrst,
+			adc_clk		=> adc_clk,
+			filterx2_clk=> filterx2_clk,
+			locked		=> open);
 
     -- ===== Address Decoder =========================================================
     --This logic will detect that a Rd/Wr is being done but looking at the Local_Data_ADS_N
@@ -1710,6 +1754,13 @@ begin
 		d_gate2_out => chd_gate_in(1));
 
 
+   -- Latch for Start of DDCs
+	stop_latch : filter_latch PORT MAP (
+		clk => start_clk,
+		stop_in => k_addr_reg(12),
+		stop_out => stop);
+
+
 	-- DDC Modules
 	DDCs : casc_filter_cw PORT MAP (
 		ce_1 => '1',
@@ -1730,11 +1781,13 @@ begin
 		k_data => k_data_reg(17 downto 0),
 		k_sel => k_addr_reg(5 downto 4),
 		k_wr => k_write_reg,
-		stop => k_addr_reg(12),
+		stop => stop,
 		cha_out => cha_out,
 		chb_out => chb_out,
 		chc_out => chc_out,
 		chd_out => chd_out,
+		count_inv_out => count_inv_out,
+		count_out => count_out,
 		g_readcoef => g_read_reg(17 downto 0),
 		k_readcoef => k_read_reg(17 downto 0));
 
@@ -1763,39 +1816,47 @@ begin
 		reset => pp_rst,
 		a_adata => cha_a,
 		a_bdata => cha_b,
+		a_i_dc => a_i_dc,
 		a_iqdata => cha_iq,
 		a_iqgate1 => cha_iq_g(0),
 		a_iqgate2 => cha_iq_g(1),
 		a_pdata => cha_p,
 		a_ppgate1 => cha_pp_g(0),
 		a_ppgate2 => cha_pp_g(1),
+		a_q_dc => a_q_dc,
 		a_sync_error => a_sync_error,
 		b_adata => chb_a,
 		b_bdata => chb_b,
+		b_i_dc => b_i_dc,
 		b_iqdata => chb_iq,
 		b_iqgate1 => chb_iq_g(0),
 		b_iqgate2 => chb_iq_g(1),
 		b_pdata => chb_p,
 		b_ppgate1 => chb_pp_g(0),
 		b_ppgate2 => chb_pp_g(1),
+		b_q_dc => b_q_dc,
 		b_sync_error => b_sync_error,
 		c_adata => chc_a,
 		c_bdata => chc_b,
+		c_i_dc => c_i_dc,
 		c_iqdata => chc_iq,
 		c_iqgate1 => chc_iq_g(0),
 		c_iqgate2 => chc_iq_g(1),
 		c_pdata => chc_p,
 		c_ppgate1 => chc_pp_g(0),
 		c_ppgate2 => chc_pp_g(1),
+		c_q_dc => c_q_dc,
 		c_sync_error => c_sync_error,
 		d_adata => chd_a,
 		d_bdata => chd_b,
+		d_i_dc => d_i_dc,
 		d_iqdata => chd_iq,
 		d_iqgate1 => chd_iq_g(0),
 		d_iqgate2 => chd_iq_g(1),
 		d_pdata => chd_p,
 		d_ppgate1 => chd_pp_g(0),
 		d_ppgate2 => chd_pp_g(1),
+		d_q_dc => d_q_dc,
 		d_sync_error => d_sync_error,
 		dc_done => dc_done);
 
