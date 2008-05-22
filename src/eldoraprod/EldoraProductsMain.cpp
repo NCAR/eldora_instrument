@@ -110,7 +110,7 @@ int EldoraProductsMain::run() {
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource
-    ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator);
+    ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator, 1);
 
     while (1) {
         _numAbpBeams = abpSource.numSamples();

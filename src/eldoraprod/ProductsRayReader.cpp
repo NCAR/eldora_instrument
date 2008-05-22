@@ -1,63 +1,84 @@
 #include "ProductsRayReader.h"
 #include <iostream>
 /////////////////////////////////////////////////////////////////////
-ProductsRayReader::ProductsRayReader(
-        DDSSubscriber& subscriber,
-            std::string abpTopic,
-            EldoraProducts& consumer) :
+ProductsRayReader::ProductsRayReader(DDSSubscriber& subscriber,
+                                     std::string abpTopic,
+                                     EldoraProducts& consumer,
+                                     int numPrtIds) :
     RayReader(subscriber, abpTopic), _consumer(consumer),
-            _collectorFore(EldoraDDS::Forward), _collectorAft(EldoraDDS::Aft) {
+            _numPrtIds(numPrtIds),
+            _collatorFor(EldoraDDS::Forward, numPrtIds),
+            _collatorAft(EldoraDDS::Aft, numPrtIds)
+{
     // save references to both collectors
-    _collectors.push_back(&_collectorFore);
-    _collectors.push_back(&_collectorAft);
+    _collectors.push_back(&_collatorFor);
+    _collectors.push_back(&_collatorAft);
 }
 
 /////////////////////////////////////////////////////////////////////
-ProductsRayReader::~ProductsRayReader() {
+ProductsRayReader::~ProductsRayReader()
+{
     std::cout << __FUNCTION__ << " destructor\n";
 }
 
 /////////////////////////////////////////////////////////////////////
-void ProductsRayReader::notify() {
+void ProductsRayReader::notify()
+{
     while (Ray* pRay = getNextItem()) {
 
         // give the ray to the fore or aft collector.
         // One of them should accept it. If not,
-    	// we have problems (probably a corrupted
-    	// radarId.
-        if (!_collectorFore.addRay(pRay)) {
-        	if (!_collectorAft.addRay(pRay)) {
-        		// neither collector wanted the ray!
-        		returnItem(pRay);
-        	}
+        // we have problems (probably a corrupted
+        // radarId.
+        if (!_collatorFor.addRay(pRay)) {
+            if (!_collatorAft.addRay(pRay)) {
+                // neither collector wanted the ray!
+                ///@todo Need to maintain and report an "unwanted" ray count
+               returnItem(pRay);
+            }
         }
 
         // now process any forward and aft quad rays that are available 
         for (unsigned int c = 0; c < _collectors.size(); c++) {
             RayCollator* collector = _collectors[c];
 
-            // Do we have four rays? 
-            std::vector<EldoraDDS::Ray*> rays = collector->raysReady();
-            if (rays.size() == 4) {
+            std::vector< std::vector<EldoraDDS::Ray*> > rays =
+                    collector->raysReady();
+            int numRays = 0;
+            // Sanity check: make sure we got the expeced number of rays
+            for (int p = 0; p < rays.size(); p++) {
+                numRays += rays[p].size();
+            }
+            if (numRays == 4*_numPrtIds) {
                 // Send them to the consumer.
                 _consumer.newRayData(rays);
-                // we are finished with the current collector crop
-                for (unsigned int i = 0; i < 4; i++)
-                	returnItem(rays[i]);
+            } else {
+                if (numRays != 0)
+                    std::cout << "error: RayCollecter returned " << numRays
+                        << " when we were expecting " << 4*_numPrtIds << "\n";
             }
-            // return rays that the collected detected as out of sequence
-            while (EldoraDDS::Ray* p = collector->finishedRay()) {
+            // we are finished with the current collector crop
+            for (int p = 0; p < rays.size(); p++) {
+                for (unsigned int i = 0; i < rays[p].size(); i++) {
+                    EldoraDDS::Ray* r = rays[p][i];
+                    returnItem(r);
+                }
+            }
+            // return rays that the collector detected as out of sequence
+            while (EldoraDDS::Ray* r = collector->unusedRay()) {
                 // return the finished rays to DDS
-                returnItem(p);
+                ///@todo Need to maintain and report an "unwanted" ray count
+                returnItem(r);
             }
         } // for collectors
     } // while getNextItem()
 }
 /////////////////////////////////////////////////////////////////////
-std::vector<int> ProductsRayReader::discards() {
+std::vector<int> ProductsRayReader::discards()
+{
     std::vector<int> n;
     n.resize(2);
-    n[0] = _collectorFore.discards();
-    n[1] = _collectorAft.discards();
+    n[0] = _collatorFor.discards();
+    n[1] = _collatorAft.discards();
     return n;
 }

@@ -12,7 +12,7 @@ class EldoraProducts {
         virtual ~EldoraProducts();
 
         void newRayData(
-                std::vector<EldoraDDS::Ray*>& pRay);
+                std::vector<std::vector<EldoraDDS::Ray*> >& pRay);
         
         int numRays();
 

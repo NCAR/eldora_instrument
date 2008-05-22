@@ -19,7 +19,7 @@ EldoraProducts::~EldoraProducts() {
 
 ////////////////////////////////////////////////////
 void EldoraProducts::newRayData(
-        std::vector<EldoraDDS::Ray*>& rays) {
+        std::vector<std::vector<EldoraDDS::Ray*> >& rays) {
 
     _rays++;
 
@@ -30,14 +30,16 @@ void EldoraProducts::newRayData(
         // initiallize the fixed fields in Products.
         initProducts(products);
         
+        int prt = 0;
+        
         // transfer beam metadata
-        products->radarId = rays[0]->radarId;
-        products->timestamp = rays[0]->hskp.rayNum;
-        products->rotAngle = rays[0]->hskp.radarRotAngle;
+        products->radarId = rays[prt][0]->radarId;
+        products->timestamp = rays[prt][0]->hskp.rayNum;
+        products->rotAngle = rays[prt][0]->hskp.radarRotAngle;
         
         // The abp rays are three times as long as the
         // product beams. 
-        int productsLength = rays[0]->abp.length()/3;
+        int productsLength = rays[prt][0]->abp.length()/3;
         // Resize the beam lengths.
         products->p1.length(productsLength);
         products->p2.length(productsLength);
@@ -58,7 +60,7 @@ void EldoraProducts::newRayData(
             // dbz.
             double dbz = 0.0;
             for (unsigned int f = 0; f < 4; f++) {
-                dbz += rays[f]->abp[p+2];
+                dbz += rays[prt][f]->abp[p+2];
             }
             
             products->dm[i] = TOSHORT(dbz/(((i+1.0)*(i+1.0))/100.0), products->dmGain, products->dmOffset);
@@ -76,10 +78,10 @@ void EldoraProducts::newRayData(
 				}
 			}
 			**/
-            double pdbm1 = 10.0*log10(rays[0]->abp[p+2]);
-            double pdbm2 = 10.0*log10(rays[1]->abp[p+2]);
-            double pdbm3 = 10.0*log10(rays[2]->abp[p+2]);
-            double pdbm4 = 10.0*log10(rays[3]->abp[p+2]);
+            double pdbm1 = 10.0*log10(rays[prt][0]->abp[p+2]);
+            double pdbm2 = 10.0*log10(rays[prt][1]->abp[p+2]);
+            double pdbm3 = 10.0*log10(rays[prt][2]->abp[p+2]);
+            double pdbm4 = 10.0*log10(rays[prt][3]->abp[p+2]);
             
             products->p1[i] = TOSHORT(pdbm1, products->p1Gain, products->p1Offset);
             products->p2[i] = TOSHORT(pdbm2, products->p2Gain, products->p2Offset);
