@@ -405,7 +405,6 @@ int RR314::configure314() {
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, ADCAFF_FLUSH);
     usleep(1e3);
     Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, 0x0);
-    usleep(1e3);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //Clear old status reg
     
     // reset Pulse Pair Processor
@@ -482,36 +481,30 @@ int RR314::configure314() {
     usleep(1e3);
     
     // Remove DC
-//    int ddc_error = 0;
-//    int diagnostic = 1;
-//    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 1);
-//    sleep(1);
-//    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 0);
-//    Adapter_Read32(&_chanAdapter, V4, DC_REMOVE_DONE, &result);
-//    if (result) 
-//    {
-//    	Adapter_Read32(&_chanAdapter, V4, CH_A_DC, &result);
-//    	if ((result>>16) > 2) ddc_error = 1;
-//    	if ((result&0xFFFF) > 2) ddc_error = 1;
-//    	printf("A I DC = %x\nA Q DC = %x\n", (result>>16), result&0xffff);
-//    	Adapter_Read32(&_chanAdapter, V4, CH_B_DC, &result);
-//    	if ((result>>16) > 2) ddc_error = 1;
-//    	if ((result&0xFFFF) > 2) ddc_error = 1;
-//    	printf("B I DC = %x\nB Q DC = %x\n", (result>>16), result&0xffff);
-//    	Adapter_Read32(&_chanAdapter, V4, CH_C_DC, &result);
-//    	if ((result>>16) > 2) ddc_error = 1;
-//    	if ((result&0xFFFF) > 2) ddc_error = 1;
-//   	printf("C I DC = %x\nC Q DC = %x\n", (result>>16), result&0xffff);
-//    	Adapter_Read32(&_chanAdapter, V4, CH_D_DC, &result);
-//    	if ((result>>16) > 2) ddc_error = 1;
-//    	if ((result&0xFFFF) > 2) ddc_error = 1;
-//    	printf("D I DC = %x\nD Q DC = %x\n", (result>>16), result&0xffff);
-//    }
-//    else ddc_error = 1;
-//    if (ddc_error) {
-//   	printf("Digital Down Converter Unlocked. Exiting Now...\n");
-//    	//return -1;
-//    }
+    int diagnostic = 0;
+    printf("Removing DC...");
+    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 1);
+    usleep(1e4);
+    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 0);
+    Adapter_Read32(&_chanAdapter, V4, DC_REMOVE_DONE, &result);
+    if (result) 
+    {
+    	printf("DC Removed.\n");
+    	if(diagnostic) {
+    		Adapter_Read32(&_chanAdapter, V4, CH_A_DC, &result);
+    		printf("A I DC = %x\nA Q DC = %x\n", (result>>16), result&0xffff);
+    		Adapter_Read32(&_chanAdapter, V4, CH_B_DC, &result);
+    		printf("B I DC = %x\nB Q DC = %x\n", (result>>16), result&0xffff);
+    		Adapter_Read32(&_chanAdapter, V4, CH_C_DC, &result);
+    		printf("C I DC = %x\nC Q DC = %x\n", (result>>16), result&0xffff);
+    		Adapter_Read32(&_chanAdapter, V4, CH_D_DC, &result);
+    		printf("D I DC = %x\nD Q DC = %x\n", (result>>16), result&0xffff);
+    	}
+    }
+    else {
+    	printf("DC Not Removed Properly.\n");
+    	//return -1;
+    }
 
       
     // initialize the timers
