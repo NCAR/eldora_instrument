@@ -88,7 +88,7 @@ struct runParams {
         // operating mode parameters
         bool capture; ///< set true if the data should be captured to files in binary mode.
         bool textcapture; ///< set true if the data should be captured to files in text mode.
-        bool simulate; ///< set true to simulate an RR314 card, instead of accessing a real one.
+        bool simulateRR314; ///< set true to simulate an RR314 card, instead of accessing a real one.
         bool simulateHskp;  ///< set true to generate fake housekeeping data
         int usleep; ///< The usleep value for sleeps between frames
         
@@ -159,7 +159,7 @@ int main(int argc,
     parseOptions(params1, argc, argv, 1);
 
     // create timer
-    if (!params0.simulate && !params0.internaltimer) {
+    if (!params0.simulateRR314 && !params0.internaltimer) {
         _bwtimer = new Bittware(0);
         _bwtimer->configure(params0.gates,
                 params0.prf,
@@ -191,7 +191,7 @@ int main(int argc,
                 params0.gaussian,
                 params0.kaiser,
                 params0.xsvf,
-                params0.simulate,
+                params0.simulateRR314,
                 params0.usleep,
                 false // do not catch signals in RR314; we will do that ourselves.
         );
@@ -208,7 +208,7 @@ int main(int argc,
                 params1.gaussian,
                 params1.kaiser,
                 params1.xsvf,
-                params1.simulate,
+                params1.simulateRR314,
                 params1.usleep,
                 false // do not catch signals in RR314; we will do that ourselves
         );
@@ -321,11 +321,12 @@ int main(int argc,
             // Tell the RedRapids cards what time xmit pulses start
             rr314_0.setXmitStartTime(xmitStartTime);
             rr314_1.setXmitStartTime(xmitStartTime);
-        }
-        else {
-        	// start internal timing for both cards 0 & 1
-        	rr314_0.startInternalTimer();
-        	rr314_1.startInternalTimer();
+        } else {
+            if (!params0.simulateRR314) {
+                // start internal timing for both cards 0 & 1
+                rr314_0.startInternalTimer();
+                rr314_1.startInternalTimer();
+            }
         }
         int loopCount = 0;
 
@@ -401,12 +402,12 @@ getConfigParams(runParams &params) {
     
     // operating mode parameters
     params.enabled       = config.getBool  ("Mode/Enabled",       true); 
-    params.simulate      = config.getBool  ("Mode/Simulate",      false); 
+    params.simulateRR314 = config.getBool  ("Mode/SimulateRR314", false); 
     params.simulateHskp  = config.getBool  ("Mode/SimulateHskp",  false);
     params.usleep        = config.getInt   ("Mode/Usleep",        9000);
     params.capture       = config.getBool  ("Mode/BinaryCapture", false); 
     params.textcapture   = config.getBool  ("Mode/TextCapture",   false);
-    params.internaltimer = config.getBool  ("Mode/InernalTimer",  false);
+    params.internaltimer = config.getBool  ("Mode/InternalTimer", false);
     
     // RR314 signal processing parameters
     params.xsvf          = config.getString("DSP/XsvfFile",        ""); 
@@ -468,7 +469,7 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     params.publish = vm.count("publish") != 0;
     params.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
     params.textcapture = vm.count("text") != 0;
-    params.simulate = vm.count("simRR314") != 0;
+    params.simulateRR314 = vm.count("simRR314") != 0;
     params.simulateHskp = vm.count("simHskp") != 0;
     params.internaltimer = vm.count("internaltimer") != 0;
 
