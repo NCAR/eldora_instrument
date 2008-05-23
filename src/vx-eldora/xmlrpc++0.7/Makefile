@@ -1,11 +1,18 @@
 # makefile written for gnu make
-CXX		= g++
+#CXX		= g++
+CXX             = /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-g++
+#RANLIB         = /bin/true
+RANLIB          = /opt/local/m68k-wrs-vxworks/bin/m68k-wrs-vxworks-ranlib
 SRC		= ./src
 CPPFLAGS	= -I$(SRC)
 DEBUG		= -g
 OPTIMIZE	= -O2
 GCCWARN		= -Wall -Wstrict-prototypes
 CXXFLAGS	= $(DEBUG) $(GCCWARN) $(OPTIMIZE) $(INCLUDES)
+# The ld "Build global constructor/destructor tables" flag (-Ur) is 
+# absolutely required for VxWorks. The -S and -X flags to ld just give us
+# a smaller final product by removing some unnecesary symbols.
+LDFLAGS         = -Wl,-Ur -Wl,-S -Wl,-X
 
 LIB		= ./libXmlRpc.a
 
@@ -26,10 +33,11 @@ all:		$(LIB) tests
 
 $(LIB):		$(OBJ)
 		$(AR) $(ARFLAGS) $(LIB) $(OBJ)
+		$(RANLIB) $(LIB)
 
 
 tests:		$(LIB)
-		cd test && $(MAKE) CXX=$(CXX) CXXFLAGS="$(CXXFLAGS)" SYSTEMLIBS="$(SYSTEMLIBS)"
+		cd test && $(MAKE) CXX=$(CXX) CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" SYSTEMLIBS="$(SYSTEMLIBS)"
 
 doc doxygen:
 		cd src && doxygen Doxyfile
