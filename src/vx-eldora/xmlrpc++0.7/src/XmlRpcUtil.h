@@ -19,6 +19,9 @@
 #elif defined(__BORLANDC__)
 # define strcasecmp stricmp
 # define strncasecmp strnicmp
+#elif defined(__vxworks)
+# include <vxWorks.h>
+  int strncasecmp(const char* s1, const char* s2, size_t len);
 #endif
 
 namespace XmlRpc {

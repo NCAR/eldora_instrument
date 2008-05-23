@@ -91,8 +91,8 @@ namespace XmlRpc {
     operator BinaryData&()    { assertTypeOrInvalid(TypeBase64); return *_value.asBinary; }
     operator struct tm&()     { assertTypeOrInvalid(TypeDateTime); return *_value.asTime; }
 
-    XmlRpcValue const& operator[](int i) const { assertArray(i+1); return _value.asArray->at(i); }
-    XmlRpcValue& operator[](int i)             { assertArray(i+1); return _value.asArray->at(i); }
+    XmlRpcValue const& operator[](int i) const { assertArray(i+1); return _value.asArray->operator[](i); }
+    XmlRpcValue& operator[](int i)             { assertArray(i+1); return _value.asArray->operator[](i); }
 
     XmlRpcValue& operator[](std::string const& k) { assertStruct(); return (*_value.asStruct)[k]; }
     XmlRpcValue& operator[](const char* k) { assertStruct(); std::string s(k); return (*_value.asStruct)[s]; }

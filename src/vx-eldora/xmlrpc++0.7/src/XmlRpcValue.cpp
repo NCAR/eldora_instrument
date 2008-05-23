@@ -2,11 +2,17 @@
 #include "XmlRpcValue.h"
 #include "XmlRpcException.h"
 #include "XmlRpcUtil.h"
-#include "base64.h"
+#ifndef __vxworks
+# include "base64.h"
+#endif
 
 #ifndef MAKEDEPEND
 # include <iostream>
-# include <ostream>
+# ifdef __vxworks
+#  include <ostream.h>
+# else
+#  include <ostream>
+# endif
 # include <stdlib.h>
 # include <stdio.h>
 #endif
@@ -46,6 +52,16 @@ namespace XmlRpc {
       
   // Format strings
   std::string XmlRpcValue::_doubleFormat("%f");
+  
+#ifdef __vxworks
+  // No snprintf in VxWorks, so we just substitute vsprintf() and pray
+  // they have enough space in the buffer...
+  int snprintf(char *str, size_t size, const char *format, ...) {
+      va_list argp;
+      va_start(argp, format);
+      return vsprintf(str, format, argp);
+  }
+#endif
 
 
 
@@ -416,6 +432,10 @@ namespace XmlRpc {
   // Base64
   bool XmlRpcValue::binaryFromXml(std::string const& valueXml, int* offset)
   {
+#ifdef __vxworks
+    XmlRpcUtil::error("XmlRpcValue::binaryFromXml: binary XML is not supported under VxWorks.");
+    abort();
+#else
     size_t valueEnd = valueXml.find('<', *offset);
     if (valueEnd == std::string::npos)
       return false;     // No end tag;
@@ -433,11 +453,16 @@ namespace XmlRpc {
 
     *offset += int(asString.length());
     return true;
+#endif // __vxworks
   }
 
 
   std::string XmlRpcValue::binaryToXml() const
   {
+#ifdef __vxworks
+    XmlRpcUtil::error("XmlRpcValue::binaryToXml: binary XML is not supported under VxWorks.");
+    abort();
+#else
     // convert to base64
     std::vector<char> base64data;
     int iostatus = 0;
@@ -452,6 +477,7 @@ namespace XmlRpc {
     xml += BASE64_ETAG;
     xml += VALUE_ETAG;
     return xml;
+#endif // __vxworks
   }
 
 
@@ -483,7 +509,7 @@ namespace XmlRpc {
 
     int s = int(_value.asArray->size());
     for (int i=0; i<s; ++i)
-       xml += _value.asArray->at(i).toXml();
+       xml += _value.asArray->operator[](i).toXml();
 
     xml += DATA_ETAG;
     xml += ARRAY_ETAG;
@@ -560,10 +586,15 @@ namespace XmlRpc {
         }
       case TypeBase64:
         {
+#ifdef __vxworks
+            XmlRpcUtil::error("XmlRpcValue::write: no TypeBase64 support under VxWorks.");
+            abort();
+#else
           int iostatus = 0;
           std::ostreambuf_iterator<char> out(os);
           base64<char> encoder;
           encoder.put(_value.asBinary->begin(), _value.asBinary->end(), out, iostatus, base64<>::crlf());
+#endif // __vxworks
           break;
         }
       case TypeArray:
@@ -573,7 +604,7 @@ namespace XmlRpc {
           for (int i=0; i<s; ++i)
           {
             if (i > 0) os << ',';
-            _value.asArray->at(i).write(os);
+            _value.asArray->operator[](i).write(os);
           }
           os << '}';
           break;

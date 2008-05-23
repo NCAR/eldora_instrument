@@ -4,6 +4,12 @@
 
 #ifndef MAKEDEPEND
 
+# ifdef __vxworks
+#  include <hostLib.h>
+#  include <ioLib.h>
+#  include <sockLib.h>
+# endif
+
 #if defined(_WINDOWS)
 # include <stdio.h>
 # include <winsock2.h>
@@ -19,9 +25,11 @@ extern "C" {
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
-# include <netdb.h>
 # include <errno.h>
 # include <fcntl.h>
+# ifndef __vxworks
+#  include <netdb.h>
+# endif
 }
 #endif  // _WINDOWS
 
@@ -91,6 +99,9 @@ XmlRpcSocket::setNonBlocking(int fd)
 #if defined(_WINDOWS)
   unsigned long flag = 1;
   return (ioctlsocket((SOCKET)fd, FIONBIO, &flag) == 0);
+#elif defined(__vxworks)
+  int on = 1;
+  return (ioctl(fd, FIONBIO, (int)&on) == 0);
 #else
   return (fcntl(fd, F_SETFL, O_NONBLOCK) == 0);
 #endif // _WINDOWS
@@ -102,7 +113,7 @@ XmlRpcSocket::setReuseAddr(int fd)
 {
   // Allow this port to be re-bound immediately so server re-starts are not delayed
   int sflag = 1;
-  return (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&sflag, sizeof(sflag)) == 0);
+  return (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&sflag, sizeof(sflag)) == 0);
 }
 
 
@@ -131,7 +142,7 @@ int
 XmlRpcSocket::accept(int fd)
 {
   struct sockaddr_in addr;
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) | defined(__vxworks)
   int
 #else
   socklen_t
@@ -150,12 +161,19 @@ XmlRpcSocket::connect(int fd, std::string& host, int port)
   struct sockaddr_in saddr;
   memset(&saddr, 0, sizeof(saddr));
   saddr.sin_family = AF_INET;
+#ifdef __vxworks
+  int addr = hostGetByName((char*)host.c_str());
+  if (addr == ERROR) return false;
 
+  saddr.sin_family = AF_INET;
+  memcpy(&saddr.sin_addr, &addr, sizeof(addr));
+#else
   struct hostent *hp = gethostbyname(host.c_str());
   if (hp == 0) return false;
 
   saddr.sin_family = hp->h_addrtype;
   memcpy(&saddr.sin_addr, hp->h_addr, hp->h_length);
+#endif
   saddr.sin_port = htons((u_short) port);
 
   // For asynch operation, this will return EWOULDBLOCK (windows) or
@@ -253,7 +271,11 @@ std::string
 XmlRpcSocket::getErrorMsg(int error)
 {
   char err[60];
+#ifdef __vxworks
+  sprintf(err, "error %d", error); // unsafe, but no snprintf() in VxWorks
+#else
   snprintf(err,sizeof(err),"error %d", error);
+#endif
   return std::string(err);
 }
 

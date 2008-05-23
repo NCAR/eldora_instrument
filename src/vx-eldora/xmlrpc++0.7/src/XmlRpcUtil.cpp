@@ -75,7 +75,11 @@ void XmlRpcUtil::log(int level, const char* fmt, ...)
     va_list va;
     char buf[1024];
     va_start( va, fmt);
+#ifdef __vxworks
+    vsprintf(buf, fmt, va); // DANGER, but no vsnprintf() in VxWorks
+#else
     vsnprintf(buf,sizeof(buf)-1,fmt,va);
+#endif
     buf[sizeof(buf)-1] = 0;
     XmlRpcLogHandler::getLogHandler()->log(level, buf);
   }
@@ -87,7 +91,11 @@ void XmlRpcUtil::error(const char* fmt, ...)
   va_list va;
   va_start(va, fmt);
   char buf[1024];
+#ifdef __vxworks
+  vsprintf(buf, fmt, va);	// DANGER, but no vsnprintf() in VxWorks
+#else
   vsnprintf(buf,sizeof(buf)-1,fmt,va);
+#endif
   buf[sizeof(buf)-1] = 0;
   XmlRpcErrorHandler::getErrorHandler()->error(buf);
 }
@@ -247,4 +255,19 @@ XmlRpcUtil::xmlEncode(const std::string& raw)
 }
 
 
+#ifdef __vxworks
+int strncasecmp (const char *s1, const char *s2, size_t len)
+{
+  if ( len == 0 ) return 0;
+  while ( (len > 0) && (tolower(*s1) == tolower(*s2)) )
+  {
+    len--;
+    if ( (len == 0) || (*s1 == '\0') || (*s2 == '\0') )
+            break;
+    s1++;
+    s2++;
+  }
+  return tolower(*s1) - tolower(*s2);
+}
+#endif // __vxworks
 

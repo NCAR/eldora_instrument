@@ -4,19 +4,22 @@
 #include "XmlRpcUtil.h"
 
 #include <math.h>
-#include <sys/timeb.h>
 
 #if defined(_WINDOWS)
 # include <winsock2.h>
-
+# include <sys/timeb.h>
 # define USE_FTIME
 # if defined(_MSC_VER)
 #  define timeb _timeb
 #  define ftime _ftime
 # endif
+#elif defined(__vxworks)
+# include <time.h>
+# include <sys/select.h>
 #else
+# include <sys/timeb.h>
 # include <sys/time.h>
-#endif  // _WINDOWS
+#endif
 
 
 using namespace XmlRpc;
@@ -191,7 +194,11 @@ XmlRpcDispatch::clear()
 double
 XmlRpcDispatch::getTime()
 {
-#ifdef USE_FTIME
+#ifdef __vxworks
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  return (ts.tv_sec + ts.tv_nsec * 1.0e-9);
+#elif defined(USE_FTIME)
   struct timeb	tbuff;
 
   ftime(&tbuff);
