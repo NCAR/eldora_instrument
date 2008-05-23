@@ -123,7 +123,6 @@ XmlRpcServer::bindAndListen(int port, int backlog /*= 5*/)
 void 
 XmlRpcServer::work(double msTime)
 {
-  std::cerr << "entering work()" << std::endl;
   XmlRpcUtil::log(2, "XmlRpcServer::work: waiting for a connection");
   _disp.work(msTime);
 }
