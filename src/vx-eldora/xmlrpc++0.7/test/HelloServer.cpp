@@ -4,6 +4,13 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <stdio.h>
+
+extern "C" {
+    void __do_global_ctors(void); 
+    void __do_global_dtors(void);
+} // end extern "C"
+
 
 using namespace XmlRpc;
 
@@ -58,13 +65,17 @@ public:
 } sum(&s);
 
 
-int main(int argc, char* argv[])
+int HelloServer(int port)
 {
-  if (argc != 2) {
-    std::cerr << "Usage: HelloServer serverPort\n";
-    return -1;
-  }
-  int port = atoi(argv[1]);
+//  if (argc != 2) {
+//    std::cerr << "Usage: HelloServer serverPort\n";
+//    return -1;
+//  }
+//  int port = atoi(argv[1]);
+  // VxWorks requirement for most C++ stuff!
+  __do_global_ctors();
+  std::cout.sync_with_stdio(0);
+  std::cerr.sync_with_stdio(0);
 
   XmlRpc::setVerbosity(5);
 
@@ -77,6 +88,17 @@ int main(int argc, char* argv[])
   // Wait for requests indefinitely
   s.work(-1.0);
 
+  // VxWorks requirement for most C++ stuff!
+  __do_global_dtors();
   return 0;
 }
 
+extern "C" {
+int startHelloServer(int port) {
+    return HelloServer(port);
+}
+} // end extern "C"
+
+int main(int argc, char* argv[]) {
+    startHelloServer(40000);
+}
