@@ -22,12 +22,14 @@ namespace RedRapids {
     /// Constructor. 
     /// @param pRR314 The RR314 device that we want to provide 
     /// simulated data for.
+    /// @param numPrts The number of prts (really, either 1 or 2)
     /// @param gates The number of gates
     /// @param startiq The starting gate for iq data.
     /// @param numiq The number of iq gates.
-    /// @param nci The number of IQs that go into each ABP
+    /// @param nci The number of IQs that go into each time series
     /// @param usleep The usleep setting for sleeps between frames
     RR314sim(RedRapids::RR314* pRR314, 
+         int numPrts,
 	     int gates, 
 	     int startiq, 
 	     int numiq, 
@@ -46,6 +48,8 @@ namespace RedRapids {
     void simulate();
     /// The RR314 object that receives the simulation data.
     RedRapids::RR314* _pRR314;
+    /// The number of prt ids.
+    int _numPrtIds;
     /// The dmaChan numbers which receive IQ data
     std::vector<int> _iqChans;
     /// The dmaChan numbers which receive ABP data.

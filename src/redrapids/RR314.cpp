@@ -104,7 +104,12 @@ RR314::RR314(int devNum,
     pthread_mutex_unlock(&_bufferMutex);
 
     if (_simulate) {
-        _simulator = new RedRapids::RR314sim(this,
+        int numPrtIds = 1;
+        if (_dualPrt)
+            numPrtIds = 2;
+        _simulator = new RedRapids::RR314sim(
+                this,
+                numPrtIds,                             
                 _gates,
                 _startGateIQ,
                 _numIQGates,
@@ -649,8 +654,6 @@ void RR314::newABPData(int* src,
     // verify that we got an abp channel
     assert((chan & 1) && (chan < 8));
 
-    //std::cout << "newABPData for board:" << boardNumber() << "  chan:" << chan << " src[5]:" << src[5] << "\n";
-    
     RRABPBuffer* pBuf = _currentABPBuffer[chan];
 
     // loop through all src data
