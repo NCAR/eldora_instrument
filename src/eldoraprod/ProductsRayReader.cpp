@@ -25,7 +25,6 @@ ProductsRayReader::~ProductsRayReader()
 void ProductsRayReader::notify()
 {
     while (Ray* pRay = getNextItem()) {
-
         // give the ray to the fore or aft collector.
         // One of them should accept it. If not,
         // we have problems (probably a corrupted
@@ -34,6 +33,7 @@ void ProductsRayReader::notify()
             if (!_collatorAft.addRay(pRay)) {
                 // neither collector wanted the ray!
                 ///@todo Need to maintain and report an "unwanted" ray count
+                std::cout << "no collator wanted this ray\n";
                returnItem(pRay);
             }
         }
@@ -49,8 +49,10 @@ void ProductsRayReader::notify()
             for (int p = 0; p < rays.size(); p++) {
                 numRays += rays[p].size();
             }
+
             if (numRays == 4*_numPrtIds) {
                 // Send them to the consumer.
+                //std::cout << "sending " << numRays << " to the consumer\n";
                 _consumer.newRayData(rays);
             } else {
                 if (numRays != 0)

@@ -253,6 +253,11 @@ def runDrx():
     drxcmd.append('--rpcport')
     drxcmd.append(str(rpcport))
     
+    # see if we are running dualprt
+    dualPrt = ourConfig.getBool('Drx/DualPrt', False)
+    if dualPrt:
+        drxcmd.append('--dualprt')
+    
     # see if hskp should be simulated
     drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
     if drxSimHskpMode:

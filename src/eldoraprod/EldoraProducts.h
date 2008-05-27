@@ -8,7 +8,7 @@
 
 class EldoraProducts {
     public:
-        EldoraProducts(DDSPublisher& publisher, std::string productsTopic);
+        EldoraProducts(DDSPublisher& publisher, std::string productsTopic, bool dualPrt);
         virtual ~EldoraProducts();
 
         void newRayData(
@@ -31,6 +31,8 @@ class EldoraProducts {
         /// The number of rays which were not processed due to unavailable
         /// empty Products.
         int _droppedRays;
+        /// True if we are in dual prt mode
+        bool _dualPrt;
 
 };
 #endif

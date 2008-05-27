@@ -6,9 +6,10 @@
 ////////////////////////////////////////////////////
 EldoraProducts::EldoraProducts(
         DDSPublisher& publisher,
-            std::string productsTopic) :
+            std::string productsTopic,
+            bool dualPrt) :
     _rays(0), _publisher(publisher), _productsTopic(productsTopic),
-            _productsWriter(publisher, productsTopic), _droppedRays(0) {
+            _productsWriter(publisher, productsTopic), _droppedRays(0), _dualPrt(dualPrt) {
             
 }
 
@@ -32,7 +33,7 @@ void EldoraProducts::newRayData(
         
         int prt = 0;
         
-        // transfer beam metadata
+        // transfer ray metadata
         products->radarId = rays[prt][0]->radarId;
         products->timestamp = rays[prt][0]->hskp.rayNum;
         products->rotAngle = rays[prt][0]->hskp.radarRotAngle;
@@ -67,17 +68,6 @@ void EldoraProducts::newRayData(
                 
             products->dbz[i] = TOSHORT(dbz, products->dbzGain, products->dbzOffset)*100-70;
 
-            /** 
-            if (products->radarId == EldoraDDS::Aft) {
-				if (i >= 45 && i <= 60) {
-					std::cout << "ABP[2][" << i << "] "
-					<< rays[0]->abp[p+2] << " "
-					<< rays[1]->abp[p+2] << " "
-					<< rays[2]->abp[p+2] << " "
-					<< rays[3]->abp[p+2] << "\n";
-				}
-			}
-			**/
             double pdbm1 = 10.0*log10(rays[prt][0]->abp[p+2]);
             double pdbm2 = 10.0*log10(rays[prt][1]->abp[p+2]);
             double pdbm3 = 10.0*log10(rays[prt][2]->abp[p+2]);

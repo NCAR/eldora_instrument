@@ -117,7 +117,7 @@ public:
 	        unsigned int prf,
 	        unsigned int pulsewidth, 
 	        unsigned int samples,
-	        unsigned int dualPrt, 
+	        bool dualPrt, 
 	        bool internalTimer,
 	        unsigned int startGateIQ,
 	        unsigned int nGatesIQ, 
@@ -347,7 +347,7 @@ protected:
     unsigned int _numIQGates;
 
 	/// Dual prt true or false.
-	unsigned int _dualPrt;
+	bool _dualPrt;
 
 	/// The start gate number of IQ capture.
 	unsigned int _startGateIQ;

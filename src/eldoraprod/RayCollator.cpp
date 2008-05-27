@@ -23,6 +23,7 @@ bool RayCollator::addRay(EldoraDDS::Ray* r)
 
     // but first of all, if this belongs to a different radar,
     // don't consider it.
+
     if (r->radarId != _radarId)
         return false;
 
@@ -58,6 +59,8 @@ bool RayCollator::addRay(EldoraDDS::Ray* r)
     
     // Finally, save the ray
     _rays[rayNum][prtId][chan-1] = r;
+    //std::cout << "saved radar " << r->radarId << ", chan " << r->hskp.chan 
+    //    << ", prt " << r->prtId << ", raynum " << r->hskp.rayNum << "\n";
 
     // see if we have a complete set of rays, i.e. 
     // 4 channels for each prtId. If so, check and remove 

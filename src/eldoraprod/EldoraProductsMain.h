@@ -30,18 +30,19 @@ class EldoraProductsMain {
         void parseArgs(std::string& rayTopic,
                        std::string& productsTopic,
                        std::string& ORB,
-                       std::string& DCPS);
+                       std::string& DCPS,
+                       bool& dualPrt);
 
         /// argc from main()
         int _argc;
         /// argv from main()
         char** _argv;
         /// The number of samples that have been read by the ABP source
-        int _numAbpBeams;
+        int _numAbpRays;
         /// The number of samples, for each receiver, discarded by the product generator
         std::vector<int> _numAbpDiscards;
         /// The number of beams produced by the product generator
-        int _numProductBeams;
+        int _numProductRays;
 
 };
 

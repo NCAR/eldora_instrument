@@ -84,6 +84,7 @@ struct runParams {
         int numiq; ///< the number of gates for iq capture.
         int pulsewidth; ///< the pulse width in ns. Must map to oe of the values in DDCregisters.h
         int prf; ///< the pulse repetition frequency, hz.
+        bool dualprt; ///< true if operating in dual prt mode
         
         // operating mode parameters
         bool capture; ///< set true if the data should be captured to files in binary mode.
@@ -184,7 +185,7 @@ int main(int argc,
                 params0.prf,
                 params0.pulsewidth,
                 params0.nci,
-                0, // dual prt (0 or 1)
+                params0.dualprt,
                 params0.internaltimer,
                 params0.startiq,
                 params0.numiq,
@@ -201,7 +202,7 @@ int main(int argc,
                 params1.prf,
                 params1.pulsewidth,
                 params1.nci,
-                0, // dual prt (0 or 1)
+                params1.dualprt,
                 params1.internaltimer,
                 params1.startiq,
                 params1.numiq,
@@ -399,6 +400,7 @@ getConfigParams(runParams &params) {
     params.numiq         = config.getInt   ("Radar/NumIQGates",  5); 
     params.pulsewidth    = config.getInt   ("Radar/PulseWidthNs",1000); 
     params.prf           = config.getInt   ("Radar/PrfHz",       2500);
+    params.dualprt       = config.getInt   ("Radar/DualPrt",     false);
     
     // operating mode parameters
     params.enabled       = config.getBool  ("Mode/Enabled",       true); 
@@ -460,18 +462,20 @@ parseOptions(runParams& params, int argc, char** argv, int deviceNumber) {
     ("binary",                                              "binary capture")
     ("text",                                                "text capture") 
     ("publish",                                             "publish data")
-    ("rpcport",    po::value<int>(&params.rpcPort),         "RPC port number");
+    ("rpcport",    po::value<int>(&params.rpcPort),         "RPC port number")
+    ("dualprt",                                             "Dual prt mode");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, descripts), vm);
     po::notify(vm);
 
-    params.publish = vm.count("publish") != 0;
-    params.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
-    params.textcapture = vm.count("text") != 0;
+    params.publish       = vm.count("publish") != 0;
+    params.capture       = (vm.count("binary") != 0) || (vm.count("text") != 0);
+    params.textcapture   = vm.count("text") != 0;
     params.simulateRR314 = vm.count("simRR314") != 0;
-    params.simulateHskp = vm.count("simHskp") != 0;
+    params.simulateHskp  = vm.count("simHskp") != 0;
     params.internaltimer = vm.count("internaltimer") != 0;
+    params.dualprt       = vm.count("dualprt") != 0;
 
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
         std::cout << "Initialize two rr314 cards. If --start0 ond/or --start1 is specified,\n";

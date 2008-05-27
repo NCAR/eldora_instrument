@@ -23,7 +23,7 @@ RR314::RR314(int devNum,
              unsigned int prf,
              unsigned int pulsewidth,
              unsigned int samples,
-             unsigned int dualPrt,
+             bool dualPrt,
              bool internalTimer,
              unsigned int startGateIQ,
              unsigned int nGatesIQ,
@@ -869,16 +869,20 @@ bool RR314::pulsepairInit() {
 
     Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
     
+    unsigned int dualPrt = 0;
+    if (_dualPrt)
+        dualPrt = 1;
+    
     //Pulse Pair Setup
     Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
     Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of samples
-    Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _dualPrt); // Dual Prt(Off)
+    Adapter_Write32(&_chanAdapter, V4, DPRT_REG, dualPrt); // Dual Prt(Off)
     Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ); // index of start of IQ capture
     Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQGates); // # of Gate of IQ capture
 
     Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
     Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
-    Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &_dualPrt);
+    Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &dualPrt);
     Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
     Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQGates);
    
@@ -956,7 +960,7 @@ bool RR314::timerInit() {
     int periodCount = (int) (prtClock/_prf);
     //std::cout << "Period register value:" << periodCount << "\n";
     Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
-    if (_dualPrt == 0) {
+    if (!_dualPrt) {
         Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount);
     } else {
         Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs

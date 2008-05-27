@@ -22,7 +22,8 @@ namespace po = boost::program_options;
 void EldoraProductsMain::parseArgs(std::string& rayTopic,
                                    std::string& productsTopic,
                                    std::string& ORB,
-                                   std::string& DCPS) {
+                                   std::string& DCPS,
+                                   bool& dualPrt) {
 
     // get the options
     po::options_description descripts("Options");
@@ -32,11 +33,15 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
     ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("dualprt", "Dual prt mode")
     ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(_argc, _argv, descripts), vm);
     po::notify(vm);
+    
+    if (vm.count("dualprt"))
+        dualPrt = true;
 
     if (vm.count("help")) {
         std::cout << descripts << "\n";
@@ -48,8 +53,8 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
 EldoraProductsMain::EldoraProductsMain(int argc,
                                        char** argv) :
     _argc(argc), _argv(argv) {
-    _numAbpBeams = 0;
-    _numProductBeams = 0;
+    _numAbpRays = 0;
+    _numProductRays = 0;
     _numAbpDiscards.resize(2);
     _numAbpDiscards[0] = 0;
     _numAbpDiscards[1] = 0;
@@ -67,6 +72,8 @@ int EldoraProductsMain::run() {
     std::string productsTopic;
     std::string ORB;
     std::string DCPS;
+    bool dualPrt;
+    int numPrtIds;
 
     // set up the default configuration directory path
     char* e = getenv("ELDORADIR");
@@ -83,8 +90,18 @@ int EldoraProductsMain::run() {
 
     rayTopic = config.getString("TopicRay", "EldoraRays");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
+    
+    dualPrt = config.getBool("DualPrt", false);
 
-    parseArgs(rayTopic, productsTopic, ORB, DCPS);
+    parseArgs(rayTopic, productsTopic, ORB, DCPS, dualPrt);
+
+    // determine how many prt ids we have.
+    if (dualPrt) {
+        numPrtIds = 2;
+    } else {
+        numPrtIds = 1;
+    }
+    std::cout << "Number of prt ids is " << numPrtIds << "\n";
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -106,21 +123,21 @@ int EldoraProductsMain::run() {
         return pubStatus;
 
     // create the product generator
-    EldoraProducts prodGenerator(publisher, productsTopic);
+    EldoraProducts prodGenerator(publisher, productsTopic, dualPrt);
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource
-    ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator, 1);
+    ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator, numPrtIds);
 
     while (1) {
-        _numAbpBeams = abpSource.numSamples();
+        _numAbpRays = abpSource.numSamples();
         _numAbpDiscards = abpSource.discards();
-        _numProductBeams = prodGenerator.numRays();
+        _numProductRays = prodGenerator.numRays();
 
-        std::cout << "ABP beams: " << _numAbpBeams << " (/8:)" << _numAbpBeams
-                /8 << "  Product beams:" << _numProductBeams << " (/2:)"
-                << _numProductBeams/2 << "  ABP discards:"
-                << _numAbpDiscards[0] << "," << _numAbpDiscards[1] << "\n";
+        std::cout << "ABP rays: " << _numAbpRays 
+            << "  Product rays:" << _numProductRays 
+            << "  ABP discards:"
+            << _numAbpDiscards[0] << "," << _numAbpDiscards[1] << "\n";
         std::cout.flush();
 
         for (int i = 0; i < 10; i++) {
@@ -146,8 +163,8 @@ void EldoraProductsMain::status(int& numAbpBeams,
                                 int& numProductBeams,
                                 int &discardBeamsFor,
                                 int &discardBeamsAft) {
-    numAbpBeams = _numAbpBeams;
-    numProductBeams = _numProductBeams;
+    numAbpBeams = _numAbpRays;
+    numProductBeams = _numProductRays;
     discardBeamsFor = _numAbpDiscards[0];
     discardBeamsAft = _numAbpDiscards[1];
 }
