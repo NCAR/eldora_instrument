@@ -486,30 +486,30 @@ int RR314::configure314() {
     usleep(1e3);
     
     // Remove DC
-    int diagnostic = 0;
-    printf("Removing DC...");
-    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 1);
-    usleep(1e4);
-    Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 0);
-    Adapter_Read32(&_chanAdapter, V4, DC_REMOVE_DONE, &result);
-    if (result) 
-    {
-    	printf("DC Removed.\n");
-    	if(diagnostic) {
-    		Adapter_Read32(&_chanAdapter, V4, CH_A_DC, &result);
-    		printf("A I DC = %x\nA Q DC = %x\n", (result>>16), result&0xffff);
-    		Adapter_Read32(&_chanAdapter, V4, CH_B_DC, &result);
-    		printf("B I DC = %x\nB Q DC = %x\n", (result>>16), result&0xffff);
-    		Adapter_Read32(&_chanAdapter, V4, CH_C_DC, &result);
-    		printf("C I DC = %x\nC Q DC = %x\n", (result>>16), result&0xffff);
-    		Adapter_Read32(&_chanAdapter, V4, CH_D_DC, &result);
-    		printf("D I DC = %x\nD Q DC = %x\n", (result>>16), result&0xffff);
-    	}
-    }
-    else {
-    	printf("DC Not Removed Properly.\n");
-    	//return -1;
-    }
+    //int diagnostic = 0;
+    //printf("Removing DC...");
+    //Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 1);
+    //usleep(1e4);
+    //Adapter_Write32(&_chanAdapter, V4, DC_REMOVE_ENABLE, 0);
+    //Adapter_Read32(&_chanAdapter, V4, DC_REMOVE_DONE, &result);
+    //if (result) 
+    //{
+    //	printf("DC Removed.\n");
+    //	if(diagnostic) {
+    //		Adapter_Read32(&_chanAdapter, V4, CH_A_DC, &result);
+    //		printf("A I DC = %x\nA Q DC = %x\n", (result>>16), result&0xffff);
+    //		Adapter_Read32(&_chanAdapter, V4, CH_B_DC, &result);
+    //		printf("B I DC = %x\nB Q DC = %x\n", (result>>16), result&0xffff);
+    //		Adapter_Read32(&_chanAdapter, V4, CH_C_DC, &result);
+    //		printf("C I DC = %x\nC Q DC = %x\n", (result>>16), result&0xffff);
+    //		Adapter_Read32(&_chanAdapter, V4, CH_D_DC, &result);
+    //		printf("D I DC = %x\nD Q DC = %x\n", (result>>16), result&0xffff);
+    //	}
+    //}
+    //else {
+    //	printf("DC Not Removed Properly.\n");
+    //	//return -1;
+    //}
 
       
     // initialize the timers
