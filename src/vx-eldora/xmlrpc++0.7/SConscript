@@ -1,0 +1,4 @@
+tools = ['vx_xmlrpc']
+env = Environment(tools = ['default'] + tools)
+hello_server = env.Program('test/HelloServer', ['test/HelloServer.cpp'])
+Default(hello_server)

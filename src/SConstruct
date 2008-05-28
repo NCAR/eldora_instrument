@@ -22,6 +22,8 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
+SConscript('vx-eldora/SConscript')
+
 # Build the main eldora applications:
 SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
