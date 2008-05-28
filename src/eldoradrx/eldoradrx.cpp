@@ -605,7 +605,7 @@ static void* rrDataTask(void* threadArg) {
     // housekeeping.  The history only needs to be long enough to handle data 
     // times that arrive out of order.
     std::set<ptime> sentFakeHskp;
-    const unsigned int FAKE_HSKP_HISTORY_LEN = 10;
+    const unsigned int FAKE_HSKP_HISTORY_LEN = 50;
     
     std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " nci:" << pParams->nci << "\n";
 
@@ -966,19 +966,14 @@ genFakeHousekeeping(ptime hskpTime, bool isFore) {
     unsigned int msecsIntoDay = hskpTime.time_of_day().total_milliseconds();
     float secOfDay = (float)msecsIntoDay / 1000.0;
     
+    hskp->timetag = ptimeToTimetag(hskpTime);
+
     // Fake rotation angle: Fore antenna points 0.0 deg at the start of a day,
     // and scans at rotRate deg/s clockwise forever.  Aft antenna points 180
     // degrees away from fore.
     float rotRate = 30.0; // deg/s
     float rotAngle = fmodf(secOfDay * rotRate + (isFore ? 0.0 : 180.0), 360.0);
     hskp->radarRotAngle = rotAngle;
-
-    // Elevation angle is directly related to rotation angle.
-    float elAngle = 90.0 - rotAngle;
-    if (elAngle < 0.0)
-        elAngle += 360.0;
-    hskp->elevation = elAngle;
-    hskp->timetag = ptimeToTimetag(hskpTime);
 
     strncpy(hskp->radarName, isFore ? "FORE" : "AFT",  sizeof(hskp->radarName));
     return hskp;
