@@ -94,7 +94,6 @@ HskpMerger::mergeAndSend(unsigned int rayNum, bool newHskp) {
 	// Get the Housekeeping for this rayNum
     HskpEntry* hentry = _unmergedHskps.find(rayNum)->second;
 	EldoraDDS::Housekeeping* hskp = hentry->hskp();
-    pthread_mutex_unlock(&_unmergedHskpMutex); // done with the hskp list
 	
     // Get iterator bounds for all RRBuffer entries which match this ray number
 	typedef UnmergedRREntryMap::iterator UREMIterator;
@@ -123,6 +122,7 @@ HskpMerger::mergeAndSend(unsigned int rayNum, bool newHskp) {
         nmatches++;
     }
     
+    pthread_mutex_unlock(&_unmergedHskpMutex);
     pthread_mutex_unlock(&_unmergedRRMutex);
     return nmatches;
 }
