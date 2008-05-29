@@ -7,5 +7,5 @@ if (not Tool('gcc68k').exists(env)):
     print "Cannot load tool 'gcc68k', so vx-eldora build will be skipped"
     print
     Return()
-
-SConscript('xmlrpc++0.7/SConscript')
+else:
+	SConscript('xmlrpc++0.7/SConscript')
