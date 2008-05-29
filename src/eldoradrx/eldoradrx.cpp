@@ -131,12 +131,13 @@ static void* hskpReadTask(void* threadArg);
 static void setupSignalHandler();
 //static void createFiles(runParams& params);
 static void setupSignalHandler();
-static EldoraDDS::Housekeeping* unpackHousekeeping(const unsigned char* buf, 
+static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* buf, 
         int buflen);
 static void showStats(runParams& params, RR314& rr314, 
         unsigned long& droppedRay, unsigned long& droppedTS, int loopCount);
 static void publishAndCapture(RREntry* rentry, Housekeeping* hskp);
-static EldoraDDS::Housekeeping* genFakeHousekeeping(ptime hskpTime, bool isFore);
+static EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime, 
+        bool isFore);
 static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 
 //////////////////////////////////////////////////////////////////////
@@ -630,7 +631,8 @@ static void* rrDataTask(void* threadArg) {
             if (sentFakeHskp.find(pBuf->rayTime) == sentFakeHskp.end()) {
                 // Generate and send the housekeeping
                 EldoraDDS::Housekeeping* hskp = 
-                    genFakeHousekeeping(pBuf->rayTime, (pParams->deviceNumber == 1));
+                    newFakeDDSHousekeeping(pBuf->rayTime, 
+                            (pParams->deviceNumber == 1));
                 hskpMerger->newHskp(hskp);
                 //// @todo When sendFakeHousekeeping() works, we'll use that to 
                 //// send via the UDP port instead of going directly to 
@@ -684,7 +686,7 @@ static void* hskpReadTask(void* threadArg) {
             perror("reading from housekeeping socket");
             continue;
         }
-        EldoraDDS::Housekeeping* hskp = unpackHousekeeping(buf, nread);
+        EldoraDDS::Housekeeping* hskp = newDDSHousekeeping(buf, nread);
         if (hskp == 0) {
             std::cerr << __FUNCTION__ << ": dropping bad housekeeping" << 
                 std::endl;
@@ -701,12 +703,12 @@ static void* hskpReadTask(void* threadArg) {
 }
 
 //////////////////////////////////////////////////////////////////////
-/// Return a new EldoraDDS::Housekeeping built from the given buf.
-/// The returned struct should be deleted by the caller.
-/// On error, NULL is returned.
+/// Return a new EldoraDDS::Housekeeping built from the given buf
+/// sent by the housekeeper machine.  The returned struct should be deleted 
+/// by the caller.  On error, NULL is returned.
 static EldoraDDS::Housekeeping*
-unpackHousekeeping(const unsigned char* buf, int buflen) {
-    const unsigned char* data = buf;
+newDDSHousekeeping(const unsigned char* hskprBuf, int buflen) {
+    const unsigned char* data = hskprBuf;
     int datalen = buflen;
     // data from the housekeeper currently comes 176 bytes per ray.
     if (buflen != 176) {
@@ -857,58 +859,57 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
     
     hskp->chan = rbuf->chanId;
     hskp->rayNum = rbuf->rayNum;
-    hskp->timetag = ptimeToTimetag(rbuf->rayTime);
 
     // Publish if requested to
     if (rentry->publish()) {
         // send the buffer to the appropriate writer
         if (rbuf->type == RRBuffer::ABPtype) {
             // an abp dmaChan
-            EldoraDDS::Ray* pRay = _rayWriter->getEmptyItem();
-            if (pRay) {
-                pRay->hskp = *hskp;
+            EldoraDDS::Ray* pDdsRay = _rayWriter->getEmptyItem();
+            if (pDdsRay) {
+                pDdsRay->hskp = *hskp;
                 // device 0 is the aft radar, 1 is fore
-                pRay->radarId = (boardNum == 0) ?
+                pDdsRay->radarId = (boardNum == 0) ?
                         EldoraDDS::Aft : EldoraDDS::Forward;
 
                 RRABPBuffer* pABP = dynamic_cast<RRABPBuffer*>(rbuf);
 
                 // get the prt identifier
-                pRay->prtId = pABP->prtId;
+                pDdsRay->prtId = pABP->prtId;
 
                 // set the size
-                pRay->abp.length(pABP->_abp.size());
+                pDdsRay->abp.length(pABP->_abp.size());
 
                 for (unsigned int p = 0; p < pABP->_abp.size(); p++) {
                     float data = pABP->_abp[p];
-                    pRay->abp[p] = data;
+                    pDdsRay->abp[p] = data;
                 }
 
                 // send the ray to the ray publisher
-                _rayWriter->publishItem(pRay);
+                _rayWriter->publishItem(pDdsRay);
             } else {
                 _droppedRay[boardNum]++;
                 //std::cout << "can't get publisher ray\n";
             }
         } else {
             // a time series dmaChan
-            EldoraDDS::TimeSeries* pTS = _tsWriter->getEmptyItem();
-            if (pTS) {
-                pTS->hskp = *hskp;
+            EldoraDDS::TimeSeries* pDdsTS = _tsWriter->getEmptyItem();
+            if (pDdsTS) {
+                pDdsTS->hskp = *hskp;
+                // device 0 is the aft radar, 1 is fore
+                pDdsTS->radarId = (boardNum == 0) ?
+                    EldoraDDS::Aft : EldoraDDS::Forward;
+
                 RRIQBuffer* pIQ = dynamic_cast<RRIQBuffer*>(rbuf);
+                
                 // set the size
-                pTS->tsdata.length(pIQ->_iq.size());
+                pDdsTS->tsdata.length(pIQ->_iq.size());
 
                 for (unsigned int p = 0; p < pIQ->_iq.size(); p++) {
-                    pTS->tsdata[p] = pIQ->_iq[p];
+                    pDdsTS->tsdata[p] = pIQ->_iq[p];
                 }
-                // set the timestamp
-                pTS->hskp.rayNum = pIQ->rayNum;
-                // device 0 is the aft radar, 1 is fore
-                pTS->radarId = (boardNum == 0) ?
-                    EldoraDDS::Aft : EldoraDDS::Forward;
                 // send the ray to the ray publisher
-                _tsWriter->publishItem(pTS);
+                _tsWriter->publishItem(pDdsTS);
             } else {
                 _droppedTS[boardNum]++;
                 //std::cout << "can't get publisher TS\n";
@@ -960,8 +961,10 @@ publishAndCapture(RREntry* rentry, Housekeeping* hskp) {
     }
 }
 //////////////////////////////////////////////////////////////////////
+/// Return a complete new EldoraDDS::Housekeeping for the given time and
+/// radar.  The returned struct should be deleted by the caller.
 EldoraDDS::Housekeeping*
-genFakeHousekeeping(ptime hskpTime, bool isFore) {
+newFakeDDSHousekeeping(ptime hskpTime, bool isFore) {
     EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
     unsigned int msecsIntoDay = hskpTime.time_of_day().total_milliseconds();
     float secOfDay = (float)msecsIntoDay / 1000.0;
