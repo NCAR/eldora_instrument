@@ -25,13 +25,21 @@ TrigMuxMenu::OpenMenu()
     printf("\n");
     printf("----------TRIGGER MUX Channel Menu----------\n\n");
     printf("Which Channel would you like to read: \n");
-    printf("(1) Channel 1\n");
-    printf("(2) Channel 2\n");
-    printf("(3) Channel 3\n");
-    printf("(4) Channel 4\n");
-    printf("(5) Channel 5\n");
-    printf("(6) PREKNOCK \n");
-    printf("(7) TESTPULSE\n");
+    printf("(0) Fore Channel 1\n");
+    printf("(1) Fore Channel 2\n");
+    printf("(2) Fore Channel 3\n");
+    printf("(3) Fore Channel 4\n");
+    printf("(4) Fore Channel 5\n");
+    printf("(5) Fore PREKNOCK \n");
+    printf("(6) Fore TESTPULSE\n");
+    printf("(7) Aft Channel 1\n");
+    printf("(8) Aft Channel 2\n");
+    printf("(9) Aft Channel 3\n");
+    printf("(10) Aft Channel 4\n");
+    printf("(11) Aft Channel 5\n");
+    printf("(12) Aft PREKNOCK \n");
+    printf("(13) Aft TESTPULSE\n");
+
     printf("or enter (-1) to exit\n\n");
     printf("Enter Choice; ");
     scanf("%d",&channel);
@@ -41,14 +49,14 @@ TrigMuxMenu::OpenMenu()
       break;
     }
 
-    if(channel < 1 || channel > 7)
+    if(channel < 0 || channel > 13)
     {
-      printf("Channel number must be between 1 and 7!\n");
+      printf("Channel number must be between 0 and 13!\n");
       printf("You entered %d\n",channel);
     }
 
 
-    while(1)
+/*    while(1)
     {
       printf("\n");
       printf("----------TRIGGER MUX Counter Value Menu----------\n\n");
@@ -71,11 +79,12 @@ TrigMuxMenu::OpenMenu()
       {
         //Set Trigger Mux with User Inputs
         _mux.SetMux(channel, _countval);
-      }
-    }
-
-
-
+      } 
+    
+    } */
+    //Set Counter Value (a.k.a Trigger Mux Pulse Divider) to 2 as is done in old ECB code.
+    _countval = 2;
+    _mux.SetMux(channel, _countval);
 
   }
 }

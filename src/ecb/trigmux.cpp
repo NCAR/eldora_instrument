@@ -101,7 +101,8 @@ TrigMux::SetMux(int channelnum, int countervalue)
 
 
   //////////Choose Desired Channel
-  channelnumber = channelnum -1;
+  if (channelnum < 7) channelnumber = channelnum;
+  else channelnumber = channelnum + 1;
   //Combines the radar selection with the channel number
   q = _radar | channelnumber;
 

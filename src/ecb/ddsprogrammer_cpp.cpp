@@ -27,7 +27,7 @@ int main()
     cout<<"\n----------ELDORA RCVR/EXCITER and STEPPED ATTENUATOR CHASSIS PROGRAM------------\n";
     cout<<"(0) Digital Synthesizers\n";
     cout<<"(1) Stepped Attenuators\n";
-    cout<<"(2) Trigger Mux?\n";
+    cout<<"(2) Trigger Muxs\n";
     cout<<"Or Enter (-1) to exit\n";
     cout<<"Enter Choice: ";
     cin>> device;
@@ -98,8 +98,8 @@ int main()
         {
           cout<<"\n----------TRIGGER MUX Home Menu-----------------\n";
           cout<<"Do you want to see channels from the:\n";
-          cout<<"(0) Fore \n";
-          cout<<"(1) Aft \n";
+          cout<<"(0) Test Pulse Trigger Mux\n";
+          cout<<"(1) Xmit Trigger Mux\n";
           cout<<"Or Enter (-1) to exit\n";
           cout<<"Enter Choice: ";
           cin >> radarchoice;
