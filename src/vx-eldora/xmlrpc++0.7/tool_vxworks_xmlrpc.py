@@ -22,7 +22,7 @@ Default(libxmlrpc)
 
 tooldir = env.Dir('src')
 
-def vx_xmlrpc(env):
+def vxworks_xmlrpc(env):
     for t in tools:
         env.Tool(t)
     # Remove -lpthread added by global tool Eldora
@@ -32,4 +32,4 @@ def vx_xmlrpc(env):
     env.Append(CPPPATH = [tooldir])
     env.AppendLibrary('XmlRpc')
     
-Export('vx_xmlrpc')
+Export('vxworks_xmlrpc')

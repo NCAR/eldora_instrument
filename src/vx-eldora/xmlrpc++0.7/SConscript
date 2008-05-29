@@ -1,4 +1,6 @@
-tools = ['vx_xmlrpc']
+# Just build the test/HelloServer binary.  This uses the vxworks_xmlrpc
+# tool, so libXmlRpc.a will be built as a result.
+tools = ['vxworks_xmlrpc']
 env = Environment(tools = ['default'] + tools)
 hello_server = env.Program('test/HelloServer', ['test/HelloServer.cpp'])
 Default(hello_server)
