@@ -1,5 +1,13 @@
 // HelloServer.cpp : Simple XMLRPC server example. Usage: HelloServer serverPort
 //
+// To use the VxWorks version:
+// 
+// First copy the HelloServer binary to a location NFS mounted by the VxWorks
+// box, /vxroot for the example below, then:
+//
+//    vx> ld < /vxroot/HelloServer
+//    vx> sp HelloServer,30000
+//
 #include "XmlRpc.h"
 
 #include <iostream>
@@ -65,7 +73,7 @@ public:
 } sum(&s);
 
 
-int HelloServer(int port)
+int CxxHelloServer(int port)
 {
 //  if (argc != 2) {
 //    std::cerr << "Usage: HelloServer serverPort\n";
@@ -94,11 +102,11 @@ int HelloServer(int port)
 }
 
 extern "C" {
-int startHelloServer(int port) {
-    return HelloServer(port);
+int HelloServer(int port) {
+    return CxxHelloServer(port);
 }
 } // end extern "C"
 
 int main(int argc, char* argv[]) {
-    startHelloServer(40000);
+    HelloServer(40000);
 }
