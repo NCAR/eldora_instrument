@@ -49,12 +49,12 @@ void xmit_rt()
   int sem_status;
   
 while(1)
-  {
+{
     sem_status = semTake(xmit_data_sem,1000);
     if(sem_status == OK)
-      {
-	flt_pt(1);  /* Update Now Mode */
-	if(fore_aft == 0)
+    {
+  	  flt_pt(1);  /* Update Now Mode */
+	  if(fore_aft == 0)
 	  {
 	    if(Debug)
 	      logMsg("FORE_XMIT_PWR=%-10.3E watts\n",fore_xmit_pwr,0,0,0,0);
@@ -62,7 +62,7 @@ while(1)
 	    aft_xmit_pwr = -999.0;
 	    fore_vmehndshk->tpulse.freq_num[1] = freq_count; 
 	  }
-	if(fore_aft == 1)
+	  if(fore_aft == 1)
 	  {
 	    if(Debug)
 	      logMsg("AFT_XMIT_PWR=%-10.3E watts\n",fore_xmit_pwr,0,0,0,0);
@@ -70,30 +70,31 @@ while(1)
 	    fore_xmit_pwr = -999.0;
 	    aft_vmehndshk->tpulse.freq_num[1] = freq_count;
 	  }
-	xmit_isr_done=0;
-      }
+	  xmit_isr_done=0;
+    }
     else
-      {
-	if(autocal)
+    {
+	  if(autocal)
 	  {
 	    printf("NO XMIT DATA INTERUPT\n");
 	    fore_xmit_pwr = -999.0;
 	    aft_xmit_pwr = -999.0;
 	  }
-      }
+    }
     sem_status = semTake(xmit_err_sem,NO_WAIT);
     if(sem_status == OK)
-      {
-	if(Debug)
-	  printf("XMIT ERROR: %d \n",dma_err1);
-	xmit_isr_done=0;
-	init_dma(1,15);
-	*d0csr = 0xff;
-	taskDelay(1);
-	*d0ccr = 0xC8;  /* start DMA */
-      }
+    {
+	  if(Debug)
+	    printf("XMIT ERROR: %d \n",dma_err1);
+	  xmit_isr_done=0;
+	  init_dma(1,15);
+	  *d0csr = 0xff;
+	  taskDelay(1);
+	  *d0ccr = 0xC8;  /* start DMA */
+    }
   }
 }
+
 #ifdef CLOCK_ISR
 void xmit_pwr_isr()
 {

@@ -151,13 +151,13 @@ semTake(vmeSem,WAIT_FOREVER);
                  AFT_STAND_START);
 
     if(fore_vmehndshk->radar_hndshk[iru_lag_index] == 0)
-      {
-#if defined(USE_INT_HNDSHK)
- triggerVMEInts(iru_lag_index);
-#endif
- fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
- aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
-      }
+    {
+      #if defined(USE_INT_HNDSHK)
+        triggerVMEInts(iru_lag_index);
+      #endif
+      fore_vmehndshk->radar_hndshk[iru_lag_index] = 1;
+      aft_vmehndshk->radar_hndshk[iru_lag_index] = 1;
+    }
     else
       mcpl_error[2] = 1;
     
@@ -165,22 +165,22 @@ semTake(vmeSem,WAIT_FOREVER);
    to send out had data in it */
 
     if(platform_status[iru_lag_index] == 0)
-      {
- currStatus->iru |= ARINC_INT_BAD;
- fore_ray_pntr->this_rayi.ray_status = 1;
- aft_ray_pntr->this_rayi.ray_status = 1;
-      }
+    {
+      currStatus->iru |= ARINC_INT_BAD;
+      fore_ray_pntr->this_rayi.ray_status = 1;
+      aft_ray_pntr->this_rayi.ray_status = 1;
+    }
     else
-      {
- //Added Tom 3/25/08
-  SendUDP(fore_ray_pntr);
-  SendUDP(aft_ray_pntr);
-
- platform_status[iru_lag_index] = 0;
- currStatus->iru &= (char)(~ARINC_INT_BAD);
- fore_ray_pntr->this_rayi.ray_status = 0;
- aft_ray_pntr->this_rayi.ray_status = 0;
-      }
+    {
+      //Added Tom 3/25/08 If platform data is valid, send it to DRX
+      SendUDP(fore_ray_pntr);
+      SendUDP(aft_ray_pntr);
+        
+      platform_status[iru_lag_index] = 0;
+      currStatus->iru &= (char)(~ARINC_INT_BAD);
+      fore_ray_pntr->this_rayi.ray_status = 0;
+      aft_ray_pntr->this_rayi.ray_status = 0;
+    }
 
 
 /* Update the iru lag ray pointer */
@@ -188,10 +188,10 @@ semTake(vmeSem,WAIT_FOREVER);
     iru_lag_offset += RADAR_SIZE_INCR;
     iru_lag_index++;
     if(iru_lag_index >= NUM_RADAR_HNDSHK)
-      {
- iru_lag_offset = FIRST_RADAR_OFFSET;
- iru_lag_index = 0;
-      }
+    {
+      iru_lag_offset = FIRST_RADAR_OFFSET;
+      iru_lag_index = 0;
+    }
 
 /* Create a pointer to a data ray structure at the current radar data
    ray location */
@@ -199,10 +199,10 @@ semTake(vmeSem,WAIT_FOREVER);
     current_offset += RADAR_SIZE_INCR;
     current_index++;
     if(current_index >= NUM_RADAR_HNDSHK)
-      {
- current_offset = FIRST_RADAR_OFFSET;
- current_index = 0;
-      }
+    {
+      current_offset = FIRST_RADAR_OFFSET;
+      current_index = 0;
+    }
 
 /* 
 Determine delay between Radar Processor data interrupt and Hskp "midbeam" interrupt and set current_index accordingly 
@@ -225,7 +225,6 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
       Proc_dly_sync = 0;
     }
   }
-
   if(ERR_CHK)
   {
     if(!Proc_dly_sync)
@@ -255,16 +254,13 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
             proc_offset_a = delta_a;
           }
         }
- 
         // printf("Track: %d %d %d %d\n",delta_f,delta_a,fore_vmehndshk->radar_proc_idx,aft_vmehndshk->radar_proc_idx);
- 
     }
   }
   */
-    fore_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE +
-           FORE_STAND_START); 
-    aft_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE +
-          AFT_STAND_START); 
+
+    fore_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE + FORE_STAND_START); 
+    aft_ray_pntr = (struct DATARAY *)(current_offset + STANDARD_BASE + AFT_STAND_START); 
     
 /* Place the time read into the proper words of the data ray */
 
@@ -286,23 +282,37 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
 
 /* Put the test pulse info into the correct spot in the current ray */
 
+    // Tom 5/30/08 test pulse freq, test pulse atten, and freq num will be set
+    // in DRX box where the TP is generated.
+    fore_vmehndshk->tpulse.freq_num[0] = 0; 
+    fore_vmehndshk->tpulse.freq_num[1] = 0; 
+    aft_vmehndshk->tpulse.freq_num[0] = 0; 
+    aft_vmehndshk->tpulse.freq_num[1] = 0; 
+
+    
     tp_dwell_count += 1;
     fore_ray_pntr->this_fdata.test_pulse_level = fore_testp_pwr;
     fore_ray_pntr->this_fdata.test_pulse_dist = fore_vmehndshk->tpulse_dist;
     fore_ray_pntr->this_fdata.test_pulse_width = fore_vmehndshk->tpulse_width;
-    fore_ray_pntr->this_fdata.test_pulse_freq = fore_vmehndshk->tpulse_freq;
-    fore_ray_pntr->this_fdata.test_pulse_atten = fore_vmehndshk->tpulse_atten;
+    //fore_ray_pntr->this_fdata.test_pulse_freq = fore_vmehndshk->tpulse_freq;
+    fore_ray_pntr->this_fdata.test_pulse_freq = 0;
+    //fore_ray_pntr->this_fdata.test_pulse_atten = fore_vmehndshk->tpulse_atten;
+    fore_ray_pntr->this_fdata.test_pulse_atten = 0;
     fore_ray_pntr->this_fdata.test_pulse_fnum = fore_vmehndshk->tpulse.combined_freq_num;
     
     aft_ray_pntr->this_fdata.test_pulse_level = aft_testp_pwr;
     aft_ray_pntr->this_fdata.test_pulse_dist = aft_vmehndshk->tpulse_dist;
     aft_ray_pntr->this_fdata.test_pulse_width = aft_vmehndshk->tpulse_width;
-    aft_ray_pntr->this_fdata.test_pulse_freq = aft_vmehndshk->tpulse_freq;
-    aft_ray_pntr->this_fdata.test_pulse_atten = aft_vmehndshk->tpulse_atten;
+    //aft_ray_pntr->this_fdata.test_pulse_freq = aft_vmehndshk->tpulse_freq;
+    aft_ray_pntr->this_fdata.test_pulse_freq = 0;
+    //aft_ray_pntr->this_fdata.test_pulse_atten = aft_vmehndshk->tpulse_atten;
+    aft_ray_pntr->this_fdata.test_pulse_atten = 0;
     aft_ray_pntr->this_fdata.test_pulse_fnum = aft_vmehndshk->tpulse.combined_freq_num;
-
-    if((tp_dwell_count > tp_sum_start) && (tp_dwell_count < tp_sum_end))
-      sum_testpulse();
+    
+    // Tom 5/30/08 No longer summing test pulse since we won't know when it is switched.   
+    
+    //if((tp_dwell_count > tp_sum_start) && (tp_dwell_count < tp_sum_end))
+    //  sum_testpulse();
     
     /* Calculate the rotational position of both radar beams and place them
        into the proper word in the data ray */
@@ -335,9 +345,8 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
     
     if(fraddes->req_rotat_vel > 0.)   /* Trying to spin in a positive direction */
       if(degrees_moved > 300.) position = position + 360.;
-    
-      else                            /* Trying to spin in negative direction */
- if(degrees_moved > 300.) position = position - 360.;
+    else                            /* Trying to spin in negative direction */
+      if(degrees_moved > 300.) position = position - 360.;
     
     degrees_moved = position - last_position;
     
@@ -350,13 +359,13 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
     /* Set the velocity command based on an integrated error in velocity */
     
     /*
-      diff = fraddes->req_rotat_vel - instant_speed;
-      if((diff < ((-1)*delta_degpersec)) || (diff > delta_degpersec))
-      {
+    diff = fraddes->req_rotat_vel - instant_speed;
+    if((diff < ((-1)*delta_degpersec)) || (diff > delta_degpersec))
+    {
       rpm = rpm + diff * integrator_gain * DEGPERSEC_TO_RPM;
       just_set_vel(rpm);
-      }
-*/
+    }
+    */
 
 /* Now we need to update the sweep number for
    each of the radars */
@@ -383,104 +392,97 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
     
 /* If necessary handle the waveguide switch here */
 
-    if (wg_sw_flag != 0)
-      {
+  if (wg_sw_flag != 0)
+  {
 
-      /* If we are really transmiting out the aft antenna, change the FORE
-  data ray's rotation angle and tilt angle to reflect this */
+/* If we are really transmiting out the aft antenna, change the FORE
+   data ray's rotation angle and tilt angle to reflect this */
 
- if(wg_sw_current_set == WG_SW_AFT)
-   {
-     fore_ray_pntr->this_plat.tilt = afrad->E_plane_angle;
-     fore_ray_pntr->this_plat.rotation_angle = aft_angle;
-   }
- else
-   fore_ray_pntr-> this_plat.tilt = ffrad->E_plane_angle;
+    if(wg_sw_current_set == WG_SW_AFT)
+    {
+      fore_ray_pntr->this_plat.tilt = afrad->E_plane_angle;
+      fore_ray_pntr->this_plat.rotation_angle = aft_angle;
+    }
+    else
+      fore_ray_pntr-> this_plat.tilt = ffrad->E_plane_angle;
 
-      /* wg_sw_counter makes sure we only switch
-  once each switch over point */
+    /* wg_sw_counter makes sure we only switch
+       once each switch over point */
 
- wg_sw_counter +=1;
- if(wg_sw_counter > 10)
-   {
+    wg_sw_counter +=1;
+    if(wg_sw_counter > 10)
+    {
 
      /* Now test to see if we are at a switch over point */
 
-     test = 0;
-     if (wg_sw_big_angle > 357.0)
-       {
-  if(fore_angle > wg_sw_big_angle || 
-     fore_angle < wg_sw_small_angle) test = 1;
-       }
-     else
-       {
-  if(fore_angle < wg_sw_big_angle &&
-     fore_angle > wg_sw_small_angle) test = 1;
-       }
-
-     if(test == 1)
-       {
-  wg_sw_counter = 0;
-
-    /* We are at a switch over point, handle each type of
-       scanning in it own unique manner */
-
-  switch(wg_sw_flag)
-    {
-    case 1:      /* Complete rotations */
-      
-      if(wg_sw_current_set == WG_SW_FORE)
-        wg_sw_current_set = WG_SW_AFT;
-      else 
-        wg_sw_current_set = WG_SW_FORE;
-      
-      break;
-      
-    case 2:     /* Right side only */
-      if(wg_sw_current_set == WG_SW_FORE)
-        {
-   wg_sw_current_set = WG_SW_AFT;
-   wg_sw_big_angle = 358.0;
-   wg_sw_small_angle = 2.0;
-        }
+      test = 0;
+      if (wg_sw_big_angle > 357.0)
+      {
+        if(fore_angle > wg_sw_big_angle || fore_angle < wg_sw_small_angle) 
+          test = 1;
+      }
       else
+      {
+        if(fore_angle < wg_sw_big_angle && fore_angle > wg_sw_small_angle) 
+          test = 1;
+      }
+
+      if(test == 1)
+      {
+        wg_sw_counter = 0;
+
+        /* We are at a switch over point, handle each type of
+           scanning in it own unique manner */
+
+        switch(wg_sw_flag)
         {
-   wg_sw_current_set = WG_SW_FORE;
-   wg_sw_big_angle = 182.0;
-   wg_sw_small_angle = 178.0;
-        }
+          case 1:      /* Complete rotations */
+            if(wg_sw_current_set == WG_SW_FORE)
+              wg_sw_current_set = WG_SW_AFT;
+            else 
+              wg_sw_current_set = WG_SW_FORE;
+            break;
+          case 2:     /* Right side only */
+            if(wg_sw_current_set == WG_SW_FORE)
+            {
+              wg_sw_current_set = WG_SW_AFT;
+              wg_sw_big_angle = 358.0;
+              wg_sw_small_angle = 2.0;
+            }
+            else
+            {
+            wg_sw_current_set = WG_SW_FORE;
+            wg_sw_big_angle = 182.0;
+            wg_sw_small_angle = 178.0;
+            }
+            break;
+          case 3:     /* left side only */
+            if(wg_sw_current_set == WG_SW_FORE)
+            {
+              wg_sw_current_set = WG_SW_AFT;
+              wg_sw_big_angle = 182.0;
+              wg_sw_small_angle = 178.0;
+            }
+            else
+            {
+              wg_sw_current_set = WG_SW_FORE;
+              wg_sw_big_angle = 358.0;
+              wg_sw_small_angle = 2.0;
+            }
+            break;
+          default:
+          break;
+        }    /* switch on wg_sw_flag */
 
-      break;
-      
-    case 3:     /* left side only */
-      if(wg_sw_current_set == WG_SW_FORE)
-        {
-   wg_sw_current_set = WG_SW_AFT;
-   wg_sw_big_angle = 182.0;
-   wg_sw_small_angle = 178.0;
-        }
-      else
-        {
-   wg_sw_current_set = WG_SW_FORE;
-   wg_sw_big_angle = 358.0;
-   wg_sw_small_angle = 2.0;
-        }
+        /* Now switch the switch */
 
-      break;
-    default:
-      break;
+        *wg_sw_pntr = wg_sw_current_set;
 
-    }    /* switch on wg_sw_flag */
+      } /* test for switch over point (test == 1) */
 
-  /* Now switch the switch */
+    } /* Test of wg_sw_counter > 10 */
 
-       *wg_sw_pntr = wg_sw_current_set;
-
-       } /* test for switch over point (test == 1) */
-
-   } /* Test of wg_sw_counter > 10 */
-
-      } /* Test of wg_sw_flag != 0 */
+  } /* Test of wg_sw_flag != 0 */
   
 
 } /* Infinite for loop */

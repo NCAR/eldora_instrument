@@ -126,9 +126,6 @@ go11();
 sysIntEnable(VME_VME_IRQ);
 sysIntEnable(IEEE_IRQ);
 
-//*******************************
-//Edited by Tom 1/30/08
-
 sysIntEnable(GPS_IRQ);
 sysIntEnable(ECB_CMPLT_IRQ);
 sysIntEnable(ECB_ERROR_IRQ);
@@ -151,6 +148,7 @@ init_vmevme();  // Intializes the VME to VME interface handshake area //
 printf("Initializing the motor controller\n");
 init_motor();   /* Sets gains, sample interval etc. on motor controller card */
 
+printf("Initializing the IEEE interface\n");
 init_ieee(); /* Initalizes the power meters to begin sending data */
 
 printf("Initializing the ARINC 429 interface\n");
@@ -186,18 +184,18 @@ do{
 
     /* Added the following two lines to try to improve power meter reliability */
     if(!First)
-      {
- autocal = 0;
- taskDelay(20);
- stop_ieee(); 
-      }
+    {
+      autocal = 0;
+      taskDelay(20);
+      stop_ieee(); 
+    }
     First = 0;
     /* Wait here to be (re)started by the control processor */
 
     printf("Will wait now for the control processor to start me\n");
     do{
-    taskDelay(60);
-     }while(stop_flag);
+        taskDelay(60);
+    } while(stop_flag);
     printf("Was started by the control processor\n");
 
     /* Set up all of the global header pointers */
@@ -242,119 +240,111 @@ do{
     go_motor();
 
     
-    //***************************************
-    /*
-    Edited by Tom 1/30/08
+//***************************************
+/*
+Edited by Tom 1/30/08
 
     // Program the receiver/exciter chassis with the proper frequencies //
     // Do the fore radar first //
 
     ecbaddr = ECBRFFOR;
     for(i=0; i<fraddes->num_freq_trans; i++)
-      {
-   switch(i)
-     {
-  case 0:
-  aint = (double)fraddes->freq1 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
+    {
+       switch(i)
+       {
+          case 0:
+              aint = (double)fraddes->freq1 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 1:
+              aint = (double)fraddes->freq2 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
 
-  case 1:
-  aint = (double)fraddes->freq2 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 2:
-  aint = (double)fraddes->freq3  * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 3:
-  aint = (double)fraddes->freq4 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 4:
-  aint = (double)fraddes->freq5 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
+          case 2:
+              aint = (double)fraddes->freq3  * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 3:
+              aint = (double)fraddes->freq4 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 4:
+              aint = (double)fraddes->freq5 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+       }
+       fore_freqs[i] = frequency;
+       B = (unsigned char)(361 - (int)(frequency / 30.0e6));
+       temp = 15445.3333333333333 - (frequency / 703125.0);
+       temp = (16777216.0 / (B+1)) * temp;
+       T = (unsigned long)(temp + 0.5);
+       unitnum = i+1;
+       nr = 1;
+       timeout = 0;
+       do    
+       {
+          timeout++;
+       } while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0)
+         && timeout < 30000);
+       if(timeout >= 30000)
+         printf("Failed to set DDS frequency fore RX, freq num: %d",
+         unitnum);
+       else
+         printf("Fore radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
+       taskDelay(60);
      }
-   fore_freqs[i] = frequency;
-   B = (unsigned char)(361 - (int)(frequency / 30.0e6));
-   temp = 15445.3333333333333 - (frequency / 703125.0);
-   temp = (16777216.0 / (B+1)) * temp;
-   T = (unsigned long)(temp + 0.5);
-   unitnum = i+1;
-   nr = 1;
-   timeout = 0;
-   do
-     {
-  timeout++;
-     }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0)
-     && timeout < 30000);
-   if(timeout >= 30000)
-     printf("Failed to set DDS frequency fore RX, freq num: %d",
-     unitnum);
-   else
-     printf("Fore radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
-   taskDelay(60);
-
-      }
 
     // Now do the aft radar //
 
     ecbaddr = ECBRFAFT;
     for(i=0; i<araddes->num_freq_trans; i++)
-      {
-   switch(i)
-     {
-  case 0:
-  aint = (double)araddes->freq1 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 1:
-  aint = (double)araddes->freq2 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 2:
-  aint = (double)araddes->freq3 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 3:
-  aint = (double)araddes->freq4 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-
-  case 4:
-  aint = (double)araddes->freq5 * (double)1000000;
-  frequency = (double)aint * (double)1000.0;
-  break;
-     }
-   aft_freqs[i] = frequency;
-   B = (unsigned char)(361 - (int)(frequency / 30.0e6));
-   temp = 15445.3333333333333 - (frequency / 703125.0);
-   temp = (16777216.0 / (B+1)) * temp;
-   T = (unsigned long)(temp + 0.5);
-   unitnum = i+1;
-   nr = 1;
-   timeout = 0;
-   do
-     {
-  timeout++;
-     }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0)
-     && timeout < 30000);
-   if(timeout >= 30000)
-     printf("Failed to set DDS frequency aft RX freq num: %d",
-     unitnum);
-   else
-     printf("Aft radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
-   taskDelay(60);
-      }
-    */
-    //****************************************
+    {
+       switch(i)
+       {
+          case 0:
+              aint = (double)araddes->freq1 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 1:
+              aint = (double)araddes->freq2 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 2:
+              aint = (double)araddes->freq3 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 3:
+              aint = (double)araddes->freq4 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+          case 4:
+              aint = (double)araddes->freq5 * (double)1000000;
+              frequency = (double)aint * (double)1000.0;
+              break;
+       }
+       aft_freqs[i] = frequency;
+       B = (unsigned char)(361 - (int)(frequency / 30.0e6));
+       temp = 15445.3333333333333 - (frequency / 703125.0);
+       temp = (16777216.0 / (B+1)) * temp;
+       T = (unsigned long)(temp + 0.5);
+       unitnum = i+1;
+       nr = 1;
+       timeout = 0;
+       do
+       {
+          timeout++;
+       } while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0)
+         && timeout < 30000);
+       if(timeout >= 30000)
+         printf("Failed to set DDS frequency aft RX freq num: %d",
+         unitnum);
+       else
+         printf("Aft radar DDS #%1d set to %f Hertz\n",unitnum,frequency);
+       taskDelay(60);
+    }
+*/
+//****************************************
     
     // Now start the automatic testpulse calibration scheme //
    
@@ -380,8 +370,8 @@ do{
     start_iru();
  
     /* Start the interrupts from the ieee-488 board */
-   // Tom 3/6/08 GPIB not connected so comment out for now 
-   //start_ieee(); 
+    // Tom 3/6/08 GPIB not connected so comment out for now 
+    start_ieee(); 
 
     /* Start the radar proccessors over the vme to vme interfaces */
     /* Note: the radar processors should always be the very last things
@@ -398,60 +388,62 @@ do{
 /**********  until a STOP or a RELOAD Command occurs **********/
 /**************************************************************/
 
-    do{
+  do{
 
-  // Create fake interrupts every 1 second - Added Tom 3/7/08
-  if(fake_intrs)
-  {
-    //printf("Interrupting Now.\n");
-    semGive(vmeSem);
-    taskDelay(60);
-  }
+    // Create fake interrupts every 1 second - Added Tom 3/7/08
+    if(fake_intrs)
+    {
+      //printf("Interrupting Now.\n");
+      semGive(vmeSem);
+      taskDelay(60);
+    }
         
-        //***************************************
-        /*
-        Edited by Tom 1/30/08
+    //***************************************
+    /*
+    Edited by Tom 1/30/08
 
- // Report MCPL errors (or radar processor handshake errors)
- //   that were discovered in the vmevme ISR but can not be
- //          reported until here //
+    // Report MCPL errors (or radar processor handshake errors)
+    //   that were discovered in the vmevme ISR but can not be
+    //          reported until here //
 
- if(mcpl_error[0] != 1)
-   // Fore radar handshake not set, or occured more than once between
-    interrupts //
-   {
-       printf("F%1d",mcpl_error[0]);
-       mcpl_error[0] = 1;
-   }
- if(mcpl_error[1] != 1 && mcpl_error[1] != 0)
-   // aft radar handshake occured more than once between interrupts//
-   {
-       printf("A%1d",mcpl_error[1]);
-       mcpl_error[1] = 1;
-   }
+    if(mcpl_error[0] != 1)
+    // Fore radar handshake not set, or occured more than once between interrupts 
+    {
+      printf("F%1d",mcpl_error[0]);
+      mcpl_error[0] = 1;
+    }
+    if(mcpl_error[1] != 1 && mcpl_error[1] != 0)
+    // aft radar handshake occured more than once between interrupts
+    {
+      printf("A%1d",mcpl_error[1]);
+      mcpl_error[1] = 1;
+    }
 
- if(mcpl_error[2] != 0)
-   // Radar processors have no data available //
-   {
-       printf("N");
-       mcpl_error[2] = 0;
-   }
+    if(mcpl_error[2] != 0)
+    // Radar processors have no data available
+    {
+      printf("N");
+      mcpl_error[2] = 0;
+    }
 
-       // If new GPS data exists handle the data //
+    // If new GPS data exists handle the data //
 
-        if(*gps_hndshk != (short)0)
-       gps_isr();
-       */
-       //****************************************
-       
+    if(*gps_hndshk != (short)0)
+      gps_isr();
+    */
+    //****************************************   
 
- //Tom 3/28/08 Removed for testing purposes - Fore Power not hooked up.
- //if(tp_dwell_count >= testpulse_max_count && autocal)
- //      update_testpulse();
+    //Tom 3/28/08 Removed for testing purposes - Fore Power not hooked up.
+    if(tp_dwell_count >= testpulse_max_count && autocal)
+    {
+      printf("updating test pulse\n");
+      update_testpulse();
+    }
  
- taskDelay(1);  /* added for test - Eric 7/16/99 */ 
-       }while(!stop_flag && !reload_flag);
+    taskDelay(1);  /* added for test - Eric 7/16/99 */ 
+  }while(!stop_flag && !reload_flag);
 
-   }while(kill);
+}while(kill);
+
 }
 

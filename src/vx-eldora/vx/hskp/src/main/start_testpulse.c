@@ -169,12 +169,16 @@ tp_dwell_count = testpulse_max_count;
 tp_sum_start = 3000.0/dwelltime_msec; /* start 3 seconds into calibration */
 tp_sum_end = 9000.0/dwelltime_msec; /* end 8 seconds into calibration */
 
-/* Program Testpulse DDS's to be way out of band for dc removal to work correctly */
+//********************************************************************************\
+// Tom 5/30/08 DDS and Attenuators now programmed in DRX
+/*
+
+// Program Testpulse DDS's to be way out of band for dc removal to work correctly 
 
 frequency = 9310000000;
 attenuation = 110;
 
-/* Set the fore test pulse frequency */
+// Set the fore test pulse frequency 
 
 ecbaddr = ECBRFFOR;
 B = (unsigned char)(361 - (int)(frequency / 30.0e6));
@@ -191,7 +195,7 @@ do
   }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0) &&
 	 timeout < 30);
 
-/* Set the fore testpulse attenuation level */
+// Set the fore testpulse attenuation level 
 
 ecbaddr = ECBATTEN;
 foraft = 1;
@@ -203,7 +207,7 @@ do
   }while((test = ecbSetAtten(ecbaddr, foraft, attenuation) != 0) &&
 	  timeout < 30);  
 
-/* Set the aft test pulse frequency */
+// Set the aft test pulse frequency 
 
 ecbaddr = ECBRFAFT;
 B = (unsigned char)(361 - (int)(frequency / 30.0e6));
@@ -220,7 +224,7 @@ do
   }while((test = ecbSetDDS(ecbaddr,unitnum,B,T,nr) != 0) &&
 	 timeout < 30);
 
-/* Set the aft testpulse attenuation level */
+// Set the aft testpulse attenuation level 
 
 ecbaddr = ECBATTEN;
 foraft = 0;
@@ -232,5 +236,7 @@ do
       timeout++;
   }while((test = ecbSetAtten(ecbaddr, foraft, attenuation) != 0) &&
 	 timeout < 30);  
+*/
+//********************************************************************
 
 }

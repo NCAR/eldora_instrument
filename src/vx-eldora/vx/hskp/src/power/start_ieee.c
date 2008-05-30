@@ -351,13 +351,17 @@ void start_ieee()
       printf("SRQ: %2X; Command: %s\n",status,string_array);
     }
 
-  /************* PROGRAM Trigger MUX via ECB ****************/
+//***********************************************************
+// Tom 5/30/08 Trigger Mux now programmed by DRX
+/*  
+  
+  //************* PROGRAM Trigger MUX via ECB ****************
 
-  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  taskDelay(100);       // delay 1 sec to see if it fixes ecb problem 
   ecbaddr = ECBATTEN;
-  xmit_tp = 1; /* select xmit mux */
-  /*  muxval = 13;   select aft preknock as trigger */
-  muxval = 5; /* select fore preknock as trigger */
+  xmit_tp = 1; // select xmit mux 
+  //  muxval = 13;   select aft preknock as trigger 
+  muxval = 5; // select fore preknock as trigger 
   timeout = 0;
   do
     {
@@ -365,11 +369,11 @@ void start_ieee()
       timeout++;
     }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 
-  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  taskDelay(100);       // delay 1 sec to see if it fixes ecb problem 
   ecbaddr = ECBATTEN;
-  xmit_tp = 0; /* select test pulse mux */
-  /*  muxval = 14;  select aft testpulse as trigger */
-  muxval = 6; /* select fore testpulse as trigger */
+  xmit_tp = 0; // select test pulse mux 
+  //  muxval = 14;  select aft testpulse as trigger 
+  muxval = 6; // select fore testpulse as trigger 
   timeout = 0;
   do
     {
@@ -377,12 +381,12 @@ void start_ieee()
       timeout++;
     }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 
-  /************* PROGRAM Trigger Divider via ECB ****************/
+  //************* PROGRAM Trigger Divider via ECB ****************
 
-  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  taskDelay(100);       // delay 1 sec to see if it fixes ecb problem 
   ecbaddr = ECBATTEN;
-  xmit_tp = 1; /* select xmit mux */
-  muxval = 2; /* set N = 2; this is Minimum */
+  xmit_tp = 1; // select xmit mux 
+  muxval = 2; // set N = 2; this is Minimum 
   timeout = 0;
   do
     {
@@ -390,10 +394,10 @@ void start_ieee()
       timeout++;
     }while((test = ecbSetDivN(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 
-  taskDelay(100);       /* delay 1 sec to see if it fixes ecb problem */
+  taskDelay(100);       // delay 1 sec to see if it fixes ecb problem 
   ecbaddr = ECBATTEN;
-  xmit_tp = 0; /* select test pulse mux */
-  muxval = 2; /* set N = 2; this is Minimum */
+  xmit_tp = 0; // select test pulse mux 
+  muxval = 2; // set N = 2; this is Minimum 
   timeout = 0;
   do
     {
@@ -401,6 +405,8 @@ void start_ieee()
       timeout++;
     }while((test = ecbSetDivN(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 
+*/
+//***********************************************************************
 
 /*********** TURN PPM INTO TALKER, MZ7500 INTO LISTENER ************/
 
