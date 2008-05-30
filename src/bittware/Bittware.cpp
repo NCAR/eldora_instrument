@@ -81,9 +81,6 @@ void Bittware::configure(unsigned int gates,
     double prtClock = (60e6);      // Timer Input Clock Freq
     int periodCount;               // Period Count for all Timers
     int PrtScheme;                 // PRT Scheme for all Timers
-    //_dualPrt = 0;
-    //_gates = 400;
-    //_samples = 3;
     
 // Timer Variables Parsed from Header
     float IPP1 = 0.5;              // Inter Pulse Period 1
@@ -110,31 +107,26 @@ void Bittware::configure(unsigned int gates,
 // Calculated Timing Variables from Header Variables
     
     // Test Pulse Calculations
-    //U32 TP_Delay = ((int) ((TX_Delay[0] + Gate_Dist[0] + (_gates - 4) * Gate_Dist[1]) / 10)) * 10;
-    U32 TP_Delay = 197+60;
-    U32 TP_Width = (int) (Gate_Dist[1] * 5);
+    U32 TP_Delay = ((int) ((TX_Delay[0] + Gate_Dist[0] + (_gates - 50) * Gate_Dist[1]) / 10)) * 10;
+    //U32 TP_Delay = ((int) (((_gates - 4) * Gate_Dist[1]) / 10)) * 10;
+    U32 TP_Width = (int) (Gate_Dist[1] * 50);
     
     // RX Pulse Calculations
     U32 RX_Delay[4];
-      //RX_Delay[0] = Gate_Dist[0] + TX_Delay[0];
-      //RX_Delay[1] = Gate_Dist[0] + TX_Delay[1];
-      //RX_Delay[2] = Gate_Dist[0] + TX_Delay[2];
-      //RX_Delay[3] = Gate_Dist[0] + TX_Delay[3];  
-    RX_Delay[0] = 0 * decimationFactor *60 / 8;
-    RX_Delay[1] = 1 * decimationFactor *60 / 8;
-    RX_Delay[2] = 2 * decimationFactor *60 / 8;
-    RX_Delay[3] = 3 * decimationFactor *60 / 8;
-      
+    RX_Delay[0] = Gate_Dist[1] + TX_Delay[0];
+    RX_Delay[1] = Gate_Dist[1] + TX_Delay[1];
+    RX_Delay[2] = Gate_Dist[1] + TX_Delay[2];
+    RX_Delay[3] = Gate_Dist[1] + TX_Delay[3];        
     
-    U32 RX_Width[4];
-      //RX_Width[0] = _gates; 
-      //RX_Width[1] = _gates;
-      //RX_Width[2] = _gates;
-      //RX_Width[3] = _gates;
-      RX_Width[0] = _gates * decimationFactor / 8 * 60; 
-      RX_Width[1] = _gates * decimationFactor / 8 * 60;
-      RX_Width[2] = _gates * decimationFactor / 8 * 60;
-      RX_Width[3] = _gates * decimationFactor / 8 * 60;
+    U32 RX_Width[4];    
+    //RX_Width[0] = _gates * Gate_Dist[1]; 
+    //RX_Width[1] = _gates * Gate_Dist[1]; 
+    //RX_Width[2] = _gates * Gate_Dist[1]; 
+    //RX_Width[3] = _gates * Gate_Dist[1];               
+    RX_Width[0] = _gates * decimationFactor / 8 * 60; 
+    RX_Width[1] = _gates * decimationFactor / 8 * 60;
+    RX_Width[2] = _gates * decimationFactor / 8 * 60;
+    RX_Width[3] = _gates * decimationFactor / 8 * 60;
                
       
     // Calculate the period and PRT Scheme for dual prt or single prt
