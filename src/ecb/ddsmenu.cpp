@@ -45,7 +45,7 @@ DDSMenu::OpenMenu()
   int N;
   int B;
   int T;
-  double f=0;
+  //float f=0;
 
   uin=1;
   freqin=9.55e9;
@@ -109,11 +109,9 @@ DDSMenu::OpenMenu()
 
     //Change uin from 1 based to 0 based
     uin = uin -1 ;
-
-    if(uin == -1)
-    {
-      break;
-    }
+    
+    if(uin == -1) break;
+ 
     if((uin < -1) || (uin > (_numdds-1)))
     {
       printf("ONLY 0-%d ARE VALID OPTIONS\n",_numdds);
@@ -129,11 +127,7 @@ DDSMenu::OpenMenu()
       err_flag = 1;
     }
 
-    if(numarg !=3)
-    {
-      nrin = -1;
-    }
-
+    if(numarg != 3) nrin = -1;
     else
     {
       if((nrin != 0) && (nrin !=1))
@@ -147,7 +141,7 @@ DDSMenu::OpenMenu()
 
     if(!err_flag)
     {
-
+      // Calculate values to write to DDS
       B = 361 - (int)(freqin/30e6);
       N = B + 1;
       T = (int)(pow(2,24)/(B+1.0)*(256.0*181/3 - freqin/703125.0) + 0.5);
@@ -155,23 +149,17 @@ DDSMenu::OpenMenu()
       _NRflag[uin]=nrin;
       _freq[uin] = 6e7*(181-T/pow(2,16)*(B+1)*3/pow(2,16));
 
-      AppendFile();
+      printf("uin = %i\nfreqin = %lf\nrin = %i\n", uin, _freq[uin], _NRflag[uin]);
+      
+      // Append DDS file with new value
       if(!AppendFile())
-      {
         printf("\nError Appending file!\n");
-      }
 
-      //Program DDS units with user input values
+      // Program DDS units with user input values
       if(uin >= 0 && uin <= (_numdds-1))
-      {
-        _dds[uin]-> Rfputval(freqin, nrin);
-      }
+        _dds[uin]-> Rfputval(_freq[uin], _NRflag[uin]);
     }
-    else
-    {
-      err_flag=0;
-    }
-
+    else err_flag=0;
   }
 
 }
@@ -247,6 +235,8 @@ DDSMenu::AppendFile()
     for(_idx=0;_idx<_numdds;_idx++)
     {
       fprintf(fout,"%lf %i\n",_freq[_idx],_NRflag[_idx]);
+      printf("%lf %i\n",_freq[_idx],_NRflag[_idx]);
+            
     }
     fclose(fout);
     return 1;

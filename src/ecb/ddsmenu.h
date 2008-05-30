@@ -54,11 +54,11 @@ protected:
   int _idx;
 
   ///NRflag array; only for numdds=5;
-  int _NRflag[5];
+  int _NRflag[6];
 
   ///Frequency array; only for numdds=5;
-  double _freq[5];
-
+  double _freq[6];
+  
   ///Input line array
   char _inbuf[14];
 
