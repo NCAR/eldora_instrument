@@ -149,8 +149,6 @@ DDSMenu::OpenMenu()
       _NRflag[uin]=nrin;
       _freq[uin] = 6e7*(181-T/pow(2,16)*(B+1)*3/pow(2,16));
 
-      printf("uin = %i\nfreqin = %lf\nrin = %i\n", uin, _freq[uin], _NRflag[uin]);
-      
       // Append DDS file with new value
       if(!AppendFile())
         printf("\nError Appending file!\n");
@@ -234,9 +232,7 @@ DDSMenu::AppendFile()
   {
     for(_idx=0;_idx<_numdds;_idx++)
     {
-      fprintf(fout,"%lf %i\n",_freq[_idx],_NRflag[_idx]);
-      printf("%lf %i\n",_freq[_idx],_NRflag[_idx]);
-            
+      fprintf(fout,"%lf %i\n",_freq[_idx],_NRflag[_idx]);      
     }
     fclose(fout);
     return 1;
