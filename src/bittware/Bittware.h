@@ -1,6 +1,7 @@
 #ifndef BITTWARE_H_
 #define BITTWARE_H_
 
+#include "EldoraRadarParams.h"
 #include "dsp21k.h"
 
 // Bittware Timer Registers
@@ -76,16 +77,8 @@ class Bittware {
         /// Destructor
         virtual ~Bittware();
         /// Configure the Bittware timer card
-        /// @param gates The number of gates.
-        /// @param prf The pulse repeition frequency in Hz.
-        /// @param pulsewidth Pulse width in ns, used to set the downconvertor decimation count.
-        /// @param samples Number of pulses to analyze for a single ABP.
-        /// @param dualPrt True if operating in dual prt mode.
-        void configure(unsigned int gates, 
-                       unsigned int prf,
-                       unsigned int pulsewidth, 
-                       unsigned int samples,
-                       bool dualPrt);
+        /// @param The radar operating parameters.
+       void configure(EldoraRadarParams radarParams);
         /// Start the timer
         void start();
         /// Stop the timer

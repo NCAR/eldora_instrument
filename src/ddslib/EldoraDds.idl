@@ -60,7 +60,16 @@ module EldoraDDS {
         long pulsewidth;        // ns
         long rayNum;            // should be redundant with rayCount above...
         short chan;
-    } Housekeeping;
+        
+        // The following are needed for the products calculation
+        float xBandGain;        // x band gain (db)
+        float radarConstant;    // radar constant (db)
+        float rxGain[4];        // rx gain by channel (db)
+        float lossIn[4];        // input loss by channel (db)
+        float freqs[4];         // frequency by channel (hz)
+        float prt;              // prt in single mode, or short prt in dual mode (s)
+        float prtLong;          // long prt in dual prt mode (s)
+        } Housekeeping;
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"
 #pragma DCPS_DATA_KEY  "EldoraDDS::TimeSeries radarId"
@@ -106,47 +115,47 @@ module EldoraDDS {
         float rotAngle; // antenna rotation angle, degrees
         float gateSpacingKm;
 
-        float p1Gain;
+        float p1Scale;
         float p1Offset;
         Product p1;
 
-        float p2Gain;
+        float p2Scale;
         float p2Offset;
         Product p2;
 
-        float p3Gain;
+        float p3Scale;
         float p3Offset;
         Product p3;
 
-        float p4Gain;
+        float p4Scale;
         float p4Offset;
         Product p4;
 
-        float vrGain;
+        float vrScale;
         float vrOffset;
         Product vr;
 
-        float vsGain;
+        float vsScale;
         float vsOffset;
         Product vs;
 
-        float vlGain;
+        float vlScale;
         float vlOffset;
         Product vl;
 
-        float dmGain;
+        float dmScale;
         float dmOffset;
         Product dm;
 
-        float dbzGain;
+        float dbzScale;
         float dbzOffset;
         Product dbz;
 
-        float swGain;
+        float swScale;
         float swOffset;
         Product sw;
 
-        float ncpGain;
+        float ncpScale;
         float ncpOffset;
         Product ncp;
     };

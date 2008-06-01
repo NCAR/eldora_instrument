@@ -253,11 +253,6 @@ def runDrx():
     drxcmd.append('--rpcport')
     drxcmd.append(str(rpcport))
     
-    # see if we are running dualprt
-    dualPrt = ourConfig.getBool('Drx/DualPrt', False)
-    if dualPrt:
-        drxcmd.append('--dualprt')
-    
     # see if hskp should be simulated
     drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
     if drxSimHskpMode:
@@ -475,7 +470,8 @@ def nextTaskColor():
     try:
         taskColors
     except NameError:
-        taskColors = ['red', 'blue', 'green', 'orange', 'purple', 'grey', 'cyan']
+        taskColors = ['red', 'blue', 'green', 'darksalmon', 'purple', 'mediumslateblue',
+                      'firebrick', 'darkviolet','darkturquoise']
         currentColor = 0
     
     if currentColor < len(taskColors)-1:

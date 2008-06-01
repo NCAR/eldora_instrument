@@ -25,6 +25,7 @@ SignalCatcher.cpp
 SvnVersion.cpp
 RPCServer.cpp
 TimetagUtils.cpp
+EldoraRadarParams.cpp
 """)
 
 utilities = env.Library('utilities', sources)

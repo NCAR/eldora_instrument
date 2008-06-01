@@ -47,17 +47,13 @@ Bittware::~Bittware() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void Bittware::configure(unsigned int gates,
-                         unsigned int prf,
-                         unsigned int pulsewidth,
-                         unsigned int samples,
-                         bool dualPrt) {
+void Bittware::configure(EldoraRadarParams radarParams) {
 
-    _gates = gates;
-    _prf = prf;
-    _pulsewidth = pulsewidth;
-    _samples = samples;
-    _dualPrt = dualPrt;
+    _gates      = radarParams.wave_ngates[0];
+    _prf        = (int)radarParams.radd_ipp1*1000;
+    _pulsewidth = (int)(radarParams.wave_chpwid[0]*1000/60);
+    _samples    = radarParams.wave_seqrep;
+    _dualPrt    = (radarParams.wave_pcprep != 1) ? true:false;
 
     // Decimation Setup
     int decimationFactor = _pulsewidth/125;

@@ -19,67 +19,122 @@
 struct ProductsTerms
 {
         void init(int gates,
-                  double xBandGain,
-                  double freqs[4],
-                  double rxGain[4],
-                  double lossIn[4],
-                  double prt,
-                  double prtShort,
-                  double prtLong);
+                  float radarConstant,
+                  float xBandGain,
+                  float pNoise,
+                  float freqs[4],
+                  float rxGain[4],
+                  float lossIn[4],
+                  float prt,
+                  float prtShort,
+                  float prtLong,
+                  bool dualPrt);
+        /// Single constant
+        typedef double TermData;
         /// Data accross all gates or all channels
         typedef std::vector<double> TermData1D;
         /// Data across all gates and all channels
         typedef std::vector<TermData1D> TermData2D;
-        TermData2D Praw_k; ///< Raw power at receiver, by channel.
-        TermData2D Pant_k; ///< Total power at antenna, by channel
-        TermData1D Pant; ///< Total power at antenna
-        TermData2D Psig_k; ///< Signal power at receiver, by channel
-        TermData1D Psig; ///< Signal power at receiver
-        TermData2D V_k; ///< Velocity, by channel
-        TermData2D Psigs_k; ///< Signal power at receiver, short pulse, by channel
-        TermData2D Psigl_k; ///< Signal power at receiver, long pulse, by channel
-        TermData1D Psigs; ///< Signal power at receiver, short pulse
-        TermData1D Psigl; ///< Signal power at receiver, long pulse
-        TermData1D Thetas; ///< Accumulated phase change of short prts.
-        TermData1D Thetal; ///< Accumulated phase change of long prt
-        TermData1D DeltaTheta; ///< Phase difference between short and long prts.
-        TermData1D Dbz; ///< Reflectivity
-        TermData1D W; ///< Spectral width
-        TermData1D Ncp; ///< Normalized coherent power
-        TermData1D Vs; ///< Short pulse velocity
-        TermData1D Vr; ///< Long pulse velocity
+        
+        //TermData   xBandGain;
+        TermData   radarConstant;
+        TermData1D lambda_k;
+        TermData   lambda;
+        TermData1D a_k;
+        TermData1D a10_k;
+        TermData1D b_k;
+        TermData1D b10_k;
+        TermData1D r;        ///< 20.0*log10(range), by gate (km) @todo is this at the center of the range gate, or an edge?
+        TermData1D Vscale_k;
+        TermData   Vscale;
+        TermData   VscaleShort;
+        TermData   VscaleLong;
+        TermData   Wscale;
+        TermData   WscaleShort;
+        TermData   WscaleLong;
+        TermData2D Praw_k;       ///< Raw power at receiver, by channel.
+        TermData2D Pant_k;       ///< Total power at antenna, by channel
+        TermData1D Pant;         ///< Total power at antenna
+        TermData2D Psig_k;       ///< Signal power at receiver, by channel
+        TermData1D Psig;         ///< Signal power at receiver
+        TermData1D Psigant;      ///< Signal power at antenna
+        //TermData2D V_k;          ///< Velocity, by channel
+        TermData2D Psigs_k;      ///< Signal power at receiver, short pulse, by channel
+        TermData2D Psigl_k;      ///< Signal power at receiver, long pulse, by channel
+        TermData1D Psigs;        ///< Signal power at receiver, short pulse
+        TermData1D Psigl;        ///< Signal power at receiver, long pulse
+        TermData1D Thetas;       ///< Accumulated phase change of short prts.
+        TermData1D Thetal;       ///< Accumulated phase change of long prt
+        TermData1D DeltaTheta;   ///< Phase difference between short and long prts.
+        TermData1D Dbz;          ///< Reflectivity
+        TermData1D W;            ///< Spectral width
+        TermData1D Ncp;          ///< Normalized coherent power
+        TermData1D Vr;           ///< Radial velocity
+        TermData1D Vs;           ///< Short pulse velocity
+        TermData1D Vl;           ///< Long pulse velocity
 
 };
 
-/// A number of calculation factors are precomputed once, when the first ray is received.
-/// If operating in dual prt mode, we will need a short prt ray and a long prt ray 
-/// in order to calculate these constants.
+/// Caclulate radar products and publish them. The formulation of the
+/// products computation are defined in "Eldora Moments" by Eric Loew.
+/// Nomenclature and methodology from that text are followed closely here.
+///
+/// A number of calculation factors are precomputed once, when the first set
+/// of rays is received.
 class EldoraProducts
 {
-        typedef std::vector<std::vector<EldoraDDS::Ray*> > RayData;
+    /// Describe a two dimensional array of pointers to rays. The first dmension
+    /// selects the prt id. The second id selects the channel number.
+    typedef std::vector<std::vector<EldoraDDS::Ray*> > RayData;
     public:
+        /// @param publisher The publisher for publishing products.
+        /// @param productsTopic The topic that the products wll be published under.
         EldoraProducts(DDSPublisher& publisher,
                        std::string productsTopic,
                        bool dualPrt);
         virtual ~EldoraProducts();
 
+        /// Called with a new set of rays for one radar for one ray number.
+        /// All prt ids are included. Thus all of the rays are provided 
+        /// that are needed to compute a product along all gates.
+        ///
+        /// RayData is a two dmensional array. The first index chooses the prtId.
+        /// If in single mode, this index can only be zero. In dual prt
+        /// mode, it can be either 0 or 1. The second index covers the 
+        /// frequency channels 0-3.
+        ///
+        /// @param ray Two dimnsional vector containing pointers to rays.
         void newRayData(RayData& ray);
 
+        /// Return the number of rays procesed thus far.
         int numRays();
 
     protected:
-        /// Initialize the fixed fields in a Products item.
+        /// Initialize the fixed fields in a Products item,
+        /// and resize the vectors.
         /// @param p the products item to be initialized.
-        void initProducts(EldoraDDS::Products* p);
+        /// @param gates The nmber of gates
+        void initProducts(EldoraDDS::Products* p, int gates);
         /// Initalize the entries in the Productsterms structure.
         /// Precomputed factors are initialized and vectors are resized.
         /// The ray data provides the header information.
         /// @rays Ray data with housekeeping.
         void initTerms(RayData& rays);
         /// Calculate raw power at receiver
-        void rawPower(RayData& rays);
+        void powerRaw(RayData& rays);
         /// Calculate power at antenna
-        void antennaPower(RayData& rays);
+        void powerAntenna(RayData& rays);
+        /// Calculate total power referenced to antenna
+        void totalPower(RayData& rays);
+        /// Calculate signal power, by channel and at antenna
+        void signalPower(RayData& rays);
+        /// Calculate total signal power
+        void totalSignalPower(RayData& rays);
+        /// Calculate reflectivity
+        void reflectivity(RayData& rays);
+        /// Calculate velocity
+        void velocity(RayData& rays);
+        
         /// The number of rays that have been received.
         int _rays;
         /// The DDS publisher

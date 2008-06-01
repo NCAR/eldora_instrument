@@ -117,63 +117,63 @@ void EldoraQtProductsSource::selectProduct(
     switch (prodType) {
     case PROD_P1:
         *p = &pItem->p1[0];
-        gain = pItem->p1Gain;
+        gain = pItem->p1Scale;
         offset = pItem->p1Offset;
         break;
     case PROD_P2:
         *p = &pItem->p2[0];
-        gain = pItem->p3Gain;
+        gain = pItem->p3Scale;
         offset = pItem->p3Offset;
         break;
     case PROD_P3:
         *p = &pItem->p3[0];
-        gain = pItem->p3Gain;
+        gain = pItem->p3Scale;
         offset = pItem->p3Offset;
         break;
     case PROD_P4:
         *p = &pItem->p4[0];
-        gain = pItem->p4Gain;
+        gain = pItem->p4Scale;
         offset = pItem->p4Offset;
         break;
     case PROD_VR:
         *p = &pItem->vr[0];
-        gain = pItem->vrGain;
+        gain = pItem->vrScale;
         offset = pItem->vrOffset;
         break;
     case PROD_VS:
         *p = &pItem->vs[0];
-        gain = pItem->vsGain;
+        gain = pItem->vsScale;
         offset = pItem->vsOffset;
         break;
     case PROD_VL:
         *p = &pItem->vl[0];
-        gain = pItem->vlGain;
+        gain = pItem->vlScale;
         offset = pItem->vlOffset;
         break;
     case PROD_DM:
         *p = &pItem->dm[0];
-        gain = pItem->dmGain;
+        gain = pItem->dmScale;
         offset = pItem->dmOffset;
         break;
     case PROD_DBZ:
         *p = &pItem->dbz[0];
-        gain = pItem->dbzGain;
+        gain = pItem->dbzScale;
         offset = pItem->dbzOffset;
         break;
     case PROD_SW:
         *p = &pItem->sw[0];
-        gain = pItem->swGain;
+        gain = pItem->swScale;
         offset = pItem->swOffset;
         break;
     case PROD_NCP:
         *p = &pItem->ncp[0];
-        gain = pItem->ncpGain;
+        gain = pItem->ncpScale;
         offset = pItem->ncpOffset;
         break;
     default:
         // what the heck, just use dbz
         *p = &pItem->dbz[0];
-        gain = pItem->dbzGain;
+        gain = pItem->dbzScale;
         offset = pItem->dbzOffset;
         break;
     }
