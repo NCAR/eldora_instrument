@@ -134,6 +134,8 @@ class EldoraProducts
         void reflectivity(RayData& rays);
         /// Calculate velocity
         void velocity(RayData& rays);
+        /// Calculate spectral width
+        void spectralWidth(RayData &rays);
         
         /// The number of rays that have been received.
         int _rays;

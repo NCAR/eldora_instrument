@@ -54,6 +54,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         // initiallize the fixed fields in Products, and resize the vectors.
         initProducts(products, gates);
 
+        // This is where the real work gets done
+        // compute the varius terms found in Eric's paper
         powerRaw(rays);
         powerAntenna(rays);
         totalPower(rays);
@@ -61,13 +63,15 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         totalSignalPower(rays);
         reflectivity(rays);
         velocity(rays);
+        spectralWidth(rays);
 
-        // transfer ray metadata
+        // fill in the product ray
+        // first transfer ray metadata
         products->radarId = rays[0][0]->radarId;
         products->timestamp = rays[0][0]->hskp.rayNum;
         products->rotAngle = rays[0][0]->hskp.radarRotAngle;
 
-        // Compute the products.
+        // transfer the products.
         for (int g = 0; g < gates; g++) {
             products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
             products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
@@ -76,10 +80,10 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             products->dm[g] = TOSHORT(_terms.Pant[g], products->dmScale, products->dmOffset);
             products->dbz[g] = TOSHORT(_terms.Dbz[g], products->dbzScale, products->dbzOffset);
             products->vr[g] = TOSHORT(_terms.Vr[g], products->vrScale, products->vrOffset);
+            products->sw[g] = TOSHORT(_terms.W[g], products->swScale, products->swOffset);
             
             products->vs[g] = TOSHORT(0.0, products->vsScale, products->vsOffset);
             products->vl[g] = TOSHORT(0.0, products->vlScale, products->vlOffset);
-            products->sw[g] = TOSHORT(0.0, products->swScale, products->swOffset);
             products->ncp[g] = TOSHORT(0.0, products->ncpScale, products->ncpOffset);
         }
         // Publish the products.
@@ -91,6 +95,7 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
     }
     return;
 }
+
 ////////////////////////////////////////////////////
 void EldoraProducts::powerRaw(RayData& rays)
 {
@@ -247,6 +252,7 @@ void EldoraProducts::totalSignalPower(RayData& rays)
     }
 }
 
+////////////////////////////////////////////////////
 void EldoraProducts::reflectivity(RayData& rays)
 {
 
@@ -309,6 +315,45 @@ void EldoraProducts::velocity(RayData& rays)
          break;
      }
  }
+
+////////////////////////////////////////////////////
+void EldoraProducts::spectralWidth(RayData& rays)
+{
+    // Velocity.  Dependent on single/dual prt.
+     switch (_dualPrt)
+     {
+     case false:
+         // single prt
+         for (int g = 0; g < _gates; g++) {
+             double asum = 0.0;
+             double bsum = 0.0;
+             for (unsigned int k = 0; k < 4; k++) {
+                 // pick the a and b out of abp
+                 asum += rays[0][k]->abp[3*g+0];
+                 bsum += rays[0][k]->abp[3*g+1];
+             }
+             asum = asum/4.0;
+             bsum = bsum/4.0;
+             double denom = sqrt(asum*asum + bsum*bsum);
+             if (_terms.Psig[g] >= denom) {
+                 double term = _terms.Psig[g] / denom;
+                 _terms.W[g] = _terms.Wscale*sqrt(log(term));
+             } else {
+                 // @tod need to get the nyquist velocity in here
+                 _terms.W[g] = _terms.Vscale*M_PI;
+             }
+         }
+         break;
+
+     case true:
+         // dual prt
+         for (int g = 0; g < _gates; g++) {
+             _terms.W[g] = 0.0;
+         }
+         break;
+     }
+ }
+
 ////////////////////////////////////////////////////
 
 int EldoraProducts::numRays()
