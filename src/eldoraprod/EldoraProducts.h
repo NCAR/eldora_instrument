@@ -22,9 +22,9 @@ struct ProductsTerms
                   float radarConstant,
                   float xBandGain,
                   float pNoise,
+                  float lnaLoss,
                   float freqs[4],
                   float rxGain[4],
-                  float lossIn[4],
                   float prt,
                   float prtShort,
                   float prtLong,
@@ -36,7 +36,6 @@ struct ProductsTerms
         /// Data across all gates and all channels
         typedef std::vector<TermData1D> TermData2D;
         
-        //TermData   xBandGain;
         TermData   radarConstant;
         TermData1D lambda_k;
         TermData   lambda;

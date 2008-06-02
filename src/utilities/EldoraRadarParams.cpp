@@ -73,6 +73,7 @@ EldoraRadarParams::EldoraRadarParams()
     frib_rxgain[2] = 30.400000;
     frib_rxgain[3] = 30.799999;
     frib_rxgain[4] = 30.000000;
+    frib_lnalos = 1.829850;
     frib_xgain = 22.1;
     frib_tsgat = 68;
     frib_frqgat= 10;

@@ -45,6 +45,7 @@ struct EldoraRadarParams
         // fields from the header field radar info block (FRIB)
         double frib_rxgain[5];///< field radar receiver gain by channel (db)
         double frib_xgain;    ///< field radar x band gain (db)
+        double frib_lnalos;   ///< field radar losses between antenna and lna (db)
         int    frib_tsgat;    ///< field radar time series gate
         int    frib_frqgat;   ///< field radar number of time series gate (this field hijacked from independent frequency gate parameter) 
 

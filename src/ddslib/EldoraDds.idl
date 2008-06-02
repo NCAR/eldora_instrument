@@ -65,7 +65,7 @@ module EldoraDDS {
         float xBandGain;        // x band gain (db)
         float radarConstant;    // radar constant (db)
         float rxGain[4];        // rx gain by channel (db)
-        float lossIn[4];        // input loss by channel (db)
+        float lnaLoss;           // loss between lna and antenna (db)
         float freqs[4];         // frequency by channel (hz)
         float prt;              // prt in single mode, or short prt in dual mode (s)
         float prtLong;          // long prt in dual prt mode (s)

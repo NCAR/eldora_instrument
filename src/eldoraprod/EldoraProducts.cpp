@@ -374,9 +374,9 @@ void EldoraProducts::initTerms(RayData& rays)
                 rays[0][0]->hskp.radarConstant,
                 rays[0][0]->hskp.xBandGain,
                 rays[0][0]->hskp.noisePower,
+                rays[0][0]->hskp.lnaLoss,
                 rays[0][0]->hskp.freqs,
                 rays[0][0]->hskp.rxGain,
-                rays[0][0]->hskp.lossIn,
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prtLong,
@@ -440,9 +440,9 @@ void ProductsTerms::init(int gates,
                          float radConstant,
                          float xBandGain,
                          float pNoise,
+                         float lnaLoss,
                          float freqs[4],
                          float rxGain[4],
-                         float lossIn[4],
                          float prt,
                          float prtShort,
                          float prtLong,
@@ -506,7 +506,7 @@ void ProductsTerms::init(int gates,
     lambda = lambda/4.0;
 
     for (unsigned int k = 0; k < 4; k++) {
-        a_k[k] = xBandGain + rxGain[k] - lossIn[k];
+        a_k[k] = xBandGain + rxGain[k] - lnaLoss;
         a10_k[k] = pow(10.0, a_k[k]/10.0);
 
         b_k[k] = xBandGain + rxGain[k] + pNoise;

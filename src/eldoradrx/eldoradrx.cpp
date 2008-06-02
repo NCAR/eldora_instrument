@@ -562,14 +562,13 @@ static void setRadarParams(EldoraRadarParams* radarParams, EldoraDDS::Housekeepi
     for (int i = 0; i < 4; i++)
         hskp->rxGain[i] = radarParams->frib_rxgain[i];
     
-    for (int i = 0; i < 4; i++)
-        hskp->lossIn[i] = 0.0;
-    
     hskp->freqs[0]      = radarParams->radd_freq1;
     hskp->freqs[1]      = radarParams->radd_freq2;
     hskp->freqs[2]      = radarParams->radd_freq3;
     hskp->freqs[3]      = radarParams->radd_freq4;
+
     hskp->xBandGain     = radarParams->frib_xgain;
+    hskp->lnaLoss       = radarParams->frib_lnalos;
     hskp->noisePower    = radarParams->radd_noipow;
     hskp->radarConstant = radarParams->radd_const;
     hskp->prt           = radarParams->radd_ipp1;
