@@ -11,7 +11,7 @@ int foreaft()
 
 	  printf("Enter F For the fore radar ");
 	  printf(" or enter A For the aft radar: ");
-	  gets(input);
+	  fgets(input, sizeof(input), stdin);
 	  printf("\n");
 	  if(input[0] == 'F' || input[0] == 'f')
 	    return(FORE);
@@ -48,7 +48,7 @@ int specific_param(radarnum)
 	printf("Maximum number of paramaters is %d\n",MAX_PARAM);
 	printf("Enter the desired parameter number or %d to add a parameter",
 	       actual_num_params[radarnum]);
-	gets(input);
+	fgets(input, sizeof(input), stdin);
 	num = atoi(input);
 	if(num > actual_num_params[radarnum] || num < 0)
 	  printf("\nParameter number must be: >=0 and <= %d",
@@ -92,7 +92,7 @@ int specific_param(radarnum)
         printf("7. PRINT NAVIGATIONAL DATA DESCRIPTOR\n");
         printf("8. PRINT ALL AT ONCE\n");
         printf("ENTER YOUR CHOICE\n");
-        gets(input);
+        fgets(input, sizeof(input), stdin);
         choice = atoi(input);
         if(choice < 0 || choice > 8) printf("INVALID ENTRY\n");
     }while(choice < 0 || choice > 8);

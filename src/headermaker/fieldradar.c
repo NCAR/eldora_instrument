@@ -141,7 +141,7 @@ void edit_fieldradar(fradar_pntr)
             printf(" 9.   INPUT THE INDEP_FREQ_GATE\n");
             printf(" 10.  INPUT THE TIME_SERIES_GATE\n");
             printf(" 11.  INPUT THE HEADER NAME\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if ((choice < 0) || (choice >11))
                 printf("ERROR PLEASE REENTER\n");
@@ -153,56 +153,56 @@ void edit_fieldradar(fradar_pntr)
             break;
         case 1:
             printf("ENTER SYSTEM ID\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             entry = atoi(input);
             fradar_pntr->data_sys_id = entry;
             break;
         case 3:
             printf("ENTER DIMENSION\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dim = atof(input);
             fradar_pntr->ant_v_dim = dim;
             break;
         case 4:
             printf("ENTER DIMENSION\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dim = atof(input);
             fradar_pntr->ant_h_dim = dim;
             break;
         case 5:
             for (i=0; i<5; i++) {
                 printf("\nENTER SCALE FACTOR FREQ #%1d   ", i+1);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 fradar_pntr->scale_factor[i] = atof(input);
             }
             break;
         case 6:
             printf("ENTER ANGLE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dim = atof(input);
             fradar_pntr->H_plane_angle = dim;
             break;
         case 8:
             printf("ENTER FLAG:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             entry = atoi(input);
             fradar_pntr->indepf_times_flg = entry;
             break;
         case 9:
             printf("ENTER FREQUENCY GATE:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             entry = atoi(input);
             fradar_pntr->indep_freq_gate = entry;
             break;
         case 10:
             printf("ENTER TIME SERIES GATE:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             entry = atoi(input);
             fradar_pntr->time_series_gate = entry;
             break;
         case 11:
             printf("ENTER HEADER FILE NAME:\n");
-            gets(fradar_pntr->file_name);
+            fgets(fradar_pntr->file_name, sizeof(fradar_pntr->file_name), stdin);
             break;
         default:
             break;

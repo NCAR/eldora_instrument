@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #define scope
 #include "mkrDef.h"
@@ -74,7 +75,7 @@ main(int argc,
             /* get the filename and open it */
 
             printf("OUTPUT FILE NAME ?\n");
-            gets(outname);
+            fgets(outname, sizeof(outname), stdin);
             printf("OUTPUT FILE NAME: %s\n", outname);
             if ((outfdf = fopen(outname, "wb")) == NULL) {
                 printf("UNABLE TO OPEN THE OUTPUT FILE\n");
@@ -86,7 +87,7 @@ main(int argc,
                 volume.format_version = 2; /* always write new format */
                 printf("\n");
                 printf("Enter the Header file name: ");
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 for(i=0; i<80; i++)
                 {
                     fradar[FORE].file_name[i] = input[i];
@@ -248,7 +249,7 @@ void menu(int* choice) {
         printf("8. VERIFY CURRENT HEADER\n");
         printf("9. RE_CALIBRATE EXISTING HEADER\n");
         printf("ENTER YOUR CHOICE\n");
-        gets(string);
+        fgets(string, sizeof(string), stdin);
         ansr = atoi(string);
         if (ansr == 77) {
             override = 1;
@@ -284,7 +285,7 @@ void initialize_menu() {
             printf("8. INITIALIZE THE INSITU DATA DESCRIPTOR\n");
             printf("9. INITIALIZE ALL OF THE ABOVE AT ONCE\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice > 9)
                 printf("INVALID ENTRY\n");
@@ -370,7 +371,7 @@ int foreaft() {
 
         printf("Enter F For the fore radar ");
         printf(" or enter A For the aft radar: ");
-        gets(input);
+        fgets(input, sizeof(input), stdin);
         printf("\n");
         if (input[0] == 'F' || input[0] == 'f')
             return (FORE);
@@ -395,7 +396,7 @@ void num_params(int radarnum) {
             printf("Enter the number of parameters for the AFT radar: ");
         else
             printf("Enter the number of parameters for an unknown radar: ");
-        gets(input);
+        fgets(input, sizeof(input), stdin);
         num = atoi(input);
         if (num > MAX_PARAM || num < 1)
             printf("\nNumber of parameters must be: >1 and < %d", MAX_PARAM);
@@ -427,7 +428,7 @@ int specific_param(int radarnum) {
         printf("Maximum number of paramaters is %d\n", MAX_PARAM);
         printf("Enter the desired parameter number or %d to add a parameter",
                actual_num_params[radarnum]);
-        gets(input);
+        fgets(input, sizeof(input), stdin);
         num = atoi(input);
         if (num > actual_num_params[radarnum] || num < 0)
             printf("\nParameter number must be: >=0 and <= %d",
@@ -461,7 +462,7 @@ void edit_menu() {
             printf("6. EDIT THE PARAMETER DESCRIPTORS\n");
             printf("7. SET THE NAVIGATIONAL DATA DESCRIPTOR FLAGS\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice > 7)
                 printf("INVALID ENTRY\n");
@@ -536,7 +537,7 @@ void print_menu_screen() {
             printf("7. PRINT NAVIGATIONAL DATA DESCRIPTOR\n");
             printf("8. PRINT ALL AT ONCE\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice > 8)
                 printf("INVALID ENTRY\n");
@@ -638,7 +639,7 @@ void print_menu_printer() {
             printf("7. PRINT NAVIGATIONAL DATA DESCRIPTOR\n");
             printf("8. PRINT ALL AT ONCE\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice > 8)
                 printf("INVALID ENTRY\n");

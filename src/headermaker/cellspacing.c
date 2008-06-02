@@ -59,7 +59,7 @@ void edit_cellspacing(cellspacing_pntr)
             printf("2. ENTER DISTANCE TO FIRST GATE\n");
             printf("3. ENTER WIDTH OF CELL IN EACH SEGMENT\n");
             printf("4. ENTER NUMBER OF CELLS IN EACH SEGMENT\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if(choice <0 || choice > 4) printf("INVALID ENTRY\n");
 	} while(choice <0 || choice > 4);
@@ -70,13 +70,13 @@ void edit_cellspacing(cellspacing_pntr)
                 break;
           case 1:
                  printf("ENTER NUMBER OF SEGMENTS\n");
-                 gets(input);
+                 fgets(input, sizeof(input), stdin);
                  numsegs = atoi(input);
                  cellspacing_pntr->num_segments = numsegs;
                  break;
           case 2:     
                 printf("ENTER DISTANCE\n");
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 dist = atoi(input);
                 cellspacing_pntr->distToFirst = dist;
                 break;
@@ -84,7 +84,7 @@ void edit_cellspacing(cellspacing_pntr)
                 i = 0;
                  do{
                     printf("SPACING %d ?.  ENTER -99 TO QUIT\n",i + 1);
-                    gets(input);
+                    fgets(input, sizeof(input), stdin);
                     spacing = atoi(input);
                     if(spacing == -99){
                          i = 6;
@@ -99,7 +99,7 @@ void edit_cellspacing(cellspacing_pntr)
                  i = 0;
                  do{
                     printf("NUMBER OF CELLS IN SEGMENT  %d ?.  ENTER -99 TO QUIT\n",i + 1);
-                    gets(input);
+                    fgets(input, sizeof(input), stdin);
                     numcell = atoi(input);
                     if(numcell == -99){
                         i = 6;

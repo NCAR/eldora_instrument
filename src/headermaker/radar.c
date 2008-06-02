@@ -77,13 +77,13 @@ void initialize_radar(radar_pntr,
     radar_pntr->data_red_parm0 = 25;
     radar_pntr->data_red_parm1 = -5;
     printf("\nEnter the longitude of the project airport (degrees +E): ");
-    gets(input);
+    fgets(input, sizeof(input), stdin);
     radar_pntr->radar_longitude = atof(input);
     printf("\nEnter the latitude of the project airport (degrees +N): ");
-    gets(input);
+    fgets(input, sizeof(input), stdin);
     radar_pntr->radar_latitude = atof(input);
     printf("\nEnter the altitude of the project airport (km): ");
-    gets(input);
+    fgets(input, sizeof(input), stdin);
     radar_pntr->radar_altitude = atof(input);
 
     radar_pntr->eff_unamb_vel = -999.;
@@ -190,7 +190,7 @@ void edit_radar(radar_pntr)
             printf("36. ENTER INTERPULSE PERIOD 4\n");
             printf("37. ENTER INTERPULSE PERIOD 5\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice >37)
                 printf("INVALID ENTRY\n");
@@ -203,7 +203,7 @@ void edit_radar(radar_pntr)
         case 1:
             do {
                 printf("ENTER NAME\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 8)
                     printf("NAME TOO LONG\n");
             } while (strlen(string) > 8);
@@ -211,217 +211,217 @@ void edit_radar(radar_pntr)
             break;
         case 2:
             printf("ENTER CONSTANT\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             radarconst = atof(input);
             radar_pntr->radar_const = radarconst/1.;
             break;
         case 3:
             printf("ENTER PEAK POWER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             peakpower = atof(input);
             radar_pntr->peak_power = peakpower;
             break;
         case 4:
             printf("ENTER NOISE POWER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             noisepower = atof(input);
             radar_pntr->noise_power = noisepower;
             break;
         case 5:
             printf("ENTER RECEIVER GAIN\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             receivergain = atof(input);
             radar_pntr->receiver_gain = receivergain;
             break;
         case 6:
             printf("ENTER ANTENNA GAIN\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             antennagain = atof(input);
             radar_pntr->antenna_gain = antennagain;
             break;
         case 7:
             printf("ENTER SYSTEM GAIN\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             systemgain = atof(input);
             radar_pntr->system_gain = systemgain;
             break;
         case 8:
             printf("ENTER BEAM WIDTH\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             horz = atof(input);
             radar_pntr->horz_beam_width = horz;
             break;
         case 9:
             printf("ENTER BEAM WIDTH\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             vert = atof(input);
             radar_pntr->vert_beam_width = vert;
             break;
         case 10:
             printf("ENTER RADAR TYPE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             radartype = atoi(input);
             radar_pntr->radar_type = radartype;
             break;
         case 11:
             printf("ENTER SCAN MODE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             scanmode = atoi(input);
             radar_pntr->scan_mode = scanmode;
             break;
         case 12:
             printf("ENTER VEL\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             rotatevel = atof(input);
             radar_pntr->req_rotat_vel = rotatevel;
             break;
         case 13:
             printf("ENTER PRAM0\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             scanpram0 = atof(input);
             radar_pntr->scan_mode_pram0 = scanpram0;
             break;
         case 14:
             printf("ENTER PRAM1\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             scanpram1 = atof(input);
             radar_pntr->scan_mode_pram1 = scanpram1;
             break;
         case 15:
             printf("ENTER NUMBER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             numparamdes = atoi(input);
             radar_pntr->num_parameter_des = numparamdes;
             break;
         case 16:
             printf("ENTER NUMBER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             totalnumdes = atoi(input);
             radar_pntr->total_num_des = totalnumdes;
             break;
         case 17:
             printf("ENTER THE DATA COMPRESSION SCHEME\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             compression = atoi(input);
             radar_pntr->data_compress = compression;
             break;
         case 18:
             printf("ENTER REDUCTION\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             datareduction = atoi(input);
             radar_pntr->data_reduction = datareduction;
             break;
         case 19:
             printf("ENTER PARAMETER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             parm0 = atof(input);
             radar_pntr->data_red_parm0 = parm0;
             break;
         case 20:
             printf("ENTER PARAMETER\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             parm1 = atof(input);
             radar_pntr->data_red_parm1 = parm1;
             break;
         case 21:
             printf("ENTER LONGITUDE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             longit = atof(input);
             radar_pntr->radar_longitude = longit;
             break;
         case 22:
             printf("ENTER LATITUDE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             lat = atof(input);
             radar_pntr->radar_latitude = lat;
             break;
         case 23:
             printf("ENTER ALTITUDE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             alt = atof(input);
             radar_pntr->radar_altitude = alt;
             break;
         case 24:
             printf("ENTER THE EFFECTIVE UNAMBIGIOUS VELOCITY IN M/SEC\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             vel = atof(input);
             radar_pntr->eff_unamb_vel = vel;
             break;
         case 25:
             printf("ENTER THE EFFECTIVE UNAMBIGIOUS RANGE IN KM \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             range = atof(input);
             radar_pntr->eff_unamb_range = range;
             break;
         case 26:
             printf("ENTER THE NUMBER OF TRANSMITED FREQUENCIES\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq_trans = atoi(input);
             radar_pntr->num_freq_trans = freq_trans;
             break;
         case 27:
             printf("ENTER THE NUMBER OF DIFFERENT INTER_PULSE PERIODS TRANSMITTED\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             ipps_trans = atoi(input);
             radar_pntr->num_ipps_trans = ipps_trans;
             break;
         case 28:
             printf("ENTER FREQUENCY 1 \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq1 = atof(input);
             radar_pntr->freq1 = freq1;
             break;
         case 29:
             printf("ENTER FREQUENCY 2 \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq2 = atof(input);
             radar_pntr->freq2 = freq2;
             break;
         case 30:
             printf("ENTER FREQUENCY 3 \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq3 = atof(input);
             radar_pntr->freq3 = freq3;
             break;
         case 31:
             printf("ENTER FREQUENCY 4 \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq4 = atof(input);
             radar_pntr->freq4 = freq4;
             break;
         case 32:
             printf("ENTER FREQUENCY 5 \n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             freq5 = atof(input);
             radar_pntr->freq5 = freq5;
             break;
         case 33:
             printf("ENTER INTERPULSE PERIOD 1\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             per1 = atof(input);
             radar_pntr->interpulse_per1 = per1;
             break;
         case 34:
             printf("ENTER INTERPULSE PERIOD 2\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             per2 = atof(input);
             radar_pntr->interpulse_per2 = per2;
             break;
         case 35:
             printf("ENTER INTERPULSE PERIOD 3\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             per3 = atof(input);
             radar_pntr->interpulse_per3 = per3;
             break;
         case 36:
             printf("ENTER INTERPULSE PERIOD 4\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             per4 = atof(input);
             radar_pntr->interpulse_per4 = per4;
             break;
         case 37:
             printf("ENTER INTERPULSE PERIOD 5\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             per5 = atof(input);
             radar_pntr->interpulse_per5 = per5;
             break;

@@ -111,7 +111,7 @@ void edit_waveform(waveform_pntr)
             printf("15. GATE DISTANCE 4\n");
             printf("16. GATE DISTANCE 5\n");
             printf("ENTER YOUR CHOICE:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice < 0 || choice >16)
                 printf("INVALID ENTRY\n");
@@ -125,7 +125,7 @@ void edit_waveform(waveform_pntr)
         case 1:
             do {
                 printf("ENTER THE FILE NAME\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 16)
                     printf("STRING TOO LONG\n");
             } while (strlen(string) >16);
@@ -135,7 +135,7 @@ void edit_waveform(waveform_pntr)
             i = 0;
             do {
                 printf("CHIP %d ?.  ENTER -99 TO QUIT\n", i + 1);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 numchip = atoi(input);
                 if (numchip == -99) {
                     i = 6;
@@ -148,26 +148,26 @@ void edit_waveform(waveform_pntr)
         case 3:
             for (i=0; i<waveform_pntr->total_pcp; i++) {
                 printf("\nBlanking Ram number %d : ", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 blank = atoi(input);
                 waveform_pntr->blank_chip[i] = blank;
             }
             break;
         case 4:
             printf("ENTER MILLISECONDS:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             nummilliseconds = atof(input);
             waveform_pntr->repeat_seq = nummilliseconds;
             break;
         case 5:
             printf("ENTER DWELL:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dwell = atoi(input);
             waveform_pntr->repeat_seq_dwel = dwell;
             break;
         case 6:
             printf("ENTER TOTAL PCP IN REPEAT SEQUENCE:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             totalpcp = atoi(input);
             waveform_pntr->total_pcp = totalpcp;
             break;
@@ -175,7 +175,7 @@ void edit_waveform(waveform_pntr)
             i = 0;
             do {
                 printf("CHIP OFFSET  %d ?.  ENTER -99 TO QUIT\n", i + 1);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 chipoffset = atoi(input);
                 if (chipoffset == -99) {
                     i = 6;
@@ -190,7 +190,7 @@ void edit_waveform(waveform_pntr)
             i = 0;
             do {
                 printf("CHIP WIDTH %d ?.  ENTER -99 TO QUIT\n", i + 1);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 chipwidth = atoi(input);
                 if (chipwidth == -99) {
                     i = 6;
@@ -202,13 +202,13 @@ void edit_waveform(waveform_pntr)
             break;
         case 9:
             printf("ENTER NUMBER OF PCP:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             urpcp = atof(input);
             waveform_pntr->ur_pcp = urpcp;
             break;
         case 10:
             printf("ENTER NUMBER OF PCP:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             uvpcp = atof(input);
             waveform_pntr->uv_pcp = uvpcp;
             break;
@@ -216,7 +216,7 @@ void edit_waveform(waveform_pntr)
             i = 0;
             do {
                 printf("NUM GATES  %d ?.  ENTER -99 TO QUIT\n", i + 1);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 numgates = atoi(input);
                 if (numgates == -99) {
                     i = 5;
@@ -229,7 +229,7 @@ void edit_waveform(waveform_pntr)
         case 12:
             for (i=0; i < 2; i++) {
                 printf("ENTER GATE DIST %d\n", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 gatedist = atoi(input);
                 waveform_pntr->gate_dist1[i] = gatedist;
             }
@@ -237,7 +237,7 @@ void edit_waveform(waveform_pntr)
         case 13:
             for (i=0; i < 2; i++) {
                 printf("ENTER GATE DIST %d\n", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 gatedist = atoi(input);
                 waveform_pntr->gate_dist2[i] = gatedist;
             }
@@ -245,7 +245,7 @@ void edit_waveform(waveform_pntr)
         case 14:
             for (i=0; i < 2; i++) {
                 printf("ENTER GATE DIST %d\n", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 gatedist = atoi(input);
                 waveform_pntr->gate_dist3[i] = gatedist;
             }
@@ -253,7 +253,7 @@ void edit_waveform(waveform_pntr)
         case 15:
             for (i=0; i < 2; i++) {
                 printf("ENTER GATE DIST %d\n", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 gatedist = atoi(input);
                 waveform_pntr->gate_dist4[i] = gatedist;
             }
@@ -261,7 +261,7 @@ void edit_waveform(waveform_pntr)
         case 16:
             for (i=0; i < 2; i++) {
                 printf("ENTER GATE DIST %d\n", i);
-                gets(input);
+                fgets(input, sizeof(input), stdin);
                 gatedist = atoi(input);
                 waveform_pntr->gate_dist5[i] = gatedist;
             }

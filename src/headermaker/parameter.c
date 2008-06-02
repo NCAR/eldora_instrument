@@ -105,7 +105,7 @@ void edit_parameter(param_pntr)
             printf("14. ENTER THE BIAS FACTOR FOR THIS PARAMETER\n");
             printf("15. ENTER THE BAD DATA FLAG\n");
             printf("ENTER YOUR CHOICE\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             choice = atoi(string);
             if (choice <0 || choice > 15)
                 printf("INVALID ENTRY\n");
@@ -119,7 +119,7 @@ void edit_parameter(param_pntr)
         case 1:
             do {
                 printf("ENTER NAME\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 8)
                     printf("NAME IS TOO LONG\n");
             } while (strlen(string) > 8);
@@ -128,7 +128,7 @@ void edit_parameter(param_pntr)
         case 2:
             do {
                 printf("ENTER DESCRIPTION\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 40)
                     printf("NAME IS TOO LONG\n");
             } while (strlen(string) > 40);
@@ -137,7 +137,7 @@ void edit_parameter(param_pntr)
         case 3:
             do {
                 printf("ENTER UNITS\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 8)
                     printf("UNITS ARE TOO LONG\n");
             } while (strlen(string) > 8);
@@ -145,50 +145,50 @@ void edit_parameter(param_pntr)
             break;
         case 4:
             printf("ENTER INTERPULSE TIME\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             time = atoi(string);
             param_pntr->interpulse_time = time;
             break;
         case 5:
             printf("ENTER FREQUENCY\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             freq = atoi(string);
             param_pntr->xmitted_freq = freq;
             break;
         case 6:
             printf("ENTER BANDWIDTH\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             bandwidth = atof(string);
             param_pntr->recvr_bandwidth = bandwidth;
             break;
         case 7:
             printf("ENTER WIDTH\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             width = atoi(string);
             param_pntr->pulse_width = width;
             break;
         case 8:
             printf("ENTER POLARIZATION\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             polarization = atoi(string);
             param_pntr->polarization = polarization;
             break;
         case 9:
             printf("ENTER NUMBER OF SAMPLES\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             samples = atoi(string);
             param_pntr->num_samples = samples;
             break;
         case 10:
             printf("ENTER FORMAT\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             format = atoi(string);
             param_pntr->binary_format = format;
             break;
         case 11:
             do {
                 printf("ENTER NAME\n");
-                gets(string);
+                fgets(string, sizeof(string), stdin);
                 if (strlen(string) > 8)
                     printf("NAME IS TOO LONG\n");
             } while (strlen(string) > 8);
@@ -196,25 +196,25 @@ void edit_parameter(param_pntr)
             break;
         case 12:
             printf("ENTER VALUE\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             value = atof(string);
             param_pntr->threshold_value = value;
             break;
         case 13:
             printf("ENTER SCALE\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             scale = atof(string);
             param_pntr->parameter_scale= scale;
             break;
         case 14:
             printf("ENTER BIAS\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             bias = atof(string);
             param_pntr->parameter_bias = bias;
             break;
         case 15:
             printf("ENTER DATA DATA FLAG\n");
-            gets(string);
+            fgets(string, sizeof(string), stdin);
             bad = atof(string);
             param_pntr->bad_data = bad;
             break;

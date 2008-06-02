@@ -39,7 +39,7 @@ void edit_volume(vol_pntr)
             printf(" 8.  INPUT THE GENERATION FACILITY\n");
             printf(" 9.  INPUT THE GENERATION DATE OF THE VOLUME\n");
             printf("10.  INPUT THE NUMBER OF SENSOR DESCRIPTORS\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if ((choice < 0) || (choice >10))
                 printf("INPUT ERROR PLEASE REENTER\n");
@@ -51,26 +51,26 @@ void edit_volume(vol_pntr)
             break;
         case 1:
             printf("ENTER FORMAT VERSION:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             format = atoi(input);
             vol_pntr->format_version = format;
             break;
         case 2:
             printf("ENTER VOLUME NUMBER:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             volume_number = atoi(input);
             vol_pntr->volume_num = volume_number;
             break;
         case 3:
             printf("ENTER BYTES:\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             max_bytes = atoi(input);
             vol_pntr->maximum_bytes = max_bytes;
             break;
         case 4:
             printf("ENTER THE PROJECT NAME\n");
             do {
-                gets(string);
+                fgets(input, sizeof(string), stdin);
                 if (strlen(string) > 20)
                     printf("STRING TOO LONG\n");
             } while (strlen(string) > 20);
@@ -78,36 +78,36 @@ void edit_volume(vol_pntr)
             break;
         case 5:
             printf("YEAR ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             year = atoi(input);
             vol_pntr->year = year;
             printf("MONTH ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             month = atoi(input);
             vol_pntr->month = month;
             printf("DAY   ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             day = atoi(input);
             vol_pntr->day = day;
             break;
         case 6:
             printf("HOUR ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dhour = atoi(input);
             vol_pntr->data_set_hour = dhour;
             printf("MINUTE ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dmin = atoi(input);
             vol_pntr->data_set_minute = dmin;
             printf("SECOND ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             dsec = atoi(input);
             vol_pntr->data_set_second = dsec;
             break;
         case 7:
             printf("PLEASE ENTER THE FLIGHT NUMBER (8 ASCII)\n");
             do {
-                gets(string);
+                fgets(input, sizeof(string), stdin);
                 if (strlen(string) > maxchars)
                     printf("STRING TOO LONG\n");
             } while (strlen(string) > maxchars);
@@ -116,7 +116,7 @@ void edit_volume(vol_pntr)
         case 8:
             do {
                 printf("ENTER THE GENERATION FACILITY (8 ASCII)\n");
-                gets(string);
+                fgets(input, sizeof(string), stdin);
                 if (strlen(string) > 8)
                     printf("STRING TOO LONG\n");
             } while (strlen(string) > 8);
@@ -124,21 +124,21 @@ void edit_volume(vol_pntr)
             break;
         case 9:
             printf("GENERATION YEAR ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             genyear = atoi(input);
             vol_pntr->gen_year = genyear;
             printf("GENERATION MONTH ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             genmonth = atoi(input);
             vol_pntr->gen_month = genmonth;
             printf("GENERATION DAY   ?\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             genday = atoi(input);
             vol_pntr->gen_day = genday;
             break;
         case 10:
             printf("ENTER THE NUMBER OF SENSOR DESCRIPTORS\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             sensors = atoi(input);
             vol_pntr->number_sensor_des = sensors;
             break;
@@ -180,7 +180,7 @@ void initialize_volume(vol_pntr)
     vol_pntr->maximum_bytes = 32768;
 
     printf("Enter the project name: ");
-    gets(input);
+    fgets(input, sizeof(input), stdin);
     for (i = 0; i < 20; i++)
         vol_pntr->proj_name[i] = input[i];
     cleanup(vol_pntr->proj_name, 20);

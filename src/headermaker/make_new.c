@@ -40,7 +40,7 @@ initialize_parameter_state();
 initialize_engin_state();
  printf("\n");
  printf("Enter the Header file name: ");
- gets(input);
+ fgets(input, sizeof(input), stdin);
  for(i=0; i<80; i++)
    {
      fradar[FORE].file_name[i] = input[i];
@@ -166,7 +166,7 @@ char input[80];
 float afloat;
 for(;;)
   {
-      gets(input);
+      fgets(input, sizeof(input), stdin);
       afloat = atof(input);
       printf("%7.2f\n",afloat);
       if( afloat > min && afloat < max ) return(afloat);

@@ -50,7 +50,7 @@ void edit_navigation(nav_pntr)
             printf("3. SET THE MINIRIMS FLAG\n");
             printf("4. SET THE KALMAN FLAG\n");
             printf("5. SET ALL FLAGS TO 1 AT ONCE\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             choice = atoi(input);
             if (choice <0 || choice > 5)
                 printf("INVALID ENTRY\n");
@@ -64,7 +64,7 @@ void edit_navigation(nav_pntr)
             printf("INS\n");
             printf("ENTER 1 IF DATA IS BEING RECORDED\n");
             printf("ENTER 0 IF DATA IS NOT BEING RECORDED\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             flag = atoi(input);
             nav_pntr->ins_flag = flag;
             break;
@@ -72,7 +72,7 @@ void edit_navigation(nav_pntr)
             printf("GPS\n");
             printf("ENTER 1 IF DATA IS BEING RECORDED\n");
             printf("ENTER 0 IF DATA IS NOT BEING RECORDED\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             flag = atoi(input);
             nav_pntr->gps_flag = flag;
             break;
@@ -80,7 +80,7 @@ void edit_navigation(nav_pntr)
             printf("MINIRIMS\n");
             printf("ENTER 1 IF DATA IS BEING RECORDED\n");
             printf("ENTER 0 IF DATA IS NOT BEING RECORDED\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             flag = atoi(input);
             nav_pntr->minirims_flag = flag;
             break;
@@ -88,7 +88,7 @@ void edit_navigation(nav_pntr)
             printf("KALMAN\n");
             printf("ENTER 1 IF DATA IS BEING RECORDED\n");
             printf("ENTER 0 IF DATA IS NOT BEING RECORDED\n");
-            gets(input);
+            fgets(input, sizeof(input), stdin);
             flag = atoi(input);
             nav_pntr->kalman_flag = flag;
             break;

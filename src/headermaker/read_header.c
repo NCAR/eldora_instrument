@@ -17,7 +17,7 @@ int read_header(char* filename)
 
      if (!filename) {
          printf("NAME OF INPUT FILE?\n");
-         gets(inname);
+         fgets(inname, sizeof(inname), stdin);
      } else {
          strcpy(inname, filename);
      }
