@@ -1,5 +1,4 @@
 dirs = Split("""
-header
 hskp
 """)
     

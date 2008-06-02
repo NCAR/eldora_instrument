@@ -1,7 +1,3 @@
 # -*- python -*-
 # $Id$
-dirs = Split("""
-src
-""")
-
-SConscript(dirs=dirs)
+SConscript('src/SConscript')

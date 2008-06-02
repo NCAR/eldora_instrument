@@ -2,7 +2,6 @@
 # $Id$
 dirs = Split("""
 hskp
-tp41
 vmevme_int
 """)
 

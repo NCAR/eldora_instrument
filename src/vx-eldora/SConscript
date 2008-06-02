@@ -1,11 +1,22 @@
 import SCons.Tool
-env = Environment()
+
+dirs = Split("""
+xmlrpc++0.7
+vx
+rpc
+""")
+
 # If we cannot load the VxWorks cross-compiler tool, then skip building
 # this directory.
-if (not Tool('gcc68k').exists(env)):
+if (not Tool('gcc68k').exists(Environment())):
     print
     print "Cannot load tool 'gcc68k', so vx-eldora build will be skipped"
     print
+    # With (at least) SCons 0.98.3, the Return() below allows us to
+    # remove the "else" from this "if".  However, until everyone is using
+    # a new enough SCons, we need to keep the SConscript below indented
+    # in the "else" block.  In particular, our CentOS 5 machines are
+    # running SCons 0.97 (as of 2008/05/29).
     Return()
 else:
-	SConscript('xmlrpc++0.7/SConscript')
+    SConscript(dirs = dirs)

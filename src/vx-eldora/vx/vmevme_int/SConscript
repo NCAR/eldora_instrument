@@ -1,10 +1,11 @@
-env = Environment(tools = ['default'])
+tools = ['gcc68k']
+env = Environment(tools = ['default'] + tools)
 sources = Split("""
 getInt.c
 sendInt.c
 """)
 
-env.AppendUnique(CPPPATH = ["#/rpc/include", "#/vx/hskp/include"])
+env.AppendUnique(CPPPATH = ["#/vx-eldora/rpc/include", "#/vx-eldora/vx/hskp/include"])
 objs = env.StaticObject(sources)
 
 Default(objs)

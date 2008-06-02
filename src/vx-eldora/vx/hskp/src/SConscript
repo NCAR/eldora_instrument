@@ -1,8 +1,11 @@
-# -*- python -*-
-# script to build eldora library
 import os
 
-env = Environment(tools = ['default', 'vxworks'])
+tools = ['gcc68k', 'vxworks', 'vxheader', 'tp41']
+env = Environment(tools = ['default'] + tools)
+# There is no pthread library in VxWorks, so remove the explicit 
+# -lpthread added by the global Eldora tool
+if ('-lpthread' in env['_LIBFLAGS']):
+    env['_LIBFLAGS'].remove('-lpthread')
 
 s = {}
 
@@ -159,28 +162,19 @@ sources = []
 for k in s.keys():
     sources += [ os.path.join(k, p) for p in Split(s[k]) ]
 
-env.AppendUnique(CPPDEFINES = ['USE_ANSI'])
+#env.AppendUnique(CPPDEFINES = ['USE_ANSI'])
 
-env.Append(CPPPATH = ["../include", "#/rpc/include", "#/vx/minirims/include",
-                      env["COMMONS"] + "/include"])
-#env.Append(CPPPATH = Split("""
-#../include
-##/rpc/include
-##/vx/minirims/include
-#$COMMONS/include
-#"""))
-#vx-eldora/rpc/include
-#vx-eldora/vx/minirims/include
+projcommon_dir = "/net/projects/common"
+env.Append(CPPPATH = ["../include",
+                      "#/vx-eldora/rpc/include",
+                      "#/vx-eldora/vx/minirims/include",
+                      projcommon_dir + "/include"])
 
 objs = env.StaticObject(sources)
-#objs += ["#/vx-eldora/vx/vmevme_int/sendInt.o"]
 
-env.Append(LIBPATH = ["#/lib", env["COMMONS"] + "/lib/vxworks"])
-env.Append(LIBS = ["Net", "VxHeader", "tp41"])
+env.Append(LIBPATH = [projcommon_dir + "/lib/vxworks"])
+env.AppendLibrary('Net')
 
-# -X discards temporary locals
-# -Ur builds global constructor/destructor tables
-env.Append(LINKFLAGS=["-Wl,-X,-Ur"])
 housekeeper = env.Program("bin/housekeeper.o", objs)
 
 Default(housekeeper)
