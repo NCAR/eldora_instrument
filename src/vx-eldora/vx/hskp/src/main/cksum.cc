@@ -97,7 +97,8 @@ cksum(std::string filename, uint32_t* crcRet) {
     
     is.close();
     
-    // cksum also adds the file length to the checksum, so we need to as well
+    // The cksum program also adds the file length to the checksum, so we 
+    // need to as well
     while (filelen) {
         unsigned char byte = filelen & 0xff;
         filelen >>= 8;
