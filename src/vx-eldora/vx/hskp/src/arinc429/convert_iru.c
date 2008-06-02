@@ -63,7 +63,7 @@ union{
   long data;
 }swp1;
 
-msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
+msecs_today = msec + 1000 * (sec + 60 * (minute + 60 * hr));
 
 /* If main buffer pointer is different, recalculate pointers */
 

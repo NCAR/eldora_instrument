@@ -80,7 +80,7 @@ scope unsigned char *tod_bim_vr3;
 scope unsigned short msec;
 scope unsigned short jday;
 scope unsigned char sec;
-scope unsigned char min;
+scope unsigned char minute;
 scope unsigned char hr;
 scope unsigned char day;
 scope unsigned char mon;

@@ -86,8 +86,8 @@ semTake(vmeSem,WAIT_FOREVER);
 
 /* Read the time from the time-of-day card */
 
-    get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
-    msecs_today = msec + 1000 * (sec + 60 * (min + 60 * hr));
+    get_time(&hr,&minute,&sec,&msec,&jday,&mon,&day,&yr);
+    msecs_today = msec + 1000 * (sec + 60 * (minute + 60 * hr));
 
 /* Put in a fake rotational position if global variable fake_angles is true */
 
@@ -266,14 +266,14 @@ Determine delay between Radar Processor data interrupt and Hskp "midbeam" interr
 
     fore_ray_pntr->this_rayi.julian_day = (long)jday;
     fore_ray_pntr->this_rayi.hour = (short)hr;
-    fore_ray_pntr->this_rayi.minute = (short)min;
+    fore_ray_pntr->this_rayi.minute = (short)minute;
     fore_ray_pntr->this_rayi.second = (short)sec;
     fore_ray_pntr->this_rayi.millisecond = (short)msec;
     fore_ray_pntr->this_rayi.peak_power = fore_xmit_pwr;
     
     aft_ray_pntr->this_rayi.julian_day = (long)jday;
     aft_ray_pntr->this_rayi.hour = (short)hr;
-    aft_ray_pntr->this_rayi.minute = (short)min;
+    aft_ray_pntr->this_rayi.minute = (short)minute;
     aft_ray_pntr->this_rayi.second = (short)sec;
     aft_ray_pntr->this_rayi.millisecond = (short)msec;
     aft_ray_pntr->this_rayi.peak_power = aft_xmit_pwr;

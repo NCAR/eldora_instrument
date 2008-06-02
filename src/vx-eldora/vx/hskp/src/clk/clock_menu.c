@@ -95,9 +95,9 @@ void clock_menu(void)
 	    case 3:	/* Display the Current time */
 	      for(i=0; i<count; i++)
 		{
-		    get_time(&hr,&min,&sec,&msec,&jday,&mon,&day,&yr);
+		    get_time(&hr,&minute,&sec,&msec,&jday,&mon,&day,&yr);
 		    printf("The time (HH:MM:SS:MMM) is: %2d:%2d:%2d:%3d",
-			   hr,min,sec,msec);
+			   hr,minute,sec,msec);
 		    printf(" on (YY/MM/DD): %2d/%2d/%2d  DOY = %3d\n",
 			   yr,mon,day,jday);
 		    taskDelay(60);

@@ -87,7 +87,7 @@ scope int day_mon_calc[13];
 scope unsigned short msec;
 scope unsigned short jday;
 scope unsigned char sec;
-scope unsigned char min;
+scope unsigned char minute;
 scope unsigned char hr;
 scope unsigned char day;
 scope unsigned char mon;
