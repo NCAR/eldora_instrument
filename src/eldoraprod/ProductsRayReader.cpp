@@ -6,9 +6,9 @@ ProductsRayReader::ProductsRayReader(DDSSubscriber& subscriber,
                                      EldoraProducts& consumer,
                                      int numPrtIds) :
     RayReader(subscriber, abpTopic), _consumer(consumer),
-            _numPrtIds(numPrtIds),
             _collatorFor(EldoraDDS::Forward, numPrtIds),
-            _collatorAft(EldoraDDS::Aft, numPrtIds)
+            _collatorAft(EldoraDDS::Aft, numPrtIds),
+            _numPrtIds(numPrtIds)
 {
     // save references to both collectors
     _collectors.push_back(&_collatorFor);
