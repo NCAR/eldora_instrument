@@ -107,9 +107,12 @@ void RR314sim::simulate()
                 _abp[1] = prt;
                 _abp[2] = _beamNum;
                 for (unsigned int a = 3; a < _abp.size(); a += 3) {
-                    _abp[a+0] = (int)((rand() - RAND_MAX/2)*boardFactor);
-                    _abp[a+1] = (int)((rand() - RAND_MAX/2)*boardFactor);
-                    _abp[a+2] = (int)(rand()*boardFactor);
+                    double A = ((rand() - RAND_MAX/2)*boardFactor);
+                    double B = ((rand() - RAND_MAX/2)*boardFactor);
+                    double P = sqrt(A*A+B*B);
+                    _abp[a+0] = (int)A;
+                    _abp[a+1] = (int)B;
+                    _abp[a+2] = (int)P;
                 }
                 _pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
             }
