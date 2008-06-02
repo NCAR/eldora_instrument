@@ -22,8 +22,6 @@ env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 Export('env')
 
-SConscript('vx-eldora/SConscript')
-
 # Build the main eldora applications:
 SConscript('eldorappi/SConscript')
 SConscript('eldoraprod/SConscript')
@@ -46,6 +44,9 @@ SConscript('testdds/SConscript')
 
 # ECB
 SConscript('ecb/SConscript')
+
+# VxWorks (the housekeeper)
+SConscript('vx-eldora/SConscript')
 
 options = env.GlobalOptions()
 options.Update(env)
