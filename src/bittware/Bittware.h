@@ -4,6 +4,8 @@
 #include "EldoraRadarParams.h"
 #include "dsp21k.h"
 
+#include <math.h>
+
 // Bittware Timer Registers
 
 //Status Register

@@ -854,64 +854,20 @@ void RR314::boardInfo()
 
 bool RR314::pulsepairInit()
 {
-    //
-    //    This section initializes the pulse pair processors.
+    
+ // This section initializes the pulse pair processors.
 
-    // Decimation Setup
-    int decimationFactor;
-    switch (_pulsewidth)
-    {
-    case 250:
-        decimationFactor = _0_25us;
-        break;
-    case 500:
-        decimationFactor = _0_50us;
-        break;
-    case 750:
-        decimationFactor = _0_75us;
-        break;
-    case 1000:
-        decimationFactor = _1_00us;
-        break;
-    case 1250:
-        decimationFactor = _1_25us;
-        break;
-    case 1500:
-        decimationFactor = _1_50us;
-        break;
-    case 1750:
-        decimationFactor = _1_75us;
-        break;
-    case 2000:
-        decimationFactor = _2_00us;
-        break;
-    default:
-        std::cout
-                << "pulse width must be one of: 250, 500, 750, 1000, 1250, 1500, 1750, 2000\n";
-        return false;
-    }
+    // Decimation register
+    Adapter_Write32(&_chanAdapter, V4, DEC_REG, (int) (_radarParams.wave_chpwid[0] / 7.5));// Decimation Register
 
-    Adapter_Write32(&_chanAdapter, V4, DEC_REG, decimationFactor);// Decimation Register
-
-    unsigned int dualPrt = 0;
-    if (_dualPrt)
-        dualPrt = 1;
-
-    //Pulse Pair Setup
-    Adapter_Write32(&_chanAdapter, V4, M_REG, _gates); // # of Gates
-    Adapter_Write32(&_chanAdapter, V4, N_REG, _samples); // # of samples
-    Adapter_Write32(&_chanAdapter, V4, DPRT_REG, dualPrt); // Dual Prt(Off)
-    Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _startGateIQ); // index of start of IQ capture
-    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _numIQGates); // # of Gate of IQ capture
-
-    Adapter_Read32(&_chanAdapter, V4, M_REG, &_gates);
-    Adapter_Read32(&_chanAdapter, V4, N_REG, &_samples);
-    Adapter_Read32(&_chanAdapter, V4, DPRT_REG, &dualPrt);
-    Adapter_Read32(&_chanAdapter, V4, IQ_START_IDX, &_startGateIQ);
-    Adapter_Read32(&_chanAdapter, V4, IQ_GATE_LEN, &_numIQGates);
-
+    // Pulse Pair Setup
+    Adapter_Write32(&_chanAdapter, V4, M_REG, _radarParams.wave_ngates[0]); // # of Gates
+    Adapter_Write32(&_chanAdapter, V4, N_REG, _radarParams.wave_seqrep); // # of samples
+    Adapter_Write32(&_chanAdapter, V4, DPRT_REG, _radarParams.radd_nipp - 1); // Dual Prt(Off)
+    Adapter_Write32(&_chanAdapter, V4, IQ_START_IDX, _radarParams.frib_tsgat); // index of start of IQ capture
+    Adapter_Write32(&_chanAdapter, V4, IQ_GATE_LEN, _radarParams.frib_frqgat); // # of Gate of IQ capture
+    
     return true;
-
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -966,50 +922,106 @@ bool RR314::timerInit()
     printf("PRT Period     (us) = %f\n", float(1.0/_prf*1.0e6));
     printf("Data Rate (MHz)     = %f\n", float(8.0/decimationFactor));
 
-    // Gating Timer Setup
-    unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
-    //printf("CONTROL REG: %x\n", CONTROL_REG|Timers|TIMER_EN);
-    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG|Timers); // Control Register
+    double prtClock = (60e6);      // Timer Input Clock Freq
+    int periodCount;               // Period Count for all Timers
+    int PrtScheme;                 // PRT Scheme for all Timers
+    
+    // Internal Timing Setup
+
+    unsigned int ALL_TIMERS = TIMER0 | TIMER1 | TIMER2 | TIMER3;
+    
+    // Calculate the period and PRT Scheme for dual prt or single prt
+    int X, Y;
+    if (_radarParams.radd_nipp == 2)  //dual prt
+    {
+       periodCount = (int) (_radarParams.radd_ipp1 * 
+                   ((float) _radarParams.radd_ipp2 / _radarParams.radd_ipp1 - 
+                     (int) (_radarParams.radd_ipp2 / _radarParams.radd_ipp1)) / 
+                     (int) (_radarParams.radd_ipp2 / _radarParams.radd_ipp1) * 
+                            prtClock / 1e3);
+                   
+       X = (int) ((int) (_radarParams.radd_ipp2 / _radarParams.radd_ipp1) / 
+                ((float) _radarParams.radd_ipp2 / _radarParams.radd_ipp1 - 
+                  (int) (_radarParams.radd_ipp2 / _radarParams.radd_ipp1)));
+       Y = (int) (X * _radarParams.radd_ipp2 / _radarParams.radd_ipp1);
+         
+       PrtScheme = (Y<<4) | X;
+    }
+    else  //single prt
+    {
+       periodCount = (int) ceil((_radarParams.radd_ipp1 * prtClock / 1e3));    
+       PrtScheme = 0x0000;
+    }
+    
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, CONTROL_REG | ALL_TIMERS); // Control Register
     Adapter_Write32(&_chanAdapter, V4, MT_DATA, TIMER_ON); // Enable Timer
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
 
+    // TIMER 0
     // Delay Register
-    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG|Timers); // Address Timer 0
-    Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0); // Value Timer 0
-
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG | TIMER0); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpoff[0]); // Data
     // Pulse Width Register
-    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG|Timers); // Address Timer 0
-    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _gates*60*decimationFactor/8); // Value Timer 0 (Testing Purposes)
-
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG | TIMER0); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpwid[0]); // Data
     // Period Register
-    double prtClock = (60e6);
-    int periodCount = (int) (prtClock/_prf);
-    //std::cout << "Period register value:" << periodCount << "\n";
-    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG|Timers); // Address Timer 0
-    if (!_dualPrt) {
-        Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount);
-    } else {
-        Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Mult PRT 5/4 @ 1kHz and 800Hz PRFs
-    }
-
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG | TIMER0); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Data
     //Multiple PRT Register
-    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG|Timers); // Mult PRT Register Timer 0
-    if (_dualPrt) {
-        Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0054); // Mult PRT Value Timer 0
-    } else {
-        Adapter_Write32(&_chanAdapter, V4, MT_DATA, 0x0000); // Mult PRT Value Timer 0
-    }
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG | TIMER0); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, PrtScheme); // Mult PRT Value Timer 0
+
+    // TIMER 1
+    // Delay Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG | TIMER1); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpoff[1]); // Data
+    // Pulse Width Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG | TIMER1); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpwid[1]); // Data
+    // Period Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG | TIMER1); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Data
+    //Multiple PRT Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG | TIMER1); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, PrtScheme); // Mult PRT Value Timer 0
+
+    // TIMER 2
+    // Delay Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG | TIMER2); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpoff[2]); // Data
+    // Pulse Width Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG | TIMER2); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpwid[2]); // Data
+    // Period Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG | TIMER2); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Data
+    //Multiple PRT Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG | TIMER2); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, PrtScheme); // Mult PRT Value Timer 0
+
+    // TIMER 3
+    // Delay Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, DELAY_REG | TIMER3); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpoff[3]); // Data
+    // Pulse Width Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, WIDTH_REG | TIMER3); // Address 
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, _radarParams.wave_chpwid[3]); // Data
+    // Period Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PERIOD_REG | TIMER3); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, periodCount); // Data
+    //Multiple PRT Register
+    Adapter_Write32(&_chanAdapter, V4, MT_ADDR, PRT_REG | TIMER3); // Address
+    Adapter_Write32(&_chanAdapter, V4, MT_DATA, PrtScheme); // Mult PRT Value Timer 0
 
     // Enable and Trigger All Timers 
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
-    PRT_REG|Timers|TIMER_EN); // Set Global Enable
+    PRT_REG | ALL_TIMERS | TIMER_EN); // Set Global Enable
+    
     usleep(1000);
+    
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes
-
-    // Get current system time as xmit start time
-    //setXmitStartTime(microsec_clock::universal_time());
-
+   
     return true;
 
 }
@@ -1021,14 +1033,15 @@ void RR314::startInternalTimer()
     //
     //    This start the internal timers.
 
-    unsigned int Timers= TIMER0|TIMER1|TIMER2|TIMER3;
+    unsigned int ALL_TIMERS = TIMER0 | TIMER1 | TIMER2 | TIMER3;
 
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_ON); // Turn on Write Strobes
 
     // Enable and Trigger All Timers 
     Adapter_Write32(&_chanAdapter, V4, 
     MT_ADDR, 
-    PRT_REG|Timers|ADDR_TRIG); // Set Global Enable
+    PRT_REG | ALL_TIMERS | ADDR_TRIG); // Set Global Enable
+    
     usleep(1000);
 
     Adapter_Write32(&_chanAdapter, V4, MT_WR, WRITE_OFF); // Turn off Write Strobes

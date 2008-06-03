@@ -8,24 +8,35 @@ EldoraRadarParams::EldoraRadarParams()
     wave_nchips[4] = 0;
 
     wave_pcprep = 1;
-
+/*
     wave_chpoff[0] = 17;
     wave_chpoff[1] = 62;
     wave_chpoff[2] = 107;
     wave_chpoff[3] = 152;
     wave_chpoff[4] = 0;
     wave_chpoff[5] = 0;
+*/    
+
+    wave_chpoff[0] = 17;
+        wave_chpoff[1] = 77;
+        wave_chpoff[2] = 137;
+        wave_chpoff[3] = 197;
+        wave_chpoff[4] = 0;
+        wave_chpoff[5] = 0;
 
     for (unsigned int i = 0; i < sizeof(wave_chpwid); i++)
-        wave_chpwid[i] = 45;
+        //wave_chpwid[i] = 45;
+        wave_chpwid[i] = 60;
     wave_chpwid[4] = 0;
-    wave_chpwid[5] = 197;
+    //wave_chpwid[5] = 197;
+    wave_chpwid[5] = 257;
 
     for (unsigned int i = 0; i < sizeof(wave_ngates); i++)
         wave_ngates[i] = 400;
     wave_ngates[5] = 0;
     
 
+/*
     wave_gate1[0] = 75;
     wave_gate1[1] = 45;
 
@@ -40,8 +51,25 @@ EldoraRadarParams::EldoraRadarParams()
 
     wave_gate5[0] = 75;
     wave_gate5[1] = 45;
+*/
 
-    wave_msrep = 0.33333333;
+    wave_gate1[0] = 90;
+    wave_gate1[1] = 60;
+
+    wave_gate2[0] = 90;
+    wave_gate2[1] = 60;
+
+    wave_gate3[0] = 90;
+    wave_gate3[1] = 60;
+
+    wave_gate4[0] = 90;
+    wave_gate4[1] = 60;
+
+    wave_gate5[0] = 90;
+    wave_gate5[1] = 60;
+
+    //wave_msrep = 0.33333333;
+    wave_msrep = 0.5;
     wave_seqrep = 45;
 
     // fields from the header radar descriptor block (RADD)
@@ -61,7 +89,8 @@ EldoraRadarParams::EldoraRadarParams()
     radd_freq4 = 9.718666;
     radd_freq5 = -999.0;
     
-    radd_ipp1 = 0.333333;
+    //radd_ipp1 = 0.33333333;
+    radd_ipp1 = 0.5;
     radd_ipp2 = -999.0;
     radd_ipp3 = -999.0;
     radd_ipp4 = -999.0;
