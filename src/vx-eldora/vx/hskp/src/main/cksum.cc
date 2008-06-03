@@ -1,13 +1,11 @@
 //
 // cksum - POSIX CRC-32 checksum calculator (behaves like the cksum command)
 //
-#ifdef __vxworks
-# include <vxWorks.h>
-#endif
+#include "cksum.h"
 #include <iostream>
 #include <fstream>
-#include <string>
 
+/// CRC table for POSIX CRC-32 checksum
 static const uint32_t CRCTAB[] = { 
         0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 
         0x17c56b6b, 0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 
@@ -63,13 +61,8 @@ static const uint32_t CRCTAB[] = {
         0xb1f740b4 
     };
 
-///
-/// Calculate the 32-bit POSIX CRC checksum (ala cksum) for the given file.  
-/// On success, zero is returned and the CRC checksum is stored in crcRet.  
-/// On error, -1 is returned and crcRet is left unchanged.
-///
 int
-cksum(std::string filename, uint32_t* crcRet) {
+cksum(std::string filename, uint32_t& crcRet) {
     // open the file
     std::ifstream is(filename.c_str());
     if (is.fail()) {
@@ -106,6 +99,6 @@ cksum(std::string filename, uint32_t* crcRet) {
     }
     // complement the value and return it
     crc ^= 0xffffffff;
-    *crcRet = crc;
+    crcRet = crc;
     return 0;
 }
