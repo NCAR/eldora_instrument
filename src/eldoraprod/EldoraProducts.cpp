@@ -75,17 +75,6 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         products->rotAngle = rays[0][0]->hskp.radarRotAngle;
 
         // transfer the products.
-        std::cout << "Vr:"
-                    <<_terms.Vr[100]
-                    << " scale:" 
-                    << products->vrScale 
-                    << "  bias:" 
-                    << products->vrOffset 
-                    << "  TOSHORT:" 
-                    << TOSHORT(_terms.Vr[100], products->vrScale, products->vrOffset) 
-                    << "\n";
-        
-        
         for (int g = 0; g < gates; g++) {
             products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
             products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
