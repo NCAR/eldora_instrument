@@ -39,7 +39,7 @@ class EldoraHeader(list):
         self.hdrDumpCmd = hdrDumpCmd
         self.hdrVerifyCmd = hdrVerifyCmd
         self.headerFile = headerFile
-        self.projectName = 'unamed'
+        self.projectName = 'unnamed'
         self.verifyBlocks = []
         # collect the header blocks
         self.readHeader()
@@ -146,7 +146,7 @@ class EldoraHeader(list):
         # make sure that the colon is blank delimited
         newline = line.replace(':', ' : ')
         tokens = newline.split()
-        # convnce ourselves that it is valid
+        # convince ourselves that it is valid
         if len(tokens) < 3:
             return noval
         if tokens[1].find('***') != -1:
