@@ -1,6 +1,6 @@
 import os
 
-tools = ['gcc68k', 'vxworks', 'vxheader', 'tp41']
+tools = ['gcc68k', 'vxworks', 'vxworks_xmlrpc', 'vxheader', 'tp41']
 env = Environment(tools = ['default'] + tools)
 # There is no pthread library in VxWorks, so remove the explicit 
 # -lpthread added by the global Eldora tool
