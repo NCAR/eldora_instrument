@@ -26,12 +26,12 @@ void hostStartup(void)
     FILE *fp1;
     char fname[80];
 
-     strcpy(fname,"/usr/local/vxbin/hskp/scripts/realtime.cmds");
+     strcpy(fname,"/vxroot/hskp/scripts/realtime.cmds");
     
     /* Open the file and read all global control flags */
     if(!(fp1=fopen(fname,"r")))
       {
-	  printf("Could not find file of global control flags\n");
+	  printf("Could not find file of global control flags: %s\n", fname);
 	  fake_angles = 0;
       }
     else
