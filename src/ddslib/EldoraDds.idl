@@ -69,6 +69,25 @@ module EldoraDDS {
         float freqs[4];         // frequency by channel (hz)
         float prt;              // prt in single mode, or short prt in dual mode (s)
         float prtLong;          // long prt in dual prt mode (s)
+        
+        float dbzScale;         // scale for dbz
+        float dbzBias;          // bias for dbz   
+             
+        float swScale;          // scale for sw
+        float swBias;           // bias for sw     
+           
+        float ncpScale;         // scale for ncp
+        float ncpBias;          // bias for ncp     
+           
+        float vsScale;          // scale for vs
+        float vsBias;           // bias for vs
+        
+        float vlScale;          // scale for vl
+        float vlBias;           // bias for vl
+        
+        float vrScale;          // scale for vr
+        float vrBias;           // bias for vr
+
         } Housekeeping;
 
 #pragma DCPS_DATA_TYPE "EldoraDDS::TimeSeries"

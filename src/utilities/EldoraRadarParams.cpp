@@ -106,5 +106,24 @@ EldoraRadarParams::EldoraRadarParams()
     frib_xgain = 22.1;
     frib_tsgat = 68;
     frib_frqgat= 10;
+    
+    // scale and bias for the DDS data compression
+    parm_dbz_scale= 8.0; 
+    parm_dbz_bias = 8.0;
+    
+    parm_sw_scale = 43.615295;
+    parm_sw_bias  = 0.0;
+    
+    parm_ncp_scale= 1024.0;
+    parm_ncp_bias = 0.0;
+    
+    parm_vs_scale = 353.537506;
+    parm_vs_bias  = 8191.0;
+     
+    parm_vl_scale = 353.537506;
+    parm_vl_bias  = 8191.0;
+    
+    parm_vr_scale = 353.537506;
+    parm_vr_bias  = 8191.0;
 
 }

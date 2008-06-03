@@ -71,7 +71,12 @@ void EldoraQtProductsSource::notify() {
                         // copy all P in the beam.
                         double* pP = &P[0];
                         for (unsigned int i = 0; i < productSize; i++) {
-                            pP[i] = (product[i] + offset)/gain;
+                            pP[i] = (product[i] - offset)/gain;
+                        }
+                        if (*prodType == PROD_VR) {
+                            std::cout << " product:" << product[100];
+                            std::cout << "  gain:" << gain << "  offset:" << offset;
+                            std::cout << "  VR:" << (product[100] - offset)/gain << "\n";
                         }
                         // send the Pbeam to our client.
                         emit newPData(P, pItem->radarId, pItem->rotAngle, 

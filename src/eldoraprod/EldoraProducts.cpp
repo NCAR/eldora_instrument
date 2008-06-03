@@ -1,7 +1,8 @@
 #include "EldoraProducts.h"
 #include <iostream>
 #include <math.h>
-#define TOSHORT(data, gain, offset) ((short)(((data)*(gain))-(offset)))
+#define TOSHORT(data, scale, bias) ((short)(data*scale+bias))
+#define square(a) (a*a)
 
 ////////////////////////////////////////////////////
 EldoraProducts::EldoraProducts(DDSPublisher& publisher,
@@ -55,7 +56,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         initProducts(products, gates);
 
         // This is where the real work gets done
-        // compute the varius terms found in Eric's paper
+        // compute the various terms found in the Loew paper
+        computeSums(rays);
         powerRaw(rays);
         powerAntenna(rays);
         totalPower(rays);
@@ -63,7 +65,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         totalSignalPower(rays);
         reflectivity(rays);
         velocity(rays);
-        spectralWidth(rays);
+        spectrumWidth(rays);
+        ncp(rays);
 
         // fill in the product ray
         // first transfer ray metadata
@@ -72,6 +75,17 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         products->rotAngle = rays[0][0]->hskp.radarRotAngle;
 
         // transfer the products.
+        std::cout << "Vr:"
+                    <<_terms.Vr[100]
+                    << " scale:" 
+                    << products->vrScale 
+                    << "  bias:" 
+                    << products->vrOffset 
+                    << "  TOSHORT:" 
+                    << TOSHORT(_terms.Vr[100], products->vrScale, products->vrOffset) 
+                    << "\n";
+        
+        
         for (int g = 0; g < gates; g++) {
             products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
             products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
@@ -84,7 +98,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             
             products->vs[g] = TOSHORT(0.0, products->vsScale, products->vsOffset);
             products->vl[g] = TOSHORT(0.0, products->vlScale, products->vlOffset);
-            products->ncp[g] = TOSHORT(0.0, products->ncpScale, products->ncpOffset);
+            
+            products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
         }
         // Publish the products.
         _productsWriter.publishItem(products);
@@ -276,17 +291,7 @@ void EldoraProducts::velocity(RayData& rays)
      case false:
          // single prt
          for (int g = 0; g < _gates; g++) {
-             double asum = 0.0;
-             double bsum = 0.0;
-             for (unsigned int k = 0; k < 4; k++) {
-                 // pick the a and b out of abp
-                 double a = rays[0][k]->abp[3*g+0];
-                 double b = rays[0][k]->abp[3*g+1];
-                 //_terms.V_k[k][g] = _terms.Vscale_k[k]*atan2(b, a);
-                 asum += a;
-                 bsum += b;
-             }
-             double a = atan2(bsum, asum);
+             double a = atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
              _terms.Vr[g] = _terms.Vscale*a;
              _terms.Vs[g] = 0;
              _terms.Vl[g] = 0;
@@ -296,28 +301,17 @@ void EldoraProducts::velocity(RayData& rays)
      case true:
          // dual prt
          for (int g = 0; g < _gates; g++) {
-             double asumShort = 0.0;
-             double asumLong = 0.0;
-             double bsumShort = 0.0;
-             double bsumLong = 0.0;
-             for (unsigned int k = 0; k < 4; k++) {
-                 // pick the a and b out of abp
-                 asumShort += rays[0][k]->abp[3*g+0];
-                 bsumShort += rays[0][k]->abp[3*g+1];
-                 asumLong += rays[1][k]->abp[3*g+0];
-                 bsumLong += rays[1][k]->abp[3*g+1];
-             }
              /// @todo put in the velocity unfolding algorithm
              _terms.Vr[g] = 0.0;
-             _terms.Vs[g] = _terms.Vscale*atan2(bsumShort, asumShort);
-             _terms.Vl[g] = _terms.Vscale*atan2(bsumLong, asumLong);
+             _terms.Vs[g] = _terms.Vscale*atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
+             _terms.Vl[g] = _terms.Vscale*atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
          }
          break;
      }
  }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::spectralWidth(RayData& rays)
+void EldoraProducts::spectrumWidth(RayData& rays)
 {
     // Velocity.  Dependent on single/dual prt.
      switch (_dualPrt)
@@ -325,15 +319,8 @@ void EldoraProducts::spectralWidth(RayData& rays)
      case false:
          // single prt
          for (int g = 0; g < _gates; g++) {
-             double asum = 0.0;
-             double bsum = 0.0;
-             for (unsigned int k = 0; k < 4; k++) {
-                 // pick the a and b out of abp
-                 asum += rays[0][k]->abp[3*g+0];
-                 bsum += rays[0][k]->abp[3*g+1];
-             }
-             asum = asum/4.0;
-             bsum = bsum/4.0;
+             double asum = _terms.SumA[0][g] / 4.0;
+             double bsum = _terms.SumB[0][g] / 4.0;
              double denom = sqrt(asum*asum + bsum*bsum);
              if (_terms.Psig[g] >= denom) {
                  double term = _terms.Psig[g] / denom;
@@ -348,12 +335,66 @@ void EldoraProducts::spectralWidth(RayData& rays)
      case true:
          // dual prt
          for (int g = 0; g < _gates; g++) {
-             _terms.W[g] = 0.0;
-         }
+             double asumShort = _terms.SumA[0][g] / 4.0;
+             double bsumShort = _terms.SumB[0][g] / 4.0;
+             double denomShort = sqrt(square(asumShort)+ square(bsumShort));
+
+             double asumLong = _terms.SumA[1][g] / 4.0;
+             double bsumLong = _terms.SumB[1][g] / 4.0;
+             double denomLong = sqrt(square(asumLong) + square(bsumLong));
+             
+              if (_terms.Psigs[g] >= denomShort && _terms.Psigl[g] >= denomLong ) {
+                  double termShort = _terms.Psigs[g] / denomShort;
+                  double termLong = _terms.Psigl[g] / denomLong;
+                  _terms.W[g] = _terms.WscaleShort*sqrt(log(termShort)) + _terms.WscaleLong*sqrt(log(termLong));
+              } else {
+                  // @tod need to get the nyquist velocity in here
+                  _terms.W[g] = ((_terms.VscaleShort + _terms.VscaleLong)/2.0)*M_PI;
+              }
+          }
          break;
      }
  }
 
+void EldoraProducts::ncp(RayData& rays)
+{
+    // Normalized coherent power. Dependent on single/dual prt.
+    switch (_dualPrt)
+    {
+    case false:
+        for (int g = 0; g < _gates; g++) {
+            _terms.Ncp[g] = sqrt(square(_terms.SumA[0][g]/4.0)+square(_terms.SumB[0][g]/4.0))/(_terms.SumP[0][g]/4.0);
+        }
+        break;
+    case true:
+        for (int g = 0; g < _gates; g++) {
+            _terms.Ncp[g] = sqrt(square(_terms.SumA[0][g]/4.0)+square(_terms.SumB[0][g]/4.0))/(_terms.SumP[0][g]/4.0);
+            _terms.Ncp[g] += sqrt(square(_terms.SumB[1][g]/4.0)+square(_terms.SumB[1][g]/4.0))/(_terms.SumP[1][g]/4.0);
+            _terms.Ncp[g] /= 2.0;
+        }        
+        break;
+    }
+    
+}
+
+////////////////////////////////////////////////////
+void EldoraProducts::computeSums(RayData& rays) {
+    
+    int nPrts = _dualPrt? 2:1;
+    
+    for (int prtId = 0; prtId < nPrts; prtId++) {
+        for (int g = 0; g < _gates; g++) {
+            _terms.SumA[prtId][g] = 0.0;
+            _terms.SumB[prtId][g] = 0.0;
+            _terms.SumP[prtId][g] = 0.0;
+            for (int k = 0; k < 4; k++) {
+                _terms.SumA[prtId][g] += rays[prtId][k]->abp[3*g+0];
+                _terms.SumB[prtId][g] += rays[prtId][k]->abp[3*g+1];
+                _terms.SumP[prtId][g] += rays[prtId][k]->abp[3*g+2];                
+            }
+        }
+    }
+}
 ////////////////////////////////////////////////////
 
 int EldoraProducts::numRays()
@@ -382,6 +423,30 @@ void EldoraProducts::initTerms(RayData& rays)
                 rays[0][0]->hskp.prtLong,
                 _dualPrt);
 
+    _scaling.dmScale  = 100.0;  
+    _scaling.dmBias   = 11500.0;
+    
+    _scaling.pScale   = 100.0;
+    _scaling.pBias    = 9000.0;
+    
+    _scaling.dbzScale = rays[0][0]->hskp.dbzScale;
+    _scaling.dbzBias  = rays[0][0]->hskp.dbzBias;
+
+    _scaling.swScale  = rays[0][0]->hskp.swScale;
+    _scaling.swBias   = rays[0][0]->hskp.swBias;
+
+    _scaling.ncpScale = rays[0][0]->hskp.ncpScale;
+    _scaling.ncpBias  = rays[0][0]->hskp.ncpBias;
+
+    _scaling.vsScale  = rays[0][0]->hskp.vsScale;
+    _scaling.vsBias   = rays[0][0]->hskp.vsBias;
+
+    _scaling.vlScale  = rays[0][0]->hskp.vlScale;
+    _scaling.vlBias   = rays[0][0]->hskp.vlBias;
+
+    _scaling.vrScale  = rays[0][0]->hskp.vrScale;
+    _scaling.vrBias   = rays[0][0]->hskp.vrBias;
+
     _termsInitialized = true;
 }
 
@@ -402,38 +467,38 @@ void EldoraProducts::initProducts(EldoraDDS::Products* p,
     p->sw.length(gates);
     p->ncp.length(gates);
 
-    p->p1Scale = 100.0;
-    p->p1Offset = 9000.0;
+    p->p1Scale = _scaling.pScale;
+    p->p1Offset = _scaling.pBias;
 
-    p->p2Scale = 100.0;
-    p->p2Offset = 9000.0;
+    p->p2Scale = _scaling.pScale;
+    p->p2Offset = _scaling.pBias;
 
-    p->p3Scale = 100.0;
-    p->p3Offset = 9000.0;
+    p->p3Scale = _scaling.pScale;
+    p->p3Offset = _scaling.pBias;
 
-    p->p4Scale = 100.0;
-    p->p4Offset = 9000.0;
+    p->p4Scale = _scaling.pScale;
+    p->p4Offset = _scaling.pBias;
 
-    p->dmScale = 100.0;
-    p->dmOffset = 11500.0;
+    p->dmScale = _scaling.dmScale;
+    p->dmOffset = _scaling.dmBias;
 
-    p->dbzScale = 10.0;
-    p->dbzOffset = 350.0;
+    p->dbzScale = _scaling.dbzScale;
+    p->dbzOffset = _scaling.dbzBias;
 
-    p->vrScale = 100.0;
-    p->vrOffset = 0.0;
+    p->vrScale = _scaling.vrScale;
+    p->vrOffset = _scaling.vrBias;
 
-    p->vsScale = 100.0;
-    p->vsOffset = 0.0;
+    p->vsScale = _scaling.vsScale;
+    p->vsOffset = _scaling.vsBias;
 
-    p->vlScale = 100.0;
-    p->vlOffset = 0.0;
+    p->vlScale = _scaling.vlScale;
+    p->vlOffset = _scaling.vsBias;
 
-    p->swScale = 43.0;
-    p->swOffset = 0.0;
+    p->swScale = _scaling.swScale;
+    p->swOffset = _scaling.swBias;
 
-    p->ncpScale = 1000.0;
-    p->ncpOffset = 0.0;
+    p->ncpScale = _scaling.ncpScale;
+    p->ncpOffset = _scaling.ncpBias;
 }
 ////////////////////////////////////////////////////
 void ProductsTerms::init(int gates,
@@ -459,6 +524,9 @@ void ProductsTerms::init(int gates,
     b_k.resize(4);
     b10_k.resize(4);
     Vscale_k.resize(4);
+    SumA.resize(2);    // for short and long prts
+    SumB.resize(2);    // for short and long prts
+    SumP.resize(2);    // for short and long prts
     r.resize(gates);
     Praw_k.resize(4);
     Pant_k.resize(4);
@@ -488,6 +556,12 @@ void ProductsTerms::init(int gates,
         Psigs_k[k].resize(gates);
         Psigl_k[k].resize(gates);
         //V_k[k].resize(gates);
+    }
+    
+    for (unsigned int prtId = 0; prtId < 2; prtId++) {
+        SumA[prtId].resize(gates);
+        SumB[prtId].resize(gates);
+        SumP[prtId].resize(gates);
     }
 
     radarConstant = fabs(radConstant);

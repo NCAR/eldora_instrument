@@ -574,6 +574,23 @@ static void setRadarParams(EldoraRadarParams* radarParams, EldoraDDS::Housekeepi
     hskp->prt           = radarParams->radd_ipp1;
     hskp->prtLong       = radarParams->radd_ipp2;
     
+    hskp->dbzScale      = radarParams->parm_dbz_scale;  
+    hskp->dbzBias       = radarParams->parm_dbz_bias;
+         
+    hskp->swScale       = radarParams->parm_sw_scale;
+    hskp->swBias        = radarParams->parm_sw_bias;
+       
+    hskp->ncpScale      = radarParams->parm_ncp_scale;
+    hskp->ncpBias       = radarParams->parm_ncp_bias;
+       
+    hskp->vsScale       = radarParams->parm_vs_scale;
+    hskp->vsBias        = radarParams->parm_vs_bias;
+    
+    hskp->vlScale       = radarParams->parm_vl_scale;
+    hskp->vlBias        = radarParams->parm_vl_bias;
+    
+    hskp->vrScale       = radarParams->parm_vr_scale;
+    hskp->vrBias        = radarParams->parm_vr_bias;
 }
 //////////////////////////////////////////////////////////////////////
 //

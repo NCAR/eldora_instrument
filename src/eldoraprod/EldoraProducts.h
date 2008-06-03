@@ -35,56 +35,125 @@ struct ProductsTerms
         typedef std::vector<double> TermData1D;
         /// Data across all gates and all channels
         typedef std::vector<TermData1D> TermData2D;
-        
-        TermData   radarConstant;
+
+        TermData radarConstant;
         TermData1D lambda_k;
-        TermData   lambda;
+        TermData lambda;
         TermData1D a_k;
         TermData1D a10_k;
         TermData1D b_k;
         TermData1D b10_k;
-        TermData1D r;        ///< 20.0*log10(range), by gate (km) @todo is this at the center of the range gate, or an edge?
+        TermData1D r; ///< 20.0*log10(range), by gate (km) @todo is this at the center of the range gate, or an edge?
         TermData1D Vscale_k;
-        TermData   Vscale;
-        TermData   VscaleShort;
-        TermData   VscaleLong;
-        TermData   Wscale;
-        TermData   WscaleShort;
-        TermData   WscaleLong;
-        TermData2D Praw_k;       ///< Raw power at receiver, by channel.
-        TermData2D Pant_k;       ///< Total power at antenna, by channel
-        TermData1D Pant;         ///< Total power at antenna
-        TermData2D Psig_k;       ///< Signal power at receiver, by channel
-        TermData1D Psig;         ///< Signal power at receiver
-        TermData1D Psigant;      ///< Signal power at antenna
+        TermData Vscale;
+        TermData VscaleShort;
+        TermData VscaleLong;
+        TermData Wscale;
+        TermData WscaleShort;
+        TermData WscaleLong;
+        TermData2D SumA; ///< Sum of the A's, by prt
+        TermData2D SumB; ///< Sum of the B's, by prt
+        TermData2D SumP; ///< Sum of the P's, by prt
+        TermData2D Praw_k; ///< Raw power at receiver, by channel.
+        TermData2D Pant_k; ///< Total power at antenna, by channel
+        TermData1D Pant; ///< Total power at antenna
+        TermData2D Psig_k; ///< Signal power at receiver, by channel
+        TermData1D Psig; ///< Signal power at receiver
+        TermData1D Psigant; ///< Signal power at antenna
         //TermData2D V_k;          ///< Velocity, by channel
-        TermData2D Psigs_k;      ///< Signal power at receiver, short pulse, by channel
-        TermData2D Psigl_k;      ///< Signal power at receiver, long pulse, by channel
-        TermData1D Psigs;        ///< Signal power at receiver, short pulse
-        TermData1D Psigl;        ///< Signal power at receiver, long pulse
-        TermData1D Thetas;       ///< Accumulated phase change of short prts.
-        TermData1D Thetal;       ///< Accumulated phase change of long prt
-        TermData1D DeltaTheta;   ///< Phase difference between short and long prts.
-        TermData1D Dbz;          ///< Reflectivity
-        TermData1D W;            ///< Spectral width
-        TermData1D Ncp;          ///< Normalized coherent power
-        TermData1D Vr;           ///< Radial velocity
-        TermData1D Vs;           ///< Short pulse velocity
-        TermData1D Vl;           ///< Long pulse velocity
+        TermData2D Psigs_k; ///< Signal power at receiver, short pulse, by channel
+        TermData2D Psigl_k; ///< Signal power at receiver, long pulse, by channel
+        TermData1D Psigs; ///< Signal power at receiver, short pulse
+        TermData1D Psigl; ///< Signal power at receiver, long pulse
+        TermData1D Thetas; ///< Accumulated phase change of short prts.
+        TermData1D Thetal; ///< Accumulated phase change of long prt
+        TermData1D DeltaTheta; ///< Phase difference between short and long prts.
+        TermData1D Dbz; ///< Reflectivity
+        TermData1D W; ///< Spectral width
+        TermData1D Ncp; ///< Normalized coherent power
+        TermData1D Vr; ///< Radial velocity
+        TermData1D Vs; ///< Short pulse velocity
+        TermData1D Vl; ///< Long pulse velocity
 
 };
 
-/// Caclulate radar products and publish them. The formulation of the
+/// Scale and bias values to be used for the data compression 
+/// in the DDS stream.
+struct ProductsScaling
+{
+        double dmScale;  ///< scale for dm
+        double dmBias;   ///< Bias for dm
+        
+        double pScale;   ///< scale for p1-p4
+        double pBias;    ///< scale for p1-p4
+        
+        double dbzScale; ///< scale for dbz
+        double dbzBias;  ///< bias for dbz   
+
+        double swScale;  ///< scale for sw
+        double swBias;   ///< bias for sw     
+
+        double ncpScale; ///< scale for ncp
+        double ncpBias;  ///< bias for ncp     
+
+        double vsScale;  ///< scale for vs
+        double vsBias;   ///< bias for vs
+
+        double vlScale;  ///< scale for vl
+        double vlBias;   ///< bias for vl
+
+        double vrScale;  ///< scale for vr
+        double vrBias;   ///< bias for vr
+};
+
+/// Caclulate radar products from ABP rays, and publish the result. The formulation of the
 /// products computation are defined in "Eldora Moments" by Eric Loew.
 /// Nomenclature and methodology from that text are followed closely here.
 ///
-/// A number of calculation factors are precomputed once, when the first set
-/// of rays is received.
+/// EldoraProducts is delivered a new collection of rays via newRayData. The collection contains 
+/// all rays for a single ray number, for all channels and all prt ids. If operating
+/// in single prt mode, there will be a single set of rays for that prt. If operating
+/// in dual prt mode, there will be two sets of rays. The first set will be for the short 
+/// prt. The second set will be for the long prt.
+///
+/// There are a number of constant factors which do not change for a given radar configuration.
+/// These are computed once, when the first set of rays is received. This initialization is performed
+/// in initTerms(). The radar configuration is read from the housekeeping data that is included 
+/// with the ray data.
+///
+/// The computation procedure follws the linear sequence described in the Loew document.
+/// The ProductsTerms structure is used to collect results, both intermediate and final,
+/// as the computations proceed. ProductsTerms also holds the precomputed constants described
+/// earlier.
+///
+/// Once all of the computation steps have been completed, the results are transfered 
+/// from the ProductsTerms structure to a DDS Products object. Products is then published
+/// via a DDS publisher.
+///
+/// In keeping with the algorithm documentation in Loew, each computation step
+/// will operate either in single or dual (staggered) prt mode.
+///
+/// EldoraProducts is finished with the supplied ray data as soon as newRayData()
+/// returns.
+///
+/// The computation sequence (lifted from newRayData(), is as follows. Note that
+/// the routine names match the sections in Loew:
+/// @code
+/// powerRaw(rays);
+/// powerAntenna(rays);
+/// totalPower(rays);
+/// signalPower(rays);
+/// totalSignalPower(rays);
+/// reflectivity(rays);
+/// velocity(rays);
+/// spectrumWidth(rays);
+/// ncp(rays);
+/// @endcode
 class EldoraProducts
 {
-    /// Describe a two dimensional array of pointers to rays. The first dmension
-    /// selects the prt id. The second id selects the channel number.
-    typedef std::vector<std::vector<EldoraDDS::Ray*> > RayData;
+        /// Describe a two dimensional array of pointers to rays. The first dmension
+        /// selects the prt id. The second id selects the channel number.
+        typedef std::vector<std::vector<EldoraDDS::Ray*> > RayData;
     public:
         /// @param publisher The publisher for publishing products.
         /// @param productsTopic The topic that the products wll be published under.
@@ -102,7 +171,10 @@ class EldoraProducts
         /// mode, it can be either 0 or 1. The second index covers the 
         /// frequency channels 0-3.
         ///
-        /// @param ray Two dimnsional vector containing pointers to rays.
+        /// @param ray Two dimnsional vector containing pointers to rays. If in 
+        /// staggered prt mode, the first vector, for prtId == 0,
+        /// will hold the short prt ray data and the second vector will hold the long 
+        /// prt ray data.
         void newRayData(RayData& ray);
 
         /// Return the number of rays procesed thus far.
@@ -113,12 +185,15 @@ class EldoraProducts
         /// and resize the vectors.
         /// @param p the products item to be initialized.
         /// @param gates The nmber of gates
-        void initProducts(EldoraDDS::Products* p, int gates);
+        void initProducts(EldoraDDS::Products* p,
+                          int gates);
         /// Initalize the entries in the Productsterms structure.
         /// Precomputed factors are initialized and vectors are resized.
         /// The ray data provides the header information.
         /// @rays Ray data with housekeeping.
         void initTerms(RayData& rays);
+        /// colect sums af A, B and P which ar eused in more than one calculation
+        void computeSums(RayData& rays);
         /// Calculate raw power at receiver
         void powerRaw(RayData& rays);
         /// Calculate power at antenna
@@ -133,9 +208,11 @@ class EldoraProducts
         void reflectivity(RayData& rays);
         /// Calculate velocity
         void velocity(RayData& rays);
-        /// Calculate spectral width
-        void spectralWidth(RayData &rays);
-        
+        /// Calculate spectrum width
+        void spectrumWidth(RayData& rays);
+        /// Caculate normalized coherent power
+        void ncp(RayData& rays);
+
         /// The number of rays that have been received.
         int _rays;
         /// The DDS publisher
@@ -152,6 +229,8 @@ class EldoraProducts
         /// Is filled in with calculation results as each 
         /// step in the products computations are completed.
         ProductsTerms _terms;
+        /// Is initialized with scaling factors for the DDS data compression
+        ProductsScaling _scaling;
         /// Contains the number of gates in the current set of rays
         int _gates;
         /// set to false if _terms still needs to be initialized.
