@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.317"
+    ComputedModelVersion    "1.320"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -44,8 +44,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "tbrimeye"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu May 22 09:26:13 2008"
-  ModelVersionFormat	  "1.%<AutoIncrement:317>"
+  LastModifiedDate	  "Wed Jun 04 11:23:10 2008"
+  ModelVersionFormat	  "1.%<AutoIncrement:320>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -666,7 +666,7 @@ Model {
       package		      "ff668"
       synthesis_tool	      "XST"
       directory		      "C:/Work_Projects/Xilinx/SysGen_Outputs/PulsePai"
-"rProcessor/PulsePairProc_x4_052208"
+"rProcessor/PulsePairProc_x4_060408"
       testbench		      off
       simulink_period	      "1/12e6"
       sysclk_period	      "(1/12e6)*1e9"
@@ -2515,7 +2515,7 @@ Model {
       BlockType		      Reference
       Name		      "D_PPGate1"
       Ports		      [1, 1]
-      Position		      [705, 3155, 765, 3175]
+      Position		      [700, 3085, 760, 3105]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -2529,7 +2529,7 @@ Model {
       xl_use_area	      off
       xl_area		      "[0 0 0 0 32 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
+      sggui_pos		      "20,20,336,384"
       block_type	      "gatewayout"
       block_version	      "8.2"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -2546,7 +2546,7 @@ Model {
       BlockType		      Reference
       Name		      "D_PPGate2"
       Ports		      [1, 1]
-      Position		      [705, 3085, 765, 3105]
+      Position		      [700, 3155, 760, 3175]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -2560,7 +2560,7 @@ Model {
       xl_use_area	      off
       xl_area		      "[0 0 0 0 32 0 0]"
       has_advanced_control    "0"
-      sggui_pos		      "-1,-1,-1,-1"
+      sggui_pos		      "20,20,336,384"
       block_type	      "gatewayout"
       block_version	      "8.2"
       sg_icon_stat	      "60,20,1,1,white,yellow,0,f0cec300"
@@ -2608,7 +2608,7 @@ Model {
       BlockType		      Reference
       Name		      "D_Sync_Error"
       Ports		      [1, 1]
-      Position		      [705, 3225, 765, 3245]
+      Position		      [700, 3225, 760, 3245]
       SourceBlock	      "xbsIndex_r4/Gateway Out"
       SourceType	      "Xilinx Gateway Out Block"
       infoedit		      "Gateway out block.  Converts Xilinx fixed point"
@@ -67304,7 +67304,7 @@ Model {
       Position		      [1085, 107, 1135, 803]
       Floating		      off
       Location		      [6, 56, 1286, 997]
-      Open		      on
+      Open		      off
       NumInputPorts	      "5"
       List {
 	ListType		AxesTitles
@@ -67793,18 +67793,6 @@ Model {
       DstPort		      1
     }
     Line {
-      SrcBlock		      "Pulse Pair Processor D"
-      SrcPort		      8
-      DstBlock		      "D_PPGate1"
-      DstPort		      1
-    }
-    Line {
-      SrcBlock		      "Pulse Pair Processor D"
-      SrcPort		      7
-      DstBlock		      "D_PPGate2"
-      DstPort		      1
-    }
-    Line {
       SrcBlock		      "Manual Switch2"
       SrcPort		      1
       DstBlock		      "A_Gate1"
@@ -68071,6 +68059,18 @@ Model {
       DstBlock		      "D_Q_DC"
       DstPort		      1
     }
+    Line {
+      SrcBlock		      "Pulse Pair Processor D"
+      SrcPort		      7
+      DstBlock		      "D_PPGate1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Pulse Pair Processor D"
+      SrcPort		      8
+      DstBlock		      "D_PPGate2"
+      DstPort		      1
+    }
   }
 }
 MatData {
@@ -68141,7 +68141,7 @@ MatData {
 "  !0    $         $     4   !F9C8V.     X    P    !@    @    $          4    "
 "(     0    ,    !         !   P!84U0 #@   (@    &    \"     0         !0    @"
 "    !    40    $         $    %$   !#.B]7;W)K7U!R;VIE8W1S+UAI;&EN>\"]3>7-'96Y"
-"?3W5T<'5T<R]0=6QS95!A:7)0<F]C97-S;W(O4'5L<V5086ER4')O8U]X-%\\P-3(R,#@        "
+"?3W5T<'5T<R]0=6QS95!A:7)0<F]C97-S;W(O4'5L<V5086ER4')O8U]X-%\\P-C T,#@        "
 " #@   #     &    \"     0         !0    @    !     P    $         $  # &]F9@ "
 ".    0     8    (    !          %    \"     $    ,     0         0    #    \""
 "@Q+S$R938I*C%E.0     .    2     8    (    !          %    \"     $    8     0"
@@ -68246,7 +68246,7 @@ MatData {
 "%     0         0    !0   &9F-C8X    #@   #     &    \"     0         !0    @"
 "    !     P    $         $  # %A35  .    B     8    (    !          %    \"  "
 "   $   !1     0         0    40   $,Z+U=O<FM?4')O:F5C=',O6&EL:6YX+U-Y<T=E;E]/"
-"=71P=71S+U!U;'-E4&%I<E!R;V-E<W-O<B]0=6QS95!A:7)0<F]C7W@T7S U,C(P.          . "
+"=71P=71S+U!U;'-E4&%I<E!R;V-E<W-O<B]0=6QS95!A:7)0<F]C7W@T7S V,#0P.          . "
 "   ,     8    (    !          %    \"     $    #     0         0  , ;V9F  X  "
 " !     !@    @    $          4    (     0    P    !         !     ,    *#$O,3"
 ")E-BDJ,64Y      X   !(    !@    @    $          4    (     0   !@    !       "
