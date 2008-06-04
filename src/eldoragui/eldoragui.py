@@ -3,6 +3,7 @@
 import sys
 import time
 import os
+import subprocess
 
 from PyQt4.QtCore    import *
 from PyQt4.QtGui     import *
@@ -57,6 +58,15 @@ def start():
     except Exception, e:
         #print "Error trying to contact ", drxrpc, e
         pass
+
+    try:
+        print "starting housekeeper"
+        r = hskprpc.server.Start()
+        if (r != 0):
+            main.statusLabel.setText("Failed to start housekeeper")
+    except Exception, e:
+        print "Error contacting housekeeper RPC for start:", e
+        pass
         
     # stop the eldora apps
     stopEldoraApps()
@@ -67,13 +77,20 @@ def start():
 ####################################################################################
 def stop():
     try:
-        # send a stop comand, although this may not
+        # send a stop command, although this may not
         # not be used in the final implementation
         r = drxrpc.radarStop()
         main.statusLabel.setText(QString(r))
     except Exception, e:
         #print "Error trying to contact ", drxrpc, e
         pass
+    
+    try:
+        r = hskprpc.server.Stop()
+        if (r != 0):
+            main.statusLabel.setText("Failed to stop housekeeper")
+    except Exception, e:
+        print "Error contacting housekeeper RPC for stop:", e
         
     # stop the eldora apps
     stopEldoraApps()
@@ -138,11 +155,14 @@ def startEldoraApps():
     # products
     runProducts()
     
-    # start the drx rpc server
-    drxrpc.start()
-    
-    # start the products rpc server
-    prodrpc.start()
+#    # start the drx rpc server
+#    drxrpc.start()
+#    
+#    # start the products rpc server
+#    prodrpc.start()
+#    
+#    # start the housekeeper rpc server
+#    hskprpc.start()
         
 ####################################################################################
 def stopEldoraApps():
@@ -440,6 +460,7 @@ def createRpcServers():
     drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
     global drxrpc
     drxrpc = EldoraRPC('drx', drxrpcurl)
+    drxrpc.start()
     
     # create the rpc for the housekeeper
     hskprpchost = ourConfig.getString('Hksp/Host', 'hskp')
@@ -447,6 +468,7 @@ def createRpcServers():
     hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
     global hskprpc
     hskprpc = EldoraRPC('hskp', hskprpcurl)
+    hskprpc.start()
     
     # create the rpc for the products generator
     prodrpchost = ourConfig.getString('Products/Host', 'archiver')
@@ -454,13 +476,39 @@ def createRpcServers():
     prodrpcurl = 'http://' + prodrpchost + ':' + str(prodrpcport)
     global prodrpc
     prodrpc = EldoraRPC('products', prodrpcurl)
+    prodrpc.start()
 
 ####################################################################################
 def header(selectedHeader):
     ''' Called to indicate that a new header has been selected.
     The header is provided as a parameter.
     '''
-    print 'He selected ', selectedHeader.projectName
+    print 'Selected new header', selectedHeader.headerFile,
+    print '(project ' + selectedHeader.projectName + ')'
+
+    # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
+    # housekeeper can find it when we execute its Header() method.
+    try:
+        src = selectedHeader.headerFile
+        dest = 'drx:/vxroot/headers/current.hdr'
+        cmd = ['scp', '-B', src, dest]
+        status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
+        if (status != 0):
+            print 'Could not scp', selectedHeader.headerFile, 'to', dest
+    except OSError, e:
+        print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
+            
+    # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
+    # for the header file, but can only return a signed value.  Adjust if 
+    # necessary to interpret as unsigned.  Zero is returned on error.
+    r = hskprpc.server.Header()
+    if (r < 0):
+        r = (1 << 32) + r
+    if (r != selectedHeader.checksum):
+        print('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
+              selectedHeader.checksum)
+    else:
+        print 'Housekeeper got the new header'
     
 ####################################################################################
 def nextTaskColor():
