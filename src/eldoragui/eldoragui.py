@@ -56,8 +56,14 @@ def start():
         r = drxrpc.radarStart()
         main.statusLabel.setText(QString(r))
     except Exception, e:
-        #print "Error trying to contact ", drxrpc, e
-        pass
+        print "Error contacting drx RPC for start:", e
+
+    try:
+        r = hskprpc.server.Start()
+        if (r != 0):
+            main.statusLabel.setText("Failed to start housekeeper")
+    except Exception, e:
+        print "Error contacting housekeeper RPC for start:", e
 
     try:
         print "starting housekeeper"
@@ -82,7 +88,7 @@ def stop():
         r = drxrpc.radarStop()
         main.statusLabel.setText(QString(r))
     except Exception, e:
-        #print "Error trying to contact ", drxrpc, e
+        print "Error contacting drx RPC for stop:", e
         pass
     
     try:
@@ -117,7 +123,7 @@ def status():
         if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
             productStatus = 2
     except Exception, e:
-        #print "Error trying to contact ", prodrpc.appName, '(', prodrpc.URI, '): ', e
+        print "Error contacting products RPC for status:", e
         ABPrate = 0
         productStatus = 2
     
@@ -131,7 +137,7 @@ def status():
           rates.append(r[k]*1000.0)
           
     except Exception, e:
-        #print "Error trying to contact ", drxrpc.appName, '(', drxrpc.URI, '): ', e
+        print "Error contacting drx RPC for status:", e
         rates = []
         for i in range(16):
             rates.append(0)
@@ -154,15 +160,6 @@ def startEldoraApps():
     
     # products
     runProducts()
-    
-#    # start the drx rpc server
-#    drxrpc.start()
-#    
-#    # start the products rpc server
-#    prodrpc.start()
-#    
-#    # start the housekeeper rpc server
-#    hskprpc.start()
         
 ####################################################################################
 def stopEldoraApps():
@@ -507,8 +504,6 @@ def header(selectedHeader):
     if (r != selectedHeader.checksum):
         print('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
               selectedHeader.checksum)
-    else:
-        print 'Housekeeper got the new header'
     
 ####################################################################################
 def nextTaskColor():
