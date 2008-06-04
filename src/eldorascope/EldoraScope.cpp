@@ -189,7 +189,6 @@ void EldoraScope::productSlot(
         std::vector<double> p, int radarId, float eldegrees, int prodType) {
     if (_paused)
         return;
-
     processProduct(p);
 }
 
@@ -751,11 +750,17 @@ void EldoraScope::adjustGainOffset(
         _specGraphCenter = min + (max-min)/2.0;
         _specGraphRange = 3*(max-min);
         _knobGain = -log10(_specGraphRange);
-        //       _gainKnob->setValue();
     } else {
         double factor = 0.8;
         _xyGraphCenter = (min+max)/2.0;
         _xyGraphRange = (1/factor)*(max - min)/2.0;
+        if (min == max ||
+        		isnan(min) ||
+        		isnan(max) ||
+        		isinf(min) ||
+        		isinf(max))
+        	_xyGraphRange = 1.0;
+        //std::cout << "min:"<<min<<"  max:"<<max<<"     _xxGraphRange is " << _xyGraphRange << "\n";
         _knobGain = -log10(_xyGraphRange);
         _gainKnob->setValue(_knobGain);
     }
