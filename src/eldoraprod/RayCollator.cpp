@@ -32,7 +32,8 @@ bool RayCollator::addRay(EldoraDDS::Ray* r)
     assert(chan > 0 && chan < 5);
 
     long rayNum = r->hskp.rayNum;
-    int prtId = r->prtId;
+    // The prt ids are one based when they come from the processor
+    int prtId = r->prtId-1;
 
     // if this is a new rayNum, create new entries in _channelCount and _rays.
     if (_channelCount.find(rayNum) == _channelCount.end()) {
