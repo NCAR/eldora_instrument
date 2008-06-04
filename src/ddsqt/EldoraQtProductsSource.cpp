@@ -73,12 +73,7 @@ void EldoraQtProductsSource::notify() {
                         for (unsigned int i = 0; i < productSize; i++) {
                             pP[i] = (product[i] - offset)/gain;
                         }
-                        if (*prodType == PROD_VR) {
-                            std::cout << " product:" << product[100];
-                            std::cout << "  gain:" << gain << "  offset:" << offset;
-                            std::cout << "  VR:" << (product[100] - offset)/gain << "\n";
-                        }
-                        // send the Pbeam to our client.
+                       // send the Pbeam to our client.
                         emit newPData(P, pItem->radarId, pItem->rotAngle, 
                                 *prodType);
                         clearCapture();
@@ -119,7 +114,7 @@ void EldoraQtProductsSource::selectProduct(
         PRODUCT_TYPES prodType, Products* pItem, short** p, float& gain,
         float& offset) {
 
-    switch (prodType) {
+	switch (prodType) {
     case PROD_P1:
         *p = &pItem->p1[0];
         gain = pItem->p1Scale;
