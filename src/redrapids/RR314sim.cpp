@@ -104,7 +104,8 @@ void RR314sim::simulate()
                 /// The firmware assigns channel numbers 1-4, 
                 /// corresponding to the receiver channels A.B. C. D
                 _abp[0] = i + 1;
-                _abp[1] = prt;
+                // The prt id is one based
+                _abp[1] = prt+1;
                 _abp[2] = _beamNum;
                 for (unsigned int a = 3; a < _abp.size(); a += 3) {
                     double A = ((rand() - RAND_MAX/2)*boardFactor);
