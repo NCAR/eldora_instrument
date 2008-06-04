@@ -118,12 +118,12 @@ EldoraRadarParams::EldoraRadarParams()
     parm_ncp_bias = 0.0;
     
     parm_vs_scale = 353.537506;
-    parm_vs_bias  = 8191.0;
+    parm_vs_bias  = 0.0;
      
     parm_vl_scale = 353.537506;
-    parm_vl_bias  = 8191.0;
+    parm_vl_bias  = 0.0;
     
     parm_vr_scale = 353.537506;
-    parm_vr_bias  = 8191.0;
+    parm_vr_bias  = 0.0;
 
 }
