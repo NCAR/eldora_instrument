@@ -51,9 +51,9 @@ def start():
     try:
         # send a stop and a start command, although these may not
         # not be used in the final implementation
-        r = drxrpc.radarStop()
+        r = drxrpc.server.stop()
         main.statusLabel.setText(QString(r))
-        r = drxrpc.radarStart()
+        r = drxrpc.server.start()
         main.statusLabel.setText(QString(r))
     except Exception, e:
         print "Error contacting drx RPC for start:", e
@@ -85,7 +85,7 @@ def stop():
     try:
         # send a stop command, although this may not
         # not be used in the final implementation
-        r = drxrpc.radarStop()
+        r = drxrpc.server.stop()
         main.statusLabel.setText(QString(r))
     except Exception, e:
         print "Error contacting drx RPC for stop:", e
@@ -113,7 +113,7 @@ def status():
     productRate = 0
     productStatus = 2
     try:
-        r = prodrpc.status()
+        r = prodrpc.server.status()
         ABPrate = r['numAbpBeams']
         productRate = r['numProductBeams']
         numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
@@ -129,7 +129,7 @@ def status():
     
     # determine the DRX status and rates.
     try:
-       r = drxrpc.status()
+       r = drxrpc.server.status()
        keys = sorted(r.keys())
        rates = []
        for k in keys:
@@ -503,6 +503,7 @@ def headerSelected(selectedHeader):
     except OSError, e:
         print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
             
+    # tell the housekeeper to load a new header
     # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
     # for the header file, but can only return a signed value.  Adjust if 
     # necessary to interpret as unsigned.  Zero is returned on error.
@@ -515,6 +516,82 @@ def headerSelected(selectedHeader):
                   selectedHeader.checksum)
     except Exception, e:
         print 'Exception ',e, 'while calling housekeeper Header()'
+        
+    # tell the drx to reconfigure with new radar parameters
+    headerToDrx(selectedHeader)
+    
+####################################################################################
+def headerToDrx(header):
+    ''' Send header values to eldoradrx. The values will
+be sent to the param() RPC function in eldoradrx. 
+
+They will arrive as an array of two element tuples. The first
+elemnt in the tuple is the key. The second element is an array
+of associated values. Most keys only have one element in the value 
+array, but some, such as FRIBRXGAIN, will have multiple items
+
+The order they are sent to, and received by eldoradrx is
+important, in order to identify the FORE or AFT radar that succeeding values
+belong to. Thus the RADD block must appear before associated PARM blocks, etc.
+'''
+
+    # these are the fields that we will capture from the 
+    # header. All others will br ignored.
+    fieldtypes = set( [
+        'WAVENCHIPS',
+        'WAVEPCPREP',
+        'WAVECHPOFF',
+        'WAVECHPWID',
+        'WAVENGATES',
+        'WAVEGATE1',
+        'WAVEGATE2',
+        'WAVEGATE3',
+        'WAVEGATE4',
+        'WAVEGATE5',
+        'WAVEMSREP',
+        'RADDNAME',
+        'RADDCONST',
+        'RADDNOIPOW',
+        'RADDUNVEL',
+        'RADDUNRNG',
+        'RADDNFREQ',
+        'RADDNIPP',
+        'RADDFREQ1',
+        'RADDFREQ2',
+        'RADDFREQ3',
+        'RADDFREQ4',
+        'RADDFREQ5',
+        'RADDIPP1',
+        'RADDIPP2',
+        'RADDIPP3',
+        'RADDIPP4',
+        'RADDIPP5',
+        'FRIBNAME',
+        'FRIBRXGAIN',
+        'FRIBLNALOS',
+        'FRIBXGAIN',
+        'FRIBTSGAT',
+        'FRIBFRQGA',
+        'PARMNAME',
+        'PARMBIAS',
+        'PARMSCALE'
+        ])
+
+    # this rpc parameter list will be an array rather than 
+    # a dictionary, since we can have entries with the same name.
+    params = []
+    # collect all keys and associated values of interest in the header.
+    for block in header:
+        fields = {}
+        for field in block:
+            key = block.type+field[0]
+            if key in fieldtypes:
+                p = [key,]
+                p.append(field[2].split())
+                params.append(p)
+                #print (p)
+    # send them to eldoradrx
+    drxrpc.server.params(params)
     
 ####################################################################################
 def nextTaskColor():

@@ -47,13 +47,22 @@ protected:
 	/// The proxy that connects stop() to the RPC server.
 	RPCCmd<DrxRPC> _shutdownCmd;
 
-	/// The status command handler.
+    /// Set the radar params.
+    /// @param params 
+    /// @param result 1 if params accepted, 0 if not.
+    void params(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
+    
+    /// The proxy that connects status() to the RPC server.
+    RPCCmd<DrxRPC> _statusCmd;
+
+    /// The status command handler.
 	/// @param params There are no RPC input parameters
 	/// @param result The RPC result will be an map of status strings
 	void status(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result);
-	/// The proxy that connects status() to the RPC server.
-	RPCCmd<DrxRPC> _statusCmd;
 	
+    /// The proxy that connects params() to the RPC server.
+    RPCCmd<DrxRPC> _paramsCmd;
+
 	/// The last time we querried the RR cards for their bytecounts.
 	double _lastTime;
 };

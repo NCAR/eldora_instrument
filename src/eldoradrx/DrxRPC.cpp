@@ -14,6 +14,7 @@ DrxRPC::DrxRPC(int rpcport,
             _startCmd(&_server, *this, "start", &DrxRPC::start),
             _stopCmd(&_server, *this, "stop", &DrxRPC::stop),
             _shutdownCmd(&_server, *this, "shutdown", &DrxRPC::shutdown),
+            _paramsCmd(&_server, *this, "params", &DrxRPC::params),
             _statusCmd(&_server, *this, "status", &DrxRPC::status) {
 
     struct timeval currentTimeTv;
@@ -101,10 +102,19 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
         key1 << "board1-" << i;
         retval[key1.str()] = rates[1][i]/1.0e6;
     }
-    
-    
 
     // return it
     result = retval;
 }
 
+///////////////////////////////////////////////////////////////////
+void DrxRPC::params(XmlRpc::XmlRpcValue& params,
+                   XmlRpc::XmlRpcValue& result) {
+
+    for (int i = 0; i < params[0].size(); i++) {
+        std::cout << params[0][i][0];
+        std::cout << "  " << params[0][i][1] << "\n";
+    }
+
+    result = 1;
+}
