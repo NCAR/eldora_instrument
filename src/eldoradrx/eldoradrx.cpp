@@ -11,6 +11,7 @@
 #include <ios>
 #include <vector>
 #include <set>
+#include <sys/select.h>
 
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -599,26 +600,24 @@ static void setRadarParams(EldoraRadarParams* radarParams, EldoraDDS::Housekeepi
 static void setupSignalHandler()
 {
 
-    // install signal handler for abort signals
+    // install signal handler for selected signals
     struct sigaction new_action, old_action;
 
-    /* Set up the structure to specify the new action. */
+    // Set up the structure to specify the new action.
     new_action.sa_handler = signalHandler;
     sigemptyset(&new_action.sa_mask);
     new_action.sa_flags = 0;
 
-    sigaction(SIGINT, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-        sigaction(SIGINT, &new_action, NULL);
-    sigaction(SIGHUP, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-        sigaction(SIGHUP, &new_action, NULL);
-    sigaction(SIGTERM, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-        sigaction(SIGTERM, &new_action, NULL);
-    if (old_action.sa_handler != SIG_IGN)
-        sigaction(SIGSEGV, &new_action, NULL);
-
+    // signals of interest
+    int sig_list[] = { SIGINT, SIGHUP, SIGTERM, SIGSEGV };
+    int nsignals = sizeof(sig_list) / sizeof(*sig_list);
+    
+    // Change the handler for signals in the list that aren't being ignored.
+    for (int s = 0; s < nsignals; s++) {
+        sigaction(sig_list[s], NULL, &old_action);
+        if (old_action.sa_handler != SIG_IGN)
+            sigaction(sig_list[s], &new_action, NULL);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -669,18 +668,18 @@ static void* rrDataTask(void* threadArg)
             if (sentFakeHskp.find(pBuf->rayTime) == sentFakeHskp.end()) {
                 // Generate and send the housekeeping
                 EldoraDDS::Housekeeping* hskp =
-                newFakeDDSHousekeeping(pBuf->rayTime,
-                        (pParams->deviceNumber == 1));
-                hskpMerger->newHskp(hskp);
-                
+                    newFakeDDSHousekeeping(pBuf->rayTime,
+                                           (pParams->deviceNumber == 1));
                 // add in some radar paremters needed by products generator
                 setRadarParams(radarParams, hskp);
                 
-               //// @todo When sendFakeHousekeeping() works, we'll use that to 
-                //// send via the UDP port instead of going directly to 
-                //// hskpMerger->newHskp()
-                //                sendFakeHousekeeping(hskp);
-                //                delete hskp;
+                // Send the fake housekeeping on its way
+                // @todo When sendFakeHousekeeping() works, we'll use that to 
+                // send via the UDP port instead of going directly to 
+                // hskpMerger->newHskp()
+                hskpMerger->newHskp(hskp);                        
+//                sendFakeHousekeeping(hskp);
+//                delete hskp;
 
                 // add this time to our history of delivered fake housekeeping
                 if (sentFakeHskp.size() == FAKE_HSKP_HISTORY_LEN)
@@ -725,6 +724,23 @@ static void* hskpReadTask(void* threadArg)
 
     // Just read incoming packets from the housekeeper and unpack them.
     while (1) {
+        // Wait up to 0.1 second for data on our socket.  We don't want too
+        // long a timeout, since we want to be able to respond to thread
+        // cancellation pretty quickly.
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(inSocket, &fds);
+        struct timeval timeout = { 0, 100000 }; // 0.1 second
+        int nfds = select(inSocket + 1, &fds, NULL, NULL, &timeout);
+        
+        // If our parent is cancelling us, let it happen now.
+        pthread_testcancel();
+        
+        // If the select timed out and we lived through the cancel test,
+        // go back and wait again.
+        if (nfds == 0)
+            continue;
+        
         int nread;
         if ((nread = recv(inSocket, buf, sizeof(buf) - 1, 0)) < 0) {
             perror("reading from housekeeping socket");
@@ -1056,12 +1072,18 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
             ": bad address for outgoing housekeeping" << std::endl;
         }
     }
-
+    //
+    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
+    // comes from the housekeeper
+    //
+    char hskpPacket[176];
+    strcpy(hskpPacket, "FOO");
+    
     // Now actually send the packet of housekeeping as if we were the 
-                    // housekeeper machine
-                    //    int nwrote;
-                    //    if ((nwrote = sendto(outSocket, hskp, sizeof(*hskp), 0, 
-                    //            (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
-                    //        std::cerr << __FILE__ << ":" << __LINE__ << ": error sending housekeeping: " <<
-                    //            strerror(errno) << std::endl;
-                }
+    // housekeeper machine
+    int nwrote;
+    if ((nwrote = sendto(outSocket, hskpPacket, sizeof(hskpPacket), 0, 
+                         (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
+        std::cerr << __FILE__ << ":" << __LINE__ << 
+            ": error sending housekeeping: " << strerror(errno) << std::endl;
+}
