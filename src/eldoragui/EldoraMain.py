@@ -42,8 +42,6 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         
         # create a eldoraHeaderGUI to manage header interaction
         self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,], hdrDumpApp)
-        # The 'header' signal indicates a new header has been chosen
-        self.connect(self.headerGui, SIGNAL("header"), self.header)
         # save the current header
         self.selectedHeader = self.headerGui.selectedHeader
             
@@ -93,6 +91,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.connect(self.viewHdrBtn, SIGNAL('released()'), self.headerGui.viewHeader)
         # the expand button
         self.connect(self.expandButton, SIGNAL('released()'), self.showHide)
+        # The 'header' signal indicates a new header has been chosen
+        self.connect(self.headerGui, SIGNAL("header"), self.headerSelected)
         
         # use our timer for a clock. Remember that the first tick will 
         # casue a ready signal to be emitted.
@@ -147,7 +147,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                 self.setGauge('DRX', 0)
 
     ###############################################################################
-    def header(self):
+    def headerSelected(self):
         ''' Emit a signal saying that a new header has been chosen,
         and send the selected header with it
         '''

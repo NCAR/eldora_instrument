@@ -476,7 +476,7 @@ def createRpcServers():
     prodrpc.start()
 
 ####################################################################################
-def header(selectedHeader):
+def headerSelected(selectedHeader):
     ''' Called to indicate that a new header has been selected.
     The header is provided as a parameter.
     '''
@@ -486,24 +486,35 @@ def header(selectedHeader):
     # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
     # housekeeper can find it when we execute its Header() method.
     try:
-        src = selectedHeader.headerFile
-        dest = 'drx:/vxroot/headers/current.hdr'
-        cmd = ['scp', '-B', src, dest]
-        status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
-        if (status != 0):
-            print 'Could not scp', selectedHeader.headerFile, 'to', dest
+        cmd = ['ping', '-c', '1', 'drx']
+        status = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
+        if status:
+            print 'Unable to locate drx in order to change headers'
+        else:    
+            try:
+                src = selectedHeader.headerFile
+                dest = 'drx:/vxroot/headers/current.hdr'
+                cmd = ['scp', '-B', src, dest]
+                status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
+                if (status != 0):
+                    print 'Could not scp', selectedHeader.headerFile, 'to', dest
+            except OSError, e:
+                print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
     except OSError, e:
         print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
             
     # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
     # for the header file, but can only return a signed value.  Adjust if 
     # necessary to interpret as unsigned.  Zero is returned on error.
-    r = hskprpc.server.Header()
-    if (r < 0):
-        r = (1 << 32) + r
-    if (r != selectedHeader.checksum):
-        print('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
-              selectedHeader.checksum)
+    try:
+        r = hskprpc.server.Header()
+        if (r < 0):
+            r = (1 << 32) + r
+        if (r != selectedHeader.checksum):
+            print('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
+                  selectedHeader.checksum)
+    except Exception, e:
+        print 'Exception ',e, 'while calling housekeeper Header()'
     
 ####################################################################################
 def nextTaskColor():
@@ -579,7 +590,7 @@ QObject.connect(main, SIGNAL('status'),             status)
 QObject.connect(main, SIGNAL('ready'),              mainIsReady)
 QObject.connect(main, SIGNAL('ppi'),                ppi)
 QObject.connect(main, SIGNAL('scope'),              scope)
-QObject.connect(main, SIGNAL('header'),             header)
+QObject.connect(main, SIGNAL('header'),             headerSelected)
 QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
 
 # start the event loop
