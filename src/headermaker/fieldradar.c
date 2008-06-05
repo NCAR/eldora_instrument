@@ -284,7 +284,7 @@ void fprint_fieldradar(fradar_pntr,
             "FRIBPROCON PROCESSOR CONSTANT (scaled dBZ)          : %f\n",
             fradar_pntr->processor_const);
     fprintf(print_pntr,
-            "FRIB TIME  DELAY TWT TUBE TO ANTENNA (ns)           : %ld\n",
+            "FRIBTIME   DELAY TWT TUBE TO ANTENNA (ns)           : %ld\n",
             fradar_pntr->dly_tube_antenna);
     fprintf(print_pntr,
             "FRIBDLYAD  TIME DELAY(round trip) CHIP TO A TO D(ns): %ld\n",
