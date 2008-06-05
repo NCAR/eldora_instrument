@@ -230,7 +230,11 @@ class RR314
         /// Dwell duration (= nsamples / PRF).
         boost::posix_time::time_duration dwellDuration()
         {
-            return boost::posix_time::microseconds((1000000 * _samples) / _prf);
+            // Calculate dwell duration to nearest usec.
+            // wave_msrep is "milliseconds per repeat", i.e. PRT, as a double
+            unsigned int usecPerDwell = 
+                (unsigned int)((_samples * _radarParams.wave_msrep * 1000) + 0.5);
+            return boost::posix_time::microseconds(usecPerDwell);
         }
 
         /// Ray time (at the middle of the ray integration period)
