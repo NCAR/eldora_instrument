@@ -1045,18 +1045,15 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
             ": bad address for outgoing housekeeping" << std::endl;
         }
     }
-    //
-                    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
-                    // comes from the housekeeper
-                    //
-                    char hskpPacket[176];
-                    strcpy(hskpPacket, "FOO");
+    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
+    // comes from the housekeeper
+    char hskperPacket[176];
 
-                    // Now actually send the packet of housekeeping as if we were the 
-                    // housekeeper machine
-                    int nwrote;
-                    if ((nwrote = sendto(outSocket, hskpPacket, sizeof(hskpPacket), 0,
-                                            (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
-                    std::cerr << __FILE__ << ":" << __LINE__ <<
-                    ": error sending housekeeping: " << strerror(errno) << std::endl;
-                }
+    // Now actually send the packet of housekeeping as if we were the 
+    // housekeeper machine
+    int nwrote = sendto(outSocket, hskperPacket, sizeof(hskperPacket), 0,
+                        (struct sockaddr*)&destAddr, sizeof(destAddr));
+    if (nwrote < 0)
+        std::cerr << __FILE__ << ":" << __LINE__ <<
+            ": error sending housekeeping: " << strerror(errno) << std::endl;
+}
