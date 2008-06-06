@@ -353,18 +353,6 @@ int RR314::configure314()
     // Disable all interupts
     Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
 
-    //Load the v4 if needed
-    //if (_xsvfFileName.size() > 0) {
-    //    std::cout << "Loading bitstream " << _xsvfFileName << std::endl;
-    //    char name[_xsvfFileName.size()+1];
-    //    strcpy(name, _xsvfFileName.c_str());
-    //    if (Adapter_LoadXSVF(&_chanAdapter, name, 1)) {
-    //        printf("V4 and / or PROM failed to load, will now exit...\n");
-    //        Adapter_Close(&_chanAdapter);
-    //        return -1;
-    //    }
-    //}
-
     // set the sample clock
     _ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
     Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
@@ -603,15 +591,15 @@ void RR314::newIQData(short* src,
             pBuf->rayNum = pBuf->_pulseCount / _samples;
             pBuf->rayTime = rayTime(pBuf->rayNum);
             // Pulse order sanity check
-            if ((pBuf->_pulseCount % _samples) != pBuf->_samplesFilled) {
-                std::cerr << __FUNCTION__ << ": got IQ sample "
-                        << pBuf->_pulseCount % _samples << " when expecting "
-                        << pBuf->_samplesFilled << " in ray at "
-                        << pBuf->rayTime << std::endl;
-                std::cerr << __FUNCTION__ << ": stopping card " << _devNum
-                        << std::endl;
-                RR314shutdown();
-            }
+            //if ((pBuf->_pulseCount % _samples) != pBuf->_samplesFilled) {
+            //    std::cerr << __FUNCTION__ << ": got IQ sample "
+            //            << pBuf->_pulseCount % _samples << " when expecting "
+            //            << pBuf->_samplesFilled << " in ray at "
+            //            << pBuf->rayTime << std::endl;
+            //    std::cerr << __FUNCTION__ << ": stopping card " << _devNum
+            //            << std::endl;
+            //    RR314shutdown();
+            //}
             break;
         default:
             nextData = (pBuf->_posInSample - 6) + _numIQGates
