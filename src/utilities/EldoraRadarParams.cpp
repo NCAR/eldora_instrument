@@ -69,7 +69,7 @@ EldoraRadarParams::EldoraRadarParams()
     wave_gate5[1] = 60;
 
     //wave_msrep = 0.33333333;
-    wave_msrep = 0.5;
+    wave_msrep = 1.125;
     wave_seqrep = 45;
 
     // fields from the header radar descriptor block (RADD)
@@ -81,8 +81,9 @@ EldoraRadarParams::EldoraRadarParams()
     radd_unvel = 23.168688;
     radd_unrng = 50.0;
     radd_nfreq = 4;
-    radd_nipp = 1;
-    
+    //radd_nipp = 1;
+    radd_nipp = 2;
+        
     radd_freq1 = 9.709332;
     radd_freq2 = 9.700000;
     radd_freq3 = 9.690667;
@@ -91,7 +92,8 @@ EldoraRadarParams::EldoraRadarParams()
     
     //radd_ipp1 = 0.33333333;
     radd_ipp1 = 0.5;
-    radd_ipp2 = -999.0;
+    //radd_ipp2 = -999.0;
+    radd_ipp2 = 0.625;
     radd_ipp3 = -999.0;
     radd_ipp4 = -999.0;
     radd_ipp5 = -999.0;
