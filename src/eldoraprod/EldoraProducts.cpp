@@ -2,9 +2,51 @@
 #include <iostream>
 #include <math.h>
 #define TOSHORT(data, scale, bias) ((short)(data*scale+bias))
-#define square(a) (a*a)
+void EldoraProducts::signalPower(RayData& rays)
+{
 
-////////////////////////////////////////////////////
+    // Signal power.  Dependent on single/dual prt.
+    switch (_dualPrt)
+    {
+    case false:
+        // single prt
+        for (int g = 0; g < _gates; g++) {
+            double sum = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+                // pick the p out of abp
+                double p = rays[0][k]->abp[3*g+2];
+                _terms.Psig_k[k][g] = p - _terms.b10_k[k];
+                sum += _terms.Psig_k[k][g];
+            }
+            _terms.Psig[g] = sum/4.0;
+        }
+        break;
+
+    case true:
+        // dual prt
+        for (int g = 0; g < _gates; g++) {
+            double sumShort = 0.0;
+            double sumLong = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+
+                double pks = rays[0][k]->abp[3*g+2];
+                _terms.Psigs_k[k][g] = pks - _terms.b10_k[k];
+                sumShort += _terms.Psigs_k[k][g];
+
+                double pkl = rays[1][k]->abp[3*g+2];
+                _terms.Psigl_k[k][g] = pkl - _terms.b10_k[k];
+                sumLong += _terms.Psigl_k[k][g];
+
+                _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
+            }
+
+            _terms.Psigs[g] = sumShort/4.0;
+            _terms.Psigl[g] = sumLong/4.0;
+        }
+        break;
+    }
+}
+
 EldoraProducts::EldoraProducts(DDSPublisher& publisher,
                                std::string productsTopic,
                                bool dualPrt) :
@@ -15,6 +57,9 @@ EldoraProducts::EldoraProducts(DDSPublisher& publisher,
 
 }
 
+#define square(a) (a*a)
+
+////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 EldoraProducts::~EldoraProducts()
 {
@@ -84,10 +129,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             products->dbz[g] = TOSHORT(_terms.Dbz[g], products->dbzScale, products->dbzOffset);
             products->vr[g] = TOSHORT(_terms.Vr[g], products->vrScale, products->vrOffset);
             products->sw[g] = TOSHORT(_terms.W[g], products->swScale, products->swOffset);
-            
-            products->vs[g] = TOSHORT(0.0, products->vsScale, products->vsOffset);
-            products->vl[g] = TOSHORT(0.0, products->vlScale, products->vlOffset);
-            
+            products->vs[g] = TOSHORT(_terms.Vs[g], products->vsScale, products->vsOffset);
+            products->vl[g] = TOSHORT(_terms.Vl[g], products->vlScale, products->vlOffset);
             products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
         }
         //std::cout << "Vr:"
@@ -204,51 +247,6 @@ void EldoraProducts::totalPower(RayData& rays)
 }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::signalPower(RayData& rays)
-{
-
-    // Signal power.  Dependent on single/dual prt.
-    switch (_dualPrt)
-    {
-    case false:
-        // single prt
-        for (int g = 0; g < _gates; g++) {
-            double sum = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-                // pick the p out of abp
-                double p = rays[0][k]->abp[3*g+2];
-                _terms.Psig_k[k][g] = p - _terms.b10_k[k];
-                sum += _terms.Psig_k[k][g];
-            }
-            _terms.Psig[g] = sum/4.0;
-        }
-        break;
-
-    case true:
-        // dual prt
-        for (int g = 0; g < _gates; g++) {
-            double sumShort = 0.0;
-            double sumLong = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-
-                double pks = rays[0][k]->abp[3*g+2];
-                _terms.Psigs_k[k][g] = pks - _terms.b10_k[k];
-                sumShort += _terms.Psigs_k[k][g];
-
-                double pkl = rays[1][k]->abp[3*g+2];
-                _terms.Psigl_k[k][g] = pkl - _terms.b10_k[k];
-                sumLong += _terms.Psigl_k[k][g];
-
-                _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
-            }
-
-            _terms.Psigs[g] = sumShort/4.0;
-            _terms.Psigl[g] = sumLong/4.0;
-        }
-        break;
-    }
-}
-
 ////////////////////////////////////////////////////
 void EldoraProducts::totalSignalPower(RayData& rays)
 {
@@ -302,8 +300,8 @@ void EldoraProducts::velocity(RayData& rays)
          for (int g = 0; g < _gates; g++) {
              /// @todo put in the velocity unfolding algorithm
              _terms.Vr[g] = 0.0;
-             _terms.Vs[g] = _terms.Vscale*atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
-             _terms.Vl[g] = _terms.Vscale*atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
+             _terms.Vs[g] = _terms.VscaleShort*atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
+             _terms.Vl[g] = _terms.VscaleLong*atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
          }
          break;
      }
