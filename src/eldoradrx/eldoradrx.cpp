@@ -49,113 +49,98 @@ using namespace RedRapids;
 using namespace boost::posix_time;
 namespace po = boost::program_options;
 
+// operating parameters
+bool _enabled[2]; ///< true if the dma transfers are to be started
+
+// signal processing parameters
+std::string _xsvf; ///< path to a bit file to be loaded into the RR314 fpga.
+std::string _kaiser; ///< path to a file containing coefficients for the kaiser filter.
+std::string _gaussian; ///< path to a file containing coefficients for the gaussian filter.
+
+// operating mode parameters
+bool _capture; ///< set true if the data should be captured to files in binary mode.
+bool _textcapture; ///< set true if the data should be captured to files in text mode.
+bool _simulateRR314; ///< set true to simulate an RR314 card, instead of accessing a real one.
+bool _simulateHskp; ///< set true to generate fake housekeeping data
+int _usleep; ///< The usleep value for sleeps between frames
+bool _internaltimer; ///< If true, use the rr314 builtin timer rather than an external
+
+// DDS parameters
+bool _publish; ///< set ture if the rr314 data should be published to DDS.
+std::string _ORB; ///< path to the ORB configuration file.
+std::string _DCPS; ///< path to the DCPS configuration file.
+std::string _rayTopic; ///< The published ray topic
+std::string _productsTopic; /// The published product topic
+
+/// The port number for RPC comms to eldoradrx.
+int _rpcPort;
+
+static const unsigned int DEFAULT_HSKP_PORT = 2222;
+/// The port number for incoming housekeeper data
+unsigned int _hskpPort;
+
 // save pointers to RR314 instances, in case we need to try
 // to stop them during a signal.
-/// All of the RR314 instances that we are manipulating.
 std::vector<RR314*> _rr314Instances;
 
 /// The Bittware timer
-Bittware* _bwtimer = 0;
+Bittware* _bwtimer;
 
 /// Set this flag to true in order to request the main loop to
 /// shut everything down.
 bool _terminate = false;
 
-// drop counters
-unsigned long _droppedRay[2] =
-    {
-            0,
-            0 };
-unsigned long _droppedTS[2] =
-    {
-            0,
-            0 };
+/// Dropped ray counters, for and aft.
+unsigned long _droppedRays[2];
+/// Dropped time series counters, for and aft.
+unsigned long _droppedTS[2];
+/// 8 DMA channel sample counters, for and aft.
+unsigned long _sampleCounts[2][8]; ///< collect the number of DDS samples written for each dma channel.
 
-/// Our DDS writers
+/// Our DDS services
+/// The publisher.
+static DDSPublisher* _publisher = 0;
+/// The ray writer.
 static RayWriter* _rayWriter = 0;
+/// The time series writer.
 static TSWriter* _tsWriter = 0;
 
-static const unsigned int DEFAULT_HSKP_PORT = 2222;
-unsigned int _hskpPort;
+/// The two rr314 cards, for and aft.
+RR314* _rr314[2];
 
-//////////////////////////////////////////////////////////////////////
-//
-// Not all of these fields are filled by parseOptions()
-/// The parameters that specify the configuration for each RR314 device.
-struct runParams
-{
-        // operating parameters
-        bool         enabled;              ///< true if the dma transfers are to be started
-        
-        // signal processing parameters
-        std::string  xsvf;                 ///< path to a bit file to be loaded into the RR314 fpga.
-        std::string  kaiser;               ///< path to a file containing coefficients for the kaiser filter.
-        std::string  gaussian;             ///< path to a file containing coefficients for the gaussian filter.
+/// Radar operating parameters, for and aft.
+static EldoraRadarParams _radarParams[2];
 
-        // operating mode parameters
-        bool          capture;             ///< set true if the data should be captured to files in binary mode.
-        bool          textcapture;         ///< set true if the data should be captured to files in text mode.
-        bool          simulateRR314;       ///< set true to simulate an RR314 card, instead of accessing a real one.
-        bool          simulateHskp;        ///< set true to generate fake housekeeping data
-        int           usleep;              ///< The usleep value for sleeps between frames
-        bool          internaltimer;       ///< If true, use the rr314 builtin timer rather than an external
+/// The housekeeper merger, for and aft.
+HskpMerger* _hskpMerger[2];
 
-        // DDS parameters
-        bool           publish;            ///< set ture if the rr314 data should be published to DDS.
-        std::string    ORB;                ///< path to the ORB configuration file.
-        std::string    DCPS;               ///< path to the DCPS configuration file.
-        std::string    rayTopic;           ///< The published ray topic
-        std::string    productsTopic;      /// The published product topic
+/// The two rr314 threads
+pthread_t _rrThread[2];
 
-        // RPC parameters
-        int            rpcPort;            ///< the rpc port number
+/// The housekeepr thread
+pthread_t _hskpThread;
 
-        // global objects
-        int            deviceNumber;       ///< card number, starting at 0
-        RR314*         pRR314;             ///< pointer to the instance of RR314 representing this card.
-        std::ofstream* ofstreams[8];       ///< pointers to output streams for test or binary data capture.
-        unsigned long  sampleCounts[8];    ///< collect the number of DDS samples written for each dma channel.
-        unsigned long* droppedTS;          ///< the number of TS samples that could not be published.
-        unsigned long* droppedRays;        ///< the number of Ray samples that could not be published.
-        HskpMerger*    hskpMerger;         ///< the object which merges housekeeping with RRBuffer-s
-};
-
-struct hskpThreadArg {
-    HskpMerger*        hskpMerger;          ///< the object which merges housekeeping with RRBuffer-s    
-    EldoraRadarParams* radarParams;         ///< radar parameters, one for FORE and one for AFT
-};
-
-struct rr314ThreadArg {
-    EldoraRadarParams* radarParams;        ///< The radar operating paramters
-    struct runParams*  drxParams;
-};
-
-//
 // prototypes
 //
-static void getConfigParams(runParams&);
-static void parseOptions(runParams&,
-                         int argc,
-                         char** argv,
-                         bool& start0,
-                         bool& start1);
+static void getConfigParams();
+static void parseOptions(int argc,
+                         char** argv);
 static void shutdownBoards();
 static void setupSignalHandler();
-static void* rrDataTask(void* threadArg);
+static void* rrReadTask(void* threadArg);
 static void* hskpReadTask(void* threadArg);
 static void setupSignalHandler();
 static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* buf,
                                                    int buflen);
-static void showStats(runParams& drxParams,
-                      RR314& rr314,
-                      unsigned long& droppedRay,
-                      unsigned long& droppedTS,
+static void showStats(int devNumber,
                       int loopCount);
 static void publishAndCapture(RREntry* rentry,
                               Housekeeping* hskp);
 static EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
                                                        bool isFore);
 static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
+static void createDDSservices();
+static void startAll();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -164,43 +149,95 @@ static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 int main(int argc,
          char** argv)
 {
-    runParams drxParams[2];
-    EldoraRadarParams radarParams[2];
-    
+
     // get the parameters specified in the configuration. These
     // may be overriden by command line options in the call to parseOptions.
-    runParams configParams;
-    getConfigParams(configParams);
+    getConfigParams();
 
     // parse command line options. Initialize with values from
     // the configuration, and then allow them to be overriden
     // from the command line.
-    drxParams[0] = configParams;
-    bool start0;
-    bool start1;
-    parseOptions(drxParams[0], argc, argv, start0, start1);
-    
-    // now clone the run params for the second radar
-    drxParams[1] = drxParams[0];
-    
+    parseOptions(argc, argv);
+
+    // create DDS facilities if they are requested
+    if (_publish) {
+        createDDSservices();
+    }
+
     // And set radar specific fields
     // set the radar names
-    drxParams[0].deviceNumber = 0;
-    drxParams[1].deviceNumber = 1;
     for (int i = 0; i < 4; i++) {
-        radarParams[0].radd_name[i] = "FORE"[i];
-        radarParams[1].radd_name[i] = "AFT "[i];        
+        _radarParams[0].radd_name[i] = "FORE"[i];
+        _radarParams[1].radd_name[i] = "AFT "[i];
     }
+
+    startAll();
+
+    int loopCount = 0;
+
+    // create our RPC handler
+    DrxRPC rpcHandler(_rpcPort,
+                      *_rr314[0],
+                      *_rr314[1]);
+
+    // periodically display the card activity.
+    while (1) {
+        // stats for card 0
+        showStats(0, loopCount);
+        // hskp merger info for 0
+        _hskpMerger[0]->showStats(std::cout);
+        // stats for card 1
+        showStats(1, loopCount);
+        // hskp merger info for 1
+        _hskpMerger[1]->showStats(std::cout);
+        loopCount++;
+        for (int i = 0; i < 10; i++) {
+            if (_terminate)
+                break;
+            sleep(1);
+        }
+        if (_terminate)
+            break;
+    }
+
+    std::cout << "Terminating " << argv[0] << "\n";
+    if (_bwtimer) {
+        delete _bwtimer;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////
+static void startAll()
+{
+
+    // initialize items that are reused on each restart:
     
-    if (start0)
-        drxParams[0].enabled = true;
-    if (start1)
-        drxParams[1].enabled = true;
+    // hskp thread
+    _hskpThread = 0;
+    // bittware timer
+    _bwtimer = 0;
+    for (int i = 0; i < 2; i++) {
+        // rr data read threads
+        _rrThread[i] = 0;
+        // rr314 cards
+        _rr314[i] = 0;
+        // hskp mergers
+        _hskpMerger[i] = 0;
+    }
+
+    // initialize status counters
+    for (int d = 0; d < 2; d++) {
+        _droppedRays[d] = 0;
+        _droppedTS[d] = 0;
+        for (int i = 0; i < 8; i++) {
+            _sampleCounts[d][i] = 0;
+        }
+    }
 
     // create timer
-    if (!drxParams[0].simulateRR314 && !drxParams[0].internaltimer) {
+    if (!_simulateRR314 && !_internaltimer) {
         _bwtimer = new Bittware(0);
-        _bwtimer->configure(radarParams[0]);
+        _bwtimer->configure(_radarParams[0]);
         if (!_bwtimer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
             _bwtimer->shutdown();
@@ -208,120 +245,71 @@ int main(int argc,
         }
     }
 
-    for (int i = 0; i < 8; i++) {
-        drxParams[0].sampleCounts[i] = 0;
-        drxParams[1].sampleCounts[i] = 0;
-    }
-    // create an RR314 card
+    // create two RR314 cards
     try {
-        RR314 rr314_0(drxParams[0].deviceNumber,
-                radarParams[0],
-                drxParams[0].gaussian,
-                drxParams[0].kaiser,
-                drxParams[0].xsvf,
-                drxParams[0].internaltimer,
-                drxParams[0].simulateRR314,
-                drxParams[0].usleep,
+        _rr314[0] = new RR314(0,
+                _radarParams[0],
+                _gaussian,
+                _kaiser,
+                _xsvf,
+                _internaltimer,
+                _simulateRR314,
+                _usleep,
                 false // do not catch signals in RR314; we will do that ourselves.
         );
 
-        RR314 rr314_1(drxParams[1].deviceNumber,
-                radarParams[1],
-                drxParams[1].gaussian,
-                drxParams[1].kaiser,
-                drxParams[1].xsvf,
-                drxParams[1].internaltimer,
-                drxParams[1].simulateRR314,
-                drxParams[1].usleep,
+        _rr314[1] = new RR314(1,
+                _radarParams[1],
+                _gaussian,
+                _kaiser,
+                _xsvf,
+                _internaltimer,
+                _simulateRR314,
+                _usleep,
                 false // do not catch signals in RR314; we will do that ourselves
         );
 
         // save instances of RR314 for the shutdown handler
-        _rr314Instances.push_back(&rr314_0);
-        _rr314Instances.push_back(&rr314_1);
+        _rr314Instances.push_back(_rr314[0]);
+        _rr314Instances.push_back(_rr314[1]);
 
-        // pass rr314 instance to data reading thread.
-        drxParams[0].pRR314 = &rr314_0;
-        drxParams[1].pRR314 = &rr314_1;
-
-        drxParams[0].droppedRays = &_droppedRay[0];
-        drxParams[1].droppedRays = &_droppedRay[1];
-
-        drxParams[0].droppedTS = &_droppedTS[0];
-        drxParams[1].droppedTS = &_droppedTS[1];
-
-        // our housekeeping mergers, with 500 ms max retention time waiting to 
+        // Create our housekeeping mergers, with 500 ms max retention time waiting to 
         // make matches
-        HskpMerger hskpMerger[2] = {
-            HskpMerger(&rr314_0, 500, publishAndCapture),
-            HskpMerger(&rr314_1, 500, publishAndCapture)
-        };
+        _hskpMerger[0] = new HskpMerger(_rr314[0], 500, publishAndCapture);
+        _hskpMerger[1] = new HskpMerger(_rr314[1], 500, publishAndCapture);
 
-        if (drxParams[0].publish) {
-            std::cout <<__FILE__ << " creating DDS services\n";
-
-            ArgvParams argv("eldoradrx");
-            argv["-ORBSvcConf"] = drxParams[0].ORB.c_str();
-            argv["-DCPSConfigFile"] = drxParams[0].DCPS.c_str();
-
-            // create our DDS publisher
-            DDSPublisher* publisher = new DDSPublisher(argv.argc(), argv.argv());
-            if (publisher->status()) {
-                std::cout << "Unable to create a publisher, exiting.\n";
-                exit(1);
-            }
-
-            // create the ray writer
-            _rayWriter = new RayWriter(*publisher, "EldoraRays");
-
-            // create the time series writer
-            _tsWriter = new TSWriter(*publisher, "EldoraTS");
-
-            // housekeeping mergers
-            drxParams[0].hskpMerger = &(hskpMerger[0]);
-            drxParams[1].hskpMerger = &(hskpMerger[1]);
+        // create the rr314 data reading threads
+        if (_enabled[0]) {
+            pthread_create(&_rrThread[0], NULL, rrReadTask, (void*) 0);
         }
 
-        // create the data reading threads
-        pthread_t dataThread0;
-        rr314ThreadArg rrArg0 = { &radarParams[0], &drxParams[0] };
-        if (drxParams[0].enabled) {
-            pthread_create(&dataThread0, NULL, rrDataTask, (void*) &rrArg0);
-        }
-
-        pthread_t dataThread1;
-        rr314ThreadArg rrArg1 = { &radarParams[1], &drxParams[1] };
-        if (drxParams[1].enabled) {
-            pthread_create(&dataThread1, NULL, rrDataTask, (void*) &rrArg1);
+        if (_enabled[1]) {
+            pthread_create(&_rrThread[1], NULL, rrReadTask, (void*) 1);
         }
 
         // note if we're simulating housekeeping
-        if (drxParams[0].simulateHskp)
+        if (_simulateHskp)
         std::cout << "Housekeeping will be simulated" << std::endl;
 
         // Shift the default port for simulated housekeeping off of the 
         // normal default, so that we can simulate even if the real housekeeper
         // is running.
-        _hskpPort = (drxParams[0].simulateHskp) ?
+        _hskpPort = (_simulateHskp) ?
         (DEFAULT_HSKP_PORT + 1) : DEFAULT_HSKP_PORT;
 
         // and the housekeeping reader thread
-        hskpThreadArg hArg;
-        hArg.hskpMerger  = hskpMerger;
-        hArg.radarParams = radarParams;
-
-        pthread_t hskpThread;
-        pthread_create(&hskpThread, NULL, hskpReadTask, (void*)&hArg);
+        pthread_create(&_hskpThread, NULL, hskpReadTask, (void*)0);
 
         // setup the signal handlers before we run the cards.
         setupSignalHandler();
 
-        // start the processing
-        if (drxParams[0].enabled) {
-            rr314_0.start();
+        // start the RR314 cards. They will not actually start 
+        // sending data until the bittware timer is started.
+        if (_enabled[0]) {
+            _rr314[0]->start();
         }
-        if (drxParams[1].enabled) {
-            rr314_1.start();
+        if (_enabled[1]) {
+            _rr314[1]->start();
         }
 
         // start the timer, if we are using it.
@@ -349,58 +337,28 @@ int main(int argc,
             usleep(sleep_uSec);
             _bwtimer->start();
             // Tell the RedRapids cards what time xmit pulses start
-            rr314_0.setXmitStartTime(xmitStartTime);
-            rr314_1.setXmitStartTime(xmitStartTime);
+            _rr314[0]->setXmitStartTime(xmitStartTime);
+            _rr314[1]->setXmitStartTime(xmitStartTime);
         } else {
-            if (!drxParams[0].simulateRR314) {
+            if (!_simulateRR314) {
                 // start internal timing for both cards 0 & 1
-                rr314_0.startInternalTimer();
-                rr314_1.startInternalTimer();
+                _rr314[0]->startInternalTimer();
+                _rr314[1]->startInternalTimer();
             }
         }
-        int loopCount = 0;
 
-        // create our RPC handler
-        DrxRPC rpcHandler(drxParams[0].rpcPort, rr314_0, rr314_1);
-
-        // periodically display the card activity.
-        while(1)
-        {
-            // stats for card 0
-            showStats(drxParams[0], rr314_0, _droppedRay[0], _droppedTS[0], loopCount);
-            // hskp merger info for 0
-            hskpMerger[0].showStats(std::cout);
-            // stats for card 1
-            showStats(drxParams[1], rr314_1, _droppedRay[1], _droppedTS[1], loopCount);
-            // hskp merger info for 1
-            hskpMerger[1].showStats(std::cout);
-            loopCount++;
-            for (int i = 0; i < 10; i++) {
-                if (_terminate)
-                break;
-                sleep(1);
-            }
-            if (_terminate)
-            break;
-        }
     }
     catch (std::string e)
     {
         std::cout << e << std::endl;
         exit(1);
     }
-
-    std::cout << "Terminating " << argv[0] << "\n";
-    if (_bwtimer) {
-        delete _bwtimer;
-    }
 }
-
 //////////////////////////////////////////////////////////////////////
 ///
 /// get parameters that are spcified in the configuration file.
 /// These can be overriden by command line specifications.
-static void getConfigParams(runParams &drxParams)
+static void getConfigParams()
 {
 
     QtConfig config("NCAR", "EldoraDrx");
@@ -423,28 +381,29 @@ static void getConfigParams(runParams &drxParams)
     std::string productsTopic;
 
     // operating mode parameters
-    drxParams.enabled = config.getBool("Mode/Enabled", true);
-    drxParams.simulateRR314 = config.getBool("Mode/SimulateRR314", false);
-    drxParams.simulateHskp = config.getBool("Mode/SimulateHskp", false);
-    drxParams.usleep = config.getInt("Mode/Usleep", 9000);
-    drxParams.capture = config.getBool("Mode/BinaryCapture", false);
-    drxParams.textcapture = config.getBool("Mode/TextCapture", false);
-    drxParams.internaltimer = config.getBool("Mode/InternalTimer", false);
+    _enabled[0] = config.getBool("Mode/Enabled", true);
+    _enabled[1] = config.getBool("Mode/Enabled", true);
+    _simulateRR314 = config.getBool("Mode/SimulateRR314", false);
+    _simulateHskp = config.getBool("Mode/SimulateHskp", false);
+    _usleep = config.getInt("Mode/Usleep", 9000);
+    _capture = config.getBool("Mode/BinaryCapture", false);
+    _textcapture = config.getBool("Mode/TextCapture", false);
+    _internaltimer = config.getBool("Mode/InternalTimer", false);
 
     // RR314 signal processing parameters
-    drxParams.xsvf = config.getString("DSP/XsvfFile", "");
-    drxParams.kaiser = config.getString("DSP/KaiserFile", "");
-    drxParams.gaussian = config.getString("DSP/GaussianFile", "");
+    _xsvf = config.getString("DSP/XsvfFile", "");
+    _kaiser = config.getString("DSP/KaiserFile", "");
+    _gaussian = config.getString("DSP/GaussianFile", "");
 
     // DDS parameters
-    drxParams.publish = config.getBool("DDS/Publish", true);
-    drxParams.ORB = config.getString("DDS/ORBConfigFile", orbFile);
-    drxParams.DCPS = config.getString("DDS/DCPSConfigFile", dcpsFile);
-    rayTopic = config.getString("DDS/TopicRay", "EldoraRays");
-    productsTopic = config.getString("DDS/TopicProducts", "EldoraProducts");
+    _publish = config.getBool("DDS/Publish", true);
+    _ORB = config.getString("DDS/ORBConfigFile", orbFile);
+    _DCPS = config.getString("DDS/DCPSConfigFile", dcpsFile);
+    _rayTopic = config.getString("DDS/TopicRay", "EldoraRays");
+    _productsTopic = config.getString("DDS/TopicProducts", "EldoraProducts");
 
     // RPC parameters
-    drxParams.rpcPort = config.getInt("Rpc/RpcPort", 60000);
+    _rpcPort = config.getInt("Rpc/RpcPort", 60000);
 }
 //////////////////////////////////////////////////////////////////////
 //
@@ -452,41 +411,38 @@ static void getConfigParams(runParams &drxParams)
 /// that are not specified on the command line.
 /// @return The runtime options that can be passed to the
 /// threads that interact with the RR314.
-static void parseOptions(runParams& drxParams,
-                         int argc,
-                         char** argv,
-                         bool& start0,
-                         bool& start1)
+static void parseOptions(int argc,
+                         char** argv)
 {
 
     // get the option34
     po::options_description descripts("Options");
-    descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&drxParams.ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
-    ("DCPS", po::value<std::string>(&drxParams.DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&_ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
+    ("DCPS", po::value<std::string>(&_DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simRR314", "run RR314 in simulation mode")
     ("simHskp", "generate fake housekeeping data")
-    ("usleep", po::value<int>(&drxParams.usleep), "usleep value for simulation")
+    ("usleep", po::value<int>(&_usleep), "usleep value for simulation")
     ("start0", "start RR314 device 0")
     ("start1", "start RR314 device 1")
     ("internaltimer", "use RR314 internal timer")
-    ("xsvf", po::value<std::string>(&drxParams.xsvf), "path to xsvf file")
-    ("kaiser", po::value<std::string>(&drxParams.kaiser), "path to kaiser coefficient file")
-    ("gaussian", po::value<std::string>(&drxParams.gaussian),"path to gaussian coefficient file")
+    ("xsvf", po::value<std::string>(&_xsvf), "path to xsvf file")
+    ("kaiser", po::value<std::string>(&_kaiser), "path to kaiser coefficient file")
+    ("gaussian", po::value<std::string>(&_gaussian),"path to gaussian coefficient file")
     ("binary", "binary capture")
     ("text", "text capture")
     ("publish", "publish data")
-    ("rpcport", po::value<int>(&drxParams.rpcPort), "RPC port number");
+    ("rpcport", po::value<int>(&_rpcPort), "RPC port number");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, descripts), vm);
     po::notify(vm);
 
-    drxParams.publish = vm.count("publish") != 0;
-    drxParams.capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
-    drxParams.textcapture = vm.count("text") != 0;
-    drxParams.simulateRR314 = vm.count("simRR314") != 0;
-    drxParams.simulateHskp = vm.count("simHskp") != 0;
-    drxParams.internaltimer = vm.count("internaltimer") != 0;
+    _publish = vm.count("publish") != 0;
+    _capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
+    _textcapture = vm.count("text") != 0;
+    _simulateRR314 = vm.count("simRR314") != 0;
+    _simulateHskp = vm.count("simHskp") != 0;
+    _internaltimer = vm.count("internaltimer") != 0;
 
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
         std::cout << "Initialize two rr314 cards. If --start0 ond/or --start1 is specified,\n";
@@ -497,9 +453,9 @@ static void parseOptions(runParams& drxParams,
 
     // see if this device was selected to be active
     if (vm.count("start0"))
-        start0 = true;
+    _enabled[0] = true;
     if (vm.count("start1"))
-        start1 = true;
+    _enabled[1] = true;
 
 }
 
@@ -558,40 +514,42 @@ static void signalHandler(int signo)
 // Add radar parameters into the housekeeping
 //
 //////////////////////////////////////////////////////////////////////
-static void setRadarParams(EldoraRadarParams* radarParams, EldoraDDS::Housekeeping* hskp) {
+static void setRadarParams(EldoraRadarParams* radarParams,
+                           EldoraDDS::Housekeeping* hskp)
+{
 
     for (int i = 0; i < 4; i++)
         hskp->rxGain[i] = radarParams->frib_rxgain[i];
-    
-    hskp->freqs[0]      = radarParams->radd_freq1;
-    hskp->freqs[1]      = radarParams->radd_freq2;
-    hskp->freqs[2]      = radarParams->radd_freq3;
-    hskp->freqs[3]      = radarParams->radd_freq4;
 
-    hskp->xBandGain     = radarParams->frib_xgain;
-    hskp->lnaLoss       = radarParams->frib_lnalos;
-    hskp->noisePower    = radarParams->radd_noipow;
+    hskp->freqs[0] = radarParams->radd_freq1;
+    hskp->freqs[1] = radarParams->radd_freq2;
+    hskp->freqs[2] = radarParams->radd_freq3;
+    hskp->freqs[3] = radarParams->radd_freq4;
+
+    hskp->xBandGain = radarParams->frib_xgain;
+    hskp->lnaLoss = radarParams->frib_lnalos;
+    hskp->noisePower = radarParams->radd_noipow;
     hskp->radarConstant = radarParams->radd_const;
-    hskp->prt           = radarParams->radd_ipp1;
-    hskp->prtLong       = radarParams->radd_ipp2;
-    
-    hskp->dbzScale      = radarParams->parm_dbz_scale;  
-    hskp->dbzBias       = radarParams->parm_dbz_bias;
-         
-    hskp->swScale       = radarParams->parm_sw_scale;
-    hskp->swBias        = radarParams->parm_sw_bias;
-       
-    hskp->ncpScale      = radarParams->parm_ncp_scale;
-    hskp->ncpBias       = radarParams->parm_ncp_bias;
-       
-    hskp->vsScale       = radarParams->parm_vs_scale;
-    hskp->vsBias        = radarParams->parm_vs_bias;
-    
-    hskp->vlScale       = radarParams->parm_vl_scale;
-    hskp->vlBias        = radarParams->parm_vl_bias;
-    
-    hskp->vrScale       = radarParams->parm_vr_scale;
-    hskp->vrBias        = radarParams->parm_vr_bias;
+    hskp->prt = radarParams->radd_ipp1;
+    hskp->prtLong = radarParams->radd_ipp2;
+
+    hskp->dbzScale = radarParams->parm_dbz_scale;
+    hskp->dbzBias = radarParams->parm_dbz_bias;
+
+    hskp->swScale = radarParams->parm_sw_scale;
+    hskp->swBias = radarParams->parm_sw_bias;
+
+    hskp->ncpScale = radarParams->parm_ncp_scale;
+    hskp->ncpBias = radarParams->parm_ncp_bias;
+
+    hskp->vsScale = radarParams->parm_vs_scale;
+    hskp->vsBias = radarParams->parm_vs_bias;
+
+    hskp->vlScale = radarParams->parm_vl_scale;
+    hskp->vlBias = radarParams->parm_vl_bias;
+
+    hskp->vrScale = radarParams->parm_vr_scale;
+    hskp->vrBias = radarParams->parm_vr_bias;
 }
 //////////////////////////////////////////////////////////////////////
 //
@@ -609,9 +567,14 @@ static void setupSignalHandler()
     new_action.sa_flags = 0;
 
     // signals of interest
-    int sig_list[] = { SIGINT, SIGHUP, SIGTERM, SIGSEGV };
+    int sig_list[] =
+        {
+                SIGINT,
+                SIGHUP,
+                SIGTERM,
+                SIGSEGV };
     int nsignals = sizeof(sig_list) / sizeof(*sig_list);
-    
+
     // Change the handler for signals in the list that aren't being ignored.
     for (int s = 0; s < nsignals; s++) {
         sigaction(sig_list[s], NULL, &old_action);
@@ -624,22 +587,26 @@ static void setupSignalHandler()
 //
 // a task which just consumes the data from the
 // rr314 as it becomes available
-static void* rrDataTask(void* threadArg)
+static void* rrReadTask(void* threadArg)
 {
-    runParams* pParams = ((rr314ThreadArg*) threadArg)->drxParams;
-    EldoraRadarParams* radarParams = ((rr314ThreadArg*) threadArg)->radarParams;
- 
-    RR314* pRR314 = pParams->pRR314;
-    HskpMerger* hskpMerger = pParams->hskpMerger;
-    
+    int devNumber = (int)threadArg;
+
+    EldoraRadarParams* radarParams = _radarParams + devNumber;
+
+    RR314* pRR314;
+    if (devNumber == 0)
+        pRR314 = _rr314[0];
+    else
+        pRR314 = _rr314[1];
+
+    HskpMerger* hskpMerger = _hskpMerger[devNumber];
+
     int gates = radarParams->wave_ngates[0];
     int numiq = radarParams->frib_frqgat;
     int samples = radarParams->wave_ngates[0];
-    
-    bool capture = pParams->capture;
-    bool textcapture = pParams->textcapture;
-    bool simulateHskp = pParams->simulateHskp;
-    
+
+    bool simulateHskp = _simulateHskp;
+
     // When generating fake housekeeping, keep a set of the last few 
     // housekeeping times we've sent, so that we don't send out duplicate 
     // housekeeping.  The history only needs to be long enough to handle data 
@@ -657,9 +624,9 @@ static void* rrDataTask(void* threadArg)
         // get the details of this buffer
         int channel = pBuf->dmaChan;
         // bump the sample count
-        pParams->sampleCounts[channel]++;
+        _sampleCounts[devNumber][channel]++;
 
-        hskpMerger->newRRBuffer(pBuf, pParams->publish, pParams->capture, pParams->textcapture);
+        hskpMerger->newRRBuffer(pBuf, _publish, _capture, _textcapture);
 
         // If we're doing fake housekeeping, deal with it now.
         if (simulateHskp) {
@@ -668,18 +635,18 @@ static void* rrDataTask(void* threadArg)
             if (sentFakeHskp.find(pBuf->rayTime) == sentFakeHskp.end()) {
                 // Generate and send the housekeeping
                 EldoraDDS::Housekeeping* hskp =
-                    newFakeDDSHousekeeping(pBuf->rayTime,
-                                           (pParams->deviceNumber == 1));
+                newFakeDDSHousekeeping(pBuf->rayTime, (devNumber == 1));
+
                 // add in some radar paremters needed by products generator
                 setRadarParams(radarParams, hskp);
-                
+
                 // Send the fake housekeeping on its way
                 // @todo When sendFakeHousekeeping() works, we'll use that to 
                 // send via the UDP port instead of going directly to 
                 // hskpMerger->newHskp()
-                hskpMerger->newHskp(hskp);                        
-//                sendFakeHousekeeping(hskp);
-//                delete hskp;
+                hskpMerger->newHskp(hskp);
+                // sendFakeHousekeeping(hskp);
+                // delete hskp;
 
                 // add this time to our history of delivered fake housekeeping
                 if (sentFakeHskp.size() == FAKE_HSKP_HISTORY_LEN)
@@ -695,8 +662,6 @@ static void* rrDataTask(void* threadArg)
 
 static void* hskpReadTask(void* threadArg)
 {
-    HskpMerger* hskpMerger = ((hskpThreadArg*)threadArg)->hskpMerger;
-    EldoraRadarParams* radarParams = ((hskpThreadArg*)threadArg)->radarParams;
 
     struct sockaddr_in inAddr;
     memset(&inAddr, 0, sizeof(inAddr));
@@ -711,8 +676,8 @@ static void* hskpReadTask(void* threadArg)
     if ((inSocket = socket(AF_INET, SOCK_DGRAM, 0)) < 0
             || setsockopt(inSocket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))
                     < 0 || bind(inSocket,
-                                (struct sockaddr*)&inAddr,
-                                sizeof(inAddr)) < 0) {
+                                 (struct sockaddr*)&inAddr,
+                                 sizeof(inAddr)) < 0) {
         if (inSocket >= 0)
             close(inSocket);
         perror("creating incoming UDP socket");
@@ -729,18 +694,22 @@ static void* hskpReadTask(void* threadArg)
         // cancellation pretty quickly.
         fd_set fds;
         FD_ZERO(&fds);
-        FD_SET(inSocket, &fds);
-        struct timeval timeout = { 0, 100000 }; // 0.1 second
+        FD_SET(inSocket, &fds)
+;
+                struct timeval timeout =
+            {
+                    0,
+                    100000 }; // 0.1 second
         int nfds = select(inSocket + 1, &fds, NULL, NULL, &timeout);
-        
+
         // If our parent is cancelling us, let it happen now.
         pthread_testcancel();
-        
+
         // If the select timed out and we lived through the cancel test,
         // go back and wait again.
         if (nfds == 0)
             continue;
-        
+
         int nread;
         if ((nread = recv(inSocket, buf, sizeof(buf) - 1, 0)) < 0) {
             perror("reading from housekeeping socket");
@@ -752,21 +721,21 @@ static void* hskpReadTask(void* threadArg)
                     << std::endl;
             continue;
         }
-        
-        // add in some radar paremters needed by products generator
-        setRadarParams(radarParams, hskp);
-                
+
         // now merge housekeeping with ray data
-        if (!strncmp(hskp->radarName, "FORE", 4))
-            hskpMerger[1].newHskp(hskp);
-        else
-            hskpMerger[0].newHskp(hskp);
+        if (!strncmp(hskp->radarName, "FORE", 4)) {
+            // add in some radar paremters needed by products generator
+            setRadarParams(&_radarParams[1], hskp);
+            _hskpMerger[1]->newHskp(hskp);
+        } else {
+            setRadarParams(&_radarParams[0], hskp);
+            _hskpMerger[0]->newHskp(hskp);
+        }
     }
 
     close(inSocket);
     return NULL;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 /// Return a new EldoraDDS::Housekeeping built from the given buf
@@ -863,49 +832,29 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
 
 //////////////////////////////////////////////////////////////////////
 
-static void showStats(runParams& drxParams,
-                      RR314& rr314,
-                      unsigned long& droppedRay,
-                      unsigned long& droppedTS,
+static void showStats(int devNumber,
                       int loopCount)
 {
     // get the current temperature
-    double temperature = rr314.temperature();
+    double temperature = _rr314[devNumber]->temperature();
 
-    // get the current byte count for each dmaChan
-    // from rr314. This call causes the byte counters
-    // in r314 to be reset to zero.
-    //std::vector<unsigned long> bytes = rr314.bytes();
+    std::cout << "Device:" << devNumber << "  loop:" << loopCount++;
 
-    std::cout << "Device:" << drxParams.deviceNumber << "  loop:" << loopCount++
-            << "\n ";
-    //    std::cout << std::setw(8);
-    //    std::cout << std::setprecision(2);
-    //    std::cout << "bytes processed ";
-    //    // Print the number of free buffers in the rr314 buffer
-    //    // pool. If 0, rr314 is being overrun
-    //    unsigned long sum = 0;
-    //    for (unsigned int c = 0; c < bytes.size(); c++) {
-    //        std::cout << std::setw(6);
-    //        std::cout << bytes[c] << " ";
-    //        sum += bytes[c];
-    //    }
-    //    std::cout << sum << " ";
-    //    std::cout << sum/10.0e6 << "MB/s";
-    //    std::cout << "\n";
-
-    std::cout << "samples      ";
+    std::cout << " samples:";
     for (int i = 0; i < 8; i++) {
-        std::cout << std::setw(8) << drxParams.sampleCounts[i];
-        drxParams.sampleCounts[i] = 0;
+        std::cout << std::setw(8) << _sampleCounts[devNumber][i];
+        _sampleCounts[devNumber][i] = 0;
     }
+
     std::cout << "\n";
-    std::cout << "free IQ:" << rr314.numFreeIQBuffers() << "   free ABP:"
-            << rr314.numFreeABPBuffers() << "   dropped rays:" << droppedRay
-            << "   dropped TS:" << droppedTS << std::setprecision(4) << "   t:"
-            << temperature << "C" << "\n";
-    droppedRay = 0;
-    droppedTS = 0;
+    std::cout << "free IQ:" << _rr314[devNumber]->numFreeIQBuffers()
+            << "   free ABP:" << _rr314[devNumber]->numFreeABPBuffers()
+            << "   dropped rays:" << _droppedRays[devNumber]
+            << "   dropped TS:" << _droppedTS[devNumber]
+            << std::setprecision(4) << "   t:" << temperature << "C" << "\n";
+
+    _droppedRays[devNumber] = 0;
+    _droppedTS[devNumber] = 0;
 
     std::cout.flush();
 }
@@ -957,7 +906,7 @@ void publishAndCapture(RREntry* rentry,
                 // send the ray to the ray publisher
                 _rayWriter->publishItem(pDdsRay);
             } else {
-                _droppedRay[boardNum]++;
+                _droppedRays[boardNum]++;
                 //std::cout << "can't get publisher ray\n";
             }
         } else {
@@ -1026,6 +975,30 @@ void publishAndCapture(RREntry* rentry,
         }
     }
 }
+
+/////////////////////////////////////////////////////////////////////
+static void createDDSservices()
+{
+    std::cout <<__FILE__ << " creating DDS services\n";
+
+    ArgvParams argv("eldoradrx");
+    argv["-ORBSvcConf"] = _ORB;
+    argv["-DCPSConfigFile"] = _DCPS;
+
+    // create our DDS publisher
+    _publisher = new DDSPublisher(argv.argc(), argv.argv());
+    if (_publisher->status()) {
+        std::cout << "Unable to create a publisher, exiting.\n";
+        exit(1);
+    }
+
+    // create the ray writer
+    _rayWriter = new RayWriter(*_publisher, "EldoraRays");
+
+    // create the time series writer
+    _tsWriter = new TSWriter(*_publisher, "EldoraTS");
+}
+
 //////////////////////////////////////////////////////////////////////
 /// Return a complete new EldoraDDS::Housekeeping for the given time and
 /// radar.  The returned struct should be deleted by the caller.
@@ -1073,17 +1046,17 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
         }
     }
     //
-    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
-    // comes from the housekeeper
-    //
-    char hskpPacket[176];
-    strcpy(hskpPacket, "FOO");
-    
-    // Now actually send the packet of housekeeping as if we were the 
-    // housekeeper machine
-    int nwrote;
-    if ((nwrote = sendto(outSocket, hskpPacket, sizeof(hskpPacket), 0, 
-                         (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
-        std::cerr << __FILE__ << ":" << __LINE__ << 
-            ": error sending housekeeping: " << strerror(errno) << std::endl;
-}
+                    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
+                    // comes from the housekeeper
+                    //
+                    char hskpPacket[176];
+                    strcpy(hskpPacket, "FOO");
+
+                    // Now actually send the packet of housekeeping as if we were the 
+                    // housekeeper machine
+                    int nwrote;
+                    if ((nwrote = sendto(outSocket, hskpPacket, sizeof(hskpPacket), 0,
+                                            (struct sockaddr*)&destAddr, sizeof(destAddr))) < 0)
+                    std::cerr << __FILE__ << ":" << __LINE__ <<
+                    ": error sending housekeeping: " << strerror(errno) << std::endl;
+                }
