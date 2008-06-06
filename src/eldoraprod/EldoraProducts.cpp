@@ -90,6 +90,13 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             
             products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
         }
+        //std::cout << "Vr:"
+        //<<_terms.Vr[100]
+        //<< "  vrScale:" << products->vrScale 
+        //<< "  vrBias:" << products->vrOffset 
+        //<< "  scaled:" 
+        //<< TOSHORT(_terms.Vr[100], products->vrScale, products->vrOffset) << "\n";
+        
         // Publish the products.
         _productsWriter.publishItem(products);
     } else {
@@ -267,7 +274,7 @@ void EldoraProducts::reflectivity(RayData& rays)
             _terms.Dbz[g] =_terms.radarConstant + 10.0*log10(p)
                 + _terms.r[g];
         else
-            _terms.Dbz[g] = 0.0;
+            _terms.Dbz[g] = -35.0;
     }
 }
 
@@ -285,6 +292,9 @@ void EldoraProducts::velocity(RayData& rays)
              _terms.Vs[g] = 0;
              _terms.Vl[g] = 0;
          }
+         //std::cout << "SumA:" << _terms.SumA[0][100] 
+         //<< "  SumB:" << _terms.SumB[0][100] << "  VScale:"<< _terms.Vscale
+         //<< "  Vr:"<<_terms.Vr[100] << "\n";
          break;
 
      case true:
@@ -558,7 +568,7 @@ void ProductsTerms::init(int gates,
     // calculate constants
     for (int g = 0; g < gates; g++) {
         /// @todo use the real gate spacing here!
-        r[g] = log10((g*100.0 + 50.0) / 1000.0);
+        r[g] = 20.0*log10((g*100.0 + 50.0) / 1000.0);
     }
 
     lambda = 0.0;
