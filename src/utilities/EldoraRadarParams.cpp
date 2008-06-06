@@ -77,7 +77,7 @@ EldoraRadarParams::EldoraRadarParams()
         radd_name[i] = "FORE"[i];
 
     radd_const = -82.350868;
-    radd_noipow = -110.828751;
+    radd_noipow = -120.0;
     radd_unvel = 23.168688;
     radd_unrng = 50.0;
     radd_nfreq = 4;
@@ -97,10 +97,10 @@ EldoraRadarParams::EldoraRadarParams()
     radd_ipp5 = -999.0;
 
     // fields from the header field radar info block (FRIB)
-    frib_rxgain[0] = 30.299999;
-    frib_rxgain[1] = 30.400000;
-    frib_rxgain[2] = 30.400000;
-    frib_rxgain[3] = 30.799999;
+    frib_rxgain[0] = 24.299999;
+    frib_rxgain[1] = 24.400000;
+    frib_rxgain[2] = 24.400000;
+    frib_rxgain[3] = 24.799999;
     frib_rxgain[4] = 30.000000;
     frib_lnalos = 1.829850;
     frib_xgain = 22.1;
