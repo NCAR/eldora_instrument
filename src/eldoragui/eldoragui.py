@@ -309,7 +309,7 @@ def runProducts():
         return
     
     # start a new instance
-    productscmd = [appDict['eldoraprod'], ]
+    productscmd = [appDict['eldoraprod'], '--dual']
     ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
