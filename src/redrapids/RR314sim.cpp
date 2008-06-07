@@ -23,10 +23,9 @@ RR314sim::RR314sim(RR314* pRR314,
                    int nci,
                    int usleep) :
     _pRR314(pRR314), _numPrtIds(numPrtIds), _gates(gates), _startiq(startiq),
-            _numiq(numiq), _nci(nci), _pulseNum(0), _beamNum(0),
-            _usleep(usleep)
+            _numiq(numiq), _nci(nci), _usleep(usleep)
 {
-
+ 
     // configure the dmaChan numbers which
     // will receive the IQ and ABP data
     _iqChans.push_back(0);
@@ -37,29 +36,47 @@ RR314sim::RR314sim(RR314* pRR314,
     _abpChans.push_back(5);
     _iqChans.push_back(6);
     _abpChans.push_back(7);
+    
+    _pulseNum = 0;
+    _beamNum = 0;
+    _threadId = 0;
+    _terminate = false;
+    
 }
 
 //////////////////////////////////////////////////////////////////////
 
 RR314sim::~RR314sim()
 {
+    shutdown();
 }
 
 //////////////////////////////////////////////////////////////////////
 void RR314sim::start()
 {
 
-    pthread_t thread;
     // set the transmitter start time to now
     _pRR314->setXmitStartTime(boost::posix_time::second_clock::universal_time());
     // spawn the thread that will deliver the bogus data
-    pthread_create(&thread, NULL, simThread, (void*) this);
+    pthread_create(&_threadId, NULL, simThread, (void*) this);
 
 }
 
 //////////////////////////////////////////////////////////////////////
+void RR314sim::shutdown() {
+    if (_threadId) {
+        _terminate = true;
+        // give the simulator time to exit
+        usleep(5*_usleep);;
+        pthread_cancel(_threadId);
+        pthread_join(_threadId, 0);
+        _threadId = 0;
+    }
+}
+//////////////////////////////////////////////////////////////////////
 void RR314sim::simulate()
 {
+    
 
     // get the board number. We will modify the simulated data based 
     // on the boardnumber.
@@ -74,8 +91,12 @@ void RR314sim::simulate()
     // each iq is 2 bytes, but the interface to RR314 expects signed ints,
     // so resize it for the _numiq plus the 2 identifier words.
     _iq.resize(2*_numiq+6);
-
+    
     while (1) {
+        // stop simulation and exit, if requested. This should cause
+        // the thread to exit.
+        if (_terminate) 
+            break;
         for (int p = 0; p < _nci; p++) {
             for (unsigned int i = 0; i < _iqChans.size(); i++) {
                 // The firmware assigns channel numbers 1-8, 
@@ -92,7 +113,7 @@ void RR314sim::simulate()
                     // create Is and Qs
                     short int I = (rand() - RAND_MAX/2) & 0xffff;
                     short int Q = (rand() - RAND_MAX/2) & 0xffff;
-                    _iq[k ] = (short int)(I*boardFactor/k);
+                    _iq[k  ] = (short int)(I*boardFactor/k);
                     _iq[k+1] = (short int)(Q*boardFactor/k);
                 }
                 _pRR314->newIQData(&_iq[0], _iqChans[i], _iq.size());

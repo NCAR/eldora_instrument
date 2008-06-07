@@ -49,30 +49,27 @@ global ourProcesses # Processes that we have started and are managing
 ####################################################################################
 def start():
     try:
-        # send a stop and a start command, although these may not
-        # not be used in the final implementation
-        r = drxrpc.server.stop()
-        main.statusLabel.setText(QString(r))
         r = drxrpc.server.start()
-        main.statusLabel.setText(QString(r))
+        main.logText(str(r))
     except Exception, e:
-        print "Error contacting drx RPC for start:", e
-
-    try:
-        r = hskprpc.server.Start()
-        if (r != 0):
-            main.statusLabel.setText("Failed to start housekeeper")
-    except Exception, e:
-        print "Error contacting housekeeper RPC for start:", e
-
-    try:
-        print "starting housekeeper"
-        r = hskprpc.server.Start()
-        if (r != 0):
-            main.statusLabel.setText("Failed to start housekeeper")
-    except Exception, e:
-        print "Error contacting housekeeper RPC for start:", e
+        print ("Error contacting drx RPC for start:"+str(e))
         pass
+
+    try:
+        r = hskprpc.server.Start()
+        if (r != 0):
+                main.logText(str(r))
+    except Exception, e:
+        print ("Error contacting housekeeper RPC for start:"+str(e))
+        pass
+
+    try:
+        main.logText("starting housekeeper")
+        r = hskprpc.server.Start()
+        if (r != 0):
+            main.logText(str(r))
+    except Exception, e:
+        print ("Error contacting housekeeper RPC for start:"+str(e))
         
     # stop the eldora apps
     stopEldoraApps()
@@ -83,20 +80,18 @@ def start():
 ####################################################################################
 def stop():
     try:
-        # send a stop command, although this may not
-        # not be used in the final implementation
         r = drxrpc.server.stop()
-        main.statusLabel.setText(QString(r))
+        main.logText(str(r))
     except Exception, e:
-        print "Error contacting drx RPC for stop:", e
+        print("Error contacting drx RPC for stop:"+str(e))
         pass
     
     try:
         r = hskprpc.server.Stop()
         if (r != 0):
-            main.statusLabel.setText("Failed to stop housekeeper")
+            main.logText(str(r))
     except Exception, e:
-        print "Error contacting housekeeper RPC for stop:", e
+        print("Error contacting housekeeper RPC for stop:"+str(e))
         
     # stop the eldora apps
     stopEldoraApps()
@@ -112,20 +107,22 @@ def status():
     # determine the product status and product rates
     productRate = 0
     productStatus = 2
-    try:
-        r = prodrpc.server.status()
-        ABPrate = r['numAbpBeams']
-        productRate = r['numProductBeams']
-        numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
-        productStatus = 0
-        if numDiscards > 0 or ABPrate < 2000 or productRate < 400:
-            productStatus = 1
-        if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
-            productStatus = 2
-    except Exception, e:
-        print "Error contacting products RPC for status:", e
-        ABPrate = 0
-        productStatus = 2
+    ABPrate = 0
+    # only try to get products status if we have run it, since
+    # it will always be under our control
+    if 'eldoraprod' in ourProcesses.keys():
+        try:
+            r = prodrpc.server.status()
+            ABPrate = r['numAbpBeams']
+            productRate = r['numProductBeams']
+            numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
+            productStatus = 0
+            if numDiscards > 0 or ABPrate < 2000 or productRate < 400:
+                productStatus = 1
+            if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
+                productStatus = 2
+        except Exception, e:
+            print ("Error contacting products RPC for status:"+ str(e))
     
     # determine the DRX status and rates.
     try:
@@ -137,7 +134,7 @@ def status():
           rates.append(r[k]*1000.0)
           
     except Exception, e:
-        print "Error contacting drx RPC for status:", e
+        print ("Error contacting drx RPC for status:"+str(e))
         rates = []
         for i in range(16):
             rates.append(0)
@@ -152,12 +149,6 @@ def status():
 def startEldoraApps():
     ''' Run eldora applications which have been selected in the configuration.
     '''
-    # @todo must add logic to insure that the processes are not still running.
-    # it is possible that previous terminate() calls did not work.
-    
-    # drx
-    runDrx()
-    
     # products
     runProducts()
         
@@ -168,8 +159,9 @@ def stopEldoraApps():
     removing a an entry from ourProcesses removes its reference, and it
     will go out of scope. This causes the QProcess to kill the job.
     '''
+    eldoraProcesses = ['eldoraprod',]
     global ourProcesses
-    for key in ('eldoradrx', 'eldoraprod'):
+    for key in eldoraProcesses:
         if key in ourProcesses.keys():
             msg = 'Terminating ' + key
             main.logText(msg)
@@ -383,6 +375,9 @@ def mainIsReady():
     # start up DCPS
     runDcps()
     
+    # start drx
+    runDrx()
+    
     # stop any running eldora applications
     stopEldoraApps()
 
@@ -480,8 +475,7 @@ def headerSelected(selectedHeader):
     ''' Called to indicate that a new header has been selected.
     The header is provided as a parameter.
     '''
-    print 'Selected new header', selectedHeader.headerFile,
-    print '(project ' + selectedHeader.projectName + ')'
+    main.logText('Selected new header ' + selectedHeader.headerFile + ' (project ' + selectedHeader.projectName + ')')
 
     # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
     # housekeeper can find it when we execute its Header() method.
@@ -489,7 +483,7 @@ def headerSelected(selectedHeader):
         cmd = ['ping', '-c', '1', 'drx']
         status = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
         if status:
-            print 'Unable to locate drx in order to change headers'
+            main.logText('Unable to locate drx in order to write new header file')
         else:    
             try:
                 src = selectedHeader.headerFile
@@ -497,11 +491,11 @@ def headerSelected(selectedHeader):
                 cmd = ['scp', '-B', src, dest]
                 status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
                 if (status != 0):
-                    print 'Could not scp', selectedHeader.headerFile, 'to', dest
+                    main.logText('Could not scp '+selectedHeader.headerFile+' to '+dest)
             except OSError, e:
-                print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
+                main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
     except OSError, e:
-        print 'subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"'
+        main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
             
     # tell the housekeeper to load a new header
     # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
@@ -512,10 +506,10 @@ def headerSelected(selectedHeader):
         if (r < 0):
             r = (1 << 32) + r
         if (r != selectedHeader.checksum):
-            print('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
+            main.logText('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
                   selectedHeader.checksum)
     except Exception, e:
-        print 'Exception ',e, 'while calling housekeeper Header()'
+        main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
         
     # tell the drx to reconfigure with new radar parameters
     headerToDrx(selectedHeader)
@@ -589,7 +583,6 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
                 p = [key,]
                 p.append(field[2].split())
                 params.append(p)
-                #print (p)
     # send them to eldoradrx
     drxrpc.server.params(params)
     

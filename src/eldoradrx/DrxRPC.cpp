@@ -8,81 +8,87 @@
 
 ///////////////////////////////////////////////////////////////////
 DrxRPC::DrxRPC(int rpcport,
-               RedRapids::RR314& board0,
-               RedRapids::RR314& board1) :
-    _port(rpcport), _board0(board0), _board1(board1), _server(_port, 0),
-            _startCmd(&_server, *this, "start", &DrxRPC::start),
+               bool* startFlag,
+               bool* stopFlag,
+               bool* shutdownFlag,
+               std::vector<unsigned long> (*bytesFunction)(int boardNum)) :
+    _port(rpcport), _startFlag(startFlag), _stopFlag(stopFlag),
+            _shutdownFlag(shutdownFlag), _bytesFunction(bytesFunction),
+            _server(_port, 0), _startCmd(&_server,
+                                         *this,
+                                         "start",
+                                         &DrxRPC::start),
             _stopCmd(&_server, *this, "stop", &DrxRPC::stop),
             _shutdownCmd(&_server, *this, "shutdown", &DrxRPC::shutdown),
             _paramsCmd(&_server, *this, "params", &DrxRPC::params),
-            _statusCmd(&_server, *this, "status", &DrxRPC::status) {
+            _statusCmd(&_server, *this, "status", &DrxRPC::status)
+{
 
     struct timeval currentTimeTv;
     gettimeofday(&currentTimeTv, 0);
     _lastTime = currentTimeTv.tv_sec + currentTimeTv.tv_usec/1.0e6;
-    
+
     // start the server (in its own thread)
     _server.start();
 }
 
 ///////////////////////////////////////////////////////////////////
-DrxRPC::~DrxRPC() {
+DrxRPC::~DrxRPC()
+{
 
+}
+
+///////////////////////////////////////////////////////////////////
+void DrxRPC::serverShutdown()
+{
+    _server.shutdown();
+}
+
+///////////////////////////////////////////////////////////////////
+void DrxRPC::serverExit()
+{
+    _server.exit();
 }
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::start(XmlRpc::XmlRpcValue& params,
-                   XmlRpc::XmlRpcValue& result) {
-    std::cout << "start received\n";
-
-    std::map<std::string, std::string> state;
-
-    XmlRpcValue::ValueStruct p0 = params[0];
-
-    XmlRpcValue::ValueStruct::const_iterator pp;
-    for (pp = p0.begin(); pp != p0.end(); pp++) {
-        std::string key = pp->first;
-        XmlRpcValue value = pp->second;
-        state[key] = std::string(value);
-    }
-
-    for (std::map<std::string, std::string>::const_iterator i = state.begin(); i
-            != state.end(); i++) {
-        std::cout << i->first << ":" << i->second << "\n";
-    }
-
-    result = "drx started";
+                   XmlRpc::XmlRpcValue& result)
+{
+    *_startFlag = true;
+    result = "eldoradrx received start command";
 }
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::stop(XmlRpc::XmlRpcValue& params,
-                  XmlRpc::XmlRpcValue& result) {
-    std::cout << "stop received\n";
-    result = "drx stop";
+                  XmlRpc::XmlRpcValue& result)
+{
+    *_stopFlag = true;
+    result = "eldoradrx received stop command";
 }
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::shutdown(XmlRpc::XmlRpcValue& params,
-                      XmlRpc::XmlRpcValue& result) {
-    std::cout << "shutdown received\n";
-    result = "drx shutdown";
-    exit(0);
+                      XmlRpc::XmlRpcValue& result)
+{
+    result = "eldoradrx received shutdown command";
+    *_shutdownFlag = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::status(XmlRpc::XmlRpcValue& params,
-                    XmlRpc::XmlRpcValue& result) {
+                    XmlRpc::XmlRpcValue& result)
+{
     XmlRpc::XmlRpcValue retval;
 
     // get the current byte counts from the board
     std::vector<unsigned long> bytes[2];
-    bytes[0] = _board0.bytes();
-    bytes[1] = _board1.bytes();
+    bytes[0] = _bytesFunction(0);
+    bytes[1] = _bytesFunction(1);
 
     struct timeval currentTimeTv;
     gettimeofday(&currentTimeTv, 0);
     double currentTime = currentTimeTv.tv_sec + currentTimeTv.tv_usec/1.0e6;
-    
+
     // calculate the rates
     double deltaT = currentTime - _lastTime;
     _lastTime = currentTime;
@@ -93,7 +99,7 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
             rates[i][j] = bytes[i][j]/deltaT;
         }
     }
-    
+
     // create return values for each
     for (unsigned int i = 0; i < 8; i++) {
         std::stringstream key0, key1;
@@ -109,7 +115,8 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::params(XmlRpc::XmlRpcValue& params,
-                   XmlRpc::XmlRpcValue& result) {
+                    XmlRpc::XmlRpcValue& result)
+{
 
     for (int i = 0; i < params[0].size(); i++) {
         std::cout << params[0][i][0];

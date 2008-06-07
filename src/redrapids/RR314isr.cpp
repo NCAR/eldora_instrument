@@ -123,14 +123,14 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		printf("ADC DCM OUT OF LOCK!\n");
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 	
 	if (Status & TIMER_DCM_UNLOCKED)  {
 		printf("TIMER DCM OUT OF LOCK!\n");
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 		
 	// see if we have a DMA interrupt
@@ -174,25 +174,25 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		printf("Timing Sync Error on Device %i Channel A\n", pRR314->boardNumber());
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 	if (Status & B_SYNC_ERROR) {
 		printf("Timing Sync Error on Device %i Channel B\n", pRR314->boardNumber());
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 	if (Status & C_SYNC_ERROR) {
 		printf("Timing Sync Error on Device %i Channel C\n", pRR314->boardNumber());
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";		
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 	if (Status & D_SYNC_ERROR) {
 		printf("Timing Sync Error on Device %i Channel D\n", pRR314->boardNumber());
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";				
 		//Shutdown
-		pRR314->RR314shutdown();
+		pRR314->shutdown();
 	}
 	
 	/// @todo if any of the a/ds had full fifos, then

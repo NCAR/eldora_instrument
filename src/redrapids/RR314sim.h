@@ -39,6 +39,10 @@ namespace RedRapids {
     virtual ~RR314sim();
     /// Start the simulation thread. 
     void start();
+    /// Shutdown the simulation. The terminate flag will be set, so 
+    /// that the simulate() loop exits. The thread will be cancelled
+    /// and joined.
+    void shutdown();
 
   protected:
     /// The function that is called to start the simulation thread
@@ -72,6 +76,10 @@ namespace RedRapids {
     unsigned int _beamNum;
     /// The usleep value
     int _usleep;
+    /// The thread id
+    pthread_t _threadId;
+    /// set true to request termination.
+    bool _terminate;
 };
 }
 #endif

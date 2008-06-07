@@ -37,7 +37,6 @@ class EmitterProc(QProcess):
         self.lineprefix = self.lineprefix + ': '
         self.setProcessChannelMode(QProcess.MergedChannels)
         self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
-
         
     def start(self):
         QProcess.start(self, self.command[0], self.command[1:])

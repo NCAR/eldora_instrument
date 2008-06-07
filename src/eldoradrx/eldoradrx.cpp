@@ -83,12 +83,15 @@ unsigned int _hskpPort;
 // to stop them during a signal.
 std::vector<RR314*> _rr314Instances;
 
-/// The Bittware timer
-Bittware* _bwtimer;
-
 /// Set this flag to true in order to request the main loop to
 /// shut everything down.
 bool _terminate = false;
+/// Set this flag to ask the main loop to start everything
+bool _sysStart = false;
+/// set this flag to ask the main loop to stop everything
+bool _sysStop = false;
+/// true when the cards are running, false otherwise
+bool _sysRunning = false;
 
 /// Dropped ray counters, for and aft.
 unsigned long _droppedRays[2];
@@ -96,6 +99,12 @@ unsigned long _droppedRays[2];
 unsigned long _droppedTS[2];
 /// 8 DMA channel sample counters, for and aft.
 unsigned long _sampleCounts[2][8]; ///< collect the number of DDS samples written for each dma channel.
+
+/// The Bittware timer
+Bittware* _bwtimer = 0;
+
+/// The rpc handler
+DrxRPC* _rpcHandler;
 
 /// Our DDS services
 /// The publisher.
@@ -106,41 +115,61 @@ static RayWriter* _rayWriter = 0;
 static TSWriter* _tsWriter = 0;
 
 /// The two rr314 cards, for and aft.
-RR314* _rr314[2];
+RR314* _rr314[2] = {0,0};
 
 /// Radar operating parameters, for and aft.
 static EldoraRadarParams _radarParams[2];
 
 /// The housekeeper merger, for and aft.
-HskpMerger* _hskpMerger[2];
+HskpMerger* _hskpMerger[2] = {0,0};
 
 /// The two rr314 threads
-pthread_t _rrThread[2];
+pthread_t _rrThread[2] = {0,0};
 
 /// The housekeepr thread
-pthread_t _hskpThread;
+pthread_t _hskpThread = 0;
 
 // prototypes
 //
+/// create the DDS services
+static void createDDSservices();
+/// Create rr314, bittware and hskpMerger instances.
+/// Start the rr314 and hskp data threads.
+static void startAll();
+/// Stop all of the threads and destroy rr314, bittware and hskpMerger instances.
+static void stopAll();
+/// Get items specified in the configuration file.
 static void getConfigParams();
+/// Set parameters specified on the command line
 static void parseOptions(int argc,
                          char** argv);
+/// Used for an emergency stop of the rr314 boards.
+/// Must be done on a signal capture. If the rr314 boards
+/// are left running after the program exits, they will crash 
+/// Linux. Big Time.
 static void shutdownBoards();
+/// signal handler to capture those unexpected signals
 static void setupSignalHandler();
+/// The function that runs in the thread for reading rr314 data.
 static void* rrReadTask(void* threadArg);
+/// The function that runs in the thread for reading hskp data.
 static void* hskpReadTask(void* threadArg);
-static void setupSignalHandler();
-static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* buf,
-                                                   int buflen);
+/// Print status for a single rr card.
 static void showStats(int devNumber,
                       int loopCount);
+/// Print overall status
+static void printStatus(int loopcount);
+/// return the rr314 byte counts for the given boar.
+//// return zeros if it is not running
+std::vector<unsigned long> boardBytes(int boardNum);
+
+static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* buf,
+                                                   int buflen);
 static void publishAndCapture(RREntry* rentry,
                               Housekeeping* hskp);
 static EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
                                                        bool isFore);
 static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
-static void createDDSservices();
-static void startAll();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -171,33 +200,43 @@ int main(int argc,
         _radarParams[1].radd_name[i] = "AFT "[i];
     }
 
-    startAll();
-
     int loopCount = 0;
 
-    // create our RPC handler
-    DrxRPC rpcHandler(_rpcPort,
-                      *_rr314[0],
-                      *_rr314[1]);
+    // create our RPC handler. Tell it where the start, stop and terminate
+    // flags are, and the function to call for board byte counts.
+    _rpcHandler = new DrxRPC (_rpcPort, &_sysStart, &_sysStop, &_terminate, boardBytes);
 
-    // periodically display the card activity.
+    // This is the main loop
     while (1) {
-        // stats for card 0
-        showStats(0, loopCount);
-        // hskp merger info for 0
-        _hskpMerger[0]->showStats(std::cout);
-        // stats for card 1
-        showStats(1, loopCount);
-        // hskp merger info for 1
-        _hskpMerger[1]->showStats(std::cout);
-        loopCount++;
+        // poll once per second for commands to start or stop.
+        // print the status every ten seconds
         for (int i = 0; i < 10; i++) {
+            if (_sysStart) {
+                if (!_sysRunning)
+                    startAll();
+                loopCount = 0;
+                _sysStart = false;
+                _sysRunning = true;
+            }
+            if (_sysStop) {
+                _sysStop = false;
+                // set _sysRunning to false immediately so
+                // that boardBytes does not try to access 
+                // rr314 instances while they are being destroyed in 
+                // stopAll()
+                /// @todo We need to mutex protect _sysRunning!
+                _sysRunning = false;
+                stopAll();
+            }
             if (_terminate)
                 break;
             sleep(1);
         }
         if (_terminate)
             break;
+        if (_sysRunning)
+            printStatus(loopCount);
+        loopCount++;
     }
 
     std::cout << "Terminating " << argv[0] << "\n";
@@ -207,12 +246,73 @@ int main(int argc,
 }
 
 /////////////////////////////////////////////////////////////////////////
+static void printStatus(int loopCount)
+{
+    // stats for card 0
+    showStats(0, loopCount);
+    // hskp merger info for 0
+    _hskpMerger[0]->showStats(std::cout);
+    // stats for card 1
+    showStats(1, loopCount);
+    // hskp merger info for 1
+    _hskpMerger[1]->showStats(std::cout);
+    // flush cout so that clientes reading from 
+    // a pipe will see the output withou buffering
+    std::cout.flush();
+}
+
+/////////////////////////////////////////////////////////////////////////
+static void cancelThread(pthread_t* id) {
+    if (*id) {
+        pthread_cancel(*id);
+        pthread_join(*id, 0);
+        *id = 0;
+        sleep(1);
+    }
+}
+/////////////////////////////////////////////////////////////////////////
+
+static void stopAll()
+{
+    
+    // stop the rr314 cards
+    if (_rr314[0])
+        _rr314[0]->shutdown();    
+    if (_rr314[1])
+        _rr314[1]->shutdown();
+    
+    // kill the threads
+    cancelThread(&_hskpThread);
+    cancelThread(&_rrThread[0]);
+    cancelThread(&_rrThread[1]);
+    
+    // AS a little extra insurance, zero the references to our 
+    // objects before deleting them, because other routines(entered via other
+    // threads) will often check to see if the pointer is zero before
+    // trying to access the instance,
+    for (int i = 0; i < 2; i++) {
+        RR314* p314;
+        p314 = _rr314[i];
+        _rr314[i] = 0;
+        delete p314;
+    }
+    for (int i = 0; i < 2; i++) {
+        HskpMerger* pHskp;
+        pHskp = _hskpMerger[i];
+        _hskpMerger[i] = 0;
+        delete pHskp;
+    }
+    
+}
+
+/////////////////////////////////////////////////////////////////////////
 static void startAll()
 {
 
+    std::cout << "entering startAll()\n";
     // initialize items that are reused on each restart:
-    
-    // hskp thread
+
+     // hskp thread
     _hskpThread = 0;
     // bittware timer
     _bwtimer = 0;
@@ -233,6 +333,7 @@ static void startAll()
             _sampleCounts[d][i] = 0;
         }
     }
+
 
     // create timer
     if (!_simulateRR314 && !_internaltimer) {
@@ -473,7 +574,7 @@ static void shutdownBoards()
     std::vector<RR314*>::iterator p;
     for (p = _rr314Instances.begin(); p != _rr314Instances.end(); p++) {
         std::cout << "stopping RR314 device " << (*p)->boardNumber() << std::endl;
-        (*p)->RR314shutdown();
+        (*p)->shutdown();
     }
 
     if (_bwtimer) {
@@ -696,7 +797,7 @@ static void* hskpReadTask(void* threadArg)
         FD_ZERO(&fds);
         FD_SET(inSocket, &fds)
 ;
-                struct timeval timeout =
+                                        struct timeval timeout =
             {
                     0,
                     100000 }; // 0.1 second
@@ -838,7 +939,7 @@ static void showStats(int devNumber,
     // get the current temperature
     double temperature = _rr314[devNumber]->temperature();
 
-    std::cout << "Device:" << devNumber << "  loop:" << loopCount++;
+    std::cout << "*** Device:" << devNumber << "  loop:" << loopCount++;
 
     std::cout << " samples:";
     for (int i = 0; i < 8; i++) {
@@ -864,6 +965,11 @@ void publishAndCapture(RREntry* rentry,
                        Housekeeping* hskp)
 {
     static std::ofstream* outFiles[2][8]; // outFiles[board][channel]
+    
+    //if (!_sysRunning) {
+    //    std::cout << __FUNCTION__ << ", not running, publish ignored\n";
+    //    return;
+    //}
 
     RRBuffer* rbuf = rentry->rrBuffer();
     int channel = rbuf->dmaChan;
@@ -998,7 +1104,15 @@ static void createDDSservices()
     // create the time series writer
     _tsWriter = new TSWriter(*_publisher, "EldoraTS");
 }
-
+/////////////////////////////////////////////////////////////////////
+std::vector<unsigned long> boardBytes(int boardNum) {
+    if (_rr314[0] && _sysRunning)
+        return _rr314[boardNum]->bytes();
+    
+    std::vector<unsigned long> bytes(8,0);
+    return bytes;
+    
+}
 //////////////////////////////////////////////////////////////////////
 /// Return a complete new EldoraDDS::Housekeeping for the given time and
 /// radar.  The returned struct should be deleted by the caller.

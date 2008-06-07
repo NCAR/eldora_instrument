@@ -27,14 +27,16 @@ RR314::RR314(int devNum,
              bool simulate,
              int usleep,
              bool catchSignals) throw (std::string) :
-            _bufferNext(0), _devNum(devNum),
+            _devNum(devNum),
             _radarParams(radarParams),
             _gaussianFile(gaussianFile), _kaiserFile(kaiserFile),
             _xsvfFileName(xsvfFile), _simulate(simulate), _running(false),
             _catchSignals(catchSignals), _usleep(usleep),
             _internalTimer(internalTimer)
 {
-                 
+   _bufferNext = 0;
+   _simulator = 0;
+   
    // set the operating parameters, based on the radarParams
    // Assume that all channels have the same operating characteristics.
    _gates       = radarParams.wave_ngates[0];
@@ -148,13 +150,12 @@ RR314::RR314(int devNum,
 
 RR314::~RR314()
 {
-    // disable the hardware
-    if (!_simulate) {
-        RR314shutdown();
-    } else {
-        /// @todo Need to add thread termination for RR314sim
-        /// during class destruction
+    // disable the data transfer
+    shutdown();
+
+    if (_simulator) {
         delete _simulator;
+        _simulator = 0;
     }
 
     for (unsigned int i = 0; i < _fullBuffers.size(); i++)
@@ -165,27 +166,29 @@ RR314::~RR314()
 
     for (unsigned int i = 0; i < _freeABPBuffers.size(); i++)
         delete _freeABPBuffers[i];
-
-    std::cout << "RR314 deleted\n";
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void RR314::RR314shutdown()
+void RR314::shutdown()
 {
 
     // ignore multiple calls to shutdown the card.
-    if (!_running)
+    if (!_running) {
         return;
+    }
 
     _running = false;
 
-    // if in simulation, don't try to access the card. 
-    // this can happen when a signal is handled while in
-    // simulation mode
-    if (_simulate)
+    if (_simulate) {
+        if (_simulator) {
+            _simulator->shutdown();
+            _simulator = 0;
+            // wait a bit to allow the DDS to finishe.
+            sleep(1);
+        }
         return;
-
+    }
     // stop the filters if they are running.
     Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, DDC_STOP);
 
@@ -559,7 +562,7 @@ void RR314::newIQData(short* src,
                 pBuf->chanId = chan + 1;
                 std::cerr << __FUNCTION__ << ": stopping card " << _devNum
                         << std::endl;
-                RR314shutdown();
+                shutdown();
             }
             /// @todo A hack for the moment; for some reason the channel ID from
             /// the card is all fouled up. Map the DMA channel (0, 2, 4, 6) to 
@@ -598,7 +601,7 @@ void RR314::newIQData(short* src,
             //            << pBuf->rayTime << std::endl;
             //    std::cerr << __FUNCTION__ << ": stopping card " << _devNum
             //            << std::endl;
-            //    RR314shutdown();
+            //    shutdown();
             //}
             break;
         default:
@@ -1090,7 +1093,7 @@ void shutdownSignalHandler(int signo,
 
         std::cout << "Signal " << signo << " caught, stopping RR314 device "
                 << pCA->DevNum << std::endl;
-        p->second->RR314shutdown();
+        p->second->shutdown();
 
     }
 }

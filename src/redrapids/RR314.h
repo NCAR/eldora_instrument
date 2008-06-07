@@ -207,7 +207,7 @@ class RR314
         void fifoFullInts(int n);
 
         /// Stop the RR card and return DMA allocated space.
-        void RR314shutdown();
+        void shutdown();
 
         /// @return The board temperature (degC). If in
         /// simulate mode, return a random but reasonable value
