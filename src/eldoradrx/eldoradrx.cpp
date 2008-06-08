@@ -1127,7 +1127,7 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     // Fake rotation angle: Fore antenna points 0.0 deg at the start of a day,
     // and scans at rotRate deg/s clockwise forever.  Aft antenna points 180
     // degrees away from fore.
-    float rotRate = 30.0; // deg/s
+    float rotRate = 18.0; // deg/s
     float rotAngle = fmodf(secOfDay * rotRate + (isFore ? 0.0 : 180.0), 360.0);
     hskp->radarRotAngle = rotAngle;
 
