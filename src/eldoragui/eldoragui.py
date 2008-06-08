@@ -533,7 +533,6 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     # header. All others will br ignored.
     fieldtypes = set( [
         'WAVENCHIPS',
-        'WAVEPCPREP',
         'WAVECHPOFF',
         'WAVECHPWID',
         'WAVENGATES',
@@ -543,6 +542,7 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
         'WAVEGATE4',
         'WAVEGATE5',
         'WAVEMSREP',
+        'WAVESEQREP',
         'RADDNAME',
         'RADDCONST',
         'RADDNOIPOW',
