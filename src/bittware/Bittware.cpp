@@ -63,9 +63,8 @@ void Bittware::configure(EldoraRadarParams radarParams) {
 // Calculated Timing Variables from Header Variables
     
     // Test Pulse Calculations
-    //U32 TP_Delay = ((int) ((radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
-    //                       (radarParams.wave_ngates[0] - 50) * radarParams.wave_gate1[1]) / 10)) * 10;
-    U32 TP_Delay = 0;
+    U32 TP_Delay = ((int) ((radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
+                           (radarParams.wave_ngates[0] - 50) * radarParams.wave_gate1[1]) / 10)) * 10;
     //U32 TP_Width = (int) (radarParams.wave_gate1[1] * 50);
     U32 TP_Width = (int) (radarParams.wave_gate1[1] * 400);
     
@@ -98,13 +97,15 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     U32 Midbeam_periodCount;
     if (radarParams.radd_nipp == 2)
     {
-        Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + (((radarParams.radd_ipp1 + radarParams.radd_ipp2) * 
-                              (radarParams.wave_seqrep - 1) + radarParams.radd_ipp1) * 10e3) + radarParams.wave_ngates[0]);
+        Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
+                             ((radarParams.radd_ipp1 + radarParams.radd_ipp2) * 
+                              radarParams.wave_seqrep * 60e3) / 2);
     	Midbeam_periodCount = periodCount * (X + Y) * radarParams.wave_seqrep;
     }
     else
     {
-    	Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + (periodCount * radarParams.wave_seqrep) / 2);
+    	Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
+    	                      (periodCount * radarParams.wave_seqrep) / 2);
     	Midbeam_periodCount = periodCount * radarParams.wave_seqrep;
     }   
     
