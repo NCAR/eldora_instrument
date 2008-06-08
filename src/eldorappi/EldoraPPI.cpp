@@ -156,10 +156,17 @@ void EldoraPPI::productSlot(
     // Map the product type into the zero based index for the PPIManager.
     int index = _productInfo[productType].getUserData();
     
+    // convert the Eldora geographic pointing angle to a
+    // cartesian pointing angle
+    double cartAngle = 540 - rotAngle;
+    if (cartAngle < 0.0) 
+    	cartAngle += 360.0;
+    if (cartAngle >= 360.0)
+    	cartAngle -= 360.0;
     // send the product to the appropriate ppi manager
-    if (_upperManager.newProduct(p, rotAngle, index))
-        	_rotAngle = rotAngle;
-    _lowerManager.newProduct(p, rotAngle, index);
+    if (_upperManager.newProduct(p, cartAngle, index))
+        	_rotAngle = cartAngle;
+    _lowerManager.newProduct(p, cartAngle, index);
 }
 
 
