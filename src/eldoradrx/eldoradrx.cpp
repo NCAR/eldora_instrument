@@ -703,7 +703,7 @@ static void* rrReadTask(void* threadArg)
 
     int gates = radarParams->wave_ngates[0];
     int numiq = radarParams->frib_frqgat;
-    int samples = radarParams->wave_ngates[0];
+    int samples = radarParams->wave_seqrep;
 
     bool simulateHskp = _simulateHskp;
 
