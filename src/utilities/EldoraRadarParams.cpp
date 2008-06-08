@@ -6,8 +6,6 @@ EldoraRadarParams::EldoraRadarParams()
     for (unsigned int i = 0; i < sizeof(wave_nchips); i++)
         wave_nchips[i] = 1;
     wave_nchips[4] = 0;
-
-    wave_pcprep = 1;
 /*
     wave_chpoff[0] = 17;
     wave_chpoff[1] = 62;

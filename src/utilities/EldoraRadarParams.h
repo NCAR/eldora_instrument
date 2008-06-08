@@ -11,7 +11,6 @@ struct EldoraRadarParams
     EldoraRadarParams();
         // fields from the header waveform block (WAVE)
         int    wave_nchips[6];///< waveform number of chips
-        int    wave_pcprep;   ///< waveform total number of pcp in a repeat sequence
         int    wave_chpoff[6];///< waveform chip offset (60 Mhz counts)
         int    wave_chpwid[6];///< waveform chip width (60 Mhz counts)
         int    wave_ngates[5];///< waveform number of sampled gates

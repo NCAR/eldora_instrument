@@ -46,7 +46,7 @@ RR314::RR314(int devNum,
    _samples     = radarParams.wave_seqrep;
    _numIQGates  = radarParams.frib_frqgat;
    _startGateIQ = radarParams.frib_tsgat; 
-   _dualPrt = (_radarParams.wave_pcprep != 1) ? true:false;
+   _dualPrt = (_radarParams.radd_nipp != 1) ? true:false;
    
     // initalize threading constructs
     pthread_mutex_init(&_bufferMutex, NULL);

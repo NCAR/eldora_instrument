@@ -115,16 +115,25 @@ static RayWriter* _rayWriter = 0;
 static TSWriter* _tsWriter = 0;
 
 /// The two rr314 cards, for and aft.
-RR314* _rr314[2] = {0,0};
+RR314* _rr314[2] =
+    {
+            0,
+            0 };
 
 /// Radar operating parameters, for and aft.
 static EldoraRadarParams _radarParams[2];
 
 /// The housekeeper merger, for and aft.
-HskpMerger* _hskpMerger[2] = {0,0};
+HskpMerger* _hskpMerger[2] =
+    {
+            0,
+            0 };
 
 /// The two rr314 threads
-pthread_t _rrThread[2] = {0,0};
+pthread_t _rrThread[2] =
+    {
+            0,
+            0 };
 
 /// The housekeepr thread
 pthread_t _hskpThread = 0;
@@ -204,7 +213,8 @@ int main(int argc,
 
     // create our RPC handler. Tell it where the start, stop and terminate
     // flags are, and the function to call for board byte counts.
-    _rpcHandler = new DrxRPC (_rpcPort, &_sysStart, &_sysStop, &_terminate, boardBytes);
+    _rpcHandler
+            = new DrxRPC (_rpcPort, &_sysStart, &_sysStop, &_terminate, _radarParams, boardBytes);
 
     // This is the main loop
     while (1) {
@@ -262,7 +272,8 @@ static void printStatus(int loopCount)
 }
 
 /////////////////////////////////////////////////////////////////////////
-static void cancelThread(pthread_t* id) {
+static void cancelThread(pthread_t* id)
+{
     if (*id) {
         pthread_cancel(*id);
         pthread_join(*id, 0);
@@ -274,18 +285,18 @@ static void cancelThread(pthread_t* id) {
 
 static void stopAll()
 {
-    
+
     // stop the rr314 cards
     if (_rr314[0])
-        _rr314[0]->shutdown();    
+        _rr314[0]->shutdown();
     if (_rr314[1])
         _rr314[1]->shutdown();
-    
+
     // kill the threads
     cancelThread(&_hskpThread);
     cancelThread(&_rrThread[0]);
     cancelThread(&_rrThread[1]);
-    
+
     // AS a little extra insurance, zero the references to our 
     // objects before deleting them, because other routines(entered via other
     // threads) will often check to see if the pointer is zero before
@@ -302,7 +313,7 @@ static void stopAll()
         _hskpMerger[i] = 0;
         delete pHskp;
     }
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -311,7 +322,7 @@ static void startAll()
 
     // initialize items that are reused on each restart:
 
-     // hskp thread
+    // hskp thread
     _hskpThread = 0;
     // bittware timer
     _bwtimer = 0;
@@ -332,7 +343,6 @@ static void startAll()
             _sampleCounts[d][i] = 0;
         }
     }
-
 
     // create timer
     if (!_simulateRR314 && !_internaltimer) {
@@ -796,7 +806,7 @@ static void* hskpReadTask(void* threadArg)
         FD_ZERO(&fds);
         FD_SET(inSocket, &fds)
 ;
-                                        struct timeval timeout =
+                                                struct timeval timeout =
             {
                     0,
                     100000 }; // 0.1 second
@@ -964,7 +974,7 @@ void publishAndCapture(RREntry* rentry,
                        Housekeeping* hskp)
 {
     static std::ofstream* outFiles[2][8]; // outFiles[board][channel]
-    
+
     //if (!_sysRunning) {
     //    std::cout << __FUNCTION__ << ", not running, publish ignored\n";
     //    return;
@@ -1104,13 +1114,14 @@ static void createDDSservices()
     _tsWriter = new TSWriter(*_publisher, "EldoraTS");
 }
 /////////////////////////////////////////////////////////////////////
-std::vector<unsigned long> boardBytes(int boardNum) {
+std::vector<unsigned long> boardBytes(int boardNum)
+{
     if (_rr314[0] && _sysRunning)
         return _rr314[boardNum]->bytes();
-    
-    std::vector<unsigned long> bytes(8,0);
+
+    std::vector<unsigned long> bytes(8, 0);
     return bytes;
-    
+
 }
 //////////////////////////////////////////////////////////////////////
 /// Return a complete new EldoraDDS::Housekeeping for the given time and
@@ -1159,14 +1170,14 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
         }
     }
     // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
-    // comes from the housekeeper
-    char hskperPacket[176];
+                    // comes from the housekeeper
+                    char hskperPacket[176];
 
-    // Now actually send the packet of housekeeping as if we were the 
-    // housekeeper machine
-    int nwrote = sendto(outSocket, hskperPacket, sizeof(hskperPacket), 0,
-                        (struct sockaddr*)&destAddr, sizeof(destAddr));
-    if (nwrote < 0)
-        std::cerr << __FILE__ << ":" << __LINE__ <<
-            ": error sending housekeeping: " << strerror(errno) << std::endl;
-}
+                    // Now actually send the packet of housekeeping as if we were the 
+                    // housekeeper machine
+                    int nwrote = sendto(outSocket, hskperPacket, sizeof(hskperPacket), 0,
+                            (struct sockaddr*)&destAddr, sizeof(destAddr));
+                    if (nwrote < 0)
+                    std::cerr << __FILE__ << ":" << __LINE__ <<
+                    ": error sending housekeeping: " << strerror(errno) << std::endl;
+                }

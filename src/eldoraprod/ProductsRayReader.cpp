@@ -25,10 +25,17 @@ ProductsRayReader::~ProductsRayReader()
 void ProductsRayReader::notify()
 {
     while (Ray* pRay = getNextItem()) {
+        // this diagnostic can be very useful at times.
+        //std::cout << " ray num " << pRay->hskp.rayNum 
+        //<< " radar:" << pRay->radarId 
+        //<< " prtId:" << pRay->prtId 
+        //<< " chan:" << pRay->hskp.chan <<  "\n";
+
         // give the ray to the fore or aft collector.
         // One of them should accept it. If not,
         // we have problems (probably a corrupted
         // radarId.
+        
         if (!_collatorFor.addRay(pRay)) {
             if (!_collatorAft.addRay(pRay)) {
                 // neither collector wanted the ray!
