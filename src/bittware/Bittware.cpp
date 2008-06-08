@@ -130,7 +130,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     //printf("Timer 1 Control = %i\n", *(reg_buf+2));
                 
     // Initialize FORE & AFT TX Pulses
-    printf("FORE & AFT TX Pulses\n");
+    //printf("FORE & AFT TX Pulses\n");
     for (int i = 0; i < 4; i++)
     {
     	//FORE
@@ -198,7 +198,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     }
  
     // Initialize FORE & AFT Pre-Knock Pulses        
-       printf("Pre-Knocks\n");
+       //printf("Pre-Knocks\n");
        //FORE
        Timer = TX_FORE_PK;
        // Configure FORE Control Register
@@ -260,7 +260,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
        */
               
     // Initialize FORE & AFT Test Pulses        
-        printf("Test Pulses\n");
+        //printf("Test Pulses\n");
         //FORE
        	Timer = TX_FORE_TP;
        	// Configure FORE Control Register
@@ -322,7 +322,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         */       
     
     // Initialize FORE & AFT RX Pulses
-    printf("RX Pulses\n");
+    //printf("RX Pulses\n");
     for (int i = 0 ; i < 4 ; i++)
     {
         //FORE
@@ -392,8 +392,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     }
                 
     // Configure the Midbeam Intr
-        printf("Midbeam Interrupt\n");
-    	Timer = MIDBEAM_INTR;
+        Timer = MIDBEAM_INTR;
     	    	
     	// Configure Control Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_CONTROL_REG; //Address Line
@@ -416,6 +415,7 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         wr_buffer[0x1] = Midbeam_Prt;
         mem_write(wr_buffer);
         /*
+        printf("Midbeam Interrupt\n");
         printf("Midbeam: Delay = %i: Width = %i: Period = %i: PRT = %x\n",          
                                 Midbeam_Delay, 
                                 Midbeam_Width, 
