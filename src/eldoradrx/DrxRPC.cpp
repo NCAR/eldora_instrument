@@ -41,12 +41,14 @@ DrxRPC::~DrxRPC()
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::serverShutdown()
 {
+    std::cout << "RPC serverShutdown received\n";
     _server.shutdown();
 }
 
 ///////////////////////////////////////////////////////////////////
 void DrxRPC::serverExit()
 {
+    std::cout << "RPC serverExit received\n";
     _server.exit();
 }
 
@@ -54,6 +56,7 @@ void DrxRPC::serverExit()
 void DrxRPC::start(XmlRpc::XmlRpcValue& params,
                    XmlRpc::XmlRpcValue& result)
 {
+    std::cout << "RPC start received\n";
     *_startFlag = true;
     result = "eldoradrx received start command";
 }
@@ -62,6 +65,7 @@ void DrxRPC::start(XmlRpc::XmlRpcValue& params,
 void DrxRPC::stop(XmlRpc::XmlRpcValue& params,
                   XmlRpc::XmlRpcValue& result)
 {
+    std::cout << "RPC stop received\n";
     *_stopFlag = true;
     result = "eldoradrx received stop command";
 }
@@ -70,6 +74,7 @@ void DrxRPC::stop(XmlRpc::XmlRpcValue& params,
 void DrxRPC::shutdown(XmlRpc::XmlRpcValue& params,
                       XmlRpc::XmlRpcValue& result)
 {
+    std::cout << "RPC shutdown received\n";
     result = "eldoradrx received shutdown command";
     *_shutdownFlag = 0;
 }
@@ -117,6 +122,7 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
 void DrxRPC::params(XmlRpc::XmlRpcValue& params,
                     XmlRpc::XmlRpcValue& result)
 {
+    std::cout << "RPC params received\n";
 
     for (int i = 0; i < params[0].size(); i++) {
         std::cout << params[0][i][0];

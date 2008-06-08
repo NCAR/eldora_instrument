@@ -309,7 +309,6 @@ static void stopAll()
 static void startAll()
 {
 
-    std::cout << "entering startAll()\n";
     // initialize items that are reused on each restart:
 
      // hskp thread
