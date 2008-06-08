@@ -308,14 +308,32 @@ def runProducts():
     if isRunning:
         return
     
+    # find out if the current header specified single or dual prt
+    isDual = dualPrt()
+    print 'dualPrt is', isDual
+    
     # start a new instance
-    productscmd = [appDict['eldoraprod'], '--dual']
+    productscmd = [appDict['eldoraprod'], ]
+    if isDual:
+        productscmd.append('--dualprt')
     ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload=nextTaskColor())
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
     
 ####################################################################################
+def dualPrt():
+    ''' check the current header and return true if dual 
+     prt is specified, false otherwise'''
+    retval = False
+    for block in main.selectedHeader:
+        if block.type == 'RADD':
+            for field in block:
+                if field[0] == 'NIPP':
+                    if field[2] != '1':
+                        retval = True
+    return retval
+    
 def scope():
     ''' Start the scope display
     '''
