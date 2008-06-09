@@ -28,6 +28,7 @@ struct ProductsTerms
                   float prt,
                   float prtShort,
                   float prtLong,
+                  float cellWidth,
                   bool dualPrt);
         /// Single constant
         typedef double TermData;

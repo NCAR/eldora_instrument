@@ -630,6 +630,9 @@ static void setRadarParams(EldoraRadarParams* radarParams,
 
     for (int i = 0; i < 4; i++)
         hskp->rxGain[i] = radarParams->frib_rxgain[i];
+    
+    for (int i = 0; i < 6; i++)
+        hskp->cellWidth[i] = radarParams->cspd_width[i];
 
     hskp->freqs[0] = radarParams->radd_freq1;
     hskp->freqs[1] = radarParams->radd_freq2;

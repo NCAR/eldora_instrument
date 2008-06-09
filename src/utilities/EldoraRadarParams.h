@@ -51,7 +51,9 @@ struct EldoraRadarParams
         double frib_lnalos; ///< field radar losses between antenna and lna (db)
         int frib_tsgat; ///< field radar time series gate
         int frib_frqgat; ///< field radar number of time series gate (this field hijacked from independent frequency gate parameter) 
-
+        
+        double cspd_width[6]; ///< width of clls in each segment in meters
+        
         double parm_dbz_scale;///< scale for dbz
         double parm_dbz_bias; ///< bias for dbz
 

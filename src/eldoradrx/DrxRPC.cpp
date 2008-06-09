@@ -229,6 +229,7 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
     doubleMap["FRIBXGAIN"] = &p->frib_xgain; // {21.100000} 
     doubleMap["FRIBRXGAIN"] = p->frib_rxgain; // {30.770000,27.959999,30.480000,30.670000,30.000000} 
 
+    doubleMap["CSPDWIDTH"] = p->cspd_width; // 150 150 150 150 -999 -999
     doubleMap["PARMVSSCALE"] = &p->parm_vs_scale; // {424.259552} 
     doubleMap["PARMVSBIAS"] = &p->parm_vs_bias; // {8191.000000} 
     doubleMap["PARMVSSCALE"] = &p->parm_vl_scale; // {530.324463} 

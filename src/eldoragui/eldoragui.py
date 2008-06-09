@@ -591,6 +591,7 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
         'FRIBXGAIN',
         'FRIBTSGAT',
         'FRIBFRQGA',
+        'CSPDWIDTH',
         'PARMNAME',
         'PARMBIAS',
         'PARMSCALE'

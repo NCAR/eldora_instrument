@@ -72,9 +72,15 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
 
     static bool first = true;
     if (first) {
-        std::cout << "xBandGain:" << rays[0][0]->hskp.xBandGain << " prt:"
-                << rays[0][0]->hskp.prt << " prtLong:"
-                << rays[0][0]->hskp.prtLong << "\n";
+        std::cout << "xBandGain:" 
+        << rays[0][0]->hskp.xBandGain 
+        << " prt:"
+        << rays[0][0]->hskp.prt 
+        << " prtLong:"
+        << rays[0][0]->hskp.prtLong 
+        << "  gate spacing:" 
+        << rays[0][0]->hskp.cellWidth[0] 
+        << "\n";
         first = false;
     }
     _rays++;
@@ -418,6 +424,7 @@ void EldoraProducts::initTerms(RayData& rays)
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prtLong,
+                rays[0][0]->hskp.cellWidth[0],
                 _dualPrt);
 
     _scaling.dmScale  = 100.0;  
@@ -508,6 +515,7 @@ void ProductsTerms::init(int gates,
                          float prt,
                          float prtShort,
                          float prtLong,
+                         float cellWidth,
                          bool dualPrt)
 {
 
@@ -565,8 +573,7 @@ void ProductsTerms::init(int gates,
 
     // calculate constants
     for (int g = 0; g < gates; g++) {
-        /// @todo use the real gate spacing here!
-        r[g] = 20.0*log10((g*100.0 + 50.0) / 1000.0);
+        r[g] = 20.0*log10((g*cellWidth + cellWidth/2.0) / 1000.0);
     }
 
     lambda = 0.0;

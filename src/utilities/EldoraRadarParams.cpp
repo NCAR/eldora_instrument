@@ -106,6 +106,14 @@ EldoraRadarParams::EldoraRadarParams()
     frib_xgain = 22.1;
     frib_tsgat = 68;
     frib_frqgat= 10;
+    
+    // fields from the header cell spacing descriptor
+    cspd_width[0] = 150.0;
+    cspd_width[1] = 150.0;
+    cspd_width[2] = 150.0;
+    cspd_width[3] = 150.0;
+    cspd_width[4] = -999.0;
+    cspd_width[5] = -999.0;
 
     // scale and bias for the DDS data compression
     parm_dbz_scale= 10.0;
@@ -211,6 +219,11 @@ void EldoraRadarParams::dump()
     std::cout << "frib_lnalos: " << frib_lnalos << "\n";
     std::cout << "frib_tsgat: " << frib_tsgat << "\n";
     std::cout << "frib_frqgat: " << frib_frqgat << "\n";
+
+    std::cout << "cspd_width: ";
+    for (int i = 0; i < 6; i++)
+        std::cout << cspd_width[i] << " ";
+    std::cout << "\n";
 
     std::cout << "parm_dbz_scale: " << parm_dbz_scale << "\n";
     std::cout << "parm_dbz_bias: " << parm_dbz_bias << "\n";
