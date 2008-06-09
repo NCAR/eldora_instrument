@@ -27,7 +27,8 @@ re_cal.c
 ''')
 	  
 maker = env.Program('headermaker', makersrcs)
-env.Default(maker)
+instm = env.InstallProgram(maker)
+env.Default(['maker',instm])
 
 dumpsrcs = Split('''
 dumpheader.c
@@ -45,6 +46,7 @@ verify.c
 ''')
 
 dumpheader = env.Program('dumpheader', dumpsrcs)
-env.Default(dumpheader)
+instd = env.InstallProgram(dumpheader)
+env.Default([dumpheader,instd])
 
 

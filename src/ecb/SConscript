@@ -18,10 +18,12 @@ trigmux.cpp
 """)
 
 ecbmain = env.Program('ecbmain', sources)
-Default(ecbmain)
+i1 = env.InstallProgram(ecbmain)
+Default([ecbmain,i1])
 
 # Program to set the IP address for an EtherIO24 card
 ether_setup = env.Program('etherio_setup/ether_setup', ['etherio_setup/ether_setup.c'])
-Default(ether_setup)
+i2 = env.InstallProgram(ether_setup)
+Default([ether_setup, i2])
 
 

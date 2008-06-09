@@ -1,0 +1,7 @@
+tools = ['utilities']
+env = Environment(tools = ['default'] + tools )
+
+confs = Split("DCPSInfoRepo.ini DDSClient.ini DDSDomainIds.conf ORBSvc.conf")
+
+inst = env.InstallConfig(confs)
+env.Default(inst)

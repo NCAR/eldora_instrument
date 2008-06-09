@@ -16,7 +16,6 @@ boost_program_options
 dorade
 bittware
 utilities
-deploy
 qtt_qtconfig
 """)
 env = Environment(tools = ['default'] + tools)
@@ -42,5 +41,5 @@ rt
 env.Append(LIBS = libs)
 
 eldoradrx = env.Program('eldoradrx', sources)
-Default(eldoradrx)
-env.DeployProgram(eldoradrx)
+inst = env.InstallProgram(eldoradrx)
+env.Default([eldoradrx,inst])

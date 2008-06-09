@@ -1,5 +1,5 @@
 import os
-tools = ['ddssvc', 'qtt_qtconfig', 'utilities', 'deploy', 'boost_program_options']
+tools = ['ddssvc', 'qtt_qtconfig', 'utilities', 'boost_program_options']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
@@ -26,8 +26,8 @@ ProductsRPC.cpp
 
 # build eldoraprod
 eldoraprod = env.Program('eldoraprod', sources)
+inst = env.InstallProgram(eldoraprod)
 
-Default(eldoraprod)
+env.Default([eldoraprod,inst])
 
-env.DeployProgram(eldoraprod)
 
