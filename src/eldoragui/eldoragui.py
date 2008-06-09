@@ -48,6 +48,15 @@ global ourProcesses # Processes that we have started and are managing
 
 ####################################################################################
 def start():
+    ''' start the radar runnig:
+    1. Send the current header to the housekeepr and eldoradrx
+    2. Send an RPC start() to eldoradrx
+    3. Send an RPC start() to the housekeepr
+    '''
+    # send out the header to interested clients
+    sendHeader()
+    
+    # start eldoradrx
     try:
         r = drxrpc.server.start()
         main.logText(str(r))
@@ -55,6 +64,7 @@ def start():
         print ("Error contacting drx RPC for start:"+str(e))
         pass
 
+    # start the housekeeper
     try:
         r = hskprpc.server.Start()
         if (r != 0):
@@ -71,12 +81,12 @@ def start():
     except Exception, e:
         print ("Error contacting housekeeper RPC for start:"+str(e))
         
-    # stop the eldora apps
-    stopEldoraApps()
+    # stop products
+    stopProducts()
     
-    # start the eldora apps
-    startEldoraApps()
-    
+    # run products
+    startProducts()
+
 ####################################################################################
 def stop():
     try:
@@ -93,8 +103,8 @@ def stop():
     except Exception, e:
         print("Error contacting housekeeper RPC for stop:"+str(e))
         
-    # stop the eldora apps
-    stopEldoraApps()
+    # stop the products
+    stopProducts()
     
 ####################################################################################
 def status():
@@ -144,16 +154,8 @@ def status():
                     productStatus=productStatus, 
                     rates=rates)
             
-       
 ####################################################################################
-def startEldoraApps():
-    ''' Run eldora applications which have been selected in the configuration.
-    '''
-    # products
-    runProducts()
-        
-####################################################################################
-def stopEldoraApps():
+def stopProducts():
     ''' Stop the standard Eldora processing apps. Try first with a SIGTERM. If
     that fails, try a SIGKILL. Remove them from ourProcesses. Note that 
     removing a an entry from ourProcesses removes its reference, and it
@@ -180,7 +182,7 @@ def stopEldoraApps():
             del ourProcesses[key]
     
 ####################################################################################
-def runDcps():
+def startDcps():
     '''
     Run the DCPSInfoRepo, but only if the configuration has
     called for that. Automatic restart of a currently running
@@ -231,7 +233,7 @@ def runDcps():
     time.sleep(1)
 
 ####################################################################################
-def runDrx():
+def startDrx():
     '''
     Run the drx if called for by the configuration. 
     
@@ -290,7 +292,7 @@ def runDrx():
     time.sleep(1)
     
 ####################################################################################
-def runProducts():
+def startProducts():
     '''
     Run the products generator, if called for by the configuration. 
     
@@ -320,6 +322,48 @@ def runProducts():
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
+    
+####################################################################################
+def sendHeader():
+    ''' Send the currently selected header to the housekeeper and eldoradrx.
+    '''
+    
+    # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
+    # housekeeper can find it when we execute its Header() method.
+    try:
+        cmd = ['ping', '-c', '1', 'drx']
+        status = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
+        if status:
+            main.logText('Unable to locate drx in order to write new header file')
+        else:    
+            try:
+                src = selectedHeader.headerFile
+                dest = 'drx:/vxroot/headers/current.hdr'
+                cmd = ['scp', '-B', src, dest]
+                status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
+                if (status != 0):
+                    main.logText('Could not scp '+selectedHeader.headerFile+' to '+dest)
+            except OSError, e:
+                main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
+    except OSError, e:
+        main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
+            
+    # tell the housekeeper to load a new header
+    # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
+    # for the header file, but can only return a signed value.  Adjust if 
+    # necessary to interpret as unsigned.  Zero is returned on error.
+    try:
+        r = hskprpc.server.Header()
+        if (r < 0):
+            r = (1 << 32) + r
+        if (r != selectedHeader.checksum):
+            main.logText('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
+                  selectedHeader.checksum)
+    except Exception, e:
+        main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
+        
+    # tell eldoradrx to reconfigure with current radar parameters
+    headerToDrx(main.selectedHeader)
     
 ####################################################################################
 def dualPrt():
@@ -391,13 +435,13 @@ def mainIsReady():
     constructed after the main app is running.
     '''
     # start up DCPS
-    runDcps()
+    startDcps()
     
     # start drx
-    runDrx()
+    startDrx()
     
-    # stop any running eldora applications
-    stopEldoraApps()
+    # stop any running products
+    stopProducts
 
 ####################################################################################
 def fixLdLibraryPath():
@@ -495,43 +539,6 @@ def headerSelected(selectedHeader):
     '''
     main.logText('Selected new header ' + selectedHeader.headerFile + ' (project ' + selectedHeader.projectName + ')')
 
-    # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
-    # housekeeper can find it when we execute its Header() method.
-    try:
-        cmd = ['ping', '-c', '1', 'drx']
-        status = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
-        if status:
-            main.logText('Unable to locate drx in order to write new header file')
-        else:    
-            try:
-                src = selectedHeader.headerFile
-                dest = 'drx:/vxroot/headers/current.hdr'
-                cmd = ['scp', '-B', src, dest]
-                status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
-                if (status != 0):
-                    main.logText('Could not scp '+selectedHeader.headerFile+' to '+dest)
-            except OSError, e:
-                main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
-    except OSError, e:
-        main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
-            
-    # tell the housekeeper to load a new header
-    # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
-    # for the header file, but can only return a signed value.  Adjust if 
-    # necessary to interpret as unsigned.  Zero is returned on error.
-    try:
-        r = hskprpc.server.Header()
-        if (r < 0):
-            r = (1 << 32) + r
-        if (r != selectedHeader.checksum):
-            main.logText('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
-                  selectedHeader.checksum)
-    except Exception, e:
-        main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
-        
-    # tell the drx to reconfigure with new radar parameters
-    headerToDrx(selectedHeader)
-    
 ####################################################################################
 def headerToDrx(header):
     ''' Send header values to eldoradrx. The values will
