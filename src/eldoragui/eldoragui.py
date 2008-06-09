@@ -8,6 +8,8 @@ import subprocess
 from PyQt4.QtCore    import *
 from PyQt4.QtGui     import *
 
+sys.path.append('/opt/eldora/lib/python')
+
 from EldoraMain      import *
 from EldoraRPC       import *
 from QtConfig        import *
@@ -226,6 +228,7 @@ def startDcps():
         '-ORBListenEndpoints iiop://dcpsrepo:50000', 
         '-d', domainConfigPath, 
         ]
+    print 'dcpscmd = ', dcpscmd
     ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload=nextTaskColor())
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
@@ -453,6 +456,7 @@ def fixLdLibraryPath():
             ldLibraryPath = ldLibraryPath + os.getenv('ACE_ROOT') + '/lib' + ':'
             ldLibraryPath = ldLibraryPath + os.getenv('TAO_ROOT') + '/lib' + ':'
             ldLibraryPath = ldLibraryPath + os.getenv('DDS_ROOT') + '/lib' + ':'
+            ldLibraryPath = ldLibraryPath + os.getenv('ELDORADIR') + '/lib' + ':'
             ldLibraryPath = ldLibraryPath + os.getenv('QTDIR') + '/plugins/designer'
             os.putenv('LD_LIBRARY_PATH', ldLibraryPath)
             os.environ['LD_LIBRARY_PATH'] = ldLibraryPath
@@ -471,12 +475,14 @@ def initConfig():
     global eldoraDir
     try:
         eldoraDir = os.environ['ELDORADIR']
-    except:
+    except KeyError :
+ 
         # If the environment variable is not set, use the parent directory
         # of the location of this script
         mydir, myname = os.path.split(sys.argv[0])
         eldoraDir = os.path.abspath(os.path.join(mydir, '..'))
         os.environ['ELDORADIR'] = eldoraDir
+	print 'eldoraDir = ', eldoraDir
     # where is DCPSInfoRepo
     global ddsRoot
     ddsRoot = os.environ['DDS_ROOT']
@@ -488,7 +494,7 @@ def initConfig():
    # where are the Eldora header files?
     global headerDirs
     headerDirs = ourConfig.getString('Headers/HeaderDir', 
-                                     os.path.join(eldoraDir, 'headermaker', 'headers'))
+                                     os.path.join(eldoraDir, 'conf'))
 
     # build a special dictionary of apps which returns a specific path for
     # an app, if set, otherwise just the app name
@@ -496,10 +502,9 @@ def initConfig():
     appDict = ApplicationDict()
 
     # add apps that are found in eldoraDir/<appName>/<appName>
-    for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope']:
-        appDict[app] = os.path.join(eldoraDir, app, app)
-    # dumpheader lives in the headermaker dir
-    appDict['dumpheader'] = os.path.join(eldoraDir, 'headermaker', 'dumpheader')
+    for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope',
+	'dumpheader']:
+        appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
     
