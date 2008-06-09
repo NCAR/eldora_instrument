@@ -337,12 +337,12 @@ def sendHeader():
             main.logText('Unable to locate drx in order to write new header file')
         else:    
             try:
-                src = selectedHeader.headerFile
+                src = main.selectedHeader.headerFile
                 dest = 'drx:/vxroot/headers/current.hdr'
                 cmd = ['scp', '-B', src, dest]
                 status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
                 if (status != 0):
-                    main.logText('Could not scp '+selectedHeader.headerFile+' to '+dest)
+                    main.logText('Could not scp '+main.selectedHeader.headerFile+' to '+dest)
             except OSError, e:
                 main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
     except OSError, e:
@@ -356,9 +356,9 @@ def sendHeader():
         r = hskprpc.server.Header()
         if (r < 0):
             r = (1 << 32) + r
-        if (r != selectedHeader.checksum):
+        if (r != main.selectedHeader.checksum):
             main.logText('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
-                  selectedHeader.checksum)
+                  main.selectedHeader.checksum)
     except Exception, e:
         main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
         
