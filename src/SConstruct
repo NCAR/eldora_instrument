@@ -5,6 +5,7 @@ def Eldora(env):
     # define ELDORA_ROOT as a double-quote-delimited string containing the 
     # top-level directory of the Eldora build.  E.g., this will add something
     # like -DELDORA_ROOT='"/code/burghart/eldora"' to each C/C++ compilation.
+    env['DEFAULT_INSTALL_PREFIX'] = os.environ['ELDORADIR']
     env.AppendUnique(CPPDEFINES=['ELDORA_ROOT=' + 
                                  '\'"' + env.Dir('#').get_abspath() + '"\''])
     if env['CC'] == "gcc":
@@ -58,13 +59,13 @@ Help(options.GenerateHelpText(env))
 py_site ='/usr/lib/python2.4/site-packages/'
 env['DISTTAR_PREFIX'] ='/usr/lib'
 pdist = env.DistTar("dist/py_site", env.Dir(py_site))
-env.Default(pdist)
-env.Alias('install', pdist)
+#env.Default(pdist)
+env.Alias('distrib', pdist)
 
 distDir = '/opt/eldora'
 env['DISTTAR_PREFIX'] ='/opt'
 dist = env.DistTar("dist/eldora", env.Dir(distDir))
-env.Default(dist)
-env.Alias('install', dist)
+#env.Default(dist)
+env.Alias('distrib', dist)
 
 
