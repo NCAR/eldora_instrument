@@ -1,0 +1,8 @@
+tools = ['utilities']
+env = Environment(tools = ['default'] + tools )
+
+libs = Split("""libcolorbar.so  libknob.so  libppi.so  libscopeplot.so  libstatusgauge.so  
+libtwoknobs.so""")
+
+inst = env.InstallLibrary(libs)
+env.Default(inst)
