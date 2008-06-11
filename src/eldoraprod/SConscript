@@ -28,6 +28,7 @@ ProductsRPC.cpp
 eldoraprod = env.Program('eldoraprod', sources)
 inst = env.InstallProgram(eldoraprod)
 
-env.Default([eldoraprod,inst])
+env.Default(eldoraprod)
+env.Alias('install',inst)
 
 

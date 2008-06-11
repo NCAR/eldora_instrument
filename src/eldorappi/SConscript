@@ -33,4 +33,6 @@ ColorBarSettings.cpp
 eldorappi = env.Program('eldorappi', sources)
 	
 inst = env.InstallProgram(eldorappi)
-env.Default([eldorappi,inst])
+#env.Default([eldorappi,inst])
+env.Default([eldorappi,])
+env.Alias('install',inst)

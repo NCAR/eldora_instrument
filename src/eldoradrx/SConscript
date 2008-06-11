@@ -42,4 +42,5 @@ env.Append(LIBS = libs)
 
 eldoradrx = env.Program('eldoradrx', sources)
 inst = env.InstallProgram(eldoradrx)
-env.Default([eldoradrx,inst])
+env.Default(eldoradrx)
+env.Alias('install',inst)

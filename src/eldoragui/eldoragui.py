@@ -8,7 +8,8 @@ import subprocess
 from PyQt4.QtCore    import *
 from PyQt4.QtGui     import *
 
-sys.path.append('/opt/eldora/lib/python')
+sys.path.append(os.path.join(os.environ['ELDORADIR'],'lib','python'))
+#sys.path.append('/opt/eldora/lib/python')
 
 from EldoraMain      import *
 from EldoraRPC       import *

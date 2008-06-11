@@ -28,8 +28,5 @@ PlotInfo.cpp
 eldorascope = env.Program('eldorascope', sources)
 inst = env.InstallProgram(eldorascope)
 	
-Default([eldorascope,inst])
-
-#env.DeployProgram(eldorascope)
-
-
+Default(eldorascope)
+env.Alias('install',inst)

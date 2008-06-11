@@ -5,4 +5,4 @@ libs = Split("""libcolorbar.so  libknob.so  libppi.so  libscopeplot.so  libstatu
 libtwoknobs.so""")
 
 inst = env.InstallLibrary(libs)
-env.Default(inst)
+env.Alias('install',inst)
