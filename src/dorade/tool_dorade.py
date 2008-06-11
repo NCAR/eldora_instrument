@@ -1,4 +1,4 @@
-tools = ['default', 'boost_date_time']
+tools = ['boost_date_time']
 env = Environment(tools = ['default'] + tools)
 
 def dorade(env):

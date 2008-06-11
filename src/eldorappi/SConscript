@@ -1,9 +1,16 @@
-tools = ['default', 'ddssvc', 'ddsqt', 'qtt_qtconfig', 'qtt_ppi', 'utilities', 'doxygen', ]
-env = Environment(tools = tools)
+tools = Split("""
+ddssvc
+ddsqt
+qtt_qtconfig
+qtt_ppi
+utilities
+doxygen
+boost_program_options
+""")
+env = Environment(tools = ['default'] + tools)
 
 # libraries:
 libs = Split("""
-boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp

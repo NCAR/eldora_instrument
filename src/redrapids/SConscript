@@ -33,7 +33,6 @@ libs = Split("""
 rr314
 channeladapter
 rr314
-boost_program_options
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
