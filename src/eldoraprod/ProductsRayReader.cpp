@@ -53,7 +53,7 @@ void ProductsRayReader::notify()
                     collector->raysReady();
             int numRays = 0;
             // Sanity check: make sure we got the expeced number of rays
-            for (int p = 0; p < rays.size(); p++) {
+            for (unsigned int p = 0; p < rays.size(); p++) {
                 numRays += rays[p].size();
             }
 
@@ -67,7 +67,7 @@ void ProductsRayReader::notify()
                         << " when we were expecting " << 4*_numPrtIds << "\n";
             }
             // we are finished with the current collector crop
-            for (int p = 0; p < rays.size(); p++) {
+            for (unsigned int p = 0; p < rays.size(); p++) {
                 for (unsigned int i = 0; i < rays[p].size(); i++) {
                     EldoraDDS::Ray* r = rays[p][i];
                     returnItem(r);

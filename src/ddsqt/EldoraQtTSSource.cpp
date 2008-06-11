@@ -34,7 +34,7 @@ void EldoraQtTSSource::notify() {
 		_numBytes += pItem->tsdata.length()*sizeof(pItem->tsdata[0]);
 
 		// See if this is the channel and radar that we are interested in
-		if (pItem->hskp.chan == _channel && pItem->radarId == _radarId) {
+		if (pItem->hskp.chan == (int)_channel && pItem->radarId == _radarId) {
 			// the number of individual timer series in each dds sample
 			unsigned int nci = pItem->hskp.samples;
 
