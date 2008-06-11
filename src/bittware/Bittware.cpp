@@ -5,6 +5,19 @@
 #include <string.h>		/* for memcpy and string routines */
 #include <iostream>
 
+// Greatest common divisor
+static inline int GCD(int a, int b) {
+    while (1) {
+        a %= b;
+        if (a == 0)
+            return b;
+        b %= a;
+        if (b == 0)
+            return a;
+    }
+}
+
+
 Bittware::Bittware(int devNum) :
     _devNum(devNum), _isok(false) {
 
@@ -56,9 +69,10 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     U32 Timer;
     
-    double prtClock = (60e6);      // Timer Input Clock Freq
-    int periodCount;               // Period Count for all Timers
-    int PrtScheme;                 // PRT Scheme for all Timers
+    double clockFreq = (60e6);  // Timer Input Clock Freq
+    int baseCount;              // base period in clock counts for all timers
+    int prtScheme;              // encoded multipliers for timers
+    int prtSchemeCount;         // period in clock counts between scheme repeats
     
 // Calculated Timing Variables from Header Variables
     
@@ -68,27 +82,36 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     U32 TP_Width = (int) (radarParams.wave_gate1[1] * 50);
     
     // Calculate the period and PRT Scheme for dual prt or single prt
-    int X, Y;
     if (radarParams.radd_nipp == 2)  //dual prt
     {
-        periodCount = (int) (radarParams.radd_ipp1 * 
-                    ((float) radarParams.radd_ipp2 / radarParams.radd_ipp1 - 
-                      (int) ((radarParams.radd_ipp2 / radarParams.radd_ipp1) + 0.5)) / 
-                      (int) ((radarParams.radd_ipp2 / radarParams.radd_ipp1) + 0.5) * 
-                             prtClock / 1e3 + 0.5);
+        // Convert inter-pulse periods to clock counts.  The ipp values are 
+        // in milliseconds.
+        int ipp1Count = (int)(radarParams.radd_ipp1 * 0.001 * clockFreq + 0.5);
+        int ipp2Count = (int)(radarParams.radd_ipp2 * 0.001 * clockFreq + 0.5);
         
-        X = (int) ((int) ((radarParams.radd_ipp2 / radarParams.radd_ipp1) + 0.5) / 
-                 ((float) radarParams.radd_ipp2 / radarParams.radd_ipp1 - 
-                   (int) ((radarParams.radd_ipp2 / radarParams.radd_ipp1) + 0.5)) + 0.5);
-        Y = (int) (X * radarParams.radd_ipp2 / radarParams.radd_ipp1 + 0.5);
-        PrtScheme = (Y<<4) + X;
+        // Find the GCD (in counts) of the two periods.  All timers will be
+        // an integer multiple of this period.
+        baseCount = GCD(ipp1Count, ipp2Count);
+        
+        // Find the multipliers to turn the base period into IPP1 and IPP2
+        int mult1 = ipp1Count / baseCount;
+        int mult2 = ipp2Count / baseCount;
+
+        // encode the multipliers into the PRT scheme
+        prtScheme = (mult2 << 4) + mult1;
+        
+        // Period between PRT scheme repeats
+        prtSchemeCount = (mult1 + mult2) * baseCount;  
     }
     else  //single prt
     {
-        //periodCount = (int) (radarParams.radd_ipp1 * prtClock / 1e3 + 0.5);    
-        periodCount = (int) (radarParams.radd_ipp1 * prtClock / 1e3);    
-                
-        PrtScheme = 0x0000;
+        // Convert inter-pulse period to clock counts.  The ipp is 
+        // in milliseconds.
+        baseCount = (int)(radarParams.radd_ipp1 * 0.001 * clockFreq + 0.5);
+        prtScheme = 0x0000;
+        
+        // Period between PRT scheme repeats
+        prtSchemeCount = baseCount;    
     }
     
     // Midbeam Interrupt Calculation
@@ -96,19 +119,9 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     U32 Midbeam_Prt = 0x0;
     U32 Midbeam_Delay;
     U32 Midbeam_periodCount;
-    if (radarParams.radd_nipp == 2)
-    {
-        Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
-                             ((radarParams.radd_ipp1 + radarParams.radd_ipp2) * 
-                              radarParams.wave_seqrep * 60e3) / 2);
-    	Midbeam_periodCount = periodCount * (X + Y) * radarParams.wave_seqrep;
-    }
-    else
-    {
-    	Midbeam_Delay = (int) (radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
-    	                      (periodCount * radarParams.wave_seqrep) / 2);
-    	Midbeam_periodCount = periodCount * radarParams.wave_seqrep;
-    }   
+    Midbeam_periodCount = prtSchemeCount * radarParams.wave_seqrep;  
+    Midbeam_Delay = Midbeam_periodCount / 2 +
+        (int)(radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 0.5);
     
 // Initialize the Bittware Card and Fill Registers
     
@@ -151,19 +164,19 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     	mem_write(wr_buffer);
     	// Configure FORE Period Register 
     	wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-    	wr_buffer[0x1] = periodCount; //Data Line
+    	wr_buffer[0x1] = baseCount; //Data Line
     	mem_write(wr_buffer);
     	// Configure FORE multiple PRT Register
     	wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
     	mem_write(wr_buffer); 
     	
     	printf("Fore CH%i : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
     	        Timer>>4, 
     	        radarParams.wave_chpoff[i], 
     	        radarParams.wave_chpwid[i],
-    	        periodCount, 
-    	        PrtScheme);   
+    	        baseCount, 
+    	        prtScheme);   
     	        
     	// AFT
     	Timer = (i<<4) + TX_AFT_CH1;
@@ -182,19 +195,19 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         mem_write(wr_buffer);
         // Configure FORE Period Register 
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-        wr_buffer[0x1] = periodCount; //Data Line
+        wr_buffer[0x1] = baseCount; //Data Line
         mem_write(wr_buffer);
         // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
         mem_write(wr_buffer);     	
         
         printf("Aft CH%i : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                         Timer>>4, 
                         radarParams.wave_chpoff[i], 
                         radarParams.wave_chpwid[i],
-                        periodCount, 
-                        PrtScheme);   
+                        baseCount, 
+                        prtScheme);   
                 
     }
  
@@ -216,18 +229,18 @@ void Bittware::configure(EldoraRadarParams radarParams) {
        mem_write(wr_buffer);
        // Configure FORE Period Register 
        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-       wr_buffer[0x1] = periodCount; //Data Line
+       wr_buffer[0x1] = baseCount; //Data Line
        mem_write(wr_buffer);
        // Configure FORE multiple PRT Register
        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-       wr_buffer[0x1] = PrtScheme;
+       wr_buffer[0x1] = prtScheme;
        mem_write(wr_buffer);
        
        printf("Fore PK : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                        radarParams.wave_chpoff[5], 
                        radarParams.wave_chpwid[5],
-                       periodCount, 
-                       PrtScheme);   
+                       baseCount, 
+                       prtScheme);   
        
        
        // AFT
@@ -246,18 +259,18 @@ void Bittware::configure(EldoraRadarParams radarParams) {
        mem_write(wr_buffer);
        // Configure FORE Period Register 
        wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-       wr_buffer[0x1] = periodCount; //Data Line
+       wr_buffer[0x1] = baseCount; //Data Line
        mem_write(wr_buffer);
        // Configure FORE multiple PRT Register
        wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-       wr_buffer[0x1] = PrtScheme;
+       wr_buffer[0x1] = prtScheme;
        mem_write(wr_buffer);          
        
        printf("Aft PK : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                               radarParams.wave_chpoff[5], 
                               radarParams.wave_chpwid[5],
-                              periodCount, 
-                              PrtScheme);   
+                              baseCount, 
+                              prtScheme);   
        
               
     // Initialize FORE & AFT Test Pulses        
@@ -278,18 +291,18 @@ void Bittware::configure(EldoraRadarParams radarParams) {
        	mem_write(wr_buffer);
        	// Configure FORE Period Register 
        	wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-       	wr_buffer[0x1] = periodCount; //Data Line
+       	wr_buffer[0x1] = baseCount; //Data Line
        	mem_write(wr_buffer);
        	// Configure FORE multiple PRT Register
        	wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
        	mem_write(wr_buffer);
        	
        	printf("Fore TP : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
        	                       TP_Delay, 
        	                       TP_Width,
-       	                       periodCount, 
-       	                       PrtScheme);   
+       	                       baseCount, 
+       	                       prtScheme);   
        	       
        	 
        	// AFT
@@ -308,18 +321,18 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         mem_write(wr_buffer);
         // Configure FORE Period Register 
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-        wr_buffer[0x1] = periodCount; //Data Line
+        wr_buffer[0x1] = baseCount; //Data Line
         mem_write(wr_buffer);
         // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
         mem_write(wr_buffer); 
         
         printf("Aft TP : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                                TP_Delay, 
                                TP_Width,
-                               periodCount, 
-                               PrtScheme);   
+                               baseCount, 
+                               prtScheme);   
                
     
     // Initialize FORE & AFT RX Pulses
@@ -343,19 +356,19 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         mem_write(wr_buffer);
         // Configure FORE Period Register 
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-        wr_buffer[0x1] = periodCount; //Data Line
+        wr_buffer[0x1] = baseCount; //Data Line
         mem_write(wr_buffer);
         // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
         mem_write(wr_buffer); 
         
         printf("Fore CH%i : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                         Timer>>4, 
                         radarParams.wave_gate1[0] + radarParams.wave_chpoff[i], 
                         radarParams.wave_chpwid[i] * radarParams.wave_ngates[i], 
-                        periodCount, 
-                        PrtScheme);   
+                        baseCount, 
+                        prtScheme);   
         
         
         // AFT
@@ -375,19 +388,19 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         mem_write(wr_buffer);
         // Configure FORE Period Register 
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PERIOD_REG; //Address Line
-        wr_buffer[0x1] = periodCount; //Data Line
+        wr_buffer[0x1] = baseCount; //Data Line
         mem_write(wr_buffer);
         // Configure FORE multiple PRT Register
         wr_buffer[0x0] = BW_WRITE | Timer | BW_PRT_REG; //Address Line
-        wr_buffer[0x1] = PrtScheme;
+        wr_buffer[0x1] = prtScheme;
         mem_write(wr_buffer);
         
         printf("Aft CH%i : Delay = %i: Width = %i: Period = %i: PRT = %x\n", 
                                 Timer>>4, 
                                 radarParams.wave_gate1[0] + radarParams.wave_chpoff[i], 
                                 radarParams.wave_chpwid[i] * radarParams.wave_ngates[i], 
-                                periodCount, 
-                                PrtScheme);   
+                                baseCount, 
+                                prtScheme);   
         
                         
     }
