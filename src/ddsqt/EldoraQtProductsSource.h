@@ -64,9 +64,10 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
         /// @param elDegrees Elevation angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
+        /// @param gateSpacingMeters The gate spacing in meters
         void newPData(
                 std::vector<double> P, int radarId, float elDegrees,
-                int prodType);
+                int prodType, float gateSpacingMeters);
 
     public slots:
         /// Set the gate mode to ONE_GATE.

@@ -59,22 +59,20 @@ def start():
     # send out the header to interested clients
     sendHeader()
     
-    # start eldoradrx
+    # send start command to eldoradrx
     try:
         r = drxrpc.server.start()
         main.logText(str(r))
     except Exception, e:
         print ("Error contacting drx RPC for start:"+str(e))
-        pass
 
-    # start the housekeeper
+    # Send start command to the housekeeper
     try:
         r = hskprpc.server.Start()
         if (r != 0):
                 main.logText(str(r))
     except Exception, e:
         print ("Error contacting housekeeper RPC for start:"+str(e))
-        pass
 
     try:
         main.logText("starting housekeeper")
@@ -84,7 +82,7 @@ def start():
     except Exception, e:
         print ("Error contacting housekeeper RPC for start:"+str(e))
         
-    # stop products
+    # stop  (i.e. kill) products
     stopProducts()
     
     # run products

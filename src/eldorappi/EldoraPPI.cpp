@@ -30,7 +30,8 @@ EldoraPPI::EldoraPPI(std::string title,
         QDialog* parent) :
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
-    _gates(0), _rotAngle(0.0)
+    _gates(0), _gateSizeMeters(0.0), _rotAngle(0.0), 
+    _left(-1.0), _right(1.0), _bottom(-0.2), _top(0.8)
     {
     // Set up our form
     setupUi(parent);
@@ -86,10 +87,17 @@ EldoraPPI::EldoraPPI(std::string title,
     // initialize the book keeping for the ppi displays.
     initPlots();
 
-    // configure the displays themselves.
+    // setup the displays themselves.
     int decimation = _config.getInt("Decimation", 1);
-    _upperManager.setup(ppiFor, 7, &_productMaps, decimation);
-    _lowerManager.setup(ppiAft, 7, &_productMaps, decimation);
+    int ppiHeight = _config.getInt("Size/MinHeight", 300);
+    _upperManager.setup(ppiFor, 7, &_productMaps, decimation, ppiHeight);
+    _lowerManager.setup(ppiAft, 7, &_productMaps, decimation, ppiHeight);
+    
+    // get the display clipping specifications
+    _left = _config.getDouble("Clipping/Left", -1.0);
+    _right = _config.getDouble("Clipping/Right", 1.0);
+    _bottom = _config.getDouble("Clipping/Bottom", -0.2);
+    _top = _config.getDouble("Clipping/Top", 0.8);
     
     // run through all of the product types and configure the 
     // the for and aft displays.
@@ -132,7 +140,7 @@ EldoraPPI::~EldoraPPI() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
-        std::vector<double> p, int radarId, float rotAngle, int prodType) {
+        std::vector<double> p, int radarId, float rotAngle, int prodType, float gateSizeMeters) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
@@ -145,12 +153,14 @@ void EldoraPPI::productSlot(
     // ignore product if we are paused.
     if (_paused)
         return;
-    
     // if the product size has changed, reconfigure the ppi displays
-    if (p.size() != _gates) {
+    if (p.size() != _gates || gateSizeMeters != _gateSizeMeters) {
         _gates = p.size();
-        _upperManager.configurePPI(_productList.size(), _gates, 400);
-        _lowerManager.configurePPI(_productList.size(), _gates, 400);
+        _gateSizeMeters = gateSizeMeters;
+        _upperManager.configurePPI(_productList.size(), _gates, 400, _gateSizeMeters, 
+                                   _left, _right, _bottom, _top);
+        _lowerManager.configurePPI(_productList.size(), _gates, 400, _gateSizeMeters, 
+                                   _left, _right, _bottom, _top);
     }
 
     // Map the product type into the zero based index for the PPIManager.

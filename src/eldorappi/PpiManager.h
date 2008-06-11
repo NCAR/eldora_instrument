@@ -14,14 +14,17 @@ class PPIManager {
         PPIManager();
         /// Destructor
         virtual ~PPIManager();
-        /// configure the manager. This cannot take place in the constructor,
+        /// Configure the manager. This cannot take place in the constructor,
         /// becasue the ppi pointer (from the form) will not be initialized
         /// until after setupUI()
         /// @param ppi The ppi display
         /// @param nProducts The number of products that we will be collecting
         /// @param colorMaps The color maps for each product
         /// @param decimation The gate decimation for the PPI
-        void setup(PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps, int decimation);
+        /// @param minHeight The PPI minimum height in pixels. The width will be set
+        /// in order to maintain the clipping planes aspect ratio.
+        void setup(PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps, 
+                   int decimation, int minHeight);
         /// Add a new data product. The data for product with index
         /// prodIndex are saved in the corresponding vector in _productData.
         /// When a complete set of products have been
@@ -37,7 +40,14 @@ class PPIManager {
         /// @param numProducts The number of products that the ppi will provide
         /// @param gates The number of gates in each beam
         /// @param beams The number of beams in the ppi
-        void configurePPI(int numProducts, int gates, int beams);
+        /// @param gateSizeMeters The gate spacing in meters
+        /// @param X coordinate of the left clipping plane (+/- 1.0)
+        /// @param X coordinate of the right clipping plane (+/- 1.0)
+        /// @param Y coordinate of the bottom clipping plane (+/- 1.0)
+        /// @param Y coordinate of the top clipping plane (+/- 1.0)
+        void configurePPI(int numProducts, int gates, int beams, double gateSizeMeters=150.0,
+                          double left=-1.0, double right=1.0, 
+                          double bottom=-1.0, double top=1.0);
         /// Select the product to display on the ppi
         /// @param The product index, zero based.
         void selectVar(int index);
@@ -61,6 +71,8 @@ class PPIManager {
         int _gates;
         /// The gate decimation for PPI
         int _decimation;
+        /// The minimum ppi height
+        int _minHeight;
 };
 
 #endif /*PPIMANAGER_H_*/

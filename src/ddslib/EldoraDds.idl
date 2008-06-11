@@ -133,7 +133,7 @@ module EldoraDDS {
         long long timestamp; // microseconds since 1 Jan 1970 00:00:00 UTC
         float prfSeconds;
         float rotAngle; // antenna rotation angle, degrees
-        float gateSpacingKm;
+        float gateSpacingMeters;
 
         float p1Scale;
         float p1Offset;

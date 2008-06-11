@@ -124,6 +124,7 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         products->radarId = rays[0][0]->radarId;
         products->timestamp = rays[0][0]->hskp.rayNum;
         products->rotAngle = rays[0][0]->hskp.radarRotAngle;
+        products->gateSpacingMeters = rays[0][0]->hskp.cellWidth[0];
 
         // transfer the products.
         for (int g = 0; g < gates; g++) {

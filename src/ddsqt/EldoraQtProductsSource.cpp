@@ -57,6 +57,7 @@ void EldoraQtProductsSource::notify() {
                 float gain;
                 float offset;
                 short* product;
+                float gateSpacingMeters = pItem->gateSpacingMeters;
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -75,7 +76,7 @@ void EldoraQtProductsSource::notify() {
                         }
                        // send the Pbeam to our client.
                         emit newPData(P, pItem->radarId, pItem->rotAngle, 
-                                *prodType);
+                                *prodType, gateSpacingMeters);
                         clearCapture();
                     }
                     break;
@@ -95,7 +96,7 @@ void EldoraQtProductsSource::notify() {
                             // send the P time series to our client.
                             _pointCounter = 0;
                             emit newPData(P, pItem->radarId, 
-                                    pItem->rotAngle, *prodType);
+                                    pItem->rotAngle, *prodType, gateSpacingMeters);
                             clearCapture();
                         }
                     }

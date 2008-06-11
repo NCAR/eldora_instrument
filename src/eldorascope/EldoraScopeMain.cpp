@@ -165,8 +165,8 @@ int main(
 
     // now the products supply
     QObject::connect(&productsSource, 
-    SIGNAL(newPData(std::vector<double>, int, float, int)), &scope, 
-    SLOT(productSlot(std::vector<double>, int, float, int)));
+    SIGNAL(newPData(std::vector<double>, int, float, int, float)), &scope, 
+    SLOT(productSlot(std::vector<double>, int, float, int, float)));
 
     // if we don't show() the dialog, nothing appears!
     dialog->show();

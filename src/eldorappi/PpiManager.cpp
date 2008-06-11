@@ -1,18 +1,26 @@
 #include "PpiManager.h"
-
+#include <QApplication>
 #include <iostream>
 /////////////////////////////////////////////////////////////////////////////
 PPIManager::PPIManager() :
-    _gates(0), _decimation(1) {
+    _gates(0), _decimation(1), _minHeight(300) {
 }
 /////////////////////////////////////////////////////////////////////////////
 void PPIManager::setup(
-        PPI* ppi, int nProducts, std::vector<ColorMap*>* colorMaps, int decimation) {
+        PPI* ppi, int nProducts, 
+        std::vector<ColorMap*>* colorMaps, 
+        int decimation,
+        int minHeight) {
 
     _ppi = ppi;
     _nProducts = nProducts;
     _colorMaps = colorMaps;
     _decimation = decimation;
+    _minHeight = minHeight;
+    
+    // start off with a square display of the minimum height
+    _ppi->setMinimumSize(minHeight, minHeight);
+    _ppi->repaint();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -67,7 +75,8 @@ bool PPIManager::newProduct(
 
 //////////////////////////////////////////////////////////////////////
 void PPIManager::configurePPI(
-        int numProducts, int gates, int beams) {
+        int numProducts, int gates, int beams, double gateSizeMeters,
+        double left, double right, double bottom, double top) {
 
     _gates = gates;
 
@@ -77,17 +86,22 @@ void PPIManager::configurePPI(
         _productData[i].resize(_gates);
 
     // configure the display
-    double distance = 0.100*2*_gates;
+    double distance = gateSizeMeters*2*_gates/1000.0;
     if (gates == 0)
         distance = 100.0;
 
-    _ppi->configure(numProducts, _gates, beams, distance, _decimation);
+    _ppi->configure(numProducts, _gates, beams, distance, _decimation, 
+                    left, right, bottom, top);
+    int h = 400;
+    int w = h * (right-left)/(top-bottom);
+    _ppi->setMinimumSize(w,h);
+    _ppi->repaint();
+    
 
 }
 /////////////////////////////////////////////////////////////////////////////
 void PPIManager::selectVar(int index) {
     _ppi->selectVar(index);
 }
-/////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 

@@ -75,14 +75,18 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
                 PRODUCT_TYPES product, bool forwardRadar);
 
     public slots:
-        /// Feed product data via this slot.
+        /// Feed product data via this slot. If the operating 
+        /// characteristics change, such as the number of gates,
+        /// or the gate spacing, the displays will be reconfigured.
         /// @param p The product data.
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
         /// @param elDegrees The antenna pointing elevation, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
+        /// @param gateSizeMeters The widht of each range gates. Needed to 
+        /// draw the range rings on the ppi.
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
-                int prodType);
+                int prodType, float gateSizeMeters);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(
@@ -184,6 +188,16 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         bool _paused;
         /// The nuber of gates
         unsigned int _gates;
+        /// The gate size in meters
+        double _gateSizeMeters;
+        /// X coordinate of the left clipping plane (+/- 1.0)
+        double _left;
+        /// X coordinate of the right clipping plane (+/- 1.0)
+        double _right;
+        /// Y coordinate of the bottom clipping plane (+/- 1.0)
+        double _bottom;
+        /// Y coordinate of the top clipping plane (+/- 1.0)
+        double _top;
         /// For each PRODUCT_TYPES, there will be an entry in this map.
         std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
         /// The layout which contains the radio buttons for product
