@@ -8,6 +8,14 @@ import subprocess
 from PyQt4.QtCore    import *
 from PyQt4.QtGui     import *
 
+if not os.environ.has_key('ELDORADIR'):
+    # If the ELDORADIR environment variable is not set, set it to the parent 
+    # directory of where this script was found.
+    mypath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    parentpath = os.path.abspath(os.path.join(mypath, '..'))
+    print 'ELDORADIR is not set; using', parentpath
+    os.environ['ELDORADIR'] = parentpath
+
 sys.path.append(os.path.join(os.environ['ELDORADIR'],'lib','python'))
 #sys.path.append('/opt/eldora/lib/python')
 
