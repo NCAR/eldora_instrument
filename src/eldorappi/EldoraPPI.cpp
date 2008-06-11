@@ -31,8 +31,8 @@ EldoraPPI::EldoraPPI(std::string title,
         QDialog* parent) :
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
-    _gates(0), _gateSizeMeters(0.0), _rotAngle(0.0), 
-    _left(-1.0), _right(1.0), _bottom(-0.2), _top(0.8),
+    _gates(0), _gateSizeMeters(0.0), _left(-1.0), _right(1.0), 
+    _bottom(-0.2), _top(0.8), _rotAngle(0.0),
     _currentX(0.0), _currentY(0.0)
     {
     // Set up our form
