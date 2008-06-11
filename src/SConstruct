@@ -1,5 +1,11 @@
 import os
 import eol_scons
+
+if not os.environ.has_key('ELDORADIR'):
+    os.environ['ELDORADIR'] = '/opt/eldora'
+    print "ELDORADIR environment variable is not set."
+    print "Installation will go to default location:", os.environ['ELDORADIR']
+    
 ELDORADIR = os.environ['ELDORADIR']
 
 def Eldora(env):
