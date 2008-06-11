@@ -92,7 +92,7 @@ void PPIManager::configurePPI(
 
     _ppi->configure(numProducts, _gates, beams, distance, _decimation, 
                     left, right, bottom, top);
-    int h = 400;
+    int h = _minHeight;
     int w = h * (right-left)/(top-bottom);
     _ppi->setMinimumSize(w,h);
     _ppi->repaint();

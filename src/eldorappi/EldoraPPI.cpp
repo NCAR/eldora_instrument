@@ -18,6 +18,7 @@
 #include <QPalette>
 #include <QDateTime>
 #include <QFileDialog>
+#include <QColorDialog>
 
 #include <string>
 #include <algorithm>
@@ -31,7 +32,8 @@ EldoraPPI::EldoraPPI(std::string title,
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
     _gates(0), _gateSizeMeters(0.0), _rotAngle(0.0), 
-    _left(-1.0), _right(1.0), _bottom(-0.2), _top(0.8)
+    _left(-1.0), _right(1.0), _bottom(-0.2), _top(0.8),
+    _currentX(0.0), _currentY(0.0)
     {
     // Set up our form
     setupUi(parent);
@@ -75,11 +77,20 @@ EldoraPPI::EldoraPPI(std::string title,
     connect(&_upperButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeUpperSlot(int)));
     connect(&_lowerButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeLowerSlot(int)));
     
-    //    connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
     connect(pauseRunButton, SIGNAL(toggled(bool)), this, SLOT(pauseRunSlot(bool)));
 
-    // set the checkbox selections
-    //    _pauseButton->setChecked(false);
+    connect(gridCheck,     SIGNAL(clicked(bool)),     this, SLOT(gridSlot(bool)));
+    connect(ringsCheck,    SIGNAL(clicked(bool)),     this, SLOT(ringsSlot(bool)));
+    connect(zoomIn,        SIGNAL(released()),        this, SLOT(zoomInSlot()));
+    connect(zoomOut,       SIGNAL(released()),        this, SLOT(zoomOutSlot()));
+    connect(backgroundButton, SIGNAL(released()),     this, SLOT(backgroundColorSlot()));
+    connect(ringColorButton,  SIGNAL(released()),     this, SLOT(ringColorSlot()));
+    connect(panUp,         SIGNAL(released()),        this, SLOT(panUpSlot()));
+    connect(panDown,       SIGNAL(released()),        this, SLOT(panDownSlot()));
+    connect(panLeft,       SIGNAL(released()),        this, SLOT(panLeftSlot()));
+    connect(panRight,      SIGNAL(released()),        this, SLOT(panRightSlot()));
+    connect(viewReset,     SIGNAL(released()),        this, SLOT(resetViewSlot()));
+    connect(saveImage,     SIGNAL(released()),        this, SLOT(saveImageSlot()));
 
     // initialize the color maps
     initColorMaps();
@@ -505,4 +516,105 @@ void EldoraPPI::fkeyTriggered(QAction* qa) {
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////
+
+void EldoraPPI::ringsSlot(bool enabled)
+{
+    ppiFor->rings(enabled);
+    ppiAft->rings(enabled);
+}
+///////////////////////////////////////////////////////////////////////
+
+void EldoraPPI::gridSlot(bool enabled)
+{
+    ppiFor->grids(enabled);
+    ppiAft->grids(enabled);
+}
+///////////////////////////////////////////////////////////////////////
+void
+EldoraPPI::backgroundColorSlot() 
+{
+    QColor color = QColorDialog::getColor("blue");
+
+    ppiFor->backgroundColor(color);
+    ppiAft->backgroundColor(color);
+}
+
+///////////////////////////////////////////////////////////////////////
+void
+EldoraPPI::ringColorSlot() 
+{
+    QColor color = QColorDialog::getColor("black");
+
+    ppiFor->gridRingsColor(color);
+    ppiAft->gridRingsColor(color);
+}
+
+///////////////////////////////////////////////////////////////////////
+void
+EldoraPPI::pan(double x, double y)
+{
+        ppiFor->pan(x, y);
+        ppiAft->pan(x, y);
+        _currentX = x;
+        _currentY = y;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void 
+EldoraPPI::panUpSlot()
+{
+    pan(_currentX, _currentY + 0.1/ppiFor->getZoom());
+    _currentY += 0.1/ppiFor->getZoom();
+}
+///////////////////////////////////////////////////////////////////////
+
+void 
+EldoraPPI::panDownSlot()
+{
+    pan(_currentX, _currentY - 0.1/ppiFor->getZoom());
+    _currentY -= 0.1/ppiFor->getZoom();
+}
+///////////////////////////////////////////////////////////////////////
+
+void 
+EldoraPPI::panLeftSlot()
+{
+    pan(_currentX - 0.1/ppiFor->getZoom(), _currentY);
+    _currentX -= 0.1/ppiFor->getZoom();
+}
+///////////////////////////////////////////////////////////////////////
+
+void 
+EldoraPPI::panRightSlot()
+{
+    pan(_currentX + 0.1/ppiFor->getZoom(), _currentY );
+    _currentX += 0.1/ppiFor->getZoom();
+}
+///////////////////////////////////////////////////////////////////////
+void
+EldoraPPI::resetViewSlot()
+{
+    ppiFor->resetView();
+    ppiAft->resetView();
+}
+///////////////////////////////////////////////////////////////////////
+
+void EldoraPPI::zoomInSlot()
+{
+    ppiFor->setZoom(ppiFor->getZoom()*2.0);
+    ppiAft->setZoom(ppiAft->getZoom()*2.0);
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void EldoraPPI::zoomOutSlot()
+{
+    ppiFor->setZoom(ppiFor->getZoom()*0.5);
+    ppiAft->setZoom(ppiAft->getZoom()*0.5);
+}
+
+
 

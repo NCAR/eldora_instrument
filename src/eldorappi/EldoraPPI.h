@@ -116,6 +116,17 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// Called when a function key is pressed, to switch the 
         /// product selection
         void fkeyTriggered(QAction *qa);
+        void panUpSlot();
+        void panDownSlot();
+        void panLeftSlot();
+        void panRightSlot();
+        void resetViewSlot();
+        void ringsSlot(bool);
+        void gridSlot(bool);
+        void backgroundColorSlot();
+        void ringColorSlot();
+        void zoomInSlot();
+        void zoomOutSlot();
         
     protected:
         /// Initialize all of the color maps. It creates the master list of 
@@ -142,6 +153,7 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// color bar, false if the aft.
         void colorBarPopup(
                 bool forwardRadar);
+        void pan(double x, double y);
         /// The manager for the upper PPI
         PPIManager _upperManager;
         /// The manager for the lower PPI
@@ -220,6 +232,8 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         double _rotAngle;
         /// Action group for the fkeys shortcuts
         QActionGroup* fkeysActionGroup;
+        double _currentX;
+        double _currentY;
 
 
 };
