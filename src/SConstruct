@@ -28,11 +28,8 @@ def Eldora(env):
         env.PassEnv(r'DevEnvDir')
         env.PassEnv(r'Framework.*')
 
-tools = ['sdrscope','disttar']
+tools = ['sdrscope', 'disttar']
 env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
-
-Export('env')
-
 
 # Build the main eldora applications:
 SConscript('conf/SConscript')
@@ -72,8 +69,8 @@ pdist = env.DistTar("dist/py_site", env.Dir(py_site), DISTTAR_PREFIX ='/usr/lib'
 env.Alias('distrib', pdist)
 
 distDir = ELDORADIR
-parent = os.path.dirname(distDir)
-dist = env.DistTar("dist/eldora", env.Dir(distDir), DISTTAR_PREFIX =parent)
+parent = os.path.abspath(os.path.join(distDir, '..'))
+dist = env.DistTar("dist/eldora", env.Dir(distDir), DISTTAR_PREFIX = parent)
 #env.Default(dist)
 env.Alias('distrib', dist)
 
