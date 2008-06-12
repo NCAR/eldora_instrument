@@ -880,8 +880,9 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
         asib = new DoradeASIB(data, datalen, false);
         data += asib->getDescLen();
         datalen -= asib->getDescLen();
-
-        frad = new DoradeFRAD(data, datalen, false);
+        
+        // unpack the "header-only" FRAD descriptor from the housekeeper
+        frad = new DoradeFRAD(data, datalen, false, true);
     } catch (DescriptorException dex) {
         std::cerr << "Descriptor exception: " << dex.what() <<
         std::endl;

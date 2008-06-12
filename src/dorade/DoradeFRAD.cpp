@@ -9,20 +9,22 @@
  * <p>Copyright: Copyright (c) 2008</p>
  * <p>Company: University Corporation for Atmospheric Research</p>
  * @author Chris Burghart
- * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
+ * @version $Id$
  */
 DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen, 
-                       bool isLittleEndian) throw (DescriptorException) :
+                       bool isLittleEndian, bool headerOnly) 
+    throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "FRAD") { 
     //
     // We either expect a complete FRAD descriptor including data, or just the
     // 52-byte portion before the data (which the ELDORA housekeeper sends
     // out).
     //
-    if (datalen != 52 && datalen != _descLen) {
+    unsigned int expectedLen = headerOnly ? 52 : _descLen;
+    if (datalen < expectedLen) {
         std::stringstream ss;
-        ss << "Bad FRAD data size: " << datalen << "; expected 52 or " <<
-            _descLen;
+        ss << "Bad FRAD data size: " << datalen << 
+            " is less than the expected " << expectedLen;
         throw DescriptorException(ss.str());
     }
     //
@@ -43,6 +45,10 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     _rayCount = grabInt(data, 44, isLittleEndian);
     _firstRecordedGate = grabShort(data, 48, isLittleEndian);
     _lastRecordedGate = grabShort(data, 50, isLittleEndian);
+    
+    if (! headerOnly) {
+        // @TODO unpack the data portion of the FRAD
+    }
 
     //
     // debugging output

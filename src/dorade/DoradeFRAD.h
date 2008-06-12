@@ -15,8 +15,20 @@
 
 class DoradeFRAD : public DoradeDescriptor {
 public:
+    /**
+     * Construct a DoradeFRAD from raw data.
+     * @param data the raw data.
+     * @param datalen length of the raw data.
+     * @param isLittleEndian true iff the raw data are little-endian.
+     * @param headerOnly true iff just the 52-byte header portion of the 
+     *    FRAD descriptor should be unpacked from the raw data (i.e., 
+     *    everything but the "data" portion of the descriptor).  The ELDORA 
+     *    housekeeper sends such "dataless" FRAD-s.  This parameter defaults 
+     *    to false.
+     */
     DoradeFRAD(const unsigned char *data, unsigned int datalen, 
-               bool isLittleEndian) throw (DescriptorException);
+               bool isLittleEndian, bool headerOnly = false) 
+        throw (DescriptorException);
     // inline accessors
     int getDataSystemStatus() const { return _dataSystemStatus; }
     std::string getRadarName() const { return _radarName; }
