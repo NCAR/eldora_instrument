@@ -9,6 +9,11 @@
  * @author Chris Burghart
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
+DoradeASIB::DoradeASIB() : DoradeDescriptor("ASIB", 80) {
+    if (_verbose)
+        std::cout << *this;
+}
+
 DoradeASIB::DoradeASIB(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "ASIB", 80) {
@@ -65,5 +70,31 @@ DoradeASIB::printTo(std::ostream& os) const
         os << "  heading change rate: " << _headingChangeRate << std::endl;
         os << "  pitch change rate: " << _pitchChangeRate << std::endl;
     }
+    return os;
+}
+
+std::ostream& 
+DoradeASIB::streamTo(std::ostream& os, bool asLittleEndian) 
+{
+    putBytes(os, _descName.data(), 4, false);
+    putInt(os, _descLen, asLittleEndian);
+    putFloat(os, _longitude, asLittleEndian);
+    putFloat(os, _latitude, asLittleEndian);
+    putFloat(os, _altitudeMSL, asLittleEndian);
+    putFloat(os, _altitudeAGL, asLittleEndian);
+    putFloat(os, _groundSpeedEW, asLittleEndian);
+    putFloat(os, _groundSpeedNS, asLittleEndian);
+    putFloat(os, _verticalVelocity, asLittleEndian);
+    putFloat(os, _heading, asLittleEndian);
+    putFloat(os, _roll, asLittleEndian);
+    putFloat(os, _pitch, asLittleEndian);
+    putFloat(os, _yaw, asLittleEndian);
+    putFloat(os, _antennaScanAngle, asLittleEndian);
+    putFloat(os, _antennaTiltAngle, asLittleEndian);
+    putFloat(os, _uWind, asLittleEndian);
+    putFloat(os, _vWind, asLittleEndian);
+    putFloat(os, _wWind, asLittleEndian);
+    putFloat(os, _headingChangeRate, asLittleEndian);
+    putFloat(os, _pitchChangeRate, asLittleEndian);
     return os;
 }

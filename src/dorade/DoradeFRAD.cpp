@@ -11,6 +11,11 @@
  * @author Chris Burghart
  * @version $Id$
  */
+DoradeFRAD::DoradeFRAD() : DoradeDescriptor("FRAD", 52) {
+    if (_verbose)
+        std::cout << *this;
+}
+
 DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian, bool headerOnly) 
     throw (DescriptorException) :
@@ -31,10 +36,7 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     // unpack
     //
     _dataSystemStatus = grabInt(data, 8, isLittleEndian);
-    char tmpName[9];
-    tmpName[8] = '\0';
-    memcpy(tmpName, data + 12, 8);
-    _radarName = tmpName;
+    _radarName = std::string((const char*)data + 12, 8);
     _testPulsePower = grabFloat(data, 20, isLittleEndian);
     _testPulseStart = grabFloat(data, 24, isLittleEndian);
     _testPulseWidth = grabFloat(data, 28, isLittleEndian);
@@ -76,5 +78,25 @@ DoradeFRAD::printTo(std::ostream& os) const
         os << "first recorded gate: " << _firstRecordedGate << std::endl;
         os << "last recorded gate: " << _lastRecordedGate << std::endl;
     }
+    return os;
+}
+
+std::ostream&
+DoradeFRAD::streamTo(std::ostream& os, bool asLittleEndian)
+{
+    putBytes(os, _descName.data(), 4, false);
+    putInt(os, _descLen, asLittleEndian);
+    putInt(os, _dataSystemStatus, asLittleEndian);
+    putBytes(os, _radarName.data(), 8, false);
+    putFloat(os, _testPulsePower, asLittleEndian);
+    putFloat(os, _testPulseStart, asLittleEndian);
+    putFloat(os, _testPulseWidth, asLittleEndian);
+    putFloat(os, _testPulseFreq, asLittleEndian);
+    putShort(os, _testPulseAttenuation, asLittleEndian);
+    putShort(os, _testPulseFNum, asLittleEndian);
+    putFloat(os, _noisePower, asLittleEndian);
+    putInt(os, _rayCount, asLittleEndian);
+    putShort(os, _firstRecordedGate, asLittleEndian);
+    putShort(os, _lastRecordedGate, asLittleEndian);
     return os;
 }

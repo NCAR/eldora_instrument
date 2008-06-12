@@ -14,6 +14,11 @@ using namespace boost::gregorian;   // date
  * @author Chris Burghart
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
+DoradeRYIB::DoradeRYIB() : DoradeDescriptor("RYIB", 44) {
+    if (_verbose)
+        std::cout << *this;
+}
+
 DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "RYIB", 44) { 
@@ -95,5 +100,36 @@ DoradeRYIB::printTo(std::ostream& os) const
         os << "scan rate: " << _scanRate << std::endl;
         os << "ray status: " << _rayStatus << std::endl;
     }
+    return os;
+}
+
+void
+DoradeRYIB::setRayDateTime(ptime time) {
+    _rayDateTime = time;
+    // In addition to setting _rayDateTime, we need to set each of the 
+    // individual time pieces.
+    _julianDay = time.date().day_of_year();
+    _hour = time.time_of_day().hours();
+    _minute = time.time_of_day().minutes();
+    _second = time.time_of_day().seconds();
+    _millisecond = time.time_of_day().total_milliseconds() % 1000;
+}
+
+std::ostream&
+DoradeRYIB::streamTo(std::ostream& os, bool asLittleEndian)
+{
+    putBytes(os, _descName.data(), 4, false); // no swapping for char data
+    putInt(os, _descLen, asLittleEndian);
+    putInt(os, _sweepNumber, asLittleEndian);
+    putInt(os, _julianDay, asLittleEndian);
+    putShort(os, _hour, asLittleEndian);
+    putShort(os, _minute, asLittleEndian);
+    putShort(os, _second, asLittleEndian);
+    putShort(os, _millisecond, asLittleEndian);
+    putFloat(os, _azimuth, asLittleEndian);
+    putFloat(os, _elevation, asLittleEndian);
+    putFloat(os, _peakXmitPower, asLittleEndian);
+    putFloat(os, _scanRate, asLittleEndian);
+    putInt(os, _rayStatus, asLittleEndian);
     return os;
 }

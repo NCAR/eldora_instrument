@@ -13,17 +13,26 @@
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
 /* $Id: DoradeDescriptor.java,v 1.3 2004/04/13 17:05:50 burghart Exp $ */
+DoradeDescriptor::DoradeDescriptor(std::string descName, unsigned int descLen) 
+        throw (DescriptorException) : _descName(descName), _descLen(descLen), 
+        _verbose(false) {
+    if (descLen < 8) {
+        throw DescriptorException("DORADE descriptor be at least 8 bytes");
+    }
+    if (descName.size() != 4) {
+        throw DescriptorException("Bad descriptor name '" + descName + 
+                "' should be 4 bytes long.");
+    }
+}
 DoradeDescriptor::DoradeDescriptor(const unsigned char* data, 
-        unsigned int datalen, bool isLittleEndian) 
-throw (DescriptorException) :
+        unsigned int datalen, bool isLittleEndian) throw (DescriptorException) :
         _verbose(false) {
     initFromData(data, datalen, isLittleEndian);
 }
 
 DoradeDescriptor::DoradeDescriptor(const unsigned char* data, 
         unsigned int datalen, bool isLittleEndian, 
-        std::string expectedName) 
-throw (DescriptorException) :
+        std::string expectedName) throw (DescriptorException) :
         _verbose(false) {
     initFromData(data, datalen, isLittleEndian);
     if (_descName != expectedName)
@@ -60,18 +69,14 @@ throw (DescriptorException) {
 DoradeDescriptor::~DoradeDescriptor() {
 }
 
-/**
+/*
  * Unpack a two-byte integer from the given byte array.
- * @param bytes  byte array to be read
- * @param offset  number of bytes to skip in the byte array before reading
- * @param isLlittleEndian  true iff bytes contains little-endian data
- * @return the unpacked integer value
  */
 short 
 DoradeDescriptor::grabShort(const unsigned char* bytes, int offset, 
-                            bool bytesLittleEndian) {
+                            bool isLittleEndian) {
     bool hostLittleEndian = (htonl(1) != 1);
-    bool swap = (hostLittleEndian != bytesLittleEndian);
+    bool swap = (hostLittleEndian != isLittleEndian);
     short val;
     char* vptr = (char*)&val;
     if (swap) {
@@ -84,18 +89,14 @@ DoradeDescriptor::grabShort(const unsigned char* bytes, int offset,
     return (val);
 }
 
-/**
+/*
  * Unpack a four-byte integer from the given byte array.
- * @param bytes  byte array to be read
- * @param offset  number of bytes to skip in the byte array before reading
- * @param isLlittleEndian  true iff bytes contains little-endian data
- * @return the unpacked integer value
  */
 int 
 DoradeDescriptor::grabInt(const unsigned char* bytes, int offset, 
-                          bool bytesLittleEndian) {
+                          bool isLittleEndian) {
     bool hostLittleEndian = (htonl(1) != 1);
-    bool swap = (hostLittleEndian != bytesLittleEndian);
+    bool swap = (hostLittleEndian != isLittleEndian);
     int val;
     char* vptr = (char*)&val;
     if (swap) {
@@ -110,28 +111,14 @@ DoradeDescriptor::grabInt(const unsigned char* bytes, int offset,
     return (val);
 }
 
-//    /**
-//     * Unpack a four-byte integer from the given byte array.
-//     * @param bytes  byte array to be read
-//     * @param offset  number of bytes to skip in the byte array before reading
-//     * @return the unpacked integer value
-//     */
-//    int grabInt(byte[] bytes, int offset) {
-//        return grabInt(bytes, offset, littleEndianData);
-//    }
-
-/**
+/*
  * Unpack a four-byte IEEE float from the given byte array.
- * @param bytes  byte array to be read
- * @param offset  number of bytes to skip in the byte array before reading
- * @param isLittleEndian true iff bytes contains little-endian data
- * @return the unpacked float value
  */
 float 
 DoradeDescriptor::grabFloat(const unsigned char* bytes, int offset, 
-                            bool bytesLittleEndian) {
+                            bool isLittleEndian) {
     bool hostLittleEndian = (htonl(1) != 1);
-    bool swap = (hostLittleEndian != bytesLittleEndian);
+    bool swap = (hostLittleEndian != isLittleEndian);
     float val;
     unsigned char *vptr = (unsigned char*)&val;
 
@@ -147,18 +134,14 @@ DoradeDescriptor::grabFloat(const unsigned char* bytes, int offset,
     return val;
 }
 
-/**
+/*
  * Unpack an eight-byte IEEE float from the given byte array.
- * @param bytes  byte array to be read
- * @param offset  number of bytes to skip in the byte array before reading
- * @param isLittleEndian true iff bytes contains little-endian data
- * @return the unpacked double value
  */
 double 
 DoradeDescriptor::grabDouble(const unsigned char* bytes, int offset, 
-                             bool bytesLittleEndian) {
+                             bool isLittleEndian) {
     bool hostLittleEndian = (htonl(1) != 1);
-    bool swap = (hostLittleEndian != bytesLittleEndian);
+    bool swap = (hostLittleEndian != isLittleEndian);
     double val;
     unsigned char *vptr = (unsigned char*)&val;
 
@@ -178,10 +161,75 @@ DoradeDescriptor::grabDouble(const unsigned char* bytes, int offset,
     return val;
 }
 
-/**
+/*
+ * Pack a short into a 2-byte DORADE representation.
+ */
+std::ostream&
+DoradeDescriptor::putShort(std::ostream& os, short value, bool asLittleEndian) 
+{
+    bool hostLittleEndian = (htonl(1) != 1);
+    bool swap = (hostLittleEndian != asLittleEndian);
+    assert(sizeof(short) == 2);
+    putBytes(os, (char*)&value, 2, swap);
+    return os;
+}
+
+/*
+ * Pack an int into a 4-byte DORADE representation.
+ */
+std::ostream&
+DoradeDescriptor::putInt(std::ostream& os, int value, bool asLittleEndian) 
+{
+    bool hostLittleEndian = (htonl(1) != 1);
+    bool swap = (hostLittleEndian != asLittleEndian);
+    assert(sizeof(int) == 4);
+    putBytes(os, (char*)&value, 4, swap);
+    return os;
+}
+
+/*
+ * Pack a float into a 4-byte DORADE representation.
+ */
+std::ostream&
+DoradeDescriptor::putFloat(std::ostream& os, float value, bool asLittleEndian) 
+{
+    bool hostLittleEndian = (htonl(1) != 1);
+    bool swap = (hostLittleEndian != asLittleEndian);
+    assert(sizeof(float) == 4);
+    putBytes(os, (char*)&value, 4, swap);
+    return os;
+}
+
+/*
+ * Pack a double into a 8-byte DORADE representation.
+ */
+std::ostream&
+DoradeDescriptor::putDouble(std::ostream& os, double value, bool asLittleEndian) 
+{
+    bool hostLittleEndian = (htonl(1) != 1);
+    bool swap = (hostLittleEndian != asLittleEndian);
+    assert(sizeof(double) == 8);
+    putBytes(os, (char*)&value, 8, swap);
+    return os;
+}
+
+/*
+ * Pack a series of bytes to the given stream.
+ */
+std::ostream&
+DoradeDescriptor::putBytes(std::ostream& os, const char* bytes, 
+        unsigned int count, bool swap)
+{
+    int start = swap ? count - 1 : 0;
+    int end = swap ? -1 : count;
+    int step = swap ? -1 : 1;
+    for (int i = start; i != end; i += step)
+        os << bytes[i];
+    return os;
+}
+
+/*
  * Set verbose state of the descriptor.
- * @param verbose true iff the descriptor should be verbose.
- * @return the previous verbose state.
  */
 bool 
 DoradeDescriptor::setVerbose(bool verbose) 

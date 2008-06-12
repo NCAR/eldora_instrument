@@ -26,9 +26,12 @@ public:
      *    housekeeper sends such "dataless" FRAD-s.  This parameter defaults 
      *    to false.
      */
+    DoradeFRAD();
+    
     DoradeFRAD(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian, bool headerOnly = false) 
         throw (DescriptorException);
+    
     // inline accessors
     int getDataSystemStatus() const { return _dataSystemStatus; }
     std::string getRadarName() const { return _radarName; }
@@ -42,6 +45,26 @@ public:
     int getRayCount() const { return _rayCount; }
     short getFirstGate() const { return _firstRecordedGate; }
     short getLastGate() const { return _lastRecordedGate; }
+    
+    void setDataSystemStatus(int status) { _dataSystemStatus = status; }
+    void setRadarName(std::string radarName) { 
+        _radarName = radarName;
+        // silently truncate at 8 characters if necessary
+        if (_radarName.size() > 8)
+            _radarName.resize(8);
+    }
+    void setTestPulsePower(float power) { _testPulsePower = power; } // dBm?
+    void setTestPulseStart(float start) { _testPulseStart = start; }
+    void setTestPulseWidth(float width) { _testPulseWidth = width; }
+    void setTestPulseFreq(float freq) { _testPulseFreq = freq; } // GHz?
+    void setTestPulseAttenuation(short atten) { _testPulseAttenuation = atten; }
+    void setTestPulseFNum(short fnum) { _testPulseFNum = fnum; }
+    void setNoisePower(float power) { _noisePower = power; } // dBm?
+    void setRayCount(int count) { _rayCount = count; }
+    void setFirstGate(short gate) { _firstRecordedGate = gate; }
+    void setLastGate(short gate) { _lastRecordedGate = gate; }
+    
+    std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
 protected:
     std::ostream& printTo(std::ostream& out) const;
 private:
