@@ -14,13 +14,11 @@ using namespace std;
 int main()
 {
 
-  int ddsunit;
   int numdds=6;
   int device;
   int radarchoice;
   DDS* dds[numdds];
   DDSMenu* menu;
-  int d;
 
   while(1)
   {

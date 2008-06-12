@@ -20,12 +20,9 @@ int main()
 
   int udp_socket;
   int z;
-  int a;
   int b;
-  int x;
   int len_inet;
-  int etherlen;
-  int i;
+  socklen_t etherlen;
   int j;
   int ip1;
   int ip2;

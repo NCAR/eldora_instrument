@@ -62,10 +62,7 @@ Bittware::~Bittware() {
 //////////////////////////////////////////////////////////////////////
 void Bittware::configure(EldoraRadarParams radarParams) {
 
-    U32 rd_buffer[BUFFER_SIZE / 4];
     U32 wr_buffer[BUFFER_SIZE / 4];
-    U32 *reg_buf;
-    
     U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
     U32 Timer;
     
@@ -132,6 +129,8 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     mem_write(wr_buffer);
     
     // Check DCM Lock Status
+    //U32 rd_buffer[BUFFER_SIZE / 4];
+    //U32 *reg_buf;
     //reg_buf = mem_read(rd_buffer);
     //printf("Status Reg = %08x\n", *reg_buf);
     //if (*reg_buf & BW_TIMER_DCMLOCK) printf("Timer DCM Failed to Lock!\n");

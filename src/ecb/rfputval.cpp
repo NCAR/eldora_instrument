@@ -9,7 +9,7 @@
 void rfputval(EtherIO24 ether, DDS dds, int uin, double freqin, int nrin)
 	{
 	
-	int B=0, U=0, T=0, N=0, temp;
+	int B=0, T=0, N=0, temp;
 	unsigned char Address[5],Select[5],Data[5];
 	unsigned char DDS67,DDS89,q,Data1,Data2;
 	char T_hex[8],M_hex[2];
