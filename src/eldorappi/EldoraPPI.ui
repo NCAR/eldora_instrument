@@ -278,6 +278,9 @@
             <property name="text" >
              <string>Rings</string>
             </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -305,11 +308,40 @@
        </property>
        <property name="sizeHint" >
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>144</width>
+         <height>21</height>
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_4" >
+       <property name="title" >
+        <string/>
+       </property>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QRadioButton" name="panButton" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="zoomButton" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <widget class="QGroupBox" name="groupBox_3" >
@@ -391,57 +423,6 @@
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item>
-             <widget class="QLabel" name="textLabel2_4" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>1</hsizetype>
-                <vsizetype>1</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize" >
-               <size>
-                <width>1</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text" >
-               <string>Zoom:</string>
-              </property>
-              <property name="wordWrap" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLCDNumber" name="LCDNumberZoomFactor" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>1</hsizetype>
-                <vsizetype>1</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize" >
-               <size>
-                <width>1</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="smallDecimalPoint" >
-               <bool>false</bool>
-              </property>
-              <property name="segmentStyle" >
-               <enum>QLCDNumber::Flat</enum>
-              </property>
-              <property name="value" stdset="0" >
-               <double>0.000000000000000</double>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
@@ -651,14 +632,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ColorBar</class>
-   <extends>QWidget</extends>
-   <header>ColorBar.h</header>
-  </customwidget>
-  <customwidget>
    <class>PPI</class>
    <extends>QWidget</extends>
    <header>PPI.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ColorBar</class>
+   <extends>QWidget</extends>
+   <header>ColorBar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

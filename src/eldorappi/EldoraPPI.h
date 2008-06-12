@@ -116,6 +116,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// Called when a function key is pressed, to switch the 
         /// product selection
         void fkeyTriggered(QAction *qa);
+        /// Call to select zooming with the cursor on the ppi.
+        void cursorZoomSlot();
+        /// Call to select panning with the cursor on the ppi.
+        void cursorPanSlot();
+        
         void panUpSlot();
         void panDownSlot();
         void panLeftSlot();
@@ -232,8 +237,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         double _rotAngle;
         /// Action group for the fkeys shortcuts
         QActionGroup* fkeysActionGroup;
-        double _currentX;
-        double _currentY;
 
 
 };
