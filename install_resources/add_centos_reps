@@ -1,0 +1,11 @@
+#!/bin/sh
+rpm -Uvh \
+http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-2.noarch.rpm
+
+rpm -Uhv \
+http://www.eol.ucar.edu/software/rpms/eol-repo-epel-1-1.noarch.rpm
+
+rpm -Uvh \
+http://linuxdownload.adobe.com/adobe-release/adobe-release-i386-1.0-1.noarch.rpm
+
+

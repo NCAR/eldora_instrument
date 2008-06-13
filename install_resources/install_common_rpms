@@ -1,0 +1,29 @@
+#!/bin/sh
+yum install \
+AdobeReader_enu\
+ boost-devel\
+ boost-doc\
+ doxygen\
+ eclipse-cdt\
+ eclipse-jdt\
+ eclipse-pydev\
+ eclipse-subclipse\
+ emacs\
+ flash-plugin\
+ freeglut-devel\
+ freenx\
+ gcc\
+ gcc-c++\
+ kdeutils\
+ ncurses-devel\
+PyQt-devel\
+ qt4-devel\
+ qt4-doc\
+ qwt-devel\
+ qwt-doc\
+ rpm-build\
+ subversion\
+ tk\
+ wireshark-gnome\
+ xmlrpc++  \
+ yumex
