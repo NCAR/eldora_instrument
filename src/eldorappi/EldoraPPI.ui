@@ -54,10 +54,10 @@
             </sizepolicy>
            </property>
            <property name="toolTip" >
-            <string>knob</string>
+            <string/>
            </property>
            <property name="whatsThis" >
-            <string>A knob that you can turn.</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -68,6 +68,9 @@
              <width>60</width>
              <height>100</height>
             </size>
+           </property>
+           <property name="toolTip" >
+            <string>Click to set scale</string>
            </property>
           </widget>
          </item>
@@ -117,10 +120,10 @@
             </sizepolicy>
            </property>
            <property name="toolTip" >
-            <string>knob</string>
+            <string/>
            </property>
            <property name="whatsThis" >
-            <string>A knob that you can turn.</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -131,6 +134,9 @@
              <width>60</width>
              <height>100</height>
             </size>
+           </property>
+           <property name="toolTip" >
+            <string>Click to set scale</string>
            </property>
           </widget>
          </item>
@@ -199,6 +205,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip" >
+             <string>Pause real-time data display</string>
+            </property>
             <property name="text" >
              <string>Pause</string>
             </property>
@@ -218,6 +227,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip" >
+             <string>Select the color for rings and grid</string>
+            </property>
             <property name="text" >
              <string>Ring/grid color</string>
             </property>
@@ -230,6 +242,9 @@
               <width>1</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip" >
+             <string>Select the background color</string>
             </property>
             <property name="text" >
              <string>Background color</string>
@@ -251,6 +266,9 @@
               <width>1</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip" >
+             <string>Save the display to a file</string>
             </property>
             <property name="text" >
              <string>Save Image</string>
@@ -275,6 +293,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip" >
+             <string>Enable rings overlay</string>
+            </property>
             <property name="text" >
              <string>Rings</string>
             </property>
@@ -290,6 +311,9 @@
               <width>1</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip" >
+             <string>Enable Grid overlay</string>
             </property>
             <property name="text" >
              <string>Grid</string>
@@ -328,6 +352,9 @@
         </property>
         <item>
          <widget class="QRadioButton" name="panButton" >
+          <property name="toolTip" >
+           <string>Mouse will be used for panning</string>
+          </property>
           <property name="text" >
            <string/>
           </property>
@@ -335,6 +362,9 @@
         </item>
         <item>
          <widget class="QRadioButton" name="zoomButton" >
+          <property name="toolTip" >
+           <string>Mouse will be used for zooming</string>
+          </property>
           <property name="text" >
            <string/>
           </property>
@@ -387,6 +417,9 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="toolTip" >
+               <string>Zoom in both displays</string>
+              </property>
               <property name="text" >
                <string>Zoom in</string>
               </property>
@@ -407,6 +440,9 @@
                 <width>1</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="toolTip" >
+               <string>Zoom out for displays</string>
               </property>
               <property name="text" >
                <string>Zoom out</string>
@@ -465,6 +501,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="toolTip" >
+               <string>Pan both displays down</string>
+              </property>
               <property name="text" >
                <string>v</string>
               </property>
@@ -491,6 +530,9 @@
                 <width>30</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="toolTip" >
+               <string>Reset zoom and pan on both displays</string>
               </property>
               <property name="text" >
                <string>o</string>
@@ -519,6 +561,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="toolTip" >
+               <string>Pan both dsplays left</string>
+              </property>
               <property name="text" >
                <string>&lt;</string>
               </property>
@@ -546,6 +591,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="toolTip" >
+               <string>Pan both displays right</string>
+              </property>
               <property name="text" >
                <string>></string>
               </property>
@@ -572,6 +620,9 @@
                 <width>30</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="toolTip" >
+               <string>Pan both displays up</string>
               </property>
               <property name="text" >
                <string>^</string>
@@ -612,6 +663,9 @@
         </property>
         <item>
          <widget class="QLabel" name="elevation" >
+          <property name="toolTip" >
+           <string>Current pointing angle</string>
+          </property>
           <property name="text" >
            <string>0.0</string>
           </property>
@@ -632,14 +686,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PPI</class>
-   <extends>QWidget</extends>
-   <header>PPI.h</header>
-  </customwidget>
-  <customwidget>
    <class>ColorBar</class>
    <extends>QWidget</extends>
    <header>ColorBar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PPI</class>
+   <extends>QWidget</extends>
+   <header>PPI.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
