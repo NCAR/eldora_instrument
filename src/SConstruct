@@ -1,16 +1,11 @@
 import os
+import sys
 import eol_scons
 
 if not os.environ.has_key('ELDORADIR'):
     os.environ['ELDORADIR'] = '/opt/eldora'
     print "ELDORADIR environment variable is not set."
     print "Installation will go to default location:", os.environ['ELDORADIR']
-    print """
-
-(you must set ELDORADIR environment variable 
-so ELDOARA applications  can find $ELDORADIR/config at runtime)
-    
-    """
     
 ELDORADIR = os.environ['ELDORADIR']
 
@@ -66,7 +61,10 @@ options = env.GlobalOptions()
 options.Update(env)
 Help(options.GenerateHelpText(env))
 
-py_site ='/usr/lib/python2.4/site-packages/'
+# Build the official site-packages path for the Python we're using.
+# Typically, this will be something like '/usr/lib/python2.4/site-packages'
+py_site = os.path.join(sys.exec_prefix, 'lib', 'python' + sys.version[:3], 
+                       'site-packages')
 pdist = env.DistTar("dist/py_site", env.Dir(py_site), DISTTAR_PREFIX ='/usr/lib')
 env.Alias('distrib', pdist)
 
