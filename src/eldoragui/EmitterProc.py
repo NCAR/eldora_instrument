@@ -27,11 +27,12 @@ class EmitterProc(QProcess):
     exited, if you want the process to continue after the function leaves 
     scope.
     '''
-    def __init__(self, command, emitText=False, payload=None):
+    def __init__(self, command, emitText=False, payload=None, verbose=False):
         QProcess.__init__(self)
         self.emitText = emitText
         self.payload = payload
         self.command = command
+	self._verbose = verbose
         # prefix lines that are emmitted on text with the command name
         self.lineprefix = os.path.split(os.path.splitext(command[0])[0])[1]
         self.lineprefix = self.lineprefix + ': '
@@ -39,6 +40,7 @@ class EmitterProc(QProcess):
         self.connect(self, SIGNAL("readyReadStandardOutput()"), self.readyRead)
         
     def start(self):
+        if self._verbose: print 'EmitterProc::start starting ', self.command
         QProcess.start(self, self.command[0], self.command[1:])
         line= self.lineprefix
         for p in self.command:
@@ -46,6 +48,7 @@ class EmitterProc(QProcess):
         self.emit(SIGNAL("text"), line, self.payload)
         
     def startDetached(self):
+        if self._verbose: print 'EmitterProc::startDetached  - starting ', self.command
         QProcess.startDetached(self.command[0], self.command[1:])
         line= self.lineprefix
         for p in self.command:

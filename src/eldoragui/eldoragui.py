@@ -17,7 +17,6 @@ if not os.environ.has_key('ELDORADIR'):
     os.environ['ELDORADIR'] = parentpath
 
 sys.path.append(os.path.join(os.environ['ELDORADIR'],'lib','python'))
-#sys.path.append('/opt/eldora/lib/python')
 
 from EldoraMain      import *
 from EldoraRPC       import *
@@ -42,6 +41,10 @@ class ApplicationDict:
     
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
+global Verbose
+Verbose=False
+if len(sys.argv) > 1 and sys.argv[1] == '-v':
+   Verbose = True;
 
 global ourConfig    # the EldoraGui.ini configuration
 
@@ -210,8 +213,10 @@ def startDcps():
     global ourConfig
     global ourProcesses
 
+    if Verbose: print 'start_DCPS - checking if we should run DCPS'
     runDcps = ourConfig.getBool('Dcps/Run', True)
     if  not runDcps:
+	if Verbose: print 'start_DCPS - we are not configured to start DCPS'
         return
     
     restart = ourConfig.getBool('Dcps/AutoRestart', False)
@@ -219,24 +224,28 @@ def startDcps():
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
         if not restart:
+	    if Verbose: print 'start_DCPS - DCPS is running'
             return
         else:
+	    if Verbose: print 'start_DCPS - killing DCPS '
             pkill('DCPSInfoRepo')
             
     # start a new instance
+    if Verbose: print 'start_DCPS - starting new instance'
     dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
     orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
     domainConfigPath = ourConfig.getString('Dcps/DomainConfig', ddsConfigDir+'/DDSDomainIds.conf')
+    dcpsURL = ourConfig.getString('Dcps/URL','iiop://archiver:50000')
     dcpscmd = [
         os.path.join(ddsRoot, 'bin', 'DCPSInfoRepo'), 
         '-NOBITS', 
         '-DCPSConfigFile', dcpsConfigPath, 
         '-ORBSvcConf', orbConfigPath, 
-        '-ORBListenEndpoints iiop://dcpsrepo:50000', 
+        '-ORBListenEndpoints', dcpsURL,
         '-d', domainConfigPath, 
         ]
-    print 'dcpscmd = ', dcpscmd
-    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, payload=nextTaskColor())
+    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False,
+    payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
@@ -247,7 +256,7 @@ def startDrx():
     '''
     Run the drx if called for by the configuration. 
     
-    The configuration is hecked to see if Products/RunDrx is true.
+    The configuration is checked to see if Products/RunDrx is true.
     '''
     global ourConfig
     global ourProcesses
@@ -289,7 +298,7 @@ def startDrx():
         drxcmd.append(str(usleep))
         
     # create the process
-    s = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor())
+    s = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor(),verbose=Verbose)
     ourProcesses['eldoradrx'] = s
     
     # send text output to the text logger in the main gui
@@ -328,7 +337,8 @@ def startProducts():
     productscmd = [appDict['eldoraprod'], ]
     if isDual:
         productscmd.append('--dualprt')
-    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True, payload=nextTaskColor())
+    ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True,
+    payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
@@ -394,7 +404,7 @@ def scope():
     cmd = [appDict['eldorascope'],]
     ourProcesses['eldorascope'] = EmitterProc(cmd, 
                                               emitText=True, 
-                                              payload=nextTaskColor())
+                                              payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['eldorascope']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
@@ -412,7 +422,7 @@ def ppi(forradar=True):
         cmdkey = 'eldorappiaft'
     ourProcesses[cmdkey] = EmitterProc(cmd, 
                                        emitText=True, 
-                                       payload=nextTaskColor())
+                                       payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses[cmdkey]
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
@@ -525,6 +535,7 @@ def createRpcServers():
     drxrpcport = ourConfig.getInt('Drx/RpcPort', 60000)
     drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
     global drxrpc
+    if Verbose: print 'drxrpcurl = ', drxrpcurl
     drxrpc = EldoraRPC('drx', drxrpcurl)
     drxrpc.start()
     
@@ -533,6 +544,7 @@ def createRpcServers():
     hskprpcport = ourConfig.getInt('Hksp/RpcPort', 60001)
     hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
     global hskprpc
+    if Verbose: print 'hskprpcurl = ', hskprpcurl
     hskprpc = EldoraRPC('hskp', hskprpcurl)
     hskprpc.start()
     
@@ -541,6 +553,7 @@ def createRpcServers():
     prodrpcport = ourConfig.getInt('Products/RpcPort', 60002)
     prodrpcurl = 'http://' + prodrpchost + ':' + str(prodrpcport)
     global prodrpc
+    if Verbose: print 'prodrpcurl =',prodrpcurl
     prodrpc = EldoraRPC('products', prodrpcurl)
     prodrpc.start()
 
