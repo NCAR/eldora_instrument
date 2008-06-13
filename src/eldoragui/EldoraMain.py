@@ -103,6 +103,9 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                    ABPrate, 
                    productRate, 
                    productStatus, 
+                   hskpForRate,
+                   hskpAftRate,
+                   hskpStatus,
                    rates):
 
         #
@@ -120,6 +123,9 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.forProducts.setValue(productRate/2)
         self.aftProducts.setValue(productRate/2)
         self.setGauge('Products', productStatus)
+        
+        # Housekeeping status
+        self.setGauge('Housekeeper', hskpStatus)
          
         # set the for and aft pulse progress strips
         self.forBytes.setValue(forRate)

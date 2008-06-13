@@ -44,7 +44,7 @@ class ApplicationDict:
 global Verbose
 Verbose=False
 if len(sys.argv) > 1 and sys.argv[1] == '-v':
-   Verbose = True;
+   Verbose = True
 
 global ourConfig    # the EldoraGui.ini configuration
 
@@ -52,6 +52,8 @@ global eldoraDir    # used to find eldora application binaries
 global ddsRoot      # used to locate DCPSInforepo
 global ddsConfigDir # location of the DDS configuration files (for DDS apps)
 global headerDirs   # where the headers are stored
+global drxSimHskpMode   # are we generating simulated housekeeping?
+drxSimHskpMode = False
 
 global drxrpc       # RPC server for eldoradrx
 global hskprpc      # RPC server for the housekeeper
@@ -62,7 +64,7 @@ global ourProcesses # Processes that we have started and are managing
 
 ####################################################################################
 def start():
-    ''' start the radar runnig:
+    ''' start the radar running:
     1. Send the current header to the housekeepr and eldoradrx
     2. Send an RPC start() to eldoradrx
     3. Send an RPC start() to the housekeepr
@@ -116,7 +118,9 @@ def status():
     information back to the main display.
     '''
     global drxrpc
+    global hskprpc
     global prodrpc
+    global drxSimHskpMode
 
     # determine the product status and product rates
     productRate = 0
@@ -152,10 +156,32 @@ def status():
         rates = []
         for i in range(16):
             rates.append(0)
+    
+    # get status from the housekeeper if we aren't running in fake housekeeping
+    # mode        
+    if drxSimHskpMode:
+        hskpStatus = 0
+        hskpForRate = 1.0
+        hskpAftRate = 1.0    
+    else:
+        try:
+            r = hskprpc.server.status()
+            hskpForRate = r['foreRate']
+            hskpAftRate = r['aftRate']
+            if hskpForRate > 0:
+                hskpStatus = 0
+            else:
+                hskpStatus = 2
+        except Exception, e:
+            print("Error contacting housekeeper RPC for status:" + str(e))
+            hskpStatus = 2
             
     main.showStatus(ABPrate=ABPrate, 
                     productRate=productRate, 
                     productStatus=productStatus, 
+                    hskpForRate=hskpForRate,
+                    hskpAftRate=hskpAftRate,
+                    hskpStatus=hskpStatus,
                     rates=rates)
             
 ####################################################################################
@@ -252,6 +278,7 @@ def startDrx():
     '''
     global ourConfig
     global ourProcesses
+    global drxSimHskpMode
 
     doDrx = ourConfig.getBool('Drx/Run', True)
     if not doDrx:
