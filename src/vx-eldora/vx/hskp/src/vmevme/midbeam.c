@@ -49,6 +49,7 @@ static char rcsid[] = "$Date$ $RCSfile: midbeam.c,v $ $Revision$";
 #define OK_RPC
 #define scope extern
 #include "hskpAll.h"
+#include <wdLib.h>
 
 #if defined(USE_INT_HNDSHK)
 #include "sendInt.h"
@@ -56,6 +57,28 @@ static char rcsid[] = "$Date$ $RCSfile: midbeam.c,v $ $Revision$";
 
 int ERR_CHK; 
 static int proc_offset_f, proc_offset_a;
+
+/*
+ * Calculate our send rate over the last period.  Only one call here is
+ * required; further calls are made by a watchdog timer callback that gets
+ * set up here.
+ */
+static float RATE_UPDATE_INTERVAL = 1.0; /* seconds */
+
+void updateSendRate(int ignored)
+{
+    static WDOG_ID wid = NULL;
+    if (! wid)
+        wid = wdCreate();
+    
+    hskpSendRate = hskpSentCount / RATE_UPDATE_INTERVAL;
+    hskpSentCount = 0;
+    printf("hskp send rate %.2f rays/sec\n", hskpSendRate);
+    
+    /* Schedule the next callback */
+    wdStart(wid, (int)(RATE_UPDATE_INTERVAL * sysClkRateGet()), 
+            updateSendRate, 0);
+}
 
 
 void midbeam()
@@ -74,6 +97,8 @@ ERR_CHK = 1;
 dumb_start = 0;
 dumb_index = 0;
 
+/* Start the watchdog timer to calculate send rate on a regular basis */
+updateSendRate(0);
 
 for (;;)
   {
@@ -175,6 +200,7 @@ semTake(vmeSem,WAIT_FOREVER);
       //Added Tom 3/25/08 If platform data is valid, send it to DRX
       SendUDP(fore_ray_pntr);
       SendUDP(aft_ray_pntr);
+      hskpSentCount++;  // used for rate calculation
         
       platform_status[iru_lag_index] = 0;
       currStatus->iru &= (char)(~ARINC_INT_BAD);

@@ -98,6 +98,12 @@ scope float half_dwelltime_msec;
 scope short stop_flag;
 scope short reload_flag;
 
+/* Statistics info: how many rays of housekeeping have been sent since the 
+ * last rate calculation, and what was the last rate calculated?
+ */
+scope int hskpSentCount;    /* since last rate calculation */
+scope float hskpSendRate;   /* last calculated send rate (rays/sec) */
+
 /* Parameters to handle the test pulse */
 
 scope int Firstime;                /* Variable to keep track of first call */

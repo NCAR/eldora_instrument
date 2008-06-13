@@ -115,6 +115,23 @@ public:
     }
 } headerMethod(&Svr);
 
+// status()
+// Return a map of status values
+class StatusMethod : public XmlRpcServerMethod {
+public:
+    StatusMethod(XmlRpcServer* s) : XmlRpcServerMethod("status", s) {}
+
+    void execute(XmlRpcValue& params, XmlRpcValue& result)
+    {
+        XmlRpc::XmlRpcValue retval;
+        retval["rate"] = hskpSendRate;
+        // Return the map
+        result = retval;
+        
+        std::cout << "got status command" << std::endl;
+    }
+} statusMethod(&Svr);
+
 static void startServer(void)
 {
     // bind to our port and listen for commands
