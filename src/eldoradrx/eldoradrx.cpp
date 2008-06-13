@@ -479,7 +479,7 @@ static void getConfigParams()
     if (e) {
         EldoraDir = e + EldoraDir;
     } else {
-        std::cerr << "Environment varable ELDORADIR must be set.\n";
+        std::cerr << "Environment variable ELDORADIR must be set.\n";
         exit(1);
     }
 

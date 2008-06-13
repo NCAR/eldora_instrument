@@ -80,6 +80,9 @@ int EldoraProductsMain::run() {
     std::string EldoraDir("/conf/");
     if (e) {
         EldoraDir = e + EldoraDir;
+    } else {
+        std::cerr << "Environment variable ELDORADIR must be set.\n";
+        exit(1);
     }
 
     std::string orbFile = EldoraDir + "ORBSvc.conf";
