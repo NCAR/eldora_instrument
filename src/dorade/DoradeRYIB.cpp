@@ -14,11 +14,6 @@ using namespace boost::gregorian;   // date
  * @author Chris Burghart
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
-DoradeRYIB::DoradeRYIB() : DoradeDescriptor("RYIB", 44) {
-    if (_verbose)
-        std::cout << *this;
-}
-
 DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "RYIB", 44) { 
@@ -78,6 +73,17 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
     //
     // debugging output
     //
+    if (_verbose)
+        std::cout << *this;
+}
+
+DoradeRYIB::DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
+    float azimuth, float elevation, float peakXmitPower, float scanRate,
+    int rayStatus) : 
+    DoradeDescriptor("RYIB", 44),
+    _sweepNumber(sweepNumber), _azimuth(azimuth), _elevation(elevation),
+    _peakXmitPower(peakXmitPower), _scanRate(scanRate), _rayStatus(rayStatus) {
+    setRayDateTime(rayDateTime);
     if (_verbose)
         std::cout << *this;
 }

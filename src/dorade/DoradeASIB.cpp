@@ -9,11 +9,6 @@
  * @author Chris Burghart
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
-DoradeASIB::DoradeASIB() : DoradeDescriptor("ASIB", 80) {
-    if (_verbose)
-        std::cout << *this;
-}
-
 DoradeASIB::DoradeASIB(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "ASIB", 80) {
@@ -42,6 +37,26 @@ DoradeASIB::DoradeASIB(const unsigned char *data, unsigned int datalen,
     //
     // debugging output
     //
+    if (_verbose)
+        std::cout << *this;
+}
+
+DoradeASIB::DoradeASIB(float longitude, float latitude, float altitudeMSL,
+    float altitudeAGL, float groundSpeedEW, float groundSpeedNS, 
+    float verticalVelocity, float heading, float roll, float pitch, 
+    float yaw, float antennaScanAngle, float antennaTiltAngle, 
+    float uWind, float vWind, float wWind, float headingChangeRate, 
+    float pitchChangeRate) : 
+    DoradeDescriptor("ASIB", 80),
+    _longitude(longitude), _latitude(latitude), _altitudeMSL(altitudeMSL),
+    _altitudeAGL(altitudeAGL), _groundSpeedEW(groundSpeedEW),
+    _groundSpeedNS(groundSpeedNS), _verticalVelocity(verticalVelocity),
+    _heading(heading), _roll(roll), _pitch(pitch), _yaw(yaw), 
+    _antennaScanAngle(antennaScanAngle), _antennaTiltAngle(antennaTiltAngle), 
+    _uWind(uWind), _vWind(vWind), _wWind(wWind), 
+    _headingChangeRate(headingChangeRate), _pitchChangeRate(pitchChangeRate) { 
+    
+    // debugging output
     if (_verbose)
         std::cout << *this;
 }

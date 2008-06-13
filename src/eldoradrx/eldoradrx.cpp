@@ -1176,52 +1176,27 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
     std::ostringstream ss;
     
     // assemble the RYIB from the housekeeping
-    DoradeRYIB ryib;
-    ryib.setSweepNumber(hskp->sweepNum);
-    ryib.setRayDateTime(timetagToPtime(hskp->timetag));
-    ryib.setAzimuth(hskp->azimuth);
-    ryib.setElevation(hskp->elevation);
-    ryib.setPeakXmitPower(hskp->peakXmitPower);
-    ryib.setTrueScanRate(hskp->trueScanRate);
-    ryib.setRayStatus(hskp->rayStatus);
+    DoradeRYIB ryib(timetagToPtime(hskp->timetag), hskp->sweepNum, 
+        hskp->azimuth, hskp->elevation, hskp->peakXmitPower, hskp->trueScanRate, 
+        hskp->rayStatus);
     ryib.streamTo(ss, false);
     
-    // assemble the ASIB from the housekeeping
-    DoradeASIB asib;
-    asib.setLongitude(hskp->longitude);
-    asib.setLatitude(hskp->latitude);
-    asib.setAltitudeMSL(hskp->altitudeMSL);
-    asib.setAltitudeAGL(hskp->altitudeAGL);
-    asib.setGroundSpeedEW(hskp->groundSpeedEW);
-    asib.setGroundSpeedNS(hskp->groundSpeedNS);
-    asib.setVerticalVelocity(hskp->vertVelocity);
-    asib.setHeading(hskp->heading);
-    asib.setRoll(hskp->roll);
-    asib.setPitch(hskp->pitch);
-    asib.setYaw(hskp->yaw);
-    asib.setAntennaScanAngle(hskp->radarRotAngle);
-    asib.setAntennaTiltAngle(hskp->radarTiltAngle);
-    asib.setUWind(hskp->windEW);
-    asib.setVWind(hskp->windNS);
-    asib.setWWind(hskp->windVert);
-    asib.setHeadingChangeRate(hskp->headingChangeRate);
-    asib.setPitchChangeRate(hskp->pitchChangeRate);
+    // assemble an ASIB from the housekeeping
+    DoradeASIB asib(hskp->longitude, hskp->latitude, 
+        hskp->altitudeMSL, hskp->altitudeAGL, 
+        hskp->groundSpeedEW, hskp->groundSpeedNS, hskp->vertVelocity, 
+        hskp->heading, hskp->roll, hskp->pitch, hskp->yaw, 
+        hskp->radarRotAngle, hskp->radarTiltAngle, 
+        hskp->windEW, hskp->windNS, hskp->windVert, 
+        hskp->headingChangeRate, hskp->pitchChangeRate);
     asib.streamTo(ss, false);
     
-    // assemble the FRAD from the housekeeping
-    DoradeFRAD frad;
-    frad.setDataSystemStatus(hskp->dataSysStatus);
-    frad.setRadarName(hskp->radarName);
-    frad.setTestPulsePower(hskp->testPulsePower);
-    frad.setTestPulseStart(hskp->testPulseStart);
-    frad.setTestPulseWidth(hskp->testPulseWidth);
-    frad.setTestPulseFreq(hskp->testPulseFreq);
-    frad.setTestPulseAttenuation(hskp->testPulseAtten);
-    frad.setTestPulseFNum(hskp->testPulseFNum);
-    frad.setNoisePower(hskp->noisePower);
-    frad.setRayCount(hskp->rayCount);
-    frad.setFirstGate(hskp->firstRecGate);
-    frad.setLastGate(hskp->lastRecGate);
+    // assemble a FRAD from the housekeeping
+    DoradeFRAD frad(hskp->dataSysStatus, hskp->radarName, 
+        hskp->testPulsePower, hskp->testPulseStart, hskp->testPulseWidth, 
+        hskp->testPulseFreq, hskp->testPulseAtten, hskp->testPulseFNum, 
+        hskp->noisePower, hskp->rayCount, hskp->firstRecGate, 
+        hskp->lastRecGate);
     frad.streamTo(ss, false);
 
     // Now actually send the packet of housekeeping as if we were the 

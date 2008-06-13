@@ -11,11 +11,6 @@
  * @author Chris Burghart
  * @version $Id$
  */
-DoradeFRAD::DoradeFRAD() : DoradeDescriptor("FRAD", 52) {
-    if (_verbose)
-        std::cout << *this;
-}
-
 DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen, 
                        bool isLittleEndian, bool headerOnly) 
     throw (DescriptorException) :
@@ -58,6 +53,23 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     if (_verbose)
         std::cout << *this;
 }
+    
+DoradeFRAD::DoradeFRAD(int dataSystemStatus, std::string radarName, 
+    float testPulsePower, float testPulseStart, float testPulseWidth, 
+    float testPulseFreq, short testPulseAttenuation, short testPulseFNum, 
+    float noisePower, int rayCount, short firstRecordedGate, 
+    short lastRecordedGate) : 
+    DoradeDescriptor("FRAD", 52),
+    _dataSystemStatus(dataSystemStatus), _testPulsePower(testPulsePower),
+    _testPulseStart(testPulseStart), _testPulseWidth(testPulseWidth),
+    _testPulseFreq(testPulseFreq), _testPulseAttenuation(testPulseAttenuation),
+    _testPulseFNum(testPulseFNum), _noisePower(noisePower), _rayCount(rayCount),
+    _firstRecordedGate(firstRecordedGate), _lastRecordedGate(lastRecordedGate) {
+    setRadarName(radarName);
+    if (_verbose)
+        std::cout << *this;
+}
+
 
 std::ostream& 
 DoradeFRAD::printTo(std::ostream& os) const

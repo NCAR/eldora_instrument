@@ -15,10 +15,12 @@
 
 class DoradeRYIB : public DoradeDescriptor {
 public:
-    DoradeRYIB();
-    
     DoradeRYIB(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian) throw (DescriptorException);
+    
+    DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
+        float azimuth, float elevation, float peakXmitPower, float scanRate,
+        int rayStatus);
     
     std::ostream& printTo(std::ostream& stream) const;
     /**
@@ -85,47 +87,15 @@ public:
      * @return the ray's status.
      */
     int getRayStatus() const { return _rayStatus; }
+
+    std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
+protected:
     /**
      * Set ray date/time.
      * @param time posix_time holding the ray's date/time.
      */
     void setRayDateTime(boost::posix_time::ptime time);
-    /**
-     * Set the sweep number.
-     * @param sweepNumber the ray's sweep number.
-     */
-    void setSweepNumber(int sweepNumber) { _sweepNumber = sweepNumber; }
-    /**
-     * Set azimuth (deg).
-     * @param azimuth the ray's azimuth.
-     */
-    void setAzimuth(float azimuth) { _azimuth = azimuth; }
-    /**
-     * Set elevation (deg).
-     * @param elevation the ray's elevation.
-     */
-    void setElevation(float elevation) { _elevation = elevation; }
-    /**
-     * Set peak transmit power (kW).
-     * @param power the peak transmit power (kW).
-     */
-    void setPeakXmitPower(float power) { _peakXmitPower = power; }
-    /**
-     * Set true scan rate (deg/s).
-     * @param rate the true radar scan rate (deg/s).
-     */
-    void setTrueScanRate(float rate) { _scanRate = rate; }
-    /**
-     * Set ray status.
-     *  0 = normal
-     *  1 = transition
-     *  2 = bad
-     *  3 = questionable
-     * @param status the ray's status.
-     */
-    void setRayStatus(int status) { _rayStatus = status; }
-    
-    std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
+
 private:
     int _sweepNumber;
     int _julianDay;

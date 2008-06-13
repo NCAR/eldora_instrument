@@ -14,10 +14,15 @@
 
 class DoradeASIB : public DoradeDescriptor {
 public:
-    DoradeASIB();
-    
     DoradeASIB(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian) throw (DescriptorException);
+
+    DoradeASIB(float longitude, float latitude, float altitudeMSL,
+            float altitudeAGL, float groundSpeedEW, float groundSpeedNS, 
+            float verticalVelocity, float heading, float roll, float pitch, 
+            float yaw, float antennaScanAngle, float antennaTiltAngle, 
+            float uWind, float vWind, float wWind, float headingChangeRate, 
+            float pitchChangeRate);
 
     std::ostream& printTo(std::ostream& out) const;
     /**
@@ -110,96 +115,6 @@ public:
      * @return pitch rate of change (deg/s).
      */
     float getPitchChangeRate() const { return _pitchChangeRate; }
-    /**
-     * Set longitude (deg).
-     * @param longitude longitude (deg).
-     */
-    void setLongitude(float longitude) { _longitude = longitude; }
-    /**
-     * Set latitude (deg).
-     * @param latitude latitude (deg).
-     */
-    void setLatitude(float latitude) { _latitude = latitude; }
-    /**
-     * Set MSL altitude (km).
-     * @param altitude MSL altitude (km).
-     */
-    void setAltitudeMSL(float altitude) { _altitudeMSL = altitude; }
-    /**
-     * Set AGL altitude (km).
-     * @param altitude AGL altitude (km).
-     */
-    void setAltitudeAGL(float altitude) { _altitudeAGL = altitude; }
-    /**
-     * Set E-W ground speed (m/s).
-     * @param speed E-W ground speed (m/s).
-     */
-    void setGroundSpeedEW(float speed) { _groundSpeedEW = speed; }
-    /**
-     * Set N-S ground speed (m/s).
-     * @param speed N-S ground speed (m/s).
-     */
-    void setGroundSpeedNS(float speed ) { _groundSpeedNS = speed; }
-    /**
-     * Set aircraft vertical velocity (m/s).
-     * @param speed aircraft vertical velocity (m/s).
-     */
-    void setVerticalVelocity(float speed) { _verticalVelocity = speed; }
-    /**
-     * Set aircraft heading (deg).
-     * @param heading aircraft heading (deg).
-     */
-    void setHeading(float heading) { _heading = heading; }
-    /**
-     * Set aircraft roll (deg).
-     * @param roll aircraft roll (deg).
-     */
-    void setRoll(float roll) { _roll = roll; }
-    /**
-     * Set aircraft pitch (deg).
-     * @param pitch aircraft pitch (deg).
-     */
-    void setPitch(float pitch) { _pitch = pitch; }
-    /**
-     * Set aircraft yaw (deg).
-     * @param yaw aircraft yaw (deg).
-     */
-    void setYaw(float yaw) { _yaw = yaw; }
-    /**
-     * Set antenna scan angle (deg).
-     * @param angle antenna scan angle (deg).
-     */
-    void setAntennaScanAngle(float angle) { _antennaScanAngle = angle; }
-    /**
-     * Set antenna tilt angle (deg).
-     * @param angle antenna tilt angle (deg).
-     */
-    void setAntennaTiltAngle(float angle) { _antennaTiltAngle = angle; }
-    /**
-     * Set U wind component (m/s).
-     * @param speed U wind component (m/s).
-     */
-    void setUWind(float speed) { _uWind = speed; }
-    /**
-     * Set V wind component (m/s).
-     * @param speed V wind component (m/s).
-     */
-    void setVWind(float speed) { _vWind = speed; }
-    /**
-     * Set W wind component (m/s).
-     * @param speed W wind component (m/s).
-     */
-    void setWWind(float speed) { _wWind = speed; }
-    /**
-     * Set heading rate of change (deg/s).
-     * @param rate heading rate of change (deg/s).
-     */
-    void setHeadingChangeRate(float rate) { _headingChangeRate = rate; }
-    /**
-     * Set pitch rate of change (deg/s).
-     * @param rate pitch rate of change (deg/s).
-     */
-    void setPitchChangeRate(float rate) { _pitchChangeRate = rate; }
     
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
 private:
