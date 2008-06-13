@@ -124,7 +124,8 @@ public:
     void execute(XmlRpcValue& params, XmlRpcValue& result)
     {
         XmlRpc::XmlRpcValue retval;
-        retval["rate"] = hskpSendRate;
+        retval["foreRate"] = hskpSendRate;
+        retval["aftRate"] = hskpSendRate;
         // Return the map
         result = retval;
         
