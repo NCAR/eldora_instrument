@@ -754,12 +754,8 @@ static void* rrReadTask(void* threadArg)
                 setRadarParams(radarParams, hskp);
 
                 // Send the fake housekeeping on its way
-                // @todo When sendFakeHousekeeping() works, we'll use that to 
-                // send via the UDP port instead of going directly to 
-                // hskpMerger->newHskp()
-                hskpMerger->newHskp(hskp);
-                // sendFakeHousekeeping(hskp);
-                // delete hskp;
+                sendFakeHousekeeping(hskp);
+                delete hskp;
 
                 // add this time to our history of delivered fake housekeeping
                 if (sentFakeHskp.size() == FAKE_HSKP_HISTORY_LEN)
@@ -1150,6 +1146,8 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     return hskp;
 }
 //////////////////////////////////////////////////////////////////////
+// Send the given EldoraDDS::Housekeeping to _hskpPort as if it came
+// from the VxWorks housekeeper
 void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
 {
     static int outSocket = -1;
@@ -1173,15 +1171,63 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
             ": bad address for outgoing housekeeping" << std::endl;
         }
     }
-    // @todo Munge EldoraDDS::Housekeeping into the pseudo-DORADE form that
-                    // comes from the housekeeper
-                    char hskperPacket[176];
 
-                    // Now actually send the packet of housekeeping as if we were the 
-                    // housekeeper machine
-                    int nwrote = sendto(outSocket, hskperPacket, sizeof(hskperPacket), 0,
-                            (struct sockaddr*)&destAddr, sizeof(destAddr));
-                    if (nwrote < 0)
-                    std::cerr << __FILE__ << ":" << __LINE__ <<
-                    ": error sending housekeeping: " << strerror(errno) << std::endl;
-                }
+    // assemble the RYIB from the housekeeping
+    std::ostringstream ss;
+    
+    DoradeRYIB ryib;
+    ryib.setSweepNumber(hskp->sweepNum);
+    ryib.setRayDateTime(timetagToPtime(hskp->timetag));
+    ryib.setAzimuth(hskp->azimuth);
+    ryib.setElevation(hskp->elevation);
+    ryib.setPeakXmitPower(hskp->peakXmitPower);
+    ryib.setTrueScanRate(hskp->trueScanRate);
+    ryib.setRayStatus(hskp->rayStatus);
+    ryib.streamTo(ss, false);
+    
+    // assemble the ASIB from the housekeeping
+    DoradeASIB asib;
+    asib.setLongitude(hskp->longitude);
+    asib.setLatitude(hskp->latitude);
+    asib.setAltitudeMSL(hskp->altitudeMSL);
+    asib.setAltitudeAGL(hskp->altitudeAGL);
+    asib.setGroundSpeedEW(hskp->groundSpeedEW);
+    asib.setGroundSpeedNS(hskp->groundSpeedNS);
+    asib.setVerticalVelocity(hskp->vertVelocity);
+    asib.setHeading(hskp->heading);
+    asib.setRoll(hskp->roll);
+    asib.setPitch(hskp->pitch);
+    asib.setYaw(hskp->yaw);
+    asib.setAntennaScanAngle(hskp->radarRotAngle);
+    asib.setAntennaTiltAngle(hskp->radarTiltAngle);
+    asib.setUWind(hskp->windEW);
+    asib.setVWind(hskp->windNS);
+    asib.setWWind(hskp->windVert);
+    asib.setHeadingChangeRate(hskp->headingChangeRate);
+    asib.setPitchChangeRate(hskp->pitchChangeRate);
+    asib.streamTo(ss, false);
+    
+    // assemble the FRAD from the housekeeping
+    DoradeFRAD frad;
+    frad.setDataSystemStatus(hskp->dataSysStatus);
+    frad.setRadarName(hskp->radarName);
+    frad.setTestPulsePower(hskp->testPulsePower);
+    frad.setTestPulseStart(hskp->testPulseStart);
+    frad.setTestPulseWidth(hskp->testPulseWidth);
+    frad.setTestPulseFreq(hskp->testPulseFreq);
+    frad.setTestPulseAttenuation(hskp->testPulseAtten);
+    frad.setTestPulseFNum(hskp->testPulseFNum);
+    frad.setNoisePower(hskp->noisePower);
+    frad.setRayCount(hskp->rayCount);
+    frad.setFirstGate(hskp->firstRecGate);
+    frad.setLastGate(hskp->lastRecGate);
+    frad.streamTo(ss, false);
+    
+    // Now actually send the packet of housekeeping as if we were the 
+    // housekeeper machine
+    int nwrote = sendto(outSocket, ss.str().data(), ss.str().size(), 0,
+            (struct sockaddr*)&destAddr, sizeof(destAddr));
+    if (nwrote < 0)
+        std::cerr << __FILE__ << ":" << __LINE__ <<
+            ": error sending housekeeping: " << strerror(errno) << std::endl;
+}
