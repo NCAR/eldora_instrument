@@ -84,14 +84,6 @@ def start():
                 main.logText(str(r))
     except Exception, e:
         print ("Error contacting housekeeper RPC for start:"+str(e))
-
-    try:
-        main.logText("starting housekeeper")
-        r = hskprpc.server.Start()
-        if (r != 0):
-            main.logText(str(r))
-    except Exception, e:
-        print ("Error contacting housekeeper RPC for start:"+str(e))
         
     # stop  (i.e. kill) products
     stopProducts()
