@@ -1172,9 +1172,10 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
         }
     }
 
-    // assemble the RYIB from the housekeeping
+    // stringstream to hold the packet as we assemble it
     std::ostringstream ss;
     
+    // assemble the RYIB from the housekeeping
     DoradeRYIB ryib;
     ryib.setSweepNumber(hskp->sweepNum);
     ryib.setRayDateTime(timetagToPtime(hskp->timetag));
@@ -1222,7 +1223,7 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
     frad.setFirstGate(hskp->firstRecGate);
     frad.setLastGate(hskp->lastRecGate);
     frad.streamTo(ss, false);
-    
+
     // Now actually send the packet of housekeeping as if we were the 
     // housekeeper machine
     int nwrote = sendto(outSocket, ss.str().data(), ss.str().size(), 0,
