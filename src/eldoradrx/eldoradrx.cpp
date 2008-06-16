@@ -743,7 +743,7 @@ static void* rrReadTask(void* threadArg)
             if (sentFakeHskp.find(pBuf->rayTime) == sentFakeHskp.end()) {
                 // Generate and send the housekeeping
                 EldoraDDS::Housekeeping* hskp =
-                newFakeDDSHousekeeping(pBuf->rayTime, (devNumber == 1));
+                    newFakeDDSHousekeeping(pBuf->rayTime, (devNumber == 1));
 
                 // add in some radar paremters needed by products generator
                 setRadarParams(radarParams, hskp);
@@ -877,6 +877,9 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
     } catch (DescriptorException dex) {
         std::cerr << "Descriptor exception: " << dex.what() <<
         std::endl;
+        delete ryib;
+        delete asib;
+        delete frad;
         return 0;
     }
 
@@ -931,6 +934,10 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
     hskp->rayCount = frad->getRayCount();
     hskp->firstRecGate = frad->getFirstGate();
     hskp->lastRecGate = frad->getLastGate();
+    
+    delete ryib;
+    delete asib;
+    delete frad;
 
     return hskp;
 }
