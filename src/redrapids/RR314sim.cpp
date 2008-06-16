@@ -20,10 +20,9 @@ RR314sim::RR314sim(RR314* pRR314,
                    int gates,
                    int startiq,
                    int numiq,
-                   int nci,
-                   int usleep) :
+                   int nci) :
     _pRR314(pRR314), _numPrtIds(numPrtIds), _gates(gates), _startiq(startiq),
-            _numiq(numiq), _nci(nci), _usleep(usleep)
+            _numiq(numiq), _nci(nci)
 {
  
     // configure the dmaChan numbers which
@@ -67,7 +66,7 @@ void RR314sim::shutdown() {
     if (_threadId) {
         _terminate = true;
         // give the simulator time to exit
-        usleep(5*_usleep);;
+        usleep(5 * _pRR314->dwellDuration().total_microseconds());
         pthread_cancel(_threadId);
         pthread_join(_threadId, 0);
         _threadId = 0;
@@ -138,9 +137,19 @@ void RR314sim::simulate()
                 }
                 _pRR314->newABPData(&_abp[0], _abpChans[i], _abp.size());
             }
-            usleep(_usleep);
         }
         _beamNum++;
+        
+        // sleep until the next ray time
+        boost::posix_time::ptime wakeTime = _pRR314->xmitStartTime() + 
+            _pRR314->dwellDuration() * _beamNum;
+        boost::posix_time::ptime now = 
+            boost::posix_time::microsec_clock::universal_time();
+        boost::posix_time::time_duration sleepTime = wakeTime - now;
+        // Our sleep time may occasionally be < 0, in which case we 
+        // bypass sleeping here until we catch up.
+        if (sleepTime.total_microseconds() > 0)
+            usleep(sleepTime.total_microseconds());
     }
 }
 

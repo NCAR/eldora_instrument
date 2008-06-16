@@ -62,7 +62,6 @@ bool _capture; ///< set true if the data should be captured to files in binary m
 bool _textcapture; ///< set true if the data should be captured to files in text mode.
 bool _simulateRR314; ///< set true to simulate an RR314 card, instead of accessing a real one.
 bool _simulateHskp; ///< set true to generate fake housekeeping data
-int _usleep; ///< The usleep value for sleeps between frames
 bool _internaltimer; ///< If true, use the rr314 builtin timer rather than an external
 
 // DDS parameters
@@ -364,7 +363,6 @@ static void startAll()
                 _xsvf,
                 _internaltimer,
                 _simulateRR314,
-                _usleep,
                 false // do not catch signals in RR314; we will do that ourselves.
         );
 
@@ -375,7 +373,6 @@ static void startAll()
                 _xsvf,
                 _internaltimer,
                 _simulateRR314,
-                _usleep,
                 false // do not catch signals in RR314; we will do that ourselves
         );
 
@@ -495,7 +492,6 @@ static void getConfigParams()
     _enabled[1] = config.getBool("Mode/Enabled", true);
     _simulateRR314 = config.getBool("Mode/SimulateRR314", false);
     _simulateHskp = config.getBool("Mode/SimulateHskp", false);
-    _usleep = config.getInt("Mode/Usleep", 9000);
     _capture = config.getBool("Mode/BinaryCapture", false);
     _textcapture = config.getBool("Mode/TextCapture", false);
     _internaltimer = config.getBool("Mode/InternalTimer", false);
@@ -531,7 +527,6 @@ static void parseOptions(int argc,
     ("DCPS", po::value<std::string>(&_DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("simRR314", "run RR314 in simulation mode")
     ("simHskp", "generate fake housekeeping data")
-    ("usleep", po::value<int>(&_usleep), "usleep value for simulation")
     ("start0", "start RR314 device 0")
     ("start1", "start RR314 device 1")
     ("internaltimer", "use RR314 internal timer")
@@ -1198,6 +1193,12 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
         hskp->noisePower, hskp->rayCount, hskp->firstRecGate, 
         hskp->lastRecGate);
     frad.streamTo(ss, false);
+    
+    if (ss.str().size() != 176)
+        std::cerr << __FILE__ << ": assembled hskp @ " <<  
+            timetagToPtime(hskp->timetag).time_of_day() << " is " << 
+            ss.str().size() << 
+            " bytes and not the expected 176.  Not sending." << std::endl;
 
     // Now actually send the packet of housekeeping as if we were the 
     // housekeeper machine

@@ -25,13 +25,12 @@ RR314::RR314(int devNum,
              std::string xsvfFile,
              bool internalTimer,
              bool simulate,
-             int usleep,
              bool catchSignals) throw (std::string) :
             _devNum(devNum),
             _radarParams(radarParams),
             _gaussianFile(gaussianFile), _kaiserFile(kaiserFile),
             _xsvfFileName(xsvfFile), _simulate(simulate), _running(false),
-            _catchSignals(catchSignals), _usleep(usleep),
+            _catchSignals(catchSignals),
             _internalTimer(internalTimer)
 {
    _bufferNext = 0;
@@ -59,9 +58,9 @@ RR314::RR314(int devNum,
     }
 
     if (simulate) {
-        std::cout
-                << "*** RR314 operating in simulation mode, without hardware. Usleep = "
-                << usleep << "\n";
+        std::cout << 
+            "*** RR314 operating in simulation mode, without hardware." <<
+            std::endl;
     } else {
         std::cout << "*** This version of RR314 works with CA_DDC_4.xsvf\n";
     }
@@ -120,8 +119,7 @@ RR314::RR314(int devNum,
                 _gates,
                 _startGateIQ,
                 _numIQGates,
-                _samples,
-                _usleep);
+                _samples);
         return;
     }
 
