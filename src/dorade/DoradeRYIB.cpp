@@ -8,7 +8,7 @@ using namespace boost::gregorian;   // date
 
 /**
  * <p>Title: DoradeRYIB</p>
- * <p>Description: DORADE aircraft/ship information block</p>
+ * <p>Description: DORADE ray information block</p>
  * <p>Copyright: Copyright (c) 2008</p>
  * <p>Company: University Corporation for Atmospheric Research</p>
  * @author Chris Burghart
