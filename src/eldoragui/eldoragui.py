@@ -174,6 +174,8 @@ def status():
                 hskpStatus = 2
         except Exception, e:
             print("Error contacting housekeeper RPC for status:" + str(e))
+	    hskpForRate = 0.0  # set default value, so Python doesn't whine 
+	    hskpAftRate = 0.0    
             hskpStatus = 2
             
     main.showStatus(ABPrate=ABPrate, 
@@ -571,6 +573,7 @@ def createRpcServers():
     if Verbose: print 'prodrpcurl =',prodrpcurl
     prodrpc = EldoraRPC('products', prodrpcurl)
     prodrpc.start()
+    if Verbose: print 'CreateRpcServers finished'
 
 ####################################################################################
 def headerSelected(selectedHeader):
@@ -713,9 +716,11 @@ createRpcServers()
 
 # create the qt application               
 app = QApplication(sys.argv)
+if Verbose: print 'finished creating QApplication'
 
 # instantiate an Eldora controller gui
 main = EldoraMain(headerDirs, appDict['dumpheader'])
+if Verbose: print 'finished instantiating EldoraMain'
 
 main.show()
 
@@ -730,5 +735,6 @@ QObject.connect(main, SIGNAL('header'),             headerSelected)
 QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
 
 # start the event loop
+if Verbose: print 'starting the event loop'
 app.exec_()
 
