@@ -28,6 +28,7 @@ void parseArgs(
             std::string& tsTopic,
             std::string& ORB,
             std::string& DCPS,
+            std::string& DCPSInfoRepo,
             int& outputRate) {
 
     // get the options
@@ -39,6 +40,7 @@ void parseArgs(
     ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("rate", po::value<int>(&outputRate), "Sample update rate (hz) for the display")
     ;
 
@@ -66,6 +68,7 @@ int main(
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
+    std::string DCPSInfoRepo;
     int rate;
 
     rate = config.getInt("DisplayRateHz", 25);
@@ -84,11 +87,14 @@ int main(
     
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     DCPS = config.getString( "DCPSConfigFile", dcpsFile);
-    
+
+    std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
+    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);  
+
     tsTopic = config.getString("TopicTS", "EldoraTS");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, productsTopic, tsTopic, ORB, DCPS, rate);
+    parseArgs(argc, argv, productsTopic, tsTopic, ORB, DCPS, DCPSInfoRepo, rate);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -96,6 +102,7 @@ int main(
     ArgvParams subParams(argv[0]);
     subParams["-ORBSvcConf"] = ORB;
     subParams["-DCPSConfigFile"] = DCPS;
+    subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
 
     ///////////////////////////////////////////////////////////////
     //

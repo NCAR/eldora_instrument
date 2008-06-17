@@ -68,6 +68,7 @@ bool _internaltimer; ///< If true, use the rr314 builtin timer rather than an ex
 bool _publish; ///< set ture if the rr314 data should be published to DDS.
 std::string _ORB; ///< path to the ORB configuration file.
 std::string _DCPS; ///< path to the DCPS configuration file.
+std::string _DCPSInfoRepo; ///< URL to access DCPSInfoRepo
 std::string _rayTopic; ///< The published ray topic
 std::string _productsTopic; /// The published product topic
 
@@ -486,6 +487,7 @@ static void getConfigParams()
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     std::string rayTopic;
     std::string productsTopic;
+    std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
 
     // operating mode parameters
     _enabled[0] = config.getBool("Mode/Enabled", true);
@@ -505,6 +507,9 @@ static void getConfigParams()
     _publish = config.getBool("DDS/Publish", true);
     _ORB = config.getString("DDS/ORBConfigFile", orbFile);
     _DCPS = config.getString("DDS/DCPSConfigFile", dcpsFile);
+    _DCPSInfoRepo = 
+      config.getString("DDS/DCPSInfoRepo", dcpsInfoRepo);
+    std::cerr << "read DCPSInfoRepo = " << _DCPSInfoRepo << " from config" << std::endl;
     _rayTopic = config.getString("DDS/TopicRay", "EldoraRays");
     _productsTopic = config.getString("DDS/TopicProducts", "EldoraProducts");
 
@@ -525,6 +530,7 @@ static void parseOptions(int argc,
     po::options_description descripts("Options");
     descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&_ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&_DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("DCPSInfoRepo", po::value<std::string>(&_DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("simRR314", "run RR314 in simulation mode")
     ("simHskp", "generate fake housekeeping data")
     ("start0", "start RR314 device 0")
@@ -1101,9 +1107,16 @@ static void createDDSservices()
     ArgvParams argv("eldoradrx");
     argv["-ORBSvcConf"] = _ORB;
     argv["-DCPSConfigFile"] = _DCPS;
+    argv["-DCPSInfoRepo"] = _DCPSInfoRepo;
 
     // create our DDS publisher
+#ifdef ORIG
     _publisher = new DDSPublisher(argv.argc(), argv.argv());
+#else
+    char **theArgv = argv.argv();
+    std::cerr << "theArgv[0] = " << theArgv[0] << std::endl;
+    _publisher = new DDSPublisher(argv.argc(), theArgv);
+#endif
     if (_publisher->status()) {
         std::cout << "Unable to create a publisher, exiting.\n";
         exit(1);

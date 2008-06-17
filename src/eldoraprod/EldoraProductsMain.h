@@ -31,6 +31,7 @@ class EldoraProductsMain {
                        std::string& productsTopic,
                        std::string& ORB,
                        std::string& DCPS,
+                       std::string& DCPSInfoRepo,
                        bool& dualPrt);
 
         /// argc from main()

@@ -23,6 +23,7 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
                                    std::string& productsTopic,
                                    std::string& ORB,
                                    std::string& DCPS,
+                                   std::string& DCPSInfoRepo,
                                    bool& dualPrt) {
 
     // get the options
@@ -33,6 +34,7 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
     ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("dualprt", "Dual prt mode")
     ;
 
@@ -72,6 +74,7 @@ int EldoraProductsMain::run() {
     std::string productsTopic;
     std::string ORB;
     std::string DCPS;
+    std::string DCPSInfoRepo;
     bool dualPrt;
     int numPrtIds;
 
@@ -91,12 +94,16 @@ int EldoraProductsMain::run() {
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     DCPS = config.getString("DCPSConfigFile", dcpsFile);
 
+    std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
+    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);
+
+
     rayTopic = config.getString("TopicRay", "EldoraRays");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
     
     dualPrt = config.getBool("DualPrt", false);
 
-    parseArgs(rayTopic, productsTopic, ORB, DCPS, dualPrt);
+    parseArgs(rayTopic, productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt);
 
     // determine how many prt ids we have.
     if (dualPrt) {
@@ -112,6 +119,7 @@ int EldoraProductsMain::run() {
     ArgvParams subParams(_argv[0]);
     subParams["-ORBSvcConf"] = ORB;
     subParams["-DCPSConfigFile"] = DCPS;
+    subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
 
     // create the subscriber
     DDSSubscriber subscriber(subParams.argc(), subParams.argv());

@@ -26,7 +26,8 @@ void parseArgs(
         std::string& productsTopic, 
         bool& forwardRadar,
         std::string& ORB,
-        std::string& DCPS) {
+        std::string& DCPS,
+	std::string& DCPSInfoRepo) {
 
     // get the options
     po::options_description descripts("Options");
@@ -37,6 +38,7 @@ void parseArgs(
 	("aft", "View aft radar (--forward or --aft is required)")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+    ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ;
 
     po::variables_map vm;
@@ -80,6 +82,8 @@ int main(
     // set true if viewing forward radar, false otherwise
     bool forwardRadar;
 
+    std::string DCPSInfoRepo;
+
     // set up the default configuration directory path
     char* e = getenv("ELDORADIR");
     std::string EldoraDir("/conf/");
@@ -95,10 +99,14 @@ int main(
     
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     DCPS = config.getString( "DCPSConfigFile", dcpsFile);
+
+    std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
+    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);  
+
     
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS);
+    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS, DCPSInfoRepo);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -106,6 +114,7 @@ int main(
     ArgvParams subParams(argv[0]);
     subParams["-ORBSvcConf"] = ORB;
     subParams["-DCPSConfigFile"] = DCPS;
+    subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
 
     ///////////////////////////////////////////////////////////////
     //
