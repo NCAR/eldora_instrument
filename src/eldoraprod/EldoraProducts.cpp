@@ -1,52 +1,15 @@
 #include "EldoraProducts.h"
 #include <iostream>
 #include <math.h>
+
+/// Macro used to apply scale and bias to convert to 16 bit 
+/// integer int for on-the-wire transfer
 #define TOSHORT(data, scale, bias) ((short)(data*scale+bias))
-void EldoraProducts::signalPower(RayData& rays)
-{
 
-    // Signal power.  Dependent on single/dual prt.
-    switch (_dualPrt)
-    {
-    case false:
-        // single prt
-        for (int g = 0; g < _gates; g++) {
-            double sum = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-                // pick the p out of abp
-                double p = rays[0][k]->abp[3*g+2];
-                _terms.Psig_k[k][g] = p - _terms.b10_k[k];
-                sum += _terms.Psig_k[k][g];
-            }
-            _terms.Psig[g] = sum/4.0;
-        }
-        break;
+/// A squaring function
+#define square(a) (a*a)
 
-    case true:
-        // dual prt
-        for (int g = 0; g < _gates; g++) {
-            double sumShort = 0.0;
-            double sumLong = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-
-                double pks = rays[0][k]->abp[3*g+2];
-                _terms.Psigs_k[k][g] = pks - _terms.b10_k[k];
-                sumShort += _terms.Psigs_k[k][g];
-
-                double pkl = rays[1][k]->abp[3*g+2];
-                _terms.Psigl_k[k][g] = pkl - _terms.b10_k[k];
-                sumLong += _terms.Psigl_k[k][g];
-
-                _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
-            }
-
-            _terms.Psigs[g] = sumShort/4.0;
-            _terms.Psigl[g] = sumLong/4.0;
-        }
-        break;
-    }
-}
-
+////////////////////////////////////////////////////
 EldoraProducts::EldoraProducts(DDSPublisher& publisher,
                                std::string productsTopic,
                                bool dualPrt) :
@@ -57,9 +20,6 @@ EldoraProducts::EldoraProducts(DDSPublisher& publisher,
 
 }
 
-#define square(a) (a*a)
-
-////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 EldoraProducts::~EldoraProducts()
 {
@@ -96,37 +56,64 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
     initTerms(rays);
 
     // We have four matched rays for each prt 
+	
+	// get an empty products container from DDS
     Products* products = _productsWriter.getEmptyItem();
+	
     if (products) {
 
         // The abp rays are three times as long as the
-        // product rays. 
+        // product rays, since it contains A, B and P. 
         int gates = rays[0][0]->abp.length()/3;
 
         // initiallize the fixed fields in Products, and resize the vectors.
         initProducts(products, gates);
 
-        // This is where the real work gets done
-        // compute the various terms found in the Loew paper
-        computeSums(rays);
-        powerRaw(rays);
-        powerAntenna(rays);
-        totalPower(rays);
-        signalPower(rays);
-        totalSignalPower(rays);
-        reflectivity(rays);
-        velocity(rays);
-        spectrumWidth(rays);
-        ncp(rays);
+        // This is where the real work gets done.
+        // Compute the various terms found in the Loew paper,
+		// following the order given in the paper.
+		// The _terms structure gets filled in with 
+		// results as the steps are completed.
+        
+		// precompute some common sums.
+		computeSums(rays);
+        
+		// power
+		powerRaw(rays);
+        
+		// power at antenna
+		powerAntenna(rays);
+        
+		// total power
+		totalPower(rays);
+        
+		// signal power
+		signalPower(rays);
+        
+		// total signal power
+		totalSignalPower(rays);
+        
+		// dbz
+		reflectivity(rays);
+        
+		// velocity terms.
+		velocity(rays);
+        
+		// spectrum width
+		spectrumWidth(rays);
+        
+		// normalized coherent power
+		ncp(rays);
 
-        // fill in the product ray
-        // first transfer ray metadata
+        // Comutations ar edone. Fill in the product ray
+		
+        // First transfer ray metadata
         products->radarId = rays[0][0]->radarId;
         products->timestamp = rays[0][0]->hskp.rayNum;
         products->rotAngle = rays[0][0]->hskp.radarRotAngle;
         products->gateSpacingMeters = rays[0][0]->hskp.cellWidth[0];
 
-        // transfer the products.
+        // Transfer the final results from _terms to products.
         for (int g = 0; g < gates; g++) {
             products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
             products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
@@ -140,20 +127,16 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             products->vl[g] = TOSHORT(_terms.Vl[g], products->vlScale, products->vlOffset);
             products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
         }
-        //std::cout << "Vr:"
-        //<<_terms.Vr[100]
-        //<< "  vrScale:" << products->vrScale 
-        //<< "  vrBias:" << products->vrOffset 
-        //<< "  scaled:" 
-        //<< TOSHORT(_terms.Vr[100], products->vrScale, products->vrOffset) << "\n";
-        
-        // Publish the products.
+		        
+        // Publish the products
         _productsWriter.publishItem(products);
+		
     } else {
         // Oh no, we couldn't get a free products item, so
         // we have to ignore this ray.
         _droppedRays++;
     }
+	
     return;
 }
 
@@ -254,7 +237,52 @@ void EldoraProducts::totalPower(RayData& rays)
 }
 
 ////////////////////////////////////////////////////
-////////////////////////////////////////////////////
+void EldoraProducts::signalPower(RayData& rays)
+{
+
+    // Signal power.  Dependent on single/dual prt.
+    switch (_dualPrt)
+    {
+    case false:
+        // single prt
+        for (int g = 0; g < _gates; g++) {
+            double sum = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+                // pick the p out of abp
+                double p = rays[0][k]->abp[3*g+2];
+                _terms.Psig_k[k][g] = p - _terms.b10_k[k];
+                sum += _terms.Psig_k[k][g];
+            }
+            _terms.Psig[g] = sum/4.0;
+        }
+        break;
+
+    case true:
+        // dual prt
+        for (int g = 0; g < _gates; g++) {
+            double sumShort = 0.0;
+            double sumLong = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+
+                double pks = rays[0][k]->abp[3*g+2];
+                _terms.Psigs_k[k][g] = pks - _terms.b10_k[k];
+                sumShort += _terms.Psigs_k[k][g];
+
+                double pkl = rays[1][k]->abp[3*g+2];
+                _terms.Psigl_k[k][g] = pkl - _terms.b10_k[k];
+                sumLong += _terms.Psigl_k[k][g];
+
+                _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
+            }
+
+            _terms.Psigs[g] = sumShort/4.0;
+            _terms.Psigl[g] = sumLong/4.0;
+        }
+        break;
+    }
+}
+
+///////////////////////////////////////////////////
 void EldoraProducts::totalSignalPower(RayData& rays)
 {
 
