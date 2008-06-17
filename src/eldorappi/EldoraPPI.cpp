@@ -580,28 +580,28 @@ EldoraPPI::pan(double x, double y)
 void 
 EldoraPPI::panUpSlot()
 {
-    pan(0.0, 0.1/ppiFor->getZoom());
+    pan(0.0, 0.1);
 }
 ///////////////////////////////////////////////////////////////////////
 
 void 
 EldoraPPI::panDownSlot()
 {
-    pan(0.0, - 0.1/ppiFor->getZoom());
+    pan(0.0, -0.1);
 }
 ///////////////////////////////////////////////////////////////////////
 
 void 
 EldoraPPI::panLeftSlot()
 {
-    pan(- 0.1/ppiFor->getZoom(), 0.0);
+    pan(-0.1, 0.0);
 }
 ///////////////////////////////////////////////////////////////////////
 
 void 
 EldoraPPI::panRightSlot()
 {
-    pan(0.1/ppiFor->getZoom(),0.0);
+    pan(0.1,0.0);
 }
 ///////////////////////////////////////////////////////////////////////
 void
