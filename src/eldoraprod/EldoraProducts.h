@@ -52,6 +52,8 @@ struct ProductsTerms
         TermData Wscale;
         TermData WscaleShort;
         TermData WscaleLong;
+        TermData1D phaseShort; ///< Short prt phase
+        TermData1D phaseLong;  ///< Long prt phase
         TermData2D SumA; ///< Sum of the A's, by prt
         TermData2D SumB; ///< Sum of the B's, by prt
         TermData2D SumP; ///< Sum of the P's, by prt
@@ -209,6 +211,8 @@ class EldoraProducts
         void reflectivity(RayData& rays);
         /// Calculate velocity
         void velocity(RayData& rays);
+        /// Caclulate unfolded velocity for dual prt mode
+        void unfoldVelocity();
         /// Calculate spectrum width
         void spectrumWidth(RayData& rays);
         /// Caculate normalized coherent power

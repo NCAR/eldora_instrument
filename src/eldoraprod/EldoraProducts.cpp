@@ -304,16 +304,60 @@ void EldoraProducts::velocity(RayData& rays)
 
      case true:
          // dual prt
+         // short and long pulse velocity
          for (int g = 0; g < _gates; g++) {
-             /// @todo put in the velocity unfolding algorithm
-             _terms.Vr[g] = 0.0;
-             _terms.Vs[g] = _terms.VscaleShort*atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
-             _terms.Vl[g] = _terms.VscaleLong*atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
+             _terms.phaseShort[g] = atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
+             _terms.Vs[g] = _terms.VscaleShort*_terms.phaseShort[g];
+             _terms.phaseLong[g] = atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
+             _terms.Vl[g] = _terms.VscaleLong*_terms.phaseLong[g];
          }
+         // unfolded velocity
+         unfoldVelocity();
          break;
      }
  }
-
+////////////////////////////////////////////////////
+#define fiveFourths (5.0/4.0)
+void EldoraProducts::unfoldVelocity() {
+    
+    // The correction used in the velocity unfolding. Corresponds
+    // to the 9 regions in the Loew document.
+    static double correction[9] = {
+              -M_PI,
+              -M_PI*(2+fiveFourths),
+             2*M_PI*(1+fiveFourths),
+               M_PI*(1+fiveFourths),
+               0.0,
+              -M_PI*(1+fiveFourths),
+            -2*M_PI*(1+fiveFourths),
+               M_PI*(2+fiveFourths),
+               M_PI
+    };
+    
+    for (int g = 0; g < _gates; g++) {
+        // compute the phase difference term
+        double deltaPhase = fiveFourths*_terms.phaseShort[g] - _terms.phaseLong[g];
+        
+        // use the phase difference to find the corresponding correction.
+        // See the Loew paper
+        int index;
+        double n = deltaPhase*4.0/M_PI + 8.0;
+        // The table has irregular spacing for the end regions
+        if (n < 1.0) {
+            index = 0;
+        } else {
+            if ( 15.0 < n) {
+                index = 8;
+            } else {
+                // for 1.0 <= n <= 15, the spacing is regular
+                index = (int)((n+1.0)/2.0);
+            }
+        }
+        double corr = correction[index];
+        double sumPhase = fiveFourths*_terms.phaseShort[g] + _terms.phaseLong[g];
+       _terms.Vr[g] = _terms.VscaleLong*(sumPhase/2.0 + corr);
+    }
+}
 ////////////////////////////////////////////////////
 void EldoraProducts::spectrumWidth(RayData& rays)
 {
@@ -530,6 +574,8 @@ void ProductsTerms::init(int gates,
     b_k.resize(4);
     b10_k.resize(4);
     Vscale_k.resize(4);
+    phaseShort.resize(gates);
+    phaseLong.resize(gates);
     SumA.resize(2);    // for short and long prts
     SumB.resize(2);    // for short and long prts
     SumP.resize(2);    // for short and long prts
