@@ -20,7 +20,6 @@ void PPIManager::setup(
     
     // start off with a square display of the minimum height
     _ppi->setMinimumSize(minHeight, minHeight);
-    _ppi->repaint();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,14 +89,13 @@ void PPIManager::configurePPI(
     if (gates == 0)
         distance = 100.0;
 
-    _ppi->configure(numProducts, _gates, beams, distance, _decimation, 
-                    left, right, bottom, top);
     int h = _minHeight;
     int w = (int)(h * (right-left)/(top-bottom));
     _ppi->setMinimumSize(w,h);
-    _ppi->repaint();
     
-
+    _ppi->configure(numProducts, _gates, beams, distance, _decimation, 
+                    left, right, bottom, top);
+ 
 }
 /////////////////////////////////////////////////////////////////////////////
 void PPIManager::selectVar(int index) {
