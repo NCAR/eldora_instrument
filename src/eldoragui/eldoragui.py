@@ -4,6 +4,7 @@ import sys
 import time
 import os
 import subprocess
+import signal
 
 # Determine ELDORADIR
 if not os.environ.has_key('ELDORADIR'):
@@ -42,7 +43,7 @@ class ApplicationDict:
     
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
-global Verbose          # Set ture for diagnostics from eldoragui itself
+global Verbose          # Set for diagnostics from eldoragui itself
 global main             # The main gui window, from EldoraMain.ui
 global ourConfig        # the EldoraGui.ini configuration
 global eldoraDir        # used to find eldora application binaries
@@ -106,6 +107,11 @@ def stop():
         
     # stop the products
     stopProducts()
+
+    # force any RPC threads to exit
+    drxrpc.terminate()
+    hskprpc.terminate()
+    prodrpc.terminate()
     
 ####################################################################################
 def status():
@@ -228,6 +234,8 @@ def startDcps():
     '''
     global ourConfig
     global ourProcesses
+    os.chdir('/tmp')  # DCPSInfoRepo wants to write a repo.ior in the current
+                      # directory, which had better be writable!
 
     dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
     orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
@@ -695,6 +703,25 @@ def lastWindowClosed():
                 print '...done'
             else:
                 print '...kill did not work either'
+
+def my_ExceptHook(type, value, tb):
+    global app
+    import traceback,exceptions
+    print 'eldoragui.py terminated - cleaning up'
+    # if this isn't a keyboard interrupt (^C), better print what it was.
+    if not isinstance(value,exceptions.KeyboardInterrupt) :
+        print 'eldoragui.py : Exception : ', type, value
+        print 'Traceback : ', traceback.print_tb(tb)
+
+#    app.emit(QtCore.SIGNAL("stop"))
+    app.quit()
+
+def sig_handler(sig_num, frame):
+    global app
+    print 'caught signal : ', sig_num
+    print 'eldoragui.py terminated - cleaning up'
+    app.quit()
+
             
 
 
@@ -737,12 +764,14 @@ initConfig()
 createRpcServers()
 
 # create the qt application               
+global app
 app = QApplication(sys.argv)
 if Verbose: print 'finished creating QApplication'
 
 # instantiate an Eldora controller gui
 main = EldoraMain(headerDirs, appDict['dumpheader'])
 if Verbose: print 'finished instantiating EldoraMain'
+
 
 main.show()
 
@@ -761,5 +790,14 @@ showInternal()
 
 # start the event loop
 if Verbose: print 'starting the event loop'
+# install our exception handler after all initialization is complete
+sys.excepthook = my_ExceptHook
+signal.signal(signal.SIGHUP, sig_handler)
+signal.signal(signal.SIGTERM, sig_handler)
+signal.signal(signal.SIGINT, sig_handler)
 app.exec_()
+if Verbose: print 'exited the event loop'
+stop()
+lastWindowClosed()
+if Verbose: print 'finished stop() - actually exiting'
 
