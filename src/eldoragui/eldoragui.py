@@ -77,7 +77,7 @@ def start():
         r = drxrpc.server.start()
         main.logText(str(r))
     except Exception, e:
-        print ("Error contacting drx RPC for start:"+str(e))
+        print ("Error contacting drx RPC (%s) for start : %s"% (drxrpc.URI, str(e)) )
 
     # Send start command to the housekeeper
     try:
@@ -85,7 +85,7 @@ def start():
         if (r != 0):
                 main.logText(str(r))
     except Exception, e:
-        print ("Error contacting housekeeper RPC for start:"+str(e))
+        print ("Error contacting housekeeper RPC (%s) for start: %s"% (hskprpc.URI,str(e)))
         
     # stop  (i.e. kill) products
     stopProducts()
@@ -152,7 +152,7 @@ def status():
           rates.append(r[k]*1000.0)
           
     except Exception, e:
-        print ("Error contacting drx RPC for status:"+str(e))
+        print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
         rates = []
         for i in range(16):
             rates.append(0)
@@ -173,7 +173,8 @@ def status():
             else:
                 hskpStatus = 2
         except Exception, e:
-            print("Error contacting housekeeper RPC for status:" + str(e))
+            print("Error contacting housekeeper RPC (%s) for status: %s" %
+     (hskprpc.URI, str(e)))
 	    hskpForRate = 0.0  # set default value, so Python doesn't whine 
 	    hskpAftRate = 0.0    
             hskpStatus = 2
@@ -233,13 +234,18 @@ def startDcps():
     global ourConfig
     global ourProcesses
 
+    dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
+    orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
+    domainConfigPath = ourConfig.getString('Dcps/DomainConfig', ddsConfigDir+'/DDSDomainIds.conf')
+    dcpsURL = ourConfig.getString('Dcps/URL','iiop://archiver:50000')
+
     if Verbose: print 'start_DCPS - checking if we should run DCPS'
     runDcps = ourConfig.getBool('Dcps/Run', True)
+    restart = ourConfig.getBool('Dcps/AutoRestart', False)
     if  not runDcps:
 	if Verbose: print 'start_DCPS - we are not configured to start DCPS'
         return
     
-    restart = ourConfig.getBool('Dcps/AutoRestart', False)
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
@@ -252,10 +258,6 @@ def startDcps():
             
     # start a new instance
     if Verbose: print 'start_DCPS - starting new instance'
-    dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
-    orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
-    domainConfigPath = ourConfig.getString('Dcps/DomainConfig', ddsConfigDir+'/DDSDomainIds.conf')
-    dcpsURL = ourConfig.getString('Dcps/URL','iiop://archiver:50000')
     dcpscmd = [
         os.path.join(ddsRoot, 'bin', 'DCPSInfoRepo'), 
         '-NOBITS', 
@@ -283,6 +285,9 @@ def startDrx():
     global drxSimHskpMode
 
     doDrx = ourConfig.getBool('Drx/Run', True)
+    rpcport = ourConfig.getInt('Drx/RpcPort', 60000)
+    drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
+    drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
     if not doDrx:
         return
     
@@ -300,17 +305,14 @@ def startDrx():
            ]
     
     # get the rpc port number
-    rpcport = ourConfig.getInt('Drx/RpcPort', 60000)
     drxcmd.append('--rpcport')
     drxcmd.append(str(rpcport))
     
     # see if hskp should be simulated
-    drxSimHskpMode = ourConfig.getBool('Mode/SimulateHskp', False)
     if drxSimHskpMode:
         drxcmd.append('--simHskp')
         
     # see if RR314 should be simulated
-    drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
     if drxSimRRMode:
         drxcmd.append('--simRR314')
         
@@ -471,6 +473,7 @@ def mainIsReady():
     For instance, any object that are created from QThread should be
     constructed after the main app is running.
     '''
+    if Verbose: print 'mainIsReady called'
     # start up DCPS
     startDcps()
     
@@ -478,7 +481,7 @@ def mainIsReady():
     startDrx()
     
     # stop any running products
-    stopProducts
+    stopProducts()
 
 ####################################################################################
 def fixLdLibraryPath():
