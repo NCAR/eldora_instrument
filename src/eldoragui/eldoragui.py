@@ -8,16 +8,6 @@ import subprocess
 from PyQt4.QtCore    import *
 from PyQt4.QtGui     import *
 
-if not os.environ.has_key('ELDORADIR'):
-    # If the ELDORADIR environment variable is not set, set it to the parent 
-    # directory of where this script was found.
-    mypath = os.path.dirname(os.path.abspath(sys.argv[0]))
-    parentpath = os.path.abspath(os.path.join(mypath, '..'))
-    print 'ELDORADIR is not set; using', parentpath
-    os.environ['ELDORADIR'] = parentpath
-
-sys.path.append(os.path.join(os.environ['ELDORADIR'],'lib','python'))
-
 from EldoraMain      import *
 from EldoraRPC       import *
 from QtConfig        import *
@@ -715,10 +705,22 @@ def showInternal():
 # This is where it all happens
 #
 
+# Determine ELDORADIR
+if not os.environ.has_key('ELDORADIR'):
+    # If the ELDORADIR environment variable is not set, set it to the parent 
+    # directory of where this script was found.
+    mypath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    parentpath = os.path.abspath(os.path.join(mypath, '..'))
+    print 'ELDORADIR is not set; using', parentpath
+    os.environ['ELDORADIR'] = parentpath
+sys.path.append(os.path.join(os.environ['ELDORADIR'],'lib','python'))
+
+# set the Verbose flag
 Verbose=False
 if len(sys.argv) > 1 and sys.argv[1] == '-v':
    Verbose = True
    
+# default the simulated housekeeping to false
 drxSimHskpMode = False
 
 # make sure that LD_LIBRARY_PATH is available (kde sometimes strips it)
