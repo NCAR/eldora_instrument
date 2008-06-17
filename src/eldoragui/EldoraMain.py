@@ -426,6 +426,10 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.logBrowser.append(html)
 
     ###############################################################################
+    def internalText(self, text):
+        self.internalBrowser.append(text)
+        
+    ###############################################################################
     def gaugeReleased(self, name):
         msg = 'Gauge ' + name + ' was pressed!'
         QMessageBox.information(self, 'Alert!', msg)

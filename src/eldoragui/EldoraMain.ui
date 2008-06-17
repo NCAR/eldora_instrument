@@ -369,6 +369,9 @@
       <attribute name="title" >
        <string>Data Rates</string>
       </attribute>
+      <attribute name="toolTip" >
+       <string>System data rates</string>
+      </attribute>
       <layout class="QHBoxLayout" >
        <property name="margin" >
         <number>9</number>
@@ -441,6 +444,9 @@
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
        <string>DRX Channels</string>
+      </attribute>
+      <attribute name="toolTip" >
+       <string>DRX RR314 data bandwidths per DMA channel</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="margin" >
@@ -732,6 +738,9 @@
       <attribute name="title" >
        <string>Disk</string>
       </attribute>
+      <attribute name="toolTip" >
+       <string>Disk usage</string>
+      </attribute>
       <layout class="QVBoxLayout" >
        <property name="margin" >
         <number>9</number>
@@ -762,9 +771,31 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_5" >
+      <attribute name="title" >
+       <string>Internal</string>
+      </attribute>
+      <attribute name="toolTip" >
+       <string>Eldora Control internal variable values</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QTextBrowser" name="internalBrowser" />
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_3" >
       <attribute name="title" >
        <string>Console</string>
+      </attribute>
+      <attribute name="toolTip" >
+       <string>System log messages</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="margin" >

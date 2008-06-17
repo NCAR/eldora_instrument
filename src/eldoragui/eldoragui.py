@@ -41,25 +41,19 @@ class ApplicationDict:
     
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
-global Verbose
-Verbose=False
-if len(sys.argv) > 1 and sys.argv[1] == '-v':
-   Verbose = True
-
-global ourConfig    # the EldoraGui.ini configuration
-
-global eldoraDir    # used to find eldora application binaries
-global ddsRoot      # used to locate DCPSInforepo
-global ddsConfigDir # location of the DDS configuration files (for DDS apps)
-global headerDirs   # where the headers are stored
+global Verbose          # Set ture for diagnostics from eldoragui itself
+global main             # The main gui window, from EldoraMain.ui
+global ourConfig        # the EldoraGui.ini configuration
+global eldoraDir        # used to find eldora application binaries
+global ddsRoot          # used to locate DCPSInforepo
+global ddsConfigDir     # location of the DDS configuration files (for DDS apps)
+global headerDirs       # where the headers are stored
 global drxSimHskpMode   # are we generating simulated housekeeping?
-drxSimHskpMode = False
-
-global drxrpc       # RPC server for eldoradrx
-global hskprpc      # RPC server for the housekeeper
-global prodrpc      # RPC server for the products generator
-
-global ourProcesses # Processes that we have started and are managing
+global ldLibraryPath    # The ldLibraryPath
+global drxrpc           # RPC server for eldoradrx
+global hskprpc          # RPC server for the housekeeper
+global prodrpc          # RPC server for the products generator
+global ourProcesses     # Processes that we have started and are managing
 
 
 ####################################################################################
@@ -485,6 +479,7 @@ def mainIsReady():
 
 ####################################################################################
 def fixLdLibraryPath():
+    global ldLibraryPath
     ldLibraryPath = os.getenv('LD_LIBRARY_PATH')
     if ldLibraryPath == None:
         # it has been stripped by kde!
@@ -504,6 +499,7 @@ def fixLdLibraryPath():
 def initConfig():
     ''' Create the configuratiuon and set the path variables
     '''
+    global main
     global ourConfig
     # get our configuration
     ourConfig = QtConfig('NCAR', 'EldoraGui')
@@ -519,11 +515,11 @@ def initConfig():
         mydir, myname = os.path.split(sys.argv[0])
         eldoraDir = os.path.abspath(os.path.join(mydir, '..'))
         os.environ['ELDORADIR'] = eldoraDir
-	print 'eldoraDir = ', eldoraDir
+    
     # where is DCPSInfoRepo
     global ddsRoot
     ddsRoot = os.environ['DDS_ROOT']
-    
+        
     # where are the DDS configuration files?
     global ddsConfigDir
     ddsConfigDir = os.path.join(eldoraDir, 'conf')
@@ -532,7 +528,7 @@ def initConfig():
     global headerDirs
     headerDirs = ourConfig.getString('Headers/HeaderDir', 
                                      os.path.join(eldoraDir, 'conf'))
-
+    
     # build a special dictionary of apps which returns a specific path for
     # an app, if set, otherwise just the app name
     global appDict
@@ -700,10 +696,30 @@ def lastWindowClosed():
                 print '...kill did not work either'
             
 
+
+####################################################################################
+def showInternal():
+    ''' Display some diagnostic eldoragui configuration information
+    on the Internal tab of the gui.
+    '''
+    main.internalText('eldoraDir: ' + eldoraDir)
+    main.internalText('ddsRoot: '+ ddsRoot)
+    main.internalText('ddsConfigDir: ' + ddsConfigDir)
+    main.internalText('headerDirs: ' + headerDirs)
+    for k in appDict.dict.keys():
+        main.internalText('appDict['+ k  + ']: '+ appDict[k])
+    main.internalText('ldLibraryPath: ' + ldLibraryPath)
+                
 ####################################################################################
 #
 # This is where it all happens
 #
+
+Verbose=False
+if len(sys.argv) > 1 and sys.argv[1] == '-v':
+   Verbose = True
+   
+drxSimHskpMode = False
 
 # make sure that LD_LIBRARY_PATH is available (kde sometimes strips it)
 fixLdLibraryPath()
@@ -736,6 +752,9 @@ QObject.connect(main, SIGNAL('ppi'),                ppi)
 QObject.connect(main, SIGNAL('scope'),              scope)
 QObject.connect(main, SIGNAL('header'),             headerSelected)
 QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
+
+# display some internal information on the Internal tab
+showInternal()    
 
 # start the event loop
 if Verbose: print 'starting the event loop'
