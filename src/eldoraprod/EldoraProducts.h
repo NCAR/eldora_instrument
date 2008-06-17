@@ -188,7 +188,7 @@ class EldoraProducts
         /// and resize the vectors.
         /// @param p the products item to be initialized.
         /// @param gates The nmber of gates
-        void initProducts(EldoraDDS::Products* p,
+        void initProducts(EldoraDDS::Products* p, EldoraDDS::Housekeeping& hskp,
                           int gates);
         /// Initalize the entries in the Productsterms structure.
         /// Precomputed factors are initialized and vectors are resized.

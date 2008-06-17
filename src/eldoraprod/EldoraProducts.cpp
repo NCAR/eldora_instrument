@@ -32,8 +32,7 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
 
     static bool first = true;
     if (first) {
-        std::cout << "xBandGain:" 
-        << rays[0][0]->hskp.xBandGain 
+        std::cout << "Products hase received first ray " 
         << " prt:"
         << rays[0][0]->hskp.prt 
         << " prtLong:"
@@ -67,7 +66,7 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         int gates = rays[0][0]->abp.length()/3;
 
         // initiallize the fixed fields in Products, and resize the vectors.
-        initProducts(products, gates);
+        initProducts(products, rays[0][0]->hskp, gates);
 
         // This is where the real work gets done.
         // Compute the various terms found in the Loew paper,
@@ -528,7 +527,8 @@ void EldoraProducts::initTerms(RayData& rays)
 }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::initProducts(EldoraDDS::Products* p,
+void EldoraProducts::initProducts(EldoraDDS::Products* p, 
+                                  EldoraDDS::Housekeeping& hskp,
                                   int gates)
 {
     // Resize the ray lengths.
@@ -576,6 +576,8 @@ void EldoraProducts::initProducts(EldoraDDS::Products* p,
 
     p->ncpScale = _scaling.ncpScale;
     p->ncpOffset = _scaling.ncpBias;
+    
+    p->hskp = hskp;
 }
 ////////////////////////////////////////////////////
 void ProductsTerms::init(int gates,
