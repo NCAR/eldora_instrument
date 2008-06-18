@@ -24,6 +24,19 @@ public:
         short gateTime[5][2]);
     
     // accessor methods
+    std::string getPSFileName() { return _psFileName; }
+    short getNumChips(int freqnum) { return _numChips[freqnum]; }
+    const char* getBlankingSequence() { return _blankingSequence; }
+    float getRepeatPeriod() { return _repeatPeriod; }
+    short getRepeatsPerDwell() { return _repeatsPerDwell; }
+    short getTotalPCP() { return _totalPCP; }
+    short getChipOffset(int freqnum) { return _chipOffset[freqnum]; }
+    short getChipWidth(int freqnum) { return _chipWidth[freqnum]; }
+    float getUrPCP() { return _urPCP; }
+    float getUvPCP() { return _uvPCP; }
+    short getNumGates(int freqnum) { return _numGates[freqnum]; }
+    short getTimeToFirstGate(int freqnum) { return _gateTime[freqnum][0]; }
+    short getTimePerGate(int freqnum) { return _gateTime[freqnum][1]; }
     
     std::ostream& printTo(std::ostream& stream) const;
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
