@@ -62,11 +62,6 @@ public:
     std::ostream& printTo(std::ostream& stream) const;
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
 private:
-    //
-    // PCP below refers to Pulse Count Period, or the period which is the 
-    // greatest common divisor of all of the pulse repetition times 
-    // (PRTs) in use.
-    //
     std::string _radarName;     /// radar name, 8 characters
     float _radarConstant;       /// radar constant
     float _peakPower;           /// nominal peak power, kW
