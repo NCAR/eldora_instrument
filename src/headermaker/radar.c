@@ -829,6 +829,8 @@ int calculate_radar() {
     if (radar_st.num_freq_trans != 0)
         number_to_calculate--;
     else if (waveform_st.num_chips[0] > 0 && engin_st.chipdur > 0) {
+#ifdef RP7
+    /* Preserve for historical significance */
         if (engin_win.chipdur == 0.25)
             delta_freq = 0.012;
         if (engin_win.chipdur == 0.5)
@@ -847,6 +849,9 @@ int calculate_radar() {
             delta_freq = 0.010;
         if (engin_win.chipdur > 2.0)
             delta_freq = 0.010;
+#endif
+
+	delta_freq = 0.009      /* Separate Transmit Frequencies by 9 MHz for new DRX to minimize range-time sidelobes */
 
 #ifdef LO_RT_SDLB
         freq_mult[0] = 2;
