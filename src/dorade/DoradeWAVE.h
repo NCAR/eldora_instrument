@@ -17,11 +17,11 @@ public:
     DoradeWAVE(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian) throw (DescriptorException);
     
-    DoradeWAVE(std::string _psFileName, short _numChips[6], 
-        char _blankingSequence[256], float _repeatPeriod, 
-        short _repeatsPerDwell, short _totalPCP, short _chipOffset[6],
-        short _chipWidth[6], float _urPCP, float _uvPCP, short _numGates[6],
-        short _gateTime[5][2]);
+    DoradeWAVE(std::string psFileName, short numChips[6], 
+        char blankingSequence[256], float repeatPeriod, 
+        short repeatsPerDwell, short totalPCP, short chipOffset[6],
+        short chipWidth[6], float urPCP, float uvPCP, short numGates[6],
+        short gateTime[5][2]);
     
     // accessor methods
     

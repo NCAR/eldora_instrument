@@ -14,6 +14,7 @@ DoradeASIB.cpp
 DoradeFRAD.cpp
 DoradeRYIB.cpp
 DoradeVOLD.cpp
+DoradeWAVE.cpp
 """)
 
 dorade_lib = env.Library('dorade', sources)
