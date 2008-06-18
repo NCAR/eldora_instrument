@@ -11,6 +11,7 @@ Export('dorade')
 sources = Split("""
 DoradeDescriptor.cpp
 DoradeASIB.cpp
+DoradeCSPD.cpp
 DoradeFRAD.cpp
 DoradeFRIB.cpp
 DoradeRADD.cpp
