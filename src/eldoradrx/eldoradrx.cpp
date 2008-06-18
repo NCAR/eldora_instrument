@@ -249,10 +249,10 @@ int main(int argc,
         loopCount++;
     }
 
-    std::cout << "Terminating " << argv[0] << "\n";
     if (_bwtimer) {
         delete _bwtimer;
     }
+    std::cout << argv[0] << " was asked to terminate - exiting\n";
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -672,6 +672,8 @@ static void setRadarParams(EldoraRadarParams* radarParams,
 static void setupSignalHandler()
 {
 
+    std::cout << "setupSignalHandler() called"  << std::endl;
+
     // install signal handler for selected signals
     struct sigaction new_action, old_action;
 
@@ -692,8 +694,10 @@ static void setupSignalHandler()
     // Change the handler for signals in the list that aren't being ignored.
     for (int s = 0; s < nsignals; s++) {
         sigaction(sig_list[s], NULL, &old_action);
-        if (old_action.sa_handler != SIG_IGN)
+        if (old_action.sa_handler != SIG_IGN) {
+	    std::cout << "setting signal handler for signal " << sig_list[s] << std::endl;
             sigaction(sig_list[s], &new_action, NULL);
+	}
     }
 }
 

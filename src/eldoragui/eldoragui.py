@@ -56,6 +56,7 @@ global drxrpc           # RPC server for eldoradrx
 global hskprpc          # RPC server for the housekeeper
 global prodrpc          # RPC server for the products generator
 global ourProcesses     # Processes that we have started and are managing
+global Stopped          # are we shutting down?
 
 
 ####################################################################################
@@ -684,25 +685,31 @@ def nextTaskColor():
         
 ####################################################################################
 def lastWindowClosed():
+    if Verbose: print 'lastWindowClosed - calling stop'
+    stop()
+    if Verbose: print 'lastWindowClosed - sending signals to processes'
     # Terminate processes by sending them SIGTERM. Otherwise
     # it appears that they are killed with SIGKILL when PyQt
-    # exists. In the case of eldoradrx, it's use of the 
+    # exits. In the case of eldoradrx, it's use of the 
     # rr314 Jungo driver can cause Linux to crash if eldoradrx
     # is not able to run it's signal cleaup code.
     for key in ourProcesses.keys():
         ourProcesses[key].terminate()
-        print 'waiting for ' + key + ' to finish...'
-        terminated = ourProcesses[key].waitForFinished(2000)
+        secs = 10
+        print 'waiting %d seconds for %s to finish' % (secs, key)
+        terminated = ourProcesses[key].waitForFinished(secs*1000)
         if terminated:
             print '...done'
         else:
             print 'could not terminate, trying a kill...'
             ourProcesses[key].kill()
-            killed = ourProcesses[key].waitForFinished(2000)
+            killed = ourProcesses[key].waitForFinished(8000)
             if killed:
                 print '...done'
             else:
                 print '...kill did not work either'
+    global Stopped
+    Stopped = True
 
 def my_ExceptHook(type, value, tb):
     global app
@@ -713,7 +720,6 @@ def my_ExceptHook(type, value, tb):
         print 'eldoragui.py : Exception : ', type, value
         print 'Traceback : ', traceback.print_tb(tb)
 
-#    app.emit(QtCore.SIGNAL("stop"))
     app.quit()
 
 def sig_handler(sig_num, frame):
@@ -742,6 +748,7 @@ def showInternal():
 #
 # This is where it all happens
 #
+Stopped = False
 
 # set the Verbose flag
 Verbose=False
@@ -797,7 +804,8 @@ signal.signal(signal.SIGTERM, sig_handler)
 signal.signal(signal.SIGINT, sig_handler)
 app.exec_()
 if Verbose: print 'exited the event loop'
-stop()
-lastWindowClosed()
-if Verbose: print 'finished stop() - actually exiting'
+if not Stopped:  # if we haven't already cleaned up, do it now
+    if Verbose: print 'calling lastWindowClosed '
+    lastWindowClosed()
 
+if Verbose: print 'exiting now'
