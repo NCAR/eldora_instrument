@@ -851,7 +851,7 @@ int calculate_radar() {
             delta_freq = 0.010;
 #endif
 
-	delta_freq = 0.009      /* Separate Transmit Frequencies by 9 MHz for new DRX to minimize range-time sidelobes */
+	delta_freq = 0.009;      /* Separate Transmit Frequencies by 9 MHz for new DRX to minimize range-time sidelobes */
 
 #ifdef LO_RT_SDLB
         freq_mult[0] = 2;
