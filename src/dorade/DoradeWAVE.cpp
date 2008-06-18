@@ -63,7 +63,7 @@ DoradeWAVE::DoradeWAVE(std::string psFileName, short numChips[6],
     _repeatsPerDwell(repeatsPerDwell), _totalPCP(totalPCP), 
     _urPCP(urPCP), _uvPCP(uvPCP) {
     // force psFileName to 16 characters by truncating or appending nulls
-    psFileName.resize(16);
+    _psFileName.resize(16);
     assert(sizeof(blankingSequence) == sizeof(_blankingSequence));
     memcpy(_blankingSequence, blankingSequence, sizeof(_blankingSequence));
     assert(sizeof(numChips) == sizeof(_numChips));
