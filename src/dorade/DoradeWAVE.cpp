@@ -52,7 +52,7 @@ DoradeWAVE::DoradeWAVE(const unsigned char *data, unsigned int datalen,
     //
     if (_verbose)
         std::cout << *this;
-};
+}
 
 DoradeWAVE::DoradeWAVE(std::string psFileName, short numChips[6], 
     char blankingSequence[256], float repeatPeriod, 
