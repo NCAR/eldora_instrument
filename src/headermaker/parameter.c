@@ -571,8 +571,8 @@ int calculate_parameter()
         prfs = 1000.0 / radar[FORE].interpulse_per1;
         /* Period #2 will be longer */
         prfl = 1000.0 / radar[FORE].interpulse_per2;
-	v_unambigs = lambda*prfs/4;
-	v_unambigl = lamdbda*prfl/4;
+	v_unambigs = lamda*prfs/4;
+	v_unambigl = lamda*prfl/4;
 
         for (i = 0; i < radar[FORE].num_parameter_des; i++) {
             /* Spectral width short PRT ? */
@@ -606,7 +606,7 @@ int calculate_parameter()
                 }
                 if (radar[FORE].num_ipps_trans == 2) {
                     parameter[i][FORE].parameter_scale = 1.0/RES;
-                    parameter[i][FORE].parameter_bias = v_unambigl/RES;
+                    parameter[i][FORE].parameter_bias = v_unambigl*5.0/RES;
                 }
             }
 
@@ -640,6 +640,9 @@ int calculate_parameter()
         /* Do the same thing for the aft radar */
 
         lamda = C / (1.0e9 * engin_win.avg_freq[AFT]);
+        v_unambigs = lamda*prfs/4;
+        v_unambigl = lamda*prfl/4;
+
         /* period #1 is always shortest */
         prfs = 1000.0 / radar[AFT].interpulse_per1;
         /* Period #2 will be longer */
@@ -648,25 +651,23 @@ int calculate_parameter()
         for (i = 0; i < radar[AFT].num_parameter_des; i++) {
             /* Spectral width short PRT ? */
             if (!strncmp(parameter[i][AFT].parameter_name, "SWS", 3)) {
-                parameter[i][AFT].parameter_scale = 4042.0363 / (lamda * prfs);
+                parameter[i][AFT].parameter_scale = 1.0/RES;
                 parameter[i][AFT].parameter_bias = 0.0;
             }
 
             /* Spectral width long PRT ? */
             else if (!strncmp(parameter[i][AFT].parameter_name, "SWL", 3)) {
-                parameter[i][AFT].parameter_scale = 4042.0363 / (lamda * prfl);
+                parameter[i][AFT].parameter_scale = 1.0/RES;
                 parameter[i][AFT].parameter_bias = 0.0;
             }
 
             /* Spectral width combined, or single PRT ? */
             else if (!strncmp(parameter[i][AFT].parameter_name, "SW ", 3)) {
                 if (radar[AFT].num_ipps_trans == 1) {
-                    parameter[i][AFT].parameter_scale = 4042.0363 / (lamda
-                            * prfs);
+                    parameter[i][AFT].parameter_scale = 1.0/RES;
                     parameter[i][AFT].parameter_bias = 0.0;
                 } else if (radar[AFT].num_ipps_trans == 2) {
-                    parameter[i][AFT].parameter_scale = 4042.0363 / (lamda
-                            * prfl);
+                    parameter[i][AFT].parameter_scale = 1.0/RES;
                     parameter[i][AFT].parameter_bias = 0.0;
                 }
             }
@@ -674,27 +675,25 @@ int calculate_parameter()
             /* Velocity combined or single PRT? VR */
             else if (!strncmp(parameter[i][AFT].parameter_name, "VR", 2)) {
                 if (radar[AFT].num_ipps_trans == 1) {
-                    parameter[i][AFT].parameter_scale = 32764.0
-                            / (lamda * prfs);
-                    parameter[i][AFT].parameter_bias = 8191.0;
+                    parameter[i][AFT].parameter_scale = 1.0/RES;
+                    parameter[i][AFT].parameter_bias = v_unambigs/RES;
                 }
                 if (radar[AFT].num_ipps_trans == 2) {
-                    parameter[i][AFT].parameter_scale = 26213.6
-                            / (lamda * prfl);
-                    parameter[i][AFT].parameter_bias = 32767.0;
+                    parameter[i][AFT].parameter_scale = 1.0/RES;
+                    parameter[i][AFT].parameter_bias = v_unambigl*5.0/RES;
                 }
             }
 
             /* Velocity? VS */
             else if (!strncmp(parameter[i][AFT].parameter_name, "VS", 2)) {
-                parameter[i][AFT].parameter_scale = 32764.0 / (lamda * prfs);
-                parameter[i][AFT].parameter_bias = 8191.0;
+                parameter[i][AFT].parameter_scale = 1.0/RES;
+                parameter[i][AFT].parameter_bias = v_unambigs/RES;
             }
 
             /* Velocity? VL */
             else if (!strncmp(parameter[i][AFT].parameter_name, "VL", 2)) {
-                parameter[i][AFT].parameter_scale = 32764.0 / (lamda * prfl);
-                parameter[i][AFT].parameter_bias = 8191.0;
+                parameter[i][AFT].parameter_scale = 1.0/RES;
+                parameter[i][AFT].parameter_bias = v_unambigl/RES;
             }
 
             /* Normalized Coherent Power ? */
