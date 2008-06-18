@@ -1,6 +1,7 @@
 from time import *
 
 import os
+from logging.handlers import TimedRotatingFileHandler
 from PyQt4.QtCore  import *
 from PyQt4.QtGui   import *
 
@@ -75,6 +76,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.logBrowser.setLineWrapMode(QTextEdit.NoWrap)
         self.logCursor = QTextCursor(self.logBrowser.document())
         self.logBrowser.setReadOnly(True)
+
+        self.logger = TimedRotatingFileHandler("/tmp/eldora.log", 'D',1, 5)
         
         # connect components
         # The stop button
@@ -424,6 +427,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         '''
         html = '<font color="' + color + '">' + text + '</font>'
         self.logBrowser.append(html)
+        self.logger.stream.write(text)
+        self.logger.stream.flush()
 
     ###############################################################################
     def internalText(self, text):
