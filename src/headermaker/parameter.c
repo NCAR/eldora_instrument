@@ -308,8 +308,10 @@ int calculate_parameter()
 {
 #define C 2.997925e8            /* Speed of light in Meters per second */
 #define PI 3.141593
+#define RES 0.003               /* Velocity and Spectral width resolution in m/s */
+
     int i, j, number_to_calculate;
-    float lamda, prfs, prfl;
+    float lamda, prfs, prfl, v_unambigs, v_unambigl;
 
     number_to_calculate =9;
 
@@ -569,29 +571,29 @@ int calculate_parameter()
         prfs = 1000.0 / radar[FORE].interpulse_per1;
         /* Period #2 will be longer */
         prfl = 1000.0 / radar[FORE].interpulse_per2;
+	v_unambigs = lambda*prfs/4;
+	v_unambigl = lamdbda*prfl/4;
 
         for (i = 0; i < radar[FORE].num_parameter_des; i++) {
             /* Spectral width short PRT ? */
             if (!strncmp(parameter[i][FORE].parameter_name, "SWS", 3)) {
-                parameter[i][FORE].parameter_scale = 4042.0363 / (lamda * prfs);
+                parameter[i][FORE].parameter_scale = 1.0/RES;
                 parameter[i][FORE].parameter_bias = 0.0;
             }
 
             /* Spectral width long PRT ? */
             else if (!strncmp(parameter[i][FORE].parameter_name, "SWL", 3)) {
-                parameter[i][FORE].parameter_scale = 4042.0363 / (lamda * prfl);
+                parameter[i][FORE].parameter_scale = 1.0/RES;
                 parameter[i][FORE].parameter_bias = 0.0;
             }
 
             /* Spectral width combined, or single PRT ? */
             else if (!strncmp(parameter[i][FORE].parameter_name, "SW ", 3)) {
                 if (radar[FORE].num_ipps_trans == 1) {
-                    parameter[i][FORE].parameter_scale = 4042.0363 / (lamda
-                            * prfs);
+                    parameter[i][FORE].parameter_scale = 1.0/RES;
                     parameter[i][FORE].parameter_bias = 0.0;
                 } else if (radar[FORE].num_ipps_trans == 2) {
-                    parameter[i][FORE].parameter_scale = 4042.0363 / (lamda
-                            * prfl);
+                    parameter[i][FORE].parameter_scale = 1.0/RES;
                     parameter[i][FORE].parameter_bias = 0.0;
                 }
             }
@@ -599,38 +601,36 @@ int calculate_parameter()
             /* Velocity combined or single PRT? VR */
             else if (!strncmp(parameter[i][FORE].parameter_name, "VR", 2)) {
                 if (radar[FORE].num_ipps_trans == 1) {
-                    parameter[i][FORE].parameter_scale = 32764.0 / (lamda
-                            * prfs);
-                    parameter[i][FORE].parameter_bias = 8191.0;
+                    parameter[i][FORE].parameter_scale = 1.0/RES;
+                    parameter[i][FORE].parameter_bias = v_unambigs/RES;
                 }
                 if (radar[FORE].num_ipps_trans == 2) {
-                    parameter[i][FORE].parameter_scale = 26213.6 / (lamda
-                            * prfl);
-                    parameter[i][FORE].parameter_bias = 32767.0;
+                    parameter[i][FORE].parameter_scale = 1.0/RES;
+                    parameter[i][FORE].parameter_bias = v_unambigl/RES;
                 }
             }
 
             /* Velocity? VS */
             else if (!strncmp(parameter[i][FORE].parameter_name, "VS", 2)) {
-                parameter[i][FORE].parameter_scale = 32764.0 / (lamda * prfs);
-                parameter[i][FORE].parameter_bias = 8191.0;
+                parameter[i][FORE].parameter_scale = 1.0/RES;
+                parameter[i][FORE].parameter_bias = v_unambigs/RES;
             }
 
             /* Velocity? VL */
             else if (!strncmp(parameter[i][FORE].parameter_name, "VL", 2)) {
-                parameter[i][FORE].parameter_scale = 32764.0 / (lamda * prfl);
-                parameter[i][FORE].parameter_bias = 8191.0;
+                parameter[i][FORE].parameter_scale = 1.0/RES;
+                parameter[i][FORE].parameter_bias = v_unambigl/RES;
             }
 
             /* Normalized Coherent Power ? */
             else if (!strncmp(parameter[i][FORE].parameter_name, "NCP", 3)) {
-                parameter[i][FORE].parameter_scale = 1024.0;
+                parameter[i][FORE].parameter_scale = 1000.0;
                 parameter[i][FORE].parameter_bias = 0.0;
             }
             /* Reflectivity ? */
             else if (!strncmp(parameter[i][FORE].parameter_name, "DBZ", 3)) {
-                parameter[i][FORE].parameter_scale = 8.0;
-                parameter[i][FORE].parameter_bias = 280.0;
+                parameter[i][FORE].parameter_scale = 10.0;
+                parameter[i][FORE].parameter_bias = 350.0;
             } else {
                 parameter[i][FORE].parameter_scale = -999.0;
                 parameter[i][FORE].parameter_bias = -999.0;
@@ -699,13 +699,13 @@ int calculate_parameter()
 
             /* Normalized Coherent Power ? */
             else if (!strncmp(parameter[i][AFT].parameter_name, "NCP", 3)) {
-                parameter[i][AFT].parameter_scale = 1024.0;
+                parameter[i][AFT].parameter_scale = 1000.0;
                 parameter[i][AFT].parameter_bias = 0.0;
             }
             /* Reflectivity ? */
             else if (!strncmp(parameter[i][AFT].parameter_name, "DBZ", 3)) {
-                parameter[i][AFT].parameter_scale = 8.0;
-                parameter[i][AFT].parameter_bias = 280.0;
+                parameter[i][AFT].parameter_scale = 10.0;
+                parameter[i][AFT].parameter_bias = 350.0;
             } else {
                 parameter[i][AFT].parameter_scale = -999.0;
                 parameter[i][AFT].parameter_bias = -999.0;
