@@ -12,6 +12,7 @@ sources = Split("""
 DoradeDescriptor.cpp
 DoradeASIB.cpp
 DoradeFRAD.cpp
+DoradeFRIB.cpp
 DoradeRADD.cpp
 DoradeRYIB.cpp
 DoradeVOLD.cpp
