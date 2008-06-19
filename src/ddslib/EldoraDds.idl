@@ -51,6 +51,7 @@ module EldoraDDS {
         long rayCount;
         short firstRecGate;     // first recorded gate
         short lastRecGate;      // last recorded gate
+        
         // stuff we don't get from the housekeeper
         long prf;               // Hz
         long gates;             // number of gates
@@ -60,8 +61,6 @@ module EldoraDDS {
         long pulsewidth;        // ns
         long rayNum;            // should be redundant with rayCount above...
         short chan;
-        
-        // The following are needed for the products calculation
         float xBandGain;        // x band gain (db)
         float radarConstant;    // radar constant (db)
         float rxGain[4];        // rx gain by channel (db)
@@ -70,6 +69,9 @@ module EldoraDDS {
         float prt;              // prt in single mode, or short prt in dual mode (s)
         float prtLong;          // long prt in dual prt mode (s)
         float cellWidth[6];     // cell spacing in meters
+        float firstGateDistance;// distance to the first gate in meters
+        float rotationVel;      // radar rotational velocity, deg/s
+        float encoderUpAngle;	// reported angle when antenna is pointing up (deg)
         
         float dbzScale;         // scale for dbz
         float dbzBias;          // bias for dbz   

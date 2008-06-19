@@ -640,13 +640,18 @@ static void setRadarParams(EldoraRadarParams* radarParams,
     hskp->freqs[2] = radarParams->radd_freq3;
     hskp->freqs[3] = radarParams->radd_freq4;
 
-    hskp->xBandGain = radarParams->frib_xgain;
-    hskp->lnaLoss = radarParams->frib_lnalos;
     hskp->noisePower = radarParams->radd_noipow;
     hskp->radarConstant = radarParams->radd_const;
     hskp->prt = radarParams->radd_ipp1;
     hskp->prtLong = radarParams->radd_ipp2;
+    hskp->rotationVel = radarParams->radd_rotvel;
+    
+    hskp->firstGateDistance = radarParams->cspd_1stgat;
 
+    hskp->xBandGain = radarParams->frib_xgain;
+    hskp->lnaLoss = radarParams->frib_lnalos;
+    hskp->encoderUpAngle = radarParams->frib_encang;
+    
     hskp->dbzScale = radarParams->parm_dbz_scale;
     hskp->dbzBias = radarParams->parm_dbz_bias;
 

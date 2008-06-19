@@ -44,15 +44,18 @@ struct EldoraRadarParams
         double radd_ipp3; ///< radar interpulse period 3 (ms)
         double radd_ipp4; ///< radar interpulse period 4 (ms)
         double radd_ipp5; ///< radar interpulse period 5 (ms)
+        double radd_rotvel; ///< rotational velocity (deg/s)
 
         // fields from the header field radar info block (FRIB)
         double frib_rxgain[5];///< field radar receiver gain by channel (db)
         double frib_xgain; ///< field radar x band gain (db)
         double frib_lnalos; ///< field radar losses between antenna and lna (db)
         int frib_tsgat; ///< field radar time series gate
-        int frib_frqgat; ///< field radar number of time series gate (this field hijacked from independent frequency gate parameter) 
+        int frib_frqgat; ///< field radar number of time series gate (this field hijacked from independent frequency gate parameter)
+        double frib_encang; ///< encoder up angle
         
         double cspd_width[6]; ///< width of clls in each segment in meters
+        double cspd_1stgat;  ///< distance to the first gate
         
         double parm_dbz_scale;///< scale for dbz
         double parm_dbz_bias; ///< bias for dbz

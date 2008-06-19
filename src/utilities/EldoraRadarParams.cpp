@@ -27,29 +27,11 @@ EldoraRadarParams::EldoraRadarParams()
         //wave_chpwid[i] = 45;
         wave_chpwid[i] = 60;
     wave_chpwid[4] = 0;
-    //wave_chpwid[5] = 197;
     wave_chpwid[5] = 257;
 
     for (unsigned int i = 0; i < sizeof(wave_ngates); i++)
         wave_ngates[i] = 400;
     wave_ngates[5] = 0;
-
-    /*
-     wave_gate1[0] = 75;
-     wave_gate1[1] = 45;
-
-     wave_gate2[0] = 75;
-     wave_gate2[1] = 45;
-
-     wave_gate3[0] = 75;
-     wave_gate3[1] = 45;
-
-     wave_gate4[0] = 75;
-     wave_gate4[1] = 45;
-
-     wave_gate5[0] = 75;
-     wave_gate5[1] = 45;
-     */
 
     wave_gate1[0] = 90;
     wave_gate1[1] = 60;
@@ -88,13 +70,12 @@ EldoraRadarParams::EldoraRadarParams()
     radd_freq4 = 9.718666;
     radd_freq5 = -999.0;
 
-    //radd_ipp1 = 0.33333333;
     radd_ipp1 = 0.5;
-    //radd_ipp2 = -999.0;
     radd_ipp2 = 0.625;
     radd_ipp3 = -999.0;
     radd_ipp4 = -999.0;
     radd_ipp5 = -999.0;
+    radd_rotvel = 50.00000;
 
     // fields from the header field radar info block (FRIB)
     frib_rxgain[0] = 24.299999;
@@ -105,7 +86,8 @@ EldoraRadarParams::EldoraRadarParams()
     frib_lnalos = 1.829850;
     frib_xgain = 22.1;
     frib_tsgat = 68;
-    frib_frqgat= 10;
+    frib_frqgat = 10;
+    frib_encang = 276.538086;
     
     // fields from the header cell spacing descriptor
     cspd_width[0] = 150.0;
@@ -114,7 +96,7 @@ EldoraRadarParams::EldoraRadarParams()
     cspd_width[3] = 150.0;
     cspd_width[4] = -999.0;
     cspd_width[5] = -999.0;
-
+    cspd_1stgat   = 225;
     // scale and bias for the DDS data compression
     parm_dbz_scale= 10.0;
     parm_dbz_bias = 350.0;
