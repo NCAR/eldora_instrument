@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #define scope extern
 #include "mkrDef.h"
 #include "mkrGbl.h"
