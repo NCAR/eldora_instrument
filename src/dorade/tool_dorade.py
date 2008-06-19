@@ -18,6 +18,7 @@ DoradeNDDS.cpp
 DoradePARM.cpp
 DoradeRADD.cpp
 DoradeRYIB.cpp
+DoradeSITU.cpp
 DoradeVOLD.cpp
 DoradeWAVE.cpp
 """)
