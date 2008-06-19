@@ -14,6 +14,7 @@ DoradeASIB.cpp
 DoradeCSPD.cpp
 DoradeFRAD.cpp
 DoradeFRIB.cpp
+DoradePARM.cpp
 DoradeRADD.cpp
 DoradeRYIB.cpp
 DoradeVOLD.cpp
