@@ -69,9 +69,24 @@ std::ostream&
 DoradePARM::printTo(std::ostream& os) const
 {
     DoradeDescriptor::printTo(os);
-    // @TODO add details here
     if (_verbose) {
-        os << "no PARM detail printing yet..." << std::endl;
+        os << "  name: " << _name << std::endl;
+        os << "  description: " << _description << std::endl;
+        os << "  units: " << _units << std::endl;
+        os << std::setbase(16);
+        os << "  IPPs used: 0x" << _usedIPPs << std::endl;
+        os << "  frequencies used: 0x" << _usedFreqs << std::endl;
+        os << std::setbase(10);
+        os << "  receiver bandwidth: " << _rcvrBandwidth << " MHz" << std::endl;
+        os << "  pulse width: " << _pulseWidth << " m" << std::endl;
+        os << "  polarization type: " << _polarization << std::endl;
+        os << "  number of samples per dwell: " << _nSamples << std::endl;
+        os << "  parameter type: " << _paramType << std::endl;
+        os << "  threshold parameter: " << _thresholdParm << std::endl;
+        os << "  threshold value: " << _thresholdValue << std::endl;
+        os << "  scale: " << _scale << std::endl;
+        os << "  offset: " << _offset << std::endl;
+        os << "  missing value: " << _missingValue << std::endl;
     }
     return os;
 }
