@@ -647,6 +647,7 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
         'FRIBTSGAT',
         'FRIBFRQGA',
         'CSPDWIDTH',
+        'CSPD1STGAT',
         'PARMNAME',
         'PARMBIAS',
         'PARMSCALE'
