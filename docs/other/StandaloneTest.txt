@@ -1,0 +1,20 @@
+Procedure for testing ELDORA software standalone
+
+1) run eldoragui.py to produce a template ~/.config/NCAR/EldoraGui.ini
+
+2) Edit EldoraGui.ini to contain
+[Dcps]
+URL=iiop://localhost:50000
+
+[Drx]
+Host=localhost
+
+[Mode]
+SimulateHskp=true
+SimulateRR314=true
+
+[Hskp]
+Host=localhost
+
+[Products]
+Host=localhost
