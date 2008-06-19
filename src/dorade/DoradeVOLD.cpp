@@ -28,6 +28,10 @@ DoradeVOLD::DoradeVOLD(const unsigned char *data, unsigned int datalen,
     _projectName = std::string((const char*)data + 16, 20);
     _projectName.resize(20);
     _year = grabShort(data, 36, isLittleEndian);
+    // Year is often generated using a "struct tm", where it is recorded
+    // as years since 1900.  Correct it now if that's the case.
+    if (_year < 1900)
+        _year += 1900;
     _month = grabShort(data, 38, isLittleEndian);
     _day = grabShort(data, 40, isLittleEndian);
     _hour = grabShort(data, 42, isLittleEndian);
@@ -40,6 +44,10 @@ DoradeVOLD::DoradeVOLD(const unsigned char *data, unsigned int datalen,
     _generatingFacility = std::string((const char*)data + 56, 8);
     _generatingFacility.resize(8);
     _genYear = grabShort(data, 64, isLittleEndian);
+    // Year is often generated using a "struct tm", where it is recorded
+    // as years since 1900.  Correct it now if that's the case.
+    if (_genYear < 1900)
+        _genYear += 1900;
     _genMonth = grabShort(data, 66, isLittleEndian);
     _genDay = grabShort(data, 68, isLittleEndian);
     _sensorCount = grabShort(data, 70, isLittleEndian);
