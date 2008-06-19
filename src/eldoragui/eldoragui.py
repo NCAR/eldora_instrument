@@ -486,6 +486,9 @@ def mainIsReady():
     
     # stop any running products
     stopProducts()
+    
+    # display some internal information on the Internal tab
+    showInternal()    
 
 ####################################################################################
 def fixLdLibraryPath():
@@ -743,6 +746,14 @@ def showInternal():
     for k in appDict.dict.keys():
         main.internalText('appDict['+ k  + ']: '+ appDict[k])
     main.internalText('ldLibraryPath: ' + ldLibraryPath)
+    # show the processes that we currently have. Of course processes
+    # run later won't be available right now 
+    for k in ourProcesses:
+        text = k + ' process: '
+        # The command is acutally a list
+        for a in ourProcesses[k].command:
+            text = text + ' ' + a
+        main.internalText(text)
                 
 ####################################################################################
 #
@@ -791,9 +802,6 @@ QObject.connect(main, SIGNAL('ppi'),                ppi)
 QObject.connect(main, SIGNAL('scope'),              scope)
 QObject.connect(main, SIGNAL('header'),             headerSelected)
 QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
-
-# display some internal information on the Internal tab
-showInternal()    
 
 # start the event loop
 if Verbose: print 'starting the event loop'
