@@ -18,6 +18,11 @@ int read_header(char* filename)
      if (!filename) {
          printf("NAME OF INPUT FILE?\n");
          fgets(inname, sizeof(inname), stdin);
+         // strip off line termination characters that fgets lets through.
+         int i;
+         for (i = strlen(inname)-1; i >= 0; i--)
+        	 if (iscntrl(inname[i])) 
+        		 inname[i] = 0;
      } else {
          strcpy(inname, filename);
      }
