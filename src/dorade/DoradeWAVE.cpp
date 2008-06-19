@@ -24,7 +24,7 @@ DoradeWAVE::DoradeWAVE(const unsigned char *data, unsigned int datalen,
     _psFileName.resize(16);
     
     for (int f = 0; f < 6; f++)
-        _numChips[f] = grabShort(data, 12 + 2 * f, isLittleEndian);
+        _numChips[f] = grabShort(data, 24 + 2 * f, isLittleEndian);
 
     // 256-byte blanking sequence
     memcpy(_blankingSequence, data + 36, 256);
