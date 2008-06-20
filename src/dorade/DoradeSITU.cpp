@@ -74,4 +74,5 @@ DoradeSITU::streamTo(std::ostream& os, bool asLittleEndian)
         putBytes(os, param._name.data(), 8, false); // no swapping for char data
         putBytes(os, param._units.data(), 8, false);// no swapping for char data
     }
+    return os;
 }
