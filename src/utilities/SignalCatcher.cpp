@@ -1,5 +1,6 @@
 #include "SignalCatcher.h"
-#include <signal.h>
+#include <cstdlib>
+#include <csignal>
 
 
 SignalCatcher* _pinstance = 0;
