@@ -2,15 +2,15 @@ from time import *
 
 import os
 from logging.handlers import TimedRotatingFileHandler
-from PyQt4.QtCore  import *
-from PyQt4.QtGui   import *
+from PyQt4.QtCore    import *
+from PyQt4.QtGui     import *
 
-from Ui_EldoraMain import *
-from EldoraUtil    import *
-from StatusGauge   import *
-from ProgressStrip import *
+from Ui_EldoraMain   import *
+from EldoraUtil      import *
+from StatusGauge     import *
+from ProgressStrip   import *
 from EldoraHeaderGUI import *
-
+from HpaWidget       import *
 
 ######################################################################################
 class EldoraMain(QDialog, Ui_EldoraMain):
@@ -33,6 +33,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     def __init__(self, 
                  headersDir,
                  hdrDumpApp,
+                 hpa0Device,
+                 hpa1Device,
                  parent=None):
         # initialize
         super(EldoraMain, self).__init__(parent)
@@ -41,8 +43,13 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         # save the location of the headers
         self.headersDir = headersDir
         
+        # create the HPA controllers
+        self.HPAs = []
+        self.createHPAs(hpa0Device, hpa1Device)
+        
         # create a eldoraHeaderGUI to manage header interaction
         self.headerGui = EldoraHeaderGUI(self.hdrCombo, [headersDir,], hdrDumpApp)
+
         # save the current header
         self.selectedHeader = self.headerGui.selectedHeader
             
@@ -101,6 +108,20 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         # casue a ready signal to be emitted.
         self.startTimer(1000)
     
+    ####################################################################################
+    def createHPAs(self, hpa0device, hpa1device):
+        '''Cretate the traqnsmitter (hpa) controllers
+        '''
+        l0 = QVBoxLayout(self.hpa0Box)
+        l1 = QVBoxLayout(self.hpa1Box)
+        self.HPAs.append(HpaWidget(self.hpa0Box, 
+                                   serialDevice=hpa0device,
+                                   hpaName='HPA0'))
+        self.HPAs.append(HpaWidget(self.hpa1Box, 
+                                   serialDevice=hpa1device,
+                                   hpaName= 'HPA1'))
+        l0.addWidget(self.HPAs[0])
+        l1.addWidget(self.HPAs[1])
     ###############################################################################
     def showStatus(self, 
                    ABPrate, 

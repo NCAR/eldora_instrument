@@ -24,6 +24,7 @@ from EldoraMain      import *
 from EldoraRPC       import *
 from QtConfig        import *
 from EmitterProc     import *
+from HpaWidget       import *
 
 ####################################################################################
 
@@ -57,7 +58,6 @@ global hskprpc          # RPC server for the housekeeper
 global prodrpc          # RPC server for the products generator
 global ourProcesses     # Processes that we have started and are managing
 global Stopped          # are we shutting down?
-
 
 ####################################################################################
 def start():
@@ -507,8 +507,8 @@ def fixLdLibraryPath():
             os.environ['LD_LIBRARY_PATH'] = ldLibraryPath
         except Exception, e:
             print 'Exception ', e
-    
-####################################################################################
+       
+    ####################################################################################
 def initConfig():
     ''' Create the configuratiuon and set the path variables
     '''
@@ -788,13 +788,14 @@ createRpcServers()
 global app
 app = QApplication(sys.argv)
 if Verbose: print 'finished creating QApplication'
-
+                 
 # instantiate an Eldora controller gui
-main = EldoraMain(headerDirs, appDict['dumpheader'])
-if Verbose: print 'finished instantiating EldoraMain'
-
-
+main = EldoraMain(headersDir=headerDirs, 
+                  hdrDumpApp=appDict['dumpheader'],
+                  hpa0Device=None,
+                  hpa1Device=None)
 main.show()
+if Verbose: print 'finished instantiating EldoraMain'
 
 # connect signals from main back to us
 QObject.connect(main, SIGNAL('start'),              start)
