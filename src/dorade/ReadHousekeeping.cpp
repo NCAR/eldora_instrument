@@ -81,7 +81,7 @@ unpackHousekeeping(const unsigned char* buf, int buflen) {
         data += asib->getDescLen();
         datalen -= asib->getDescLen();
         
-        frad = new DoradeFRAD(data, datalen, false);
+        frad = new DoradeFRAD(data, datalen, false, true);
     } catch (DescriptorException dex) {
         std::cerr << std::string("Descriptor exception: ") + dex.what() << 
             std::endl;
