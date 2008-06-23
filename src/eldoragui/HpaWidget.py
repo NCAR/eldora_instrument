@@ -70,7 +70,7 @@ class HpaWidget(QWidget):
         self.statusText = QLabel(self)
         self.statusText.setText('unknown')
         self.topLayout.addWidget(self.statusText)
-        self.statusText.setToolTip('Curent status')
+        self.statusText.setToolTip('Current status')
         
         # The warning text area
         self.warningText = QLabel(self)
