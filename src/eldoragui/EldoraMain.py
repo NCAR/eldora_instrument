@@ -114,14 +114,35 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         '''
         l0 = QVBoxLayout(self.hpa0Box)
         l1 = QVBoxLayout(self.hpa1Box)
-        self.HPAs.append(HpaWidget(self.hpa0Box, 
-                                   serialDevice=hpa0device,
-                                   hpaName='HPA0'))
-        self.HPAs.append(HpaWidget(self.hpa1Box, 
+        self.HPAs = [None,None]
+       
+        # create first HPA controller
+        try:
+            self.HPAs[0] = HpaWidget(self.hpa0Box, 
+                                       serialDevice=hpa0device,
+                                       hpaName='HPA0')
+        except serial.SerialException, e:
+            QMessageBox.warning(self, 'HPA0 Problem', str(e))
+            # since the real open failed, create a bogus HPA with no serial device
+            self.HPAs[0] = HpaWidget(self.hpa0Box, 
+                                       serialDevice=None,
+                                       hpaName='HPA0')
+
+        # create second HPA controller
+        try:
+            self.HPAs[1] = HpaWidget(self.hpa1Box, 
                                    serialDevice=hpa1device,
-                                   hpaName= 'HPA1'))
+                                   hpaName= 'HPA1')
+        except serial.SerialException, e:
+            QMessageBox.warning(self, 'HPA1 Problem', str(e))
+            # since the real open failed, create a bogus HPA with no serial device
+            self.HPAs[1] = HpaWidget(self.hpa1Box, 
+                                   serialDevice=None,
+                                   hpaName= 'HPA1')
+
         l0.addWidget(self.HPAs[0])
         l1.addWidget(self.HPAs[1])
+        
     ###############################################################################
     def showStatus(self, 
                    ABPrate, 

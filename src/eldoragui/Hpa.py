@@ -2,25 +2,27 @@
 import time
 import serial
 
+###################################################################
 class Hpa:
 	def __init__(self, portname):
 		''' This class sends control info to the selected
 		HPA & receives status info back. 
 		
-		The antenna/dummy
-		load switch is slow, so if one asks for status right away it will
-		still indicate the old position. A delay of ~2 seconds seems to be
+		The antenna/dummy load switch is slow, so if one 
+		asks for status right away it will still indicate 
+		the old position. A delay of ~2 seconds seems to be
 		enough for the switch to actually move.
 		'''
-
+		
 		if portname != None:
+			# the open may raise SerialException if it fails
 			self.serialport = serial.Serial(port=portname, 
-									    bytesize=serial.EIGHTBITS, 
-									    parity=serial.PARITY_NONE, 
-									    stopbits=serial.STOPBITS_ONE, 
-									    timeout=1, 
-									    xonxoff=0, 
-									    rtscts=0)
+								    bytesize=serial.EIGHTBITS, 
+								    parity=serial.PARITY_NONE, 
+								    stopbits=serial.STOPBITS_ONE, 
+								    timeout=1, 
+								    xonxoff=0, 
+								    rtscts=0)
 		else:
 			self.serialport = None
 			
@@ -54,13 +56,15 @@ class Hpa:
 			  HPA_STATES.operate: 'Operate'
 		  }
 
-
+###################################################################
 	def __del__(self):
 		pass
 	
+###################################################################
 	def status(self):
 		return self.stateDescriptions[self.current_state]
 
+###################################################################
 	def command(self, op):
 		''' Send a command to the hpa.
 		Return a result message if there was a problem. If
@@ -95,6 +99,7 @@ class Hpa:
 
 		return ''
 
+###################################################################
 	def update_status(self, stat):
 		self.faulted = 0
 		self.faults = 0
@@ -134,7 +139,8 @@ class Hpa:
 		if (state):
 			self.faulted = 1
 			self.faults = self.faults | state
-			
+
+###################################################################			
 class HPA:
 	off = 0
 	on = 1

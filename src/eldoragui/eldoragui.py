@@ -5,6 +5,7 @@ import time
 import os
 import subprocess
 import signal
+import serial
 
 # Determine ELDORADIR
 if not os.environ.has_key('ELDORADIR'):
@@ -557,7 +558,7 @@ def initConfig():
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
-    
+        
 
 ####################################################################################
 def createRpcServers():
@@ -794,10 +795,15 @@ app = QApplication(sys.argv)
 if Verbose: print 'finished creating QApplication'
                  
 # instantiate an Eldora controller gui
+
+# get device names for the HPA controller
+HPA0device = ourConfig.getString('HPAs/Hpa0Device', '/dev/ttyUSB4')
+HPA1device = ourConfig.getString('HPAs/Hpa1Device', '/dev/ttyUSB5')
+
 main = EldoraMain(headersDir=headerDirs, 
                   hdrDumpApp=appDict['dumpheader'],
-                  hpa0Device=None,
-                  hpa1Device=None)
+                  hpa0Device=HPA0device,
+                  hpa1Device=HPA1device)
 main.show()
 if Verbose: print 'finished instantiating EldoraMain'
 
