@@ -59,9 +59,17 @@ class EldoraHeader(list):
         not begin with V, which is reserved for the 
         verify command.
         '''
-        cmd = self.hdrDumpCmd + [self.headerFile,]
-        c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
         self[:] = list()
+
+        cmd = self.hdrDumpCmd + [self.headerFile,]
+        try:
+            c = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
+        except Exception, e:
+            print 'EldoraHeader.readHeader: error running command:'
+            print '\t', ' '.join(cmd)
+            print 'Error:', e
+            sys.exit(1)
+            
         blockstart = False
         description = 'unknown'
         while 1:

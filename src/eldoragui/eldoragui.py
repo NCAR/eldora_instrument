@@ -495,22 +495,22 @@ def fixLdLibraryPath():
     global ldLibraryPath
     ldLibraryPath = os.getenv('LD_LIBRARY_PATH')
     if ldLibraryPath == None:
-        # it has been stripped by kde!
+        # it has been stripped by kde! (or maybe it was never set...)
         try:
-            ldLibraryPath = ''
-            ldLibraryPath = ldLibraryPath + os.getenv('ACE_ROOT') + '/lib' + ':'
-            ldLibraryPath = ldLibraryPath + os.getenv('TAO_ROOT') + '/lib' + ':'
-            ldLibraryPath = ldLibraryPath + os.getenv('DDS_ROOT') + '/lib' + ':'
-            ldLibraryPath = ldLibraryPath + os.getenv('ELDORADIR') + '/lib' + ':'
-            ldLibraryPath = ldLibraryPath + os.getenv('QTDIR') + '/plugins/designer'
-            os.putenv('LD_LIBRARY_PATH', ldLibraryPath)
+            libdirs = []
+            libdirs += os.environ['ACE_ROOT'] + '/lib'
+            libdirs += os.environ['TAO_ROOT'] + '/lib'
+            libdirs += os.environ['DDS_ROOT'] + '/lib'
+            libdirs += os.environ['ELDORADIR'] + '/lib'
+            ldLibraryPath = ':'.join(libdirs)
             os.environ['LD_LIBRARY_PATH'] = ldLibraryPath
         except Exception, e:
-            print 'Exception ', e
+            print 'missing environment variable', e
+            sys.exit(1)
        
     ####################################################################################
 def initConfig():
-    ''' Create the configuratiuon and set the path variables
+    ''' Create the configuration and set the path variables
     '''
     global main
     global ourConfig
@@ -531,7 +531,11 @@ def initConfig():
     
     # where is DCPSInfoRepo
     global ddsRoot
-    ddsRoot = os.environ['DDS_ROOT']
+    try:
+        ddsRoot = os.environ['DDS_ROOT']
+    except KeyError:
+        print "The DDS_ROOT environment variable is not set!"
+        sys.exit(1)
         
     # where are the DDS configuration files?
     global ddsConfigDir
