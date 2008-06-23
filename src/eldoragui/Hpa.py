@@ -29,7 +29,7 @@ class Hpa:
 		self.faulted = 0
 		self.faults = 0
 
-		self.current_state = HPA_STATES.off
+		self.current_status = HPA_STATES.off
 			
 		self.cmd_dict = { HPA.on : '\002\120\003\055', 
 			  HPA.off : '\002\160\003\015', 
@@ -62,7 +62,8 @@ class Hpa:
 	
 ###################################################################
 	def status(self):
-		return self.stateDescriptions[self.current_state]
+		print 'current_status is ',self.stateDescriptions[self.current_status]
+		return self.stateDescriptions[self.current_status]
 
 ###################################################################
 	def command(self, op):
@@ -73,7 +74,10 @@ class Hpa:
 		if self.serialport is None:
 			return 'No serial port specified. Unable to send ' + self.cmdNames[op] + ' command'
 		
-		if self.serialport.write(self.cmd_dict[op]) != 4:
+		print 'send', self.cmdNames[op], 'command to', self.serialport.port
+		
+		writeStatus = self.serialport.write(self.cmd_dict[op])
+		if  writeStatus != None:
 			return 'Write to the serial port did not succeed. Unable to send ' + self.cmdNames[op] + ' command'
 
 		if op != HPA.status:
@@ -81,12 +85,18 @@ class Hpa:
 				time.sleep(2)
 			self.serialport.write(self.cmd_dict[HPA.status])
 
-		# Yes, this would be efficent if we just read n bytes,
-		# but upgrades to the HPAs could change this number.
-		s = self.serialport.read(1)
-
-		while s[len(s) - 1] != '\003':
+		s = ''
+		while True:
 			s = s + self.serialport.read(1)
+			if len(s) == 0:
+				return 'HPA read failed'
+			if (len(s)) > 10:
+				for c in s:
+					print hex(ord(c)), ' ',
+				print ' '
+				return 'Missing EOT character on HPA read'
+			if s[len(s) - 1] == '\003':
+		  		break
 			
 		s = s + self.serialport.read(1)
 		
@@ -95,6 +105,9 @@ class Hpa:
 
 		as = s[1:5] # We want the 4 status bytes.
 
+		for c in s:
+			print hex(ord(c)),' ',
+		print 
 		self.update_status(as)
 
 		return ''
@@ -120,7 +133,7 @@ class Hpa:
 			self.current_status = HPA_STATES.on
 		else:
 			self.current_status = HPA_STATES.off
-
+			
 		state = ord(stat[1])
 		state = state & HPA_STATES.byte2
 		if (state):

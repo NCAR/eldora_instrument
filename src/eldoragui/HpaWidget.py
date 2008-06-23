@@ -65,7 +65,7 @@ class HpaWidget(QWidget):
         # specify antenna/dummy load modes, and our 
         # functions to be called when selected
         self.loadCommands = []
-        self.loadCombo.addItem('Dummy Load')
+        self.loadCombo.addItem('Load')
         self.loadCommands.append(self.dummyLoad)
         self.loadCombo.addItem('Antenna')
         self.loadCommands.append(self.antennaLoad)
@@ -191,12 +191,14 @@ class HpaWidget(QWidget):
         s = self.hpa.command(cmd)
         if s != '':
             self.warning(s)
+            print 'command failed:', s
         else:
             self.update()
 
 ######################################################################
     def status(self):
         self.sendcmd(HPA.status)
+        self.statusText.setText(self.hpa.status())
         
 ######################################################################
     def update(self):
