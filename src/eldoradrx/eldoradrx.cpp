@@ -313,6 +313,10 @@ static void stopAll()
         _hskpMerger[i] = 0;
         delete pHskp;
     }
+    
+    // Stop interrupts from the timer card as well
+    delete _bwtimer;
+    _bwtimer = 0;
 
 }
 
@@ -324,8 +328,7 @@ static void startAll()
 
     // hskp thread
     _hskpThread = 0;
-    // bittware timer
-    _bwtimer = 0;
+
     for (int i = 0; i < 2; i++) {
         // rr data read threads
         _rrThread[i] = 0;
