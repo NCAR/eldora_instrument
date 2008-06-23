@@ -27,10 +27,15 @@ class HpaWidget(QWidget):
         self.serialDevice = serialDevice
         
         # a vertical layout
-        self.topLayout = QVBoxLayout(self)
-        
+        l = QVBoxLayout(self)
+        self.frame = QFrame(self)
+        self.frame.setContentsMargins(0,0,0,0)
+        l.addWidget(self.frame)
+        self.topLayout = QVBoxLayout(self.frame)
+        l.insertStretch(-1)
+       
         # command combobox
-        self.commandCombo = QComboBox(self)
+        self.commandCombo = QComboBox(self.frame)
         self.topLayout.addWidget(self.commandCombo)
         self.commandCombo.setToolTip('Select the HPA operating state')
         self.commandCombo.setPalette(self.redButtonPalette)
@@ -52,7 +57,7 @@ class HpaWidget(QWidget):
                      self.doHpaCommand)
         
         # load combobox
-        self.loadCombo = QComboBox(self)
+        self.loadCombo = QComboBox(self.frame)
         self.topLayout.addWidget(self.loadCombo)
         self.loadCombo.setToolTip('Select the HPA output load')
         self.loadCombo.setPalette(self.redButtonPalette)
@@ -70,19 +75,19 @@ class HpaWidget(QWidget):
                      self.doLoadCommand)
        
         # The status text area
-        self.statusText = QLabel(self)
+        self.statusText = QLabel(self.frame)
         self.statusText.setText('Status Unknown')
         self.topLayout.addWidget(self.statusText)
         self.statusText.setToolTip('Current status')
         
         # The warning text area
-        self.warningText = QLabel(self)
+        self.warningText = QLabel(self.frame)
         self.warningText.setText('-')
         self.topLayout.addWidget(self.warningText)       
         self.warningText.setToolTip('Warning Messages')
         
         # The fault text area
-        self.faultText = QLabel(self)
+        self.faultText = QLabel(self.frame)
         self.faultText.setText('No Faults')
         self.topLayout.addWidget(self.faultText)               
         self.faultText.setToolTip('Fault codes')
