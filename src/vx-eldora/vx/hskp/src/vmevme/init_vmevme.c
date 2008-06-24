@@ -63,6 +63,8 @@ if(intConnect((VOIDFUNCPTR *)(VME_VME_VEC * 4),
   }
 /* Create the semaphore. */
 vmeSem = semBCreate(SEM_Q_FIFO,SEM_EMPTY);
-/* Now spawn the attached task. */
-taskSpawn("midbeam",50,VX_FP_TASK,10000,(FUNCPTR)midbeam,0,0,0,0,0,0,0,0,0,0);
+/* Now spawn the attached task.  We want a low priority number here to keep
+ * interrupt response timely. 
+ */
+taskSpawn("midbeam",25,VX_FP_TASK,10000,(FUNCPTR)midbeam,0,0,0,0,0,0,0,0,0,0);
 }

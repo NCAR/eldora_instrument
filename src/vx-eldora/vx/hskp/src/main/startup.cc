@@ -48,7 +48,7 @@ void startup(void)
   Hdr = (Header *)NULL;
   currStatus = &status;
 
-  if(taskSpawn("CmdLoop",9,0,12000,(FUNCPTR)startServer,0,0,0,0,0,0,0,0,0,0)
+  if(taskSpawn("CmdLoop",100,0,12000,(FUNCPTR)startServer,0,0,0,0,0,0,0,0,0,0)
      == ERROR)
     cout << "Failed to start cmd loop!!!" << endl;;
 }
