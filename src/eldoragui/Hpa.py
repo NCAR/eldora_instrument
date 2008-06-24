@@ -26,80 +26,84 @@ class Hpa:
 		else:
 			self.serialport = None
 			
-		self.faulted = 0
-		self.faults = 0
-
-		self.current_status = HPA_STATES.off
+		self.state = 'Unknown'
+		self.faults = 'Unknown'
+		self.position = 'Unknown'
 			
-		self.cmd_dict = { HPA.on : '\002\120\003\055', 
-			  HPA.off : '\002\160\003\015', 
-			  HPA.operate : '\002\117\003\056', 
-			  HPA.standby : '\002\123\003\052', 
-			  HPA.antenna : '\002\101\003\074', 
-			  HPA.dummyload : '\002\114\003\061', 
-			  HPA.status : '\002\127\003\046' }
+		self.commands = { 
+			  HPA.on :       '\002\120\003\055', 
+			  HPA.off :      '\002\160\003\015', 
+			  HPA.operate :  '\002\117\003\056', 
+			  HPA.standby :  '\002\123\003\052', 
+			  HPA.antenna :  '\002\101\003\074', 
+			  HPA.dummyload :'\002\114\003\061', 
+			  HPA.status :   '\002\127\003\046' }
 		
-		self.cmdNames = { HPA.on : 'On', 
-			  HPA.off : 'Off', 
-			  HPA.operate : 'Operate', 
-			  HPA.standby : 'Standby', 
-			  HPA.antenna : 'Antenna', 
-			  HPA.dummyload : 'Dummy', 
-			  HPA.status : 'Status' }
+		self.faultCodes = {
+							HPA_BITS.faulted: 'Fault',
+							HPA_BITS.interlock: 'Interlock',
+							HPA_BITS.rev_power: 'Reverse Power',
+							HPA_BITS.twt: 'TWT Overtemp',
+							HPA_BITS.hvps: 'HVPS Overtemp',
+							HPA_BITS.pulse: 'Pulse Input',
+							HPA_BITS.filament: 'Filament',
+							HPA_BITS.lowpress: 'Low Waveguide Pressure',
+							HPA_BITS.rf_arc: 'RF Arc',
+							HPA_BITS.hotrun: 'Hotrun Active',
+							HPA_BITS.crowbar: 'Crowbar Fired'
+							}
 		
-		self.stateDescriptions = {
-			  HPA_STATES.off: 'Power off', 
-			  HPA_STATES.on: 'Power on', 
-			  HPA_STATES.cooldown: 'Cooldown', 
-			  HPA_STATES.warmup: 'Warmup', 
-			  HPA_STATES.standby: 'Standby', 
-			  HPA_STATES.operate: 'Operate'
-		  }
+		self.positionCodes = {
+							  HPA_BITS.antenna: 'Antenna',
+							  HPA_BITS.load: 'Load'
+							  }
+		
+		self.stateCodes = {
+							HPA_BITS.on: 'On',
+							HPA_BITS.cooldown: 'Cooldown',
+							HPA_BITS.warmup: 'Warmup',
+							HPA_BITS.standby: 'Standby',
+							HPA_BITS.operate: 'Operate'
+						  }
 
-###################################################################
-	def __del__(self):
-		pass
-	
 ###################################################################
 	def status(self):
-		print 'current_status is ',self.stateDescriptions[self.current_status]
-		return self.stateDescriptions[self.current_status]
+		print 'current_status is ',self.state
+		return self.state
 
 ###################################################################
 	def command(self, op):
 		''' Send a command to the hpa.
 		Return a result message if there was a problem. If
-		no proble, return an empty string.
+		no problem, return an empty string.
 		'''
 		if self.serialport is None:
-			return 'No serial port specified. Unable to send ' + self.cmdNames[op] + ' command'
+			return 'No serial port specified. Unable to send command'
 		
-		print 'send', self.cmdNames[op], 'command to', self.serialport.port
-		
-		writeStatus = self.serialport.write(self.cmd_dict[op])
-		if  writeStatus != None:
-			return 'Write to the serial port did not succeed. Unable to send ' + self.cmdNames[op] + ' command'
-
-		if op != HPA.status:
-			if (op == HPA.antenna) or (op == HPA.dummyload):
-				time.sleep(2)
-			self.serialport.write(self.cmd_dict[HPA.status])
-
 		s = ''
-		while True:
-			s = s + self.serialport.read(1)
-			if len(s) == 0:
-				return 'HPA read failed'
-			if (len(s)) > 10:
-				for c in s:
-					print hex(ord(c)), ' ',
-				print ' '
-				return 'Missing EOT character on HPA read'
-			if s[len(s) - 1] == '\003':
-		  		break
+		try:
+			writeStatus = self.serialport.write(self.commands[op])			
+
+			while True:
+				# get the next character
+				s = s + self.serialport.read(1)
+				if len(s) == 0:
+					return 'HPA read failed'
+				if (len(s)) > 10:
+					for c in s:
+						print hex(ord(c)), ' ',
+					print ' '
+					return 'Missing EOT character on HPA read'
+				# watch for the EOT character
+				if s[len(s) - 1] == '\003':
+			  		break
 			
-		s = s + self.serialport.read(1)
-		
+			# read the checksum	
+			s = s + self.serialport.read(1)
+		except serial.SerialException, e:
+			# if an error writing or reading, return the exception message
+			return str(e)
+				
 		if len(s) < 5:
 			return 'Read after write only returned '+len(s)+' bytes, expecting at least 5'
 
@@ -108,50 +112,37 @@ class Hpa:
 		for c in s:
 			print hex(ord(c)),' ',
 		print 
+		
 		self.update_status(as)
 
 		return ''
 
 ###################################################################
 	def update_status(self, stat):
-		self.faulted = 0
-		self.faults = 0
-
-		state = ord(stat[0])
-
-		if (state & HPA_STATES.faulted):
-			self.faulted = 1
-		if (state & HPA_STATES.operate):
-			self.current_status = HPA_STATES.operate
-		elif (state & HPA_STATES.standby):
-			self.current_status = HPA_STATES.standby
-		elif (state & HPA_STATES.warmup):
-			self.current_status = HPA_STATES.warmup
-		elif (state & HPA_STATES.cooldown):
-			self.current_status = HPA_STATES.cooldown
-		elif (state & HPA_STATES.on):
-			self.current_status = HPA_STATES.on
-		else:
-			self.current_status = HPA_STATES.off
+		''' stat is a list of four characters corresponding
+		to bytes 1-4 of the status message
+		'''
+		
+		status = 0
+		for i in range(3,-1,-1):
+			status = status*256 + ord(stat[i])
 			
-		state = ord(stat[1])
-		state = state & HPA_STATES.byte2
-		if (state):
-			self.faulted = 1
-			self.faults = self.faults | (state << 16)
-
-		state = ord(stat[2])
-		self.load_pos = state & HPA_STATES.position
-		state = state & HPA_STATES.byte3
-		if (state):
-			self.faulted = 1
-			self.faults = self.faults | (state << 8)
+		print 'status is ', hex(status)
 			
-		state = ord(stat[3])
-		state = state & HPA_STATES.byte4
-		if (state):
-			self.faulted = 1
-			self.faults = self.faults | state
+		self.state = ''
+		for c in self.stateCodes.keys():
+			if c & status:
+				self.state = self.state + ' ' + self.stateCodes[c]
+
+		self.position = ''
+		for c in self.positionCodes.keys():
+			if c & status:
+				self.position = self.position + ' ' + self.positionCodes[c]
+				
+		self.faults = ''
+		for c in self.faultCodes.keys():
+			if c & status:
+				self.faults = self.faults + ' ' + self.faultCodes[c]
 
 ###################################################################			
 class HPA:
@@ -164,42 +155,31 @@ class HPA:
 	status = 6
 	warmup = 7
 	cooldown = 8
+
+class HPA_BITS:
+	# combine all four status bytes to
+	# match the following codes
 	
-	badWrite = 1
-	badRead = 2
-
-class HPA_STATES:
-	off = 0
-	on = 1
-	cooldown = 2
-	warmup = 4
-	standby = 8
-	operate = 0x10
-	faulted = 0x20
-
-	filament = 0x20
-	pulse = 0x10
-	hvps = 8
-	twt = 4
-	rev_power = 2
-	interlock = 1
-
-	byte2 = filament | pulse | hvps | twt | rev_power | interlock
-
-	low_press = 0x10
-	
-	byte3 = low_press
-
-	dummyload = 2
-	antenna = 1
-
-	position = dummyload | antenna
-
-	crowbar = 4
-	hotrun = 2
-	rf_arc = 1
-
-	byte4 = crowbar | hotrun | rf_arc
-
-
+	# states
+	on        = 0x00000001
+	cooldown  = 0x00000002
+	warmup    = 0x00000004
+	standby   = 0x00000008
+	operate   = 0x00000010  
+	# faults
+	faulted   = 0x00000020
+	interlock = 0x00000100
+	rev_power = 0x00000200
+	twt       = 0x00000400
+	hvps      = 0x00000800
+	pulse     = 0x00001000
+	filament  = 0x00002000
+	# position
+	antenna   = 0x00010000
+	load      = 0x00020000
+	# more faults
+	lowpress  = 0x00100000
+	rf_arc    = 0x01000000
+	hotrun    = 0x02000000
+	crowbar   = 0x04000000
 

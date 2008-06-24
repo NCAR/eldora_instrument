@@ -15,6 +15,8 @@ class HpaWidget(QWidget):
         
         super(QWidget, self).__init__(parent)
         
+        self.setContentsMargins(0,0,0,0)
+        
         # create some useful palettes
         self.createPalettes()
 
@@ -27,20 +29,20 @@ class HpaWidget(QWidget):
         self.serialDevice = serialDevice
         
         # a vertical layout
-        l = QVBoxLayout(self)
-        self.frame = QFrame(self)
-        self.frame.setContentsMargins(0,0,0,0)
-        l.addWidget(self.frame)
-        self.topLayout = QVBoxLayout(self.frame)
-        l.insertStretch(-1)
-       
-        # command combobox
-        self.commandCombo = QComboBox(self.frame)
-        self.topLayout.addWidget(self.commandCombo)
-        self.commandCombo.setToolTip('Select the HPA operating state')
-        self.commandCombo.setPalette(self.redButtonPalette)
+        self.topLayout = QVBoxLayout()
+        self.setLayout(self.topLayout)
 
-        
+        # state control
+        # The state text area
+        self.commandLayout = QHBoxLayout()
+        self.topLayout.addLayout(self.commandLayout)
+        self.stateText = QLabel()
+        self.stateText.setText('Unknown State')
+        self.stateText.setToolTip('Current state')
+        self.commandLayout.addWidget(self.stateText)
+        # state combo box
+        self.commandCombo = QComboBox()
+        self.commandCombo.setToolTip('Select the HPA operating state')
         # specify hpa modes, and our functions to be called when selected
         self.hpaCommands = []
         self.commandCombo.addItem('Off')
@@ -55,14 +57,18 @@ class HpaWidget(QWidget):
         self.connect(self.commandCombo,
                      SIGNAL('currentIndexChanged(int)'),
                      self.doHpaCommand)
+        self.commandLayout.addWidget(self.commandCombo)
         
-        # load combobox
-        self.loadCombo = QComboBox(self.frame)
-        self.topLayout.addWidget(self.loadCombo)
-        self.loadCombo.setToolTip('Select the HPA output load')
-        self.loadCombo.setPalette(self.redButtonPalette)
-
-        # specify antenna/dummy load modes, and our 
+        # The position text area
+        self.positionLayout = QHBoxLayout()
+        self.topLayout.addLayout(self.positionLayout)
+        self.positionText = QLabel()
+        self.positionText.setText('Unknown Position')
+        self.positionText.setToolTip('Position')
+        # position combobox
+        self.loadCombo = QComboBox()
+        self.loadCombo.setToolTip('Select the HPA output position')
+         # specify antenna/dummy load modes, and our 
         # functions to be called when selected
         self.loadCommands = []
         self.loadCombo.addItem('Load')
@@ -73,27 +79,27 @@ class HpaWidget(QWidget):
         self.connect(self.loadCombo,
                      SIGNAL('currentIndexChanged(int)'),
                      self.doLoadCommand)
-       
-        # The status text area
-        self.statusText = QLabel(self.frame)
-        self.statusText.setText('Status Unknown')
-        self.topLayout.addWidget(self.statusText)
-        self.statusText.setToolTip('Current status')
-        
-        # The warning text area
-        self.warningText = QLabel(self.frame)
-        self.warningText.setText('-')
-        self.topLayout.addWidget(self.warningText)       
-        self.warningText.setToolTip('Warning Messages')
-        
+
+        self.positionLayout.addWidget(self.positionText)
+        self.positionLayout.addWidget(self.loadCombo)
+
         # The fault text area
-        self.faultText = QLabel(self.frame)
+        self.faultText = QLabel()
         self.faultText.setText('No Faults')
-        self.topLayout.addWidget(self.faultText)               
-        self.faultText.setToolTip('Fault codes')
+        self.faultText.setToolTip('Fault codes')        
+        self.topLayout.addWidget(self.faultText)    
+        
+        # some empty space
+        self.topLayout.insertStretch(-1)
+    
 
         # some empty space
         self.topLayout.insertStretch(-1)
+
+        # The warning text area
+        self.warningText = QLabel()
+        self.topLayout.addWidget(self.warningText)       
+        self.warningText.setPalette(self.redTextPalette)
         
         # create an Hpa device that we can control
         self.hpa = Hpa(self.serialDevice)
@@ -104,19 +110,6 @@ class HpaWidget(QWidget):
         self.connect(self.timer, SIGNAL('timeout()'), self.status)
         self.timer.start()
         
-        self.msg_dict = { HPA.on : 'Power On',
-                          HPA.off : 'Power Off',
-                          HPA.operate : 'Operating',
-                          HPA.standby : 'Standby',
-                          HPA.warmup: 'Warming up',
-                          HPA.cooldown: 'Cool down'
-                          }
-        
-        self.load_pos = HPA_STATES.dummyload
-        
-        # create some useful palettes
-        self.createPalettes()
-
 ###############################################################################
     def createPalettes(self):
         self.stdPalette = self.palette()
@@ -152,22 +145,18 @@ class HpaWidget(QWidget):
         
 ######################################################################
     def powerOn(self):
-        self.commandCombo.setPalette(self.redButtonPalette)
         self.sendcmd(HPA.on)
 
 ######################################################################
     def powerOff(self):
-        self.commandCombo.setPalette(self.redButtonPalette)
         self.sendcmd(HPA.off)
 
 ######################################################################
     def operate(self):
-        self.commandCombo.setPalette(self.greenButtonPalette)
         self.sendcmd(HPA.operate)
 
 ######################################################################
     def standby(self):
-        self.commandCombo.setPalette(self.redButtonPalette)
         self.sendcmd(HPA.standby)
 
 ######################################################################
@@ -177,47 +166,58 @@ class HpaWidget(QWidget):
         
 ######################################################################
     def dummyLoad(self):
-        self.loadCombo.setPalette(self.redButtonPalette)
-        self.sendcmd(HPA.dummyload)
+        self.sendcmd(HPA.load)
         
 ######################################################################
     def antennaLoad(self):
-        self.loadCombo.setPalette(self.greenButtonPalette)
         self.sendcmd(HPA.antenna)
         
 ######################################################################
     def sendcmd(self,op):
         cmd = self.parse_dict[op]
         s = self.hpa.command(cmd)
-        if s != '':
-            self.warning(s)
-            print 'command failed:', s
-        else:
-            self.update()
+        self.warning(s)
+        self.update()
 
 ######################################################################
     def status(self):
         self.sendcmd(HPA.status)
-        self.statusText.setText(self.hpa.status())
+        self.update()
         
 ######################################################################
     def update(self):
-        if self.hpa.faulted:
-            self.faultText.setPalette(self.redTextPalette)
-            if self.faults == 0:
-                self.faultText.setText('Unknown fault')
-            else:
-                faultCode = QString('Fault %x').arg(self.hpa.faults)
-                self.faultText.setText(faultCode)
+        state = self.hpa.state
+        self.stateText.setText(state)
+        if state.find('Operate') == -1:
+            self.stateText.setPalette(self.redTextPalette)
         else:
+            self.statetext.setPalette(self.stdPalette)
+        
+        faults = self.hpa.faults
+        if len(faults) > 0:
+            self.faultText.setText('Fault')
+            self.faultText.setPalette(self.redTextPalette)
+            self.faultText.setToolTip(faults)
+        else:
+            self.faultText.setText('')
             self.faultText.setPalette(self.stdPalette)
-            self.faultText.setText('No faults')
-
+            self.faultText.setToolTip('')            
+        
+        position = self.hpa.position
+        self.positionText.setText(position)
+        if position.find('Antenna') == -1:
+            self.positionText.setPalette(self.redTextPalette)
+        else:
+            self.positionText.setPalette(self.stdPalette)
+ 
 ######################################################################
     def warning(self, warningText):
-        self.warningText.setPalette(self.redTextPalette)
-        self.warningText.setText('Warning')
-        self.warningText.setToolTip(warningText)
+        if warningText == '':
+            self.warningText.setText('')
+            self.warningText.setToolTip('')
+        else:
+            self.warningText.setText('Error')
+            self.warningText.setToolTip(warningText)
 
 ######################################################################
     @staticmethod
