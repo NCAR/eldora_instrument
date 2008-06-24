@@ -36,52 +36,44 @@ class HpaWidget(QWidget):
         # The state text area
         self.commandLayout = QHBoxLayout()
         self.topLayout.addLayout(self.commandLayout)
-        self.stateText = QLabel()
-        self.stateText.setText('Unknown State')
-        self.stateText.setToolTip('Current state')
-        self.commandLayout.addWidget(self.stateText)
         # state combo box
-        self.commandCombo = QComboBox()
-        self.commandCombo.setToolTip('Select the HPA operating state')
+        self.stateCombo = QComboBox()
+        self.stateCombo.setToolTip('Select the HPA operating state')
         # specify hpa modes, and our functions to be called when selected
         self.hpaCommands = []
-        self.commandCombo.addItem('Off')
+        self.stateCombo.addItem('Off')
         self.hpaCommands.append(self.powerOff)
-        self.commandCombo.addItem('On')
+        self.stateCombo.addItem('On')
         self.hpaCommands.append(self.powerOn)
-        self.commandCombo.addItem('Operate')
+        self.stateCombo.addItem('Operate')
         self.hpaCommands.append(self.operate)
-        self.commandCombo.addItem('Standby')
+        self.stateCombo.addItem('Standby')
         self.hpaCommands.append(self.standby)
         # call doHpaCommand when a new command is chosen
-        self.connect(self.commandCombo,
-                     SIGNAL('currentIndexChanged(int)'),
+        self.connect(self.stateCombo,
+                     SIGNAL('activated(int)'),
                      self.doHpaCommand)
-        self.commandLayout.addWidget(self.commandCombo)
+        self.commandLayout.addWidget(self.stateCombo)
         
         # The position text area
         self.positionLayout = QHBoxLayout()
         self.topLayout.addLayout(self.positionLayout)
-        self.positionText = QLabel()
-        self.positionText.setText('Unknown Position')
-        self.positionText.setToolTip('Position')
         # position combobox
-        self.loadCombo = QComboBox()
-        self.loadCombo.setToolTip('Select the HPA output position')
+        self.positionCombo = QComboBox()
+        self.positionCombo.setToolTip('Select the HPA output position')
          # specify antenna/dummy load modes, and our 
         # functions to be called when selected
         self.loadCommands = []
-        self.loadCombo.addItem('Load')
+        self.positionCombo.addItem('Load')
         self.loadCommands.append(self.dummyLoad)
-        self.loadCombo.addItem('Antenna')
+        self.positionCombo.addItem('Antenna')
         self.loadCommands.append(self.antennaLoad)
          # call doLoadCommand when a new command is chosen
-        self.connect(self.loadCombo,
+        self.connect(self.positionCombo,
                      SIGNAL('activated(int)'),
                      self.doLoadCommand)
 
-        self.positionLayout.addWidget(self.positionText)
-        self.positionLayout.addWidget(self.loadCombo)
+        self.positionLayout.addWidget(self.positionCombo)
         
         # The remote/local area
         self.commsText = QLabel()
@@ -150,7 +142,16 @@ class HpaWidget(QWidget):
 ######################################################################
     def doHpaCommand(self, commandIndex):
         # call the selected command
+        print 'sending hpa command ', commandIndex
         self.hpaCommands[commandIndex]()
+        self.stateCombo.setPalette(self.stdPalette)
+        
+######################################################################
+    def doLoadCommand(self, commandIndex):
+        # call the selected command
+        print 'sending position command ', commandIndex
+        self.loadCommands[commandIndex]()
+        self.positionCombo.setPalette(self.stdPalette)
         
 ######################################################################
     def powerOn(self):
@@ -168,11 +169,6 @@ class HpaWidget(QWidget):
     def standby(self):
         self.sendcmd(HPA.standby)
 
-######################################################################
-    def doLoadCommand(self, commandIndex):
-        # call the selected command
-        self.loadCommands[commandIndex]()
-        
 ######################################################################
     def dummyLoad(self):
         self.sendcmd(HPA.load)
@@ -197,12 +193,25 @@ class HpaWidget(QWidget):
 ######################################################################
     def update(self):
         state = self.hpa.state
-        self.stateText.setText(state)
         if state.find('Operate') == -1:
-            self.stateText.setPalette(self.redTextPalette)
+            self.stateCombo.setPalette(self.redButtonPalette)
         else:
-            self.stateText.setPalette(self.greenTextPalette)
-        
+            self.stateCombo.setPalette(self.greenButtonPalette)    
+        for i in range(0, self.stateCombo.count()):
+            if state.find(self.stateCombo.itemText(i)) != -1:
+                self.stateCombo.setCurrentIndex(i)
+                break
+
+        position = self.hpa.position
+        if position.find('Antenna') == -1:
+            self.positionCombo.setPalette(self.redButtonPalette)
+        else:
+            self.positionCombo.setPalette(self.greenButtonPalette)
+        for i in range(0, self.positionCombo.count()):
+            if position.find(self.positionCombo.itemText(i)) != -1:
+                self.positionCombo.setCurrentIndex(i)
+                break
+            
         faults = self.hpa.faults
         if len(faults) > 0:
             self.faultText.setText('Fault')
@@ -213,13 +222,6 @@ class HpaWidget(QWidget):
             self.faultText.setPalette(self.greenTextPalette)
             self.faultText.setToolTip('')            
         
-        position = self.hpa.position
-        self.positionText.setText(position)
-        if position.find('Antenna') == -1:
-            self.positionText.setPalette(self.redTextPalette)
-        else:
-            self.positionText.setPalette(self.greenTextPalette)
-            
         comms = self.hpa.comms 
         self.commsText.setText(comms)
         if comms.find('Remote') == -1:
