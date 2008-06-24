@@ -126,8 +126,8 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
 		pRR314->shutdown();
 	}
 	
-	if (Status & TIMER_DCM_UNLOCKED)  {
-		printf("TIMER DCM OUT OF LOCK!\n");
+	if (Status & FILTER_DCM_UNLOCKED)  {
+		printf("FILTER DCM OUT OF LOCK!\n");
 		std::cout << "Shutting Down Processors. Must Restart Processors Manually.\n";
 		//Shutdown
 		pRR314->shutdown();

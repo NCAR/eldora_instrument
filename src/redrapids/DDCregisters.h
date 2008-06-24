@@ -109,8 +109,8 @@
   #define SVN_REV_ADR 0xA5C
 
 // Timer DCM Lock Status
-  #define TIMER_DCM_UNLOCKED (0x1<<1)
-  #define TIMER_DCM_RST (0x1<<1)
+  #define FILTER_DCM_UNLOCKED (0x1<<1)
+  #define FILTER_DCM_RST (0x1<<1)
 
 //-------------------------------
 //Added by Tom 1-3-08 for timing error detection 

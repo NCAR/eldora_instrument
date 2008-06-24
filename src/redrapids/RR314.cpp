@@ -375,12 +375,12 @@ int RR314::configure314()
     }
 
     // Reset Timer DCM
-    Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, TIMER_DCM_RST);
+    Adapter_Write32(&_chanAdapter, V4, V4_CTL_ADR, FILTER_DCM_RST);
     sleep(1);
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
     Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result);
-    if (result & TIMER_DCM_UNLOCKED) {
-        printf("Timer DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n",
+    if (result & FILTER_DCM_UNLOCKED) {
+        printf("Filter DCM Failed to Lock. STATUS REG = %x\n Exiting Now...\n",
                result);
         Adapter_Close(&_chanAdapter);
         return -1;
@@ -396,7 +396,7 @@ int RR314::configure314()
     // error initializing the filters
     //  return -1;
     //}
-
+    
     // Set M314 VRANGE mode.  This will touch the register that controls the sample
     // clk select, so it is done as RMW.
     // Set ADC range to 2Vpp 
