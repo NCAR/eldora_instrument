@@ -142,14 +142,12 @@ class HpaWidget(QWidget):
 ######################################################################
     def doHpaCommand(self, commandIndex):
         # call the selected command
-        print 'sending hpa command ', commandIndex
         self.hpaCommands[commandIndex]()
         self.stateCombo.setPalette(self.stdPalette)
         
 ######################################################################
     def doLoadCommand(self, commandIndex):
         # call the selected command
-        print 'sending position command ', commandIndex
         self.loadCommands[commandIndex]()
         self.positionCombo.setPalette(self.stdPalette)
         
