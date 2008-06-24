@@ -392,10 +392,10 @@ int RR314::configure314()
 
     // set up the filters. Will do nothing if either of
     // the filter file paths is empty.
-    //if (filterSetup()) {
+    if (filterSetup()) {
     // error initializing the filters
-    //  return -1;
-    //}
+      return -1;
+    }
     
     // Set M314 VRANGE mode.  This will touch the register that controls the sample
     // clk select, so it is done as RMW.
