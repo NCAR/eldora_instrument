@@ -816,12 +816,8 @@ static void* hskpReadTask(void* threadArg)
         // cancellation pretty quickly.
         fd_set fds;
         FD_ZERO(&fds);
-        FD_SET(inSocket, &fds)
-;
-                                                struct timeval timeout =
-            {
-                    0,
-                    100000 }; // 0.1 second
+        FD_SET(inSocket, &fds);
+        struct timeval timeout = { 0, 100000 }; // 0.1 second
         int nfds = select(inSocket + 1, &fds, NULL, NULL, &timeout);
 
         // If our parent is cancelling us, let it happen now.
