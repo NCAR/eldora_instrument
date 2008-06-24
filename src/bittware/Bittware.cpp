@@ -75,8 +75,8 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     
     // Test Pulse Calculations
     U32 TP_Delay = ((int) ((radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
-                           (radarParams.wave_ngates[0] - 50) * radarParams.wave_gate1[1]) / 10)) * 10;
-    U32 TP_Width = (int) (radarParams.wave_gate1[1] * 50);
+                           (radarParams.wave_ngates[0] - 5) * radarParams.wave_gate1[1]) / 10)) * 10;
+    U32 TP_Width = (int) (radarParams.wave_gate1[1] * 5);
     
     // Calculate the period and PRT Scheme for dual prt or single prt
     if (radarParams.radd_nipp == 2)  //dual prt
