@@ -19,27 +19,27 @@ class HPA_BITS:
 	# match the following codes
 
 	# states
-	on        = 0x00000001
+	on		= 0x00000001
 	cooldown  = 0x00000002
-	warmup    = 0x00000004
+	warmup	= 0x00000004
 	standby   = 0x00000008
 	operate   = 0x00000010  
 	# faults
 	faulted   = 0x00000020
 	interlock = 0x00000100
 	rev_power = 0x00000200
-	twt       = 0x00000400
-	hvps      = 0x00000800
-	pulse     = 0x00001000
+	twt	   = 0x00000400
+	hvps	  = 0x00000800
+	pulse	 = 0x00001000
 	filament  = 0x00002000
 	# position
 	antenna   = 0x00010000
-	load      = 0x00020000
-	remote    = 0x00080000
+	load	  = 0x00020000
+	remote	= 0x00080000
 	# more faults
 	lowpress  = 0x00100000
-	rf_arc    = 0x01000000
-	hotrun    = 0x02000000
+	rf_arc	= 0x01000000
+	hotrun	= 0x02000000
 	crowbar   = 0x04000000
 
 ###################################################################
@@ -57,12 +57,12 @@ class Hpa:
 		if portname != None:
 			# the open may raise SerialException if it fails
 			self.serialport = serial.Serial(port=portname,
-				    bytesize=serial.EIGHTBITS,
-				    parity=serial.PARITY_NONE,
-				    stopbits=serial.STOPBITS_ONE,
-				    timeout=0.1,
-				    xonxoff=0,
-				    rtscts=0)
+					bytesize=serial.EIGHTBITS,
+					parity=serial.PARITY_NONE,
+					stopbits=serial.STOPBITS_ONE,
+					timeout=0.1,
+					xonxoff=0,
+					rtscts=0)
 		else:
 			self.serialport = None
 
@@ -72,12 +72,12 @@ class Hpa:
 		self.position = 'Unknown'
 
 		self.commands = { 
-			  HPA.on :       '\002\120\003\055',
-			  HPA.off :      '\002\160\003\015',
+			  HPA.on :	   '\002\120\003\055',
+			  HPA.off :	  '\002\160\003\015',
 			  HPA.operate :  '\002\117\003\056',
 			  HPA.standby :  '\002\123\003\052',
 			  HPA.antenna :  '\002\101\003\074',
-			  HPA.load :     '\002\114\003\061',
+			  HPA.load :	 '\002\114\003\061',
 			  HPA.status :   '\002\127\003\046' }
 
 		self.faultCodes = {
@@ -108,7 +108,7 @@ class Hpa:
 		}
 
 ###################################################################
-        def status(self):
+	def status(self):
 		commandResult = self.command(HPA.status)
 		if commandResult != '':
 			return commandResult
@@ -128,7 +128,7 @@ class Hpa:
 				if s[len(s) - 1] == '\003':
 					break
 
-			# read the checksum    
+			# read the checksum	
 			s = s + self.serialport.read(1)
 		except serial.SerialException, e:
 			return str(e)
@@ -139,7 +139,7 @@ class Hpa:
 		as = s[1:5] # We want the 4 status bytes.
 
 		#for c in s:
-		#    print hex(ord(c)),' ',
+		#	print hex(ord(c)),' ',
 		#print 
 
 		self.update_status(as)
@@ -195,6 +195,8 @@ class Hpa:
 		self.faults = ''
 		for c in self.faultCodes.keys():
 			if c & status:
-				self.faults = self.faults + ', ' + self.faultCodes[c]
-
+				if len(self.faults) == 0:
+					self.faults = self.faultCodes[c]
+				else:
+					self.faults = self.faults + ', ' + self.faultCodes[c]
 
