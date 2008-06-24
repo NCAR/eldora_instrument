@@ -128,8 +128,6 @@ public:
         retval["aftRate"] = hskpSendRate;
         // Return the map
         result = retval;
-        
-        std::cout << "got status command" << std::endl;
     }
 } statusMethod(&Svr);
 
