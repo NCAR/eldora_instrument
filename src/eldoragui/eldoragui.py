@@ -797,8 +797,8 @@ if Verbose: print 'finished creating QApplication'
 # instantiate an Eldora controller gui
 
 # get device names for the HPA controller
-HPA0device = ourConfig.getString('HPAs/Hpa0Device', '/dev/ttyUSB4')
-HPA1device = ourConfig.getString('HPAs/Hpa1Device', '/dev/ttyUSB5')
+HPA0device = ourConfig.getString('HPAs/Hpa0Device', '/dev/ttydp01')
+HPA1device = ourConfig.getString('HPAs/Hpa1Device', '/dev/ttydp02')
 
 main = EldoraMain(headersDir=headerDirs, 
                   hdrDumpApp=appDict['dumpheader'],

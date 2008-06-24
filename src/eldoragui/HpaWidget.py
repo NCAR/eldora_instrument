@@ -21,7 +21,7 @@ class HpaWidget(QWidget):
         self.createPalettes()
 
         self.parse_dict = { 0: HPA.off, 1: HPA.on, 2: HPA.operate,
-              3: HPA.standby, 4: HPA.antenna, 5: HPA.dummyload,
+              3: HPA.standby, 4: HPA.antenna, 5: HPA.load,
               6: HPA.status, 7: HPA.warmup, 8: HPA.cooldown }
 
         # save our serial device. None is acceptable, and
@@ -77,11 +77,17 @@ class HpaWidget(QWidget):
         self.loadCommands.append(self.antennaLoad)
          # call doLoadCommand when a new command is chosen
         self.connect(self.loadCombo,
-                     SIGNAL('currentIndexChanged(int)'),
+                     SIGNAL('activated(int)'),
                      self.doLoadCommand)
 
         self.positionLayout.addWidget(self.positionText)
         self.positionLayout.addWidget(self.loadCombo)
+        
+        # The remote/local area
+        self.commsText = QLabel()
+        self.commsText.setText('Unknown')
+        self.commsText.setToolTip('Remote/Local')
+        self.topLayout.addWidget(self.commsText)
 
         # The fault text area
         self.faultText = QLabel()
@@ -122,6 +128,9 @@ class HpaWidget(QWidget):
         
         self.redTextPalette = QPalette(self.stdPalette)
         self.setPaletteColors(self.redTextPalette, text='red')
+        
+        self.greenTextPalette = QPalette(self.stdPalette)
+        self.setPaletteColors(self.greenTextPalette, text='green')
         
 ###############################################################################
     def setPaletteColors(self, palette, window=None, button=None, text=None):
@@ -181,7 +190,8 @@ class HpaWidget(QWidget):
 
 ######################################################################
     def status(self):
-        self.sendcmd(HPA.status)
+        result = self.hpa.status()
+        self.warning(result)
         self.update()
         
 ######################################################################
@@ -191,7 +201,7 @@ class HpaWidget(QWidget):
         if state.find('Operate') == -1:
             self.stateText.setPalette(self.redTextPalette)
         else:
-            self.statetext.setPalette(self.stdPalette)
+            self.stateText.setPalette(self.greenTextPalette)
         
         faults = self.hpa.faults
         if len(faults) > 0:
@@ -200,7 +210,7 @@ class HpaWidget(QWidget):
             self.faultText.setToolTip(faults)
         else:
             self.faultText.setText('')
-            self.faultText.setPalette(self.stdPalette)
+            self.faultText.setPalette(self.greenTextPalette)
             self.faultText.setToolTip('')            
         
         position = self.hpa.position
@@ -208,7 +218,14 @@ class HpaWidget(QWidget):
         if position.find('Antenna') == -1:
             self.positionText.setPalette(self.redTextPalette)
         else:
-            self.positionText.setPalette(self.stdPalette)
+            self.positionText.setPalette(self.greenTextPalette)
+            
+        comms = self.hpa.comms 
+        self.commsText.setText(comms)
+        if comms.find('Remote') == -1:
+            self.commsText.setPalette(self.redTextPalette)
+        else:
+            self.commsText.setPalette(self.greenTextPalette)
  
 ######################################################################
     def warning(self, warningText):
@@ -226,12 +243,16 @@ class HpaWidget(QWidget):
         app = QApplication(sys.argv)
         
         d = QDialog()
+        d.resize(200,200)
         d.show()
         d.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         
         l1 = QVBoxLayout()
         d.setLayout(l1)
-        l = QLabel("Test HpaWidget")
+        text = QString("HpaWidget")
+        if device != None:
+            text = text + ' for ' + device
+        l = QLabel(text)
         l1.addWidget(l)
         
         # create horizontal layouts
@@ -240,7 +261,7 @@ class HpaWidget(QWidget):
         
         hpa0 = HpaWidget(parent=d, 
                          serialDevice=device,
-                         hpaName='HPA 0')
+                         hpaName='HPA')
         l2.addWidget(hpa0)
         
         # now start the event loop
