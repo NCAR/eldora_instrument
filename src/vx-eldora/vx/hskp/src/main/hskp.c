@@ -123,7 +123,7 @@ go11();
 
 /* Enable 68040 Interrupts */
 
-sysIntEnable(VME_VME_IRQ);
+sysIntEnable(VME_VME_IRQ);  // midbeam interrupt
 sysIntEnable(IEEE_IRQ);
 
 sysIntEnable(GPS_IRQ);
@@ -371,7 +371,7 @@ Edited by Tom 1/30/08
  
     /* Start the interrupts from the ieee-488 board */
     // Tom 3/6/08 GPIB not connected so comment out for now 
-    start_ieee(); 
+    //start_ieee(); 
 
     /* Start the radar proccessors over the vme to vme interfaces */
     /* Note: the radar processors should always be the very last things
@@ -390,6 +390,7 @@ Edited by Tom 1/30/08
 
   do{
 
+    //printf("Stop Flag = %i\n", stop_flag);
     // Create fake interrupts every 1 second - Added Tom 3/7/08
     if(fake_intrs)
     {
@@ -436,8 +437,8 @@ Edited by Tom 1/30/08
     //Tom 3/28/08 Removed for testing purposes - Fore Power not hooked up.
     if(tp_dwell_count >= testpulse_max_count && autocal)
     {
-      printf("updating test pulse\n");
-      update_testpulse();
+      //printf("updating test pulse\n");
+      //update_testpulse();
     }
  
     taskDelay(1);  /* added for test - Eric 7/16/99 */ 
