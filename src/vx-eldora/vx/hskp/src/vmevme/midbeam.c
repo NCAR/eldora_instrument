@@ -67,17 +67,18 @@ static float RATE_UPDATE_INTERVAL = 1.0; /* seconds */
 
 void updateSendRate(int ignored)
 {
-    static WDOG_ID wid = NULL;
-    if (! wid)
-        wid = wdCreate();
-    
-    hskpSendRate = hskpSentCount / RATE_UPDATE_INTERVAL;
-    hskpSentCount = 0;
-    printf("hskp send rate %.2f rays/sec\n", hskpSendRate);
-    
-    /* Schedule the next callback */
-    wdStart(wid, (int)(RATE_UPDATE_INTERVAL * sysClkRateGet()), 
-            updateSendRate, 0);
+    return;
+//    static WDOG_ID wid = NULL;
+//    if (! wid)
+//        wid = wdCreate();
+//    
+//    hskpSendRate = hskpSentCount / RATE_UPDATE_INTERVAL;
+//    hskpSentCount = 0;
+//    printf("hskp send rate %.2f rays/sec\n", hskpSendRate);
+//    
+//    /* Schedule the next callback */
+//    wdStart(wid, (int)(RATE_UPDATE_INTERVAL * sysClkRateGet()), 
+//            updateSendRate, 0);
 }
 
 
