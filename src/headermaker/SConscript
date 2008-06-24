@@ -52,4 +52,6 @@ instd = env.InstallProgram(dumpheader)
 env.Default(dumpheader)
 env.Alias('install',instd)
 
+SConscript('headers/SConscript')
+
 

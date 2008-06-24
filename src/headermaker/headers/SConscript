@@ -1,0 +1,16 @@
+import os
+
+tools = Split("""
+""")
+env = Environment(tools = ['default'] + tools)
+
+tparcheaders = Split("""
+tparc_clear_air1.hd
+tparc_clear_air2.hd
+tparc_conv.hd
+""")
+
+installheaders = env.InstallConfig(tparcheaders)
+env.Alias('install',installheaders)
+
+
