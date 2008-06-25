@@ -79,6 +79,7 @@ init_gps.c
 """
 
 s['main'] = """
+calcStatsTask.c
 cksum.cc
 globals.c
 hostStartup.c

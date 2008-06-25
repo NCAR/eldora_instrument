@@ -144,7 +144,7 @@ semTake(vmeSem,WAIT_FOREVER);
       // If platform data is valid, send it to DRX
       SendUDP(fore_ray_pntr);
       SendUDP(aft_ray_pntr);
-      hskpSentCount++;  // used for rate calculation
+      hskpSentCount++;  // used for rate calculation in calcStatsTask
         
       platform_status[iru_lag_index] = 0;
       currStatus->iru &= (char)(~ARINC_INT_BAD);
