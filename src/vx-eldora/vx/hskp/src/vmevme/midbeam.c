@@ -19,7 +19,6 @@ static char rcsid[] = "$Date$ $RCSfile: midbeam.c,v $ $Revision$";
 #define OK_RPC
 #define scope extern
 #include "hskpAll.h"
-#include <wdLib.h>
 
 #if defined(USE_INT_HNDSHK)
 #include "sendInt.h"
