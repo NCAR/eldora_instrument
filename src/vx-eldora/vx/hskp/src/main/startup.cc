@@ -128,8 +128,10 @@ public:
     void execute(XmlRpcValue& params, XmlRpcValue& result)
     {
         XmlRpc::XmlRpcValue retval;
+        retval["running"] = ! stop_flag;
         retval["foreRate"] = hskpSendRate;
         retval["aftRate"] = hskpSendRate;
+        retval["headerChecksum"] = headerChecksum;
         // Return the map
         result = retval;
     }
