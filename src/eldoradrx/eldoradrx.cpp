@@ -70,7 +70,7 @@ std::string _ORB; ///< path to the ORB configuration file.
 std::string _DCPS; ///< path to the DCPS configuration file.
 std::string _DCPSInfoRepo; ///< URL to access DCPSInfoRepo
 std::string _rayTopic; ///< The published ray topic
-std::string _productsTopic; /// The published product topic
+std::string _tsTopic; /// The published timeseries topic
 
 /// The port number for RPC comms to eldoradrx.
 int _rpcPort;
@@ -514,7 +514,7 @@ static void getConfigParams()
       config.getString("DDS/DCPSInfoRepo", dcpsInfoRepo);
     std::cerr << "read DCPSInfoRepo = " << _DCPSInfoRepo << " from config" << std::endl;
     _rayTopic = config.getString("DDS/TopicRay", "EldoraRays");
-    _productsTopic = config.getString("DDS/TopicProducts", "EldoraProducts");
+    _tsTopic = config.getString("DDS/TopicTS", "EldoraTS");
 
     // RPC parameters
     _rpcPort = config.getInt("Rpc/RpcPort", 60000);
@@ -1131,10 +1131,10 @@ static void createDDSservices()
     }
 
     // create the ray writer
-    _rayWriter = new RayWriter(*_publisher, "EldoraRays");
+    _rayWriter = new RayWriter(*_publisher, _rayTopic.c_str());
 
     // create the time series writer
-    _tsWriter = new TSWriter(*_publisher, "EldoraTS");
+    _tsWriter = new TSWriter(*_publisher, _tsTopic.c_str());
 }
 /////////////////////////////////////////////////////////////////////
 std::vector<unsigned long> boardBytes(int boardNum)
