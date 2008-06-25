@@ -5,50 +5,6 @@
  * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
  * Date:   $Date$
- *
- * revision history
- * ----------------
- * $Log: hskpGbl.h,v $
- * Revision 1.16  2005/08/04 22:27:39  granger
- * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
- * (afaik) directories were removed, like hskp/src/clock/newclk and
- * hskp/src/arinc_NCAR
- *
- * Revision 1.15  2003/10/01  20:10:25  kapoor
- * *** empty log message ***
- *
- * Revision 1.14  2003/10/01  19:57:40  kapoor
- * *** empty log message ***
- *
- * Revision 1.13  2003/10/01  19:45:41  kapoor
- * *** empty log message ***
- *
- * Revision 1.12  2003/09/24  17:00:18  kapoor
- * Added global bancomm clock card commands
- *
- * Revision 1.11  1999/09/27  15:59:34  eric
- * added global Firstime to keep track of initial time through update
- * testpulse loop.
- *
- * Revision 1.10  1997/08/26  21:25:21  craig
- * *** empty log message ***
- *
- * Revision 1.9  1996/10/11  23:27:29  craig
- * *** empty log message ***
- *
- * Revision 1.8  1996/02/21  17:21:15  craig
- * *** empty log message ***
- *
- * Revision 1.7  1993/09/01  20:07:25  craig
- * *** empty log message ***
- *
- * Revision 1.6  1992/11/03  22:53:48  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/19  19:33:48  craig
- * Initial revision
- *
- *        
  */
 
 /* Define global pointers to header structures so everyone can benefit */
@@ -97,6 +53,9 @@ scope float half_dwelltime_msec;
 /* Global Control flags */
 scope short stop_flag;
 scope short reload_flag;
+
+/* Checksum of the currently loaded header */
+scope int headerChecksum;
 
 /* Statistics info: how many rays of housekeeping have been sent since the 
  * last rate calculation, and what was the last rate calculated?
