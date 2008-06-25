@@ -20,10 +20,6 @@ class HpaWidget(QWidget):
         # create some useful palettes
         self.createPalettes()
 
-        self.parse_dict = { 0: HPA.off, 1: HPA.on, 2: HPA.operate,
-              3: HPA.standby, 4: HPA.antenna, 5: HPA.load,
-              6: HPA.status, 7: HPA.warmup, 8: HPA.cooldown }
-
         # save our serial device. None is acceptable, and
         # means that we are running in a test mode
         self.serialDevice = serialDevice
@@ -177,8 +173,7 @@ class HpaWidget(QWidget):
         
 ######################################################################
     def sendcmd(self,op):
-        cmd = self.parse_dict[op]
-        s = self.hpa.command(cmd)
+        s = self.hpa.command(op)
         self.warning(s)
         self.update()
 

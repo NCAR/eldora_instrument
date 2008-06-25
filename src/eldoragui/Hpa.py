@@ -2,8 +2,37 @@
 import time
 import serial
 
+class HPA_BITS:
+	# combine all four status bytes to
+	# match the following codes
+
+	# states
+	on		  = 0x00000001
+	cooldown  = 0x00000002
+	warmup	  = 0x00000004
+	standby   = 0x00000008
+	operate   = 0x00000010  
+	# faults
+	faulted   = 0x00000020
+	interlock = 0x00000100
+	rev_power = 0x00000200
+	twt	      = 0x00000400
+	hvps	  = 0x00000800
+	pulse	  = 0x00001000
+	filament  = 0x00002000
+	# position
+	antenna   = 0x00010000
+	load	  = 0x00020000
+	remote	  = 0x00080000
+	# more faults
+	lowpress  = 0x00100000
+	rf_arc	  = 0x01000000
+	hotrun	  = 0x02000000
+	crowbar   = 0x04000000
+
 ###################################################################			
 class HPA:
+    # command identifiers
 	off = 0
 	on = 1
 	operate = 2
@@ -11,36 +40,35 @@ class HPA:
 	antenna = 4
 	load = 5 
 	status = 6
-	warmup = 7
-	cooldown = 8
-
-class HPA_BITS:
-	# combine all four status bytes to
-	# match the following codes
-
-	# states
-	on		= 0x00000001
-	cooldown  = 0x00000002
-	warmup	= 0x00000004
-	standby   = 0x00000008
-	operate   = 0x00000010  
-	# faults
-	faulted   = 0x00000020
-	interlock = 0x00000100
-	rev_power = 0x00000200
-	twt	   = 0x00000400
-	hvps	  = 0x00000800
-	pulse	 = 0x00001000
-	filament  = 0x00002000
-	# position
-	antenna   = 0x00010000
-	load	  = 0x00020000
-	remote	= 0x00080000
-	# more faults
-	lowpress  = 0x00100000
-	rf_arc	= 0x01000000
-	hotrun	= 0x02000000
-	crowbar   = 0x04000000
+	commands = {
+          on :       '\002\120\003\055', 
+          off :      '\002\160\003\015', 
+          operate :  '\002\117\003\056', 
+          standby :  '\002\123\003\052', 
+          antenna :  '\002\101\003\074', 
+          load :     '\002\114\003\061', 
+          status :   '\002\127\003\046' 
+    }
+	
+	faultCodes = {
+        HPA_BITS.faulted: 'Fault', 
+        HPA_BITS.interlock: 'Interlock', 
+        HPA_BITS.rev_power: 'Reverse Power', 
+        HPA_BITS.twt: 'TWT Overtemp', 
+        HPA_BITS.hvps: 'HVPS Overtemp', 
+        HPA_BITS.pulse: 'Pulse Input', 
+        HPA_BITS.filament: 'Filament', 
+        HPA_BITS.lowpress: 'Low Waveguide Pressure', 
+        HPA_BITS.rf_arc: 'RF Arc', 
+        HPA_BITS.hotrun: 'Hotrun Active', 
+        HPA_BITS.crowbar: 'Crowbar Fired'
+        }
+	
+	positionCodes = {
+      HPA_BITS.antenna: 'Antenna', 
+      HPA_BITS.load: 'Load'
+      }
+    
 
 ###################################################################
 class Hpa:
@@ -71,41 +99,6 @@ class Hpa:
 		self.faults = 'Unknown'
 		self.position = 'Unknown'
 
-		self.commands = { 
-			  HPA.on :	   '\002\120\003\055',
-			  HPA.off :	  '\002\160\003\015',
-			  HPA.operate :  '\002\117\003\056',
-			  HPA.standby :  '\002\123\003\052',
-			  HPA.antenna :  '\002\101\003\074',
-			  HPA.load :	 '\002\114\003\061',
-			  HPA.status :   '\002\127\003\046' }
-
-		self.faultCodes = {
-			HPA_BITS.faulted: 'Fault',
-			HPA_BITS.interlock: 'Interlock',
-			HPA_BITS.rev_power: 'Reverse Power',
-			HPA_BITS.twt: 'TWT Overtemp',
-			HPA_BITS.hvps: 'HVPS Overtemp',
-			HPA_BITS.pulse: 'Pulse Input',
-			HPA_BITS.filament: 'Filament',
-			HPA_BITS.lowpress: 'Low Waveguide Pressure',
-			HPA_BITS.rf_arc: 'RF Arc',
-			HPA_BITS.hotrun: 'Hotrun Active',
-			HPA_BITS.crowbar: 'Crowbar Fired'
-			}
-
-		self.positionCodes = {
-		  HPA_BITS.antenna: 'Antenna',
-		  HPA_BITS.load: 'Load'
-		  }
-
-		self.stateCodes = {
-		# HPA_BITS.on: 'On',
-		HPA_BITS.cooldown: 'Cooldown',
-		HPA_BITS.warmup: 'Warmup',
-		HPA_BITS.standby: 'Standby',
-		HPA_BITS.operate: 'Operate'
-		}
 
 ###################################################################
 	def status(self):
@@ -183,20 +176,20 @@ class Hpa:
 			self.comms = 'Local'
 
 		self.state = ''
-		for c in self.stateCodes.keys():
+		for c in HPA.stateCodes.keys():
 			if c & status:
-				self.state = self.state + ' ' + self.stateCodes[c]
+				self.state = self.state + ' ' + HPA.stateCodes[c]
 
 		self.position = ''
-		for c in self.positionCodes.keys():
+		for c in HPA.positionCodes.keys():
 			if c & status:
-				self.position = self.position + ' ' + self.positionCodes[c]
+				self.position = self.position + ' ' + HPA.positionCodes[c]
 
 		self.faults = ''
-		for c in self.faultCodes.keys():
+		for c in HPA.faultsCodes.keys():
 			if c & status:
 				if len(self.faults) == 0:
-					self.faults = self.faultCodes[c]
+					self.faults = HPA.faultsCodes[c]
 				else:
-					self.faults = self.faults + ', ' + self.faultCodes[c]
+					self.faults = self.faults + ', ' + HPA.faultsCodes[c]
 
