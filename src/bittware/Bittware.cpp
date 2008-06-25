@@ -95,7 +95,9 @@ void Bittware::configure(EldoraRadarParams radarParams) {
         int mult2 = ipp2Count / baseCount;
 
         // encode the multipliers into the PRT scheme
-        prtScheme = (mult2 << 4) + mult1;
+        //prtScheme = (mult2 << 4) + mult1;
+        prtScheme = (mult1 << 4) + mult2;
+                
         
         // Period between PRT scheme repeats
         prtSchemeCount = (mult1 + mult2) * baseCount;  
@@ -464,18 +466,18 @@ void Bittware::start() {
 void Bittware::shutdown() {
 
 	U32 wr_buffer[BUFFER_SIZE / 4];
-	
-    //Reset the Bittware Card to stop pulses.
-	wr_buffer[0x0] = BW_TIMER_RST;
-	mem_write(wr_buffer);
-	wr_buffer[0x0] = 0;
-	mem_write(wr_buffer);    	
+	if (_physmem.phys_addr != 0) {
+        //Reset the Bittware Card to stop pulses.
+    	wr_buffer[0x0] = BW_TIMER_RST;
+    	mem_write(wr_buffer);
+    	wr_buffer[0x0] = 0;
+    	mem_write(wr_buffer);  
+        //Free allocated physical memory buffer
+        dsp21k_free_phys_memory(_processor, &_physmem);
+        _physmem.phys_addr = 0;    
+	}
 	    
-	//Free allocated physical memory buffer
-    dsp21k_free_phys_memory(_processor, &_physmem);
-    
     //printf("Bittware Card Shutdown\n");
-  
 }
 
 ////////////////////////////////////////////////////////////////////////
