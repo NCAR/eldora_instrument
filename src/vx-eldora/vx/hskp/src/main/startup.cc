@@ -11,6 +11,7 @@ static char rcsid[] = "$Date$ $RCSfile: startup.cc,v $ $Revision$";
 #define HSKP_RPC_SCOPE
 
 #include "cksum.h"
+#include "calcStatsTask.h"
 #include "Header.h"
 #include "HskpControl.h"
 #include "XmlRpc.h"
@@ -50,7 +51,10 @@ void startup(void)
 
   if(taskSpawn("CmdLoop",100,0,12000,(FUNCPTR)startServer,0,0,0,0,0,0,0,0,0,0)
      == ERROR)
-    cout << "Failed to start cmd loop!!!" << endl;;
+    cout << "Failed to start cmd loop!!!" << endl;
+  if (taskSpawn("calcStatsTask", 100, 0, 12000, (FUNCPTR)calcStatsTask, 
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0) == ERROR)
+    cout << "Failed to start calcStats task!" << endl;
 }
 
 /**********************************************/

@@ -6,36 +6,6 @@
  *      Copywrited by the National Center for Atmospheric Research
  * Date:   $Date$
  *
- * revision history
- * ----------------
- * $Log: midbeam.c,v $
- * Revision 1.10  2005/08/04 22:27:36  granger
- * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
- * (afaik) directories were removed, like hskp/src/clock/newclk and
- * hskp/src/arinc_NCAR
- *
- * Revision 1.9  2003/10/01  19:31:31  kapoor
- * *** empty log message ***
- *
- * Revision 1.6  2002/03/21 00:17:18  thor
- * Useless attempt to fix fake_angles & elevation.
- *
- * Revision 1.5  1999/09/27 15:45:02  eric
- * added test for missed or extra processor interrupts.
- *
- * Revision 1.4  1999/07/22  17:47:06  eric
- * made ls byte of tpulse_freq_num track test pulse and
- * ms byte track xmit pulse frequency numbers.
- *
- * Revision 1.3  1999/07/20  17:42:56  eric
- * *** empty log message ***
- *
- * Revision 1.2  1997/08/27  16:50:04  craig
- * *** empty log message ***
- *
- * Revision 1.1  1996/02/09  18:29:29  craig
- * Initial revision
- *
  * description: This module performs all of the necessary functions 
  *              during the isr run by the interrupt caused by the fore
  *              radar vme to vme interface.  This is the middle of beam
@@ -58,29 +28,6 @@ static char rcsid[] = "$Date$ $RCSfile: midbeam.c,v $ $Revision$";
 int ERR_CHK; 
 static int proc_offset_f, proc_offset_a;
 
-/*
- * Calculate our send rate over the last period.  Only one call here is
- * required; further calls are made by a watchdog timer callback that gets
- * set up here.
- */
-static float RATE_UPDATE_INTERVAL = 1.0; /* seconds */
-
-void updateSendRate(int ignored)
-{
-    return;
-//    static WDOG_ID wid = NULL;
-//    if (! wid)
-//        wid = wdCreate();
-//    
-//    hskpSendRate = hskpSentCount / RATE_UPDATE_INTERVAL;
-//    hskpSentCount = 0;
-//    printf("hskp send rate %.2f rays/sec\n", hskpSendRate);
-//    
-//    /* Schedule the next callback */
-//    wdStart(wid, (int)(RATE_UPDATE_INTERVAL * sysClkRateGet()), 
-//            updateSendRate, 0);
-}
-
 
 void midbeam()
 {
@@ -97,9 +44,6 @@ long msecs_today;
 ERR_CHK = 1;
 dumb_start = 0;
 dumb_index = 0;
-
-/* Start the watchdog timer to calculate send rate on a regular basis */
-updateSendRate(0);
 
 for (;;)
   {
@@ -198,7 +142,7 @@ semTake(vmeSem,WAIT_FOREVER);
     }
     else
     {
-      //Added Tom 3/25/08 If platform data is valid, send it to DRX
+      // If platform data is valid, send it to DRX
       SendUDP(fore_ray_pntr);
       SendUDP(aft_ray_pntr);
       hskpSentCount++;  // used for rate calculation
