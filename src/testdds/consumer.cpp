@@ -14,7 +14,8 @@ void parseArgs(int argc, char** argv,
 		std::string& rayTopic, 
 		std::string& tsTopic, 
 		std::string& ORB,
-		std::string& DCPS) {
+		std::string& DCPS,
+		std::string& DCPSInfoRepo) {
 
 	// get the options
 	po::options_description descripts("Options");
@@ -25,6 +26,7 @@ void parseArgs(int argc, char** argv,
 	("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
 	("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
 	("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+	("InfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfo Url")
 	;
 
 	po::variables_map vm;
@@ -47,8 +49,9 @@ int main(int argc, char* argv[]) {
 	std::string tsTopic;
 	std::string ORB;
 	std::string DCPS;
+	std::string DCPSInfoRepo;
 
-	parseArgs(argc, argv, rayTopic, tsTopic, ORB, DCPS);
+	parseArgs(argc, argv, rayTopic, tsTopic, ORB, DCPS, DCPSInfoRepo);
 
 	// we have to do this bit of translation since the 
 	// DDS routines want arguments starting with a single dash,
@@ -56,6 +59,7 @@ int main(int argc, char* argv[]) {
 	ArgvParams subParams(argv[0]);
 	subParams["-ORBSvcConf"] = ORB;
 	subParams["-DCPSConfigFile"] = DCPS;
+	subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
 
 	// create the subscriber
 	DDSSubscriber subscriber(subParams.argc(), subParams.argv());

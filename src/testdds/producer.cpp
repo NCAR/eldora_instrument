@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
     std::string tsTopic;
     std::string ORB;
     std::string DCPS;
+    std::string DCPSInfoRepo;
     int delta;
 
     // get the options
@@ -24,6 +25,7 @@ int main(int argc, char* argv[])
         ("tstopic", po::value<std::string>(&tsTopic), "DDS time series topic")
         ("ORB", po::value<std::string>(&ORB),"ORB service configuration file (Corba ORBSvcConf arg)")
         ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+        ("InfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL")
         ;
 
         po::variables_map vm;
@@ -42,6 +44,7 @@ int main(int argc, char* argv[])
         ArgvParams pubParams(argv[0]);
         pubParams["-ORBSvcConf"] = ORB;
         pubParams["-DCPSConfigFile"] = DCPS;
+	pubParams["-DCPSInfoRepo"] = DCPSInfoRepo;
  
         ACE_Time_Value small(0, delta);
         DDSPublisher publisher(pubParams.argc(), pubParams.argv());

@@ -10,14 +10,15 @@ topdir="${0%/*}/.."
 if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 
 # location of DDS configurtion files
-CONF=$topdir/conf
+CONF=$ELDORADIR/conf
 
 # The producer invocation
 producer="$topdir/testdds/producer \
         --ORB $CONF/ORBSvc.conf \
         --DCPS $CONF/DDSClient.ini \
-        --delta 10000 \
-        --pulse EldoraPulses --ts EldoraTS"
+        --InfoRepo iiop://localhost:50000/DCPSInfoRepo \
+        --delta 10000
+        --raytopic EldoraRays  --tstopic EldoraTS"
 
 echo "Starting producer"
 $producer 

@@ -15,7 +15,8 @@ CONF=$topdir/conf
 # The consumer invocation
 consume="$topdir/testdds/consumer --ORB $CONF/ORBSvc.conf \
          --DCPS $CONF/DDSClient.ini \
-         --pulse EldoraPulses --ts EldoraTS"
+	 --InfoRepo iiop://localhost:50000/DCPSInfoRepo \
+         --raytopic EldoraPulses --tstopic EldoraTS"
 
 echo "Starting consumer"
 $consume 

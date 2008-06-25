@@ -10,14 +10,15 @@ topdir="${0%/*}/.."
 if [[ ${topdir:0:1} != '/' ]]; then topdir="$PWD/$topdir"; fi
 
 # location of DDS configurtion files
-CONF=$topdir/conf
+#CONF=$topdir/conf
+CONF=$ELDORADIR/conf
 
 # The DCPSInforRepo invocation
 dcpsinforepo="$DDS_ROOT/bin/DCPSInfoRepo  \
    -NOBITS \
    -DCPSConfigFile $CONF/DDSClient.ini \
    -ORBSvcConf $CONF/ORBSvc.conf \
-   -ORBListenEndpoints iiop://dcpsrepo:50000 \
+   -ORBListenEndpoints iiop://localhost:50000 \
    -d $CONF/DDSDomainIds.conf"
 
 # kill existing jobs
@@ -29,4 +30,5 @@ pkill DCPSInfoRepo
 trap "echo \"killing jobs\"; pkill consumer; pkill producer; pkill DCPSInfoRepo" SIGINT SIGTERM
 
 echo "Starting DCPSInfoRepo"
+cd /tmp
 $dcpsinforepo
