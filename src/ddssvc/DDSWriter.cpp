@@ -33,6 +33,10 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
         // get the type name
         String_var type_name = typeSupport->get_type_name ();
+	if (0 ==type_name.in()){
+	    cerr << "get_type_name failed for topic " << topicName.c_str() << std::endl;
+            exit(1);
+	}
 
         // get the default quality of service
         TopicQos topic_qos;

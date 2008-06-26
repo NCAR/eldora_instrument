@@ -93,6 +93,7 @@ def start():
 
 ####################################################################################
 def stop():
+    if Verbose: print("stop() called")
     try:
         r = drxrpc.server.stop()
         main.logText(str(r))
@@ -106,9 +107,17 @@ def stop():
             main.logText(str(r))
     except Exception, e:
         print("Error contacting housekeeper RPC for stop:"+str(e))
+
+    if 'eldoraprod' in ourProcesses.keys():
+        try:
+            r = prodrpc.server.Stop()
+            if (r != 0):
+                main.logText(str(r))
+        except Exception, e:
+            print("Error contacting products RPC for stop:"+str(e))
         
-    # stop the products
-    stopProducts()
+        # stop the products
+        stopProducts()
 
     # force any RPC threads to exit
     drxrpc.terminate()
@@ -205,15 +214,19 @@ def stopProducts():
             main.logText(msg)
             proc = ourProcesses[key]
             proc.terminate() 
-            terminated = proc.waitForFinished(1500)
+            secs = 6
+            if Verbose: print 'waiting %f seconds for %s to terminate' % (secs, key)
+            terminated = proc.waitForFinished(secs*1000)
             if not terminated:
                 msg = 'Killing ' + key
                 main.logText(msg)
+                if Verbose: print(msg)
                 proc.kill()
                 killed = proc.waitForFinished(1500)
                 if not killed:
                     msg = 'Could not kill ' + key
                     main.logText(msg)
+                    if Verbose: print(msg)
             # remove reference to the processes.
             del ourProcesses[key]
     

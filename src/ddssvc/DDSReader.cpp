@@ -56,10 +56,8 @@ _topicName(topicName)
 			exit(1);
 		}
 
-		// activate the listener
-		DDS::DataReaderListener_var listener =
-		::OpenDDS::DCPS::servant_to_reference(this);
-
+		// activate the listener  (compatible with DDS1.1 API)
+		DDS::DataReaderListener_var listener(this);
 		if (CORBA::is_nil (listener.in ())) {
 			cerr << "listener is nil for " << _topicName << endl;
 			exit(1);
@@ -71,6 +69,7 @@ _topicName(topicName)
 		_genericReader = subscriber->create_datareader(topic.in (),
 				dw_qos,
 				listener.in());
+
 		if (is_nil (_genericReader.in ())) {
 			cerr << "create_datawriter failed for topic " << _topicName << ", "
 			<< " for type name ,  " << type_name << std::endl;

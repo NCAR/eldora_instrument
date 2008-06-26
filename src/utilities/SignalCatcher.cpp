@@ -1,6 +1,7 @@
 #include "SignalCatcher.h"
 #include <cstdlib>
 #include <csignal>
+#include <iostream>
 
 
 SignalCatcher* _pinstance = 0;
@@ -9,6 +10,7 @@ SignalCatcher* _pinstance = 0;
 /// The function that is called to set the signal flag.
 void
 signalHandlerFunction(int signo) {
+    std::cout << "signalHandlerFunction(" << signo << ") called" << std::endl;
     // if it was a segv, produce a core dump
     if (signo == SIGSEGV)
         abort();

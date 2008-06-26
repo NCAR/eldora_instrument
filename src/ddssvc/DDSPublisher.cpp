@@ -64,10 +64,24 @@ int DDSPublisher::run(
         OpenDDS::DCPS::TransportImpl_rch tcp_impl;
         try {
             tcp_impl = TheTransportFactory->obtain(transport_impl_id);
+	    if (0 == tcp_impl.in ()) {
+	      //	cerr << "TheTransportFactory->obtain failed - trying create." << endl;
+		tcp_impl =
+		TheTransportFactory->create_transport_impl (transport_impl_id,
+			::OpenDDS::DCPS::AUTO_CONFIG);
+		if (0 == tcp_impl.in () ) {
+		    cerr << "TheTransportFactory->create_transport_impl failed." << endl;
+		    return 1;
+		}
+	    }
         } catch (...) {
             tcp_impl =
             TheTransportFactory->create_transport_impl (transport_impl_id,
                     ::OpenDDS::DCPS::AUTO_CONFIG);
+	    if (0 == tcp_impl.in () ) {
+		cerr << "TheTransportFactory->create_transport_impl failed." << endl;
+		return 1;
+	    }
         }
 
         _publisher = _participant->create_publisher(PUBLISHER_QOS_DEFAULT,
@@ -77,9 +91,9 @@ int DDSPublisher::run(
             exit(1);
         }
 
-        // Attach the publisher to the transport.
+        // Attach the publisher to the transport. (compatible with DDS1.1 API)
         OpenDDS::DCPS::PublisherImpl* pub_impl =
-        OpenDDS::DCPS::reference_to_servant<OpenDDS::DCPS::PublisherImpl> (_publisher.in ());
+	  dynamic_cast<OpenDDS::DCPS::PublisherImpl*> (_publisher.in ());
         if (0 == pub_impl) {
             cerr << "Failed to obtain publisher servant" << endl;
             exit(1);

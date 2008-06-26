@@ -80,6 +80,16 @@ int DDSSubscriber::run(
         OpenDDS::DCPS::TransportImpl_rch transport_impl;
         try {
             transport_impl = TheTransportFactory->obtain(transport_impl_id);
+	    if (0 == transport_impl.in ()) {
+	      //	cerr << "TheTransportFactory->obtain failed - trying create." << endl;
+		transport_impl =
+		TheTransportFactory->create_transport_impl (transport_impl_id,
+			::OpenDDS::DCPS::AUTO_CONFIG);
+		if (0 == transport_impl.in () ) {
+		    cerr << "TheTransportFactory->create_transport_impl failed." << endl;
+		    return 1;
+		}
+	    }
         } catch (...) {
             transport_impl =
             TheTransportFactory->create_transport_impl (transport_impl_id,
@@ -96,9 +106,9 @@ int DDSSubscriber::run(
             exit(1);
         }
 
-        // Attach the subscriber to the transport.
+        // Attach the subscriber to the transport.(compatible with DDS1.1 API)
         OpenDDS::DCPS::SubscriberImpl* sub_impl =
-        OpenDDS::DCPS::reference_to_servant<OpenDDS::DCPS::SubscriberImpl> (_subscriber.in ());
+	  dynamic_cast<OpenDDS::DCPS::SubscriberImpl*> (_subscriber.in ());
         if (0 == sub_impl) {
             cerr << "Failed to obtain subscriber servant\n" << endl;
             exit(1);
