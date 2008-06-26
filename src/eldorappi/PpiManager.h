@@ -31,7 +31,7 @@ class PPIManager {
         /// received, i.e. when _currentProducts.size() == _nProducts,
         /// _productData are sent to _ppi.
         /// @param p Data for a single product
-        /// @param rotAngle The radar rotation angle
+        /// @param rotAngle The radar rotation angle in cartesian coordinates
         /// @param prodIndex DEnotes which product in the display this belongs to.
         /// @returns True if a complete set was assembled on this call.
         bool newProduct(std::vector<double>& p, float rotAngle, int prodIndex);

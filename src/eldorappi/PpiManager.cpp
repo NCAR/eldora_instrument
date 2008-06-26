@@ -47,13 +47,9 @@ bool PPIManager::newProduct(
 
     // if we have a complete set, send them to the display
     if (_currentProducts.size() == (unsigned int)_nProducts) {
-        // convert rotation angle from radar angle (0 points up, angles increase
-        // clockwise) to Cartesian angle (0 points right, angles increase
-        // counterclockwise), since that's what PPI wants.
-        double cartRotAngle = 90.0 - rotAngle;
         // calculate the start and end angle for the ray to be drawn
-        double startAng = cartRotAngle - 0.45;
-        double stopAng = cartRotAngle + 0.45;
+        double startAng = rotAngle - 0.45;
+        double stopAng = rotAngle + 0.45;
         if (startAng < 0.0) {
             startAng += 360.0;
             stopAng += 360.0;

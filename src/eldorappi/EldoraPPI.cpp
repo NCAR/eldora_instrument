@@ -184,9 +184,9 @@ void EldoraPPI::productSlot(
     if (p.size() != _gates || gateSizeMeters != _gateSizeMeters) {
         _gates = p.size();
         _gateSizeMeters = gateSizeMeters;
-        _upperManager.configurePPI(_productList.size(), _gates, 400, _gateSizeMeters, 
+        _upperManager.configurePPI(_productList.size(), _gates, 257, _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
-        _lowerManager.configurePPI(_productList.size(), _gates, 400, _gateSizeMeters, 
+        _lowerManager.configurePPI(_productList.size(), _gates, 257, _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
     }
 
@@ -195,11 +195,12 @@ void EldoraPPI::productSlot(
     
     // convert the Eldora geographic pointing angle to a
     // cartesian pointing angle
-    double cartAngle = 540 - rotAngle;
+    double cartAngle = 450 - rotAngle;
     if (cartAngle < 0.0) 
     	cartAngle += 360.0;
     if (cartAngle >= 360.0)
     	cartAngle -= 360.0;
+
     // send the product to the appropriate ppi manager
     if (_upperManager.newProduct(p, cartAngle, index))
         	_rotAngle = cartAngle;
