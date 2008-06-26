@@ -1,8 +1,8 @@
-env = Environment(tools = ['default'])
+env = Environment(tools = ['default', 'boost_program_options'])
+env.Append(LIBPATH='.')
 
-sources = Split("""
+libsources = Split("""
 ddsmenu.cpp
-ddsprogrammer_cpp.cpp
 dds.cpp
 dectohex.cpp
 delay.cpp
@@ -17,10 +17,18 @@ trigmuxmenu.cpp
 trigmux.cpp
 """)
 
-ecbmain = env.Program('ecbmain', sources)
+# a library of all of the ecb support routines
+ecblib = env.Library('ecb', libsources)
+
+# menu drive app for programming dds, attenuators, or trigger mux
+ecbmain = env.Program('ecbmain', 'ddsprogrammer_cpp.cpp', LIBS=ecblib)
 i1 = env.InstallProgram(ecbmain)
 env.Default(ecbmain)
 env.Alias('install',i1)
+
+# command line programming of the dds
+progdds = env.Program('progdds', 'progdds.cpp',LIBS=['ecb','boost_program_options'])
+env.Alias('install', progdds)
 
 # Program to set the IP address for an EtherIO24 card
 ether_setup = env.Program('etherio_setup/ether_setup', ['etherio_setup/ether_setup.c'])
