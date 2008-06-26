@@ -75,7 +75,7 @@ void EldoraQtProductsSource::notify() {
                             pP[i] = (product[i] - offset)/gain;
                         }
                        // send the Pbeam to our client.
-                        emit newPData(P, pItem->radarId, pItem->rotAngle, 
+                        emit newPData(P, pItem->radarId, pItem->correctedAngle, 
                                 *prodType, gateSpacingMeters);
                         clearCapture();
                     }
@@ -96,7 +96,7 @@ void EldoraQtProductsSource::notify() {
                             // send the P time series to our client.
                             _pointCounter = 0;
                             emit newPData(P, pItem->radarId, 
-                                    pItem->rotAngle, *prodType, gateSpacingMeters);
+                                    pItem->correctedAngle, *prodType, gateSpacingMeters);
                             clearCapture();
                         }
                     }

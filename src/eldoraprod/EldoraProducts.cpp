@@ -109,7 +109,14 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
         // First transfer ray metadata
         products->radarId = rays[0][0]->radarId;
         products->timestamp = rays[0][0]->hskp.rayNum;
-        products->rotAngle = rays[0][0]->hskp.radarRotAngle;
+        double corAngle = rays[0][0]->hskp.radarRotAngle -
+        	rays[0][0]->hskp.encoderUpAngle;
+        if (corAngle < 0) 
+        	corAngle += 360.0;
+        else 
+        	if (corAngle >= 360.0)
+        		corAngle -= 360.0;
+        products->correctedAngle = corAngle;
         products->gateSpacingMeters = rays[0][0]->hskp.cellWidth[0];
 
         // Transfer the final results from _terms to products.
