@@ -27,7 +27,7 @@ void parseOptions(int argc,
     ("port", po::value<int>(&port), "Port number")
     ("radar", po::value<std::string>(&radar), "radar (forward|aft)")
     ("channel", po::value<int>(&channel), "channel number 0|1|2|3|4|5")
-    ("frequency", po::value<double>(&frequency), "frequency (hz)")
+    ("frequency", po::value<double>(&frequency), "frequency 9-10 (ghz)")
     ("noisereduction", "[enable noise reduction]")
     ;
 
@@ -68,6 +68,10 @@ void parseOptions(int argc,
         err = true;
     }
 
+    if (frequency < 9.0 || frequency > 10) {
+        std::cerr << "frequency must be between 9-10 ghz\n";
+        err = true;
+    }
     if (err || vm.count("help")) {
         std::cerr << descripts << "\n";
         exit(1);
@@ -100,6 +104,9 @@ int main(int argc,
     dds.Rfinit();
     
     // Calculate values to write to DDS
+    // first convert to hz
+    frequency = frequency*1.0e9;
+    
     int B = 361 - (int)(frequency/30e6);
     
     int T = (int)(pow(2,24)/(B+1.0)*(256.0*181/3 - frequency/703125.0) + 0.5);
