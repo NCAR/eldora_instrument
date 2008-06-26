@@ -6,25 +6,11 @@
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
  *
- * revision history
- * ----------------
- * $Log$
- * Revision 1.3  2000/05/15  18:53:45  eric
- * Removed code to reset GPIB interface. Added sync semaphore support and call o return powermeters to local control.
- *
- * Revision 1.2  1999/09/27  16:38:10  eric
- * added support for separate pgm task.
- *
- * Revision 1.1  1997/11/12  19:50:37  eric
- * Initial revision
- *
- * 
- *
  * description: The purpose of this module is to stop DMA and auxilliary clock
  *              interrupt for real-time task (pwr.c). 
  *              
  */
-static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
+static char rcsid[] = "$Id$";
 
 #define scope extern
 #include "hskpAll.h"
@@ -35,6 +21,9 @@ void stop_ieee()
 {
   int sem_status;
 
+  /* disable our interrupt */
+  sysIntDisable(IEEE_IRQ);
+  
 #ifdef CLOCK_ISR  
   sysAuxClkDisable(); /* disable Auxilliary Clock Interrupt */
 #endif  

@@ -6,12 +6,6 @@
  *      Copywrited by the National Center for Atmospheric Research
  *	Date:		 $Date$
  *
- * revision history
- * ----------------
- * $Log$
- * Revision 1.1  1992/08/25  20:43:01  craig
- * Initial revision
- *
  * description: This module initializes the vme to vme interfaces and their
  *              handshake areas 
  *              
@@ -25,6 +19,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 
 void stop_vmevme()
 {
+/* Disable the interrupt */
+sysIntDisable(VME_VME_IRQ);
 /* Clear the radar processors are ready handshake words */
 
 fore_vmehndshk->start_hndshk = 0;

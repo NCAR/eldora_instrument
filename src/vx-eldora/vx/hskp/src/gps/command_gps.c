@@ -32,9 +32,17 @@ void command_gps(short cmd)
    cmd = 2  Send initialization sequence to GPS receiver
    cmd = 3  Stop looking for GPS data */
 
+/* Disable the GPS interrupt now if we're stopping */
+if (cmd == 3)
+    sysIntDisable(GPS_IRQ);
+
 /* Clear handshake area and send the command */
 *gps_hndshk = (short)0;
 *gps_command = cmd;
+
+/* Enable the GPS interrupt now if we're starting */
+if (cmd == 1)
+    sysIntEnable(GPS_IRQ);
 
 /* Set the gps status byte to indicate no errors */
 

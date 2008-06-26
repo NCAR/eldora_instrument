@@ -5,37 +5,7 @@
  * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
  * Date:   $Date$
- *
- * revision history
- * ----------------
- * $Log: start_vmevme.c,v $
- * Revision 1.16  2005/08/04 22:27:36  granger
- * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
- * (afaik) directories were removed, like hskp/src/clock/newclk and
- * hskp/src/arinc_NCAR
- *
- * Revision 1.15  2003/10/01  19:31:44  kapoor
- * *** empty log message ***
- *
- * Revision 1.13  1999/09/27  15:45:35  eric
- * added support for testing radar processor and housekeeper
- * synchronization.
- *
- * Revision 1.12  1999/07/20  17:44:34  eric
- * Corrected pipeline delay through radar processors.
- *
- * Revision 1.11  1997/08/27  16:49:58  craig
- * *** empty log message ***
- *
- * Revision 1.10  1996/02/09  18:29:23  craig
- * *** empty log message ***
- *
- * Revision 1.9  1994/05/20  20:37:03  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/25  20:43:04  craig
- * Initial revision
- *
+ * 
  * description: This module starts the radar processors over the
  *              vme to vme interfaces.
  *              
@@ -165,7 +135,7 @@ do{
     taskDelay(2);
 }while((fore_vmehndshk->start_hndshk == 0) ||
        (aft_vmehndshk->start_hndshk == 0)); 
-
+       
 // Now write "Hi Radar" to the radars to get them going 
 
 
@@ -188,6 +158,8 @@ fore_vmehndshk->salute[6] = 'A';
 fore_vmehndshk->salute[7] = 'R';
 */
 
+// Now we can enable the interrupt
+sysIntEnable(VME_VME_IRQ);
 }
 
 

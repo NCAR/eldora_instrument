@@ -4,49 +4,8 @@
  * Module: hskp  
  * Original Author: Craig Walther
  *      Copywrited by the National Center for Atmospheric Research
+ * 
  * Date:   $Date$
- *
- * revision history
- * ----------------
- * $Log: hskp.c,v $
- * Revision 1.19  2005/08/04 22:27:37  granger
- * commit vx/hskp as copied from /net/eldora/eldora, except a few obsolete
- * (afaik) directories were removed, like hskp/src/clock/newclk and
- * hskp/src/arinc_NCAR
- *
- * Revision 1.18  2003/10/02  15:14:30  kapoor
- * Changed back to normal TOD function calls, will also work Bancomm clock.
- *
- * Revision 1.14  2000/05/15  18:30:25  eric
- * Revised power meter stop routine and added firstime flag so
- * that stop_ieee is not called upon powerup.
- *
- * Revision 1.13  1999/09/27  15:43:46  eric
- * added taskDelay in run-time loop to improve chances for slow
- * cal to run.
- *
- * Revision 1.12  1996/12/09  22:58:34  eric
- * Added support for Minirims interface.
- *
- * Revision 1.11  1996/12/09  22:43:13  craig
- * new iru interface
- *
- * Revision 1.10  1996/10/29  22:53:21  craig
- * *** empty log message ***
- *
- * Revision 1.9  1996/07/23  20:18:44  root
- * Saving Craig's latest work.
- *
- * Revision 1.8  1996/02/09  18:29:49  craig
- * *** empty log message ***
- *
- * Revision 1.7  1994/05/20  20:37:20  craig
- * *** empty log message ***
- *
- * Revision 1.1  1992/08/19  17:27:16  craig
- * Initial revision
- *
- *
  * description: This module provides executive control of the ELDORA 
  *              Housekeeping processor by reading a header passed
  *              by the Control Processor and following command passed
@@ -119,17 +78,17 @@ stop11();
 //ldsrec(ecbname);
 //ecbIntInit(1000000);
 go11();
-//*******************************
-
-/* Enable 68040 Interrupts */
-
-sysIntEnable(VME_VME_IRQ);  // midbeam interrupt
-sysIntEnable(IEEE_IRQ);
-
-sysIntEnable(GPS_IRQ);
-sysIntEnable(ECB_CMPLT_IRQ);
-sysIntEnable(ECB_ERROR_IRQ);
-sysIntEnable(ECB_SPARE_IRQ);
+////*******************************
+//
+///* Enable 68040 Interrupts */
+//
+//sysIntEnable(VME_VME_IRQ);  // midbeam interrupt
+//sysIntEnable(IEEE_IRQ);
+//
+//sysIntEnable(GPS_IRQ);
+//sysIntEnable(ECB_CMPLT_IRQ);
+//sysIntEnable(ECB_ERROR_IRQ);
+//sysIntEnable(ECB_SPARE_IRQ);
 //*******************************
 
 //Tom 3/26/08

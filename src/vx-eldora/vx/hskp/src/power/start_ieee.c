@@ -3,32 +3,8 @@
  *
  *	Module:	start_ieee.c	 
  *	Original Author: Reif Heck 
- *      Copywrited by the National Center for Atmospheric Research
+ *      Copyright National Center for Atmospheric Research
  *	Date:		 $Date$
- *
- * revision history
- * ----------------
- * $Log$
- * Revision 1.5  2000/05/15  18:49:50  eric
- * Moved much of the functionality of init_ieee.c to here. Now initializes
- * GPIB interface and DMA and also performs initial programming of powermeters.
- * This improves startup.
- *
- * Revision 1.4  1999/09/27  16:36:56  eric
- * widened testpulse; used fore as trigger.
- *
- * Revision 1.3  1999/07/13  16:49:51  thor
- * *** empty log message ***
- *
- * Revision 1.2  1997/11/12 19:46:57  eric
- * modified to support Graph Mode for xmit pulse. Also made it
- * it compatible with existing housekeeper software.
- *
- * Revision 1.1  1993/09/20  17:37:01  reif
- * Initial revision
- *
- * Revision 1.1  1992/09/01  16:48:23  craig
- * Initial revision
  *
  * description: The purpose of this module is to set up the MZ7500 GPIB
  *              board as talker and start DMA and auxilliary clock interrupt
@@ -442,6 +418,8 @@ taskRestart(pgm);  /* re-start run-time power task */
 taskRestart(xmit); /* re-start run-time power task */
 taskRestart(testp); /* re-start run-time power task */
 
+/* Finally, enable the interrupt */
+sysIntEnable(IEEE_IRQ);
 }
 
 
