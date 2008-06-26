@@ -63,10 +63,15 @@ global Stopped          # are we shutting down?
 ####################################################################################
 def start():
     ''' start the radar running:
+    0: Program the DDS
     1. Send the current header to the housekeepr and eldoradrx
     2. Send an RPC start() to eldoradrx
     3. Send an RPC start() to the housekeepr
     '''
+    
+    # program the dds
+    progDDS()
+    
     # send out the header to interested clients
     sendHeader()
     
@@ -285,7 +290,7 @@ def startDcps():
         '-d', domainConfigPath, 
         ]
     ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False,
-    payload=nextTaskColor(),verbose=Verbose)
+    							payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
@@ -567,7 +572,7 @@ def initConfig():
 
     # add apps that are found in eldoraDir/<appName>/<appName>
     for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope',
-	'dumpheader']:
+	'dumpheader', 'progdds', 'progsa', 'progmux']:
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
@@ -628,7 +633,7 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
 '''
 
     # these are the fields that we will capture from the 
-    # header. All others will br ignored.
+    # header. All others will be ignored.
     fieldtypes = set( [
         'WAVENCHIPS',
         'WAVECHPOFF',
@@ -688,6 +693,40 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     # send them to eldoradrx
     drxrpc.server.params(params)
     
+####################################################################################
+def runDDS(radar, chan, freq):
+	''' Run the progdds command.
+	radar (string) - either forward or aft
+	chan (int) - the channal
+	freq (string) - the frequency in ghz
+	'''
+	cmd = [appDict['progdds'],]
+	cmd.append('--ip')
+	cmd.append('localhost')
+	cmd.append('--port')
+	cmd.append('2424')
+	cmd.append('--radar')
+	cmd.append(radar)
+	cmd.append('--chan')
+	cmd.append(str(chan))
+	cmd.append('--freq')
+	cmd.append(freq)
+	p = EmitterProc(cmd, emitText=False, 
+				payload='red',verbose=Verbose)
+	QObject.connect(p, SIGNAL("text"), main.logText)
+	p.startDetached()
+    
+####################################################################################	
+def progDDS():
+	header = main.selectedHeader
+	freqs = RadarFreqs(header)
+	forFreqs = freqs['forward']
+	aftFreqs = freqs['aft']
+	for i in range(0, 4):
+		runProgDds('forward', i+1, forFreqs[i])
+	for i in range(0, 4):
+		runProgDds('aft', i+1, aftFreqs[i])
+		
 ####################################################################################
 def nextTaskColor():
     global taskColors
@@ -782,8 +821,8 @@ def showInternal():
 #
 Stopped = False
 
+Verbose = False
 # set the Verbose flag
-Verbose=False
 if len(sys.argv) > 1 and sys.argv[1] == '-v':
    Verbose = True
    
