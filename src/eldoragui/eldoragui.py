@@ -723,9 +723,9 @@ def progDDS():
 	forFreqs = freqs['forward']
 	aftFreqs = freqs['aft']
 	for i in range(0, 4):
-		runDDS('etherio-fore', '2424','forward', i+1, forFreqs[i])
+		runDDS('etherio-fore', '2424','forward', i, forFreqs[i])
 	for i in range(0, 4):
-		runDDS('etherio-aft', '2424', 'aft', i+1, aftFreqs[i])
+		runDDS('etherio-aft', '2424', 'aft', i, aftFreqs[i])
 		
 ####################################################################################
 def nextTaskColor():
