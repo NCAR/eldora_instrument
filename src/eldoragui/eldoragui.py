@@ -723,9 +723,9 @@ def progDDS():
 	forFreqs = freqs['forward']
 	aftFreqs = freqs['aft']
 	for i in range(0, 4):
-		runProgDds('forward', i+1, forFreqs[i])
+		runDDS('forward', i+1, forFreqs[i])
 	for i in range(0, 4):
-		runProgDds('aft', i+1, aftFreqs[i])
+		runDDS('aft', i+1, aftFreqs[i])
 		
 ####################################################################################
 def nextTaskColor():
