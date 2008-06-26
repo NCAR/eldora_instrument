@@ -134,7 +134,7 @@ module EldoraDDS {
         Housekeeping hskp;   
         long long timestamp; // microseconds since 1 Jan 1970 00:00:00 UTC
         float prfSeconds;
-        float correctedAngle; // antenna rotation angle, corrected for encoder offset, degrees
+        float rotAngle; // antenna rotation angle, degrees, 0 is up
         float gateSpacingMeters;
 
         float p1Scale;
