@@ -150,7 +150,7 @@ class Hpa:
 
 		s = ''
 		try:
-			writeStatus = self.serialport.write(self.commands[op])			
+			writeStatus = self.serialport.write(HPA.commands[op])			
 
 		except serial.SerialException, e:
 			# if an error writing or reading, return the exception message
