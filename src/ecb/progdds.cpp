@@ -26,7 +26,7 @@ void parseOptions(int argc,
     ("ip", po::value<std::string>(&ip), "IP address")
     ("port", po::value<int>(&port), "Port number")
     ("radar", po::value<std::string>(&radar), "radar (forward|aft)")
-    ("channel", po::value<int>(&channel), "channel number 0|1|2|3|4|5")
+    ("channel", po::value<int>(&channel), "channel number 0|1|2|3|5")
     ("frequency", po::value<double>(&frequency), "frequency 9-10 (ghz)")
     ("noisereduction", "[enable noise reduction]")
     ;
@@ -63,8 +63,8 @@ void parseOptions(int argc,
         }
     }
 
-    if (channel < 0 || channel > 5) {
-        std::cerr << "channel must be 0|1|2|3|4|5\n";
+    if (channel < 0 || channel > 5 || channel == 4) {
+        std::cerr << "channel must be 0|1|2|3|5\n";
         err = true;
     }
 
