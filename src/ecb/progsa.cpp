@@ -52,7 +52,7 @@ void parseOptions(int argc,
         }
     }
 
-    if (db < 1 || db > 120) {
+    if (db < 0 || db > 120) {
         std::cerr << "db attenuation must be between 1 and 120\n";
         err = true;
     }
