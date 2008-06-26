@@ -55,7 +55,7 @@ scope short stop_flag;
 scope short reload_flag;
 
 /* Checksum of the currently loaded header */
-scope int headerChecksum;
+scope uint32_t headerChecksum;
 
 /* Statistics info: how many rays of housekeeping have been sent since the 
  * last rate calculation, and what was the last rate calculated?

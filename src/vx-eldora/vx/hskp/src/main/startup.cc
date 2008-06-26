@@ -103,19 +103,20 @@ public:
     void execute(XmlRpcValue& params, XmlRpcValue& result)
     {
         std::string filename("/vxroot/headers/current.hdr");
-        uint32_t crc = 0; // we use zero to indicate failure
+        headerChecksum = 0; // we use zero to indicate failure
         if (! Hdr)
             Hdr = new Header();
-        if (cksum(filename, crc) != 0)
+        if (cksum(filename, headerChecksum) != 0)
             std::cout << "Error calculating cksum for: " << filename << std::endl;
         if (Hdr->readFile(filename.c_str()) != 0)
             std::cout << "Error reading header file: " << filename << std::endl;
         
         // Return the CRC-32 checksum (cast into a signed int) as our result.
         // We hijack zero to use as a failure indicator.
-        result = *(int*)&crc;
+        result = *(int*)&headerChecksum;
         
-        std::cout << "New header loaded, with cksum value " << crc << std::endl;
+        std::cout << "New header loaded, with cksum value " << headerChecksum <<
+            std::endl;
     }
 } headerMethod(&Svr);
 
@@ -131,7 +132,9 @@ public:
         retval["running"] = ! stop_flag;
         retval["foreRate"] = hskpSendRate;
         retval["aftRate"] = hskpSendRate;
-        retval["headerChecksum"] = headerChecksum;
+        // Return the CRC-32 checksum (cast into a signed int)
+        retval["headerChecksum"] = *(int*)&headerChecksum;
+headerChecksum;
         // Return the map
         result = retval;
     }
