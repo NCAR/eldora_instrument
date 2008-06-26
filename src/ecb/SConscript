@@ -28,7 +28,13 @@ env.Alias('install',i1)
 
 # command line programming of the dds
 progdds = env.Program('progdds', 'progdds.cpp',LIBS=['ecb','boost_program_options'])
+env.Default(progdds)
 env.Alias('install', progdds)
+
+# command line programming of the sa
+progsa = env.Program('progsa', 'progsa.cpp',LIBS=['ecb','boost_program_options'])
+env.Default(progsa)
+env.Alias('install', progsa)
 
 # Program to set the IP address for an EtherIO24 card
 ether_setup = env.Program('etherio_setup/ether_setup', ['etherio_setup/ether_setup.c'])
