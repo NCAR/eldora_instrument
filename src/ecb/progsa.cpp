@@ -78,8 +78,11 @@ int main(int argc,
               aftRadar,
               db);
     
+    int saCode = 0;
+    if (aftRadar)
+    	saCode = 8;
     // our stepped attenuator
-    SA sa(ip, port, aftRadar? 1:0);
+    SA sa(ip, port, saCode);
     
     // convert db to the attenuator parameter
     int atten = sa.ChgAttenVal(db);
