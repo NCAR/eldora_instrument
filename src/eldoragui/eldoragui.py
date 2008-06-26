@@ -694,7 +694,7 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     drxrpc.server.params(params)
     
 ####################################################################################
-def runDDS(radar, chan, freq):
+def runDDS(ip, port, radar, chan, freq):
 	''' Run the progdds command.
 	radar (string) - either forward or aft
 	chan (int) - the channal
@@ -702,9 +702,9 @@ def runDDS(radar, chan, freq):
 	'''
 	cmd = [appDict['progdds'],]
 	cmd.append('--ip')
-	cmd.append('localhost')
+	cmd.append(ip)
 	cmd.append('--port')
-	cmd.append('2424')
+	cmd.append(port)
 	cmd.append('--radar')
 	cmd.append(radar)
 	cmd.append('--chan')
@@ -723,9 +723,9 @@ def progDDS():
 	forFreqs = freqs['forward']
 	aftFreqs = freqs['aft']
 	for i in range(0, 4):
-		runDDS('forward', i+1, forFreqs[i])
+		runDDS('etherio-fore', '2424','forward', i+1, forFreqs[i])
 	for i in range(0, 4):
-		runDDS('aft', i+1, aftFreqs[i])
+		runDDS('etherio-aft', '2424', 'aft', i+1, aftFreqs[i])
 		
 ####################################################################################
 def nextTaskColor():
