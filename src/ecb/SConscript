@@ -36,6 +36,11 @@ progsa = env.Program('progsa', 'progsa.cpp',LIBS=['ecb','boost_program_options']
 env.Default(progsa)
 env.Alias('install', progsa)
 
+# command line programming of the trigger mux
+progmux = env.Program('progmux', 'progmux.cpp',LIBS=['ecb','boost_program_options'])
+env.Default(progmux)
+env.Alias('install', progmux)
+
 # Program to set the IP address for an EtherIO24 card
 ether_setup = env.Program('etherio_setup/ether_setup', ['etherio_setup/ether_setup.c'])
 i2 = env.InstallProgram(ether_setup)
