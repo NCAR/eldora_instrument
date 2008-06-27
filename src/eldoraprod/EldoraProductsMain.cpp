@@ -134,7 +134,8 @@ int EldoraProductsMain::run() {
         return pubStatus;
 
     // create the product generator
-    EldoraProducts prodGenerator(publisher, productsTopic, dualPrt);
+    // specify velocity reversal for the Eldora system
+    EldoraProducts prodGenerator(publisher, productsTopic, dualPrt, true);
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource

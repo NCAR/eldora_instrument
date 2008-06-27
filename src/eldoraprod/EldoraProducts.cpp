@@ -12,11 +12,16 @@
 ////////////////////////////////////////////////////
 EldoraProducts::EldoraProducts(DDSPublisher& publisher,
                                std::string productsTopic,
-                               bool dualPrt) :
+                               bool dualPrt,
+                               bool reverseVelocity) :
     _rays(0), _publisher(publisher), _productsTopic(productsTopic),
             _productsWriter(publisher, productsTopic), _droppedRays(0),
             _dualPrt(dualPrt), _termsInitialized(false)
 {
+    if (reverseVelocity)
+        _velSign = -1;
+    else
+        _velSign = 1;
 
 }
 
@@ -320,7 +325,7 @@ void EldoraProducts::velocity(RayData& rays)
          // single prt
          for (int g = 0; g < _gates; g++) {
              double a = atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
-             _terms.Vr[g] = _terms.Vscale*a;
+             _terms.Vr[g] = _velSign*_terms.Vscale*a;
              _terms.Vs[g] = 0;
              _terms.Vl[g] = 0;
          }
@@ -334,9 +339,9 @@ void EldoraProducts::velocity(RayData& rays)
          // short and long pulse velocity
          for (int g = 0; g < _gates; g++) {
              _terms.phaseShort[g] = atan2(_terms.SumB[0][g], _terms.SumA[0][g]);
-             _terms.Vs[g] = _terms.VscaleShort*_terms.phaseShort[g];
+             _terms.Vs[g] = _velSign*_terms.VscaleShort*_terms.phaseShort[g];
              _terms.phaseLong[g] = atan2(_terms.SumB[1][g], _terms.SumA[1][g]);
-             _terms.Vl[g] = _terms.VscaleLong*_terms.phaseLong[g];
+             _terms.Vl[g] = _velSign*_terms.VscaleLong*_terms.phaseLong[g];
          }
          // unfolded velocity
          unfoldVelocity();

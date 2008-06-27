@@ -160,9 +160,17 @@ class EldoraProducts
     public:
         /// @param publisher The publisher for publishing products.
         /// @param productsTopic The topic that the products wll be published under.
+        /// @param dualPrt Set true if we are operating in dual prt mode
+        /// @param reverseVelocity Set true if the velocity needs to be reverse. The
+        /// phase relationship of A and B from a signal processor is arbitrary,
+        /// and this flag is used to make the sign of the velocity have the desired
+        /// relationship with the doppler frequency measurement. For instance, 
+        /// the standard radar convention is that positive velocity indicates 
+        /// motion towards the receiver.
         EldoraProducts(DDSPublisher& publisher,
                        std::string productsTopic,
-                       bool dualPrt);
+                       bool dualPrt,
+                       bool reverseVelocity);
         virtual ~EldoraProducts();
 
         /// Called with a new set of rays for one radar for one ray number.
@@ -241,5 +249,7 @@ class EldoraProducts
         /// set to false if _terms still needs to be initialized.
         /// Used by initterms().
         bool _termsInitialized;
+        /// Use this multiplier to reverse velocity if so specified.
+        int _velSign;
 };
 #endif
