@@ -698,7 +698,10 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
                 p.append(field[2].split())
                 params.append(p)
     # send them to eldoradrx
-    drxrpc.server.params(params)
+    try:
+    	drxrpc.server.params(params)
+    except Exception, e:
+    	print 'Error sending params to drx', '(', drxrpc.URI,')',e
     
 ####################################################################################
 def createDDS():
