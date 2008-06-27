@@ -1,5 +1,4 @@
 env = Environment(tools = ['default', 'boost_program_options'])
-env.Append(LIBPATH='.')
 
 libsources = Split("""
 ddsmenu.cpp
@@ -19,27 +18,28 @@ trigmux.cpp
 
 # a library of all of the ecb support routines
 ecblib = env.Library('ecb', libsources)
+env.Append(LIBS=[ecblib])
 
 # menu drive app for programming dds, attenuators, or trigger mux
-ecbmain = env.Program('ecbmain', 'ddsprogrammer_cpp.cpp', LIBS=ecblib)
+ecbmain = env.Program('ecbmain', 'ddsprogrammer_cpp.cpp')
 Default(ecbmain)
 i1 = env.InstallProgram(ecbmain)
 env.Alias('install',i1)
 
 # command line programming of the dds
-progdds = env.Program('progdds', 'progdds.cpp',LIBS=['ecb','boost_program_options'])
+progdds = env.Program('progdds', 'progdds.cpp')
 Default(progdds)
 progddsi = env.InstallProgram(progdds)
 env.Alias('install', progddsi)
 
 # command line programming of the sa
-progsa = env.Program('progsa', 'progsa.cpp',LIBS=['ecb','boost_program_options'])
+progsa = env.Program('progsa', 'progsa.cpp')
 Default(progsa)
 progsai = env.InstallProgram(progsa)
 env.Alias('install', progsai)
 
 # command line programming of the trigger mux
-progmux = env.Program('progmux', 'progmux.cpp',LIBS=['ecb','boost_program_options'])
+progmux = env.Program('progmux', 'progmux.cpp')
 Default(progmux)
 progmuxi = env.InstallProgram(progmux)
 env.Alias('install', progmuxi)
