@@ -26,6 +26,7 @@ from EldoraRPC       import *
 from QtConfig        import *
 from EmitterProc     import *
 from HpaWidget       import *
+from DDS             import *
 
 ####################################################################################
 
@@ -45,8 +46,8 @@ class ApplicationDict:
     
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
-global Verbose          # Set for diagnostics from eldoragui itself
 global main             # The main gui window, from EldoraMain.ui
+global dds              # the dds controller - dict('forward', 'aft')
 global ourConfig        # the EldoraGui.ini configuration
 global eldoraDir        # used to find eldora application binaries
 global ddsRoot          # used to locate DCPSInforepo
@@ -59,6 +60,7 @@ global hskprpc          # RPC server for the housekeeper
 global prodrpc          # RPC server for the products generator
 global ourProcesses     # Processes that we have started and are managing
 global Stopped          # are we shutting down?
+global Verbose          # Set for diagnostics from eldoragui itself
 
 ####################################################################################
 def start():
@@ -252,6 +254,7 @@ def startDcps():
     
     If Dcps/AutoRestartDcps
     '''
+       
     global ourConfig
     global ourProcesses
     os.chdir('/tmp')  # DCPSInfoRepo wants to write a repo.ior in the current
@@ -289,8 +292,8 @@ def startDcps():
         '-ORBListenEndpoints', dcpsURL,
         '-d', domainConfigPath, 
         ]
-    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False,
-    							payload=nextTaskColor(),verbose=Verbose)
+    ourProcesses['DCPSInfoRepo'] = EmitterProc(dcpscmd, emitText=False, 
+											payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.startDetached()
@@ -497,6 +500,10 @@ def mainIsReady():
     constructed after the main app is running.
     '''
     if Verbose: print 'mainIsReady called'
+    
+    # create the dds controllers
+    createDDS()
+    
     # start up DCPS
     startDcps()
     
@@ -694,39 +701,31 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     drxrpc.server.params(params)
     
 ####################################################################################
-def runDDS(ip, port, radar, chan, freq):
-	''' Run the progdds command.
-	radar (string) - either forward or aft
-	chan (int) - the channal
-	freq (string) - the frequency in ghz
-	'''
-	cmd = [appDict['progdds'],]
-	cmd.append('--ip')
-	cmd.append(ip)
-	cmd.append('--port')
-	cmd.append(port)
-	cmd.append('--radar')
-	cmd.append(radar)
-	cmd.append('--chan')
-	cmd.append(str(chan))
-	cmd.append('--freq')
-	cmd.append(freq)
-	p = EmitterProc(cmd, emitText=False, 
-				payload='red',verbose=Verbose)
-	QObject.connect(p, SIGNAL("text"), main.logText)
-	p.startDetached()
-    
+def createDDS():
+	global dds
+	global Verbose
+	global ourConfig
+	dds = dict()
+	port = ourConfig.getInt('ECB/IpPort', 2424)
+	ipForward = ourConfig.getString('ECB/IpForward', 'etherio-for')
+	ipAft = ourConfig.getString('ECB/IpAft', 'etherio-aft')
+	dds['forward'] = DDS(ip=ipForward, port=port, 
+								ddsProgram=appDict['progdds'],
+								radar='forward', textFunction=main.logText,
+								verbose=Verbose)
+	dds['aft'] = DDS(ip=ipAft, port=port, 
+							ddsProgram=appDict['progdds'],
+							radar='aft', textFunction=main.logText,
+							verbose=Verbose)
+
 ####################################################################################	
 def progDDS():
+	global dds
 	header = main.selectedHeader
-	freqs = RadarFreqs(header)
-	forFreqs = freqs['forward']
-	aftFreqs = freqs['aft']
-	for i in range(0, 4):
-		runDDS('etherio-fore', '2424','forward', i, forFreqs[i])
-	for i in range(0, 4):
-		runDDS('etherio-aft', '2424', 'aft', i, aftFreqs[i])
-		
+	dds['forward'].programDDS(header)
+	dds['aft'].programDDS(header)
+	return
+
 ####################################################################################
 def nextTaskColor():
     global taskColors

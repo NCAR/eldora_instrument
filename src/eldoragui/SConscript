@@ -35,7 +35,7 @@ main = 'eldoragui.py'
 libs = Split(""" EldoraMain.py EldoraHeaderGUI.py EldoraHeader.py 
 EldoraHeaderView.py EldoraRPC.py EldoraUtil.py EmitterProc.py 
 ProgressStrip.py QtConfig.py RPCtestServer.py StatusGauge.py 
-HpaWidget.py Hpa.py
+HpaWidget.py Hpa.py DDS.py
 Ui_EldoraHeaderView.py Ui_EldoraMain.py""")
 
 instl = env.InstallPythonLibrary(libs)
