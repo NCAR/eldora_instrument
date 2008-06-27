@@ -25,7 +25,7 @@ void parseOptions(int argc,
     ("ip", po::value<std::string>(&ip), "IP address")
     ("port", po::value<int>(&port), "Port number")
     ("radar", po::value<std::string>(&radar), "radar (forward|aft)")
-    ("channel", po::value<char>(&choice), "channel 1|2|3|4|5|P|T")
+    ("channel", po::value<char>(&choice), "channel 0|1|2|3|P|T")
     ;
 
     po::variables_map vm;
@@ -53,14 +53,14 @@ void parseOptions(int argc,
         }
     }
 
-    // decode and convert channel number to 0-13
+    // decode and convert channel number to 0-13 
+    // (excluding 4, 11
     switch (choice) {
+    case '0':
     case '1':
     case '2':
     case '3':
-    case '4':
-    case '5':
-        channel = choice - '1';
+        channel = choice - '0';
         break;
     case 'P':
         channel = 5;
@@ -69,7 +69,7 @@ void parseOptions(int argc,
         channel = 6;
         break;
     default:
-        std::cerr << "channel must be 1|2|3|4|5|P|T\n";
+        std::cerr << "channel must be 0|1|2|3|P|T\n";
         err = true;
     }
     channel = aftRadar? (channel+7):channel;
@@ -78,7 +78,6 @@ void parseOptions(int argc,
         std::cerr << descripts << "\n";
         exit(1);
     }
-
 }
 
 int main(int argc,
