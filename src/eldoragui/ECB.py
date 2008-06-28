@@ -128,10 +128,15 @@ class TestPulseControl(QObject):
 	QTimer. It must be created in a Qt context in order to have 
 	the Qt event loop available for the timer.
 	'''
-	def __init__(self, dds, sa, periodSecs, header, atten, fOffGhz, parent):
+	def __init__(self, testpulseapp, ipddsfor, ipddsaft, ipsamux, 
+				port, periodSecs, header, atten, fOffGhz, parent, 
+				textFunction=None, verbose=False):
 		''' Constructor
-		dds - a dictionary['forward', 'aft'] of DDS controlers
-		sa - an SA controller
+		testPulseApp (string) - the test pulse programming application
+		ipddsfor (string) - ip address of the forward dds
+		ipddsaft (string) - ip address of the aft dds
+		ipsamux (string) - ip address of the sa/mux
+		port (int) - ip ort number (same for all devices)
 		periodSecs - how often (secs) to run the programming cycle
 		header - An EldoraHeader. Thebase frequencies will be drawn 
 		         from here.
@@ -144,10 +149,13 @@ class TestPulseControl(QObject):
 		'''
 		super(QObject, self).__init__(parent)
 		
-		self.dds = dds
-		self.sa = sa
 		self.freqs = RadarFreqs(header)
 		self.atten = atten
+		self.ip = dict()
+		self.ip['forward'] = ipddsfor
+		self.ip['aft'] = ipddsaft
+		self.textFunction = textFunction
+		self.verbose = verbose
 		
 		# add the offset to the frequencies
 		for radar in self.freqs:
@@ -158,6 +166,14 @@ class TestPulseControl(QObject):
 						
 		# index through the values
 		self.index = 0
+		
+		# create the first part of the command
+		self.cmd = list()
+		self.cmd.append(testpulseapp)
+		self.cmd.append('--ipsamux')
+		self.cmd.append(ipsamux)
+		self.cmd.append('--port')
+		self.cmd.append(str(port))
 
 		# create the timer, but don't start it		
 		self.timer = QTimer(self)
@@ -178,14 +194,37 @@ class TestPulseControl(QObject):
 		self.timer.stop()
 
 ####################################################################################
+	def programTestPulse(self, radar, muxchan, freq, db):
+		''' Run the sa programming command.
+		radar (string) - either forward or aft
+		db (string) - the attenuation in db
+		'''
+		# add parameters to the end of the skeleton command
+		cmd = list()
+		cmd = self.cmd + cmd
+		cmd.append('--ipdds')
+		cmd.append(self.ip[radar])
+		cmd.append('--radar')
+		cmd.append(radar)
+		cmd.append('--muxchan')
+		cmd.append(muxchan)
+		cmd.append('--freq')
+		cmd.append(freq)
+		cmd.append('--db')
+		cmd.append(db)
+		
+		p = EmitterProc(cmd, emitText=False, 
+					payload='red',verbose=self.verbose)
+		if self.textFunction != None:
+			QObject.connect(p, SIGNAL("text"), self.textFunction)
+		p.startDetached()
+
+####################################################################################
 	def timeout(self):
 		for radar in ('forward','aft'):
-			# set the attenuator
 			db = str(self.atten[radar][self.index])
-			self.sa.programSA(radar, db)
-			# set the frequency
 			freq = str(self.freqs[radar][self.index])
-			self.dds[radar].runDDS(5, freq)
+			self.programTestPulse(radar, str(self.index),freq, db)
 			
 		# bump to the next set.
 		self.index = self.index + 1

@@ -597,7 +597,7 @@ def initConfig():
 
     # add apps that are found in eldoraDir/<appName>/<appName>
     for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope',
-	'dumpheader', 'progdds', 'progsa', 'progmux']:
+	'dumpheader', 'progdds', 'progsa', 'progmux', 'progtestpulse']:
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
@@ -739,9 +739,9 @@ def createECB():
     port = ourConfig.getInt('ECB/IpPort', 2424)
 
     # create the dds devices
-    ipDdsForward = ourConfig.getString('ECB/IpDdsForward', 'etherio-for')
+    ipDdsFor = ourConfig.getString('ECB/IpDdsForward', 'etherio-for')
     ipDdsAft = ourConfig.getString('ECB/IpDdsAft', 'etherio-aft')
-    dds['forward'] = DDS(ip=ipDdsForward, port=port, 
+    dds['forward'] = DDS(ip=ipDdsFor, port=port, 
                          ddsProgram=appDict['progdds'],
                          radar='forward', textFunction=main.logText,
                          verbose=Verbose)
@@ -751,8 +751,8 @@ def createECB():
                      verbose=Verbose)
 
     # create the stepped attenuator device
-    ipSa = ourConfig.getString('ECB/IpSa', 'etherio-sa')
-    sa = SA(ip=ipSa, port=port, 
+    ipSaMux = ourConfig.getString('ECB/IpSaMux', 'etherio-sa')
+    sa = SA(ip=ipSaMux, port=port, 
             saProgram=appDict['progsa'],
             textFunction=main.logText,
             verbose=Verbose)
@@ -773,13 +773,18 @@ def createECB():
     # get the frequncy offset
     fOffGhz = ourConfig.getDouble('ECB/FreqOffsetGhz', 0.0001)
     
-    testPulse = TestPulseControl(dds=dds, 
-								sa=sa, 
-								header=main.selectedHeader,
+    testPulse = TestPulseControl(testpulseapp=appDict['progtestpulse'],
+								ipddsfor=ipDdsFor,
+								ipddsaft=ipDdsAft,
+								ipsamux=ipSaMux,
+								port=port, 
 								periodSecs=10,
+								header=main.selectedHeader,
 								atten=atten,
 								fOffGhz=fOffGhz,
-								parent=main)
+								parent=main,
+								textFunction=main.logText,
+								verbose=Verbose)
 
 ####################################################################################	
 def progECB():
