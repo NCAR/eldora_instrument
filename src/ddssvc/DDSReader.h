@@ -59,7 +59,7 @@ public:
 	int itemsAvailable();
 	
 	/// Get the next full item from the _outQueue. If
-	/// nothing is avaiable, a null is returned.
+	/// nothing is available, a null is returned.
 	DDSTYPE* getNextItem();
 	
 	/// Return an item to be placed back on the _inQueue.
