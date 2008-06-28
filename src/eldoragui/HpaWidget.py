@@ -9,7 +9,8 @@ from Hpa           import *
 class HpaWidget(QWidget):
     '''A QWidget for controlling a high power amplifier (i.e. transmitter).
     An instance of an Hpa actually handles interaction with the device. Hpawidget
-    provides the user interface with command handling and status polling
+    provides the user interface with command handling and status polling.
+    The polling is triggered by a QTimer.
     '''
     def __init__(self, parent=None, serialDevice=None, hpaName='HPA'):
         

@@ -26,7 +26,7 @@ from EldoraRPC       import *
 from QtConfig        import *
 from EmitterProc     import *
 from HpaWidget       import *
-from DDS             import *
+from ECB             import *
 
 ####################################################################################
 
@@ -35,19 +35,21 @@ from DDS             import *
 class ApplicationDict:
     def __init__(self):
         self.dict = {}
-        
+
     def __getitem__(self, key):
         # return the appropriate entry from our dictionary, or return the
         # key itself if we have no entry for it
         return (self.dict.has_key(key) and self.dict[key]) or key
-    
+
     def __setitem__(self, key, value):
         self.dict[key] = value
-    
+
 # Global variables. These probably don't need to be declared global here, but
 # we do this in order to keep global objects identified.
 global main             # The main gui window, from EldoraMain.ui
 global dds              # the dds controller - dict('forward', 'aft')
+global sa               # the steped attenuator controller, one for both fore and aft
+global testPulse        # test pulse periodic controller
 global ourConfig        # the EldoraGui.ini configuration
 global eldoraDir        # used to find eldora application binaries
 global ddsRoot          # used to locate DCPSInforepo
@@ -65,18 +67,18 @@ global Verbose          # Set for diagnostics from eldoragui itself
 ####################################################################################
 def start():
     ''' start the radar running:
-    0: Program the DDS
+    0: Program the ECB devices and start the test pulse controller
     1. Send the current header to the housekeepr and eldoradrx
     2. Send an RPC start() to eldoradrx
     3. Send an RPC start() to the housekeepr
     '''
-    
-    # program the dds
-    progDDS()
-    
+
+    # program the ECB devices
+    progECB()
+
     # send out the header to interested clients
     sendHeader()
-    
+
     # send start command to eldoradrx
     try:
         r = drxrpc.server.start()
@@ -88,26 +90,43 @@ def start():
     try:
         r = hskprpc.server.Start()
         if (r != 0):
-                main.logText(str(r))
+            main.logText(str(r))
     except Exception, e:
         print ("Error contacting housekeeper RPC (%s) for start: %s"% (hskprpc.URI,str(e)))
-        
+
     # stop  (i.e. kill) products
     stopProducts()
-    
+
     # run products
     startProducts()
 
 ####################################################################################
 def stop():
-    if Verbose: print("stop() called")
+    ''' Stop eldora processing
+    1. stop the test pulse controller
+    2. stop the drx process
+    3. kill the products generator
+    4. terminate rpc threads
+    '''
+
+    global testPulse
+    global Verbose
+
+    if Verbose: 
+        print("stop() called")
+
+    # stop the test pulse controller
+    testPulse.stop()
+
+	# send stop sommand to the drx
     try:
         r = drxrpc.server.stop()
         main.logText(str(r))
     except Exception, e:
         print("Error contacting drx RPC for stop:"+str(e))
         pass
-    
+	
+	# send stop command to the housekeeper
     try:
         r = hskprpc.server.Stop()
         if (r != 0):
@@ -115,6 +134,7 @@ def stop():
     except Exception, e:
         print("Error contacting housekeeper RPC for stop:"+str(e))
 
+	# kill the products generator
     if 'eldoraprod' in ourProcesses.keys():
         try:
             r = prodrpc.server.Stop()
@@ -122,7 +142,7 @@ def stop():
                 main.logText(str(r))
         except Exception, e:
             print("Error contacting products RPC for stop:"+str(e))
-        
+
         # stop the products
         stopProducts()
 
@@ -130,7 +150,7 @@ def stop():
     drxrpc.terminate()
     hskprpc.terminate()
     prodrpc.terminate()
-    
+
 ####################################################################################
 def status():
     ''' Query the eldora applications for status, and transmit this
@@ -160,22 +180,22 @@ def status():
                 productStatus = 2
         except Exception, e:
             print ("Error contacting products RPC for status:"+ str(e))
-    
+
     # determine the DRX status and rates.
     try:
-       r = drxrpc.server.status()
-       keys = sorted(r.keys())
-       rates = []
-       for k in keys:
-          # convert rate from MB/s to KB/s and save
-          rates.append(r[k]*1000.0)
-          
+        r = drxrpc.server.status()
+        keys = sorted(r.keys())
+        rates = []
+        for k in keys:
+            # convert rate from MB/s to KB/s and save
+            rates.append(r[k]*1000.0)
+
     except Exception, e:
         print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
         rates = []
         for i in range(16):
             rates.append(0)
-    
+
     # get status from the housekeeper if we aren't running in fake housekeeping
     # mode        
     if drxSimHskpMode:
@@ -197,7 +217,7 @@ def status():
 	    hskpForRate = 0.0  # set default value, so Python doesn't whine 
 	    hskpAftRate = 0.0    
             hskpStatus = 2
-            
+
     main.showStatus(ABPrate=ABPrate, 
                     productRate=productRate, 
                     productStatus=productStatus, 
@@ -205,7 +225,7 @@ def status():
                     hskpAftRate=hskpAftRate,
                     hskpStatus=hskpStatus,
                     rates=rates)
-            
+
 ####################################################################################
 def stopProducts():
     ''' Stop the standard Eldora processing apps. Try first with a SIGTERM. If
@@ -236,29 +256,29 @@ def stopProducts():
                     if Verbose: print(msg)
             # remove reference to the processes.
             del ourProcesses[key]
-    
+
 ####################################################################################
 def startDcps():
     '''
     Run the DCPSInfoRepo, but only if the configuration has
     called for that. Automatic restart of a currently running
     DCPSInfoRepo can be specified.
-    
+
     The configuration is checked to see if Dcps/RunDcps is true. 
-    
+
     If Dcps/AutoRestartDcps is false, and the process is already
     running, nothing will happen.
-    
+
     If Dcps/AutoRestartDcps is true, a running copy will be killed before 
     a new one is started.
-    
+
     If Dcps/AutoRestartDcps
     '''
-       
+
     global ourConfig
     global ourProcesses
     os.chdir('/tmp')  # DCPSInfoRepo wants to write a repo.ior in the current
-                      # directory, which had better be writable!
+        # directory, which had better be writable!
 
     dcpsConfigPath = ourConfig.getString('Dcps/DcpsConfig', ddsConfigDir+'/DCPSInfoRepo.ini')
     orbConfigPath = ourConfig.getString('Dcps/OrbConfig', ddsConfigDir+'/ORBSvc.conf')
@@ -271,7 +291,7 @@ def startDcps():
     if  not runDcps:
 	if Verbose: print 'start_DCPS - we are not configured to start DCPS'
         return
-    
+
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
@@ -281,7 +301,7 @@ def startDcps():
         else:
 	    if Verbose: print 'start_DCPS - killing DCPS '
             pkill('DCPSInfoRepo')
-            
+
     # start a new instance
     if Verbose: print 'start_DCPS - starting new instance'
     dcpscmd = [
@@ -303,7 +323,7 @@ def startDcps():
 def startDrx():
     '''
     Run the drx if called for by the configuration. 
-    
+
     The configuration is checked to see if Products/RunDrx is true.
     '''
     global ourConfig
@@ -316,12 +336,12 @@ def startDrx():
     drxSimRRMode = ourConfig.getBool('Mode/SimulateRR314', False)
     if not doDrx:
         return
-    
+
     # see if it is already running
     isRunning = not pgrep('eldoradrx')
     if isRunning:
         return
-    
+
     # start a new instance with standard options
     drxcmd = [
            appDict['eldoradrx'], 
@@ -329,55 +349,53 @@ def startDrx():
            '--start1', 
            '--pub', 
            ]
-    
+
     # get the rpc port number
     drxcmd.append('--rpcport')
     drxcmd.append(str(rpcport))
-    
+
     # see if hskp should be simulated
     if drxSimHskpMode:
         drxcmd.append('--simHskp')
-        
+
     # see if RR314 should be simulated
     if drxSimRRMode:
         drxcmd.append('--simRR314')
-        
+
     # create the process
     s = EmitterProc(command=drxcmd, emitText=True, payload=nextTaskColor(),verbose=Verbose)
     ourProcesses['eldoradrx'] = s
-    
+
     # send text output to the text logger in the main gui
     QObject.connect(s, SIGNAL("text"), main.logText)
-    
+
     # start eldoradrx
     s.start()
-    
+
     # and puase to catch our breath
     time.sleep(1)
-    
+
 ####################################################################################
 def startProducts():
     '''
     Run the products generator, if called for by the configuration. 
-    
+
     The configuration is checked to see if Products/RunProducts is true.
     '''
     global ourConfig
     global ourProcesses
-    
+
     doProducts = ourConfig.getBool('Products/Run', True)
     if  not doProducts:
         return
-    
+
     # see if it is already running
     isRunning = not pgrep('eldoraprod')
     if isRunning:
         return
-    
+
     # find out if the current header specified single or dual prt
     isDual = dualPrt()
-    print 'dualPrt is', isDual
-    
     # start a new instance
     productscmd = [appDict['eldoraprod'], ]
     if isDual:
@@ -387,12 +405,12 @@ def startProducts():
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
-    
+
 ####################################################################################
 def sendHeader():
     ''' Send the currently selected header to the housekeeper and eldoradrx.
     '''
-    
+
     # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
     # housekeeper can find it when we execute its Header() method.
     try:
@@ -412,7 +430,7 @@ def sendHeader():
                 main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
     except OSError, e:
         main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
-            
+
     # tell the housekeeper to load a new header
     # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
     # for the header file, but can only return a signed value.  Adjust if 
@@ -426,14 +444,14 @@ def sendHeader():
                   main.selectedHeader.checksum)
     except Exception, e:
         main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
-        
+
     # tell eldoradrx to reconfigure with current radar parameters
     headerToDrx(main.selectedHeader)
-    
+
 ####################################################################################
 def dualPrt():
     ''' check the current header and return true if dual 
-     prt is specified, false otherwise'''
+        prt is specified, false otherwise'''
     retval = False
     for block in main.selectedHeader:
         if block.type == 'RADD':
@@ -442,7 +460,7 @@ def dualPrt():
                     if field[2] != '1':
                         retval = True
     return retval
-    
+
 def scope():
     ''' Start the scope display
     '''
@@ -500,19 +518,19 @@ def mainIsReady():
     constructed after the main app is running.
     '''
     if Verbose: print 'mainIsReady called'
-    
-    # create the dds controllers
-    createDDS()
-    
+
+    # create the ECB controllers
+    createECB()
+
     # start up DCPS
     startDcps()
-    
+
     # start drx
     startDrx()
-    
+
     # stop any running products
     stopProducts()
-    
+
     # display some internal information on the Internal tab
     showInternal()    
 
@@ -533,7 +551,7 @@ def fixLdLibraryPath():
         except Exception, e:
             print 'missing environment variable', e
             sys.exit(1)
-       
+
     ####################################################################################
 def initConfig():
     ''' Create the configuration and set the path variables
@@ -542,19 +560,19 @@ def initConfig():
     global ourConfig
     # get our configuration
     ourConfig = QtConfig('NCAR', 'EldoraGui')
-    
+
     # top (source) directory for finding our apps
     global eldoraDir
     try:
         eldoraDir = os.environ['ELDORADIR']
     except KeyError :
- 
+
         # If the environment variable is not set, use the parent directory
         # of the location of this script
         mydir, myname = os.path.split(sys.argv[0])
         eldoraDir = os.path.abspath(os.path.join(mydir, '..'))
         os.environ['ELDORADIR'] = eldoraDir
-    
+
     # where is DCPSInfoRepo
     global ddsRoot
     try:
@@ -562,16 +580,16 @@ def initConfig():
     except KeyError:
         print "The DDS_ROOT environment variable is not set!"
         sys.exit(1)
-        
+
     # where are the DDS configuration files?
     global ddsConfigDir
     ddsConfigDir = os.path.join(eldoraDir, 'conf')
-    
-   # where are the Eldora header files?
+
+    # where are the Eldora header files?
     global headerDirs
     headerDirs = ourConfig.getString('Headers/HeaderDir', 
                                      os.path.join(eldoraDir, 'conf'))
-    
+
     # build a special dictionary of apps which returns a specific path for
     # an app, if set, otherwise just the app name
     global appDict
@@ -583,12 +601,12 @@ def initConfig():
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
-        
+
 
 ####################################################################################
 def createRpcServers():
     global ourConfig
-    
+
     # create the rpc for the drx
     drxrpchost = ourConfig.getString('Drx/Host', 'drx')
     drxrpcport = ourConfig.getInt('Drx/RpcPort', 60000)
@@ -597,7 +615,7 @@ def createRpcServers():
     if Verbose: print 'drxrpcurl = ', drxrpcurl
     drxrpc = EldoraRPC('drx', drxrpcurl)
     drxrpc.start()
-    
+
     # create the rpc for the housekeeper
     hskprpchost = ourConfig.getString('Hksp/Host', 'hskp')
     hskprpcport = ourConfig.getInt('Hksp/RpcPort', 60001)
@@ -606,7 +624,7 @@ def createRpcServers():
     if Verbose: print 'hskprpcurl = ', hskprpcurl
     hskprpc = EldoraRPC('hskp', hskprpcurl)
     hskprpc.start()
-    
+
     # create the rpc for the products generator
     prodrpchost = ourConfig.getString('Products/Host', 'archiver')
     prodrpcport = ourConfig.getInt('Products/RpcPort', 60002)
@@ -702,32 +720,71 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     	drxrpc.server.params(params)
     except Exception, e:
     	print 'Error sending params to drx', '(', drxrpc.URI,')',e
-    
+
 ####################################################################################
-def createDDS():
-	global dds
-	global Verbose
-	global ourConfig
-	dds = dict()
-	port = ourConfig.getInt('ECB/IpPort', 2424)
-	ipForward = ourConfig.getString('ECB/IpForward', 'etherio-for')
-	ipAft = ourConfig.getString('ECB/IpAft', 'etherio-aft')
-	dds['forward'] = DDS(ip=ipForward, port=port, 
-								ddsProgram=appDict['progdds'],
-								radar='forward', textFunction=main.logText,
-								verbose=Verbose)
-	dds['aft'] = DDS(ip=ipAft, port=port, 
-							ddsProgram=appDict['progdds'],
-							radar='aft', textFunction=main.logText,
-							verbose=Verbose)
+def createECB():
+    ''' Create the ECB devices: DDS, stepped attenuator, and trigger mux.
+    Also creat the test pulse controller
+    '''
+    global main
+    global dds
+    global sa
+    global mux
+    global Verbose
+    global ourConfig
+    global testPulse
+    
+    dds = dict()
+    # all devices share the same port number
+    port = ourConfig.getInt('ECB/IpPort', 2424)
+
+    # create the dds devices
+    ipDdsForward = ourConfig.getString('ECB/IpDdsForward', 'etherio-for')
+    ipDdsAft = ourConfig.getString('ECB/IpDdsAft', 'etherio-aft')
+    dds['forward'] = DDS(ip=ipDdsForward, port=port, 
+                         ddsProgram=appDict['progdds'],
+                         radar='forward', textFunction=main.logText,
+                         verbose=Verbose)
+    dds['aft'] = DDS(ip=ipDdsAft, port=port, 
+                     ddsProgram=appDict['progdds'],
+                     radar='aft', textFunction=main.logText,
+                     verbose=Verbose)
+
+    # create the stepped attenuator device
+    ipSa = ourConfig.getString('ECB/IpSa', 'etherio-sa')
+    sa = SA(ip=ipSa, port=port, 
+            saProgram=appDict['progsa'],
+            textFunction=main.logText,
+            verbose=Verbose)
+
+    # create the test pulse controller
+    atten = dict()
+    atten['forward'] = [10,30,50,70]
+    atten['aft'] = [20,40,60,80]
+    testPulse = TestPulseControl(dds=dds, 
+								sa=sa, 
+								header=main.selectedHeader,
+								periodSecs=10,
+								atten=atten,
+								fOffGhz=0.0001,
+								parent=main)
 
 ####################################################################################	
-def progDDS():
-	global dds
-	header = main.selectedHeader
-	dds['forward'].programDDS(header)
-	dds['aft'].programDDS(header)
-	return
+def progECB():
+    global dds
+    global sa
+    global testPulse
+
+    # get the header
+    header = main.selectedHeader
+
+    # program the for and aft transmit frequencies
+    dds['forward'].programDDS(header)
+    dds['aft'].programDDS(header)
+
+    testPulse.start()
+
+    return
 
 ####################################################################################
 def nextTaskColor():
@@ -740,18 +797,21 @@ def nextTaskColor():
         taskColors = ['red', 'blue', 'green', 'darksalmon', 'purple', 'mediumslateblue',
                       'firebrick', 'darkviolet','darkturquoise']
         currentColor = 0
-    
+
     if currentColor < len(taskColors)-1:
         currentColor = currentColor+1
     else:
         currentColor = 0
 
     return taskColors[currentColor]
-        
+
 ####################################################################################
 def lastWindowClosed():
     if Verbose: print 'lastWindowClosed - calling stop'
+    
+    # stop everything
     stop()
+    
     if Verbose: print 'lastWindowClosed - sending signals to processes'
     # Terminate processes by sending them SIGTERM. Otherwise
     # it appears that they are killed with SIGKILL when PyQt
@@ -793,7 +853,7 @@ def sig_handler(sig_num, frame):
     print 'eldoragui.py terminated - cleaning up'
     app.quit()
 
-            
+
 
 
 ####################################################################################
@@ -816,7 +876,7 @@ def showInternal():
         for a in ourProcesses[k].command:
             text = text + ' ' + a
         main.internalText(text)
-                
+
 ####################################################################################
 #
 # This is where it all happens
@@ -826,8 +886,8 @@ Stopped = False
 Verbose = False
 # set the Verbose flag
 if len(sys.argv) > 1 and sys.argv[1] == '-v':
-   Verbose = True
-   
+    Verbose = True
+
 # default the simulated housekeeping to false
 drxSimHskpMode = False
 
@@ -847,7 +907,7 @@ createRpcServers()
 global app
 app = QApplication(sys.argv)
 if Verbose: print 'finished creating QApplication'
-                 
+
 # instantiate an Eldora controller gui
 
 # get device names for the HPA controller
