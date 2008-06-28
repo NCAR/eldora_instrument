@@ -54,6 +54,13 @@ SConscript('testdds/SConscript')
 # ECB
 SConscript('ecb/SConscript')
 
+# archiver
+SConscript('acex/SConscript')
+SConscript('logx/SConscript')
+SConscript('domx/SConscript')   # domx must be after logx; not sure why...
+SConscript('rtfcommon/SConscript')
+SConscript('radd/archiver/SConscript')
+
 # VxWorks (the housekeeper)
 SConscript('vx-eldora/SConscript')
 
