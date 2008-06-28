@@ -758,15 +758,27 @@ def createECB():
             verbose=Verbose)
 
     # create the test pulse controller
+    # get the attenuation values
     atten = dict()
-    atten['forward'] = [10,30,50,70]
-    atten['aft'] = [20,40,60,80]
+    atten['forward'] = list()
+    atten['forward'].append(ourConfig.getString('ECB/AttenForward0','10'))
+    atten['forward'].append(ourConfig.getString('ECB/AttenForward1','30'))
+    atten['forward'].append(ourConfig.getString('ECB/AttenForward2','50'))
+    atten['forward'].append(ourConfig.getString('ECB/AttenForward3','70'))
+    atten['aft'] = list()
+    atten['aft'].append(ourConfig.getString('ECB/AttenAft0','20'))
+    atten['aft'].append(ourConfig.getString('ECB/AttenAft1','40'))
+    atten['aft'].append(ourConfig.getString('ECB/AttenAft2','60'))
+    atten['aft'].append(ourConfig.getString('ECB/AttenAft3','80'))
+    # get the frequncy offset
+    fOffGhz = ourConfig.getDouble('ECB/FreqOffsetGhz', 0.0001)
+    
     testPulse = TestPulseControl(dds=dds, 
 								sa=sa, 
 								header=main.selectedHeader,
 								periodSecs=10,
 								atten=atten,
-								fOffGhz=0.0001,
+								fOffGhz=fOffGhz,
 								parent=main)
 
 ####################################################################################	
