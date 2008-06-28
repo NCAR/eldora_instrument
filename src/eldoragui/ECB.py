@@ -119,7 +119,9 @@ class TestPulseControl(QObject):
 	
 	The start() function is called in order to start the periodic
 	programming.
+	
 	The stop() functon is used to halt it.
+	
 	At the end of each programming cycle, a specified callback function 
 	will be called. The callback function could be used, for example, 
 	to update the housekeeper with the current operating characteristics.
@@ -130,7 +132,7 @@ class TestPulseControl(QObject):
 	'''
 	def __init__(self, testpulseapp, ipddsfor, ipddsaft, ipsamux, 
 				port, periodSecs, header, atten, fOffGhz, parent, 
-				textFunction=None, verbose=False):
+				textFunction=None, verbose=False, callback=None):
 		''' Constructor
 		testPulseApp (string) - the test pulse programming application
 		ipddsfor (string) - ip address of the forward dds
@@ -146,6 +148,13 @@ class TestPulseControl(QObject):
 		        4 transmit frequencies
 		fOffGhz (double) - The frequncy offset to be added to each 
 		        frequency specified in the header.
+		parent - A QObject, which gives us access to the Qt event loop
+		textFunction - A text function passed on to EmitterProc.
+		verbose - Set true for diagnostic output.
+		callback - Function to call when the test pulse is reconfigured.
+		         Call it as: callback(params), where params is a 
+		         dictionary('forward','aft'). Each entry in the dictionary
+		         is another dictionary containing test pulse parameters.
 		'''
 		super(QObject, self).__init__(parent)
 		
@@ -156,6 +165,7 @@ class TestPulseControl(QObject):
 		self.ip['aft'] = ipddsaft
 		self.textFunction = textFunction
 		self.verbose = verbose
+		self.callback = callback
 		
 		# add the offset to the frequencies
 		for radar in self.freqs:
@@ -221,10 +231,20 @@ class TestPulseControl(QObject):
 
 ####################################################################################
 	def timeout(self):
+		callbackParams = dict()
+		callbackParams['forward'] = dict()
+		callbackParams['aft'] = dict()
 		for radar in ('forward','aft'):
-			db = str(self.atten[radar][self.index])
-			freq = str(self.freqs[radar][self.index])
+			db = self.atten[radar][self.index]
+			freq = self.freqs[radar][self.index]
 			self.programTestPulse(radar, str(self.index),freq, db)
+			if self.callback != None:
+				callbackParams[radar]['db'] = float(self.atten[radar][self.index])
+				callbackParams[radar]['freq'] = float(self.freqs[radar][self.index])			
+			
+		# execute the callback
+		if self.callback != None:
+			self.callback(callbackParams)
 			
 		# bump to the next set.
 		self.index = self.index + 1

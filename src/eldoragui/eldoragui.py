@@ -721,6 +721,10 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     	print 'Error sending params to drx', '(', drxrpc.URI,')',e
 
 ####################################################################################
+def testPulseChange(params):
+    print params
+    
+####################################################################################
 def createECB():
     ''' Create the ECB devices: DDS, stepped attenuator, and trigger mux.
     Also creat the test pulse controller
@@ -781,6 +785,7 @@ def createECB():
 								header=main.selectedHeader,
 								atten=atten,
 								fOffGhz=fOffGhz,
+                                callback=testPulseChange,
 								parent=main,
 								textFunction=main.logText,
 								verbose=Verbose)
