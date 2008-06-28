@@ -1,0 +1,6 @@
+SConscript('acex/SConscript')
+SConscript('logx/SConscript')
+# domx must be after logx...
+SConscript('domx/SConscript')
+SConscript('rtfcommon/SConscript')
+SConscript('radd/archiver/SConscript')
