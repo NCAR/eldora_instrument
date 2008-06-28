@@ -152,7 +152,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                    rates):
 
         #
-        # set the for and aft bw dials
+        # set the for and aft bandwidths
         forRate = 0.0
         aftRate = 0.0
         for i in range(16):
@@ -161,6 +161,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
           else:
               aftRate = aftRate + rates[i]
               
+        self.hskpRaysFor.setValue(hskpForRate)
+        self.hskpRaysAft.setValue(hskpAftRate)
         self.forABP.setValue(ABPrate/2)
         self.aftABP.setValue(ABPrate/2)
         self.forProducts.setValue(productRate/2)
@@ -173,20 +175,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         # set the for and aft pulse progress strips
         self.forBytes.setValue(forRate)
         self.aftBytes.setValue(aftRate)
-        # set the individual channel dials
-        forwardDialsList = self.forwardDials.children()
-        aftDialsList = self.aftDials.children()
-        # remove the first child, who will be the layout manager
-        forwardDialsList = forwardDialsList[1:]
-        aftDialsList = aftDialsList[1:]
-        for i in range(16):
-              if i < 8:
-                  forwardDialsList[i].setValue(rates[i])
-              else:
-                  aftDialsList[i-8].setValue(rates[i])
-                  
-        self.forwardBWdial.setValue(forRate)
-        self.aftBWdial.setValue(aftRate)
+
         if (forRate < 400 or aftRate < 400):
             self.setGauge('DRX', 2)
         else:
@@ -390,6 +379,11 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         configure the rate displays
         '''
         sumMode = False
+        
+        self.hskpRaysFor = ProgressStrip(max=4000,title='For', sumMode=sumMode)
+        self.hskpRaysAft = ProgressStrip(max=4000,title='Aft', sumMode=sumMode)
+        self.layoutRateBox(self.HskpRateBox,[self.hskpRaysFor,self.hskpRaysAft])
+                
         self.forBytes = ProgressStrip(max=4000,title='For',sumMode=sumMode)
         self.aftBytes = ProgressStrip(max=4000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.DRXRateBox,[self.forBytes,self.aftBytes])
@@ -407,33 +401,6 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.aftArchive = ProgressStrip(max=1000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.ArchiveRateBox,[self.forArchive,self.aftArchive])
         
-        # configure the agregate BW dials
-        dials = [self.forwardBWdial, self.aftBWdial]
-        for d in dials:
-              d.setMinimum(0)
-              d.setMaximum(4000)
-              d.setNotchesVisible(1)
-              d.setValue(0)
-              d.setSingleStep(200)
-              d.setPalette(self.stdPalette)
-              d.setEnabled(0)
-        # configure the individual dials
-        forwardDialsList = self.forwardDials.children()
-        aftDialsList = self.aftDials.children()
-        # remove the first child, who will be the layout manager
-        forwardDialsList = forwardDialsList[1:]
-        aftDialsList = aftDialsList[1:]
-        dials = forwardDialsList + aftDialsList
-        # set the dials
-        for dial in dials:
-              dial.setMinimum(0)
-              dial.setMaximum(2000)
-              dial.setNotchesVisible(1)
-              dial.setValue(0)
-              dial.setSingleStep(50)
-              dial.setPalette(self.stdPalette)
-              dial.setEnabled(0)
-
     ###############################################################################
     def timerEvent(self, event):
         ''' Called at regular intervals to handle periodic

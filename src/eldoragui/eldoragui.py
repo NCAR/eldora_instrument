@@ -201,7 +201,7 @@ def status():
     if drxSimHskpMode:
         hskpStatus = 0
         hskpForRate = 1.0
-        hskpAftRate = 1.0    
+        hskpAftRate = 1.0  
     else:
         try:
             r = hskprpc.server.status()
@@ -212,10 +212,9 @@ def status():
             else:
                 hskpStatus = 2
         except Exception, e:
-            print("Error contacting housekeeper RPC (%s) for status: %s" %
-     (hskprpc.URI, str(e)))
-	    hskpForRate = 0.0  # set default value, so Python doesn't whine 
-	    hskpAftRate = 0.0    
+            print("Error contacting housekeeper RPC (%s) for status: %s" % (hskprpc.URI, str(e)))
+            hskpForRate = 0.0  # set default value, so Python doesn't whine 
+            hskpAftRate = 0.0    
             hskpStatus = 2
 
     main.showStatus(ABPrate=ABPrate, 
