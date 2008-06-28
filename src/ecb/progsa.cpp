@@ -24,7 +24,7 @@ void parseOptions(int argc,
     ("ip", po::value<std::string>(&ip), "IP address")
     ("port", po::value<int>(&port), "Port number")
     ("radar", po::value<std::string>(&radar), "radar (forward|aft)")
-    ("db", po::value<int>(&db), "attenuation 1-120 (db)")
+    ("db", po::value<int>(&db), "attenuation 0-120 (db)")
     ;
 
     po::variables_map vm;

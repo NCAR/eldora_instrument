@@ -94,7 +94,7 @@ int main(int argc,
               aftRadar,
               channel);
     
-    // our stepped attenuator
+    // our multiplexor
     TrigMux mux(ip, port, aftRadar? 1:0);
     
     mux.SetMux(channel, 2);
