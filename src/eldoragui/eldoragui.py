@@ -722,7 +722,15 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
 
 ####################################################################################
 def testPulseChange(params):
-    print params
+    '''Called when the test pulse has changed. Send the information on to 
+    the housekeeper.
+    params - need to define what they are, and how the housekeeper wants 
+    to receive them.
+    '''
+    try:
+        hskprpc.server.testpulse(params)
+    except Exception, e:
+        print 'Error sending testpulse params to hskp', '(', hskprpc.URI,')',e
     
 ####################################################################################
 def createECB():
