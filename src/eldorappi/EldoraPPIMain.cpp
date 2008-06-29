@@ -175,10 +175,6 @@ int main(
     // so that they can shut down DDS properly.
     QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
 
-    // Connect the product type signal
-    QObject::connect(&ppi, SIGNAL(alongBeamProductSignal(PRODUCT_TYPES, bool)), 
-            &productsSource, SLOT(alongBeamSlot(PRODUCT_TYPES, bool)));
-
     // now the products supply
     QObject::connect(&productsSource, 
     SIGNAL(newPData(std::vector<double>, int, float, int, float)), &ppi, 

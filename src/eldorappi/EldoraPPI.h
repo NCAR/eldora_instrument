@@ -66,14 +66,6 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
                 QDialog* parent = 0);
         virtual ~EldoraPPI();
 
-    signals:
-        /// Emmited to indicate that Product data should be delivered for 
-        /// all gates along a beam
-        /// @param channel The selected channel
-        /// @param forwardRadar Set true if the forward radar, false otherwise.
-        void alongBeamProductSignal(
-                PRODUCT_TYPES product, bool forwardRadar);
-
     public slots:
         /// Feed product data via this slot. If the operating 
         /// characteristics change, such as the number of gates,
