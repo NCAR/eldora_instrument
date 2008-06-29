@@ -42,9 +42,6 @@ SConscript('dorade/tool_dorade.py')
 # The eldoradrx program
 SConscript('eldoradrx/SConscript')
 
-# The qttoobox support
-SConscript('qttoolbox/SConscript')
-
 # Test apps for the utilities
 SConscript('utilities/test/SConscript')
 
@@ -54,16 +51,19 @@ SConscript('testdds/SConscript')
 # ECB
 SConscript('ecb/SConscript')
 
-# radd archiver library
-dirs = Split('''
-acex
-logx
-domx
-rtfcommon
-radd/archiver
-radd/archiver-servant
-''')
-SConscript(dirs = dirs)
+# radd archiver stuff
+SConscript('acex/SConscript')
+SConscript('logx/SConscript')
+SConscript('domx/SConscript')
+SConscript('rtfcommon/SConscript')
+SConscript('radd/archiver/SConscript')
+SConscript('radd/archiver-servant/SConscript')
+
+# Add an install target for archiver-servant. Since it belongs to an
+# external, we don't want to munge the SConscript there just for 
+# this purpose.
+env.Alias('install', 
+          env.InstallProgram('radd/archiver-servant/archiver-servant'))
 
 # EldoraArchiver
 #SConscript('eldoraarchiver/SConscript')
