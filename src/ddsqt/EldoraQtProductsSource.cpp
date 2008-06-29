@@ -75,8 +75,9 @@ void EldoraQtProductsSource::notify() {
                             pP[i] = (product[i] - offset)/gain;
                         }
                        // send the Pbeam to our client.
+                        double airspdCorr = 0.0;
                         emit newPData(P, pItem->radarId, pItem->rotAngle, 
-                                *prodType, gateSpacingMeters);
+                                *prodType, gateSpacingMeters, airspdCorr);
                         clearCapture();
                     }
                     break;
@@ -95,8 +96,10 @@ void EldoraQtProductsSource::notify() {
                             // a set of P points have been collected.
                             // send the P time series to our client.
                             _pointCounter = 0;
+                            double airspdCorr = 0.0;
                             emit newPData(P, pItem->radarId, 
-                                    pItem->rotAngle, *prodType, gateSpacingMeters);
+                                    pItem->rotAngle, *prodType, 
+                                    gateSpacingMeters, airspdCorr);
                             clearCapture();
                         }
                     }

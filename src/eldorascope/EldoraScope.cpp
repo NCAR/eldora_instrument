@@ -186,7 +186,12 @@ void EldoraScope::initFFT() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::productSlot(
-        std::vector<double> p, int radarId, float eldegrees, int prodType, float gateSpacingMeters) {
+        std::vector<double> p, 
+        int radarId, 
+        float eldegrees, 
+        int prodType, 
+        float gateSpacingMeters,
+        double airspdCorr) {
     if (_paused)
         return;
     processProduct(p);
@@ -540,7 +545,8 @@ void EldoraScope::initPlots() {
     pGroup = addProductTypeTab("Products", _productPlots);
     _tabButtonGroups.push_back(pGroup);
 
-    connect(_typeTab, SIGNAL(currentChanged(QWidget *)), this, SLOT(tabChangeSlot(QWidget*)));
+    connect(_typeTab, SIGNAL(currentChanged(QWidget *)), 
+            this, SLOT(tabChangeSlot(QWidget*)));
 }
 
 //////////////////////////////////////////////////////////////////////

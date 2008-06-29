@@ -29,6 +29,17 @@ using namespace EldoraDDS;
 /// in the constructor, then the delivered products are always those
 /// specified in the constructor, and will not be changed by these slots.
 ///
+/// Notice that there are some very specific Eldora considerations
+/// in this class. In particular, it will extract a few parameters
+/// from the housekeeping information, that are needed by downstream 
+/// consumers. It even computes some specific quantities, such as
+/// the along beam correction for airspeed. These are sent out 
+/// with the newPData signal. This is sort of a strange 
+/// place to be doing this, but it is a compromise. An alternative
+/// would be to send the whole housekeeping payload to the 
+/// consumers. Maybe a redesign is called for. In any event, 
+/// it is clear that EldoraQtProductsSource is very Eldora specific.
+///
 class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
     Q_OBJECT
     public:
@@ -65,9 +76,10 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// @param elDegrees Elevation angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
         /// @param gateSpacingMeters The gate spacing in meters
+        /// @param airspdCorr The airspeed correction to the radial velocity
         void newPData(
                 std::vector<double> P, int radarId, float elDegrees,
-                int prodType, float gateSpacingMeters);
+                int prodType, float gateSpacingMeters, double airspdCorr);
 
     public slots:
         /// Set the gate mode to ONE_GATE.

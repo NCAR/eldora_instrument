@@ -76,9 +76,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param prodType The product type, from PRODUCT_TYPES
         /// @param gateSizeMeters The widht of each range gates. Needed to 
         /// draw the range rings on the ppi.
+        /// @param airspdCorr The airspeed correction that can be added to the 
+        /// radial velocity if desired.
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
-                int prodType, float gateSizeMeters);
+                int prodType, float gateSizeMeters, double airspdCorr);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(

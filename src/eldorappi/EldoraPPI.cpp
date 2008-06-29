@@ -167,7 +167,12 @@ EldoraPPI::~EldoraPPI() {
 
 //////////////////////////////////////////////////////////////////////
 void EldoraPPI::productSlot(
-        std::vector<double> p, int radarId, float rotAngle, int prodType, float gateSizeMeters) {
+        std::vector<double> p, 
+        int radarId, 
+        float rotAngle, 
+        int prodType, 
+        float gateSizeMeters,
+        double airspdCorr) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   

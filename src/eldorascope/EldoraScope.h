@@ -133,7 +133,15 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param radarId either EldoraDDS::Fore or EldoraDDS::Aft
         /// @param elDegrees The antenna pointing elevation, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
-        void productSlot(std::vector<double> p, int radarId, float elDegrees, int prodType, float gateSpacingMeters);
+        /// @param gateSpacingMeters The width in meters of each gate
+        /// @param airspdCorr The airspeed correction to be added to the 
+        /// radial velocity, if desired.
+        void productSlot(std::vector<double> p, 
+                         int radarId, 
+                         float elDegrees, 
+                         int prodType, 
+                         float gateSpacingMeters,
+                         double airspdCorr);
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries. It will be zero based. 
         /// Add firstgate to stablish the true gate number.
