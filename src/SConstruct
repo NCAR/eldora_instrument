@@ -54,12 +54,19 @@ SConscript('testdds/SConscript')
 # ECB
 SConscript('ecb/SConscript')
 
-# archiver
-SConscript('acex/SConscript')
-SConscript('logx/SConscript')
-SConscript('domx/SConscript')   # domx must be after logx; not sure why...
-SConscript('rtfcommon/SConscript')
-SConscript('radd/archiver/SConscript')
+# radd archiver library
+dirs = Split('''
+acex
+logx
+domx
+rtfcommon
+radd/archiver
+radd/archiver-servant
+''')
+SConscript(dirs = dirs)
+
+# EldoraArchiver
+SConscript('eldoraarchiver/SConscript')
 
 # VxWorks (the housekeeper)
 SConscript('vx-eldora/SConscript')
