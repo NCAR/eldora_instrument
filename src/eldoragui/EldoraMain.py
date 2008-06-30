@@ -380,8 +380,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         '''
         sumMode = False
         
-        self.hskpRaysFor = ProgressStrip(max=4000,title='For', sumMode=sumMode)
-        self.hskpRaysAft = ProgressStrip(max=4000,title='Aft', sumMode=sumMode)
+        self.hskpRaysFor = ProgressStrip(max=120,title='For', sumMode=sumMode)
+        self.hskpRaysAft = ProgressStrip(max=120,title='Aft', sumMode=sumMode)
         self.layoutRateBox(self.HskpRateBox,[self.hskpRaysFor,self.hskpRaysAft])
                 
         self.forBytes = ProgressStrip(max=4000,title='For',sumMode=sumMode)
