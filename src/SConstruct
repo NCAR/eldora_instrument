@@ -42,6 +42,9 @@ SConscript('dorade/tool_dorade.py')
 # The eldoradrx program
 SConscript('eldoradrx/SConscript')
 
+# The qttoolbox support
+SConscript('qttoolbox/SConscript')
+
 # Test apps for the utilities
 SConscript('utilities/test/SConscript')
 
