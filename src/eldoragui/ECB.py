@@ -107,6 +107,50 @@ class SA:
 		
 ####################################################################################
 ####################################################################################
+class Mux:
+	''' Manage the testpulse and transmit multiplexors (Mux).
+	A Mux programming application will be run in order to 
+	program them.
+	'''
+	def __init__(self, ip, port, muxProgram, textFunction=None, verbose=False):
+		''' Constructor
+		ip (string) - the ip address of the dds controller
+		port (string) - the port number 
+		muxProgram (string) - path to the mux programming program.
+		textFunction (function) - function to call to log text. The function
+		   signature is (text, paylod)
+		'''
+		self.ip = ip
+		self.port = str(port)
+		self.muxapp = muxProgram
+		self.verbose = verbose
+		self.textFunction = textFunction
+				
+####################################################################################
+	def programMux(self, radar, channel, muxchoice):
+		''' Run the sa programming command.
+		radar (string) - radar choice, either forward or aft
+		channel (string) - 0|1|2|3|P|T
+		muxchoice (string) - either testpulse or transmit
+		'''
+		cmd = [self.muxapp,]
+		cmd.append('--ip')
+		cmd.append(self.ip)
+		cmd.append('--port')
+		cmd.append(self.port)
+		cmd.append('--radar')
+		cmd.append(radar)
+		cmd.append('--mux')
+		cmd.append(muxchoice)
+		cmd.append('--channel')
+		cmd.append(channel)
+		p = EmitterProc(cmd, emitText=False, 
+					payload='red',verbose=self.verbose)
+		if self.textFunction != None:
+			QObject.connect(p, SIGNAL("text"), self.textFunction)
+		p.startDetached()
+		
+####################################################################################
 class TestPulseControl(QObject):
 	''' Assist with periodic programming of the dds, sa and mux
 	for the test pulse generation for both radars.

@@ -49,6 +49,7 @@ class ApplicationDict:
 global main             # The main gui window, from EldoraMain.ui
 global dds              # the dds controller - dict('forward', 'aft')
 global sa               # the steped attenuator controller, one for both fore and aft
+global mux              # The mux programmer
 global testPulse        # test pulse periodic controller
 global ourConfig        # the EldoraGui.ini configuration
 global eldoraDir        # used to find eldora application binaries
@@ -767,7 +768,14 @@ def createECB():
             saProgram=appDict['progsa'],
             textFunction=main.logText,
             verbose=Verbose)
-
+    
+    # create a multiplexor controller
+    mux = Mux(ip=ipSaMux,
+			port=port,
+			muxProgram=appDict['progmux'],
+			textFunction=main.logText,
+			verbose=Verbose)
+			
     # create the test pulse controller
     # get the attenuation values
     atten = dict()
@@ -784,6 +792,7 @@ def createECB():
     # get the frequncy offset
     fOffGhz = ourConfig.getDouble('ECB/FreqOffsetGhz', 0.0001)
     
+    # creat ethe test pulse controller
     testPulse = TestPulseControl(testpulseapp=appDict['progtestpulse'],
 								ipddsfor=ipDdsFor,
 								ipddsaft=ipDdsAft,
@@ -802,6 +811,7 @@ def createECB():
 def progECB():
     global dds
     global sa
+    global mux
     global testPulse
 
     # get the header
@@ -810,7 +820,12 @@ def progECB():
     # program the for and aft transmit frequencies
     dds['forward'].programDDS(header)
     dds['aft'].programDDS(header)
-
+    
+    # program the transmit multiplexors
+    mux.programMux(radar='forward', muxchoice='transmit', channel='P')
+    mux.programMux(radar='aft',     muxchoice='transmit', channel='P')
+    
+    # start the testpulse cycle
     testPulse.start()
 
     return
