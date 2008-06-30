@@ -107,6 +107,15 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 PRODUCT_TYPES prodType, Products* pItem, short** data,
                 float& gain, float& offset);
 
+        /// Calculate the airspeed correction that can added to the radial velocity
+        /// in order to remove the aircraft motion. Useful for ppi displays.
+        /// Note that the operating mode of the radar is taken into consideration. Since 
+        /// the correction is only applied in in dual prt mode, then in single prt
+        /// mode the value will be zero.
+        /// @param pItem The EldoraDDS::Products containing housekeeping data
+        /// used to determine the correction.
+        /// @return The correction to be added to the radial (VR) velocity.
+        double airSpeedCorrection(Products* pItem);
         /// Do not collect samples any faster than this
         double _outputRate;
 

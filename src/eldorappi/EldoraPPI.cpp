@@ -195,6 +195,12 @@ void EldoraPPI::productSlot(
                                    _left, _right, _bottom, _top);
     }
 
+    // apply the airspeed correction to VR
+    if (productType == PROD_VR) {
+        for (unsigned int i = 0; i < p.size(); i++)
+            p[i] += airspdCorr;
+    }
+    
     // Map the product type into the zero based index for the PPIManager.
     int index = _productInfo[productType].getUserData();
     

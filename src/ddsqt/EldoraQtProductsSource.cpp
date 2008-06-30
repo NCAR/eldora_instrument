@@ -58,6 +58,7 @@ void EldoraQtProductsSource::notify() {
                 float offset;
                 short* product;
                 float gateSpacingMeters = pItem->gateSpacingMeters;
+                double airspdCorr = airSpeedCorrection(pItem);
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -75,7 +76,6 @@ void EldoraQtProductsSource::notify() {
                             pP[i] = (product[i] - offset)/gain;
                         }
                        // send the Pbeam to our client.
-                        double airspdCorr = 0.0;
                         emit newPData(P, pItem->radarId, pItem->rotAngle, 
                                 *prodType, gateSpacingMeters, airspdCorr);
                         clearCapture();
@@ -96,7 +96,6 @@ void EldoraQtProductsSource::notify() {
                             // a set of P points have been collected.
                             // send the P time series to our client.
                             _pointCounter = 0;
-                            double airspdCorr = 0.0;
                             emit newPData(P, pItem->radarId, 
                                     pItem->rotAngle, *prodType, 
                                     gateSpacingMeters, airspdCorr);
@@ -225,3 +224,11 @@ void EldoraQtProductsSource::alongBeamSlot(
     
     _radarChoices = _forwardRadar ? RADAR_FOR : RADAR_AFT;
 }
+
+////////////////////////////////////////////////////////////
+double EldoraQtProductsSource::airSpeedCorrection(Products* pItem) {
+    
+    EldoraDDS::Housekeeping* pHskp = &pItem->hskp;
+    return 0.0;
+}
+
