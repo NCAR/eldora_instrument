@@ -100,13 +100,14 @@ int main()
           cout<<"(1) Xmit Trigger Mux\n";
           cout<<"Or Enter (-1) to exit\n";
           cout<<"Enter Choice: ";
-          cin >> radarchoice;
-          if(radarchoice < -1 || radarchoice > 1) cout << "\nInvalid Input\n";
+          int muxchoice;
+          cin >> muxchoice;
+          if(muxchoice < -1 || muxchoice > 1) cout << "\nInvalid Input\n";
           else
           {
-            if(radarchoice == -1) break;
-            radarchoice = radarchoice * 8;
-            TrigMux mux("etherio-sa", 2424, radarchoice);
+            if(muxchoice == -1) break;
+            muxchoice = muxchoice * 8;
+            TrigMux mux("etherio-sa", 2424, muxchoice);
             TrigMuxMenu menu(mux);
           }
         }

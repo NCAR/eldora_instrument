@@ -16,8 +16,8 @@ public:
   ///Constructor
   /// @param ipAddres Address of the etherio24 card
   /// @param port port number
-  /// @param radar fore or aft radar
-  TrigMux(std::string ipAddress, int port, int radar);
+  /// @param muxchoice Choose test pulse mux(0) or transmit mux (8). 
+  TrigMux(std::string ipAddress, int port, int muxchoice);
 
   ///Destructor
   ~TrigMux();
@@ -27,8 +27,8 @@ public:
   /// @param countevalue value for the counter in the Trigger Mux
   void SetMux(int channelnum, int countervalue);
 
-  ///fore or aft raday
-  int _radar;
+  /// test pulse or transmit mux (0 or 8)
+  int _muxchoice;
 
 protected:
   ///Object of Ether IO 24 Class

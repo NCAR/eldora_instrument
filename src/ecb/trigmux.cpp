@@ -1,8 +1,8 @@
 
 #include "trigmux.h"
 
-TrigMux::TrigMux(std::string ipAddress, int port, int radar):
-    _radar(radar),
+TrigMux::TrigMux(std::string ipAddress, int port, int muxchoice):
+    _muxchoice(muxchoice),
     _ether3(ipAddress, port)
 {}
 
@@ -22,18 +22,15 @@ TrigMux::SetMux(int channelnum, int countervalue)
   unsigned char Select[2];
   unsigned char Data[2];
 
-
-
   //Activates Master Reset to Stop Previous Signal
   Address[0]='B';
   //Makes sure that ADDR<3> either stays 0 or 1 for fore or aft
-  Address[1]= _radar | 0x03;
+  Address[1]= _muxchoice | 0x03;
   SendToBoard(Address[0], Address[1]);
 
   Select[0]='C';
   Select[1]= 0x00;
   SendToBoard(Select[0], Select[1]);
-
 
   /////////////Select a non-registered Signal First
   Select[0]='C';
@@ -43,7 +40,7 @@ TrigMux::SetMux(int channelnum, int countervalue)
   //Set Address Bits to Control Decoder
   Address[0]='B';
   //Seting up for W1, A2-A0 = 001
-  Address[1]= _radar | 0x01;
+  Address[1]= _muxchoice | 0x01;
   SendToBoard(Address[0], Address[1]);
 
   //Set Data Bits
@@ -62,15 +59,12 @@ TrigMux::SetMux(int channelnum, int countervalue)
   Select[1]= 0x00;
   SendToBoard(Select[0], Select[1]);
 
-
-
   //////////Load Counting Data- Sampling Rate
   //Set Address Bits to Control Decoder
   Address[0]='B';
   //Seting up for W2, A2-A0 = 010
-  Address[1]= _radar | 0x02;
+  Address[1]= _muxchoice | 0x02;
   SendToBoard(Address[0], Address[1]);
-
 
   //Set Data Bits
   Data[0]='A';
@@ -78,19 +72,17 @@ TrigMux::SetMux(int channelnum, int countervalue)
   Data[1] = countervalue;
   SendToBoard(Data[0], Data[1]);
 
-
   //Toggle DS to activate W2
   //Latch Data
   Select[0]='C';
   Select[1]= 0x10;
   SendToBoard(Select[0], Select[1]);
 
-
   //Set XTR to high , load data from data latches
   //Set W4 to low
   Address[0]='B';
   //Seting up for W4, A2-A0 = 100
-  Address[1]= _radar | 0x04;
+  Address[1]= _muxchoice | 0x04;
   SendToBoard(Address[0], Address[1]);
 
   //Toggle DS back to 0
@@ -98,13 +90,11 @@ TrigMux::SetMux(int channelnum, int countervalue)
   Select[1]= 0x00;
   SendToBoard(Select[0], Select[1]);
 
-
-
   //////////Choose Desired Channel
   if (channelnum < 7) channelnumber = channelnum;
   else channelnumber = channelnum + 1;
   //Combines the radar selection with the channel number
-  q = _radar | channelnumber;
+  q = _muxchoice | channelnumber;
 
   Select[0]='C';
   Select[1]= 0x00;
@@ -114,7 +104,7 @@ TrigMux::SetMux(int channelnum, int countervalue)
   Address[0]='B';
   //Seting up for W1, A2-A0 = 001
   //Also sets XTR to low, so it can start count down
-  Address[1]= _radar | 0x01;
+  Address[1]= _muxchoice | 0x01;
   SendToBoard(Address[0], Address[1]);
 
   //Set Data Bits to Select Desired Channel Number
@@ -129,9 +119,7 @@ TrigMux::SetMux(int channelnum, int countervalue)
   Select[1]= 0x10;
   SendToBoard(Select[0], Select[1]);
 
-
   return;
-
 }
 
 /////////////////////////////////////////////
