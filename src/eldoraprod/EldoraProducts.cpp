@@ -659,7 +659,7 @@ void ProductsTerms::init(int gates,
     
     // range correction
     for (int g = 0; g < gates; g++) {
-        r[g] = 20.0*log10((g*cellWidth + cellWidth/2.0) / 1000.0);
+        r[g] = 20.0*log10(((g+1)*cellWidth + firstGate) / 1000.0);
     }
 
     lambda = 0.0;
