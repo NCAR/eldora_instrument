@@ -501,6 +501,7 @@ void EldoraProducts::initTerms(RayData& rays)
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prt,
                 rays[0][0]->hskp.prtLong,
+                rays[0][0]->hskp.firstGateDistance,
                 rays[0][0]->hskp.cellWidth[0],
                 _dualPrt);
 
@@ -595,6 +596,7 @@ void ProductsTerms::init(int gates,
                          float prt,
                          float prtShort,
                          float prtLong,
+                         float firstGate,
                          float cellWidth,
                          bool dualPrt)
 {
@@ -654,6 +656,8 @@ void ProductsTerms::init(int gates,
     radarConstant = fabs(radConstant);
 
     // calculate constants
+    
+    // range correction
     for (int g = 0; g < gates; g++) {
         r[g] = 20.0*log10((g*cellWidth + cellWidth/2.0) / 1000.0);
     }
