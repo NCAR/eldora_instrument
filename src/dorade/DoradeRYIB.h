@@ -15,8 +15,18 @@
 
 class DoradeRYIB : public DoradeDescriptor {
 public:
+    /**
+     * Construct a RYIB descriptor from a data stream.
+     * @param data the bytes from which to read the RYIB
+     * @param datalen the length of data
+     * @param isLittleEndian true iff the incoming stream contains little-endian
+     *      data (contrary to the definition of DORADE).
+     * @param year the year to use for the RYIB.  If year is -1, then
+     *      construction will assume that the time of the RYIB is very close
+     *      to now, and will assign the year accordingly.
+     */
     DoradeRYIB(const unsigned char *data, unsigned int datalen, 
-               bool isLittleEndian) throw (DescriptorException);
+               bool isLittleEndian, int year = -1) throw (DescriptorException);
     
     DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
         float azimuth, float elevation, float peakXmitPower, float scanRate,

@@ -15,7 +15,7 @@ using namespace boost::gregorian;   // date
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
 DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen, 
-                       bool isLittleEndian) throw (DescriptorException) :
+                       bool isLittleEndian, int year) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "RYIB", 44) { 
     //
     // unpack
@@ -40,34 +40,41 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
     // Get time of day for the ray
     int fracSeconds = _millisecond * (time_duration::ticks_per_second() / 1000);
     time_duration rayTimeOfDay(_hour, _minute, _second, fracSeconds);
-    
+
     // Get current time (and year) according to our clock.
     ptime now = second_clock::universal_time();
-    
-    // difference in days between day of the year according to us and day of
-    // the year according to the RYIB
-    int daydiff = now.date().day_of_year() - _julianDay;  // -365 to 365
 
-    // Assign the year from our clock to the ray. If the ray's day-of-year 
-    // disagrees significantly with our day-of-year, assume that we're 
-    // near a year boundary and need to add or subtract a year when 
-    // assigning to the ray.
-    int rayYear = now.date().year();
-    if (daydiff >= 364)
-        rayYear++;
-    else if (daydiff < -364)
-        rayYear--;
+    // Figure out the year for the ray.  Either use the year we were given,
+    // or assume that the ray time is very close to now.
+    int rayYear = year;
+    if (year < 0) {
+        // difference in days between day of the year according to us and day of
+        // the year according to the RYIB
+        int daydiff = now.date().day_of_year() - _julianDay;  // -365 to 365
+
+        // Assign the year from our clock to the ray. If the ray's day-of-year 
+        // disagrees significantly with our day-of-year, assume that we're 
+        // near a year boundary and need to add or subtract a year when 
+        // assigning to the ray.
+        rayYear = now.date().year();
+        if (daydiff >= 364)
+            rayYear++;
+        else if (daydiff < -364)
+            rayYear--;
+    }
 
     date rayDate = date(rayYear, 1, 1) + date_duration(_julianDay - 1);
     _rayDateTime = ptime(rayDate, rayTimeOfDay);
-    
-    // If we're not within five minutes of now, something's wrong...
-    int diffSecs = (_rayDateTime - now).total_seconds();
-    if (abs(diffSecs) > 300) {
-        std::stringstream ss;
-        ss << "Closest RYIB time we can get is " << diffSecs <<
+
+    if (year < 0) {
+        // If we're not within five minutes of now, something's wrong...
+        int diffSecs = (_rayDateTime - now).total_seconds();
+        if (abs(diffSecs) > 300) {
+            std::stringstream ss;
+            ss << "Closest RYIB time we can get is " << diffSecs <<
             " seconds from now";
-        throw DescriptorException(ss.str());
+            throw DescriptorException(ss.str());
+        }
     }
 
     //
