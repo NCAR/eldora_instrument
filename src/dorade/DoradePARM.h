@@ -25,6 +25,8 @@ public:
     
     // accessor methods
     // @TODO add accessor methods
+    std::string getParamName() { return _name; }
+    int getParamType() { return _paramType; }
     
     std::ostream& printTo(std::ostream& stream) const;
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
