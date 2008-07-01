@@ -1,0 +1,23 @@
+Creating Doxygen documents cross referenced to ACE/TAO/DDS Doxygen
+documents.
+
+Download 
+http://download.ociweb.com/OpenDDS/OpenDDS-1.1-doxygen.tar.gz
+and unpack into /usr/local/docs/OpenDDS_Doxygen
+
+run
+docs/scripts/create_tags
+which creates
+
+/opt/local/doc/OpenDDS_Doxygen/html/dds/OpenDDS.tag
+
+create the Eldora documentation 
+
+$ cd src
+$ doxygen
+$ cd doxyout/html
+$ installdox -l OpenDDS.tag@/opt/local/doc/OpenDDS_Doxygen/html/dds
+
+"installdox" modifies the links in the generated Eldora documents to point to the
+OpenDDS documents,
+
