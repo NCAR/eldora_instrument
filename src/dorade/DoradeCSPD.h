@@ -20,6 +20,10 @@ public:
     DoradeCSPD(short numSegments, short distToFirstGate, short spacing[6], 
         short cellsInSegment[6]);
     
+    short getNSegments() { return _numSegments; }
+    const short* getNCells() { return _cellsInSegment; }
+    const short* getCellSpacing() { return _spacing; }
+    
     // accessor methods
     // @TODO add accessor methods
     
