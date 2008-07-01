@@ -72,7 +72,7 @@ public:
      *      DORADE(-like) files.  This parameter defaults to false.
      */
     virtual std::ostream& streamTo(std::ostream& os, 
-            bool asLittleEndian = false) = 0;
+            bool asLittleEndian = false);
     /**
      * Print a text representation of the descriptor to the given stream
      */

@@ -257,3 +257,15 @@ DoradeDescriptor::printTo(std::ostream& os) const
     os << _descName << " (" << _descLen << " bytes)" << std::endl;
     return os;
 };
+
+std::ostream&
+DoradeDescriptor::streamTo(std::ostream& os, bool asLittleEndian)
+{
+    char null = '\0';
+    putBytes(os, _descName.data(), 4, false);
+    putInt(os, _descLen, asLittleEndian);
+    // Fill the rest of the descriptor with nulls
+    for (int i = 0; i < _descLen - 8; i++)
+        putBytes(os, &null, 1, false);
+    return os;
+}
