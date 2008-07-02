@@ -328,9 +328,8 @@ Edited by Tom 1/30/08
     printf("Starting the IRU Interface\n");
     start_iru();
  
-    /* Start the interrupts from the ieee-488 board */
-    // Tom 3/6/08 GPIB not connected so comment out for now 
-    //start_ieee(); 
+    /* Start the interrupts from the ieee-488 board */ 
+    start_ieee(); 
 
     /* Start the radar proccessors over the vme to vme interfaces */
     /* Note: the radar processors should always be the very last things
