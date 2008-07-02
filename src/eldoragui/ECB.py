@@ -281,7 +281,7 @@ class TestPulseControl(QObject):
 		for radar in ('forward','aft'):
 			db = self.atten[radar][self.index]
 			freq = self.freqs[radar][self.index]
-			self.programTestPulse(radar, str(self.index),freq, db)
+			self.programTestPulse(radar, 'T',freq, db)
 			if self.callback != None:
 				callbackParams[radar]['db'] = float(self.atten[radar][self.index])
 				callbackParams[radar]['freq'] = float(self.freqs[radar][self.index])			
