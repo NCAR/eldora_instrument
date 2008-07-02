@@ -21,6 +21,7 @@ void parseOptions(int argc,
 
     std::string radar;
     bool err = false;
+    char choice;
 
     // get the options
     po::options_description descripts("Options");
@@ -32,7 +33,7 @@ void parseOptions(int argc,
     ("port",      po::value<int>(&port),            "Port number")
     ("radar",     po::value<std::string>(&radar),   "Radar (forward|aft)")
     ("db",        po::value<int>(&db),              "Attenuation 0-120 (db)")
-    ("muxchan",   po::value<int>(&muxchan),         "Test pulse multiplexor channel number 0|1|2|3")
+    ("muxchan",   po::value<char>(&choice),          "Test pulse multiplexor channel number 0|1|2|3|T|P")
     ("frequency", po::value<double>(&frequency),    "Frequency 9-10 (ghz)")
     ("noisereduction",                              "[Enable noise reduction]")
     ;
@@ -76,10 +77,24 @@ void parseOptions(int argc,
     }
 
 
-    if (muxchan < 0 || muxchan > 3) {
-        std::cerr << "channel must be 0|1|2|3\n";
+    switch (choice) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        muxchan = choice - '0';
+        break;
+        case 'P':
+        muxchan = 5;
+        break;
+        case 'T':
+        muxchan = 6;
+        break;
+        default:
+        std::cerr << "channel must be 0|1|2|3|P|T\n";
         err = true;
     }
+
     // The mux channels run from 0 -13
     muxchan = aftRadar? (muxchan+7):muxchan;
 
