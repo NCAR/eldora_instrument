@@ -24,10 +24,13 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
                                    std::string& ORB,
                                    std::string& DCPS,
                                    std::string& DCPSInfoRepo,
-                                   bool& dualPrt) {
+                                   bool& dualPrt,
+				   int  &DCPSDebugLevel,
+				   int  &DCPSTransportDebugLevel) {
 
     // get the options
     po::options_description descripts("Options");
+    int theDebugLevel, theTransportLevel;
 
     descripts.add_options() ("help", "describe options") ("raytopic",
                                                           po::value<std::string>(&rayTopic), "DDS ray topic")
@@ -36,12 +39,18 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("dualprt", "Dual prt mode")
+    ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
+    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
+     "DCPSTransportDebugLevel ");
     ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(_argc, _argv, descripts), vm);
-    po::notify(vm);
+
+    DCPSDebugLevel = theDebugLevel;
+    DCPSTransportDebugLevel = theTransportLevel;
     
+    po::notify(vm);
     if (vm.count("dualprt"))
         dualPrt = true;
 
@@ -76,6 +85,8 @@ int EldoraProductsMain::run() {
     std::string DCPS;
     std::string DCPSInfoRepo;
     bool dualPrt;
+    int DCPSDebugLevel;
+    int DCPSTransportDebugLevel;
     int numPrtIds;
 
     // set up the default configuration directory path
@@ -103,7 +114,8 @@ int EldoraProductsMain::run() {
     
     dualPrt = config.getBool("DualPrt", false);
 
-    parseArgs(rayTopic, productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt);
+    parseArgs(rayTopic, productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt, DCPSDebugLevel,
+	      DCPSTransportDebugLevel);
 
     // determine how many prt ids we have.
     if (dualPrt) {
@@ -121,7 +133,11 @@ int EldoraProductsMain::run() {
     subParams["-DCPSConfigFile"] = DCPS;
     subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
 
-    // create the subscriber
+    if (DCPSDebugLevel > 0) 
+	subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
+    if (DCPSTransportDebugLevel > 0) 
+	subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
+ // create the subscriber
     DDSSubscriber subscriber(subParams.argc(), subParams.argv());
     int subStatus = subscriber.status();
     if (subStatus)

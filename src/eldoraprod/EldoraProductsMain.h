@@ -32,7 +32,9 @@ class EldoraProductsMain {
                        std::string& ORB,
                        std::string& DCPS,
                        std::string& DCPSInfoRepo,
-                       bool& dualPrt);
+                       bool& dualPrt,
+		       int & DCPSDebugLevel,
+		       int & DCPSTransportDebugLevel);
 
         /// argc from main()
         int _argc;
