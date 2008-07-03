@@ -75,6 +75,13 @@ std::string _tsTopic; /// The published timeseries topic
 /// The port number for RPC comms to eldoradrx.
 int _rpcPort;
 
+/// the DCPSDebugLevel
+int _DCPSDebugLevel = 0;
+
+/// the DCPSTransportDebugLevel
+int _DCPSTransportDebugLevel=0;
+
+
 static const unsigned int DEFAULT_HSKP_PORT = 2222;
 /// The port number for incoming housekeeper data
 unsigned int _hskpPort;
@@ -545,7 +552,10 @@ static void parseOptions(int argc,
     ("binary", "binary capture")
     ("text", "text capture")
     ("publish", "publish data")
-    ("rpcport", po::value<int>(&_rpcPort), "RPC port number");
+    ("rpcport", po::value<int>(&_rpcPort), "RPC port number")
+    ("DCPSDebugLevel", po::value<int>(&_DCPSDebugLevel), "DCPSDebugLevel ")
+    ("DCPSTransportDebugLevel", po::value<int>(&_DCPSTransportDebugLevel), 
+     "DCPSTransportDebugLevel ");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, descripts), vm);
@@ -1116,13 +1126,17 @@ static void createDDSservices()
     argv["-ORBSvcConf"] = _ORB;
     argv["-DCPSConfigFile"] = _DCPS;
     argv["-DCPSInfoRepo"] = _DCPSInfoRepo;
+    if (_DCPSDebugLevel > 0) 
+	argv["-DCPSDebugLevel"] = _DCPSDebugLevel;
+    if (_DCPSTransportDebugLevel > 0) 
+	argv["-DCPSTransportDebugLevel"] = _DCPSTransportDebugLevel;
 
     // create our DDS publisher
 #ifdef ORIG
     _publisher = new DDSPublisher(argv.argc(), argv.argv());
 #else
     char **theArgv = argv.argv();
-    std::cerr << "theArgv[0] = " << theArgv[0] << std::endl;
+    //    std::cerr << "theArgv[0] = " << theArgv[0] << std::endl;
     _publisher = new DDSPublisher(argv.argc(), theArgv);
 #endif
     if (_publisher->status()) {
