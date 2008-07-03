@@ -1384,11 +1384,11 @@ actual_num_rcvrs = 2;
 
 rcvr[FORE].cntr_freq = 9.7;
 
-rcvr[FORE].receiver_gain[0] = 30.30;
-rcvr[FORE].receiver_gain[1] = 30.40;
-rcvr[FORE].receiver_gain[2] = 30.40;
-rcvr[FORE].receiver_gain[3] = 30.80;
-rcvr[FORE].receiver_gain[4] = 30.00;
+rcvr[FORE].receiver_gain[0] = 24.30;
+rcvr[FORE].receiver_gain[1] = 24.40;
+rcvr[FORE].receiver_gain[2] = 24.40;
+rcvr[FORE].receiver_gain[3] = 24.80;
+rcvr[FORE].receiver_gain[4] = 24.00;
 
 rcvr[FORE].if_gain[0] = 0.0;
 rcvr[FORE].if_gain[1] = 0.0;
@@ -1403,11 +1403,11 @@ rcvr[FORE].freq_indexs[i] = (rcvr[FORE].cntr_freq - 9.25) * 10.0;
 
 rcvr[AFT].cntr_freq = 9.6;
 
-rcvr[AFT].receiver_gain[0] = 30.30;
-rcvr[AFT].receiver_gain[1] = 31.50;
-rcvr[AFT].receiver_gain[2] = 31.30;
-rcvr[AFT].receiver_gain[3] = 31.80;
-rcvr[AFT].receiver_gain[4] = 30.00;
+rcvr[AFT].receiver_gain[0] = 24.30;
+rcvr[AFT].receiver_gain[1] = 25.50;
+rcvr[AFT].receiver_gain[2] = 25.30;
+rcvr[AFT].receiver_gain[3] = 25.80;
+rcvr[AFT].receiver_gain[4] = 25.00;
 
 rcvr[AFT].if_gain[0] = 0.0;
 rcvr[AFT].if_gain[1] = 0.0;
