@@ -92,10 +92,18 @@ DoradeVOLD::DoradeVOLD(short formatVersionNum, short volumeNum,
 std::ostream& 
 DoradeVOLD::printTo(std::ostream& os) const
 {
-    // @TODO need to print more details
     DoradeDescriptor::printTo(os);
     if (_verbose) {
-        os << "VOLD (details don't print yet)" << std::endl;
+        os << "  format version: " << _formatVersionNum << std::endl;
+        os << "  volume number: " << _volumeNum << std::endl;
+        os << "  max data rec length: " << _maxDataRecLen << std::endl;
+        os << "  project name: " << _projectName << std::endl;
+        os << "  volume start time: " << _volumeDateTime << std::endl;
+        os << "  flight or IOP: " << _flightOrIOP << std::endl;
+        os << "  generating facility: " << _generatingFacility << std::endl;
+        os << "  generation date: " << _genYear << "/" << _genMonth << 
+            "/" << _genDay << std::endl;
+        os << "  sensor descriptor count: " << _sensorCount << std::endl;
     }
     return os;
 }
