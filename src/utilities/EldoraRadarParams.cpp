@@ -116,6 +116,13 @@ EldoraRadarParams::EldoraRadarParams()
     parm_vr_scale = 400.0;
     parm_vr_bias = 0.0;
 
+    vold_date[0] = 1;
+    vold_date[1] = 1;
+    vold_date[2] = 70;
+    
+    vold_time[0] = 0;
+    vold_time[1] = 0;
+    vold_time[2] = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -219,5 +226,19 @@ void EldoraRadarParams::dump()
     std::cout << "parm_vl_bias: " << parm_vl_bias << "\n";
     std::cout << "parm_vr_scale: " << parm_vr_scale << "\n";
     std::cout << "parm_vr_bias: " << parm_vr_bias << "\n";
+    // volume date: dd/mm/yyyy
+    std::cout << "vold_date: " << vold_date[0] << "/" << vold_date[1] <<
+        "/" << vold_date[2] << "\n";
+    // volume time: hh:mm:ss
+    std::cout << "vold_time: " << vold_time[0] << ":" << vold_time[1] <<
+        ":" << vold_time[2] << "\n";
+}
 
+/////////////////////////////////////////////////////////////////////////
+boost::posix_time::ptime EldoraRadarParams::getVolumeDateTime() {
+    // Turn our volume date/time elements into a boost::posix_time::ptime
+    boost::gregorian::date vDate(vold_date[2] + 1900, vold_date[1], vold_date[0]);
+    boost::posix_time::time_duration vTime(vold_time[0], vold_time[1], 
+                                           vold_time[2]);
+    return boost::posix_time::ptime(vDate, vTime);
 }

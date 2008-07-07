@@ -4,7 +4,7 @@
 #
 import os
 
-tools = ['default', 'svninfo', 'xmlrpc']
+tools = ['default', 'svninfo', 'xmlrpc', 'boost_date_time']
 env = Environment(tools = tools)
 
 # create the svnInfo.h
