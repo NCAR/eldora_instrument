@@ -7,6 +7,7 @@ module EldoraDDS {
     typedef struct housekeeping_ {
         // ray time tag (built from RYIB), usecs since 1970/1/1 00:00 UTC
         long long timetag;
+        
         // RYIB contents
         short sweepNum;
         short julianDay;
@@ -19,6 +20,7 @@ module EldoraDDS {
         float peakXmitPower;    // kW
         float trueScanRate;     // deg/s
         long rayStatus;         // 0=normal, 1=transition, 2=bad
+        
         // ASIB contents
         float longitude;        // deg
         float latitude;         // deg
@@ -38,6 +40,7 @@ module EldoraDDS {
         float windVert;         // vertical wind, m/s
         float headingChangeRate;// deg/s
         float pitchChangeRate;  // deg/s
+        
         // FRAD contents
         long dataSysStatus;
         char radarName[8];
@@ -71,6 +74,8 @@ module EldoraDDS {
         float cellWidth[6];     // cell spacing in meters
         float firstGateDistance;// distance to the first gate in meters
         float rotationVel;      // radar rotational velocity, deg/s
+        float repeatSeqPerDwell;// number of repeat sequences per dwell
+        float msPerRepeat;      // milliseconds per repeat sequence
         float encoderUpAngle;	// reported angle when antenna is pointing up (deg)
         
         float dbzScale;         // scale for dbz

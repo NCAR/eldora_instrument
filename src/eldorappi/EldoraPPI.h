@@ -74,13 +74,14 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
         /// @param elDegrees The antenna pointing elevation, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
-        /// @param gateSizeMeters The widht of each range gates. Needed to 
+        /// @param gateSizeMeters The width of each range gates. Needed to 
         /// draw the range rings on the ppi.
+    	/// @param dwellWidth The angular width of one dwell.
         /// @param airspdCorr The airspeed correction that can be added to the 
         /// radial velocity if desired.
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
-                int prodType, float gateSizeMeters, double airspdCorr);
+                int prodType, float gateSizeMeters, double dwellWidth, double airspdCorr);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(
@@ -201,6 +202,8 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         unsigned int _gates;
         /// The gate size in meters
         double _gateSizeMeters;
+        /// The angular width of one dwell
+        double _dwellWidth;
         /// X coordinate of the left clipping plane (+/- 1.0)
         double _left;
         /// X coordinate of the right clipping plane (+/- 1.0)

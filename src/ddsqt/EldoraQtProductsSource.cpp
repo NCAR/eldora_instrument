@@ -58,6 +58,7 @@ void EldoraQtProductsSource::notify() {
                 float offset;
                 short* product;
                 float gateSpacingMeters = pItem->gateSpacingMeters;
+                double dWidth = dwellWidth(pItem);
                 double airspdCorr = airSpeedCorrection(pItem);
                 
                 // get the scaling and offset values for this product type
@@ -76,8 +77,13 @@ void EldoraQtProductsSource::notify() {
                             pP[i] = (product[i] - offset)/gain;
                         }
                        // send the Pbeam to our client.
-                        emit newPData(P, pItem->radarId, pItem->rotAngle, 
-                                *prodType, gateSpacingMeters, airspdCorr);
+                        emit newPData(P, 
+                        		pItem->radarId, 
+                        		pItem->rotAngle, 
+                                *prodType, 
+                                gateSpacingMeters, 
+                                dWidth, 
+                                airspdCorr);
                         clearCapture();
                     }
                     break;
@@ -96,9 +102,13 @@ void EldoraQtProductsSource::notify() {
                             // a set of P points have been collected.
                             // send the P time series to our client.
                             _pointCounter = 0;
-                            emit newPData(P, pItem->radarId, 
-                                    pItem->rotAngle, *prodType, 
-                                    gateSpacingMeters, airspdCorr);
+                            emit newPData(P, 
+                            		pItem->radarId, 
+                                    pItem->rotAngle, 
+                                    *prodType, 
+                                    gateSpacingMeters, 
+                                    dWidth, 
+                                    airspdCorr);
                             clearCapture();
                         }
                     }
@@ -230,5 +240,21 @@ double EldoraQtProductsSource::airSpeedCorrection(Products* pItem) {
     
     EldoraDDS::Housekeeping* pHskp = &pItem->hskp;
     return 0.0;
+}
+
+////////////////////////////////////////////////////////////
+double EldoraQtProductsSource::dwellWidth(Products* pItem) {
+    
+    
+    double angle = pItem->hskp.rotationVel
+    	*pItem->hskp.repeatSeqPerDwell
+    	*pItem->hskp.msPerRepeat/1000.0;
+    
+    // sanity check
+    if (angle < 0.05 || angle > 10.0) 
+    	angle = 1.0;
+    
+    return angle;
+
 }
 

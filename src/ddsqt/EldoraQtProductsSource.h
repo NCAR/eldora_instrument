@@ -73,13 +73,19 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// value in them.
         /// @param P P data values.
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
-        /// @param elDegrees Elevation angle, degrees
+        /// @param elDegrees Pointing angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
         /// @param gateSpacingMeters The gate spacing in meters
+        /// @param dwellWidth The width of the dwell, in degrees
         /// @param airspdCorr The airspeed correction to the radial velocity
         void newPData(
-                std::vector<double> P, int radarId, float elDegrees,
-                int prodType, float gateSpacingMeters, double airspdCorr);
+                std::vector<double> P, 
+                int radarId, 
+                float elDegrees,
+                int prodType, 
+                float gateSpacingMeters, 
+                double dwellWidth, 
+                double airspdCorr);
 
     public slots:
         /// Set the gate mode to ONE_GATE.
@@ -116,6 +122,12 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// used to determine the correction.
         /// @return The correction to be added to the radial (VR) velocity.
         double airSpeedCorrection(Products* pItem);
+        /// Compute the angle swept out by the Product.
+        /// This is computed from factors contained in the housekeeping.
+        /// The dwell angle is: rotation rate (deg/s) * repeat sequences per dwell 
+        ///    * ms per repeat sequence / 1000.0
+        /// @param pItem The source of housekeeping data.
+        double dwellWidth(Products* pItem);
         /// Do not collect samples any faster than this
         double _outputRate;
 

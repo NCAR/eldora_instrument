@@ -658,7 +658,9 @@ static void setRadarParams(EldoraRadarParams* radarParams,
     hskp->prt = radarParams->radd_ipp1;
     hskp->prtLong = radarParams->radd_ipp2;
     hskp->rotationVel = radarParams->radd_rotvel;
-    
+    hskp->repeatSeqPerDwell = radarParams->wave_seqrep;
+    hskp->msPerRepeat = radarParams->wave_msrep;
+
     hskp->firstGateDistance = radarParams->cspd_1stgat;
 
     hskp->xBandGain = radarParams->frib_xgain;

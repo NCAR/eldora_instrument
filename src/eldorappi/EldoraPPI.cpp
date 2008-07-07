@@ -35,7 +35,7 @@ EldoraPPI::EldoraPPI(std::string title,
         QDialog* parent) :
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
-    _gates(0), _gateSizeMeters(0.0), _left(-1.0), _right(1.0), 
+    _gates(0), _gateSizeMeters(0.0), _dwellWidth(0), _left(-1.0), _right(1.0), 
     _bottom(-0.2), _top(0.8), _rotAngle(0.0)
     {
     // Set up our form
@@ -172,6 +172,7 @@ void EldoraPPI::productSlot(
         float rotAngle, 
         int prodType, 
         float gateSizeMeters,
+        double dwellWidth,
         double airspdCorr) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
@@ -186,12 +187,16 @@ void EldoraPPI::productSlot(
     if (_paused)
         return;
     // if the product size has changed, reconfigure the ppi displays
-    if (p.size() != _gates || gateSizeMeters != _gateSizeMeters) {
+    if (p.size() != _gates || gateSizeMeters != _gateSizeMeters || dwellWidth != _dwellWidth) {
+   	
+    	_dwellWidth = dwellWidth;
         _gates = p.size();
         _gateSizeMeters = gateSizeMeters;
-        _upperManager.configurePPI(_productList.size(), _gates, 257, _gateSizeMeters, 
+        int nBeams = 360.0/_dwellWidth;
+        
+        _upperManager.configurePPI(_productList.size(), _gates, nBeams, _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
-        _lowerManager.configurePPI(_productList.size(), _gates, 257, _gateSizeMeters, 
+        _lowerManager.configurePPI(_productList.size(), _gates, nBeams, _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
     }
 

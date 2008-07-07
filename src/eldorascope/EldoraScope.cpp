@@ -191,6 +191,7 @@ void EldoraScope::productSlot(
         float eldegrees, 
         int prodType, 
         float gateSpacingMeters,
+        double dwellWidth,
         double airspdCorr) {
     if (_paused)
         return;
