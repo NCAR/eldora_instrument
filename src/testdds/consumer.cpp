@@ -15,8 +15,10 @@ void parseArgs(int argc, char** argv,
 		std::string& tsTopic, 
 		std::string& ORB,
 		std::string& DCPS,
-		std::string& DCPSInfoRepo) {
-
+	       std::string& DCPSInfoRepo,
+	       int &DCPSDebugLevel, 
+	       int &DCPSTransportDebugLevel) {
+        int theDebugLevel, theTransportLevel;
 	// get the options
 	po::options_description descripts("Options");
 
@@ -27,10 +29,16 @@ void parseArgs(int argc, char** argv,
 	("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
 	("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
 	("InfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfo Url")
+    ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
+    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
+     "DCPSTransportDebugLevel ");
 	;
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, descripts), vm);
+	DCPSDebugLevel = theDebugLevel;
+	DCPSTransportDebugLevel = theTransportLevel;
+
 	po::notify(vm);
 
 	if (vm.count("help") || !vm.count("ORB") || !vm.count("DCPS") || !vm.count("raytopic") || !vm.count("tstopic")) {
@@ -50,8 +58,11 @@ int main(int argc, char* argv[]) {
 	std::string ORB;
 	std::string DCPS;
 	std::string DCPSInfoRepo;
+	int DCPSDebugLevel = 0;
+	int DCPSTransportDebugLevel = 0;
 
-	parseArgs(argc, argv, rayTopic, tsTopic, ORB, DCPS, DCPSInfoRepo);
+	parseArgs(argc, argv, rayTopic, tsTopic, ORB, DCPS, DCPSInfoRepo, DCPSDebugLevel,
+		  DCPSTransportDebugLevel);
 
 	// we have to do this bit of translation since the 
 	// DDS routines want arguments starting with a single dash,
@@ -60,6 +71,10 @@ int main(int argc, char* argv[]) {
 	subParams["-ORBSvcConf"] = ORB;
 	subParams["-DCPSConfigFile"] = DCPS;
 	subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
+	if (DCPSDebugLevel > 0) 
+	  subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
+	if (DCPSTransportDebugLevel > 0) 
+	  subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
 
 	// create the subscriber
 	DDSSubscriber subscriber(subParams.argc(), subParams.argv());
