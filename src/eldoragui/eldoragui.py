@@ -652,6 +652,11 @@ elemnt in the tuple is the key. The second element is an array
 of associated values. Most keys only have one element in the value 
 array, but some, such as FRIBRXGAIN, will have multiple items
 
+Since there are multiple PARM blocks, the scale and bias values
+are associated with the PARM name value to create a unique key, of
+the form PARMSCALEDBZ or PARMBIASDBZ. The drx rpc handler is expecting 
+this.
+
 The order they are sent to, and received by eldoradrx is
 important, in order to identify the FORE or AFT radar that succeeding values
 belong to. Thus the RADD block must appear before associated PARM blocks, etc.
@@ -706,15 +711,25 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
     # this rpc parameter list will be an array rather than 
     # a dictionary, since we can have entries with the same name.
     params = []
+    # capture the parameter name, to be used in building a key
+    # for scale and bias
+    parmname = ''
     # collect all keys and associated values of interest in the header.
+    # translate PARMSCALE and PARMBIAS to keys with the variable name 
+    # appended.
     for block in header:
         fields = {}
         for field in block:
             key = block.type+field[0]
             if key in fieldtypes:
-                p = [key,]
-                p.append(field[2].split())
-                params.append(p)
+                if key == 'PARMNAME':
+                    parmname = field[2]
+                else:
+                    if key == 'PARMSCALE' or key == 'PARMBIAS':
+                        key = key + parmname
+                    p = [key,]
+                    p.append(field[2].split())
+                    params.append(p)
     # send them to eldoradrx
     try:
     	drxrpc.server.params(params)

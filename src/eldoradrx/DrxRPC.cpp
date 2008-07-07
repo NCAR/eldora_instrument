@@ -234,18 +234,18 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
     doubleMap["CSPDWIDTH"] = p->cspd_width; // 150 150 150 150 -999 -999
     doubleMap["CSPD1STGAT"] = &p->cspd_1stgat; // 225
     
-    doubleMap["PARMVSSCALE"] = &p->parm_vs_scale; // {424.259552} 
-    doubleMap["PARMVSBIAS"] = &p->parm_vs_bias; // {8191.000000} 
-    doubleMap["PARMVSSCALE"] = &p->parm_vl_scale; // {530.324463} 
-    doubleMap["PARMVSBIAS"] = &p->parm_vl_bias; // {8191.000000} 
-    doubleMap["PARMSWSCALE"] = &p->parm_sw_scale; // {65.425186} 
-    doubleMap["PARMSWBIAS"] = &p->parm_sw_bias; // {0.000000} 
-    doubleMap["PARMVRSCALE"] = &p->parm_vr_scale; // {424.298431} 
-    doubleMap["PARMVRBIAS"] = &p->parm_vr_bias; // {32767.000000} 
-    doubleMap["PARMNCPSCALE"] = &p->parm_ncp_scale; // {1024.000000} 
-    doubleMap["PARMNCPBIAS"] = &p->parm_ncp_bias; // {0.000000} 
-    doubleMap["PARMDBZSCALE"] = &p->parm_dbz_scale; // {8.000000} 
-    doubleMap["PARMDBZBIAS"] = &p->parm_dbz_bias; // {280.000000} 
+    doubleMap["PARMSCALEVS"] = &p->parm_vs_scale; // {424.259552} 
+    doubleMap["PARMBIASVS"] = &p->parm_vs_bias; // {8191.000000} 
+    doubleMap["PARMSCALEVL"] = &p->parm_vl_scale; // {530.324463} 
+    doubleMap["PARMBIASVL"] = &p->parm_vl_bias; // {8191.000000} 
+    doubleMap["PARMSCALESW"] = &p->parm_sw_scale; // {65.425186} 
+    doubleMap["PARMBIASSW"] = &p->parm_sw_bias; // {0.000000} 
+    doubleMap["PARMSCALEVR"] = &p->parm_vr_scale; // {424.298431} 
+    doubleMap["PARMBIASVR"] = &p->parm_vr_bias; // {32767.000000} 
+    doubleMap["PARMSCALENCP"] = &p->parm_ncp_scale; // {1024.000000} 
+    doubleMap["PARMBIASNCP"] = &p->parm_ncp_bias; // {0.000000} 
+    doubleMap["PARMSCALEDBZ"] = &p->parm_dbz_scale; // {8.000000} 
+    doubleMap["PARMBIASDBZ"] = &p->parm_dbz_bias; // {280.000000} 
 
     std::map<std::string, int*>::iterator intIt = intMap.find(key);
     if (intIt != intMap.end()) {
