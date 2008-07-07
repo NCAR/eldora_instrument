@@ -1,0 +1,8 @@
+tools = ['utilities']
+env = Environment(tools = ['default'] + tools )
+
+files = Split("hosts")
+
+inst = env.InstallEtc(files)
+
+env.Alias('install', inst)
