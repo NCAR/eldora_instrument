@@ -62,7 +62,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ColorBar" name="colorBarFor" >
+          <widget class="ColorBar" native="1" name="colorBarFor" >
            <property name="minimumSize" >
             <size>
              <width>60</width>
@@ -128,7 +128,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ColorBar" name="colorBarAft" >
+          <widget class="ColorBar" native="1" name="colorBarAft" >
            <property name="minimumSize" >
             <size>
              <width>60</width>
@@ -643,8 +643,8 @@
        </property>
        <property name="sizeHint" >
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>144</width>
+         <height>16</height>
         </size>
        </property>
       </spacer>
@@ -652,7 +652,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox" >
        <property name="title" >
-        <string>Elevation</string>
+        <string>Vitals</string>
        </property>
        <layout class="QVBoxLayout" >
         <property name="margin" >
@@ -662,20 +662,136 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QLabel" name="elevation" >
-          <property name="toolTip" >
-           <string>Current pointing angle</string>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
           </property>
-          <property name="text" >
-           <string>0.0</string>
+          <property name="spacing" >
+           <number>6</number>
           </property>
-          <property name="textFormat" >
-           <enum>Qt::PlainText</enum>
+          <item>
+           <widget class="QLabel" name="label_4" >
+            <property name="text" >
+             <string>Gates</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="gatesText" >
+            <property name="toolTip" >
+             <string>Number of gates</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
           </property>
-          <property name="alignment" >
-           <set>Qt::AlignCenter</set>
+          <property name="spacing" >
+           <number>6</number>
           </property>
-         </widget>
+          <item>
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>Width</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="dwellWidthText" >
+            <property name="toolTip" >
+             <string>Angular width of one beam (deg)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>Beams</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="beamsText" >
+            <property name="toolTip" >
+             <string>Number of allocated beams</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label" >
+            <property name="text" >
+             <string>Angle</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="angleText" >
+            <property name="toolTip" >
+             <string>Current pointing angle (deg)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

@@ -198,6 +198,16 @@ void EldoraPPI::productSlot(
                                    _left, _right, _bottom, _top);
         _lowerManager.configurePPI(_productList.size(), _gates, nBeams, _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
+        
+        // display some of the vitals
+        QString t;
+        t.setNum(nBeams);
+        beamsText->setText(t);
+        t.setNum(dwellWidth, 'f', 2);
+        dwellWidthText->setText(t);
+        t.setNum(_gates);
+        gatesText->setText(t);
+        
     }
 
     // apply the airspeed correction to VR
@@ -275,7 +285,7 @@ void EldoraPPI::timerEvent(
 
     QString angle;
     angle.setNum(_rotAngle, 'f', 1);
-    elevation->setText(angle);
+    angleText->setText(angle);
  
 }
 
