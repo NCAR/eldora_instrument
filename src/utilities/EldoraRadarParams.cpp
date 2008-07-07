@@ -3,18 +3,14 @@
 
 EldoraRadarParams::EldoraRadarParams()
 {
-    // fields from the header waveform block (WAVE)
+    // assign some generic values. They really should
+	// be assigned from a radar header, but if that is not available,
+	// at least you will have some reasonable defaults.
+	
+	// fields from the header waveform block (WAVE)
     for (unsigned int i = 0; i < sizeof(wave_nchips); i++)
         wave_nchips[i] = 1;
     wave_nchips[4] = 0;
-    /*
-     wave_chpoff[0] = 17;
-     wave_chpoff[1] = 62;
-     wave_chpoff[2] = 107;
-     wave_chpoff[3] = 152;
-     wave_chpoff[4] = 0;
-     wave_chpoff[5] = 0;
-     */
 
     wave_chpoff[0] = 17;
     wave_chpoff[1] = 77;
@@ -24,7 +20,6 @@ EldoraRadarParams::EldoraRadarParams()
     wave_chpoff[5] = 0;
 
     for (unsigned int i = 0; i < sizeof(wave_chpwid); i++)
-        //wave_chpwid[i] = 45;
         wave_chpwid[i] = 60;
     wave_chpwid[4] = 0;
     wave_chpwid[5] = 257;
@@ -48,7 +43,6 @@ EldoraRadarParams::EldoraRadarParams()
     wave_gate5[0] = 90;
     wave_gate5[1] = 60;
 
-    //wave_msrep = 0.33333333;
     wave_msrep = 1.125;
     wave_seqrep = 45;
 
