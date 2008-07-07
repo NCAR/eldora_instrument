@@ -1,1 +1,21 @@
-# skeleton hosts file for Eldora deployment to P3.
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1	localhost.localdomain	localhost
+
+192.168.2.2	eldora-drx	eldora
+
+192.168.1.1	drx drx.eldora.net
+192.168.1.2	fore	
+192.168.1.3	aft	
+192.168.1.4	hskp	
+192.168.1.5	ntp-eldora	
+192.168.1.6	archiver archiver.eldora.net   dcpsrepo dcpsrepo.eldora.net
+192.168.1.7     science science.eldora.net
+192.168.1.10	digi
+
+# IP addresses for the Ether I/O 24 boxes
+192.168.1.100	etherio-for
+192.168.1.101	etherio-aft	
+192.168.1.102	etherio-sa	#	stepped	attenuator
+
+::1	localhost6.localdomain6	localhost6
