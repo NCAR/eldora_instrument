@@ -19,7 +19,7 @@ class EldoraBlock(list):
         self.type = type
         self.description = description
         
-    def addField(self, key, comment,value):
+    def addField(self, key, comment, value):
         ''' Add a field to this block. 
         '''
         self.append((key, comment, value))
@@ -81,23 +81,20 @@ class EldoraHeader(list):
                 # the next non-comment line will be the start of a block
                 blockstart = True
                 # save the description that appears in the ****  ****** line
-                description = (line.replace('*','')).lstrip().rstrip()
+                description = (line.replace('*','')).strip()
             else:
                 mainkey, subkey, comment, value = self.parseLine(line)
                 if mainkey != '':
                     if blockstart:
-                        block = EldoraBlock(mainkey, description)
-                        block.addField(subkey, comment, value)
-                        self.append(block)
-                        blockstart = False
-                        if mainkey == 'VOLD' and subkey == 'PROJ':
-                            self.projectName = value
-                    else:
-                        block = self[-1]
-                        block.addField(subkey, comment, value)
-                        if mainkey == 'VOLD' and subkey == 'PROJ':
-                            self.projectName = value
+                        self.append(EldoraBlock(mainkey, description))
                         description = 'unknown'
+                        blockstart = False
+                        
+                    block = self[-1]
+                    block.addField(subkey, comment, value)
+                    
+                    if mainkey == 'VOLD' and subkey == 'PROJ':
+                        self.projectName = value
                             
 ###############################################################
     def readVerify(self):
@@ -118,19 +115,18 @@ class EldoraHeader(list):
             if line.find('****') != -1:
                 # the next non-comment line will be the start of a block
                 blockstart = True
-                description = (line.replace('*','')).lstrip().rstrip()
+                description = (line.replace('*','')).strip()
             else:
                 mainkey, subkey, comment, value = self.parseLine(line)
                 if mainkey != '':
                     if blockstart:
                         block = EldoraBlock(mainkey, description)
-                        block.addField(subkey, comment, value)
                         self.verifyBlocks.append(block)
                         blockstart = False
-                    else:
-                        block = self.verifyBlocks[-1]
-                        block.addField(subkey, comment, value)
                         description = 'unknown'
+
+                    block = self.verifyBlocks[-1]
+                    block.addField(subkey, comment, value)
                     
            
 ###############################################################
@@ -150,43 +146,33 @@ class EldoraHeader(list):
         '''
 
         noval = ['','','','']
-        # break up the line
-        # make sure that the colon is blank delimited
-        newline = line.replace(':', ' : ')
-        tokens = newline.split()
-        # convince ourselves that it is valid
-        if len(tokens) < 3:
+
+        # drop comments immediately
+        if line.startswith('***'):
             return noval
-        if tokens[1].find('***') != -1:
+        
+        # first break the line at the first space into the key and the remainder
+        if not ' ' in line:
             return noval
-        if not ':' in tokens:
+        key, remainder = line.split(' ', 1)
+        
+        # break the remainder into description and value at the first colon
+        if not ':' in remainder:
             return noval
+        comment, value = remainder.split(':', 1)
         
         retval = ['','','','']
         # get the main and sub keys
-        key = tokens[0]
         if len(key) < 5:
             return noval
         mainkey = key[0:4]
         subkey = key[4:]
+        
         retval[0] = mainkey
         retval[1] = subkey
-        
-        # get the comment
-        tokens = tokens[1:]
-        for t in tokens:
-            tokens = tokens[1:]
-            if (t != ':'):
-                retval[2] = retval[2] + ' ' + t
-            else:
-                break
-        retval[2] = retval[2].strip()
-        
-        # get the value
-        for t in tokens:
-            retval[3] = retval[3] + ' ' + t
-        retval[3] = retval[3].strip()
-        
+        retval[2] = comment.strip()
+        retval[3] = value.strip()
+
         # return the result
         return retval
 

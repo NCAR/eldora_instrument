@@ -12,6 +12,7 @@ if (not os.environ.has_key('DSP21KSF')):
 tools = Split("""
 ddssvc
 rr314
+boost_date_time
 boost_program_options
 dorade
 bittware

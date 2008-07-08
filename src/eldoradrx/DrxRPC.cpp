@@ -1,11 +1,14 @@
 #include "DrxRPC.h"
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <algorithm>
 #include <string>
 #include <sstream>
 #include <sys/time.h>
 #include <time.h>
+
+#include <boost/date_time/posix_time/ptime.hpp>
 
 ///////////////////////////////////////////////////////////////////
 DrxRPC::DrxRPC(int rpcport,
@@ -141,11 +144,11 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
     for (int i = 0; i < params[0].size(); i++) {
 
         std::string key = params[0][i][0];
-        XmlRpc::XmlRpcValue& values = params[0][i][1];
+        XmlRpc::XmlRpcValue& value = params[0][i][1];
 
         // look for radar name
         if (!key.compare("RADDNAME")) {
-            std::string s = values[0];
+            std::string s = value;
             if (!s.compare("AFT")) {
                 radarChoice = AFT;
                 std::cout << "processing forward radar header\n";
@@ -158,17 +161,36 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
         
         switch (radarChoice) {
             case BOTH:
-                setRadarParams(&_radarParams[0], key, values);
-                setRadarParams(&_radarParams[1], key, values);
+                setRadarParams(&_radarParams[0], key, value);
+                setRadarParams(&_radarParams[1], key, value);
                 break;
             case FORE:
-                setRadarParams(&_radarParams[0], key, values);
+                setRadarParams(&_radarParams[0], key, value);
                 break;
             case AFT:
-                setRadarParams(&_radarParams[1], key, values);
+                setRadarParams(&_radarParams[1], key, value);
                 break;
                 
         }
+    }
+    
+    // Although there's a volume start time in the header, we ignore it because
+    // it's a fixed value.  The real volume start time is basically now, so 
+    // we'll use that.  All we really need here is a time 1) before the first 
+    // ray of the volume, and 2) within a year of the actual start of the 
+    // volume, because we really only use it to get the right year in the ray
+    // date/time when calling DoradeRYIB::getRayDateTime().  If only they had 
+    // included year in the RYIB descriptor, we wouldn't have to do this...
+    boost::posix_time::ptime now = 
+        boost::posix_time::second_clock::universal_time();
+    for (int r = 0; r < 2; r++) {
+        _radarParams[r].vold_date[0] = now.date().day();
+        _radarParams[r].vold_date[1] = now.date().month();
+        _radarParams[r].vold_date[2] = now.date().year() - 1900;
+        
+        _radarParams[r].vold_time[0] = now.time_of_day().hours();
+        _radarParams[r].vold_time[1] = now.time_of_day().minutes();
+        _radarParams[r].vold_time[2] = now.time_of_day().seconds();
     }
 
     std::cout << "**** forward radar:\n";
@@ -182,7 +204,7 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
 ///////////////////////////////////////////////////////////////////
 bool DrxRPC::setRadarParams(EldoraRadarParams* p,
                             std::string key,
-                            XmlRpc::XmlRpcValue& values)
+                            XmlRpc::XmlRpcValue& value)
 {
 
     bool retval = false;
@@ -195,16 +217,27 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
     std::map<std::string, int*> intMap;
     // Map the double types
     std::map<std::string, double*> doubleMap;
+    // For keys with a list of values, keep the number of values stored
+    std::map<std::string, int> nvalsMap;
 
-    intMap["WAVENCHIPS"] = p->wave_nchips; // {2,2,2,2,0,2} 
+    intMap["WAVENCHIPS"] = p->wave_nchips; // {2,2,2,2,0,2}
+    nvalsMap["WAVENCHIPS"] = 6;
     intMap["WAVECHPOFF"] = p->wave_chpoff; // {17,77,137,197,0,0} 
+    nvalsMap["WAVECHPOFF"] = 6;
     intMap["WAVECHPWID"] = p->wave_chpwid; // {60,60,60,60,0,257} 
+    nvalsMap["WAVECHPWID"] = 6;
     intMap["WAVENGATES"] = p->wave_ngates; // {376,376,376,376,0} 
+    nvalsMap["WAVENGATES"] = 5;
     intMap["WAVEGATE1"] = p->wave_gate1; // {90,60} 
+    nvalsMap["WAVEGATE1"] = 2;
     intMap["WAVEGATE2"] = p->wave_gate2; // {90,60} 
+    nvalsMap["WAVEGATE2"] = 2;
     intMap["WAVEGATE3"] = p->wave_gate3; // {90,60} 
+    nvalsMap["WAVEGATE3"] = 2;
     intMap["WAVEGATE4"] = p->wave_gate4; // {90,60} 
+    nvalsMap["WAVEGATE4"] = 2;
     intMap["WAVEGATE5"] = p->wave_gate5; // {-999,-999} 
+    nvalsMap["WAVEGATE5"] = 2;
     doubleMap["WAVEMSREP"] = &p->wave_msrep; // {1.125}
     intMap["WAVESEQREP"]= &p->wave_seqrep; // {45}
 
@@ -232,6 +265,7 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
     doubleMap["FRIBENCANG"] = &p->frib_encang; // 276.538086
 
     doubleMap["CSPDWIDTH"] = p->cspd_width; // 150 150 150 150 -999 -999
+    nvalsMap["CSPDWIDTH"] = 6;
     doubleMap["CSPD1STGAT"] = &p->cspd_1stgat; // 225
     
     doubleMap["PARMSCALEVS"] = &p->parm_vs_scale; // {424.259552} 
@@ -246,23 +280,35 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
     doubleMap["PARMBIASNCP"] = &p->parm_ncp_bias; // {0.000000} 
     doubleMap["PARMSCALEDBZ"] = &p->parm_dbz_scale; // {8.000000} 
     doubleMap["PARMBIASDBZ"] = &p->parm_dbz_bias; // {280.000000} 
+    
+    // How many values do we expect for this key?  Default is 1.
+    int nvals = 1;
+    std::map<std::string, int>::iterator nvalsIt = nvalsMap.find(key);
+    if (nvalsIt != nvalsMap.end())
+        nvals = nvalsIt->second;
 
+    // Get the value string
+    std::string valString = value;
+    
+    // Now make a stringstream associated with the value string
+    std::stringstream valStream(valString);
+
+    // If it's a key from our integer map, parse the int(s) from the stream
     std::map<std::string, int*>::iterator intIt = intMap.find(key);
     if (intIt != intMap.end()) {
+        int* dest = intIt->second;
+        for (int i = 0; i < nvals; i++)
+            valStream >> dest[i];
         retval = true;
-        for (int i = 0; i < values.size(); i++) {
-            std::string s = values[i];
-            intIt->second[i] = atoi(s.c_str());
-        }
     }
 
+    // If it's a key from our double map, parse the double(s) from the stream
     std::map<std::string, double*>::iterator doubleIt = doubleMap.find(key);
     if (doubleIt != doubleMap.end()) {
+        double* dest = doubleIt->second;
+        for (int i = 0; i < nvals; i++)
+            valStream >> dest[i];
         retval = true;
-        for (int i = 0; i < values.size(); i++) {
-            std::string s = values[i];
-            doubleIt->second[i] = atof(s.c_str());
-        }
     }
 
     if (!retval) 
