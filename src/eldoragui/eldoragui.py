@@ -725,11 +725,12 @@ belong to. Thus the RADD block must appear before associated PARM blocks, etc.
                 if key == 'PARMNAME':
                     parmname = field[2]
                 else:
+                    # Append the param name to PARMSCALE and PARMBIAS keys,
+                    # which become e.g., PARMSCALEDBZ and PARMBIASDBZ
                     if key == 'PARMSCALE' or key == 'PARMBIAS':
                         key = key + parmname
-                    p = [key,]
-                    p.append(field[2].split())
-                    params.append(p)
+                    # add the [key, keyvalue] pair to our list
+                    params.append([key, field[2]])
     # send them to eldoradrx
     try:
     	drxrpc.server.params(params)
