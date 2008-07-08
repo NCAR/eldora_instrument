@@ -21,8 +21,7 @@ main(int argc,
 
     int choice, size, byteswritten, i, j, flag, num_errors;
     FILE *outfdf = 0;
-    char outname[80];
-    //char input[80];
+    char outname[128];
 
     /* Determine Processor Type */
 
@@ -74,24 +73,33 @@ main(int argc,
 
             /* get the filename and open it */
 
-            printf("OUTPUT FILE NAME ?\n");
+            printf("OUTPUT FILE NAME: \n");
             fgets(outname, sizeof(outname), stdin);
-            printf("OUTPUT FILE NAME: %s\n", outname);
+            /* remove trailing newline */
+            outname[strlen(outname)-1] = '\0';
+            printf("OPENING OUTPUT FILE: %s\n", outname);
             if ((outfdf = fopen(outname, "wb")) == NULL) {
                 printf("UNABLE TO OPEN THE OUTPUT FILE\n");
                 exit(-1);
             }
 #ifdef NEW
             if(volume.format_version == 1)
-            {
                 volume.format_version = 2; /* always write new format */
-                printf("\n");
-                printf("Enter the Header file name: ");
-                fgets(input, sizeof(input), stdin);
-                for(i=0; i<80; i++)
-                {
-                    fradar[FORE].file_name[i] = input[i];
-                    fradar[AFT].file_name[i] = input[i];
+            /* 
+             * Copy the tail portion of outname (everything after the last
+             * slash, if any) to the file_name of the fore and aft FRIBs
+             */
+            {
+                char fname[80];
+                char* lastslash = rindex(outname, '/');
+                memset(fname, 0, sizeof(fname)); /* null fill */
+                if (lastslash)
+                    strncpy(lastslash + 1, fname, sizeof(fname));
+                else
+                    strncpy(outname, fname, sizeof(fname));
+                for(i = 0; i < 80; i++) {
+                    memcpy(fradar[FORE].file_name, fname, 80);
+                    memcpy(fradar[AFT].file_name, fname, 80);
                 }
             }
 #endif
@@ -118,8 +126,7 @@ main(int argc,
                 byteswritten += fwrite((char *)&radar[i], size, 1, outfdf);
 #ifdef NEW
                 size = sizeof(struct field_radar_i);
-#endif
-#ifndef NEW
+#else
                 size = sizeof(struct field_radar_i) - 80*sizeof(char);
 #endif
                 byteswritten += fwrite((char *)&fradar[i], size, 1, outfdf);
