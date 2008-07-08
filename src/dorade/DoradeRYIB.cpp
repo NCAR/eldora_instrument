@@ -15,7 +15,7 @@ using namespace boost::gregorian;   // date
  * @version $Revision: 1.3 $ $Date: 2004/04/13 17:05:50 $
  */
 DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen, 
-                       bool isLittleEndian, int year) throw (DescriptorException) :
+                       bool isLittleEndian) throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "RYIB", 44) { 
     //
     // unpack
@@ -33,49 +33,11 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
     _rayStatus = grabInt(data, 40, isLittleEndian);         // 0 normal, 1 transition, 2 bad
 
     //
-    // Build a boost::posix_time::ptime, which is much more usable than the five 
-    // time pieces above
+    // Keep a boost::posix_time::time_duration, which is more usable than 
+    // the four time pieces above
     //
-    
-    // Get time of day for the ray
     int fracSeconds = _millisecond * (time_duration::ticks_per_second() / 1000);
-    time_duration rayTimeOfDay(_hour, _minute, _second, fracSeconds);
-
-    // Get current time (and year) according to our clock.
-    ptime now = second_clock::universal_time();
-
-    // Figure out the year for the ray.  Either use the year we were given,
-    // or assume that the ray time is very close to now.
-    int rayYear = year;
-    if (year < 0) {
-        // difference in days between day of the year according to us and day of
-        // the year according to the RYIB
-        int daydiff = now.date().day_of_year() - _julianDay;  // -365 to 365
-
-        // Assign the year from our clock to the ray. If the ray's day-of-year 
-        // disagrees significantly with our day-of-year, assume that we're 
-        // near a year boundary and need to add or subtract a year when 
-        // assigning to the ray.
-        rayYear = now.date().year();
-        if (daydiff >= 364)
-            rayYear++;
-        else if (daydiff < -364)
-            rayYear--;
-    }
-
-    date rayDate = date(rayYear, 1, 1) + date_duration(_julianDay - 1);
-    _rayDateTime = ptime(rayDate, rayTimeOfDay);
-
-    if (year < 0) {
-        // If we're not within five minutes of now, something's wrong...
-        int diffSecs = (_rayDateTime - now).total_seconds();
-        if (abs(diffSecs) > 300) {
-            std::stringstream ss;
-            ss << "Closest RYIB time we can get is " << diffSecs <<
-            " seconds from now";
-            throw DescriptorException(ss.str());
-        }
-    }
+    _rayTime = time_duration(_hour, _minute, _second, fracSeconds);
 
     //
     // debugging output
@@ -101,8 +63,8 @@ DoradeRYIB::printTo(std::ostream& os) const
     DoradeDescriptor::printTo(os);
     if (_verbose) {
         os << "sweep number: " << _sweepNumber << std::endl;
-        os << "Julian day: " << _julianDay << std::endl;
-        os << "hh:mm:ss.mmm: ";
+        os << "day of year: " << _julianDay << std::endl;
+        os << "time of day: ";
         os << std::setw(2) << std::setfill('0') << _hour << ":";
         os << std::setw(2) << std::setfill('0') << _minute << ":";
         os << std::setw(2) << std::setfill('0') << _second << ".";
@@ -118,14 +80,33 @@ DoradeRYIB::printTo(std::ostream& os) const
 
 void
 DoradeRYIB::setRayDateTime(ptime time) {
-    _rayDateTime = time;
-    // In addition to setting _rayDateTime, we need to set each of the 
+    _rayTime = time.time_of_day();
+    // In addition to setting _rayTime, we need to set each of the 
     // individual time pieces.
-    _julianDay = time.date().day_of_year();
-    _hour = time.time_of_day().hours();
-    _minute = time.time_of_day().minutes();
-    _second = time.time_of_day().seconds();
-    _millisecond = time.time_of_day().total_milliseconds() % 1000;
+    _julianDay = time.date().day_of_year(); // we only keep the day of the year
+    _hour = _rayTime.hours();
+    _minute = _rayTime.minutes();
+    _second = _rayTime.seconds();
+    _millisecond = _rayTime.total_milliseconds() % 1000;
+}
+
+ptime
+DoradeRYIB::getRayDateTime(ptime volumeStart) const {
+    // Get our year from the volume start time
+    int rayYear = volumeStart.date().year();
+    // If our day of the year is less than the day of the year from the
+    // volume start, we've crossed the year boundary, so increment our year.
+    if (_julianDay < volumeStart.date().day_of_year())
+        rayYear++;
+    
+    // Calculate our date using the year and our day of year
+    date_duration daysFromJan1(_julianDay - 1);
+    date rayDate(rayYear, 1, 1);
+    rayDate += daysFromJan1;
+    
+    // Finally, put together and return the whole date/time
+    ptime rayDateTime(rayDate, _rayTime);
+    return rayDateTime;
 }
 
 std::ostream&

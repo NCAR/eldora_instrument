@@ -88,8 +88,8 @@ unpackHousekeeping(const unsigned char* buf, int buflen) {
         return;
     }
     
-    std::cout << frad->getRadarName() << " " << ryib->getRayDateTime() << 
-        std::endl;
+    std::cout << frad->getRadarName() << " " << ryib->getDayOfYear() << "/" <<
+        ryib->getRayTime() << std::endl;
 }
 
 int 

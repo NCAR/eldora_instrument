@@ -21,12 +21,9 @@ public:
      * @param datalen the length of data
      * @param isLittleEndian true iff the incoming stream contains little-endian
      *      data (contrary to the definition of DORADE).
-     * @param year the year to use for the RYIB.  If year is -1, then
-     *      construction will assume that the time of the RYIB is very close
-     *      to now, and will assign the year accordingly.
      */
     DoradeRYIB(const unsigned char *data, unsigned int datalen, 
-               bool isLittleEndian, int year = -1) throw (DescriptorException);
+               bool isLittleEndian) throw (DescriptorException);
     
     DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
         float azimuth, float elevation, float peakXmitPower, float scanRate,
@@ -34,10 +31,16 @@ public:
     
     std::ostream& printTo(std::ostream& stream) const;
     /**
-     * Get ray date/time.
+     * Get ray time.
+     * @return posix_time holding the ray's time.
+     */
+    boost::posix_time::time_duration getRayTime() const { return _rayTime; }
+    /**
+     * Get ray date/time, given the volume start time.
      * @return posix_time holding the ray's date/time.
      */
-    boost::posix_time::ptime getRayDateTime() const { return _rayDateTime; }
+    boost::posix_time::ptime 
+        getRayDateTime(boost::posix_time::ptime volumeStart) const;
     /**
      * Get the sweep number.
      * @return the ray's sweep number.
@@ -119,6 +122,6 @@ private:
     float _scanRate;        // deg/s
     int _rayStatus;         // 0 normal, 1 transition, 2 bad
     
-    boost::posix_time::ptime _rayDateTime; /* not directly from the RYIB, but built from it */
+    boost::posix_time::time_duration _rayTime; /* not directly from the RYIB, but built from it */
 };
 #endif /*DORADERYIB_H_*/

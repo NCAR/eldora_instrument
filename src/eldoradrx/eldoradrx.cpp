@@ -913,7 +913,9 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
     EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
 
     // timetag is microseconds since 1970/1/1 00:00:00 UTC
-    hskp->timetag = ptimeToTimetag(ryib->getRayDateTime());
+    boost::posix_time::ptime rayDateTime = 
+        ryib->getRayDateTime(_radarParams[0].getVolumeDateTime());
+    hskp->timetag = ptimeToTimetag(rayDateTime);
 
     // Now fill the rest of the Housekeeping
     // RYIB contents
