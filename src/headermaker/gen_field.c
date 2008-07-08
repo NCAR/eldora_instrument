@@ -94,9 +94,9 @@ main(int argc,
                 char* lastslash = rindex(outname, '/');
                 memset(fname, 0, sizeof(fname)); /* null fill */
                 if (lastslash)
-                    strncpy(lastslash + 1, fname, sizeof(fname));
+                    strncpy(fname, lastslash + 1, sizeof(fname));
                 else
-                    strncpy(outname, fname, sizeof(fname));
+                    strncpy(fname, outname, sizeof(fname));
                 for(i = 0; i < 80; i++) {
                     memcpy(fradar[FORE].file_name, fname, 80);
                     memcpy(fradar[AFT].file_name, fname, 80);
