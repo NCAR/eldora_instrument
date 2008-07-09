@@ -12,7 +12,8 @@
  * @version $Id$
  */
 DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen, 
-                       bool isLittleEndian, bool headerOnly) 
+                       bool isLittleEndian, bool headerOnly,
+                       bool assumeTwoByteData) 
     throw (DescriptorException) :
     DoradeDescriptor(data, datalen, isLittleEndian, "FRAD") { 
     //
@@ -42,9 +43,24 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     _rayCount = grabInt(data, 44, isLittleEndian);
     _firstRecordedGate = grabShort(data, 48, isLittleEndian);
     _lastRecordedGate = grabShort(data, 50, isLittleEndian);
+
+    _shortData = 0;
+    _nShortData = 0;
+    _opaqueData = 0;
     
     if (! headerOnly) {
-        // @TODO unpack the data portion of the FRAD
+        if (assumeTwoByteData) {
+            _nShortData = (_descLen - 52) / 2;
+            _shortData = new short[_nShortData];
+            for (int i = 0; i < _nShortData; i++)
+                _shortData[i] = grabShort(data, 52 + 2 * i, isLittleEndian);
+        } else {
+            // The only thing we know about the opaque data portion is its size,
+            // which is the descriptor length - 52
+            unsigned int opaquelen = _descLen - 52;
+            _opaqueData = new unsigned char[opaquelen];
+            memcpy(_opaqueData, data + 52, opaquelen);
+        }
     }
 
     //
@@ -64,7 +80,8 @@ DoradeFRAD::DoradeFRAD(int dataSystemStatus, std::string radarName,
     _testPulseStart(testPulseStart), _testPulseWidth(testPulseWidth),
     _testPulseFreq(testPulseFreq), _testPulseAttenuation(testPulseAttenuation),
     _testPulseFNum(testPulseFNum), _noisePower(noisePower), _rayCount(rayCount),
-    _firstRecordedGate(firstRecordedGate), _lastRecordedGate(lastRecordedGate) {
+    _firstRecordedGate(firstRecordedGate), _lastRecordedGate(lastRecordedGate),
+    _shortData(0), _nShortData(0), _opaqueData(0) {
     setRadarName(radarName);
     if (_verbose)
         std::cout << *this;

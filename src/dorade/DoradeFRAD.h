@@ -25,9 +25,12 @@ public:
      *    everything but the "data" portion of the descriptor).  The ELDORA 
      *    housekeeper sends such "dataless" FRAD-s.  This parameter defaults 
      *    to false.
+     * @param assumeTwoByteData true iff it can be assumed that parameter
+     *    data included in the FRAD (if any) are strictly two-byte values.
      */
     DoradeFRAD(const unsigned char *data, unsigned int datalen, 
-               bool isLittleEndian, bool headerOnly = false) 
+               bool isLittleEndian, bool headerOnly = false,
+               bool assumeTwoByteData = true) 
         throw (DescriptorException);
     
     DoradeFRAD(int dataSystemStatus, std::string radarName, 
@@ -49,6 +52,30 @@ public:
     int getRayCount() const { return _rayCount; }
     short getFirstGate() const { return _firstRecordedGate; }
     short getLastGate() const { return _lastRecordedGate; }
+
+    /**
+     * Add an array of strictly two-byte data to the FRAD.  The order of 
+     * the data, assuming np parameters and ng gates should be:
+     * 
+     *      parm<0> at gate<0>
+     *      parm<1> at gate<0>
+     *      ...
+     *      parm<np-1> at gate<0>
+     *      parm<0> at gate<1>
+     *      parm<1> at gate<1>
+     *      ...
+     *      parm<np-1> at gate<ng-1>
+     * @param data  array of shorts containing the data
+     * @param nData the length of the data array
+     */
+    void putTwoByteData(short* data, unsigned int nData) {
+        if (_shortData)
+            delete _shortData;
+        _shortData = new short[nData];
+        _nShortData = nData;
+        _descLen = 52 + 2 * _nShortData;
+        memcpy(_shortData, data, nData * sizeof(short));
+    }
     
     std::ostream& printTo(std::ostream& out) const;
 
@@ -74,6 +101,12 @@ private:
     int _rayCount;
     short _firstRecordedGate;
     short _lastRecordedGate;
-    // short[][]: _dataArray; skipped for the time being
+    // We keep the data portion of the FRAD as either an array of 
+    // shorts (in local-machine order), or as a completely opaque array
+    // of bytes.
+    short* _shortData;
+    int _nShortData;
+    // Keep an opaque copy of data if it's given to us.
+    unsigned char* _opaqueData;
 };
 #endif /*DORADEFRAD_H_*/
