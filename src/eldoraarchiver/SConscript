@@ -1,0 +1,30 @@
+import os
+tools = ['ddssvc', 'qtt_qtconfig', 'dorade', 'radd_archiver']
+env = Environment(tools = ['default'] + tools)
+
+# libraries:
+libs = Split("""
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
+""")
+env.Append(LIBS = libs)
+
+sources = Split('''
+EldoraArchiver.cpp
+EldoraHeader.cpp
+''')
+
+# build eldoraprod
+eldoraarchiver = env.Program('EldoraArchiver', sources)
+inst = env.InstallProgram(eldoraarchiver)
+
+env.Default(eldoraarchiver)
+env.Alias('install',inst)
+
+
