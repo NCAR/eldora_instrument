@@ -5,14 +5,19 @@
 # that require network functionality will fail.
 127.0.0.1	localhost.localdomain	localhost
 
+# 192.168.1.xxx: The eldora network for DDS distribution and hardware control
+#                The old "cappi" network cabling will be on this network now.
+
 192.168.1.1	 drx            drx.eldora.net       # drx reciever
 192.168.1.2	 fore	                             # ?
 192.168.1.3	 aft                                 # ?
 192.168.1.4	 hskp                                # vxworks housekeeper
 192.168.1.5	 ntp-eldora                          # symetricon timeserver
+
 192.168.1.6	 archiver       archiver.eldora.net  # archiver
 192.168.1.7  science        science.eldora.net   # shuttle forward scientist display
 192.168.1.8  cappi          cappi.eldora.net     # laptop forward cappi display
+
 192.168.1.10 digi                                # digiport ethernet to 4 serial ports
 
 
@@ -20,12 +25,15 @@
 192.168.1.101	etherio-aft	                     # etherio ethernet to digital forward rx/exc
 192.168.1.102	etherio-sa	                     # etherio ethernet to digital stepped attenuator
 
+# 192.168.80.xxx: The P3 ADDS network. reachback provides access to the internet and DNS.
+#                 The ADDS data feed for aeros is provided by acserver
+
 192.168.80.1    reachback                        # the irridium reachback system
 192.168.80.2	acserver                         # aircraft data server
 
-192.168.80.6	eldora-archiver                  # same as archiver
-192.168.80.7	eldora-science                   # same as science
-192.168.80.8	eldora-cappi                     # same as cappi
+192.168.80.6	eldora-archiver                  # archiver on the ADDS network
+192.168.80.7	eldora-science                   # science on the ADDS network
+192.168.80.8	eldora-cappi                     # cappi on the ADDS network
 
 192.168.80.9	dsm9                             # aircraft nidas data system
 192.168.80.20	avaps                            # avaps dropsonde system
