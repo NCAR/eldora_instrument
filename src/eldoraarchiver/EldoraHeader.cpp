@@ -28,46 +28,38 @@ EldoraHeader::EldoraHeader(std::string fileName) throw(BadHeaderException) {
     
     try {
         _vold = new DoradeVOLD(data, datalen, littleIn);
-        std::cout << *_vold;
         data += _vold->getDescLen();
         datalen -= _vold->getDescLen();
 
         _wave = new DoradeWAVE(data, datalen, littleIn);
-        std::cout << *_wave;
         data += _wave->getDescLen();
         datalen -= _wave->getDescLen();
 
         for (int r = 0; r < 2; r++) {
             _radd[r] = new DoradeRADD(data, datalen, littleIn);
-            std::cout << *_radd[r];
             data += _radd[r]->getDescLen();
             datalen -= _radd[r]->getDescLen();
 
             _frib[r] = new DoradeFRIB(data, datalen, littleIn);
-            std::cout << *_frib[r];
             data += _frib[r]->getDescLen();
             datalen -= _frib[r]->getDescLen();
 
             _cspd[r] = new DoradeCSPD(data, datalen, littleIn);
-            std::cout << *_cspd[r];
             data += _cspd[r]->getDescLen();
             datalen -= _cspd[r]->getDescLen();
 
             for (unsigned int p = 0; p < nParams(r); p++) {
                 _parm[r].push_back(new DoradePARM(data, datalen, littleIn));
-                std::cout << *_parm[r][p];
                 data += _parm[r][p]->getDescLen();
                 datalen -= _parm[r][p]->getDescLen();
             }
         }
 
         _ndds = new DoradeNDDS(data, datalen, littleIn);
-        std::cout << *_ndds;
         data += _ndds->getDescLen();
         datalen -= _ndds->getDescLen();
         
         _situ = new DoradeSITU(data, datalen, littleIn);
-        std::cout << *_situ;
         data += _situ->getDescLen();
         datalen -= _situ->getDescLen();
     } catch (DescriptorException e) {
@@ -106,4 +98,21 @@ EldoraHeader::streamTo(std::ostream& os, bool asLittleEndian) const {
     _ndds->streamTo(os, asLittleEndian);
     _situ->streamTo(os, asLittleEndian);
     return os;
+}
+
+unsigned int
+EldoraHeader::size() const {
+    unsigned int nbytes = 0;
+    nbytes += _vold->getDescLen();
+    nbytes += _wave->getDescLen();
+    for (unsigned int r = 0; r < 2; r++) {
+        nbytes += _radd[r]->getDescLen();
+        nbytes += _frib[r]->getDescLen();
+        nbytes += _cspd[r]->getDescLen();
+        for (unsigned int p = 0; p < nParams(r); p++)
+            nbytes += _parm[r][p]->getDescLen();
+    }
+    nbytes += _ndds->getDescLen();
+    nbytes += _situ->getDescLen();
+    return nbytes;
 }
