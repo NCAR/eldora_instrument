@@ -35,10 +35,8 @@ public:
         return boost::gregorian::date(_genYear, _genMonth, _genDay);
     }
     short getSensorCount() { return _sensorCount; }
-
-    std::ostream& printTo(std::ostream& stream) const;
-    std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
-protected:
+    
+    // mutators
     /**
      * Set volume start date/time.
      * @param time posix_time holding the volume's start date/time.
@@ -49,6 +47,9 @@ protected:
      * @param genDate boost::gregorian::date holding the generation date.
      */
     void setGenerationDate(boost::gregorian::date genDate);
+
+    std::ostream& printTo(std::ostream& stream) const;
+    std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
 
 private:
     short _formatVersionNum;
