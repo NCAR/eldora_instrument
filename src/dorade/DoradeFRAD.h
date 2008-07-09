@@ -39,6 +39,8 @@ public:
         float noisePower, int rayCount, 
         short firstRecordedGate, short lastRecordedGate);
     
+    ~DoradeFRAD();
+    
     // inline accessors
     int getDataSystemStatus() const { return _dataSystemStatus; }
     std::string getRadarName() const { return _radarName; }
@@ -52,7 +54,8 @@ public:
     int getRayCount() const { return _rayCount; }
     short getFirstGate() const { return _firstRecordedGate; }
     short getLastGate() const { return _lastRecordedGate; }
-
+    const short* getShortData() const { return _shortData; }
+    
     /**
      * Add an array of strictly two-byte data to the FRAD.  The order of 
      * the data, assuming np parameters and ng gates should be:
@@ -70,11 +73,11 @@ public:
      */
     void putTwoByteData(short* data, unsigned int nData) {
         if (_shortData)
-            delete _shortData;
-        _shortData = new short[nData];
+            delete[] _shortData;
         _nShortData = nData;
+        _shortData = new short[_nShortData];
         _descLen = 52 + 2 * _nShortData;
-        memcpy(_shortData, data, nData * sizeof(short));
+        memcpy(_shortData, data, _nShortData * sizeof(short));
     }
     
     std::ostream& printTo(std::ostream& out) const;

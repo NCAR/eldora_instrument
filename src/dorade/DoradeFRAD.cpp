@@ -87,6 +87,10 @@ DoradeFRAD::DoradeFRAD(int dataSystemStatus, std::string radarName,
         std::cout << *this;
 }
 
+DoradeFRAD::~DoradeFRAD() {
+    delete[] _shortData;
+    delete[] _opaqueData;
+}
 
 std::ostream& 
 DoradeFRAD::printTo(std::ostream& os) const
