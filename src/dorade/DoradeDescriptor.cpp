@@ -50,7 +50,8 @@ DoradeDescriptor::DoradeDescriptor(const unsigned char* data,
                                   "' descriptor, but got '" + _descName + "'");
     if (_descLen != expectedLen) {
         std::stringstream ss;
-        ss << "expected a " << expectedLen << " byte descriptor, but got ";
+        ss << "expected a " << expectedLen;
+        ss << " byte descriptor, but descriptor length is ";
         ss << _descLen << " bytes";
         throw DescriptorException(ss.str());
     }
