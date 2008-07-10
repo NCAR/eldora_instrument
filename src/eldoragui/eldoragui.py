@@ -316,7 +316,8 @@ def startDcps():
 											payload=nextTaskColor(),verbose=Verbose)
     s = ourProcesses['DCPSInfoRepo']
     QObject.connect(s, SIGNAL("text"), main.logText)
-    s.startDetached()
+    #s.startDetached()
+    s.start()
     time.sleep(1)
 
 ####################################################################################
