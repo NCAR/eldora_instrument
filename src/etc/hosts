@@ -36,6 +36,9 @@
 192.168.80.8	eldora-cappi                     # cappi on the ADDS network
 
 192.168.80.9	dsm9                             # aircraft nidas data system
+
+192.168.80.11   eldora-drx                       # the drx on the adds network
+
 192.168.80.20	avaps                            # avaps dropsonde system
 
 ::1	localhost6.localdomain6	localhost6
