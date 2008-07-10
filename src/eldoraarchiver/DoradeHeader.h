@@ -1,5 +1,5 @@
-#ifndef ELDORAHEADER_H_
-#define ELDORAHEADER_H_
+#ifndef DORADEHEADER_H_
+#define DORADEHEADER_H_
 
 # include <vector>
 
@@ -12,20 +12,36 @@
 # include <DoradeVOLD.h>
 # include <DoradeWAVE.h>
 
-class EldoraHeader {
+/**
+ * Class to hold an ELDORA header, consisting of the following
+ * DORADE descriptors:
+ *      VOLD
+ *      WAVE
+ * 
+ *      RADD     \
+ *      FRIB     | * 2 (fore and aft)
+ *      CSPD     |
+ *      n * PARM /
+ * 
+ *      NDDS
+ *      SITU
+ */
+class DoradeHeader {
 public:
+    /**
+     * Class for exceptions from the DoradeHeader constructor.
+     */
     class BadHeaderException : public std::string {
     public:
         BadHeaderException(std::string msg) : std::string(msg) {}
     };
-    
     // Construct from a header file
-    EldoraHeader(std::string fileName) throw(BadHeaderException);
-
-//    // Construct from a character array containing raw header data
-//    EldoraHeader(const char* rawData, int len) throw(BadHeaderException);
+    DoradeHeader(std::string fileName) throw(BadHeaderException);
     
-    ~EldoraHeader();
+    // Default constructor
+    DoradeHeader() {};
+
+    ~DoradeHeader();
     
     // return a pointer to the VOLD (VOLume Descriptor)
     DoradeVOLD* vold() const { return _vold; }
@@ -77,4 +93,4 @@ private:
     std::vector<DoradePARM*> _parm[2];
 };
 
-#endif /*ELDORAHEADER_H_*/
+#endif /*DORADEHEADER_H_*/

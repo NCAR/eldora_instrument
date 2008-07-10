@@ -3,10 +3,10 @@
 # include <stdlib.h>
 # include <cstring>
 
-# include "EldoraHeader.h"
+# include "DoradeHeader.h"
 
 
-EldoraHeader::EldoraHeader(std::string fileName) throw(BadHeaderException) {
+DoradeHeader::DoradeHeader(std::string fileName) throw(BadHeaderException) {
     std::ifstream infile(fileName.c_str());
     if (infile.fail())
         throw BadHeaderException(std::string() + "Failed to open header '" + 
@@ -69,7 +69,7 @@ EldoraHeader::EldoraHeader(std::string fileName) throw(BadHeaderException) {
     }
 }
 
-EldoraHeader::~EldoraHeader() {
+DoradeHeader::~DoradeHeader() {
     delete _vold;
     delete _wave;
     delete _ndds;
@@ -85,7 +85,7 @@ EldoraHeader::~EldoraHeader() {
 }
 
 std::ostream&
-EldoraHeader::streamTo(std::ostream& os, bool asLittleEndian) const {
+DoradeHeader::streamTo(std::ostream& os, bool asLittleEndian) const {
     _vold->streamTo(os, asLittleEndian);
     _wave->streamTo(os, asLittleEndian);
     for (unsigned int r = 0; r < 2; r++) {
@@ -101,7 +101,7 @@ EldoraHeader::streamTo(std::ostream& os, bool asLittleEndian) const {
 }
 
 unsigned int
-EldoraHeader::size() const {
+DoradeHeader::size() const {
     unsigned int nbytes = 0;
     nbytes += _vold->getDescLen();
     nbytes += _wave->getDescLen();

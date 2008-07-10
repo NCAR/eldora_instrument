@@ -17,7 +17,7 @@ env.Append(LIBS = libs)
 
 sources = Split('''
 EldoraArchiver.cpp
-EldoraHeader.cpp
+DoradeHeader.cpp
 ''')
 
 # build eldoraprod
@@ -25,6 +25,13 @@ eldoraarchiver = env.Program('EldoraArchiver', sources)
 inst = env.InstallProgram(eldoraarchiver)
 
 env.Default(eldoraarchiver)
-env.Alias('install',inst)
+env.Alias('install', inst)
+
+dumper = env.Program('dumpEldoraFieldFormat', 'dumpEldoraFieldFormat.cpp')
+instDumper = env.InstallProgram(dumper)
+
+env.Default(dumper)
+env.Alias('install', instDumper)
+
 
 
