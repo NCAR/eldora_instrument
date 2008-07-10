@@ -14,7 +14,8 @@ protected:
 	/// Initialize the coefficients for one filter
 	/// @param key The filter width 
 	/// @param coeffs The coefficients
-	void init(double key, unsigned int coeffs[]);
+    /// @param n The number of coeffs
+	void init(double key, unsigned int* coeffs, int n);
 };
 
 #endif

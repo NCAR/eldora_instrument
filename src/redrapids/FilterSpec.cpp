@@ -68,7 +68,10 @@ FilterSpec::FilterSpec():
 
 ///////////////////////////////////////////////////////////////////////////////
 FilterSpec::FilterSpec(std::vector<unsigned int> coefficients) {
-	*this = coefficients;
+	
+    for (unsigned int i = 0; i < coefficients.size(); i++)
+	    this->push_back(coefficients[i]);
+	
 	_ok = true;
 }
 ///////////////////////////////////////////////////////////////////////////////
