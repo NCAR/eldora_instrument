@@ -22,6 +22,9 @@ libsources = Split("""
 FilterSpec.cpp
 RR314.cpp
 RR314sim.cpp
+BuiltinFilters.cpp
+BuiltinGaussian.cpp
+BuiltinKaiser.cpp
 """)
 
 isrsources = Split("""

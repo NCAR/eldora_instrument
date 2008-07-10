@@ -6,9 +6,15 @@
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
-FilterSpec::FilterSpec(std::string fileName):
-  _ok(false),
-  _fileName(fileName)
+FilterSpec::FilterSpec():
+  _ok(true),
+  _fileName("") {
+}
+  
+///////////////////////////////////////////////////////////////////////////////
+  FilterSpec::FilterSpec(std::string fileName):
+    _ok(false),
+    _fileName(fileName)
 {
   if (_fileName.length() == 0)
     return;
@@ -60,6 +66,11 @@ FilterSpec::FilterSpec(std::string fileName):
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+FilterSpec::FilterSpec(std::vector<unsigned int> coefficients) {
+	*this = coefficients;
+	_ok = true;
+}
 ///////////////////////////////////////////////////////////////////////////////
 FilterSpec::~FilterSpec() {
 }
