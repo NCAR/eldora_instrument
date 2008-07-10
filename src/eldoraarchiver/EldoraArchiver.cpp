@@ -14,6 +14,7 @@
 #include <fstream>
 #include <string>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "DoradeHeader.h"
 
@@ -23,47 +24,20 @@ using namespace archiver;
 
 typedef NameResolver<PortableServer::POA, InitResolver> POAResolver;
 
-///**
-// * Fill a dummy test block with generated values based on an index key.
-// **/
-//void
-//fillBlock(ByteBlock& block, int b)
-//{
-//  block.length(1500+(b % 5)*200);
-//
-//  for (unsigned int i = 0; i < block.length(); ++i)
-//  {
-//    block[i] = i+b;
-//  }
-//  block[0] = 'R';
-//  block[1] = 'Y';
-//  block[2] = 'I';
-//  block[3] = 'B';
-//  block[4] = 0;
-//  block[5] = 0;
-//  block[6] = 0;
-//  block[7] = 44;
-//  
-//  int crapLen = block.length() - 44;
-//  unsigned char uhigh = crapLen / 256;
-//  char* high_p = (char*)&uhigh;
-//  unsigned char ulow = crapLen % 256;
-//  char* low_p = (char*)&ulow;
-//  block[44] = 'C';
-//  block[45] = 'R';
-//  block[46] = 'A';
-//  block[47] = 'P';
-//  block[48] = 0;
-//  block[49] = 0;
-//  block[50] = *high_p;
-//  block[51] = *low_p;
-//}
-
 int
 main(int argc, char *argv[])
 {
     boost::posix_time::ptime now = boost::posix_time::second_clock::universal_time();
     ACE_LOG_MSG->stop_tracing();
+    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+
+    if (argc != 1)
+    {
+        std::cerr << "Usage: " << string(argv[0]) << " [orb options]" << std::endl;
+        return 1;
+    }
+
+    // Get our header
     DoradeHeader *hdr;
     try {
         hdr = new DoradeHeader("/code/burghart/eldora/src/headermaker/headers/tparc_conv.hd");
@@ -72,14 +46,6 @@ main(int argc, char *argv[])
     } catch (DoradeHeader::BadHeaderException ex) {
         std::cerr << "Header exception: " << ex << std::endl;
         abort();
-    }
-
-    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-
-    if (argc != 1)
-    {
-        std::cerr << "Usage: " << string(argv[0]) << " [orb options]" << std::endl;
-        return 1;
     }
 
     // Create the archiver servant
@@ -95,14 +61,9 @@ main(int argc, char *argv[])
     mgr->activate();
 
     ArchiverConfig config = archiver::defaultConfig();
-    config.sessionId = 12345;
-    config.projectName = "fooProject";
-    config.operatorName = "george";
     config.fileName = "eldora";
-    config.fileSizeLimit = 32000;
+    config.fileSizeLimit = 100 * 1024 * 1024; // 100 MB
     config.directoryName = "/tmp/EldoraArchiver";
-
-    // Verify that reconfig() sets the correct config but leaves it stopped.
     status = servant->reconfig(config);
 
     // Data ray
