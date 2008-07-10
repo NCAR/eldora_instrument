@@ -60,7 +60,7 @@ fake_intrs = 0;
 stop_flag = 1;
 reload_flag = 0;
 in_vmevme_isr = 0;
-in_gps_isr = 0;
+// in_gps_isr = 0;
 
 use_IRIGB = 1;
 modulate_IRIGB = 1;
@@ -73,11 +73,11 @@ modulate_IRIGB = 1;
 //printf("Initializing the ELDORA Control Bus (ecb)\n");
 
 //strcpy(ecbname,"mstrvme8.sre");
-stop11();
+//stop11();
 //dpclr();
 //ldsrec(ecbname);
 //ecbIntInit(1000000);
-go11();
+//go11();
 ////*******************************
 //
 ///* Enable 68040 Interrupts */
@@ -113,8 +113,8 @@ init_ieee(); /* Initalizes the power meters to begin sending data */
 printf("Initializing the ARINC 429 interface\n");
 init_iru();     /* Initializes the ARINC 429 card to sort on labels */
 
-printf("Initializing the GPS interface\n");
-init_gps((short)0); // Sets up the the GPS mailbox interrupt, proper pointers //
+// printf("Initializing the GPS interface\n");
+// init_gps((short)0); // Sets up the the GPS mailbox interrupt, proper pointers //
 
 
 /* Initialize parameters to deal with the waveguide switch */
@@ -136,8 +136,8 @@ do{
     printf("Stopping the motor controller\n");
     stop_motor();
 
-    printf("Stopping the GPS interface\n");
-    command_gps((char)3);
+ //   printf("Stopping the GPS interface\n");
+ //   command_gps((char)3);
         
     /*    command_mini((short)3);  */ /* disable Mailbox interrupt */
 
@@ -318,11 +318,11 @@ Edited by Tom 1/30/08
 
 
     // Tell the gps and iru interfaces to begin looking for data again //
-    in_gps_isr = 0;
-    printf("Starting the GPS interface\n");
-    *tp41_mbox_0 = (char)0;
-    command_gps((char)1);
-    //    command_mini((short)1); */ /* enable Mailbox interrupt //
+ //   in_gps_isr = 0;
+ //   printf("Starting the GPS interface\n");
+ //   *tp41_mbox_0 = (char)0;
+ //   command_gps((char)1);
+ //   command_mini((short)1); // enable Mailbox interrupt
        
 
     printf("Starting the IRU Interface\n");
