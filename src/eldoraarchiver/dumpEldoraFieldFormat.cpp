@@ -11,6 +11,7 @@
 #include <DoradeRAWD.h>
 #include <DoradeRYIB.h>
 #include <DoradeVOLD.h>
+#include <unistd.h>
 
 int
 main(int argc, char* argv[]) {
@@ -35,19 +36,22 @@ main(int argc, char* argv[]) {
 
     try {
         while (! ifile.eof() && (ifile.tellg() < fileLen)) {
-            // read the length of this block
+            // FORTRAN blocking: 
+            //      <4-byte big-endian block length>
+            //      <data>
+            //      <trailing 4-byte big-endian block length>
+            
+            // read the big-endian block length
             unsigned int blocksize;
             ifile.read(block, 4);
             blocksize = (ublock[0] << 24) | (ublock[1] << 16) | 
                 (ublock[2] << 8) | ublock[3];
             assert(blocksize <= sizeof(block));
 
-            // read the block
+            // Now read the data portion of the block
             ifile.read(block, blocksize);
             unsigned int blockpos = 0;
             
-            int sensor = -1;
-
             while (blockpos < blocksize) {
                 unsigned char* udata = (unsigned char*)block + blockpos;
                 DoradeDescriptor desc(udata, blocksize - blockpos, false);
@@ -64,13 +68,12 @@ main(int argc, char* argv[]) {
                     // the DORADE document shows a sensor descriptor as the
                     // whole block of descriptors describing a sensor and its
                     // parameters.
-                    int nSensors = vold.getSensorCount() / 2;
-                    std::cerr << "VOLD @ " << vold.getVolumeDateTime() << 
-                        " with " << nSensors << " sensors" << std::endl;
+                    std::cout << "VOLD @ " << vold.getVolumeDateTime() << 
+                        " with " << vold.getSensorCount() / 2 << " sensors" << 
+                        std::endl;
                 } else if (descName == "RADD") {
-                    sensor++;
                     DoradeRADD radd(udata, blocksize - blockpos, false);
-                    std::cerr << "\tRADD for " << radd.getRadarName() << 
+                    std::cout << "RADD for " << radd.getRadarName() << 
                         std::endl;   
                 } else if (desc.getDescName() == "PARM") {
                     DoradePARM parm(udata, blocksize - blockpos, false);
@@ -87,20 +90,20 @@ main(int argc, char* argv[]) {
                         paramSize = 4;
                         break;
                     }
-                    std::cerr << "\tPARM " << parm.getParamName() << 
-                        " for sensor " << sensor << ", " << paramSize << 
-                        " bytes" << std::endl;
+                    std::cout << "PARM " << paramSize << "-byte " <<
+                        parm.getParamName() << std::endl;
                 } else if (descName == "RYIB") {
                     DoradeRYIB ryib(udata, blocksize - blockpos, false);
-                    std::cerr << "\tRYIB @ " << ryib.getDayOfYear() << "/" << 
-                        ryib.getRayTime() << std::endl;   
+                    std::cout << "RYIB @ " << ryib.getDayOfYear() << "/" << 
+                        ryib.getRayTime() << ", sweep: " <<
+                        ryib.getSweepNumber() << std::endl;   
                 } else if (desc.getDescName() == "RAWD") {
                     DoradeRAWD rawd(udata, blocksize - blockpos, false);
                     // RAWD is a strange bird, and we don't get a good descriptor
                     // length until we have a DoradeRAWD rather than just
                     // a DoradeDescriptor.
                     descLen = rawd.getDescLen();
-                    std::cerr << "\tRAWD (" << descLen << " bytes)" << std::endl;
+                    std::cout << "RAWD (" << descLen << " bytes)" << std::endl;
                 } else if (desc.getDescName() == "CSPD") {
                     DoradeCSPD cspd(udata, blocksize - blockpos, false);
                     short nsegs = cspd.getNSegments();
@@ -108,17 +111,16 @@ main(int argc, char* argv[]) {
                     int nGates = 0;
                     for (int s = 0; s < nsegs; s++)
                         nGates += ncells[s];
-                    std::cerr << "\t" << "CSPD with " << nGates << 
-                        " gates" << std::endl;
+                    std::cout << "CSPD with " << nGates << " gates" << std::endl;
                 } else if (desc.getDescName() == "FRAD") {
                     DoradeFRAD frad(udata, blocksize - blockpos, false);
                     const short* sdata = frad.getShortData();
-                    std::cerr << "\t" << "FRAD [";
+                    std::cout << "FRAD (" << frad.getRadarName() << ") data: ";
                     for (int i = 0; i < 10; i++)
-                        std::cerr << sdata[i] << ", ";
-                    std::cerr << "...]" << std::endl;
+                        std::cout << sdata[i] << ",";
+                    std::cout << "..." << std::endl;
                 } else {
-                    std::cerr << "\t" << desc.getDescName() << " (" << 
+                    std::cout << desc.getDescName() << " (" << 
                         desc.getDescLen() << " bytes)" << std::endl;
                 }
                 blockpos += descLen;
