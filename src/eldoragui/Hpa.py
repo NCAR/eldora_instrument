@@ -129,8 +129,11 @@ class Hpa:
                 if s[len(s) - 1] == '\003':
                     break
 
-            # read the checksum    
-            s = s + self.serialport.read(1)
+            # read the checksum   
+            try:
+                s = s + self.serialport.read(1)
+            except Exception, e:
+                s = ''
         except serial.SerialException, e:
             return str(e)
 
