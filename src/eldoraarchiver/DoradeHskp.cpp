@@ -13,6 +13,8 @@ DoradeHskp::DoradeHskp(const EldoraDDS::Housekeeping& ddsHskp) {
             ddsHskp.radarRotAngle, ddsHskp.radarTiltAngle, 
             ddsHskp.windEW, ddsHskp.windNS, ddsHskp.windVert,
             ddsHskp.headingChangeRate, ddsHskp.pitchChangeRate);
+    // We start with a dataless FRAD, but our owner can add data to it
+    // via frad()->putTwoByteData()
     _frad = new DoradeFRAD(ddsHskp.dataSysStatus, ddsHskp.radarName,
             ddsHskp.testPulsePower, ddsHskp.testPulseStart, 
             ddsHskp.testPulseWidth, ddsHskp.testPulseFreq, 
