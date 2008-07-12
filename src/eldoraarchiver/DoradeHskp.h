@@ -12,7 +12,7 @@
  * DORADE descriptors:
  *      RYIB
  *      ASIB
- *      (dataless) FRAD
+ *      FRAD
  */
 class DoradeHskp {
 public:
