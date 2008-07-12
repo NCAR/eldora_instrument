@@ -396,7 +396,7 @@ Edited by Tom 1/30/08
     if(tp_dwell_count >= testpulse_max_count && autocal)
     {
       //printf("updating test pulse\n");
-      //update_testpulse();
+      update_testpulse();
     }
  
     taskDelay(1);  /* added for test - Eric 7/16/99 */ 
