@@ -59,6 +59,7 @@ float diff, tdiff;
   /* Zero the testpulse dwell counter */
   tp_dwell_count = 0;
 
+#ifdef SLOW_CAL  //ifdef'd out until background cal is operational -- E.L 7/11/08
   if(!Firstime)
   {
   /* Check to see if the previous testpulse was within the proper error band */
@@ -150,6 +151,8 @@ float diff, tdiff;
   fore_vel_sum = 0;
   aft_vel_sum = 0;
 
+#endif
+  
   //**************************************************************************
   // Tom 5/30/08 Testpulse and attenuators now updated by DRX
   /*

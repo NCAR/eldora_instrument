@@ -401,6 +401,9 @@ sysAuxClkEnable();
 
 #endif
 
+/* Finally, enable the interrupt */
+sysIntEnable(IEEE_IRQ);
+
 /*********** START DMA CHANNEL 0 - GO! ***************/
 
   *d0csr=0xff; /* Clear channel status register by writing all ones */
@@ -418,8 +421,7 @@ taskRestart(pgm);  /* re-start run-time power task */
 taskRestart(xmit); /* re-start run-time power task */
 taskRestart(testp); /* re-start run-time power task */
 
-/* Finally, enable the interrupt */
-sysIntEnable(IEEE_IRQ);
+
 }
 
 

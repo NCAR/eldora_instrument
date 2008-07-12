@@ -172,18 +172,19 @@ do
 	  strncpy(string_array,"CDLB\0",5); /* Set cursor delay for aft xmit power meter */  
 	  strncat(string_array,number_array,strlen(number_array));
 	  send_cmnd_string(XMIT,string_array);
-
-	  ecbaddr = ECBATTEN;
-	  xmit_tp = 1; /* select xmit mux */
-	  muxval = 13;  /* select aft preknock as trigger */
-	  muxval = 5;  /* select fore preknock as trigger */
-	  timeout = 0;
+//	  comment out ECB as it is no longer used
+//	  ecbaddr = ECBATTEN;
+//	  xmit_tp = 1; /* select xmit mux */
+//	  muxval = 13;  /* select aft preknock as trigger */
+//	  muxval = 5;  /* select fore preknock as trigger */
+/*	  timeout = 0;
 	  do
 	    {
 	      if(timeout > 0)taskDelay(1);
 	      timeout++;
 	    }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 	  break;
+*/
 	case 2:
 	  init_gpib(2);
 	  /* talk(2); */
@@ -246,17 +247,19 @@ do
 	  strncat(string_array,number_array,strlen(number_array));
 	  send_cmnd_string(TESTP,string_array);
 
-	  ecbaddr = ECBATTEN;
-	  xmit_tp = 0; /* select test pulse mux */
-	  muxval = 14;  /* select aft testpulse as trigger */
-	  muxval = 6;  /* select fore testpulse as trigger */
-	  timeout = 0;
+//	  ecbaddr = ECBATTEN;
+//	  xmit_tp = 0; /* select test pulse mux */
+//	  muxval = 14;  /* select aft testpulse as trigger */
+//	  muxval = 6;  /* select fore testpulse as trigger */
+//	  timeout = 0;
+/*
 	  do
 	    {
 	      if(timeout > 0)taskDelay(1);
 	      timeout++;
 	    }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 	  break;
+*/
 	case 3:
 	  init_gpib(1);
 	  /* talk (1) */
@@ -322,10 +325,12 @@ do
 	  send_cmnd_string(XMIT,string_array); /* on Xmit power meter */
 	  init_dma(1,14); /* init dma for single channel operation */
 #endif
-	  ecbaddr = ECBATTEN;
-	  xmit_tp = 1; /* select xmit mux */
-	  muxval = 5;  /* select fore preknock as trigger */
-	  muxval = 13; /* select aft preknock as trigger */
+
+//	  ecbaddr = ECBATTEN;
+//	  xmit_tp = 1; /* select xmit mux */
+//	  muxval = 5;  /* select fore preknock as trigger */
+//	  muxval = 13; /* select aft preknock as trigger */
+/*
 	  timeout = 0;
 	  do
 	    {
@@ -333,7 +338,7 @@ do
 	      timeout++;
 	    }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 	  break;
-
+*/
       case 4:
 	/*	  talk(1); */
 	init_gpib(1);
@@ -397,17 +402,19 @@ do
 	  send_cmnd_string(XMIT,string_array); /* on Xmit power meter */
 	  init_dma(1,14); /* init dma for single channel operation */
 #endif
-	  ecbaddr = ECBATTEN;
-	  xmit_tp = 1; /* select xmit mux */
-	  muxval = 5;  /* select fore preknock as trigger */
-	  muxval = 13; /* select aft preknock as trigger */
-	  timeout = 0;
+
+//	  ecbaddr = ECBATTEN;
+//	  xmit_tp = 1; /* select xmit mux */
+//	  muxval = 5;  /* select fore preknock as trigger */
+//	  muxval = 13; /* select aft preknock as trigger */
+/*	  timeout = 0;
 	  do
 	    {
 	      if(timeout > 0)taskDelay(1);
 	      timeout++;
 	    }while((test = ecbSetMux(ecbaddr,xmit_tp,muxval) != 0) && timeout < 30);
 	  break;
+ */
       case 5:
 	printf("ENTER A COMMAND STRING\n");
 	scanf(" %s",string_array); /* GET COMMAND STRING FROM KEYBOARD */
