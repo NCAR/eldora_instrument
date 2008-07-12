@@ -23,10 +23,9 @@ DoradeVOLD::DoradeVOLD(const unsigned char *data, unsigned int datalen,
     _formatVersionNum = grabShort(data, 8, isLittleEndian);
     _volumeNum = grabShort(data, 10, isLittleEndian);
     _maxDataRecLen = grabInt(data, 12, isLittleEndian);
-    // get exactly 20 characters, either by silently truncating or by 
-    // appending nulls
+    // Get exactly 20 chars, then shorten if there's a null somewhere.
     _projectName = std::string((const char*)data + 16, 20);
-    _projectName.resize(20);
+    _projectName = std::string(_projectName.c_str());
     _year = grabShort(data, 36, isLittleEndian);
     // Year is often generated using a "struct tm", where it is recorded
     // as years since 1900.  Correct it now if that's the case.
@@ -37,12 +36,12 @@ DoradeVOLD::DoradeVOLD(const unsigned char *data, unsigned int datalen,
     _hour = grabShort(data, 42, isLittleEndian);
     _minute = grabShort(data, 44, isLittleEndian);
     _second = grabShort(data, 46, isLittleEndian);
-    // get exactly 8 characters for each of these, either by silently 
-    // truncating or by appending nulls
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _flightOrIOP = std::string((const char*)data + 48, 8);
-    _flightOrIOP.resize(8);
+    _flightOrIOP = std::string(_flightOrIOP.c_str());
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _generatingFacility = std::string((const char*)data + 56, 8);
-    _generatingFacility.resize(8);
+    _generatingFacility = std::string(_generatingFacility.c_str());
     _genYear = grabShort(data, 64, isLittleEndian);
     // Year is often generated using a "struct tm", where it is recorded
     // as years since 1900.  Correct it now if that's the case.
@@ -75,12 +74,15 @@ DoradeVOLD::DoradeVOLD(short formatVersionNum, short volumeNum,
     _maxDataRecLen(maxDataRecLen), _projectName(projectName),
     _flightOrIOP(flightOrIOP), _generatingFacility(generatingFacility),
     _sensorCount(sensorCount) {
-    // force _projectName to 20 characters, appending nulls if necessary.
-    _projectName.resize(20);
-    // force _flightOrIOP and _generatingFacility to 8 characters, appending 
-    // nulls if necessary.
-    _flightOrIOP.resize(8);
-    _generatingFacility.resize(8);
+    // truncate at 20 characters if necessary
+    if (_projectName.size() > 20)
+        _projectName.resize(20);
+    // truncate at 8 characters if necessary
+    if (_flightOrIOP.size() > 8)
+        _flightOrIOP.resize(8);
+    // truncate at 8 characters if necessary
+    if (_generatingFacility.size() > 8)
+        _generatingFacility.resize(8);
     // dates and times
     setVolumeDateTime(volumeDateTime);
     setGenerationDate(genDate);
@@ -129,20 +131,27 @@ DoradeVOLD::setGenerationDate(date genDate) {
 std::ostream&
 DoradeVOLD::streamTo(std::ostream& os, bool asLittleEndian)
 {
+    std::string str;
     putBytes(os, _descName.data(), 4, false); // no swapping for char data
     putInt(os, _descLen, asLittleEndian);
     putShort(os, _formatVersionNum, asLittleEndian);
     putShort(os, _volumeNum, asLittleEndian);
     putInt(os, _maxDataRecLen, asLittleEndian);
-    putBytes(os, _projectName.data(), 20, false);   // no swapping for char data
+    str = _projectName;
+    str.resize(20); // force exactly 20 chars
+    putBytes(os, str.data(), 20, false);   // no swapping for char data
     putShort(os, _year, asLittleEndian);
     putShort(os, _month, asLittleEndian);
     putShort(os, _day, asLittleEndian);
     putShort(os, _hour, asLittleEndian);
     putShort(os, _minute, asLittleEndian);
     putShort(os, _second, asLittleEndian);
-    putBytes(os, _flightOrIOP.data(), 8, false);           // no swapping for char data
-    putBytes(os, _generatingFacility.data(), 8, false);    // no swapping for char data
+    str = _flightOrIOP;
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false);           // no swapping for char data
+    str = _generatingFacility;
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false);    // no swapping for char data
     putShort(os, _genYear, asLittleEndian);
     putShort(os, _genMonth, asLittleEndian);
     putShort(os, _genDay, asLittleEndian);

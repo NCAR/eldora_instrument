@@ -32,7 +32,9 @@ DoradeFRAD::DoradeFRAD(const unsigned char *data, unsigned int datalen,
     // unpack
     //
     _dataSystemStatus = grabInt(data, 8, isLittleEndian);
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _radarName = std::string((const char*)data + 12, 8);
+    _radarName = std::string(_radarName.c_str());
     _testPulsePower = grabFloat(data, 20, isLittleEndian);
     _testPulseStart = grabFloat(data, 24, isLittleEndian);
     _testPulseWidth = grabFloat(data, 28, isLittleEndian);
@@ -120,7 +122,9 @@ DoradeFRAD::streamTo(std::ostream& os, bool asLittleEndian)
     putBytes(os, _descName.data(), 4, false);
     putInt(os, _descLen, asLittleEndian);
     putInt(os, _dataSystemStatus, asLittleEndian);
-    putBytes(os, _radarName.data(), 8, false);
+    std::string str(_radarName);
+    str.resize(8);  // force to exactly chars
+    putBytes(os, str.data(), 8, false);
     putFloat(os, _testPulsePower, asLittleEndian);
     putFloat(os, _testPulseStart, asLittleEndian);
     putFloat(os, _testPulseWidth, asLittleEndian);

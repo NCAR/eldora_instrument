@@ -19,10 +19,12 @@ DoradeSITU::DoradeSITU(const unsigned char *data, unsigned int datalen,
     //
     _nParams = grabInt(data, 8, isLittleEndian);
     for (int p = 0; p < _nParams; p++) {
+        // Get exactly 8 chars, then shorten if there's a null somewhere.
         _params[p]._name = std::string((const char*)data + 12 + 16 * p, 8);
-        _params[0]._name.resize(8);
+        _params[p]._name = std::string(_params[p]._name.c_str());
+        // Get exactly 8 chars, then shorten if there's a null somewhere.
         _params[p]._units = std::string((const char*)data + 20 + 16 * p, 8);
-        _params[0]._units.resize(8);
+        _params[p]._units = std::string(_params[p]._units.c_str());
     }
     //
     // debugging output
@@ -36,9 +38,13 @@ DoradeSITU::DoradeSITU(int nParams, std::string* names, std::string* units) :
     _nParams(nParams) {
     for (int p = 0; p < _nParams; p++) {
         _params[p]._name = names[p];
-        _params[p]._name.resize(8);
+        // truncate if necessary
+        if (_params[p]._name.size() > 8)
+            _params[p]._name.resize(8);
         _params[p]._units = units[p];
-        _params[p]._units.resize(8);
+        // truncate if necessary
+        if (_params[p]._units.size() > 8)
+            _params[p]._units.resize(8);
     }
     
     if (_verbose)
@@ -67,12 +73,18 @@ DoradeSITU::streamTo(std::ostream& os, bool asLittleEndian)
     struct situ_param empty;
     empty._name.resize(8, ' ');
     empty._units.resize(8, ' ');
-    
+
+    std::string str;
     for (int p = 0; p < 256; p++) {
         // Write the params from our list up to _nParams, then write empty params
         struct situ_param param = (p < _nParams) ? _params[p] : empty;
-        putBytes(os, param._name.data(), 8, false); // no swapping for char data
-        putBytes(os, param._units.data(), 8, false);// no swapping for char data
+        str = param._name;
+        str.resize(8);  // force to exactly 8 chars
+        putBytes(os, str.data(), 8, false); // no swapping for char data
+        
+        str = param._units;
+        str.resize(8);  // force to exactly 8 chars
+        putBytes(os, str.data(), 8, false);// no swapping for char data
     }
     return os;
 }

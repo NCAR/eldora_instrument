@@ -17,9 +17,9 @@ DoradeRADD::DoradeRADD(const unsigned char *data, unsigned int datalen,
     // unpack
     //
                            
-    // force _radarName to 8 characters by truncating or appending nulls
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _radarName = std::string((const char*)data + 8, 8);
-    _radarName.resize(8);
+    _radarName = std::string(_radarName.c_str());
     _radarConstant = grabFloat(data, 16, isLittleEndian);
     _peakPower = grabFloat(data, 20, isLittleEndian);
     _noisePower = grabFloat(data, 24, isLittleEndian);
@@ -80,8 +80,9 @@ DoradeRADD::DoradeRADD(std::string radarName, float radarConstant,
     _radarAltitude(radarAltitude), _unambiguousVelocity(unambiguousVelocity),
     _unambiguousRange(unambiguousRange), _nFrequencies(nFrequencies),
     _nIPPs(nIPPs) {
-    // force _radarName to 8 characters by truncating or appending nulls
-    _radarName.resize(8);
+    // truncate _radarName if necessary
+    if (_radarName.size() > 8)
+        _radarName.resize(8);
     for (int f = 0; f < _nFrequencies; f++)
         _frequencies[f] = frequencies[f];
     for (int i = 0; i < _nIPPs; i++)
@@ -107,7 +108,9 @@ DoradeRADD::streamTo(std::ostream& os, bool asLittleEndian)
 {
     putBytes(os, _descName.data(), 4, false);   // no swapping for char data
     putInt(os, _descLen, asLittleEndian);
-    putBytes(os, _radarName.data(), 8, false);   // no swapping for char data
+    std::string str(_radarName);
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false);   // no swapping for char data
     putFloat(os, _radarConstant, asLittleEndian);
     putFloat(os, _peakPower, asLittleEndian);
     putFloat(os, _noisePower, asLittleEndian);

@@ -51,9 +51,9 @@ DoradeFRIB::DoradeFRIB(const unsigned char *data, unsigned int datalen,
     _indepFreqGate = grabShort(data, 178, isLittleEndian);
     _tsGate = grabShort(data, 180, isLittleEndian);
     _numBaseParams = grabShort(data, 182, isLittleEndian);
-    // force _hdrFileName to 80 characters by truncating or appending nulls
+    // Get exactly 80 chars, then shorten if there's a null somewhere.
     _hdrFileName = std::string((const char*)data + 184, 80);
-    _hdrFileName.resize(80);
+    _hdrFileName = std::string(_hdrFileName.c_str());
     //
     // debugging output
     //
@@ -85,8 +85,9 @@ DoradeFRIB::DoradeFRIB(int dataSysId, float waveguideLossOut,
     _encoderAntennaUp(encoderAntennaUp), _pitchAntennaUp(pitchAntennaUp),
     _extraDataFlag(extraDataFlag), _indepFreqGate(indepFreqGate), 
     _tsGate(tsGate), _numBaseParams(numBaseParams), _hdrFileName(hdrFileName) {
-    // force _hdrFileName to 80 characters by truncating or appending nulls
-    _hdrFileName.resize(80);
+    // truncate _hdrFileName at 80 characters if necessary
+    if (_hdrFileName.size() > 80)
+        _hdrFileName.resize(80);
     assert(sizeof(xmitPower) == sizeof(_xmitPower));
     memcpy(_xmitPower, xmitPower, sizeof(_xmitPower));
     assert(sizeof(rcvrGain) == sizeof(_rcvrGain));
@@ -150,6 +151,8 @@ DoradeFRIB::streamTo(std::ostream& os, bool asLittleEndian)
     putShort(os, _indepFreqGate, asLittleEndian);
     putShort(os, _tsGate, asLittleEndian);
     putShort(os, _numBaseParams, asLittleEndian);
-    putBytes(os, _hdrFileName.data(), 80, false);   // no swapping for char data
+    std::string str(_hdrFileName);
+    str.resize(80);    // force exactly 80 characters
+    putBytes(os, str.data(), 80, false);   // no swapping for char data
     return os;
 }

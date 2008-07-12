@@ -16,12 +16,16 @@ DoradePARM::DoradePARM(const unsigned char *data, unsigned int datalen,
     //
     // unpack
     //
+                           
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _name = std::string((const char*)data + 8, 8);
-    _name.resize(8);
+    _name = std::string(_name.c_str());
+    // Get exactly 40 chars, then shorten if there's a null somewhere.
     _description = std::string((const char*)data + 16, 40);
-    _description.resize(40);
+    _description = std::string(_description.c_str());
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _units = std::string((const char*)data + 56, 8);
-    _units.resize(8);
+    _units = std::string(_units.c_str());
     _usedIPPs = grabShort(data, 64, isLittleEndian);
     _usedFreqs = grabShort(data, 66, isLittleEndian);
     _rcvrBandwidth = grabFloat(data, 68, isLittleEndian);
@@ -29,8 +33,9 @@ DoradePARM::DoradePARM(const unsigned char *data, unsigned int datalen,
     _polarization = grabShort(data, 74, isLittleEndian);
     _nSamples = grabShort(data, 76, isLittleEndian);
     _paramType = grabShort(data, 78, isLittleEndian);
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _thresholdParm = std::string((const char*)data + 80, 8);
-    _thresholdParm.resize(8);
+    _thresholdParm = std::string(_thresholdParm.c_str());
     _thresholdValue = grabFloat(data, 88, isLittleEndian);
     _scale = grabFloat(data, 92, isLittleEndian);
     _offset = grabFloat(data, 96, isLittleEndian);
@@ -54,12 +59,15 @@ DoradePARM::DoradePARM(std::string name, std::string description,
     _polarization(polarization), _nSamples(nSamples), _paramType(paramType),
     _thresholdParm(thresholdParm), _thresholdValue(thresholdValue), 
     _scale(scale), _offset(offset), _missingValue(missingValue) {
-    // Force the strings to the appropriate lengths, either truncating or
-    // appending nulls as necessary
-    _name.resize(8);
-    _description.resize(40);
-    _units.resize(8);
-    _thresholdParm.resize(8);
+    // Truncate the strings to the appropriate lengths if necessary
+    if (_name.size() > 8)
+        _name.resize(8);
+    if (_description.size() > 40)
+        _description.resize(40);
+    if (_units.size() > 8)
+        _units.resize(8);
+    if (_thresholdParm.size() > 8)
+        _thresholdParm.resize(8);
 
     if (_verbose)
         std::cout << *this;
@@ -94,11 +102,23 @@ DoradePARM::printTo(std::ostream& os) const
 std::ostream&
 DoradePARM::streamTo(std::ostream& os, bool asLittleEndian)
 {
+    std::string str;
+    
     putBytes(os, _descName.data(), 4, false);   // no swapping for char data
     putInt(os, _descLen, asLittleEndian);
-    putBytes(os, _name.data(), 8, false);  // no swapping for char data
-    putBytes(os, _description.data(), 40, false);  // no swapping for char data
-    putBytes(os, _units.data(), 8, false); // no swapping for char data
+    
+    str = _name;
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false);  // no swapping for char data
+    
+    str = _description;
+    str.resize(40); // force exactly 40 chars
+    putBytes(os, str.data(), 40, false);  // no swapping for char data
+    
+    str = _units;
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false); // no swapping for char data
+    
     putShort(os, _usedIPPs, asLittleEndian);
     putShort(os, _usedFreqs, asLittleEndian);
     putFloat(os, _rcvrBandwidth, asLittleEndian);
@@ -106,7 +126,11 @@ DoradePARM::streamTo(std::ostream& os, bool asLittleEndian)
     putShort(os, _polarization, asLittleEndian);
     putShort(os, _nSamples, asLittleEndian);
     putShort(os, _paramType, asLittleEndian);
-    putBytes(os, _thresholdParm.data(), 8, false); // no swapping for char data
+    
+    str = _thresholdParm;
+    str.resize(8);  // force exactly 8 chars
+    putBytes(os, str.data(), 8, false); // no swapping for char data
+    
     putFloat(os, _thresholdValue, asLittleEndian);
     putFloat(os, _scale, asLittleEndian);
     putFloat(os, _offset, asLittleEndian);

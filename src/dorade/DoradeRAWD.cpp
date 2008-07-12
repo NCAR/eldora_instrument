@@ -20,14 +20,14 @@ DoradeRAWD::DoradeRAWD(const unsigned char *data, unsigned int datalen,
     // have.  We have to calculate descriptor length ourselves.
     //
                            
-    // force _xLabel to 8 characters by truncating or appending nulls
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _xLabel = std::string((const char*)data + 4, 8);
-    _xLabel.resize(8);
+    _xLabel = std::string(_xLabel.c_str());
     _xMax = grabFloat(data, 12, isLittleEndian);
     _xMin = grabFloat(data, 16, isLittleEndian);    
-    // force _yLabel to 8 characters by truncating or appending nulls
+    // Get exactly 8 chars, then shorten if there's a null somewhere.
     _yLabel = std::string((const char*)data + 20, 8);
-    _yLabel.resize(8);
+    _yLabel = std::string(_yLabel.c_str());
     _yMax = grabFloat(data, 28, isLittleEndian);
     _yMin = grabFloat(data, 32, isLittleEndian);    
     _numPoints = grabInt(data, 36, isLittleEndian);
@@ -49,10 +49,11 @@ DoradeRAWD::DoradeRAWD(std::string xLabel, float xMax, float xMin,
         const char* data) : 
     DoradeDescriptor("RAWD", -1), _xLabel(xLabel), _xMax(xMax), _xMin(xMin),
     _yLabel(yLabel), _yMax(yMax), _yMin(yMin), _numPoints(numPoints) {
-    // force label lengths to 8 characters, either by truncating or by
-    // appending nulls
-    _xLabel.resize(8);
-    _yLabel.resize(8);
+    // truncate to 8 characters if necessary
+    if (_xLabel.size() > 8)
+        _xLabel.resize(8);
+    if (_yLabel.size() > 8)
+        _yLabel.resize(8);
 
     int len = 32 * _numPoints;
     _data = new char[len];
@@ -80,13 +81,18 @@ DoradeRAWD::printTo(std::ostream& os) const
 std::ostream&
 DoradeRAWD::streamTo(std::ostream& os, bool asLittleEndian)
 {
+    std::string str;
     putBytes(os, _descName.data(), 4, false);   // no swapping for char data
 // All other descriptors put the _descLen here, but RAWD is an exception
 //    putInt(os, _descLen, asLittleEndian);
-    putBytes(os, _xLabel.data(), 8, false);   // no swapping for char data
+    str = _xLabel;
+    str.resize(8);  // force to exactly 8 chars
+    putBytes(os, str.data(), 8, false);   // no swapping for char data
     putFloat(os, _xMax, asLittleEndian);
     putFloat(os, _xMin, asLittleEndian);
-    putBytes(os, _yLabel.data(), 8, false);   // no swapping for char data
+    str = _yLabel;
+    str.resize(8);  // force to exactly 8 chars
+    putBytes(os, str.data(), 8, false);   // no swapping for char data
     putFloat(os, _yMax, asLittleEndian);
     putFloat(os, _yMin, asLittleEndian);
     putInt(os, _numPoints, asLittleEndian);

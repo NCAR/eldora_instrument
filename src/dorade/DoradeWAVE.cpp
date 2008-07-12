@@ -18,10 +18,10 @@ DoradeWAVE::DoradeWAVE(const unsigned char *data, unsigned int datalen,
     // unpack
     //
 
-    // Pulse scheme file name.  Force to 16 characters by silently truncating
-    // or appending nulls.
+    // Pulse scheme file name.
+    // Get exactly 16 chars, then shorten if there's a null somewhere.
     _psFileName = std::string((const char*)data + 8, 16);
-    _psFileName.resize(16);
+    _psFileName = std::string(_psFileName.c_str());
     
     for (int f = 0; f < 6; f++)
         _numChips[f] = grabShort(data, 24 + 2 * f, isLittleEndian);
@@ -62,8 +62,9 @@ DoradeWAVE::DoradeWAVE(std::string psFileName, short numChips[6],
     _psFileName(psFileName), _repeatPeriod(repeatPeriod), 
     _repeatsPerDwell(repeatsPerDwell), _totalPCP(totalPCP), 
     _urPCP(urPCP), _uvPCP(uvPCP) {
-    // force psFileName to 16 characters by truncating or appending nulls
-    _psFileName.resize(16);
+    // truncate psFileName to 16 characters if necessary
+    if (_psFileName.size() > 16)
+        _psFileName.resize(16);
     assert(sizeof(blankingSequence) == sizeof(_blankingSequence));
     memcpy(_blankingSequence, blankingSequence, sizeof(_blankingSequence));
     assert(sizeof(numChips) == sizeof(_numChips));
@@ -97,7 +98,9 @@ DoradeWAVE::streamTo(std::ostream& os, bool asLittleEndian)
 {
     putBytes(os, _descName.data(), 4, false);   // no swapping for char data
     putInt(os, _descLen, asLittleEndian);
-    putBytes(os, _psFileName.data(), 16, false);// no swapping for char data
+    std::string str(_psFileName);
+    str.resize(16); // force to exactly 16 chars
+    putBytes(os, str.data(), 16, false);// no swapping for char data
     for (int f = 0; f < 6; f++)
         putShort(os, _numChips[f], asLittleEndian);
     putBytes(os, _blankingSequence, 256, false);// no swapping for char data
