@@ -39,14 +39,16 @@ DDSSubscriber::~DDSSubscriber() {
 
     std::cout << __FUNCTION__ << " destructor\n";
 
-    _participant->delete_contained_entities();
+    if (_participant) {
+        _participant->delete_contained_entities();
 
-    _dpf->delete_participant(_participant.in());
+        _dpf->delete_participant(_participant.in());
+    }
 
     TheTransportFactory->release();
 
-    TheServiceParticipant->shutdown();
-
+    if (_participant)
+        TheServiceParticipant->shutdown();
 }
 
 ////////////////////////////////////////////////////////////
