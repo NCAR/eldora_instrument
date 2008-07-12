@@ -53,6 +53,24 @@ public:
     DoradeNDDS* ndds() const { return _ndds; }
     // return a pointer to the RADD {RADar Descriptor) for the selected radar
     DoradeRADD* radd(int radar) const { return _radd[radar]; }
+    
+    DoradeRADD* raddFore() const {
+        if (_radd[0]->getRadarName() == "FORE")
+            return _radd[0];
+        else if (_radd[1]->getRadarName() == "FORE")
+            return _radd[1];
+        else
+            return 0;
+    }
+    
+    DoradeRADD* raddAft() const {
+        if (_radd[0]->getRadarName() == "AFT")
+            return _radd[0];
+        else if (_radd[1]->getRadarName() == "AFT")
+            return _radd[1];
+        else
+            return 0;
+    }
     // return a pointer to the FRIB (Field Radar Information Block descriptor) 
     // for the selected radar
     DoradeFRIB* frib(int radar) const { return _frib[radar]; }
