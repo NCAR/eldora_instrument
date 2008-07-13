@@ -990,7 +990,44 @@ int RR314::filterSetup() {
 		}
 	} else {
 		BuiltinGaussian g;
-		gaussian = FilterSpec(g[1.00]);
+		// get the pulse width in 60 mhz counts
+		int pulseWidthCounts = _radarParams.wave_chpwid[0];
+		// The pulsewidth in microseconds. It muast match one of those
+		// available in BuiltinGausssiiann.
+		double pulseWidthUs = 1.00;
+		// Choose the correct builtin filter coefficient set.
+		switch (pulseWidthCounts) {
+		case 15:
+			pulseWidthUs = 0.25;
+			break;
+		case 30:
+			pulseWidthUs = 0.50;
+			break;
+		case 45:
+			pulseWidthUs = 0.75;
+			break;
+		case 60:
+			pulseWidthUs = 1.00;
+			break;
+		case 75:
+			pulseWidthUs = 1.25;
+			break;
+		case 90:
+			pulseWidthUs = 1.50;
+			break;
+		case 105:
+			pulseWidthUs = 1.75;
+			break;
+		case 120:
+			pulseWidthUs = 2.00;
+			break;
+		default:
+			std::cerr << "chip width specification of " << pulseWidthCounts
+					<< " is not recognized, filter will be configured for a "
+					<< pulseWidthUs << " uS pulse\n";
+			break;
+		}
+		gaussian = FilterSpec(g[pulseWidthUs]);
 	}
 
 	// get the kaiser filter coefficients
