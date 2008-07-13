@@ -137,13 +137,6 @@ def stop():
 
 	# kill the products generator
     if 'eldoraprod' in ourProcesses.keys():
-        try:
-            r = prodrpc.server.Stop()
-            if (r != 0):
-                main.logText(str(r))
-        except Exception, e:
-            print("Error contacting products RPC for stop:"+str(e))
-
         # stop the products
         stopProducts()
 
