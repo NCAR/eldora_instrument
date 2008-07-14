@@ -16,7 +16,8 @@
 
 192.168.1.6	 archiver       archiver.eldora.net  # archiver
 192.168.1.7      science        science.eldora.net   # shuttle forward scientist display
-192.168.1.8      aeros          aeros.eldora.net     # laptop forward aeros  display
+192.168.1.8      aeros          aeros.eldora.net     # laptop, right of science display
+192.168.1.12     nav            nav.eldora.net       # laptop, left of science display
 
 192.168.1.10     digi                                # digiport ethernet to 4 serial ports
 
@@ -33,7 +34,8 @@
 
 192.168.80.6	eldora-archiver                      # archiver on the ADDS network
 192.168.80.7	eldora-science                       # science on the ADDS network
-192.168.80.8	eldora-aeros                         # aeros on the ADDS network
+192.168.80.8	eldora-aeros                         #  laptop, right of science display
+192.168.80.12   eldora-nav                           # laptop, left of science display
 
 192.168.80.9    dsm9                                 # aircraft nidas data system
 
