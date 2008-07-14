@@ -251,8 +251,8 @@ int main(int argc,
         }
         if (_terminate)
             break;
-        //if (_sysRunning)
-        //    printStatus(loopCount);
+        if (_sysRunning)
+            printStatus(loopCount);
         loopCount++;
     }
 
