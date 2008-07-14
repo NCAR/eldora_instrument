@@ -200,7 +200,7 @@ class Hpa:
         for c in HPA.faultCodes.keys():
             if c & status:
                 if len(self.faults) == 0:
-                    self.faults = HPA.faultsCodes[c]
+                    self.faults = HPA.faultCodes[c]
                 else:
-                    self.faults = self.faults + ', ' + HPA.faultsCodes[c]
+                    self.faults = self.faults + ', ' + HPA.faultCodes[c]
 
