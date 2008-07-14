@@ -29,35 +29,35 @@ public:
         float* frequencies, float* IPPs);
     
     // accessor methods
-    std::string getRadarName() { return _radarName; }
-    float getRadarConstant() { return _radarConstant; }
-    float getPeakPower() { return _peakPower; }
-    float getNoisePower() { return _noisePower; }
-    float getRcvrGain() { return _rcvrGain; }
-    float getAntennaGain() { return _antennaGain; }
-    float getRadarSysGain() { return _radarSysGain; }
-    float getHBeamWidth() { return _hBeamWidth; }
-    float getVBeamWidth() { return _vBeamWidth; }
-    short getRadarType() { return _radarType; }
-    short getScanMode() { return _scanMode; }
-    float getScanRate() { return _scanRate; }
-    float getStartAngle() { return _startAngle; }
-    float getStopAngle() { return _stopAngle; }
-    short getNParams() { return _nParams; }
-    short getNDescriptors() { return _nDescriptors; }
-    short getDataCompressionCode() { return _dataCompressionCode; }
-    short getDataReductionAlgorithm() { return _dataReductionAlgorithm; }
-    float getReductionParam1() { return _reductionParam1; }
-    float getReductionParam2() { return _reductionParam2; }
-    float getRadarLongitude() { return _radarLongitude; }
-    float getRadarLatitude() { return _radarLatitude; }
-    float getRadarAltitude() { return _radarAltitude; }
-    float getUnambiguousVelocity() { return _unambiguousVelocity; }
-    float getUnambiguousRange() { return _unambiguousRange; }
-    short getNFrequencies() { return _nFrequencies; }
-    short getNIPPs() { return _nIPPs; }
-    float getFrequency(int freqnum) { return _frequencies[freqnum]; }
-    float getIPP(int freqnum) { return _IPPs[freqnum]; }
+    std::string getRadarName() const { return _radarName; }
+    float getRadarConstant() const { return _radarConstant; }
+    float getPeakPower() const { return _peakPower; }
+    float getNoisePower() const { return _noisePower; }
+    float getRcvrGain() const { return _rcvrGain; }
+    float getAntennaGain() const { return _antennaGain; }
+    float getRadarSysGain() const { return _radarSysGain; }
+    float getHBeamWidth() const { return _hBeamWidth; }
+    float getVBeamWidth() const { return _vBeamWidth; }
+    short getRadarType() const { return _radarType; }
+    short getScanMode() const { return _scanMode; }
+    float getScanRate() const { return _scanRate; }
+    float getStartAngle() const { return _startAngle; }
+    float getStopAngle() const { return _stopAngle; }
+    short getNParams() const { return _nParams; }
+    short getNDescriptors() const { return _nDescriptors; }
+    short getDataCompressionCode() const { return _dataCompressionCode; }
+    short getDataReductionAlgorithm() const { return _dataReductionAlgorithm; }
+    float getReductionParam1() const { return _reductionParam1; }
+    float getReductionParam2() const { return _reductionParam2; }
+    float getRadarLongitude() const { return _radarLongitude; }
+    float getRadarLatitude() const { return _radarLatitude; }
+    float getRadarAltitude() const { return _radarAltitude; }
+    float getUnambiguousVelocity() const { return _unambiguousVelocity; }
+    float getUnambiguousRange() const { return _unambiguousRange; }
+    short getNFrequencies() const { return _nFrequencies; }
+    short getNIPPs() const { return _nIPPs; }
+    float getFrequency(int freqnum) const { return _frequencies[freqnum]; }
+    float getIPP(int freqnum) const { return _IPPs[freqnum]; }
     
     std::ostream& printTo(std::ostream& stream) const;
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
