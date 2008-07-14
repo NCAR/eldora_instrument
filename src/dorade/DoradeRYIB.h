@@ -25,9 +25,13 @@ public:
     DoradeRYIB(const unsigned char *data, unsigned int datalen, 
                bool isLittleEndian) throw (DescriptorException);
     
-    DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
+    DoradeRYIB(boost::posix_time::ptime rayDateTime, short sweepNumber,
         float azimuth, float elevation, float peakXmitPower, float scanRate,
         int rayStatus);
+    
+    DoradeRYIB(short sweepNumber, short dayOfYear, short hour, short minute,
+        short second, short millisecond, float azimuth, float elevation, 
+        float peakXmitPower, float scanRate, int rayStatus);
     
     std::ostream& printTo(std::ostream& stream) const;
     /**

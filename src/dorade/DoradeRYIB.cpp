@@ -46,7 +46,20 @@ DoradeRYIB::DoradeRYIB(const unsigned char *data, unsigned int datalen,
         std::cout << *this;
 }
 
-DoradeRYIB::DoradeRYIB(boost::posix_time::ptime rayDateTime, int sweepNumber,
+DoradeRYIB::DoradeRYIB(short sweepNumber, short dayOfYear, short hour, 
+    short minute, short second, short millisecond, float azimuth, 
+    float elevation, float peakXmitPower, float scanRate, int rayStatus) : 
+    DoradeDescriptor("RYIB", 44),
+    _sweepNumber(sweepNumber), _azimuth(azimuth), _elevation(elevation),
+    _peakXmitPower(peakXmitPower), _scanRate(scanRate), _rayStatus(rayStatus) {
+    date rayDate(1970, 1, 1);   // year doesn't matter
+    rayDate += date_duration(dayOfYear - 1);
+    int fracSeconds = millisecond * (time_duration::ticks_per_second() / 1000);
+    time_duration rayTime = time_duration(hour, minute, second, fracSeconds);
+    setRayDateTime(ptime(rayDate, rayTime));
+}
+
+DoradeRYIB::DoradeRYIB(boost::posix_time::ptime rayDateTime, short sweepNumber,
     float azimuth, float elevation, float peakXmitPower, float scanRate,
     int rayStatus) : 
     DoradeDescriptor("RYIB", 44),
