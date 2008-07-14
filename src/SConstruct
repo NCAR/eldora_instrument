@@ -70,7 +70,7 @@ env.Alias('install',
           env.InstallProgram('radd/archiver-servant/archiver-servant'))
 
 # EldoraArchiver
-#SConscript('eldoraarchiver/SConscript')
+SConscript('eldoraarchiver/SConscript')
 
 # VxWorks (the housekeeper)
 SConscript('vx-eldora/SConscript')
