@@ -30,7 +30,8 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
 
     // get the options
     po::options_description descripts("Options");
-    int theDebugLevel, theTransportLevel;
+    int theDebugLevel = 0;
+    int theTransportLevel = 0;
 
     descripts.add_options() ("help", "describe options") ("raytopic",
                                                           po::value<std::string>(&rayTopic), "DDS ray topic")
@@ -84,9 +85,9 @@ int EldoraProductsMain::run() {
     std::string ORB;
     std::string DCPS;
     std::string DCPSInfoRepo;
-    bool dualPrt;
-    int DCPSDebugLevel;
-    int DCPSTransportDebugLevel;
+    bool dualPrt = false;
+    int DCPSDebugLevel = 0;
+    int DCPSTransportDebugLevel = 0;
     int numPrtIds;
 
     // set up the default configuration directory path
