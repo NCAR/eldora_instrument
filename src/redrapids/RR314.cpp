@@ -670,7 +670,7 @@ void RR314::newABPData(int* src, int chan, int n) {
 			if ((_devNum == 0) && (pBuf->chanId == 1) && !(pBuf->rayNum % 1000)) {
 				std::cout << "RR314 " << _devNum << " newABPData rayNum:";
 				std::cout << pBuf->rayNum << " ";
-				std::cout << "ray time: " << pBuf->rayTime.time_of_day();
+				std::cout << "ray time: " << pBuf->rayTime.date() << " " << pBuf->rayTime.time_of_day(); 
 				std::cout << ", xmit start: " << _xmitStartTime.time_of_day();
 				std::cout << ", latency: " << (microsec_clock::universal_time()
 						- pBuf->rayTime);

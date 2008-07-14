@@ -59,8 +59,10 @@ HskpMerger::newHskp(EldoraDDS::Housekeeping* hskp) {
     		_rr314->dwellDuration());
     if (rayNum == BAD_RAYNUM) {
         std::cerr << __FUNCTION__ << ": unexpected hskp time " << 
-            timetagToPtime(hskp->timetag).time_of_day() <<
+        timetagToPtime(hskp->timetag).date() <<  " " <<           
+        timetagToPtime(hskp->timetag).time_of_day() <<
             " is before xmit start time " << 
+            _rr314->xmitStartTime().date() << " " <<
             _rr314->xmitStartTime().time_of_day() << std::endl;
         return;
     }

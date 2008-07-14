@@ -186,7 +186,8 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
     for (int r = 0; r < 2; r++) {
         _radarParams[r].vold_date[0] = now.date().day();
         _radarParams[r].vold_date[1] = now.date().month();
-        _radarParams[r].vold_date[2] = now.date().year() - 1900;
+        _radarParams[r].vold_date[2] = now.date().year() - 1900;        
+        std::cout << "year is " << _radarParams[r].vold_date[2] << "\n";
         
         _radarParams[r].vold_time[0] = now.time_of_day().hours();
         _radarParams[r].vold_time[1] = now.time_of_day().minutes();
