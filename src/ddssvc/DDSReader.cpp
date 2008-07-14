@@ -215,7 +215,7 @@ throw (CORBA::SystemException) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_liveliness_changed(
 		DDS::DataReader_ptr, const DDS::LivelinessChangedStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_liveliness_changed, " << _topicName << endl;
+	cerr << "DDSReader: liveliness changed for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ throw (CORBA::SystemException) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_subscription_match(
 		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus & status)
 throw (CORBA::SystemException ) {
-	cerr << "DDSReader::on_subscription_match, " << _topicName << endl;
+	cerr << "DDSReader: got a subscription match for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
