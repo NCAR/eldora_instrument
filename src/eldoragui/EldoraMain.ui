@@ -274,14 +274,14 @@
         <item>
          <widget class="QGroupBox" name="hpa0Box" >
           <property name="title" >
-           <string>HPA 0</string>
+           <string>Tx Forward</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="hpa1Box" >
           <property name="title" >
-           <string>HPA 1</string>
+           <string>Tx Aft</string>
           </property>
          </widget>
         </item>
