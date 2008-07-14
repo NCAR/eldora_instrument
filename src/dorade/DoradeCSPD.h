@@ -24,6 +24,13 @@ public:
     const short* getNCells() { return _cellsInSegment; }
     const short* getCellSpacing() { return _spacing; }
     
+    short getTotalNCells() { 
+        int nCells = 0;
+        for (int i = 0; i < _numSegments; i++)
+            nCells += _cellsInSegment[i];
+        return nCells;
+    }
+    
     // accessor methods
     // @TODO add accessor methods
     
