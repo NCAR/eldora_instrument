@@ -211,7 +211,7 @@ bool RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 		std::cout << "kaiser coeffs:\n";
 		kaiserLoaded = true;
 		for (unsigned int i = 0; i < kaiser.size(); i++) {
-			std::cout << "   " << kaiser[i] << "\n";
+			//std::cout << "   " << kaiser[i] << "\n";
 			unsigned int readBack;
 			int ramAddr = i/4;
 			int ramSelect = i%4 << 4;
@@ -257,7 +257,7 @@ bool RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 		gaussianLoaded = true;
 		std::cout << "gaussian coeffs:\n";
 		for (unsigned int i = 0; i< gaussian.size(); i++) {
-			std::cout << "    " << gaussian[i] << "\n";
+			//std::cout << "    " << gaussian[i] << "\n";
 
 			unsigned int readBack;
 			int ramAddr = i%12;
@@ -977,7 +977,8 @@ void RR314::start() {
 
 int RR314::filterSetup() {
 
-	// get the gaussian filter coeeficients.
+
+    // get the gaussian filter coeeficients.
 	FilterSpec gaussian;
 	if (_gaussianFile.size() != 0) {
 		FilterSpec g(_gaussianFile);
@@ -990,11 +991,11 @@ int RR314::filterSetup() {
 		}
 	} else {
 		BuiltinGaussian g;
+	    // The pulsewidth in microseconds. It must match one of those
+	    // available in BuiltinGaussian.
+	    double pulseWidthUs = 1.00;
 		// get the pulse width in 60 mhz counts
 		int pulseWidthCounts = _radarParams.wave_chpwid[0];
-		// The pulsewidth in microseconds. It muast match one of those
-		// available in BuiltinGausssiiann.
-		double pulseWidthUs = 1.00;
 		// Choose the correct builtin filter coefficient set.
 		switch (pulseWidthCounts) {
 		case 15:
@@ -1028,6 +1029,7 @@ int RR314::filterSetup() {
 			break;
 		}
 		gaussian = FilterSpec(g[pulseWidthUs]);
+	    std::cout << "Gaussian filter programmed for a " << pulseWidthUs << " uS pulse\n";
 	}
 
 	// get the kaiser filter coefficients
@@ -1046,6 +1048,8 @@ int RR314::filterSetup() {
 		kaiser = FilterSpec(k[2.0]);
 	}
 
+	std::cout << "Kaiser filter programmed for " << 2.0 << " MHz bandwidth\n";
+	
 	// load the filter coefficients
 	if (!loadFilters(gaussian, kaiser)) {
 		std::cerr << "Unable to load filters\n";
