@@ -67,7 +67,6 @@ int DDSSubscriber::run(
         _dpf = TheParticipantFactoryWithArgs(argc, argv);
         if (!_dpf) {
             cerr << __FILE__ <<":" << __FUNCTION__ << " TheParticipantFactoryWithArgs() failed\n";
-
             cerr << "Make sure that DCPSInfoRepo is running and that " <<
                 "you are looking for it in the right place." << endl;
             return 1;
@@ -85,23 +84,29 @@ int DDSSubscriber::run(
         OpenDDS::DCPS::TransportImpl_rch transport_impl;
         try {
             transport_impl = TheTransportFactory->obtain(transport_impl_id);
-        } catch (...) {
-            cerr << "Transport impl " << transport_impl_id << 
-                " not found; creating." << endl;
-            try {
+    	    if (0 == transport_impl.in ()) {
+                cerr << "Transport impl obtain(" << transport_impl_id <<
+                    ") is null; creating." << endl;
                 transport_impl =
                     TheTransportFactory->create_transport_impl (transport_impl_id,
                             ::OpenDDS::DCPS::AUTO_CONFIG);
-            } catch (...) {
-                cerr << "Failed to create transport impl " << 
-                    transport_impl_id << endl;
-                return 1;
-            }
+                if (0 == transport_impl.in () ) {
+                    cerr << "TheTransportFactory->create_transport_impl failed." << endl;
+                    return 1;
+                }
+    	    }
+        } catch (...) {
+            cerr << "Transport impl " << transport_impl_id <<
+                " not found; creating." << endl;
+            transport_impl =
+                TheTransportFactory->create_transport_impl (transport_impl_id,
+                        ::OpenDDS::DCPS::AUTO_CONFIG);
         }
 
         // Create the subscriber and attach to the corresponding
         // transport.
-        _subscriber = _participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT,
+        _subscriber =
+        _participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT,
                 DDS::SubscriberListener::_nil());
         if (CORBA::is_nil (_subscriber.in ())) {
             cerr << "Failed to create_subscriber." << endl;
