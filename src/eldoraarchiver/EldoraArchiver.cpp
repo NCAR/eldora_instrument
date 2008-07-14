@@ -66,7 +66,7 @@ EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber,
     boost::posix_time::ptime now = 
         boost::posix_time::second_clock::universal_time();
     try {
-        _hdr = new DoradeHeader("/opt/eldora/conf/tparc_conv.hd");
+        _hdr = new DoradeHeader("/opt/eldora/conf/tparc_clear_air1.hd");
         _hdr->vold()->setVolumeDateTime(now);
         _hdr->vold()->setGenerationDate(now.date());
     } catch (DoradeHeader::BadHeaderException ex) {
@@ -82,43 +82,21 @@ EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber,
     
     status = servant->start();
     status = servant->sendBlock(_hdrBlock);
-//
-//
-//    string filename = status->currentFilename.in();
-//    unsigned long total =(_hdrBlock.length() + block.length() + 2 * 8);
-//
-//    // Keep writing blocks until the file rolls over.
-//    while(total <=(unsigned long)config.fileSizeLimit)
-//    {
-//        total += block.length() + 8;
-//        status = servant->sendBlock(block);
-//    }
-//    // Header is appended to the end of the file.
-//    total += hdrBlock.length() + 8;
-//    std::cout << "total for " << filename << " should be " << total << std::endl;
-//
-//    // Need to write one more to actually start the next file.
-//    total = hdrBlock.length() + 8;
-//    total += block.length() + 8;
-//    status = servant->sendBlock(block);
-//    
-//    // Tell the servant to quit
-//    servant->quit();
-
-//    // A final header should have been appended to the file
-//    total += hdrBlock.length() + 8;
-//    std::cout << "total for " << status->currentFilename.in() << 
-//        " should be " << total << std::endl;    
 }
 
 EldoraArchiver::~EldoraArchiver() {
+    ArchiverService_var servant = _servantImpl->_this();
+    servant->quit();
     _theArchiver = 0;
 }
 
 // This is the method which gets called when new data are available.
 void
 EldoraArchiver::notify() {
-    std::cout << "in notify()" << std::endl;
+    static int entryCount = 0;
+    
+    entryCount++;
+    
     ByteBlock block;
     
     while (Products* pItem = getNextItem()) {
@@ -141,74 +119,65 @@ EldoraArchiver::notify() {
                 hskp->testPulseFNum, hskp->noisePower, hskp->rayCount,
                 hskp->firstRecGate, hskp->lastRecGate);
 
-//        // Get the product list, parameter count, and ncells for this radar
-//        DoradeRADD* radd = 0;
-//        int nParams = 0;
-//        int nCells = 0;
-//        std::vector<EldoraDDS::Product> productList;
-//
-//        for (int r = 0; r < 2; r++) {
-////            std::cout << "header " << _hdr << std::endl;
-////            std::cout << "radar " << r << " " << _hdr->radd(r) << std::endl;
-////            std::cout << _hdr->radd(r)->getRadarName() << std::endl;
-////            // Trim trailing spaces from the radar names in the header
-////            // before comparing
-////            std::string hdrRadarName = _hdr->radd(r)->getRadarName();
-////            hdrRadarName.erase(hdrRadarName.find_last_not_of(' ') + 1);
-//            
-////            if (hdrRadarName == hskp->radarName) {
-//            if (1) {
-//                radd = _hdr->radd(r);
-//                nParams = radd->getNParams();
-//                nCells = _hdr->cspd(r)->getTotalNCells();
-//
-//                for (int p = 0; p < nParams; p++) {
-//                    // Trim trailing spaces from param names in the header, too
-////                    std::string pName = _hdr->parm(r, p)->getParamName();
-////                    pName.erase(pName.find_last_not_of(' ') + 1);
-//                    std::string pName = "DBZ";
-//                    
-//                    if (pName == "VR")
-//                        productList[p] = pItem->vr;
-//                    else if (pName == "VS")
-//                        productList[p] = pItem->vs;
-//                    else if (pName == "VL")
-//                        productList[p] = pItem->vl;
-//                    else if (pName == "DM")
-//                        productList[p] = pItem->dm;
-//                    else if (pName == "DBZ")
-//                        productList[p] = pItem->dbz;
-//                    else if (pName == "SW")
-//                        productList[p] = pItem->sw;
-//                    else if (pName == "NCP")
-//                        productList[p] = pItem->ncp;
-//                    else {
-//                        std::cerr << __FUNCTION__ << ":" << __LINE__ <<
-//                            ": Unknown parameter '" << pName << 
-//                            "' needed for " << radd->getRadarName() << 
-//                            std::endl;
-//                        exit(1);
-//                    }
-//                }
-//                break;
-//            }
-//        }
-//        if (! radd) {
-//            std::cerr << __FUNCTION__ << ":" << __LINE__ << 
-//                ": no match found for radar '" << hskp->radarName << "'" << 
-//                std::endl;
-//            exit(1);
-//        }
-        int nCells = 416;
-        int nParams = 4;
-//        std::vector<EldoraDDS::Product> productList;
-//        productList[0] = pItem->sw;
-//        productList[1] = pItem->vr;
-//        productList[2] = pItem->ncp;
-//        productList[3] = pItem->dbz;
+        // Get the parameter count, ncells, and needed data pointers for this radar
+        DoradeRADD* radd = 0;
+        int nParams = 0;
+        int nCells = 0;
+        std::vector<short*> dataPtrs;
+
+        for (int r = 0; r < 2; r++) {
+            // Trim trailing spaces from the radar names in the header
+            // before comparing
+            std::string hdrRadarName = _hdr->radd(r)->getRadarName();
+            hdrRadarName.erase(hdrRadarName.find_last_not_of(' ') + 1);
             
-        std::cout << "writing " << nCells << " cells and " << nParams <<
-            " params" << std::endl;
+            if (hdrRadarName == hskp->radarName) {
+                radd = _hdr->radd(r);
+                nParams = radd->getNParams();
+                nCells = _hdr->cspd(r)->getTotalNCells();
+
+                for (int p = 0; p < nParams; p++) {
+                    // Trim trailing spaces from param names in the header, too
+                    std::string pName = _hdr->parm(r, p)->getParamName();
+                    pName.erase(pName.find_last_not_of(' ') + 1);
+                    
+                    if (pName == "VR")
+                        dataPtrs.push_back(pItem->vr.get_buffer());
+                    else if (pName == "VS")
+                        dataPtrs.push_back(pItem->vs.get_buffer());
+                    else if (pName == "VL")
+                        dataPtrs.push_back(pItem->vl.get_buffer());
+                    else if (pName == "DM")
+                        dataPtrs.push_back(pItem->dm.get_buffer());
+                    else if (pName == "DBZ")
+                        dataPtrs.push_back(pItem->dbz.get_buffer());
+                    else if (pName == "SW")
+                        dataPtrs.push_back(pItem->sw.get_buffer());
+                    else if (pName == "NCP")
+                        dataPtrs.push_back(pItem->ncp.get_buffer());
+                    else {
+                        std::cerr << __FUNCTION__ << ":" << __LINE__ <<
+                            ": Unknown parameter '" << pName << 
+                            "' needed for " << radd->getRadarName() << 
+                            std::endl;
+                        exit(1);
+                    }
+                }
+                break;
+            }
+        }
+        if (! radd) {
+            std::cerr << __FUNCTION__ << ":" << __LINE__ << 
+                ": no match found for radar '" << hskp->radarName << "'" << 
+                std::endl;
+            exit(1);
+        }
+
+        if (! (entryCount % 1000))
+            std::cout << entryCount << ": writing '" << hskp->radarName <<
+                "' " << nCells << " cells and " << nParams << " params" << 
+                std::endl;
+        
         // Allocate or reallocate our _dataBuf if it isn't big enough
         int nData = nCells * nParams;
         if (_dataBufLen < nData) {
@@ -220,10 +189,8 @@ EldoraArchiver::notify() {
         // Now stuff all of the data into _dataBuf in the correct order for
         // the external DORADE representation
         for (int cell = 0; cell < nCells; cell++) {
-            for (int p = 0; p < nParams; p++) {
-//                _dataBuf[cell * nParams + p] = productList[p][cell];
-                _dataBuf[cell * nParams + p] = cell;
-            }
+            for (int p = 0; p < nParams; p++)
+                _dataBuf[cell * nParams + p] = dataPtrs[p][cell];
         }
 
         // Finally, put all of the data into the FRAD
@@ -232,89 +199,23 @@ EldoraArchiver::notify() {
         // output stringstream
         std::ostringstream os;
 
-        // Stuff the data ray into a ByteBlock
+        // Stuff the data ray (RYIB, ASIB, and FRAD) into a ByteBlock
         block.length(ryib.getDescLen() + asib.getDescLen() + frad.getDescLen());
         os.rdbuf()->pubsetbuf((char*)block.get_buffer(), block.length());
         ryib.streamTo(os, false);
         asib.streamTo(os, false);
         frad.streamTo(os, false);
 
-
-        ArchiverStatus_var status;
-        
-        status = _servantImpl->_this()->sendBlock(block);
-        std::cout << "wrote a ray\n";
-        //    std::cout << "servant status: \n" << *status.ptr() << std::endl;
+        // Finally, let the archiver servant actually write the block!
+        _status = _servantImpl->_this()->sendBlock(block);
+        returnItem(pItem);
     }
 }
-
-//void
-//EldoraArchiver::productSlot(std::vector<double> p, int radarId, float elDegrees,
-//        int prodType, float gateSizeMeters, double dwellWidth, 
-//        double airspdCorr) {
-//    std::cout << "Got a product for " << radarId << std::endl;
-//    // Data ray
-//    boost::posix_time::ptime now = 
-//        boost::posix_time::second_clock::universal_time();
-//    DoradeRYIB ryib(now, 1, 0.0, 0.0, 500.0, 30.0, 0);
-//    DoradeASIB asib(-105.0, 40.0, 2.6, 1.0, 50.0, 50.0, 2.0, 0.0, 0.0, 1.1, 
-//            0.0, 180.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-//    DoradeFRAD frad(0, (radarId == 0) ? "FORE" : "AFT", 40.0, 20.0, 0.3, 3.2e9, 5, 0, -110.0, 0, 0, 399);
-//    short shortData[2400];
-//    frad.putTwoByteData(shortData, sizeof(shortData) / sizeof(*shortData));
-//
-//    // output stringstream
-//    std::ostringstream os;
-//
-//    // Stuff the data ray into a ByteBlock
-//    ByteBlock block;
-//    block.length(ryib.getDescLen() + asib.getDescLen() + frad.getDescLen());
-//    os.rdbuf()->pubsetbuf((char*)block.get_buffer(), block.length());
-//    ryib.streamTo(os, false);
-//    asib.streamTo(os, false);
-//    frad.streamTo(os, false);
-//    
-//    ArchiverStatus_var status;
-//    ArchiverService_var servant = _servantImpl->_this();
-//    
-//    status = servant->sendBlock(_hdrBlock);
-//    status = servant->sendBlock(block);
-//    std::cout << "servant status: \n" << *status.ptr() << std::endl;
-//}
-//
-//int 
-//EldoraArchiver::exec() {
-//    // Get our header
-//    boost::posix_time::ptime now = 
-//        boost::posix_time::second_clock::universal_time();
-//    try {
-//        _hdr = new DoradeHeader("/opt/eldora/conf/tparc_conv.hd");
-//        _hdr->vold()->setVolumeDateTime(now);
-//        _hdr->vold()->setGenerationDate(now.date());
-//    } catch (DoradeHeader::BadHeaderException ex) {
-//        std::cerr << "Header exception: " << ex << std::endl;
-//        abort();
-//    }
-//    
-//    // Build the ByteBlock containing the DORADE representation of our header
-//    std::ostringstream os;
-//    _hdrBlock.length(_hdr->size());
-//    os.rdbuf()->pubsetbuf((char*)_hdrBlock.get_buffer(), _hdrBlock.length());
-//    _hdr->streamTo(os, false);
-//
-//    _servantImpl->_this()->start();
-//    _foreSource->start();
-//    _aftSource->start();
-//    return QApplication::exec();
-//}
-
-
 
 
 int
 main(int argc, char *argv[])
 {
-//    ACE_LOG_MSG->stop_tracing();
     if (argc != 1)
     {
         std::cerr << "Usage: " << string(argv[0]) << " [orb options]" << std::endl;
@@ -364,7 +265,6 @@ main(int argc, char *argv[])
 
     while (1) {
         usleep(200000); // 0.2 second
-        std::cout << "*************** WAKE ***********" << std::endl;
     }
 
 }

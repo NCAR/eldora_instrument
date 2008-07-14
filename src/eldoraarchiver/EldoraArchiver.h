@@ -35,6 +35,7 @@ private:
     static EldoraArchiver* _theArchiver;
 
     archiver::ArchiverService_impl* _servantImpl;
+    archiver::ArchiverStatus_var _status;
     DoradeHeader* _hdr;
     archiver::ByteBlock _hdrBlock;
     short* _dataBuf;
