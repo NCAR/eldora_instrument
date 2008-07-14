@@ -34,6 +34,7 @@ int send_cmnd_string(char channel,char *string_array)
 {
     int i,timeout,status_f,status_t;
     unsigned char status, status1;
+    int MAXWAIT = 30;
     status_t = 0;
     switch(channel)
       {
@@ -44,22 +45,22 @@ int send_cmnd_string(char channel,char *string_array)
 		*g1dido=string_array[i]; /* SEND COMMAND STRING TO PPM ONE */
 
 		/*		taskDelay(2); */ /* CHARACTER AT A TIME */
-		while(*g1ism0 != 0x10 && timeout<30)
+		while(*g1ism0 != 0x10 && timeout<MAXWAIT)
 		  {
 		    timeout++;
 		    taskDelay(1);
 		  }
-		if(timeout >= 30)
+		if(timeout >= MAXWAIT)
 		  status_t = 1;
 	    }
 	  *g1dido='\n';
 	  timeout = 0;
-	  while(*g1ism0 != 0x10 && timeout<30)
+	  while(*g1ism0 != 0x10 && timeout<MAXWAIT)
 	    {
 	      timeout++;
 	      taskDelay(1);
 	    }
-	  if(timeout >= 30)
+	  if(timeout >= MAXWAIT)
 	    status_t = 1;
 	  status = *g1ism1;
 	  if(status == 0x2 || status_t == 1)   /* Did 8502 issue SRQ in response to command or did we timeout? */
@@ -73,23 +74,23 @@ int send_cmnd_string(char channel,char *string_array)
 	      timeout = 0;
 		*g2dido=string_array[i]; /* SEND COMMAND STRING TO PPM ONE */
 		/*		taskDelay(2); */ /* CHARACTER AT A TIME */
-		while(*g2ism0 != 0x10 && timeout < 30)
+		while(*g2ism0 != 0x10 && timeout < MAXWAIT)
 		  {
 		    timeout++;
 		    taskDelay(1);
 		  }
 		/*		printf("Timeout %d\n",timeout); */
-		if(timeout >= 30)
+		if(timeout >= MAXWAIT)
 		  status_t = 1;
 	    }
 	  timeout = 0;
 	  *g2dido='\n';
-	  while(*g2ism0 != 0x10 && timeout < 30)
+	  while(*g2ism0 != 0x10 && timeout < MAXWAIT)
 	    {
 	      timeout++; 
 	      taskDelay(1);
 	    }
-	  if(timeout >= 30)
+	  if(timeout >= MAXWAIT)
 	    status_t = 1;
 	  /*	  printf("Timeout %d\n",timeout); */
  	  taskDelay(1);
@@ -104,42 +105,42 @@ int send_cmnd_string(char channel,char *string_array)
 	    {
 	      timeout = 0;
 	      *g1dido=string_array[i];
-		while(*g1ism0 != 0x10 && timeout < 30)
+		while(*g1ism0 != 0x10 && timeout < MAXWAIT)
 		  {
 		    timeout++;
 		    taskDelay(1);
 		  }
-		if(timeout >= 30)
+		if(timeout >= MAXWAIT)
 		  status_t = 1;
 		*g2dido=string_array[i]; /* SEND COMMAND STRING TO PPM ONE */
 		timeout = 0;
-		while(*g2ism0 != 0x10 && timeout < 30)
+		while(*g2ism0 != 0x10 && timeout < MAXWAIT)
 		  {
 		    timeout++;
 		    taskDelay(1);
 		  }
-		if(timeout >= 30)
+		if(timeout >= MAXWAIT)
 		  status_t = 1;
 		/*		taskDelay(2);  */  /* CHARACTER AT A TIME */
 	    }
 	  *g1dido='\n';
 	  timeout = 0;
-	  while(*g1ism0 != 0x10 && timeout < 30)
+	  while(*g1ism0 != 0x10 && timeout < MAXWAIT)
 	    {
 	      timeout++;
 	      taskDelay(1);
 	    }
-	  if(timeout >= 30)
+	  if(timeout >= MAXWAIT)
 	    status_t = 1;
 	  /*	  taskDelay(1); */
 	  *g2dido='\n';
 	  timeout = 0;
-	  while(*g2ism0 != 0x10 && timeout < 30)
+	  while(*g2ism0 != 0x10 && timeout < MAXWAIT)
 	    {
 	      timeout++;
 	      taskDelay(1);
 	    }
-	  if(timeout >= 30)
+	  if(timeout >= MAXWAIT)
 	    status_t = 1;
 	  status = *g1ism1;
 	  status1 = *g2ism1;
