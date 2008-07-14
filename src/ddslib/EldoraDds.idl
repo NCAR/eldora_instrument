@@ -29,7 +29,7 @@ module EldoraDDS {
         float groundSpeedEW;    // east-west ground speed, m/s
         float groundSpeedNS;    // north-south ground speed, m/s
         float vertVelocity;     // m/s
-        float heading;   // deg
+        float heading;          // deg
         float roll;             // deg
         float pitch;            // deg
         float yaw;              // deg
