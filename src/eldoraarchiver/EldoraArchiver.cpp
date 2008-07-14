@@ -36,8 +36,10 @@ typedef NameResolver<PortableServer::POA, InitResolver> POAResolver;
 EldoraArchiver* EldoraArchiver::_theArchiver = 0;
 
 EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber, 
-        std::string topicName) : ProductsReader(subscriber, topicName),
-        _dataBufLen(0) {
+        std::string topicName, std::string hdrFileName, std::string dataDir) : 
+        	ProductsReader(subscriber, topicName), _dataBufLen(0) {
+    std::cout << "Using header file: " << hdrFileName << std::endl;
+    std::cout << "Writing to data dir: " << dataDir << std::endl;
     // Create the archiver servant
     CORBA::ORB_ptr raddArchiverOrb = TheServiceParticipant->get_ORB();
     _servantImpl = new ArchiverService_impl("archiver", raddArchiverOrb, 
@@ -59,14 +61,14 @@ EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber,
     ArchiverConfig config = archiver::defaultConfig();
     config.fileName = "eldora";
     config.fileSizeLimit = 100 * 1024 * 1024; // 100 MB
-    config.directoryName = "/tmp/EldoraArchiver";
+    config.directoryName = dataDir.c_str();
     status = servant->reconfig(config);
 
     // Get our header
     boost::posix_time::ptime now = 
         boost::posix_time::second_clock::universal_time();
     try {
-        _hdr = new DoradeHeader("/opt/eldora/conf/tparc_clear_air1.hd");
+        _hdr = new DoradeHeader(hdrFileName);
         _hdr->vold()->setVolumeDateTime(now);
         _hdr->vold()->setGenerationDate(now.date());
     } catch (DoradeHeader::BadHeaderException ex) {
@@ -102,6 +104,10 @@ EldoraArchiver::notify() {
     while (Products* pItem = getNextItem()) {
         EldoraDDS::Housekeeping* hskp = &(pItem->hskp);
         
+        // Get the radar name from the housekeeping, trimming trailing spaces
+        std::string hskpRadarName(hskp->radarName);
+        hskpRadarName.erase(hskpRadarName.find_last_not_of(' ') + 1);
+        
         // Build the RYIB, ASIB, and FRAD from the incoming housekeeping
         DoradeRYIB ryib(hskp->sweepNum, hskp->julianDay, hskp->hour, 
                 hskp->minute, hskp->second, hskp->millisecond, hskp->azimuth,
@@ -113,25 +119,25 @@ EldoraArchiver::notify() {
                 hskp->yaw, hskp->radarRotAngle, hskp->radarTiltAngle, 
                 hskp->windEW, hskp->windNS, hskp->windVert, 
                 hskp->headingChangeRate, hskp->pitchChangeRate);
-        DoradeFRAD frad(hskp->dataSysStatus, hskp->radarName, 
+        DoradeFRAD frad(hskp->dataSysStatus, hskpRadarName, 
                 hskp->testPulsePower, hskp->testPulseStart, 
                 hskp->testPulseWidth, hskp->testPulseFreq, hskp->testPulseAtten,
                 hskp->testPulseFNum, hskp->noisePower, hskp->rayCount,
                 hskp->firstRecGate, hskp->lastRecGate);
 
-        // Get the parameter count, ncells, and needed data pointers for this radar
+        // Save the parameter count, ncells, and needed data pointers for this radar
         DoradeRADD* radd = 0;
         int nParams = 0;
         int nCells = 0;
         std::vector<short*> dataPtrs;
 
+        // Find the radar associated with these products in the header
         for (int r = 0; r < 2; r++) {
-            // Trim trailing spaces from the radar names in the header
-            // before comparing
+            // Trim trailing spaces from the header radar name before comparing
             std::string hdrRadarName = _hdr->radd(r)->getRadarName();
             hdrRadarName.erase(hdrRadarName.find_last_not_of(' ') + 1);
-            
-            if (hdrRadarName == hskp->radarName) {
+                        
+            if (hdrRadarName == hskpRadarName) {
                 radd = _hdr->radd(r);
                 nParams = radd->getNParams();
                 nCells = _hdr->cspd(r)->getTotalNCells();
@@ -168,13 +174,13 @@ EldoraArchiver::notify() {
         }
         if (! radd) {
             std::cerr << __FUNCTION__ << ":" << __LINE__ << 
-                ": no match found for radar '" << hskp->radarName << "'" << 
+                ": no match found for radar '" << hskpRadarName << "'" << 
                 std::endl;
             exit(1);
         }
 
         if (! (entryCount % 1000))
-            std::cout << entryCount << ": writing '" << hskp->radarName <<
+            std::cout << entryCount << ": writing '" << hskpRadarName <<
                 "' " << nCells << " cells and " << nParams << " params" << 
                 std::endl;
         
@@ -216,11 +222,15 @@ EldoraArchiver::notify() {
 int
 main(int argc, char *argv[])
 {
-    if (argc != 1)
+    if (argc != 3)
     {
-        std::cerr << "Usage: " << string(argv[0]) << " [orb options]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <header_file_name> <data_dir>" << std::endl;
+        std::cerr << "(The header file name should not include the path." << std::endl;
+        std::cerr << "the path will be built automatically.)" << std::endl;
         exit(1);
     }
+
+    std::cout << "My PID is " << getpid() << std::endl;
 
     // Configuration
 
@@ -237,7 +247,7 @@ main(int argc, char *argv[])
     }
     std::string eldoraConfigDir(e);
     eldoraConfigDir += "/conf/";
-
+    
     std::string orbConfigFile = 
         eaConfig.getString("DDS/ORBConfigFile", eldoraConfigDir + "ORBSvc.conf");   
     std::string dcpsConfigFile = 
@@ -260,8 +270,11 @@ main(int argc, char *argv[])
         exit(subStatus);
     }
 
+    std::string hdrFileName = eldoraConfigDir + argv[1];
+    std::string dataDir(argv[2]);
     EldoraArchiver* theArchiver = 
-        EldoraArchiver::TheArchiver(subscriber, productsTopic);
+        EldoraArchiver::TheArchiver(subscriber, productsTopic, hdrFileName, 
+        		dataDir);
 
     while (1) {
         usleep(200000); // 0.2 second

@@ -17,9 +17,11 @@ class EldoraArchiver : public ProductsReader {
 public:
     // Get the singleton instance, creating it if necessary.
     static EldoraArchiver* TheArchiver(DDSSubscriber& subscriber, 
-            std::string topicName) { 
+            std::string topicName, std::string hdrFileName, 
+            std::string dataDir) { 
         if (! _theArchiver)
-            _theArchiver = new EldoraArchiver(subscriber, topicName);
+            _theArchiver = new EldoraArchiver(subscriber, topicName, 
+            		hdrFileName, dataDir);
         return _theArchiver;
     }
     
@@ -28,7 +30,8 @@ public:
     /// queue. Process the samples here.
     virtual void notify();
 protected:
-    EldoraArchiver(DDSSubscriber& subscriber, std::string topicName);
+    EldoraArchiver(DDSSubscriber& subscriber, std::string topicName,
+    		std::string hdrFileName, std::string dataDir);
     virtual ~EldoraArchiver();
 private:
     // Pointer to the singleton instance
