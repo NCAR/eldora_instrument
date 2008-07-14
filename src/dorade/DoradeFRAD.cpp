@@ -135,5 +135,12 @@ DoradeFRAD::streamTo(std::ostream& os, bool asLittleEndian)
     putInt(os, _rayCount, asLittleEndian);
     putShort(os, _firstRecordedGate, asLittleEndian);
     putShort(os, _lastRecordedGate, asLittleEndian);
+    if (_shortData) {
+        for (int i = 0; i < _nShortData; i++)
+            putShort(os, _shortData[i], asLittleEndian);
+    }
+    else if (_opaqueData) {
+        putBytes(os, (char*)_opaqueData, _descLen - 52, false);
+    }
     return os;
 }
