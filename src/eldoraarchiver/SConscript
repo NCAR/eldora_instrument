@@ -1,18 +1,25 @@
 import os
-tools = ['ddssvc', 'qtt_qtconfig', 'dorade', 'radd_archiver', 'utilities']
+tools = Split("""
+ddssvc
+qtt_qtconfig
+dorade
+radd_archiver
+utilities
+""")
 env = Environment(tools = ['default'] + tools)
 
 # libraries:
 libs = Split("""
+OpenDDS_Dcps
 ReliableMulticast 
 SimpleUnreliableDgram 
 SimpleTcp
-OpenDDS_Dcps
 TAO_PortableServer
 TAO_AnyTypeCode
 dl
 rt
 """)
+
 env.Append(LIBS = libs)
 
 sources = Split('''

@@ -2,12 +2,10 @@
 #define ELDORAARCHIVER_H_
 
 #include <vector>
-#include <QApplication>
 #include <archiver/ArchiverService_impl.h>
 #include <DDSReader.h>
 #include <ProductsTypeSupportC.h>
 #include <ProductsTypeSupportImpl.h>
-#include <ProductTypes.h>
 using namespace EldoraDDS;
 
 class EldoraQtProductsSource;

@@ -32,14 +32,6 @@ using namespace archiver;
 
 typedef NameResolver<PortableServer::POA, InitResolver> POAResolver;
 
-/// productType() function and its exception class
-class NoSuchProductException : public std::string {
-public:
-    NoSuchProductException(std::string msg) : std::string(msg) {}
-};
-
-PRODUCT_TYPES productType(std::string name) throw(NoSuchProductException);
-
 // Pointer to our singleton instance
 EldoraArchiver* EldoraArchiver::_theArchiver = 0;
 
@@ -375,35 +367,4 @@ main(int argc, char *argv[])
         std::cout << "*************** WAKE ***********" << std::endl;
     }
 
-}
-
-PRODUCT_TYPES
-productType(std::string name) throw(NoSuchProductException) {
-    // create a map from product names to PRODUCT_TYPES
-    static std::map<std::string, PRODUCT_TYPES> ptypeMap;
-    static bool initialized = false;
-    if (! initialized) {
-        ptypeMap["P1"] = PROD_P1;   // power from ABP channel 1
-        ptypeMap["P2"] = PROD_P2;   // power from ABP channel 2
-        ptypeMap["P3"] = PROD_P3;   // power from ABP channel 3
-        ptypeMap["P4"] = PROD_P4;   // power from ABP channel 4
-        ptypeMap["VR"] = PROD_VR;   // radial velocity
-        ptypeMap["VS"] = PROD_VS;   // short-pulse velocity
-        ptypeMap["VL"] = PROD_VL;   // long-pulse velocity
-        ptypeMap["DM"] = PROD_DM;   // unnormalized power
-        ptypeMap["DBZ"] = PROD_DBZ; // reflectivity
-        ptypeMap["SW"] = PROD_SW;   // spectrum width
-        ptypeMap["NCP"] = PROD_NCP; // normalized coherent power
-        initialized = true;
-    }
-    // Change the incoming name to all upper case before checking
-    std::string ucName(name);
-    std::transform(ucName.begin(), ucName.end(), ucName.begin(), toupper);
-    if (ptypeMap.find(ucName) != ptypeMap.end())
-        return ptypeMap[ucName];
-    else {
-        std::string msg("No match for product name ");
-        msg += name;
-        throw NoSuchProductException(msg);
-    }
 }
