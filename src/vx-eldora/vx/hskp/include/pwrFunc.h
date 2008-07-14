@@ -28,7 +28,7 @@
 /********************  FUNCTION PROTOTYPES *************************/
 
 void pwr(void);
-void start_ieee(void);
+int start_ieee(void);	/* returns 1 if power meter stuff started successfully, 0 otherwise */
 void xmit_norm_isr(void);
 void xmit_err_isr(void);
 void testp_norm_isr(void);

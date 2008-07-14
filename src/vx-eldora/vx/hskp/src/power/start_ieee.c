@@ -20,7 +20,8 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
 #include "hskpAll.h"
 #include "taskLib.h"
 
-void start_ieee()
+// Start the power meter handling.  Return 1 if we start successfully, 0 otherwise.
+int start_ieee()
 {
   unsigned char string_array[15], muxval, ecbaddr;
   unsigned char number_array[11], xmit_tp, test, status;
@@ -69,13 +70,16 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
+
   strncpy(string_array,"GRFA\0",5); /* Select graph mode */  
   cmnd_stat = send_cmnd_string(XMIT,string_array); /* on Xmit meter */
   if(cmnd_stat == -1)
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array, "UNDD\0",5); /* Disable SRQ for underscale */  
@@ -84,6 +88,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
  
   strncpy(string_array,"UNDD\0",5); /* Disable SRQ for underscale */  
@@ -92,6 +97,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"UPDC\0",5); /* Select update continuously mode */ 
@@ -100,6 +106,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"FREQ\0",5); /* Select frequency */
@@ -110,6 +117,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"DATN\0",5); /* Select data normal mode of operation */
@@ -117,6 +125,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
  
   strncpy(string_array,"WATT\0",5); /* Select linear power output mode for */ 
@@ -125,6 +134,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"TRGE\0",5); /* Select external trigger for both */ 
@@ -132,6 +142,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
 
   strncpy(string_array,"WDLA\0",5);  /* Select Window size */
@@ -142,6 +153,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
   
   strncpy(string_array,"PRFA\0",5);  /* Select Power Reference */
@@ -152,6 +164,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"WDLB\0",5);  /* Select Window size */
@@ -162,6 +175,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
   
   strncpy(string_array,"PRFB\0",5);  /* Select Power Reference */
@@ -172,6 +186,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"DBMW\0",5); /* Select dbm output mode for the fore */ 
@@ -180,6 +195,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"OFFA\0",5); /* Input system losses as offset for */
@@ -190,6 +206,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"OFFB\0",5); /* Input system losses as offset for */
@@ -200,6 +217,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"RDLA\0",5); /* Set reference delay for fore xmit and tp meter */  
@@ -209,6 +227,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
 
   strncpy(string_array,"RDLB\0",5); /* Set reference delay for aft xmit and tp meter */
@@ -217,6 +236,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
 
   strncpy(string_array,"SDLA\0",5); /* Set start delay for fore xmit and tp meters*/  
@@ -226,6 +246,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
 
   strncpy(string_array,"SDLB\0",5); /* Set start delay for aft xmit and tp meters*/  
@@ -234,6 +255,7 @@ void start_ieee()
   if(cmnd_stat == -1)
     {
       printf("Command: %s Not Received!\n",string_array);
+      return 0;
     }
 
   Avg = NUM_AVG;
@@ -245,6 +267,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   sprintf(number_array,"%d",100);  /* was 999 ; 100 worked */
@@ -255,6 +278,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
 #endif
@@ -267,6 +291,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"OFFA\0",5); /* Input system losses as offset for */
@@ -277,6 +302,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"OFFB\0",5); /* Input system losses as offset for */
@@ -287,6 +313,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"CDLA\0",5); /*Set cursor delay for fore xmit meter */  
@@ -297,6 +324,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"CDLB\0",5); /*Set cursor delay for fore xmit meter */  
@@ -306,6 +334,7 @@ void start_ieee()
     {
       status = ReadStatusByte(1);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
  
   strncpy(string_array,"CDLA\0",5); /* Set cursor delay for fore tp meter */  
@@ -316,6 +345,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
   strncpy(string_array,"CDLB\0",5); /* Set cursor delay for aft tp meter */  
@@ -325,6 +355,7 @@ void start_ieee()
     {
       status = ReadStatusByte(2);
       printf("SRQ: %2X; Command: %s\n",status,string_array);
+      return 0;
     }
 
 //***********************************************************
@@ -421,7 +452,7 @@ taskRestart(pgm);  /* re-start run-time power task */
 taskRestart(xmit); /* re-start run-time power task */
 taskRestart(testp); /* re-start run-time power task */
 
-
+return 1; /* success! */
 }
 
 
