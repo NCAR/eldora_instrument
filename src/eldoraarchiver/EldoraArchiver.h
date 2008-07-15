@@ -29,6 +29,8 @@ public:
     /// whenever new samples are added to the DDSReader available
     /// queue. Process the samples here.
     virtual void notify();
+    
+    int raysWritten() const { return _raysWritten; }
 protected:
     EldoraArchiver(DDSSubscriber& subscriber, std::string topicName,
     		std::string hdrFileName, std::string dataDir);
@@ -37,12 +39,20 @@ private:
     // Pointer to the singleton instance
     static EldoraArchiver* _theArchiver;
 
-    archiver::ArchiverService_impl* _servantImpl;
+    // Our radd/archiver servant and last status we got from it
+    archiver::ArchiverService_var _archiverServant;
     archiver::ArchiverStatus_var _status;
+    // Our header, and the ByteBlock containing its DORADE representation
     DoradeHeader* _hdr;
     archiver::ByteBlock _hdrBlock;
+    // A data buffer used in notify() when building a data ray, and its
+    // size
     short* _dataBuf;
     int _dataBufLen;
+    // How many rays have we written?
+    int _raysWritten;
+    // Are we initialized?
+    bool _initialized;
 };
 
 #endif /*ELDORAARCHIVER_H_*/

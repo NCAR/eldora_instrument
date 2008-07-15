@@ -37,32 +37,36 @@ EldoraArchiver* EldoraArchiver::_theArchiver = 0;
 
 EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber, 
         std::string topicName, std::string hdrFileName, std::string dataDir) : 
-        	ProductsReader(subscriber, topicName), _dataBufLen(0) {
+        	ProductsReader(subscriber, topicName), _hdr(0), _dataBuf(0), 
+        	_dataBufLen(0), _raysWritten(0), _initialized(false) {
+
     std::cout << "Using header file: " << hdrFileName << std::endl;
     std::cout << "Writing to data dir: " << dataDir << std::endl;
+    
     // Create the archiver servant
     CORBA::ORB_ptr raddArchiverOrb = TheServiceParticipant->get_ORB();
-    _servantImpl = new ArchiverService_impl("archiver", raddArchiverOrb, 
-            new archiver::EldoraWriter(), /*standalone*/ true);
-    if (! _servantImpl) {
+    ArchiverService_impl* serviceImpl = 
+        new ArchiverService_impl("archiver", raddArchiverOrb, 
+                new archiver::EldoraWriter(), /*standalone*/ true);
+    if (! serviceImpl) {
         std::cerr << __FUNCTION__ << ":" << __LINE__ << 
             ": Failed to create ArchiverService_impl";
         exit(1);
     }
-    ArchiverService_var servant = _servantImpl->_this();
-
-    ArchiverStatus_var status;
+    _archiverServant = serviceImpl->_this();
 
 //    // Activate the POA
 //    PortableServer::POA_var poa = POAResolver::resolve(raddArchiverOrb, "RootPOA");
 //    PortableServer::POAManager_var mgr = poa->the_POAManager();
 //    mgr->activate();
 
+    // Configure the archiver servant and start it
     ArchiverConfig config = archiver::defaultConfig();
     config.fileName = "eldora";
     config.fileSizeLimit = 100 * 1024 * 1024; // 100 MB
     config.directoryName = dataDir.c_str();
-    status = servant->reconfig(config);
+    _status = _archiverServant->reconfig(config);
+    _status = _archiverServant->start();
 
     // Get our header
     boost::posix_time::ptime now = 
@@ -77,29 +81,35 @@ EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber,
     }
 
     // Build the ByteBlock containing the DORADE representation of our header
-    std::ostringstream os;
     _hdrBlock.length(_hdr->size());
-    os.rdbuf()->pubsetbuf((char*)_hdrBlock.get_buffer(), _hdrBlock.length());
-    _hdr->streamTo(os, false);
     
-    status = servant->start();
-    status = servant->sendBlock(_hdrBlock);
+    std::ostringstream os;
+    os.rdbuf()->pubsetbuf((char*)_hdrBlock.get_buffer(), _hdrBlock.length());
+    
+    _hdr->streamTo(os, false);
+
+    // Write the header to our file
+    _status = _archiverServant->sendBlock(_hdrBlock);
+    
+    // OK, initialization is complete. We keep track of this because
+    // our notify() method can get called before this constructor is
+    // done, and it can't run until at least the _hdr is built.
+    _initialized = true;
 }
 
 EldoraArchiver::~EldoraArchiver() {
-    ArchiverService_var servant = _servantImpl->_this();
-    servant->quit();
+    _archiverServant->quit();
     _theArchiver = 0;
 }
 
 // This is the method which gets called when new data are available.
 void
 EldoraArchiver::notify() {
-    static int entryCount = 0;
-    
-    entryCount++;
-    
     ByteBlock block;
+    // If this get called before the constructor is done with its work, just 
+    // return immediately.
+    if (! _initialized)
+        return;
     
     while (Products* pItem = getNextItem()) {
         EldoraDDS::Housekeeping* hskp = &(pItem->hskp);
@@ -125,13 +135,13 @@ EldoraArchiver::notify() {
                 hskp->testPulseFNum, hskp->noisePower, hskp->rayCount,
                 hskp->firstRecGate, hskp->lastRecGate);
 
-        // Save the parameter count, ncells, and needed data pointers for this radar
+        // Find the correct radar in the header and get the parameter count, 
+        // ncells, and needed data pointers
         DoradeRADD* radd = 0;
         int nParams = 0;
         int nCells = 0;
         std::vector<short*> dataPtrs;
 
-        // Find the radar associated with these products in the header
         for (int r = 0; r < 2; r++) {
             // Trim trailing spaces from the header radar name before comparing
             std::string hdrRadarName = _hdr->radd(r)->getRadarName();
@@ -179,8 +189,8 @@ EldoraArchiver::notify() {
             exit(1);
         }
 
-        if (! (entryCount % 1000))
-            std::cout << entryCount << ": writing '" << hskpRadarName <<
+        if (! (++_raysWritten % 1000))
+            std::cout << _raysWritten << ": writing '" << hskpRadarName <<
                 "' " << nCells << " cells and " << nParams << " params" << 
                 std::endl;
         
@@ -202,18 +212,19 @@ EldoraArchiver::notify() {
         // Finally, put all of the data into the FRAD
         frad.putTwoByteData(_dataBuf, nData);
 
-        // output stringstream
-        std::ostringstream os;
-
         // Stuff the data ray (RYIB, ASIB, and FRAD) into a ByteBlock
         block.length(ryib.getDescLen() + asib.getDescLen() + frad.getDescLen());
+        
+        std::ostringstream os;
         os.rdbuf()->pubsetbuf((char*)block.get_buffer(), block.length());
+        
         ryib.streamTo(os, false);
         asib.streamTo(os, false);
         frad.streamTo(os, false);
 
         // Finally, let the archiver servant actually write the block!
-        _status = _servantImpl->_this()->sendBlock(block);
+        _status = _archiverServant->sendBlock(block);
+        
         returnItem(pItem);
     }
 }
