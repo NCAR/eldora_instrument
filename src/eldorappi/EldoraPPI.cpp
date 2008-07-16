@@ -36,7 +36,7 @@ EldoraPPI::EldoraPPI(std::string title,
     QDialog(parent), _prodTypeUpper(PROD_DBZ), _prodTypeLower(PROD_DBZ), 
     _statsUpdateInterval(5), _config("NCAR", "EldoraPPI"), _paused(false), 
     _gates(0), _gateSizeMeters(0.0), _dwellWidth(0), _left(-1.0), _right(1.0), 
-    _bottom(-0.2), _top(0.8), _rotAngle(0.0)
+    _bottom(-0.2), _top(0.8), _rotAngle(0.0), _rollAngle(0.0)
     {
     // Set up our form
     setupUi(parent);
@@ -173,7 +173,8 @@ void EldoraPPI::productSlot(
         int prodType, 
         float gateSizeMeters,
         double dwellWidth,
-        double airspdCorr) {
+        double airspdCorr,
+        double rollAngle) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
@@ -221,15 +222,17 @@ void EldoraPPI::productSlot(
     
     // convert the Eldora geographic pointing angle to a
     // cartesian pointing angle
-    double cartAngle = 450 - rotAngle;
+    double cartAngle = 450 - rotAngle - rollAngle;
     if (cartAngle < 0.0) 
     	cartAngle += 360.0;
     if (cartAngle >= 360.0)
     	cartAngle -= 360.0;
 
     // send the product to the appropriate ppi manager
-    if (_upperManager.newProduct(p, cartAngle, index))
+    if (_upperManager.newProduct(p, cartAngle, index)) {
         	_rotAngle = cartAngle;
+        	_rollAngle = rollAngle;
+    }
     _lowerManager.newProduct(p, cartAngle, index);
 }
 
@@ -283,9 +286,11 @@ void EldoraPPI::initPlots() {
 void EldoraPPI::timerEvent(
         QTimerEvent*) {
 
-    QString angle;
-    angle.setNum(_rotAngle, 'f', 1);
-    angleText->setText(angle);
+    QString t;
+    t.setNum(_rotAngle, 'f', 1);
+    angleText->setText(t);
+    t.setNum(_rollAngle, 'f', 1);
+    rollText->setText(t);
  
 }
 

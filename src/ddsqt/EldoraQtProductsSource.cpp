@@ -60,6 +60,7 @@ void EldoraQtProductsSource::notify() {
                 float gateSpacingMeters = pItem->gateSpacingMeters;
                 double dWidth = dwellWidth(pItem);
                 double airspdCorr = airSpeedCorrection(pItem);
+                double rollAngle = pItem->hskp.roll;
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -83,7 +84,8 @@ void EldoraQtProductsSource::notify() {
                                 *prodType, 
                                 gateSpacingMeters, 
                                 dWidth, 
-                                airspdCorr);
+                                airspdCorr,
+                                rollAngle);
                         clearCapture();
                     }
                     break;
@@ -108,7 +110,8 @@ void EldoraQtProductsSource::notify() {
                                     *prodType, 
                                     gateSpacingMeters, 
                                     dWidth, 
-                                    airspdCorr);
+                                    airspdCorr,
+                                    rollAngle);
                             clearCapture();
                         }
                     }

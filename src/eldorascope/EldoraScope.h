@@ -137,13 +137,15 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param dwellWidth The angular width of one dwell
         /// @param airSpdCorr The airspeed correction to be added to the 
         /// radial velocity, if desired.
+        /// @param rollAngle The aircraft roll angle.
         void productSlot(std::vector<double> p, 
                          int radarId, 
                          float elDegrees, 
                          int prodType, 
                          float gateSpacingMeters,
                          double dwellWidth,
-                         double airSpdCorr);
+                         double airSpdCorr,
+                         double rollAngle);
         /// Call to set the list of available gates in the timeseries.
         /// @param gates A list of possible gates in the timeseries. It will be zero based. 
         /// Add firstgate to stablish the true gate number.

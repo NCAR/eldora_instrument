@@ -78,6 +78,7 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// @param gateSpacingMeters The gate spacing in meters
         /// @param dwellWidth The width of the dwell, in degrees
         /// @param airspdCorr The airspeed correction to the radial velocity
+    	/// @param rollAngle The aircraft roll angle, in degrees.
         void newPData(
                 std::vector<double> P, 
                 int radarId, 
@@ -85,7 +86,8 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 int prodType, 
                 float gateSpacingMeters, 
                 double dwellWidth, 
-                double airspdCorr);
+                double airspdCorr,
+                double rollAngle);
 
     public slots:
         /// Set the gate mode to ONE_GATE.

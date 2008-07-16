@@ -79,9 +79,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
     	/// @param dwellWidth The angular width of one dwell.
         /// @param airspdCorr The airspeed correction that can be added to the 
         /// radial velocity if desired.
+        /// @param rollAngle The aircraft roll angle.
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
-                int prodType, float gateSizeMeters, double dwellWidth, double airspdCorr);
+                int prodType, float gateSizeMeters, double dwellWidth, 
+                double airspdCorr, double rollAngle);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(
@@ -232,6 +234,8 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         QButtonGroup _lowerButtonGroup;
         /// rotation angle
         double _rotAngle;
+        /// aircraft roll angle
+        double _rollAngle;
         /// Action group for the fkeys shortcuts
         QActionGroup* fkeysActionGroup;
 
