@@ -37,16 +37,17 @@ EldoraArchiver* EldoraArchiver::_theArchiver = 0;
 
 EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber, 
         std::string topicName, std::string hdrFileName, std::string dataDir) : 
-        	ProductsReader(subscriber, topicName), _hdr(0), _dataBuf(0), 
-        	_dataBufLen(0), _raysWritten(0), _initialized(false) {
-
+ProductsReader(subscriber, topicName), 
+_hdr(), 
+_dataBuf(), 
+_dataBufLen(0), 
+_raysWritten(0) {
     std::cout << "Using header file: " << hdrFileName << std::endl;
     std::cout << "Writing to data dir: " << dataDir << std::endl;
     
     // Create the archiver servant
-    CORBA::ORB_ptr raddArchiverOrb = TheServiceParticipant->get_ORB();
     ArchiverService_impl* serviceImpl = 
-        new ArchiverService_impl("archiver", raddArchiverOrb, 
+        new ArchiverService_impl("archiver", TheServiceParticipant->get_ORB(),
                 new archiver::EldoraWriter(), /*standalone*/ true);
     if (! serviceImpl) {
         std::cerr << __FUNCTION__ << ":" << __LINE__ << 
@@ -54,11 +55,6 @@ EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber,
         exit(1);
     }
     _archiverServant = serviceImpl->_this();
-
-//    // Activate the POA
-//    PortableServer::POA_var poa = POAResolver::resolve(raddArchiverOrb, "RootPOA");
-//    PortableServer::POAManager_var mgr = poa->the_POAManager();
-//    mgr->activate();
 
     // Configure the archiver servant and start it
     ArchiverConfig config = archiver::defaultConfig();
@@ -189,11 +185,6 @@ EldoraArchiver::notify() {
             exit(1);
         }
 
-        if (! (++_raysWritten % 1000))
-            std::cout << _raysWritten << ": writing '" << hskpRadarName <<
-                "' " << nCells << " cells and " << nParams << " params" << 
-                std::endl;
-        
         // Allocate or reallocate our _dataBuf if it isn't big enough
         int nData = nCells * nParams;
         if (_dataBufLen < nData) {
@@ -223,7 +214,8 @@ EldoraArchiver::notify() {
         frad.streamTo(os, false);
 
         // Finally, let the archiver servant actually write the block!
-        _status = _archiverServant->sendBlock(block);
+        _status = _archiverServant->sendBlock(block);       
+        _raysWritten++;
         
         returnItem(pItem);
     }
@@ -286,9 +278,19 @@ main(int argc, char *argv[])
     EldoraArchiver* theArchiver = 
         EldoraArchiver::TheArchiver(subscriber, productsTopic, hdrFileName, 
         		dataDir);
-
+    
+    int prevRaysWritten = theArchiver->raysWritten();
     while (1) {
-        usleep(200000); // 0.2 second
+        int sleepTime = 10;
+        sleep(sleepTime);
+
+        int raysWritten = theArchiver->raysWritten();
+        int diff = raysWritten - prevRaysWritten;
+        prevRaysWritten = raysWritten;
+        
+        std::cout << boost::posix_time::second_clock::universal_time() <<
+            ": wrote " << diff << " rays in the last " << sleepTime <<
+            " seconds" << std::endl;
     }
 
 }
