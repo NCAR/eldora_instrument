@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <cstdio>   // for popen()
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -36,13 +38,13 @@ typedef NameResolver<PortableServer::POA, InitResolver> POAResolver;
 EldoraArchiver* EldoraArchiver::_theArchiver = 0;
 
 EldoraArchiver::EldoraArchiver(DDSSubscriber& subscriber, 
-        std::string topicName, std::string hdrFileName, std::string dataDir) : 
+        std::string topicName, std::string dataDir) : 
 ProductsReader(subscriber, topicName), 
 _hdr(), 
+_hdrValid(false),
 _dataBuf(), 
 _dataBufLen(0), 
 _raysWritten(0) {
-    std::cout << "Using header file: " << hdrFileName << std::endl;
     std::cout << "Writing to data dir: " << dataDir << std::endl;
     
     // Create the archiver servant
@@ -63,18 +65,66 @@ _raysWritten(0) {
     config.directoryName = dataDir.c_str();
     _status = _archiverServant->reconfig(config);
     _status = _archiverServant->start();
+}
 
-    // Get our header
-    boost::posix_time::ptime now = 
-        boost::posix_time::second_clock::universal_time();
+EldoraArchiver::~EldoraArchiver() {
+    _archiverServant->quit();
+    _theArchiver = 0;
+}
+
+// Load a new ELDORA header
+bool
+EldoraArchiver::loadHeader(std::string hdrFileName) {
+    std::cout << "Requested to load header " << hdrFileName << std::endl;
+    // Bail out quickly if the file does not exist.
+    struct stat statbuf;
+    if (stat(hdrFileName.c_str(), &statbuf)) {
+        std::cerr << "Unable to find header file: " << hdrFileName << std::endl;
+        _hdrValid = false;
+        return _hdrValid;
+    }
+    // Get the checksum for the file.
+    unsigned int checksum(0);
+    std::string cksumCmd("/usr/bin/cksum ");
+    cksumCmd += hdrFileName;
+    FILE *cksumOutput = popen(cksumCmd.c_str(), "r");
+    if (! cksumOutput) {
+        std::cerr << "Failed to run command: '" << cksumCmd << "'" << std::endl;
+        _hdrValid = false;
+        return _hdrValid;
+    }
+    fscanf(cksumOutput, "%u", &checksum);
+    pclose(cksumOutput);
+    
+    // If the checksum matches our current header, we're done here.
+    if (_hdrValid && (checksum == _hdrChecksum)) {
+        std::cout << "Checksum matches current header; header not changed." <<
+            std::endl;
+        return true;
+    }
+    
+    // Now mark header as invalid until we successfully load the new header.
+    // We don't invalidate it until now so that an existing header remains
+    // valid through the checksum test above; this assures that data writing
+    // will not stop if the same header is loaded again.
+    _hdrValid = false;
+    
+    // Create a DoradeHeader from the header file
     try {
         _hdr = new DoradeHeader(hdrFileName);
-        _hdr->vold()->setVolumeDateTime(now);
-        _hdr->vold()->setGenerationDate(now.date());
     } catch (DoradeHeader::BadHeaderException ex) {
         std::cerr << "Header exception: " << ex << std::endl;
-        abort();
+        return false;
     }
+
+    // Keep the header checksum
+    _hdrChecksum = checksum;
+    
+    // Set the volume time and file generation date to now
+    boost::posix_time::ptime now = 
+        boost::posix_time::second_clock::universal_time();
+    _hdr->vold()->setVolumeDateTime(now);
+    _hdr->vold()->setGenerationDate(now.date());
 
     // Build the ByteBlock containing the DORADE representation of our header
     _hdrBlock.length(_hdr->size());
@@ -84,27 +134,24 @@ _raysWritten(0) {
     
     _hdr->streamTo(os, false);
 
-    // Write the header to our file
-    _status = _archiverServant->sendBlock(_hdrBlock);
+    // Write the new header now (which will start a new file)
+    _status = _archiverServant->sendBlock(_hdrBlock);    
+ 
+    // OK, now mark our header as valid to re-enable data writing.
+    _hdrValid = true;
     
-    // OK, initialization is complete. We keep track of this because
-    // our notify() method can get called before this constructor is
-    // done, and it can't run until at least the _hdr is built.
-    _initialized = true;
+    std::cout << "Successfully loaded header with checksum " << _hdrChecksum <<
+        std::endl;
+    
+    return true;
 }
 
-EldoraArchiver::~EldoraArchiver() {
-    _archiverServant->quit();
-    _theArchiver = 0;
-}
-
-// This is the method which gets called when new data are available.
+// This is the method which writes rays when new data are available.
 void
 EldoraArchiver::notify() {
     ByteBlock block;
-    // If this get called before the constructor is done with its work, just 
-    // return immediately.
-    if (! _initialized)
+    // If we don't have a valid header, just return immediately.
+    if (! _hdrValid)
         return;
     
     while (Products* pItem = getNextItem()) {
@@ -276,8 +323,8 @@ main(int argc, char *argv[])
     std::string hdrFileName = eldoraConfigDir + argv[1];
     std::string dataDir(argv[2]);
     EldoraArchiver* theArchiver = 
-        EldoraArchiver::TheArchiver(subscriber, productsTopic, hdrFileName, 
-        		dataDir);
+        EldoraArchiver::TheArchiver(subscriber, productsTopic, dataDir);
+    theArchiver->loadHeader(hdrFileName);
     
     int prevRaysWritten = theArchiver->raysWritten();
     while (1) {
