@@ -887,6 +887,10 @@ def lastWindowClosed():
                 print '...done'
             else:
                 print '...kill did not work either'
+                
+    # Be sure to kill DCPS. There may have been a rogue instance left
+    # running
+    pkill('DCPSInforepo')
     global Stopped
     Stopped = True
 
