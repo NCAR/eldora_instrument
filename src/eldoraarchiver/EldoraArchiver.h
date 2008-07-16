@@ -17,11 +17,9 @@ class EldoraArchiver : public ProductsReader {
 public:
     // Get the singleton instance, creating it if necessary.
     static EldoraArchiver* TheArchiver(DDSSubscriber& subscriber, 
-            std::string topicName, std::string hdrFileName, 
-            std::string dataDir) { 
+            std::string topicName, std::string dataDir) { 
         if (! _theArchiver)
-            _theArchiver = new EldoraArchiver(subscriber, topicName, 
-            		hdrFileName, dataDir);
+            _theArchiver = new EldoraArchiver(subscriber, topicName, dataDir);
         return _theArchiver;
     }
     
@@ -30,10 +28,18 @@ public:
     /// queue. Process the samples here.
     virtual void notify();
     
+    /// Return the number of rays written by this archiver.
+    /// @return the number of rays written by this archiver.
     int raysWritten() const { return _raysWritten; }
+    
+    /// Load the named ELDORA header.
+    /// @param hdrFileName the name of the header to be loaded
+    /// @return true iff the header was loaded successfully
+    bool loadHeader(std::string hdrFileName);
+    
 protected:
     EldoraArchiver(DDSSubscriber& subscriber, std::string topicName,
-    		std::string hdrFileName, std::string dataDir);
+    		std::string dataDir);
     virtual ~EldoraArchiver();
 private:
     // Pointer to the singleton instance
@@ -42,17 +48,18 @@ private:
     // Our radd/archiver servant and last status we got from it
     archiver::ArchiverService_var _archiverServant;
     archiver::ArchiverStatus_var _status;
-    // Our header, and the ByteBlock containing its DORADE representation
+    // Our header, its checksum, a ByteBlock containing its DORADE 
+    // representation, and a boolean telling whether they are all valid
     DoradeHeader* _hdr;
+    unsigned int _hdrChecksum;
     archiver::ByteBlock _hdrBlock;
+    bool _hdrValid;
     // A data buffer used in notify() when building a data ray, and its
     // size
     short* _dataBuf;
     int _dataBufLen;
     // How many rays have we written?
     int _raysWritten;
-    // Are we initialized?
-    bool _initialized;
 };
 
 #endif /*ELDORAARCHIVER_H_*/
