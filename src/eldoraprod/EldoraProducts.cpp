@@ -254,7 +254,7 @@ void EldoraProducts::signalPower(RayData& rays)
             for (unsigned int k = 0; k < 4; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
-                _terms.Psig_k[k][g] = p - _terms.b10_k[k];
+                _terms.Psig_k[k][g] = p; // - _terms.b10_k[k];
                 sum += _terms.Psig_k[k][g];
             }
             _terms.Psig[g] = sum/4.0;

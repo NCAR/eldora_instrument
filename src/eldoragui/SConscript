@@ -44,3 +44,7 @@ instp = env.InstallProgram(main)
 #env.Default([libs,['testheader.hd'])
 env.Alias(target='install', source = instl)
 env.Alias(target='install', source = instp)
+
+rungui = env.InstallProgram('rungui.sh')
+env.Alias(target='install', source = rungui)
+
