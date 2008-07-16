@@ -38,9 +38,6 @@ public:
     // Construct from a header file
     DoradeHeader(std::string fileName) throw(BadHeaderException);
     
-    // Default constructor
-    DoradeHeader() {};
-
     ~DoradeHeader();
     
     // return a pointer to the VOLD (VOLume Descriptor)
@@ -99,8 +96,15 @@ public:
      * @return the std::ostream being written
      */
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian) const;
-    
+
+    /**
+     * Get the 32-bit checksum for the associated header file, as returned
+     * by the cksum program.
+     * @return the 32-bit checksum for the associated header file.
+     */
+    unsigned int headerChecksum() const { return _headerChecksum; };
 private:
+    unsigned int _headerChecksum;
     DoradeVOLD* _vold;
     DoradeWAVE* _wave;
     DoradeSITU* _situ;
