@@ -28,13 +28,13 @@ _topicName(topicName)
 	try {
 		// register our type
 		DDSTYPESUPPORT_VAR typeSupport = new DDSTYPESUPPORTIMPL();
-		if (RETCODE_OK != typeSupport->register_type(participant.in (), "")) {
-			cerr << "register_type failed for " << _topicName << endl;
-			exit(1);
+		if (RETCODE_OK != typeSupport->register_type(participant.in(), "")) {
+			cerr << "failed to register type" << endl;
+			abort();
 		}
 
 		// get the type name
-		String_var type_name = typeSupport->get_type_name ();
+		String_var type_name = typeSupport->get_type_name();
 
 		// get the default quality of service
 		TopicQos topic_qos;
@@ -43,14 +43,14 @@ _topicName(topicName)
 		topic_qos.reliability.kind = DDS::RELIABLE_RELIABILITY_QOS;
 
 		// create our topic, using our type name and the default qos. 
-		std::cout << "Creating topic " << _topicName << ", for type name "
-		<< type_name << std::endl;
+		std::cout << "Creating topic " << _topicName << ", for type name " << 
+		    type_name << std::endl;
 		Topic_var topic =
-		participant->create_topic (topicName.c_str(),
-				type_name.in (),
+		participant->create_topic(_topicName.c_str(),
+				type_name.in(),
 				topic_qos,
 				DDS::TopicListener::_nil());
-		if (is_nil (topic.in ())) {
+		if (is_nil (topic.in())) {
 			cerr << "create_topic failed for topic " << _topicName << ", "
 			<< " for type name ,  " << type_name << std::endl;
 			exit(1);
@@ -58,7 +58,7 @@ _topicName(topicName)
 
 		// activate the listener  (compatible with DDS1.1 API)
 		DDS::DataReaderListener_var listener(this);
-		if (CORBA::is_nil (listener.in ())) {
+		if (CORBA::is_nil (listener.in())) {
 			cerr << "listener is nil for " << _topicName << endl;
 			exit(1);
 		}
@@ -66,12 +66,12 @@ _topicName(topicName)
 		// Create the generic datareader for our topic
 		DataReaderQos dw_qos;
 		subscriber->get_default_datareader_qos (dw_qos);
-		_genericReader = subscriber->create_datareader(topic.in (),
+		_genericReader = subscriber->create_datareader(topic.in(),
 				dw_qos,
 				listener.in());
 
-		if (is_nil (_genericReader.in ())) {
-			cerr << "create_datawriter failed for topic " << _topicName << ", "
+		if (is_nil (_genericReader.in())) {
+			cerr << "create_datareader failed for topic " << _topicName << ", "
 			<< " for type name ,  " << type_name << std::endl;
 			exit(1);
 		}
@@ -79,7 +79,7 @@ _topicName(topicName)
 	}
 	catch (Exception& e)
 	{
-		cerr << "Exception caught for " << _topicName << ", " << e
+		cerr << "Exception caught for topic " << _topicName << ", " << e
 		<< " " <<__FILE__ << " line:,  " <<__LINE__ << e << endl;
 		exit(1);
 	}
@@ -105,7 +105,7 @@ template<READERSIG1> void DDSReader<READERSIG2>::on_data_available(
 		/// @todo Is it really necessary to narrow the reader on every entry
 		/// to on_data_available? Could this be done once during the setup?
 		_specificReader = DDSDATAREADER::_narrow(reader);
-		if (CORBA::is_nil (_specificReader.in ())) {
+		if (CORBA::is_nil(_specificReader.in())) {
 			cerr << "read: _narrow failed in on_data_avaiable(), " << _topicName << ", " << endl;
 			exit(1);
 		}
@@ -199,7 +199,7 @@ template<READERSIG1> void DDSReader<READERSIG2>::returnItem(DDSTYPE* pItem) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_requested_deadline_missed(
 		DDS::DataReader_ptr, const DDS::RequestedDeadlineMissedStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_requested_deadline_missed, " << _topicName << endl;
+	cerr << "DDSReader: deadline missed for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -207,15 +207,18 @@ throw (CORBA::SystemException) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_requested_incompatible_qos(
 		DDS::DataReader_ptr, const DDS::RequestedIncompatibleQosStatus &)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_requested_incompatible_qos, " << _topicName << endl;
+	cerr << "DDSReader: requested incompatible QoS for topic " << 
+	    _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<READERSIG1> void DDSReader<READERSIG2>::on_liveliness_changed(
-		DDS::DataReader_ptr, const DDS::LivelinessChangedStatus &)
+		DDS::DataReader_ptr, const DDS::LivelinessChangedStatus &status)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader: liveliness changed for topic " << _topicName << endl;
+	cerr << "DDSReader: liveliness changed for topic " << _topicName << 
+	    ": active_count_change: " << status.active_count_change << 
+	    ", inactive_count_change: " << status.inactive_count_change << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -231,7 +234,7 @@ throw (CORBA::SystemException ) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_sample_rejected(
 		DDS::DataReader_ptr, const DDS::SampleRejectedStatus&)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_sample_rejected, " << _topicName << endl;
+	cerr << "DDSReader: sample rejected for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -239,7 +242,7 @@ throw (CORBA::SystemException) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_sample_lost(
 		DDS::DataReader_ptr, const DDS::SampleLostStatus&)
 throw (CORBA::SystemException) {
-	cerr << "DDSReader::on_sample_lost, " << _topicName << endl;
+	cerr << "DDSReader: sample lost for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////
