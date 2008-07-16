@@ -381,7 +381,7 @@ int RR314::configure314() {
 
 	// stop the filters if they are running.
 	Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, DDC_STOP);
-	usleep(1000);
+	usleep(100000);
 
 	// set up the filters. Will do nothing if either of
 	// the filter file paths is empty.
@@ -405,7 +405,7 @@ int RR314::configure314() {
 
 	// reset Pulse Pair Processor
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_ACT);
-	usleep(1000);
+	usleep(100000);
 	Adapter_Write32(&_chanAdapter, V4, PP_RST, PP_RST_CLR);
 	Adapter_Read32(&_chanAdapter, V4, V4_STAT_ADR, &result); //clear old status reg
 
@@ -468,13 +468,13 @@ int RR314::configure314() {
 
 	// Reset Decimator clocks
 	Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_ACT);
-	usleep(1000);
+	usleep(100000);
 	Adapter_Write32(&_chanAdapter, V4, DEC_RST_REG, RST_CLR);
-	usleep(1000);
+	usleep(100000);
 
 	// Start the DDC
 	Adapter_Write32(&_chanAdapter, V4, KAISER_ADDR, DDC_START);
-	usleep(1000);
+	usleep(100000);
 
 	// Remove DC
 	//int diagnostic = 0;

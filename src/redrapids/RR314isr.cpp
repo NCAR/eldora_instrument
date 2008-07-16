@@ -164,7 +164,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
                     << "Shutting Down Processors. Must Restart Processors Manually.\n";
         }
         //Shutdown
-        //pRR314->shutdown();
+        pRR314->shutdown();
     }
     if (Status & B_SYNC_ERROR) {
         if (!syncErrorsB %10) {
@@ -175,7 +175,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
                     << "Shutting Down Processors. Must Restart Processors Manually.\n";
         }
         //Shutdown
-        //pRR314->shutdown();
+        pRR314->shutdown();
     }
     if (Status & C_SYNC_ERROR) {
         if (!syncErrorsC %10) {
@@ -186,7 +186,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
                     << "Shutting Down Processors. Must Restart Processors Manually.\n";
         }
         //Shutdown
-        //pRR314->shutdown();
+        pRR314->shutdown();
     }
     if (Status & D_SYNC_ERROR) {
         if (!syncErrorsD %10) {
@@ -197,7 +197,7 @@ void Adapter_ISR(s_ChannelAdapter *pCA) {
                     << "Shutting Down Processors. Must Restart Processors Manually.\n";
         }
         //Shutdown
-        //pRR314->shutdown();
+        pRR314->shutdown();
     }
 
     /// @todo if any of the a/ds had full fifos, then
