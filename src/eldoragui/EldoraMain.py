@@ -422,8 +422,11 @@ class EldoraMain(QDialog, Ui_EldoraMain):
             # do the disk status
             stats = self.diskStats.stats()
             for i in range(len(stats)):
-            	dial = self.diskDials[i]
-            	dial.setValue(stats[i][1])
+                # make sure that stats for a new disk haven't
+            # appeared. Can happen when a USB drive is plugged in
+                if i < len(self.diskDials):
+            	    dial = self.diskDials[i]
+            	    dial.setValue(stats[i][1])
                    
     ###############################################################################
     def logText(self, text, color='black'):
