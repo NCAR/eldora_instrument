@@ -348,8 +348,14 @@ int RR314::configure314() {
 	Adapter_Write32(&_chanAdapter, V4, V4_MASK_ADR, 0x0);
 
 	// set the sample clock
-	_ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
-	Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
+    if (_devNum == 100) {
+        std::cout << "Setting sample clock for device " << _devNum << " to EXT\n";
+        _ClkSettings.ClkSrc = EXT; // can be either SYNTH or EXT
+    } else {
+        std::cout << "Setting sample clock for device " << _devNum << " to SYNTH\n";
+        _ClkSettings.ClkSrc = SYNTH; // can be either SYNTH or EXT
+    }
+    Adapter_SampleClkSelect(&_chanAdapter, &_ClkSettings);
 	sleep(1); //Allow time for synthesizer to lock.
 
 	// Code here should reset your DCMs and allow time for them to lock,
