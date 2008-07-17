@@ -410,8 +410,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.layoutRateBox(self.ProductRateBox,[self.forProducts,self.aftProducts])
         
          #
-        self.archiver1 = ProgressStrip(max=1000,title='1',sumMode=sumMode)
-        self.archiver2 = ProgressStrip(max=1000,title='2',sumMode=sumMode)
+        self.archiver1 = ProgressStrip(max=200,title='1',sumMode=sumMode)
+        self.archiver2 = ProgressStrip(max=200,title='2',sumMode=sumMode)
         self.layoutRateBox(self.ArchiveRateBox,[self.archiver1,self.archiver2])
         
     ###############################################################################
