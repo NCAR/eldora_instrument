@@ -283,7 +283,8 @@ class TestPulseControl(QObject):
 			freq = self.freqs[radar][self.index]
 			self.programTestPulse(radar, 'T',freq, db)
 			if self.callback != None:
-				callbackParams[radar]['db'] = float(self.atten[radar][self.index])
+				callbackParams[radar]['freqnum'] = self.index
+				callbackParams[radar]['atten'] = float(self.atten[radar][self.index])
 				callbackParams[radar]['freq'] = float(self.freqs[radar][self.index])			
 			
 		# execute the callback

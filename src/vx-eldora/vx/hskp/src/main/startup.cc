@@ -140,6 +140,31 @@ headerChecksum;
     }
 } statusMethod(&Svr);
 
+// testpulse()
+// Accept new testpulse parameters to be included in housekeeping
+// Parameters are:
+//      params["forward"]["freqnum"] = fore TP frequency num (channel num)
+//      params["forward"]["atten"] = fore attenuation in dB
+//      params["forward"]["freq"] = fore TP frequency
+// and similar for params["aft"]
+class TestPulseMethod : public XmlRpcServerMethod {
+public:
+    TestPulseMethod(XmlRpcServer* s) : XmlRpcServerMethod("testpulse", s) {}
+
+    void execute(XmlRpcValue& params, XmlRpcValue& result)
+    {
+        XmlRpc::XmlRpcValue retval;
+        drxForeTPFreqNum = short(int(params["forward"]["freqnum"]));
+        drxForeTPAtten = short(int(params["forward"]["atten"]));
+        drxForeTPFreq = float(double(params["forward"]["freq"]));
+        drxAftTPFreqNum = short(int(params["aft"]["freqnum"]));
+        drxAftTPAtten = short(int(params["aft"]["atten"]));
+        drxAftTPFreq = float(double(params["aft"]["freq"]));
+        result = 0;
+    }
+} testPulseMethod(&Svr);
+
+
 static void startServer(void)
 {
     // bind to our port and listen for commands

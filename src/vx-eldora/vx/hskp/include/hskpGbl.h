@@ -63,6 +63,16 @@ scope uint32_t headerChecksum;
 scope int hskpSentCount;    /* since last rate calculation */
 scope float hskpSendRate;   /* last calculated send rate (rays/sec) */
 
+/*
+ * Test pulse settings received from the DRX
+ */
+scope short drxForeTPFreqNum;
+scope short drxForeTPAtten;
+scope float drxForeTPFreq;
+scope short drxAftTPFreqNum;
+scope short drxAftTPAtten;
+scope float drxAftTPFreq;
+
 /* Parameters to handle the test pulse */
 
 scope int Firstime;                /* Variable to keep track of first call */
