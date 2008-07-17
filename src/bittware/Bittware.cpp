@@ -60,7 +60,7 @@ Bittware::~Bittware() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void Bittware::configure(EldoraRadarParams radarParams) {
+void Bittware::configure(EldoraRadarParams radarParams, int tpWidthGates ) {
 
     U32 wr_buffer[BUFFER_SIZE / 4];
     U32 control = BW_TIMER_ON | BW_TIMER_POS | BW_EXT_CLK | BW_CLK_DIV1;
@@ -71,12 +71,15 @@ void Bittware::configure(EldoraRadarParams radarParams) {
     int prtScheme;              // encoded multipliers for timers
     int prtSchemeCount;         // period in clock counts between scheme repeats
     
+    std::cout << "Test pulse width set to " << tpWidthGates << " gates\n";
+    
 // Calculated Timing Variables from Header Variables
     
     // Test Pulse Calculations
     U32 TP_Delay = ((int) ((radarParams.wave_chpoff[0] + radarParams.wave_gate1[0] + 
-                           (radarParams.wave_ngates[0] - 5) * radarParams.wave_gate1[1]) / 10)) * 10;
-    U32 TP_Width = (int) (radarParams.wave_gate1[1] * 5);
+                           (radarParams.wave_ngates[0] - tpWidthGates ) 
+                           * radarParams.wave_gate1[1]) / 10)) * 10;
+    U32 TP_Width = (int) (radarParams.wave_gate1[1] * tpWidthGates );
     
     // Calculate the period and PRT Scheme for dual prt or single prt
     if (radarParams.radd_nipp == 2)  //dual prt

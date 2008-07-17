@@ -78,7 +78,8 @@ class Bittware {
         virtual ~Bittware();
         /// Configure the Bittware timer card
         /// @param The radar operating parameters.
-       void configure(EldoraRadarParams radarParams);
+        /// @param The width of the test pulse, in gates
+       void configure(EldoraRadarParams radarParams, int tpWidthGates );
         /// Start the timer
         void start();
         /// Stop the timer

@@ -75,6 +75,9 @@ std::string _tsTopic; /// The published timeseries topic
 /// The port number for RPC comms to eldoradrx.
 int _rpcPort;
 
+/// The test pulse width, in gates
+int _tpWidth;
+
 /// the DCPSDebugLevel
 int _DCPSDebugLevel = 0;
 
@@ -164,7 +167,7 @@ static void parseOptions(int argc,
 /// are left running after the program exits, they will crash 
 /// Linux. Big Time.
 static void shutdownBoards();
-/// signal handler to capture those unexpected signals
+ /// signal handler to capture those unexpected signals
 static void setupSignalHandler();
 /// The function that runs in the thread for reading rr314 data.
 static void* rrReadTask(void* threadArg);
@@ -357,7 +360,7 @@ static void startAll()
     // create timer
     if (!_simulateRR314 && !_internaltimer) {
         _bwtimer = new Bittware(0);
-        _bwtimer->configure(_radarParams[0]);
+        _bwtimer->configure(_radarParams[0], _tpWidth);
         if (!_bwtimer->isok()) {
             std::cerr << "Unable to create bittware timer\n";
             _bwtimer->shutdown();
@@ -525,6 +528,9 @@ static void getConfigParams()
 
     // RPC parameters
     _rpcPort = config.getInt("Rpc/RpcPort", 60000);
+    
+    //test pulse width
+    _tpWidth = config.getInt("Mode/TestPulseWidth", 5);
 }
 //////////////////////////////////////////////////////////////////////
 //
@@ -538,7 +544,9 @@ static void parseOptions(int argc,
 
     // get the option34
     po::options_description descripts("Options");
-    descripts.add_options() ("help", "describe options") ("ORB", po::value<std::string>(&_ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
+    descripts.add_options() 
+    ("help", "describe options") 
+    ("ORB", po::value<std::string>(&_ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&_DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&_DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("simRR314", "run RR314 in simulation mode")
@@ -553,6 +561,7 @@ static void parseOptions(int argc,
     ("text", "text capture")
     ("publish", "publish data")
     ("rpcport", po::value<int>(&_rpcPort), "RPC port number")
+    ("tpwidth", po::value<int>(&_tpWidth), "Test pulse width (gates)")
     ("DCPSDebugLevel", po::value<int>(&_DCPSDebugLevel), "DCPSDebugLevel ")
     ("DCPSTransportDebugLevel", po::value<int>(&_DCPSTransportDebugLevel), 
      "DCPSTransportDebugLevel ");
