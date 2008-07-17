@@ -7,26 +7,22 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// headers for radd/archiver
 #include <archiver/ArchiverListener.h>
 #include <archiver/Resolver.h>
 #include <archiver/EldoraWriter.h>
 #include <tao/ORB_Core.h>
 
+#include <dds/DCPS/Service_Participant.h>    // for TheServiceParticipant
+
 #include <DoradeASIB.h>
 #include <DoradeFRAD.h>
 #include <DoradeRYIB.h>
 
-#include <ArgvParams.h>
-
 #include <boost/date_time/posix_time/ptime.hpp>
 
-#include "SvnVersion.h"
-#include "QtConfig.h"
-
 #include "DoradeHeader.h"
-
 #include "EldoraArchiver.h"
-#include <dds/DCPS/Service_Participant.h>    // for TheServiceParticipant
 
 using std::string;
 
@@ -108,6 +104,7 @@ EldoraArchiver::loadHeader(std::string hdrFileName) {
     // valid through the checksum test above; this assures that data writing
     // will not stop if the same header is loaded again.
     _hdrValid = false;
+    _hdrChecksum = 0;
     
     // Create a DoradeHeader from the header file
     try {
@@ -135,8 +132,13 @@ EldoraArchiver::loadHeader(std::string hdrFileName) {
     _hdr->streamTo(os, false);
 
     // Write the new header now (which will start a new file)
-    _status = _archiverServant->sendBlock(_hdrBlock);    
- 
+    _status = _archiverServant->sendBlock(_hdrBlock);
+    if (_status->errorFlag) {
+        std::cerr << _status->errorMessage << std::endl;
+        _hdrValid = false;
+        return false;
+    }
+
     // OK, now mark our header as valid to re-enable data writing.
     _hdrValid = true;
     
@@ -262,82 +264,14 @@ EldoraArchiver::notify() {
 
         // Finally, let the archiver servant actually write the block!
         _status = _archiverServant->sendBlock(block);       
-        _raysWritten++;
+        if (_status->errorFlag) {
+            std::cerr << _status->errorMessage << std::endl;
+        } else {
+            _raysWritten++;
+        }
         
         returnItem(pItem);
     }
 }
 
 
-int
-main(int argc, char *argv[])
-{
-    if (argc != 3)
-    {
-        std::cerr << "Usage: " << argv[0] << " <header_file_name> <data_dir>" << std::endl;
-        std::cerr << "(The header file name should not include the path." << std::endl;
-        std::cerr << "the path will be built automatically.)" << std::endl;
-        exit(1);
-    }
-
-    std::cout << "My PID is " << getpid() << std::endl;
-
-    // Configuration
-
-    // get the configuration
-    QtConfig eaConfig("NCAR", "EldoraArchiver");
-
-    // set up the configuration directory path: $ELDORADIR/conf/
-    char* e = getenv("ELDORADIR");
-    if (! e) {
-        // If ELDORADIR is not set, use a default
-        e = "/opt/eldora";
-        std::cerr << "Environment variable ELDORADIR is not set.  Using " <<
-            e << "." << std::endl;
-    }
-    std::string eldoraConfigDir(e);
-    eldoraConfigDir += "/conf/";
-    
-    std::string orbConfigFile = 
-        eaConfig.getString("DDS/ORBConfigFile", eldoraConfigDir + "ORBSvc.conf");   
-    std::string dcpsConfigFile = 
-        eaConfig.getString("DDS/DCPSConfigFile", eldoraConfigDir + "DDSClient.ini");
-    std::string dcpsInfoRepo = 
-        eaConfig.getString("DDS/DCPSInfoRepo", "iiop://archiver:50000/DCPSInfoRepo");  
-    std::string productsTopic = 
-        eaConfig.getString("TopicProducts", "EldoraProducts");
-    
-    // create the subscriber
-    ArgvParams subParams(argv[0]);
-    subParams["-ORBSvcConf"] = orbConfigFile;
-    subParams["-DCPSConfigFile"] = dcpsConfigFile;
-    subParams["-DCPSInfoRepo"] = dcpsInfoRepo;
-
-    DDSSubscriber subscriber(subParams.argc(), subParams.argv());
-    int subStatus = subscriber.status();
-    if (subStatus) {
-        std::cerr << "Error " << subStatus << " creating subscriber" << std::endl;
-        exit(subStatus);
-    }
-
-    std::string hdrFileName = eldoraConfigDir + argv[1];
-    std::string dataDir(argv[2]);
-    EldoraArchiver* theArchiver = 
-        EldoraArchiver::TheArchiver(subscriber, productsTopic, dataDir);
-    theArchiver->loadHeader(hdrFileName);
-    
-    int prevRaysWritten = theArchiver->raysWritten();
-    while (1) {
-        int sleepTime = 10;
-        sleep(sleepTime);
-
-        int raysWritten = theArchiver->raysWritten();
-        int diff = raysWritten - prevRaysWritten;
-        prevRaysWritten = raysWritten;
-        
-        std::cout << boost::posix_time::second_clock::universal_time() <<
-            ": wrote " << diff << " rays in the last " << sleepTime <<
-            " seconds" << std::endl;
-    }
-
-}

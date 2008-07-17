@@ -22,6 +22,8 @@ public:
             _theArchiver = new EldoraArchiver(subscriber, topicName, dataDir);
         return _theArchiver;
     }
+    // Get the singleton instance or NULL
+    static EldoraArchiver* TheArchiver() { return _theArchiver; }
     
     /// Subclass DDSReader::notify(), which wil be called
     /// whenever new samples are added to the DDSReader available
@@ -36,6 +38,12 @@ public:
     /// @param hdrFileName the name of the header to be loaded
     /// @return true iff the header was loaded successfully
     bool loadHeader(std::string hdrFileName);
+    
+    /// Return the unsigned 32-bit checksum for the current header, or zero 
+    /// if we do not have a valid header.
+    /// @return the checksum for the current header, or zero if we do not have
+    ///     a valid header
+    unsigned int headerChecksum() { return(_hdrValid ? _hdrChecksum : 0); }
     
 protected:
     EldoraArchiver(DDSSubscriber& subscriber, std::string topicName,

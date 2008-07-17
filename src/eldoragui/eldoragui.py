@@ -77,6 +77,9 @@ def start():
     # program the ECB devices
     progECB()
 
+    # start archivers
+    startArchivers()
+    
     # send out the header to interested clients
     sendHeader()
 
@@ -144,6 +147,8 @@ def stop():
     drxrpc.terminate()
     hskprpc.terminate()
     prodrpc.terminate()
+    archiver1rpc.terminate()
+    archiver2rpc.terminate()
 
 ####################################################################################
 def status():
@@ -153,6 +158,8 @@ def status():
     global drxrpc
     global hskprpc
     global prodrpc
+    global archiver1rpc
+    global archiver2rpc
     global drxSimHskpMode
 
     # determine the product status and product rates
@@ -173,7 +180,7 @@ def status():
             if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
                 productStatus = 2
         except Exception, e:
-            print ("Error contacting products RPC for status:"+ str(e))
+            print ("Error contacting products RPC for status:" + str(e))
 
     # determine the DRX status and rates.
     try:
@@ -183,7 +190,6 @@ def status():
         for k in keys:
             # convert rate from MB/s to KB/s and save
             rates.append(r[k]*1000.0)
-
     except Exception, e:
         print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
         rates = []
@@ -210,6 +216,10 @@ def status():
             hskpForRate = 0.0  # set default value, so Python doesn't whine 
             hskpAftRate = 0.0    
             hskpStatus = 2
+            
+    # determine the archivers' status and rate.
+    archiver1Rate, archiver1Status = getArchiverStatus(archiver1rpc)
+    archiver2Rate, archiver2Status = getArchiverStatus(archiver2rpc)
 
     main.showStatus(ABPrate=ABPrate, 
                     productRate=productRate, 
@@ -217,8 +227,39 @@ def status():
                     hskpForRate=hskpForRate,
                     hskpAftRate=hskpAftRate,
                     hskpStatus=hskpStatus,
+                    archiver1Rate=archiver1Rate,
+                    archiver1Status=archiver1Status,
+                    archiver2Rate=archiver2Rate,
+                    archiver2Status=archiver2Status,
                     rates=rates)
 
+####################################################################################
+#Return (rate, status) from the given archiver RPC
+def getArchiverStatus(rpc):
+    try:
+        r = rpc.server.status()
+        rate = r['rate']
+        # convert the signed checksum back into its unsigned form
+        cksum = r['headerChecksum']
+        if (cksum < 0):
+            cksum = (1 << 32) + cksum
+        if (cksum == main.selectedHeader.checksum):
+            if (rate > 0.0):
+                status = 0
+            else:
+                status = 1
+        else:
+            status = 2
+            main.logText('Bad checksum from ' + rpc.appName + ' (' + 
+                         str(cksum) + ' != ' + 
+                         str(main.selectedHeader.checksum) + ')')
+    except Exception, e:
+        print ('Error contacting %s RPC (%s) for status: %s' %
+               (rpc.appName, rpc.URI, str(e)))
+        rate = 0.0
+        status = 2
+        
+    return (rate, status)
 ####################################################################################
 def stopProducts():
     ''' Stop the standard Eldora processing apps. Try first with a SIGTERM. If
@@ -401,8 +442,51 @@ def startProducts():
     s.start()
 
 ####################################################################################
+def startArchivers():
+    '''
+    Run the archiver, if called for by the configuration. 
+
+    The configuration is checked to see if Archiver/Run is true.
+    '''
+    global ourConfig
+    global ourProcesses
+    
+    doArchiver = ourConfig.getBool('Archiver/Run', True)
+    if not doArchiver:
+        return
+
+    # archive directories and RPC ports
+    dir1 = ourConfig.getString('Archiver/Archiver1Dir', '/data_first')
+    dir2 = ourConfig.getString('Archiver/Archiver2Dir', '/data_second')
+    port1 = ourConfig.getInt('Archiver/Archiver1RpcPort', 60003)
+    port2 = ourConfig.getInt('Archiver/Archiver2RpcPort', 60004)
+
+    # start the two servers if they aren't running
+    archiverList = [('EldoraArchiver1', dir1, port1),
+                    ('EldoraArchiver2', dir2, port2)]
+    for entry in archiverList:
+        key, dir, port = entry
+        if (ourProcesses.has_key(key) and 
+            ourProcesses[key].state() == QProcess.Running):
+                main.logText(key + ' is already running (PID ' + 
+                             str(ourProcesses[key].pid()) + ')')
+                continue
+            
+        cmd = [appDict['EldoraArchiver'], dir, str(port)]
+        ourProcesses[key] = EmitterProc(cmd, 
+                                        emitText = True, 
+                                        payload = nextTaskColor(),
+                                        verbose = Verbose)
+        proc = ourProcesses[key]
+        QObject.connect(proc, SIGNAL("text"), main.logText)
+        proc.start()
+    # Give them a moment to actually start
+    time.sleep(1)
+
+####################################################################################
 def sendHeader():
-    ''' Send the currently selected header to the housekeeper and eldoradrx.
+    ''' Send the currently selected header to the housekeeper, eldoradrx,
+    and archivers
     '''
 
     # Copy the selected header to drx:/vxroot/headers/current.hdr, so that the
@@ -419,11 +503,14 @@ def sendHeader():
                 cmd = ['scp', '-B', src, dest]
                 status = subprocess.Popen(cmd, stdout=subprocess.PIPE).wait()
                 if (status != 0):
-                    main.logText('Could not scp '+main.selectedHeader.headerFile+' to '+dest)
+                    main.logText('Could not scp ' + 
+                                 main.selectedHeader.headerFile + ' to ' + dest)
             except OSError, e:
-                main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
+                main.logText('subprocess.Popen() execution failed for: "' + 
+                             ' '.join(cmd) + '"')
     except OSError, e:
-        main.logText('subprocess.Popen() execution failed for: "' + ' '.join(cmd) + '"')
+        main.logText('subprocess.Popen() execution failed for: "' + 
+                     ' '.join(cmd) + '"')
 
     # tell the housekeeper to load a new header
     # hskprpc.server.Header() generates an unsigned POSIX CRC-32 checksum 
@@ -434,10 +521,26 @@ def sendHeader():
         if (r < 0):
             r = (1 << 32) + r
         if (r != main.selectedHeader.checksum):
-            main.logText('Bad checksum from housekeeper for ' + src + ': ', r, '!=', 
-                  main.selectedHeader.checksum)
+            main.logText('Bad checksum from archiver1 for ' + src + ': ', r, 
+                         '!=', main.selectedHeader.checksum)
     except Exception, e:
-        main.logText('Exception '+ str(e) +'while calling housekeeper Header()')
+        main.logText('Exception ' + str(e) + ' while calling housekeeper Header()')
+
+    # tell archivers to load a new header
+    # archiver.server.Header() generates an unsigned POSIX CRC-32 checksum 
+    # for the header file, but can only return a signed value.  Adjust if 
+    # necessary to interpret as unsigned.  Zero is returned on error.
+    for rpc in [archiver1rpc, archiver2rpc]:
+        try:
+            r = rpc.server.Header(os.path.basename(main.selectedHeader.headerFile))
+            if (r < 0):
+                r = (1 << 32) + r
+            if (r != main.selectedHeader.checksum):
+                main.logText('Bad checksum from ' + rpc.appName + ' for ' + 
+                             src + ':', r, '!=', main.selectedHeader.checksum)
+        except Exception, e:
+            main.logText('Exception ' + str(e) + ' while calling ' + 
+                         rpc.appName + ' Header()')
 
     # tell eldoradrx to reconfigure with current radar parameters
     headerToDrx(main.selectedHeader)
@@ -590,8 +693,9 @@ def initConfig():
     appDict = ApplicationDict()
 
     # add apps that are found in eldoraDir/<appName>/<appName>
-    for app in ['eldoradrx', 'eldoraprod', 'eldorappi', 'eldorascope',
-	'dumpheader', 'progdds', 'progsa', 'progmux', 'progtestpulse']:
+    for app in ['EldoraArchiver', 'eldoradrx', 'eldoraprod', 'eldorappi', 
+                'eldorascope', 'dumpheader', 'progdds', 'progsa', 'progmux', 
+                'progtestpulse']:
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
     # DcpsInfoRepo location
     appDict['DCPSInfoRepo'] = os.path.join(ddsRoot, "bin", "DCPSInfoRepo")
@@ -602,31 +706,51 @@ def createRpcServers():
     global ourConfig
 
     # create the rpc for the drx
-    drxrpchost = ourConfig.getString('Drx/Host', 'drx')
-    drxrpcport = ourConfig.getInt('Drx/RpcPort', 60000)
-    drxrpcurl = 'http://' + drxrpchost + ':' + str(drxrpcport)
+    host = ourConfig.getString('Drx/Host', 'drx')
+    port = ourConfig.getInt('Drx/RpcPort', 60000)
+    url = 'http://' + host + ':' + str(port)
     global drxrpc
-    if Verbose: print 'drxrpcurl = ', drxrpcurl
-    drxrpc = EldoraRPC('drx', drxrpcurl)
+    if Verbose: print 'drxrpcurl = ', url
+    drxrpc = EldoraRPC('drx', url)
     drxrpc.start()
 
     # create the rpc for the housekeeper
-    hskprpchost = ourConfig.getString('Hksp/Host', 'hskp')
-    hskprpcport = ourConfig.getInt('Hksp/RpcPort', 60001)
-    hskprpcurl = 'http://' + hskprpchost + ':' + str(hskprpcport)
+    host = ourConfig.getString('Hksp/Host', 'hskp')
+    port = ourConfig.getInt('Hksp/RpcPort', 60001)
+    url = 'http://' + host + ':' + str(port)
     global hskprpc
-    if Verbose: print 'hskprpcurl = ', hskprpcurl
-    hskprpc = EldoraRPC('hskp', hskprpcurl)
+    if Verbose: print 'hskprpcurl = ', url
+    hskprpc = EldoraRPC('hskp', url)
     hskprpc.start()
 
     # create the rpc for the products generator
-    prodrpchost = ourConfig.getString('Products/Host', 'archiver')
-    prodrpcport = ourConfig.getInt('Products/RpcPort', 60002)
-    prodrpcurl = 'http://' + prodrpchost + ':' + str(prodrpcport)
+    host = ourConfig.getString('Products/Host', 'archiver')
+    port = ourConfig.getInt('Products/RpcPort', 60002)
+    url = 'http://' + host + ':' + str(port)
     global prodrpc
-    if Verbose: print 'prodrpcurl =',prodrpcurl
-    prodrpc = EldoraRPC('products', prodrpcurl)
+    if Verbose: print 'prodrpcurl =', url
+    prodrpc = EldoraRPC('products', url)
     prodrpc.start()
+    if Verbose: print 'CreateRpcServers finished'
+    
+    # create the rpc for the primary archiver
+    host = ourConfig.getString('Archiver/Archiver1Host', 'archiver')
+    port = ourConfig.getInt('Archiver/Archiver1RpcPort', 60003)
+    url = 'http://' + host + ':' + str(port)
+    global archiver1rpc
+    if Verbose: print 'archiver1url =', url
+    archiver1rpc = EldoraRPC('EldoraArchiver1', url)
+    archiver1rpc.start()
+    
+    # create the rpc for the secondary archiver
+    host = ourConfig.getString('Archiver/Archiver2Host', 'archiver')
+    port = ourConfig.getInt('Archiver/Archiver2RpcPort', 60003)
+    url = 'http://' + host + ':' + str(port)
+    global archiver2rpc
+    if Verbose: print 'archiver2url =', url
+    archiver2rpc = EldoraRPC('EldoraArchiver2', url)
+    archiver2rpc.start()
+    
     if Verbose: print 'CreateRpcServers finished'
 
 ####################################################################################

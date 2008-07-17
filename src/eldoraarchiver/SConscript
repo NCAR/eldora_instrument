@@ -23,6 +23,7 @@ rt
 env.Append(LIBS = libs)
 
 sources = Split('''
+EldoraArchiverMain.cpp
 EldoraArchiver.cpp
 DoradeHeader.cpp
 DoradeHskp.cpp

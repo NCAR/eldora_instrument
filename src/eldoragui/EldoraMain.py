@@ -149,6 +149,10 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                    hskpForRate,
                    hskpAftRate,
                    hskpStatus,
+                   archiver1Rate,
+                   archiver1Status,
+                   archiver2Rate,
+                   archiver2Status,
                    rates):
 
         #
@@ -161,8 +165,6 @@ class EldoraMain(QDialog, Ui_EldoraMain):
           else:
               aftRate = aftRate + rates[i]
               
-        self.hskpRaysFor.setValue(hskpForRate)
-        self.hskpRaysAft.setValue(hskpAftRate)
         self.forABP.setValue(ABPrate/2)
         self.aftABP.setValue(ABPrate/2)
         self.forProducts.setValue(productRate/2)
@@ -171,6 +173,14 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         
         # Housekeeping status
         self.setGauge('Housekeeper', hskpStatus)
+        self.hskpRaysFor.setValue(hskpForRate)
+        self.hskpRaysAft.setValue(hskpAftRate)
+        
+        # Archiver status
+        self.setGauge('Archiver1', archiver1Status)
+        self.archiver1.setValue(archiver1Rate)
+        self.setGauge('Archiver2', archiver2Status)
+        self.archiver2.setValue(archiver2Rate)
          
         # set the for and aft pulse progress strips
         self.forBytes.setValue(forRate)
@@ -298,7 +308,10 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.gauges['Products']    = self.addGauge(title='Products',
                                                    layout=l,
                                                    callback=self.gaugeReleased)
-        self.gauges['Archiver']    = self.addGauge(title='Archiver',
+        self.gauges['Archiver1']    = self.addGauge(title='Archiver1',
+                                                   layout=l,
+                                                   callback=self.gaugeReleased)
+        self.gauges['Archiver2']    = self.addGauge(title='Archiver2',
                                                    layout=l,
                                                    callback=self.gaugeReleased)
          
@@ -397,9 +410,9 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.layoutRateBox(self.ProductRateBox,[self.forProducts,self.aftProducts])
         
          #
-        self.forArchive = ProgressStrip(max=1000,title='For',sumMode=sumMode)
-        self.aftArchive = ProgressStrip(max=1000,title='Aft',sumMode=sumMode)
-        self.layoutRateBox(self.ArchiveRateBox,[self.forArchive,self.aftArchive])
+        self.archiver1 = ProgressStrip(max=1000,title='1',sumMode=sumMode)
+        self.archiver2 = ProgressStrip(max=1000,title='2',sumMode=sumMode)
+        self.layoutRateBox(self.ArchiveRateBox,[self.archiver1,self.archiver2])
         
     ###############################################################################
     def timerEvent(self, event):
