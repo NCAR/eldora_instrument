@@ -145,6 +145,7 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
 }
 
 ////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 void EldoraProducts::powerRaw(RayData& rays)
 {
 
@@ -185,7 +186,6 @@ void EldoraProducts::powerRaw(RayData& rays)
     }
 }
 
-////////////////////////////////////////////////////
 void EldoraProducts::powerAntenna(RayData& rays)
 {
     // Power at the antenna. Not dependent on single/dual prt.
@@ -198,48 +198,6 @@ void EldoraProducts::powerAntenna(RayData& rays)
 }
 
 ////////////////////////////////////////////////////
-void EldoraProducts::totalPower(RayData& rays)
-{
-
-    // Total power.  Dependent on single/dual prt.
-    switch (_dualPrt)
-    {
-    case false:
-        // single prt
-        for (int g = 0; g < _gates; g++) {
-            double num = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-                // pick the p out of abp
-                double p = rays[0][k]->abp[3*g+2];
-                num += p/_terms.a10_k[k];
-            }
-            if (num > 0.0)
-                _terms.Pant[g] = 10.0*log10(num/4.0);
-            else
-                _terms.Pant[g] = 0.0;
-        }
-        break;
-
-    case true:
-        // dual prt
-        for (int g = 0; g < _gates; g++) {
-            double num = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
-                // pick the long and short p out of abp
-                double pks = rays[0][k]->abp[3*g+2];
-                double pkl = rays[1][k]->abp[3*g+2];
-                double p = (pks+pkl)/2.0;
-                num += p/_terms.a10_k[k];
-            }
-            if (num > 0.0)
-                _terms.Pant[g] = 10.0*log10(num/4.0);
-            else
-                _terms.Pant[g] = 0.0;
-        }
-        break;
-    }
-}
-
 ////////////////////////////////////////////////////
 void EldoraProducts::signalPower(RayData& rays)
 {
@@ -254,7 +212,10 @@ void EldoraProducts::signalPower(RayData& rays)
             for (unsigned int k = 0; k < 4; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
-                _terms.Psig_k[k][g] = p; // - _terms.b10_k[k];
+                p = p - _terms.b10_k[k];
+                if (p < 0.0)
+                	p = _terms.b10_k[k];
+                _terms.Psig_k[k][g] = p;
                 sum += _terms.Psig_k[k][g];
             }
             _terms.Psig[g] = sum/4.0;
@@ -269,11 +230,17 @@ void EldoraProducts::signalPower(RayData& rays)
             for (unsigned int k = 0; k < 4; k++) {
 
                 double pks = rays[0][k]->abp[3*g+2];
-                _terms.Psigs_k[k][g] = pks - _terms.b10_k[k];
+                pks = pks - _terms.b10_k[k];
+                if (pks < 0.0)
+                	pks = _terms.b10_k[k];
+                _terms.Psigs_k[k][g] = pks;
                 sumShort += _terms.Psigs_k[k][g];
 
                 double pkl = rays[1][k]->abp[3*g+2];
-                _terms.Psigl_k[k][g] = pkl - _terms.b10_k[k];
+                pkl = pkl - _terms.b10_k[k];
+                if (pkl < 0.0)
+                	pkl = _terms.b10_k[k];
+                _terms.Psigl_k[k][g] = pkl;
                 sumLong += _terms.Psigl_k[k][g];
 
                 _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
@@ -310,8 +277,10 @@ void EldoraProducts::reflectivity(RayData& rays)
         if (p > 0.0) 
             _terms.Dbz[g] =_terms.radarConstant + 10.0*log10(p)
                 + _terms.r[g];
-        else
-            _terms.Dbz[g] = -35.0;
+        else {
+            std::cerr << "taking log of negative in relectivity!\n";
+            _terms.Dbz[g] = -999.0;
+        }
     }
 }
 
@@ -391,6 +360,48 @@ void EldoraProducts::unfoldVelocity() {
     }
 }
 ////////////////////////////////////////////////////
+void EldoraProducts::totalPower(RayData& rays)
+{
+
+    // Total power.  Dependent on single/dual prt.
+    switch (_dualPrt)
+    {
+    case false:
+        // single prt
+        for (int g = 0; g < _gates; g++) {
+            double num = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+                // pick the p out of abp
+                double p = rays[0][k]->abp[3*g+2];
+                num += p/_terms.a10_k[k];
+            }
+            if (num > 0.0)
+                _terms.Pant[g] = 10.0*log10(num/4.0);
+            else
+                _terms.Pant[g] = 0.0;
+        }
+        break;
+
+    case true:
+        // dual prt
+        for (int g = 0; g < _gates; g++) {
+            double num = 0.0;
+            for (unsigned int k = 0; k < 4; k++) {
+                // pick the long and short p out of abp
+                double pks = rays[0][k]->abp[3*g+2];
+                double pkl = rays[1][k]->abp[3*g+2];
+                double p = (pks+pkl)/2.0;
+                num += p/_terms.a10_k[k];
+            }
+            if (num > 0.0)
+                _terms.Pant[g] = 10.0*log10(num/4.0);
+            else
+                _terms.Pant[g] = 0.0;
+        }
+        break;
+    }
+}
+
 void EldoraProducts::spectrumWidth(RayData& rays)
 {
     // Velocity.  Dependent on single/dual prt.
@@ -402,13 +413,17 @@ void EldoraProducts::spectrumWidth(RayData& rays)
              double asum = _terms.SumA[0][g] / 4.0;
              double bsum = _terms.SumB[0][g] / 4.0;
              double denom = sqrt(asum*asum + bsum*bsum);
+             double term;
              if (_terms.Psig[g] >= denom) {
-                 double term = _terms.Psig[g] / denom;
-                 _terms.W[g] = _terms.Wscale*sqrt(log(term));
+                 term = _terms.Psig[g] / denom;
              } else {
-                 // @tod need to get the nyquist velocity in here
-                 _terms.W[g] = _terms.Vscale*M_PI;
+            	 term = 1.0;
              }
+             _terms.W[g] = _terms.Wscale*sqrt(log(term));
+             //} else {
+             //    // @tod need to get the nyquist velocity in here
+             //    _terms.W[g] = _terms.Vscale*M_PI;
+             //}
          }
          break;
 
