@@ -171,11 +171,11 @@ int main(
     // now the products supply
     QObject::connect(&productsSource, 
 	 SIGNAL(newPDataHskp(std::vector<double>, int, float, int, float, 
-			     double, double, double, qlonglong , double , double , double, double,
+			     double, double,  qlonglong , double , double , double, double,
 			     double, double, double,double )), 
 		     &cappi_gen,
 		     SLOT(productSlot(std::vector<double>, 
-				      int, float, int, float, double, double, double, 
+				      int, float, int, float, double, double,
 				      qlonglong , double , double , double,
 				      double, double, double, double, double)));
 

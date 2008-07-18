@@ -18,7 +18,6 @@ void CappiGen::productSlot(
         float gateSizeMeters,
         double dwellWidth,
         double airspdCorr,
-        double rollAngle,
 	qlonglong timetag,
 	double longitude,
 	double latitude,

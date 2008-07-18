@@ -34,7 +34,7 @@ public:
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
                 int prodType, float gateSizeMeters, double dwellWidth, 
-                double airspdCorr, double rollAngle, 
+                double airspdCorr, 
 		qlonglong timetag,
 		double longitude,
 		double latitude,

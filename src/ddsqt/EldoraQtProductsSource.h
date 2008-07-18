@@ -108,7 +108,6 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 float gateSpacingMeters, 
                 double dwellWidth, 
                 double airspdCorr,
-                double rollAngle,
 		qlonglong timetag,
 		double longitude,
 		double latitude,

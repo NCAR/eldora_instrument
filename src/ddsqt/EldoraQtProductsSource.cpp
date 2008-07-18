@@ -95,7 +95,6 @@ void EldoraQtProductsSource::notify() {
 					  gateSpacingMeters, 
 					  dWidth, 
 					  airspdCorr,
-					  rollAngle,
 					  timetag,
 					  pItem->hskp.longitude,
 					  pItem->hskp.latitude,
