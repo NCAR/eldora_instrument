@@ -744,7 +744,7 @@ def createRpcServers():
     
     # create the rpc for the secondary archiver
     host = ourConfig.getString('Archiver/Archiver2Host', 'archiver')
-    port = ourConfig.getInt('Archiver/Archiver2RpcPort', 60003)
+    port = ourConfig.getInt('Archiver/Archiver2RpcPort', 60004)
     url = 'http://' + host + ':' + str(port)
     global archiver2rpc
     if Verbose: print 'archiver2url =', url
