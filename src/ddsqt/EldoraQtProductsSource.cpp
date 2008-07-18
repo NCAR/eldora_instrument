@@ -61,6 +61,7 @@ void EldoraQtProductsSource::notify() {
                 double dWidth = dwellWidth(pItem);
                 double airspdCorr = airSpeedCorrection(pItem);
                 double rollAngle = pItem->hskp.roll;
+		qlonglong timetag = pItem->hskp.timetag;
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -86,6 +87,24 @@ void EldoraQtProductsSource::notify() {
                                 dWidth, 
                                 airspdCorr,
                                 rollAngle);
+
+                        emit newPDataHskp(P, 
+					  pItem->radarId, 
+					  pItem->rotAngle, 
+					  *prodType, 
+					  gateSpacingMeters, 
+					  dWidth, 
+					  airspdCorr,
+					  rollAngle,
+					  timetag,
+					  pItem->hskp.longitude,
+					  pItem->hskp.latitude,
+					  pItem->hskp.elevation,
+					  pItem->hskp.heading,
+					  pItem->hskp.roll,
+					  pItem->hskp.pitch,
+					  pItem->hskp.groundSpeedEW,
+					  pItem->hskp.groundSpeedNS);
                         clearCapture();
                     }
                     break;

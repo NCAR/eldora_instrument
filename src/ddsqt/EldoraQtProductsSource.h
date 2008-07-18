@@ -69,9 +69,7 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
 
     signals:
         /// This signal is emitted when new Product data are available.
-        /// I and Q will be of the same length, and will have at least 1 
-        /// value in them.
-        /// @param P P data values.
+        /// @param P P data values (at least 1).
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
         /// @param elDegrees Pointing angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
@@ -88,6 +86,40 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 double dwellWidth, 
                 double airspdCorr,
                 double rollAngle);
+
+        /// This signal is emitted when new Product data are available.
+        /// @param P P data values (at least 1).
+        /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
+        /// @param elDegrees Pointing angle, degrees
+        /// @param prodType The product type, from PRODUCT_TYPES
+        /// @param gateSpacingMeters The gate spacing in meters
+        /// @param dwellWidth The width of the dwell, in degrees
+        /// @param airspdCorr The airspeed correction to the radial velocity
+    	/// @param rollAngle The aircraft roll angle, in degrees.
+    	/// @param timetag  - microsecs since epoch
+        /// @param longitude
+        /// @param latitude
+        /// @param elevation
+        void newPDataHskp(
+                std::vector<double> P, 
+                int radarId, 
+                float elDegrees,
+                int prodType, 
+                float gateSpacingMeters, 
+                double dwellWidth, 
+                double airspdCorr,
+                double rollAngle,
+		qlonglong timetag,
+		double longitude,
+		double latitude,
+		double elevation,
+    double heading,
+    double roll,
+    double pitch,
+      double groundSpeedEW,
+    double groundSpeedNS
+
+		);
 
     public slots:
         /// Set the gate mode to ONE_GATE.

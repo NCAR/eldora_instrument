@@ -27,7 +27,12 @@ void parseArgs(
         bool& forwardRadar,
         std::string& ORB,
         std::string& DCPS,
-	std::string& DCPSInfoRepo) {
+	std::string& DCPSInfoRepo,
+	int &DCPSDebugLevel,
+	int &DCPSTransportDebugLevel) {
+
+    int theDebugLevel=0;
+    int theTransportLevel=0;
 
     // get the options
     po::options_description descripts("Options");
@@ -39,12 +44,21 @@ void parseArgs(
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
+    ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
+    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
+     "DCPSTransportDebugLevel")
     ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, descripts), vm);
     po::notify(vm);
 
+    // store parsed debug levels
+    DCPSDebugLevel = theDebugLevel;
+    DCPSTransportDebugLevel = theTransportLevel;
+
+    std::cerr << argv[0] << "parse_args :DCPSDebugLevel = " << DCPSDebugLevel  << std::endl;
+    std::cerr << argv[0] << "parse_args :DCPSTransportDebugLevel = " << DCPSTransportDebugLevel  << std::endl;
     if (vm.count("help")) {
         std::cout << descripts << "\n";
         exit(1);
@@ -84,6 +98,9 @@ int main(
 
     std::string DCPSInfoRepo;
 
+    int DCPSDebugLevel = 0;
+    int DCPSTransportDebugLevel = 0;
+
     // set up the default configuration directory path
     char* e = getenv("ELDORADIR");
     std::string EldoraDir("/conf/");
@@ -106,7 +123,8 @@ int main(
     
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS, DCPSInfoRepo);
+    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS, DCPSInfoRepo,
+	      DCPSDebugLevel, DCPSTransportDebugLevel);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -115,6 +133,15 @@ int main(
     subParams["-ORBSvcConf"] = ORB;
     subParams["-DCPSConfigFile"] = DCPS;
     subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
+    if (DCPSDebugLevel > 0) {
+      std::cerr << "passing DCPSDebugLevel " << DCPSDebugLevel << std::endl;
+      subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
+    }
+    if (DCPSTransportDebugLevel > 0) {
+      std::cerr << "passing DCPSTransportDebugLevel " << DCPSTransportDebugLevel << std::endl;
+      subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
+    }
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -148,8 +175,10 @@ int main(
     // create the subscriber
     DDSSubscriber subscriber(subParams.argc(), subParams.argv());
     int subStatus = subscriber.status();
-    if (subStatus)
+    if (subStatus) {
+      std::cerr << argv[0] << " ERROR: subscriber returned error" << subStatus << std::endl;
         return subStatus;
+    }
 
     // create the reader
     // select the products that it will receive

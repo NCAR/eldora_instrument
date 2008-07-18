@@ -30,6 +30,7 @@ tools = ['sdrscope', 'disttar']
 env = Environment(tools = ['default'] + tools, GLOBAL_TOOLS = [Eldora])
 
 # Build the main eldora applications:
+SConscript('cappi_gen/SConscript')
 SConscript('conf/SConscript')
 SConscript('etc/SConscript')
 SConscript('designer/SConscript')
@@ -85,10 +86,12 @@ py_site = os.path.join(sys.exec_prefix, 'lib', 'python' + sys.version[:3],
                        'site-packages')
 pdist = env.DistTar("dist/py_site", env.Dir(py_site), DISTTAR_PREFIX ='/usr/lib')
 env.Alias('distrib', pdist)
+env.Alias('dist', pdist)
 
 distDir = ELDORADIR
 parent = os.path.abspath(os.path.join(distDir, '..'))
-dist = env.DistTar("dist/eldora", env.Dir(distDir), DISTTAR_PREFIX = parent)
-env.Alias('distrib', dist)
+edist = env.DistTar("dist/eldora", env.Dir(distDir), DISTTAR_PREFIX = parent)
+env.Alias('distrib', edist)
+env.Alias('dist', edist)
 
 

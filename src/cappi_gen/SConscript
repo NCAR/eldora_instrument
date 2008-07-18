@@ -1,0 +1,37 @@
+tools = Split("""
+ddssvc
+ddsqt
+qtt_qtconfig
+utilities
+doxygen
+boost_program_options
+""")
+env = Environment(tools = ['default'] + tools)
+
+# libraries:
+libs = Split("""
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
+""")
+
+env.AppendUnique(LIBS = libs)
+
+
+
+sources = Split("""
+CappiGenMain.cpp
+CappiGen.cpp
+""")
+
+cappigen = env.Program('cappigen', sources)
+	
+inst = env.InstallProgram(cappigen)
+env.Default([cappigen,])
+env.Alias('install',inst)
+
