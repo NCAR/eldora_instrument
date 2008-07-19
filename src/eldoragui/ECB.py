@@ -275,17 +275,21 @@ class TestPulseControl(QObject):
 
 ####################################################################################
 	def timeout(self):
-		callbackParams = dict()
-		callbackParams['forward'] = dict()
-		callbackParams['aft'] = dict()
 		for radar in ('forward','aft'):
 			db = self.atten[radar][self.index]
 			freq = self.freqs[radar][self.index]
 			self.programTestPulse(radar, 'T',freq, db)
-			if self.callback != None:
-				callbackParams[radar]['freqnum'] = self.index
-				callbackParams[radar]['atten'] = float(self.atten[radar][self.index])
-				callbackParams[radar]['freq'] = float(self.freqs[radar][self.index])			
+	
+		callbackParams = []
+		callbackParams.append(self.index)
+		callbackParams.append(self.atten['forward'][self.index])
+		callbackParams.append(self.freqs['forward'][self.index])
+		callbackParams.append(self.atten['aft'][self.index])
+		callbackParams.append(self.freqs['aft'][self.index])
+		i = self.index
+		print("test pulse callback: ", i, self.atten['forward'][i], 
+			  self.freqs['forward'][i], self.atten['aft'][i],
+			  self.freqs['aft'][i])
 			
 		# execute the callback
 		if self.callback != None:
