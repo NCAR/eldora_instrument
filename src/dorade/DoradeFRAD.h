@@ -54,6 +54,20 @@ public:
     int getRayCount() const { return _rayCount; }
     short getFirstGate() const { return _firstRecordedGate; }
     short getLastGate() const { return _lastRecordedGate; }
+    /**
+     * Get the array of strictly two-byte data from the FRAD.  The order of 
+     * the data, assuming np parameters and ng gates is:
+     * 
+     *      parm<0> at gate<0>
+     *      parm<1> at gate<0>
+     *      ...
+     *      parm<np-1> at gate<0>
+     *      parm<0> at gate<1>
+     *      parm<1> at gate<1>
+     *      ...
+     *      parm<np-1> at gate<ng-1>
+     * @return the array of short data from the FRAD.
+     */
     const short* getShortData() const { return _shortData; }
     
     /**
