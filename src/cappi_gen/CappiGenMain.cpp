@@ -7,7 +7,9 @@
 
 Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
+Q_DECLARE_METATYPE(qlonglong)
 #include "CappiGen.h"
+Q_DECLARE_METATYPE(StrMapDouble)
 
 #include "SvnVersion.h"
 #include "QtConfig.h"
@@ -124,7 +126,8 @@ int main(
       std::cerr << "passing DCPSTransportDebugLevel " << DCPSTransportDebugLevel << std::endl;
       subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
     }
-    CappiGen cappi_gen("/tmp");
+    std::string nc_template = EldoraDir + "cappi_template.nc";
+    CappiGen cappi_gen("/tmp", nc_template);
 
 
     ///////////////////////////////////////////////////////////////
@@ -137,6 +140,8 @@ int main(
     // register our special signal data types
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
+    qRegisterMetaType<StrMapDouble>();
+    qRegisterMetaType<qlonglong>();
 
 
     ///////////////////////////////////////////////////////////////
@@ -170,14 +175,13 @@ int main(
 
     // now the products supply
     QObject::connect(&productsSource, 
-	 SIGNAL(newPDataHskp(std::vector<double>, int, float, int, float, 
-			     double, double,  qlonglong , double , double , double, double,
-			     double, double, double,double )), 
+	 SIGNAL(newPDataHskpMap(std::vector<double>, int,  int, qlonglong,
+			     StrMapDouble)),
 		     &cappi_gen,
 		     SLOT(productSlot(std::vector<double>, 
-				      int, float, int, float, double, double,
-				      qlonglong , double , double , double,
-				      double, double, double, double, double)));
+				      int,  int, 
+				      qlonglong , 
+				      StrMapDouble)) );
 
 
     ///////////////////////////////////////////////////////////////

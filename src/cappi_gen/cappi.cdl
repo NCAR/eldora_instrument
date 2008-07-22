@@ -1,0 +1,35 @@
+netcdf cappi.2008 {
+dimensions:
+	maxCells = 512 ;
+	Time = UNLIMITED ;
+
+variables:
+	double product(Time,maxCells);
+	int prodType(Time);
+        int numCells(Time);
+	double gateSpacingMeters(Time);
+	double dwellWidth(Time);
+	int unixTime(Time);
+	int microsec(Time);
+	double lat(Time);		
+		lat:units = "degrees_north" ;
+		lat:actual_range = 90.f, -90.f ;
+		lat:long_name = "Latitude" ;
+	double lon(Time);
+	       lon:units = "degrees_east" ;
+	       lon:long_name = "Longitude" ;
+	       lon:actual_range = 0.f, 357.5f ;
+	double elevation(Time);
+	double heading(Time);
+	double roll(Time);
+	double pitch(Time);
+	double yaw(Time);
+	double groundSpeedEW(Time);
+	double groundSpeedNS(Time);
+	double airSpdCorr(Time);
+	double corRotAngle(Time);
+
+// global attributes:
+      	
+
+}

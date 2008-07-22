@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'CappiGen.h'
 **
-** Created: Fri Jul 18 17:12:00 2008
+** Created: Tue Jul 22 08:50:44 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.2.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -27,15 +27,14 @@ static const uint qt_meta_data_CappiGen[] = {
        0,    0, // enums/sets
 
  // slots: signature, parameters, type, tag, flags
-     160,   10,    9,    9, 0x0a,
+      45,   10,    9,    9, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_CappiGen[] = {
-    "CappiGen\0\0"
-    "p,radarId,elDegrees,prodType,gateSizeMeters,dwellWidth,airspdCorr,timetag,longitude,latitude,elevation,heading,roll,pitch,groundSpeedEW,groundSpeedNS\0"
-    "productSlot(std::vector<double>,int,float,int,float,double,double,qlonglong,double,double,double,double,double,double,double,double)\0"
+    "CappiGen\0\0p,radarId,prodType,timetag,hskpMap\0"
+    "productSlot(std::vector<double>,int,int,qlonglong,StrMapDouble)\0"
 };
 
 const QMetaObject CappiGen::staticMetaObject = {
@@ -63,7 +62,7 @@ int CappiGen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: productSlot((*reinterpret_cast< std::vector<double>(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4])),(*reinterpret_cast< float(*)>(_a[5])),(*reinterpret_cast< double(*)>(_a[6])),(*reinterpret_cast< double(*)>(_a[7])),(*reinterpret_cast< qlonglong(*)>(_a[8])),(*reinterpret_cast< double(*)>(_a[9])),(*reinterpret_cast< double(*)>(_a[10])),(*reinterpret_cast< double(*)>(_a[11])),(*reinterpret_cast< double(*)>(_a[12])),(*reinterpret_cast< double(*)>(_a[13])),(*reinterpret_cast< double(*)>(_a[14])),(*reinterpret_cast< double(*)>(_a[15])),(*reinterpret_cast< double(*)>(_a[16]))); break;
+        case 0: productSlot((*reinterpret_cast< std::vector<double>(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< qlonglong(*)>(_a[4])),(*reinterpret_cast< StrMapDouble(*)>(_a[5]))); break;
         }
         _id -= 1;
     }

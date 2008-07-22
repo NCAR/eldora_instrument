@@ -2,11 +2,15 @@
 #define ELDORAQTPRODUCTSSOURCE_H_
 
 #include <vector>
+#include <map>
+
 #include "EldoraQtSource.h"
 #include "DDSReader.h"
 #include "ProductsTypeSupportC.h"
 #include "ProductsTypeSupportImpl.h"
 #include "ProductTypes.h"
+#include "EldoraTypes.h"
+
 using namespace EldoraDDS;
 
 /// A Products DDS subscriber for Eldora data,
@@ -40,6 +44,7 @@ using namespace EldoraDDS;
 /// consumers. Maybe a redesign is called for. In any event, 
 /// it is clear that EldoraQtProductsSource is very Eldora specific.
 ///
+
 class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
     Q_OBJECT
     public:
@@ -90,36 +95,16 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// This signal is emitted when new Product data are available.
         /// @param P P data values (at least 1).
         /// @param radarId Either EldoraDDS::Fore or EldoraDDS::Aft
-        /// @param elDegrees Pointing angle, degrees
         /// @param prodType The product type, from PRODUCT_TYPES
-        /// @param gateSpacingMeters The gate spacing in meters
-        /// @param dwellWidth The width of the dwell, in degrees
-        /// @param airspdCorr The airspeed correction to the radial velocity
-    	/// @param rollAngle The aircraft roll angle, in degrees.
     	/// @param timetag  - microsecs since epoch
-        /// @param longitude
-        /// @param latitude
-        /// @param elevation
-        void newPDataHskp(
+        /// @param hskpMap - housekeeping in STL map
+        void newPDataHskpMap(
                 std::vector<double> P, 
                 int radarId, 
-                float elDegrees,
                 int prodType, 
-                float gateSpacingMeters, 
-                double dwellWidth, 
-                double airspdCorr,
 		qlonglong timetag,
-		double longitude,
-		double latitude,
-		double elevation,
-    double heading,
-    double roll,
-    double pitch,
-      double groundSpeedEW,
-    double groundSpeedNS
-
+		StrMapDouble hskpMap
 		);
-
     public slots:
         /// Set the gate mode to ONE_GATE.
         /// @param product The product type.

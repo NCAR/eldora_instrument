@@ -5,6 +5,8 @@ using namespace EldoraDDS;
 
 Q_DECLARE_METATYPE(std::vector<double>)
 Q_DECLARE_METATYPE(std::vector<int>)
+Q_DECLARE_METATYPE(StrMapDouble)
+Q_DECLARE_METATYPE(qlonglong)
 
 ////////////////////////////////////////////////////////
 EldoraQtProductsSource::EldoraQtProductsSource(
@@ -16,6 +18,8 @@ _productChoices(productChoices) {
 
     qRegisterMetaType<std::vector<double> >();
     qRegisterMetaType<std::vector<int> >();
+    qRegisterMetaType<StrMapDouble>();
+    qRegisterMetaType<qlonglong>();
 
 }
 
@@ -88,22 +92,26 @@ void EldoraQtProductsSource::notify() {
                                 airspdCorr,
                                 rollAngle);
 
-                        emit newPDataHskp(P, 
+			StrMapDouble hskpMap;
+			hskpMap["gateSpacingMeters"] = gateSpacingMeters;
+			hskpMap["lat"] =pItem->hskp.latitude;
+			hskpMap["lon"] =pItem->hskp.longitude;
+			hskpMap["corRotAngle"] = pItem->rotAngle + pItem->hskp.roll;
+			hskpMap["gateSpacingMeters"] = gateSpacingMeters;
+			hskpMap["dwellWidth"] = dWidth;
+			hskpMap["elevation"] = pItem->hskp.elevation;
+			hskpMap["heading"] = pItem->hskp.heading;
+			hskpMap["roll"] = pItem->hskp.roll;
+			hskpMap["pitch"] = pItem->hskp.pitch;
+			hskpMap["yaw"] = pItem->hskp.yaw;
+			hskpMap["groundSpeedEW"] = pItem->hskp.groundSpeedEW;
+			hskpMap["groundSpeedNS"] = pItem->hskp.groundSpeedNS;
+			hskpMap["airSpdCorr"] = airspdCorr;
+			emit newPDataHskpMap( P, 
 					  pItem->radarId, 
-					  pItem->rotAngle, 
 					  *prodType, 
-					  gateSpacingMeters, 
-					  dWidth, 
-					  airspdCorr,
 					  timetag,
-					  pItem->hskp.longitude,
-					  pItem->hskp.latitude,
-					  pItem->hskp.elevation,
-					  pItem->hskp.heading,
-					  pItem->hskp.roll,
-					  pItem->hskp.pitch,
-					  pItem->hskp.groundSpeedEW,
-					  pItem->hskp.groundSpeedNS);
+					  hskpMap);
                         clearCapture();
                     }
                     break;

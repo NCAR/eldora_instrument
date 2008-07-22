@@ -9,12 +9,13 @@
 
 // Symbolic names for product types
 #include "ProductTypes.h"
+#include "EldoraTypes.h"
 
 
 class CappiGen : public QObject {
     Q_OBJECT
 public:
-    CappiGen(std::string storageDir);
+    CappiGen(std::string storageDir, std::string nc_template);
   virtual ~CappiGen();
     public slots:
         /// Feed product data via this slot. If the operating 
@@ -31,23 +32,25 @@ public:
         /// @param airspdCorr The airspeed correction that can be added to the 
         /// radial velocity if desired.
         /// @param rollAngle The aircraft roll angle.
-        void productSlot(
-                std::vector<double> p, int radarId, float elDegrees,
-                int prodType, float gateSizeMeters, double dwellWidth, 
-                double airspdCorr, 
-		qlonglong timetag,
-		double longitude,
-		double latitude,
-		double elevation,
-		double heading,
-		double roll,
-		double pitch,
-		double groundSpeedEW,
-		double groundSpeedNS);
 
+        void productSlot(
+                std::vector<double> p, 
+		int radarId, 
+                int prodType, 
+		qlonglong timetag,
+		StrMapDouble hskpMap);
   
 private:
+  int openOutput(std::string &name);
   std::string _storageDir;
+  std::string _nc_template;
+  NcFile *_nc_output;
+  NcVarMap _ncVarMap;
+  StringVec _hskpVarNames; // variables we need from hskpMap, passed in hskpMap
+  StringVec _extraNames;   // other variables we need to access in the netCDF file
+  unsigned long _recordCount;
+  unsigned long _maxCells;
+  
 
 };
 

@@ -3,7 +3,7 @@
 #
 import os
 
-tools = ['ddssvc', 'qt4']
+tools = ['ddssvc', 'qt4','utilities']
 env = Environment(tools = ['default'] + tools)
 
 qt4modules = ['QtCore',]

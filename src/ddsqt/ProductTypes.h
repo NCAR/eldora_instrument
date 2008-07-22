@@ -1,6 +1,7 @@
 #ifndef PRODUCTTYPES_INC_
 #define PRODUCTTYPES_INC_
 
+
 /// Product types.
 enum PRODUCT_TYPES {
     PROD_P1, ///< P1 (from ABP chan 1)
