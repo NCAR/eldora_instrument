@@ -120,8 +120,6 @@ int main(int argc, char **argv)
 
 		// azimuth synchro
 		hnum = calcrand(300);
-		if (hnum>300)
-			printf("as ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -131,8 +129,6 @@ int main(int argc, char **argv)
 
 		// azimuth offset
 		hnum = calcrand(300);
-		if (hnum>300)
-			printf("ao ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -159,8 +155,6 @@ int main(int argc, char **argv)
 
 		// elevation synchro
 		hnum = calcrand(300);
-		if (hnum>300)
-			printf("es ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -170,8 +164,6 @@ int main(int argc, char **argv)
 
 		// elevation offset
 		hnum = calcrand(300);
-		if (hnum>300)
-			printf("eo ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
