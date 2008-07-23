@@ -120,6 +120,8 @@ int main(int argc, char **argv)
 
 		// azimuth synchro
 		hnum = calcrand(300);
+		if (hnum>300)
+			printf("as ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -129,6 +131,8 @@ int main(int argc, char **argv)
 
 		// azimuth offset
 		hnum = calcrand(300);
+		if (hnum>300)
+			printf("ao ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -140,7 +144,8 @@ int main(int argc, char **argv)
 		ap = as + ao;
 		if (ap > 359.99)
 			ap = ap - 359.99;
-		printf("azimuth position: %lf\n", ap);
+        //printf("azimuth position: %lf\n", ap);
+
 		// to show that it is calculating position values constantly
 		*dio24_r6 = 0x00;		// Port B all off
 		if ((i%4)==0)
@@ -152,10 +157,10 @@ int main(int argc, char **argv)
 		else
 			*dio24_r6 = 0x10;	// LED D7 on
 
-		//usleep(1);
-
 		// elevation synchro
 		hnum = calcrand(300);
+		if (hnum>300)
+			printf("es ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -165,6 +170,8 @@ int main(int argc, char **argv)
 
 		// elevation offset
 		hnum = calcrand(300);
+		if (hnum>300)
+			printf("eo ");
 		tnum = calcrand(50);
 		onum = calcrand(9);
 		dtnum = calcrand(9)*.1;
@@ -176,9 +183,10 @@ int main(int argc, char **argv)
 		ep = es + eo;
 		if (ep > 359.99)
 			ep = ep - 359.99;
+		//printf("elevation position: %lf\n", ep);
 
 		// to show that it is calculating position values constantly
-		printf("elevation position: %lf\n", ep);
+		*dio24_r6 = 0x00;
 		if ((i%4)==0)
 			*dio24_r6 = 0x8;	// LED D9 on
 		else if ((i%3)==0)
@@ -188,15 +196,12 @@ int main(int argc, char **argv)
 		else
 			*dio24_r6 = 0x1;	// LED D15 on
 
-
-		usleep(1);	// required for debugging processes
+		//usleep(1);	// required for debugging processes
 
 		i++;
 
 		if (i >= 2000000)	// when reaches an integer limit, need to reset back to 0
 			i = 0;
-
-		//printf("i: %i\n", i);
 	}
 
 	cleanup(0);
@@ -475,9 +480,6 @@ void lcdsetup(void)
 
 void cleanup(int signum)
 {
-    printf("Sleep for a 1 second\n");
-    sleep(1);
-
     printf("Clearing LCD screens\n");
     //Clear Screen
     write(fd2, clrscr, sizeof(clrscr));
@@ -500,13 +502,17 @@ void wakeup(int signum)
 	int aph, apt, apo, apdt, apdh;
 	int eph, ept, epo, epdt, epdh;
 
+	double ap2, ep2;
+	ap2 = ap;
+	ep2 = ep;
+
 	// write azimuth position to LCD through COM2
-	aph = (int)(ap/100);
-	apt = (int)((ap-(aph*100))/10);
-	apo = (int)(ap-(aph*100)-(apt*10));
-	apdt = (int)((ap-(aph*100)-(apt*10)-apo)*10);
-	apdh = (int)((ap-(aph*100)-(apt*10)-apo-(apdt*.1))*100);
-	printf("a places: %i, %i, %i, %i, %i\n", aph, apt, apo, apdt, apdh);
+	aph = (int)(ap2/100);
+	apt = (int)((ap2-(aph*100))/10);
+	apo = (int)(ap2-(aph*100)-(apt*10));
+	apdt = (int)((ap2-(aph*100)-(apt*10)-apo)*10);
+	apdh = (int)((ap2-(aph*100)-(apt*10)-apo-(apdt*.1))*100);
+	//printf("a places: %i, %i, %i, %i, %i\n", aph, apt, apo, apdt, apdh);
 
 	switchthing(fd2, hplace, aph);
 	switchthing(fd2, tplace, apt);
@@ -515,12 +521,12 @@ void wakeup(int signum)
 	switchthing(fd2, dhplace, apdh);
 
 	// write elevation position to LCD through COM3
-	eph = (int)(ep/100);
-	ept = (int)((ep-(eph*100))/10);
-	epo = (int)(ep-(eph*100)-(ept*10));
-	epdt = (int)((ep-(eph*100)-(ept*10)-epo)*10);
-	epdh = (int)((ep-(eph*100)-(ept*10)-epo-(epdt*.1))*100);
-	printf("e places: %i, %i, %i, %i, %i\n", eph, ept, epo, epdt, epdh);
+	eph = (int)(ep2/100);
+	ept = (int)((ep2-(eph*100))/10);
+	epo = (int)(ep2-(eph*100)-(ept*10));
+	epdt = (int)((ep2-(eph*100)-(ept*10)-epo)*10);
+	epdh = (int)((ep2-(eph*100)-(ept*10)-epo-(epdt*.1))*100);
+	//printf("e places: %i, %i, %i, %i, %i\n", eph, ept, epo, epdt, epdh);
 
 	switchthing(fd3, hplace, eph);
 	switchthing(fd3, tplace, ept);
