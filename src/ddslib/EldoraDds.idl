@@ -29,12 +29,15 @@ module EldoraDDS {
         float groundSpeedEW;    // east-west ground speed, m/s
         float groundSpeedNS;    // north-south ground speed, m/s
         float vertVelocity;     // m/s
-        float heading;          // deg
-        float roll;             // deg
+        float heading;          // deg : N=0, E=90
+        float roll;             // deg : Level=0, add to radarRotAngle
         float pitch;            // deg
         float yaw;              // deg
-        float radarRotAngle;    // antenna rotation angle, deg
-        float radarTiltAngle;   // antenna tilt angle, deg
+        float radarRotAngle;    // antenna rotation angle, deg: Up=0, Rt=90
+        float radarTiltAngle;   // antenna tilt angle, deg 
+				// for horiz. beam to the right, beam direction= (heading + 90 -radarTiltAngle )
+				// for horiz. beam to the left, 
+				// beam direction= (heading + 270 - radarTiltAngle)
         float windEW;           // east-west horizontal wind, m/s
         float windNS;           // north-south horizontal wind, m/s
         float windVert;         // vertical wind, m/s
