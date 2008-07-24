@@ -89,10 +89,6 @@ static const unsigned int DEFAULT_HSKP_PORT = 2222;
 /// The port number for incoming housekeeper data
 unsigned int _hskpPort;
 
-// save pointers to RR314 instances, in case we need to try
-// to stop them during a signal.
-std::vector<RR314*> _rr314Instances;
-
 /// Set this flag to true in order to request the main loop to
 /// shut everything down.
 bool _terminate = false;
@@ -307,7 +303,7 @@ static void stopAll()
     cancelThread(&_rrThread[0]);
     cancelThread(&_rrThread[1]);
 
-    // AS a little extra insurance, zero the references to our 
+    // As a little extra insurance, zero the references to our 
     // objects before deleting them, because other routines(entered via other
     // threads) will often check to see if the pointer is zero before
     // trying to access the instance,
@@ -317,6 +313,7 @@ static void stopAll()
         _rr314[i] = 0;
         delete p314;
     }
+    
     for (int i = 0; i < 2; i++) {
         HskpMerger* pHskp;
         pHskp = _hskpMerger[i];
@@ -389,10 +386,6 @@ static void startAll()
                 _simulateRR314,
                 false // do not catch signals in RR314; we will do that ourselves
         );
-
-        // save instances of RR314 for the shutdown handler
-        _rr314Instances.push_back(_rr314[0]);
-        _rr314Instances.push_back(_rr314[1]);
 
         // Create our housekeeping mergers, with 500 ms max retention time waiting to 
         // make matches
@@ -604,14 +597,21 @@ static void shutdownBoards()
 {
 
     std::vector<RR314*>::iterator p;
-    for (p = _rr314Instances.begin(); p != _rr314Instances.end(); p++) {
-        std::cout << "stopping RR314 device " << (*p)->boardNumber() << std::endl;
-        (*p)->shutdown();
+    for (unsigned int dev = 0; dev < 2; dev++) {
+        if (_rr314[dev]) {
+            std::cout << "stopping RR314 device " << dev << std::endl;
+            _rr314[dev]->shutdown();
+        } else {
+            std::cout << "No RR314 device " << dev << " to shut down" <<
+                std::endl;
+        }
     }
 
     if (_bwtimer) {
         std::cout << "stopping Bittware device\n";
         _bwtimer->shutdown();
+    } else {
+        std::cout << "no Bittware device active\n";
     }
 }
 
@@ -625,8 +625,7 @@ static void shutdownBoards()
 ///
 static void signalHandler(int signo)
 {
-
-    std::cout << "caught signal " << signo << "\n";
+    std::cout << "Handling signal " << signo << "\n";
 
     // try to terminate the RR314 & timer boards
     shutdownBoards();
@@ -696,8 +695,8 @@ static void setRadarParams(EldoraRadarParams* radarParams,
 }
 //////////////////////////////////////////////////////////////////////
 //
-/// Arrange to catch signals. signalHandler() function
-/// will be specifiec to called when signals are caught.
+/// Arrange to catch signals. The signalHandler() function
+/// will be called when signals are caught.
 static void setupSignalHandler()
 {
 
@@ -724,9 +723,9 @@ static void setupSignalHandler()
     for (int s = 0; s < nsignals; s++) {
         sigaction(sig_list[s], NULL, &old_action);
         if (old_action.sa_handler != SIG_IGN) {
-	    std::cout << "setting signal handler for signal " << sig_list[s] << std::endl;
+	    	std::cout << "setting signal handler for signal " << sig_list[s] << std::endl;
             sigaction(sig_list[s], &new_action, NULL);
-	}
+        }
     }
 }
 
