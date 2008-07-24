@@ -59,7 +59,6 @@ module EldoraDDS {
         short lastRecGate;      // last recorded gate
         
         // stuff we don't get from the housekeeper
-        long prf;               // Hz
         long gates;             // number of gates
         long samples;           // number of samples integrated per ray
         long startIQ;           // IQ start gate
