@@ -226,7 +226,8 @@ throw (CORBA::SystemException) {
 template<READERSIG1> void DDSReader<READERSIG2>::on_subscription_match(
 		DDS::DataReader_ptr, const DDS::SubscriptionMatchStatus & status)
 throw (CORBA::SystemException ) {
-	cerr << "DDSReader: got a subscription match for topic " << _topicName << endl;
+	cerr << "DDSReader: got publisher id " << status.last_publication_handle <<
+	        " for topic " << _topicName << endl;
 }
 
 ////////////////////////////////////////////////////////////

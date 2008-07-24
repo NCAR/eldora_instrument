@@ -22,7 +22,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
     // get the domain participant, which we register our type with
     DomainParticipant_var& participant = ddsPublisher.getParticipant();
-
+    
     try {
         // register our type
         DDSTYPESUPPORT_VAR typeSupport = new DDSTYPESUPPORTIMPL();
@@ -33,10 +33,18 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
         // get the type name
         String_var type_name = typeSupport->get_type_name ();
-	if (0 ==type_name.in()){
-	    cerr << "get_type_name failed for topic " << topicName.c_str() << std::endl;
+        if (0 ==type_name.in()){
+            cerr << "get_type_name failed for topic " << topicName.c_str() << std::endl;
             exit(1);
-	}
+        }
+
+        // Activate the listener so we can get notification of assorted
+        // state changes, e.g., publication matches and deleted connections.
+        OpenDDS::DCPS::DataWriterListener_var listener(this);
+        if (CORBA::is_nil (listener.in())) {
+            cerr << "DataWriterListener is nil for " << _topicName << endl;
+            exit(1);
+        }
 
         // get the default quality of service
         TopicQos topic_qos;
@@ -46,16 +54,15 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
         // create our topic, using our type name and the default qos. 
         // We will not be using a listener.
-        std::cout << "Creating topic " << topicName.c_str()
-        << " for type name " << type_name << std::endl;
-        Topic_var topic =
-        participant->create_topic (topicName.c_str(),
+        std::cout << "Creating topic " << topicName.c_str() << 
+            " for type name " << type_name << std::endl;
+        Topic_var topic = participant->create_topic (topicName.c_str(),
                 type_name.in (),
                 topic_qos,
                 DDS::TopicListener::_nil());
         if (is_nil (topic.in ())) {
-            cerr << "create_topic failed for topic " << topicName.c_str()
-            << " for type name " << type_name << std::endl;
+            cerr << "create_topic failed for topic " << 
+                topicName.c_str() << " for type name " << type_name << std::endl;
             exit(1);
         }
 
@@ -63,8 +70,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
         DataWriterQos dw_qos;
         publisher->get_default_datawriter_qos (dw_qos);
         _genericWriter = publisher->create_datawriter(topic.in (),
-                dw_qos,
-                DataWriterListener::_nil());
+                dw_qos, listener.in());
         if (is_nil (_genericWriter.in ())) {
             cerr << "create_datawriter failed for topic " << topicName.c_str()
             << " for type name " << type_name << std::endl;
@@ -227,6 +233,103 @@ DDSWriter<WRITERSIG2>::waitForItem() {
     while (_inQueue.size() == 0)
     _condition.wait();
 
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
+        const DDS::OfferedDeadlineMissedStatus&) {
+    std::cout << "DDSWriter: offered deadline missed for topic " << 
+        _topicName << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
+        const DDS::OfferedIncompatibleQosStatus& status) {
+    std::cout << "DDSWRiter: incompatible QoS was offered for topic " << 
+        _topicName << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_liveliness_lost(DDS::DataWriter_ptr writer,
+        const DDS::LivelinessLostStatus& status) {
+    std::cout << "DDSWriter: liveliness lost for topic " << _topicName << 
+        std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_publication_match(DDS::DataWriter_ptr writer,
+        const DDS::PublicationMatchStatus& status) {
+    std::cout << "DDSWriter: Got new subscriber for topic " << _topicName <<
+        " (id " << status.last_subscription_handle << ")" << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_publication_disconnected(DDS::DataWriter_ptr writer,
+        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status) {
+    DDS::InstanceHandleSeq subscribers(status.subscription_handles);
+    std::cout << "DDSWriter: subscriber disconnected from topic " << 
+        _topicName << " (id ";
+    if (subscribers.length() == 1)
+        std::cout << subscribers[0];
+    else
+        std::cout << "[multiple ids]";
+    std::cout << ")" << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_publication_reconnected(DDS::DataWriter_ptr writer,
+        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status) {
+    DDS::InstanceHandleSeq subscribers(status.subscription_handles);
+    std::cout << "DDSWriter: subscriber reconnected to topic " << 
+        _topicName << " (id ";
+    if (subscribers.length() == 1)
+        std::cout << subscribers[0];
+    else
+        std::cout << "[multiple ids]";
+    std::cout << ")" << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_publication_lost(DDS::DataWriter_ptr writer,
+        const ::OpenDDS::DCPS::PublicationLostStatus& status) {
+    DDS::InstanceHandleSeq subscribers(status.subscription_handles);
+    std::cout << "DDSWriter: subscriber lost for topic " << _topicName << 
+        " (id ";
+    if (subscribers.length() == 1)
+        std::cout << subscribers[0];
+    else
+        std::cout << "[multiple ids]";
+    std::cout << ")" << std::endl;
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void 
+DDSWriter<WRITERSIG2>::on_connection_deleted(DDS::DataWriter_ptr writer) {
+    std::cout << "DDSWriter: a connection was deleted for topic " << 
+        _topicName << std::endl;
 }
 
 ////////////////////////////////////////////////////////////

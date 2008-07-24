@@ -41,7 +41,9 @@ typedef ACE_Guard<mutex_t> guard_t;
 /// @todo Find a way to build all of the required class names
 /// from a user supplied root. Simple CPP macros won't work here.
 template <WRITERSIG1>
-class DDSWriter : public ACE_Task_Base {
+class DDSWriter : 
+    public ACE_Task_Base, 
+    public virtual OpenDDS::DCPS::DataWriterListener {
 
 public:
 	/// Constructor
@@ -85,6 +87,29 @@ public:
 	DDSTYPE* getEmptyItem();
 	/// Stop the writer task
 	void terminate();
+
+	virtual void on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
+	        const DDS::OfferedDeadlineMissedStatus&);
+
+	virtual void on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
+	        const DDS::OfferedIncompatibleQosStatus& status);
+	
+	virtual void on_liveliness_lost(DDS::DataWriter_ptr writer,
+	        const DDS::LivelinessLostStatus& status);
+	
+	virtual void on_publication_match(DDS::DataWriter_ptr writer,
+	        const DDS::PublicationMatchStatus& status);
+	
+	virtual void on_publication_disconnected(DDS::DataWriter_ptr writer,
+	        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status);
+
+	virtual void on_publication_reconnected(DDS::DataWriter_ptr writer,
+	        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status);
+
+    virtual void on_publication_lost(DDS::DataWriter_ptr writer,
+            const ::OpenDDS::DCPS::PublicationLostStatus& status);
+
+	virtual void on_connection_deleted(DDS::DataWriter_ptr writer);
 
 private:
 	/// block on _condition until the _inQueue is not empty.
