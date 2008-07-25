@@ -10,6 +10,8 @@
 
 #include <boost/date_time/posix_time/ptime.hpp>
 
+float getClockOffsetInDwells(); // from eldoradrx.cpp
+
 ///////////////////////////////////////////////////////////////////
 DrxRPC::DrxRPC(int rpcport,
                bool* startFlag,
@@ -117,6 +119,10 @@ void DrxRPC::status(XmlRpc::XmlRpcValue& params,
         retval[key1.str()] = rates[1][i]/1.0e6;
     }
 
+    // Current estimated system clock offset, in dwells.  For proper operation,
+    // this value should be less than 0.5.
+    retval["clockOffsetInDwells"] = getClockOffsetInDwells();
+    
     // return it
     result = retval;
 }

@@ -3,7 +3,9 @@
 #include "Bittware.h"
 #include "EldoraRadarParams.h"
 
-#include <math.h>
+#include <cmath>
+#include <cstdio>
+#include <cerrno>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -144,6 +146,9 @@ pthread_t _rrThread[2] =
 /// The housekeepr thread
 pthread_t _hskpThread = 0;
 
+/// Current clock offset as reported by NTP, in milliseconds
+float _ntpOffset;
+
 // prototypes
 //
 /// create the DDS services
@@ -186,6 +191,26 @@ static EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
                                                        bool isFore);
 static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 
+// Get current clock offset reported by NTP, in milliseconds.  On error,
+// -HUGE_VAL is returned.
+static float getNTPOffset();
+
+// Report the absolute value of the current clock offset, in units
+// of the current dwell time.  A value greater than 0.5 indicates a problem, 
+// as housekeeping data will likely not be merged with the correct RR314 data.
+float getClockOffsetInDwells() {
+    if (_ntpOffset == -HUGE_VAL)
+        return HUGE_VAL;
+    else if (_sysRunning)
+        // Convert _ntpOffset to microseconds and divide by the dwell time
+        // in microseconds.  Return the absolute value.
+        return (fabsf(_ntpOffset * 1000.0) / 
+                _rr314[0]->dwellDuration().total_microseconds());
+    else
+        // If we're not running, report perfect synchronization.
+        return 0.0;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // The main routine creates the cards, starts them, and then just
@@ -224,6 +249,16 @@ int main(int argc,
 
     // This is the main loop
     while (1) {
+        // Keep track of the system clock's offset (as reported by NTP)
+        if (_sysRunning && ! _simulateHskp) {
+            // Query ntp for the current clock offset
+            _ntpOffset = getNTPOffset();
+        } else {
+            // If we're not running or if we're simulating housekeeping,
+            // consider our clock perfectly sync'ed with the housekeeper.
+            _ntpOffset = 0.0;
+        }
+        
         // poll once per second for commands to start or stop.
         // print the status every ten seconds
         for (int i = 0; i < 10; i++) {
@@ -250,6 +285,7 @@ int main(int argc,
         }
         if (_terminate)
             break;
+        
         if (_sysRunning)
             printStatus(loopCount);
         loopCount++;
@@ -272,8 +308,11 @@ static void printStatus(int loopCount)
     showStats(1, loopCount);
     // hskp merger info for 1
     _hskpMerger[1]->showStats(std::cout);
-    // flush cout so that clientes reading from 
-    // a pipe will see the output withou buffering
+    // current clock offset, in dwells
+    std::cout << "System clock offset in dwells: " << 
+        getClockOffsetInDwells() << std::endl;
+    // flush cout so that clients reading from 
+    // a pipe will see the output without buffering
     std::cout.flush();
 }
 
@@ -1261,4 +1300,51 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
     if (nwrote < 0)
         std::cerr << __FILE__ << ":" << __LINE__ <<
             ": error sending housekeeping: " << strerror(errno) << std::endl;
+}
+
+/// Get the time offset from the current system peer as reported by 
+/// the "ntpq -p" command.  The time is in milliseconds.  On error, or if
+/// no system peer has been established yet, return -HUGE_VAL.
+static float
+getNTPOffset() {
+    char* cmd = "/usr/sbin/ntpq -p";
+    FILE* ntpq = popen(cmd, "r");
+    if (! ntpq) {
+        std::cerr << "Error running '" << cmd << "': " << strerror(errno) << 
+            std::endl;
+        return -HUGE_VAL;
+    }
+    
+    char *line = NULL;
+    size_t linelen = 0;
+    float offset = -HUGE_VAL;
+    while (getline(&line, &linelen, ntpq) != -1) {
+        // Take the offset from the system peer (the line starting with
+        // a '*').  If no such line exists, a system peer hasn't been 
+        // established yet.
+        if (line[0] == '*') {
+            char peer[20];
+            char refid[20];
+            unsigned int stratum;
+            char type[20];
+            unsigned int when;
+            unsigned int poll;
+            unsigned int reach;
+            float delay;
+            float jitter;
+            sscanf(line, "%s%s%u%s%u%u%o%f%f%f", peer, refid, &stratum,
+                   type, &when, &poll, &reach, &delay, &offset, &jitter);
+            break;
+        }
+    }
+    if (line)
+        free(line);
+    int status = pclose(ntpq);
+    if (status != 0)
+        std::cerr << "Return value from '" << cmd << "' was " << status << 
+            std::endl;
+    else if (offset == -HUGE_VAL)
+        std::cerr << "NTP has no sys.peer (yet)" << std::endl;
+    
+    return offset;
 }

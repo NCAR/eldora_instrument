@@ -153,7 +153,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                    archiver1Status,
                    archiver2Rate,
                    archiver2Status,
-                   rates):
+                   drxStatus,
+                   drxRates):
 
         #
         # set the for and aft bandwidths
@@ -161,9 +162,9 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         aftRate = 0.0
         for i in range(16):
           if i < 8:
-              forRate = forRate + rates[i]
+              forRate = forRate + drxRates[i]
           else:
-              aftRate = aftRate + rates[i]
+              aftRate = aftRate + drxRates[i]
               
         self.forABP.setValue(ABPrate/2)
         self.aftABP.setValue(ABPrate/2)
@@ -186,13 +187,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.forBytes.setValue(forRate)
         self.aftBytes.setValue(aftRate)
 
-        if (forRate < 400 or aftRate < 400):
-            self.setGauge('DRX', 2)
-        else:
-            if (forRate < 800 or aftRate < 800):
-                self.setGauge('DRX', 1)
-            else:
-                self.setGauge('DRX', 0)
+        self.setGauge('DRX', drxStatus)
 
     ###############################################################################
     def headerSelected(self):

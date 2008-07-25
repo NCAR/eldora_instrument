@@ -185,16 +185,58 @@ def status():
     # determine the DRX status and rates.
     try:
         r = drxrpc.server.status()
+        # Get the clock offset in dwells, then remove that entry
+        # from the dictionary, leaving just the 16 channel rates
+        clockOffsetInDwells = r['clockOffsetInDwells']
+        del r['clockOffsetInDwells']
+        
         keys = sorted(r.keys())
-        rates = []
+        drxRates = []
+        chanCount = 0
+        drxForeRate = 0.0
+        drxAftRate = 0.0
         for k in keys:
             # convert rate from MB/s to KB/s and save
-            rates.append(r[k]*1000.0)
+            rate = r[k] * 1000.0
+            drxRates.append(rate)
+            if (chanCount < 8):
+                drxForeRate += rate
+            else:
+                drxAftRate += rate
+            chanCount += 1
+
+        # Default to green status
+        drxStatus = 0
+        
+        # If either rate is less than 800 KB/s, or if clock offset is
+        # more than 0.2 dwells (or is infinite, which means offset is
+        # not determined), go to yellow status
+        inf = float('inf')
+        if (drxForeRate < 800 or drxAftRate < 800 or clockOffsetInDwells > 0.2):
+            drxStatus = 1
+            
+        if (clockOffsetInDwells == inf):
+            drxStatus = 1
+            main.logText('DRX clock offset is uncertain.  If NTP was just ' +
+                         'started on the drx, wait a few minutes.')
+            main.logText('If this persists, you may need to restart NTP on ' +
+                         'the drx')
+        # If either rate is less than 400 KB/s, or if clock offset is known
+        # and is more than 0.5 dwells, go to red status
+        if (drxForeRate < 400 or drxAftRate < 400):
+            drxStatus = 2
+        if (clockOffsetInDwells > 0.5 and clockOffsetInDwells != inf):
+            drxStatus = 2
+            main.logText('DRX clock is offset by ' + str(clockOffsetInDwells) +
+                         ' dwells!')
+            main.logText('Make sure the time server is locked, and restart ' +
+                         'ntpd on the drx.')
+
     except Exception, e:
         print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
-        rates = []
+        drxRates = []
         for i in range(16):
-            rates.append(0)
+            drxRates.append(0)
 
     # get status from the housekeeper if we aren't running in fake housekeeping
     # mode        
@@ -231,7 +273,8 @@ def status():
                     archiver1Status=archiver1Status,
                     archiver2Rate=archiver2Rate,
                     archiver2Status=archiver2Status,
-                    rates=rates)
+                    drxStatus=drxStatus,
+                    drxRates=drxRates)
 
 ####################################################################################
 #Return (rate, status) from the given archiver RPC
