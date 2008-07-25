@@ -23,6 +23,7 @@ public:
     short getNSegments() { return _numSegments; }
     const short* getNCells() { return _cellsInSegment; }
     const short* getCellSpacing() { return _spacing; }
+    short getDistToFirstGate() { return _distToFirstGate; }
     
     short getTotalNCells() { 
         int nCells = 0;
