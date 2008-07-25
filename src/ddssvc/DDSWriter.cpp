@@ -240,7 +240,8 @@ DDSWriter<WRITERSIG2>::waitForItem() {
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
-        const DDS::OfferedDeadlineMissedStatus&) {
+        const DDS::OfferedDeadlineMissedStatus&)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) {
     std::cout << "DDSWriter: offered deadline missed for topic " << 
         _topicName << std::endl;
 }
@@ -250,7 +251,9 @@ DDSWriter<WRITERSIG2>::on_offered_deadline_missed(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
-        const DDS::OfferedIncompatibleQosStatus& status) {
+        const DDS::OfferedIncompatibleQosStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException ))
+{
     std::cout << "DDSWRiter: incompatible QoS was offered for topic " << 
         _topicName << std::endl;
 }
@@ -260,7 +263,8 @@ DDSWriter<WRITERSIG2>::on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_liveliness_lost(DDS::DataWriter_ptr writer,
-        const DDS::LivelinessLostStatus& status) {
+        const DDS::LivelinessLostStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) {
     std::cout << "DDSWriter: liveliness lost for topic " << _topicName << 
         std::endl;
 }
@@ -270,7 +274,9 @@ DDSWriter<WRITERSIG2>::on_liveliness_lost(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_publication_match(DDS::DataWriter_ptr writer,
-        const DDS::PublicationMatchStatus& status) {
+        const DDS::PublicationMatchStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) {
+
     std::cout << "DDSWriter: Got new subscriber for topic " << _topicName <<
         " (id " << status.last_subscription_handle << ")" << std::endl;
 }
@@ -280,7 +286,9 @@ DDSWriter<WRITERSIG2>::on_publication_match(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_publication_disconnected(DDS::DataWriter_ptr writer,
-        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status) {
+        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) 
+{
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
     std::cout << "DDSWriter: subscriber disconnected from topic " << 
         _topicName << " (id ";
@@ -296,7 +304,9 @@ DDSWriter<WRITERSIG2>::on_publication_disconnected(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_publication_reconnected(DDS::DataWriter_ptr writer,
-        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status) {
+        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) 
+{
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
     std::cout << "DDSWriter: subscriber reconnected to topic " << 
         _topicName << " (id ";
@@ -312,7 +322,9 @@ DDSWriter<WRITERSIG2>::on_publication_reconnected(DDS::DataWriter_ptr writer,
 template<WRITERSIG1>
 void 
 DDSWriter<WRITERSIG2>::on_publication_lost(DDS::DataWriter_ptr writer,
-        const ::OpenDDS::DCPS::PublicationLostStatus& status) {
+        const ::OpenDDS::DCPS::PublicationLostStatus& status)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) 
+{
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
     std::cout << "DDSWriter: subscriber lost for topic " << _topicName << 
         " (id ";
@@ -327,7 +339,9 @@ DDSWriter<WRITERSIG2>::on_publication_lost(DDS::DataWriter_ptr writer,
 
 template<WRITERSIG1>
 void 
-DDSWriter<WRITERSIG2>::on_connection_deleted(DDS::DataWriter_ptr writer) {
+DDSWriter<WRITERSIG2>::on_connection_deleted(DDS::DataWriter_ptr writer)
+    ACE_THROW_SPEC (( ::CORBA::SystemException )) 
+{
     std::cout << "DDSWriter: a connection was deleted for topic " << 
         _topicName << std::endl;
 }

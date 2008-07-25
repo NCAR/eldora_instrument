@@ -89,27 +89,35 @@ public:
 	void terminate();
 
 	virtual void on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
-	        const DDS::OfferedDeadlineMissedStatus&);
+	        const DDS::OfferedDeadlineMissedStatus&)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
 	virtual void on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
-	        const DDS::OfferedIncompatibleQosStatus& status);
+	        const DDS::OfferedIncompatibleQosStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 	
 	virtual void on_liveliness_lost(DDS::DataWriter_ptr writer,
-	        const DDS::LivelinessLostStatus& status);
+	        const DDS::LivelinessLostStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 	
 	virtual void on_publication_match(DDS::DataWriter_ptr writer,
-	        const DDS::PublicationMatchStatus& status);
+	        const DDS::PublicationMatchStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 	
 	virtual void on_publication_disconnected(DDS::DataWriter_ptr writer,
-	        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status);
+	        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
 	virtual void on_publication_reconnected(DDS::DataWriter_ptr writer,
-	        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status);
+	        const ::OpenDDS::DCPS::PublicationReconnectedStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
     virtual void on_publication_lost(DDS::DataWriter_ptr writer,
-            const ::OpenDDS::DCPS::PublicationLostStatus& status);
+            const ::OpenDDS::DCPS::PublicationLostStatus& status)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
-	virtual void on_connection_deleted(DDS::DataWriter_ptr writer);
+	virtual void on_connection_deleted(DDS::DataWriter_ptr writer)
+            ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
 private:
 	/// block on _condition until the _inQueue is not empty.
