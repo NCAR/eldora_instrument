@@ -330,9 +330,9 @@ Edited by Tom 1/30/08
  
     /* Start the interrupts from the ieee-488 board */ 
     printf("Starting the IEEE-488 Power Meter Interface\n");
-    if (! start_ieee())
-    	printf("*** Power meter start failed; meter interrupts are disabled. ***\n");
-
+//    if (! start_ieee())
+//    	printf("*** Power meter start failed; meter interrupts are disabled. ***\n");
+    printf("Power Meter Communication Disabled!\n");
 
     /* Start the radar proccessors over the vme to vme interfaces */
     /* Note: the radar processors should always be the very last things
