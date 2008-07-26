@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>1251</width>
-    <height>876</height>
+    <height>916</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -237,17 +237,14 @@ p, li { white-space: pre-wrap; }
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_2" >
-              <property name="text" >
-               <string>Block size</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <item row="3" column="1" >
+             <widget class="QComboBox" name="_gateNumber" >
+              <property name="toolTip" >
+               <string>Select the gate for the one gate display.</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" >
+            <item row="3" column="0" >
              <widget class="QLabel" name="label" >
               <property name="text" >
                <string>Gate Number</string>
@@ -257,7 +254,7 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="0" column="0" >
+            <item row="1" column="0" >
              <widget class="QRadioButton" name="_alongBeam" >
               <property name="toolTip" >
                <string>Display for all gates along a beam.</string>
@@ -267,7 +264,7 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="0" column="1" >
+            <item row="1" column="1" >
              <widget class="QRadioButton" name="_oneGate" >
               <property name="toolTip" >
                <string>Display values for one gate over time.</string>
@@ -277,17 +274,20 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="1" column="1" >
-             <widget class="QComboBox" name="_gateNumber" >
-              <property name="toolTip" >
-               <string>Select the gate for the one gate display.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" >
+            <item row="4" column="1" >
              <widget class="QComboBox" name="_blockSizeCombo" >
               <property name="toolTip" >
                <string>Set the number of samples for one gate mode.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="label_2" >
+              <property name="text" >
+               <string>Block size</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -334,6 +334,24 @@ p, li { white-space: pre-wrap; }
          <property name="spacing" >
           <number>6</number>
          </property>
+         <item>
+          <widget class="QCheckBox" name="_windowButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>1</hsizetype>
+             <vsizetype>1</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Pause the display.</string>
+           </property>
+           <property name="text" >
+            <string>Windowing</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QCheckBox" name="_pauseButton" >
            <property name="sizePolicy" >

@@ -88,6 +88,7 @@ EldoraScope::EldoraScope(
     connect(_dn, SIGNAL(released()), this, SLOT(dnSlot()));
     connect(_saveImage, SIGNAL(released()), this, SLOT(saveImageSlot()));
     connect(_pauseButton, SIGNAL(toggled(bool)), this, SLOT(pauseSlot(bool)));
+    connect(_windowButton, SIGNAL(toggled(bool)), this, SLOT(windowSlot(bool)));
     connect(_gateNumber, SIGNAL(activated(int)), this, SLOT(gateChoiceSlot(int)));
     connect(_xGrid, SIGNAL(toggled(bool)), _scopePlot, SLOT(enableXgrid(bool)));
     connect(_yGrid, SIGNAL(toggled(bool)), _scopePlot, SLOT(enableYgrid(bool)));
@@ -136,6 +137,7 @@ EldoraScope::EldoraScope(
 
     // The initial plot type will be I and Q timeseries
     plotTypeSlot(TS_TIMESERIES_PLOT);
+    
 
     // start the statistics timer
     startTimer(_statsUpdateInterval*1000);
@@ -182,6 +184,9 @@ void EldoraScope::initFFT() {
         FFTW_FORWARD, 
         FFTW_ESTIMATE);
     }
+    
+    // create the hamming coefficients
+    hammingSetup();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -359,8 +364,8 @@ double EldoraScope::powerSpectrum(
     }
 
     // apply the hamming window to the time series
-    //  if (_doHamming)
-    //    doHamming();
+    if (_doHamming)
+        doHamming();
 
     // caclulate the fft
     fftw_execute(_fftwPlan[_blockSizeIndex]);
@@ -862,7 +867,13 @@ void EldoraScope::gateChoiceSlot(
 //////////////////////////////////////////////////////////////////////
 void EldoraScope::blockSizeSlot(
         int index) {
-    _blockSizeIndex = index;
+    
+	_blockSizeIndex = index;
+
+    // recalculate the hamming coefficients. _blockSizeIndex
+	// must be set correctly before calling this
+    hammingSetup();
+
     dataMode();
 }
 
@@ -880,4 +891,37 @@ double EldoraScope::zeroMomentFromTimeSeries(
     p /= n;
     p = 10.0*log10(p);
     return p;
+}
+
+////////////////////////////////////////////////////////////////////////
+void
+EldoraScope::doHamming() {
+	
+  int blockSize = _blockSizeChoices[_blockSizeIndex];
+
+  for (int i = 0; i < blockSize; i++) {
+    _fftwData[_blockSizeIndex][i][0] *= _hammingCoefs[i];
+    _fftwData[_blockSizeIndex][i][1] *= _hammingCoefs[i];
+  }
+}
+////////////////////////////////////////////////////////////////////////
+
+void
+EldoraScope::hammingSetup() {
+	
+   int blockSize = _blockSizeChoices[_blockSizeIndex];
+    
+  _hammingCoefs.resize(blockSize);
+
+  for (int i = 0; i < blockSize; i++) {
+    _hammingCoefs[i] = 0.54 - 0.46*(cos(2.0*M_PI*i/(blockSize-1)));
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////
+
+void
+EldoraScope::windowSlot(bool flag) {
+	_doHamming = flag;
 }

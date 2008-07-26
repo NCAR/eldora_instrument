@@ -208,6 +208,8 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         /// @param The block size. It must be a power of two.
         void blockSizeSlot(
                 int);
+        /// Enable/disable windowing
+        void windowSlot(bool);
 
     protected:
         /// Initialize the fft calculations. The minimum and
@@ -223,6 +225,10 @@ class EldoraScope : public QDialog, public Ui::EldoraScope {
         void dataMode();
         /// Send the data for the current plot type to the ScopePlot.
         void displayData();
+        /// setup the hamming coefficients
+        void hammingSetup();
+        /// apply the hamming filter
+        void doHamming();
         ///	cumulative error count
         int _errorCount[3];
         ///  last pulse number
