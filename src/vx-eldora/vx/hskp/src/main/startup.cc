@@ -134,7 +134,6 @@ public:
         retval["aftRate"] = hskpSendRate;
         // Return the CRC-32 checksum (cast into a signed int)
         retval["headerChecksum"] = *(int*)&headerChecksum;
-headerChecksum;
         // Return the map
         result = retval;
     }
@@ -153,14 +152,17 @@ public:
 
     void execute(XmlRpcValue& params, XmlRpcValue& result)
     {
-        XmlRpc::XmlRpcValue retval;
-        drxForeTPFreqNum = short(int(params["forward"]["freqnum"]));
-        drxForeTPAtten = short(int(params["forward"]["atten"]));
-        drxForeTPFreq = float(double(params["forward"]["freq"]));
-        drxAftTPFreqNum = short(int(params["aft"]["freqnum"]));
-        drxAftTPAtten = short(int(params["aft"]["atten"]));
-        drxAftTPFreq = float(double(params["aft"]["freq"]));
-        result = 0;
+    	std::cout << "<B> Got testpulse command" << std::endl;
+    	short freqNum = short(int(params[0][0]));
+    	std::cout << "freq num " << freqNum << std::endl;
+    	drxForeTPFreqNum = freqNum;
+        drxForeTPAtten = short(int(params[0][1]));
+        std::cout << "fore attenuation " << drxForeTPAtten << std::endl;
+//        drxForeTPFreq = float(double(params[0][2]));
+//        drxAftTPFreqNum = freqNum;
+//        drxAftTPAtten = short(int(params[0][3]));
+//        drxAftTPFreq = float(double(params[0][4]));
+//        result = XmlRpc::XmlRpcValue(0);
     }
 } testPulseMethod(&Svr);
 
