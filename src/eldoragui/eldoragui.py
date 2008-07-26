@@ -523,8 +523,8 @@ def startArchivers():
         proc = ourProcesses[key]
         QObject.connect(proc, SIGNAL("text"), main.logText)
         proc.start()
-        # Give it a moment to actually start before we start another one
-        time.sleep(1)
+        # Give them a moment to actually start
+        time.sleep(2)
 
 ####################################################################################
 def sendHeader():
