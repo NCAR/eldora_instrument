@@ -257,7 +257,7 @@ bool RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 		gaussianLoaded = true;
 		std::cout << "gaussian coeffs:\n";
 		for (unsigned int i = 0; i< gaussian.size(); i++) {
-			//std::cout << "    " << gaussian[i] << "\n";
+			std::cout << "    " << i << " " << gaussian[i] << std::endl;
 
 			unsigned int readBack;
 			int ramAddr = i%12;
@@ -996,7 +996,7 @@ int RR314::filterSetup() {
 			gaussian = g;
 		}
 	} else {
-		BuiltinGaussian g;
+		BuiltinGaussian builtins;
 	    // The pulsewidth in microseconds. It must match one of those
 	    // available in BuiltinGaussian.
 	    double pulseWidthUs = 1.00;
@@ -1034,7 +1034,13 @@ int RR314::filterSetup() {
 					<< pulseWidthUs << " uS pulse\n";
 			break;
 		}
-		gaussian = FilterSpec(g[pulseWidthUs]);
+		if (builtins.find(pulseWidthUs) == builtins.end()) {
+			std::cerr << "No entry for " << pulseWidthUs << 
+				" us pulsewidth in list of builtin Gaussian filters!" << 
+				std::endl;
+			abort();
+		}
+		gaussian = FilterSpec(builtins[pulseWidthUs]);
 	    std::cout << "Gaussian filter programmed for a " << pulseWidthUs << " uS pulse\n";
 	}
 
