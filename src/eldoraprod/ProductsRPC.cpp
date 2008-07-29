@@ -1,5 +1,6 @@
 #include "ProductsRPC.h"
 #include <iostream>
+#include <cstdlib>
 #include <map>
 #include <string>
 #include <sstream>
