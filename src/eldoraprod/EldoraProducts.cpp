@@ -4,7 +4,7 @@
 
 /// Macro used to apply scale and bias to convert to 16 bit 
 /// integer int for on-the-wire transfer
-#define TOSHORT(data, scale, bias) ((short)(data*scale+bias))
+#define TOSHORT(data, scale, bias) ((unsigned short)(data*scale+bias))
 
 /// A squaring function
 #define square(a) (a*a)
@@ -130,6 +130,20 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
             products->vs[g] = TOSHORT(_terms.Vs[g], products->vsScale, products->vsOffset);
             products->vl[g] = TOSHORT(_terms.Vl[g], products->vlScale, products->vlOffset);
             products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
+        
+            if (g == -1) {
+            	std::cout << "vr   "
+                << (unsigned short)products->vr[g] << "  "
+                << _terms.Vr[g] << "  "
+                << products->vrScale << "  "
+                << products->vrOffset << "\n";
+            	
+            	std::cout << "dbz  "
+                << (unsigned short)products->dbz[g] << "  "
+                << _terms.Dbz[g] << "  "
+                << products->dbzScale << "  "
+                << products->dbzOffset << "\n";
+            }
         }
 		        
         // Publish the products
@@ -278,7 +292,7 @@ void EldoraProducts::reflectivity(RayData& rays)
             _terms.Dbz[g] =_terms.radarConstant + 10.0*log10(p)
                 + _terms.r[g];
         else {
-            std::cerr << "taking log of negative in relectivity!\n";
+            //std::cerr << "taking log of negative in relectivity!\n";
             _terms.Dbz[g] = -999.0;
         }
     }
@@ -357,6 +371,17 @@ void EldoraProducts::unfoldVelocity() {
         double corr = correction[index];
         double sumPhase = fiveFourths*_terms.phaseShort[g] + _terms.phaseLong[g];
        _terms.Vr[g] = _terms.VscaleLong*(sumPhase/2.0 + corr);
+       if (g == -1) {
+    	   std::cout 
+    	   << " index:" << index
+    	   << " corr:" << corr
+    	   << " phaseShort:" << _terms.phaseShort[g]
+    	   << " phaseLong:" << _terms.phaseLong[g]
+    	   << " VscaleLong:" << _terms.VscaleLong
+    	   << " sumPhase:" << sumPhase
+    	   << " Vr:" << _terms.Vr[g]
+    	   << "\n";
+       }
     }
 }
 ////////////////////////////////////////////////////
@@ -521,7 +546,7 @@ void EldoraProducts::initTerms(RayData& rays)
                 _dualPrt);
 
     _scaling.dmScale  = 100.0;  
-    _scaling.dmBias   = 11500.0;
+    _scaling.dmBias   = 13500.0;
     
     _scaling.pScale   = 100.0;
     _scaling.pBias    = 9000.0;
