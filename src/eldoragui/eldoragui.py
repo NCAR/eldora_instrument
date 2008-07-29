@@ -234,7 +234,7 @@ def status():
 
     except Exception, e:
         print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
-	drxStatus = 2
+        drxStatus = 2
         drxRates = []
         for i in range(16):
             drxRates.append(0)
@@ -906,6 +906,11 @@ def testPulseChange(params):
     params - need to define what they are, and how the housekeeper wants 
     to receive them.
     '''
+    
+    # don't send the testpulse information to the housekeeper right now,
+    # becasue the housekeeper hangs.
+    return
+    
     try:
         hskprpc.server.testpulse(params)
     except Exception, e:
