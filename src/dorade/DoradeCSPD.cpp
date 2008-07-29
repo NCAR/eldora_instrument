@@ -1,6 +1,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cassert>
+#include <cstring>
 #include "DoradeCSPD.h"
 
 /**

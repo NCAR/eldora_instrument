@@ -1,5 +1,6 @@
 #include <cassert>
 #include <sstream>
+#include <cstring>
 #include <arpa/inet.h>
 #include "DoradeDescriptor.h"
 

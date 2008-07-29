@@ -2,6 +2,7 @@
 #define DORADEFRAD_H_
 
 #include <string>
+#include <cstring>
 #include "DoradeDescriptor.h"
 
 /**
