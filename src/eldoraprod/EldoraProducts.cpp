@@ -257,7 +257,7 @@ void EldoraProducts::signalPower(RayData& rays)
                 _terms.Psigl_k[k][g] = pkl;
                 sumLong += _terms.Psigl_k[k][g];
 
-                _terms.Psig_k[k][g] = (pks+pkl)/2 - _terms.b10_k[k];
+                _terms.Psig_k[k][g] = (pks+pkl)/2;
             }
 
             _terms.Psigs[g] = sumShort/4.0;
@@ -445,10 +445,6 @@ void EldoraProducts::spectrumWidth(RayData& rays)
             	 term = 1.0;
              }
              _terms.W[g] = _terms.Wscale*sqrt(log(term));
-             //} else {
-             //    // @tod need to get the nyquist velocity in here
-             //    _terms.W[g] = _terms.Vscale*M_PI;
-             //}
          }
          break;
 
@@ -462,15 +458,18 @@ void EldoraProducts::spectrumWidth(RayData& rays)
              double asumLong = _terms.SumA[1][g] / 4.0;
              double bsumLong = _terms.SumB[1][g] / 4.0;
              double denomLong = sqrt(square(asumLong) + square(bsumLong));
-             
-              if (_terms.Psigs[g] >= denomShort && _terms.Psigl[g] >= denomLong ) {
-                  double termShort = _terms.Psigs[g] / denomShort;
-                  double termLong = _terms.Psigl[g] / denomLong;
-                  _terms.W[g] = _terms.WscaleShort*sqrt(log(termShort)) + _terms.WscaleLong*sqrt(log(termLong));
-              } else {
-                  // @tod need to get the nyquist velocity in here
-                  _terms.W[g] = ((_terms.VscaleShort + _terms.VscaleLong)/2.0)*M_PI;
-              }
+             double termShort;
+             double termLong;
+             if (_terms.Psigs[g] >= denomShort && _terms.Psigl[g] >= denomLong ) {
+                  termShort = _terms.Psigs[g] / denomShort;
+                  termLong = _terms.Psigl[g] / denomLong;
+             } else {
+            	  termShort = 1.0;
+            	  termLong = 1.0;
+             }           
+              
+              _terms.W[g] = _terms.WscaleShort*sqrt(log(termShort)) + _terms.WscaleLong*sqrt(log(termLong));
+
           }
          break;
      }
@@ -488,8 +487,14 @@ void EldoraProducts::ncp(RayData& rays)
         break;
     case true:
         for (int g = 0; g < _gates; g++) {
-            _terms.Ncp[g] = sqrt(square(_terms.SumA[0][g]/4.0)+square(_terms.SumB[0][g]/4.0))/(_terms.SumP[0][g]/4.0);
-            _terms.Ncp[g] += sqrt(square(_terms.SumB[1][g]/4.0)+square(_terms.SumB[1][g]/4.0))/(_terms.SumP[1][g]/4.0);
+        	_terms.Ncp[g] = 0.0;
+        	
+            _terms.Ncp[g] += sqrt(square(_terms.SumA[0][g]/4.0) + square(_terms.SumB[0][g]/4.0))
+            		             / (_terms.SumP[0][g]/4.0);
+            
+            _terms.Ncp[g] += sqrt(square(_terms.SumA[1][g]/4.0)+square(_terms.SumB[1][g]/4.0))
+                                 /(_terms.SumP[1][g]/4.0);
+            
             _terms.Ncp[g] /= 2.0;
         }        
         break;
