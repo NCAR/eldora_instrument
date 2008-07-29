@@ -370,6 +370,9 @@ def startDcps():
 	if Verbose: print 'start_DCPS - we are not configured to start DCPS'
         return
 
+    # just go ahead and kill DCPS. Old running instances have 
+    # turned out to cause a lot of heartburn.
+    pkill('DCPSInfoRepo')
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
