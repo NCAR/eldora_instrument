@@ -80,7 +80,7 @@ void EldoraQtProductsSource::notify() {
                         // copy all P in the beam.
                         double* pP = &P[0];
                         for (unsigned int i = 0; i < productSize; i++) {
-                            pP[i] = (product[i] - offset)/gain;
+                            pP[i] = (((unsigned short)product[i]) - offset)/gain;
                         }
                        // send the Pbeam to our client.
                         emit newPData(P, 
@@ -124,7 +124,7 @@ void EldoraQtProductsSource::notify() {
                         if (P.size() != _pointsPerGate) {
                             P.resize(_pointsPerGate);
                         }
-                        P[_pointCounter] = (product[_gate]+offset)/gain;
+                        P[_pointCounter] = (((unsigned short)product[_gate])+offset)/gain;
                         _pointCounter++;
                         if (_pointCounter == _pointsPerGate) {
                             // a set of P points have been collected.
