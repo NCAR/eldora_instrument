@@ -602,24 +602,28 @@ int calculate_parameter()
             else if (!strncmp(parameter[i][FORE].parameter_name, "VR", 2)) {
                 if (radar[FORE].num_ipps_trans == 1) {
                     parameter[i][FORE].parameter_scale = 1.0/RES;
-                    parameter[i][FORE].parameter_bias = v_unambigs/RES;
+     //               parameter[i][FORE].parameter_bias = v_unambigs/RES;
+                    parameter[i][FORE].parameter_bias = 32767; /* max offset */
                 }
                 if (radar[FORE].num_ipps_trans == 2) {
                     parameter[i][FORE].parameter_scale = 1.0/RES;
-                    parameter[i][FORE].parameter_bias = v_unambigl*5.0/RES;
+     //               parameter[i][FORE].parameter_bias = v_unambigl*5.0/RES;
+                    parameter[i][FORE].parameter_bias = 32767; /* max offset */
                 }
             }
 
             /* Velocity? VS */
             else if (!strncmp(parameter[i][FORE].parameter_name, "VS", 2)) {
                 parameter[i][FORE].parameter_scale = 1.0/RES;
-                parameter[i][FORE].parameter_bias = v_unambigs/RES;
+//                parameter[i][FORE].parameter_bias = v_unambigs/RES;
+                parameter[i][FORE].parameter_bias = 32767; /* max offset */
             }
 
             /* Velocity? VL */
             else if (!strncmp(parameter[i][FORE].parameter_name, "VL", 2)) {
                 parameter[i][FORE].parameter_scale = 1.0/RES;
-                parameter[i][FORE].parameter_bias = v_unambigl/RES;
+//                parameter[i][FORE].parameter_bias = v_unambigl/RES;
+                parameter[i][FORE].parameter_bias = 32767; /* max offset */
             }
 
             /* Normalized Coherent Power ? */
@@ -630,7 +634,7 @@ int calculate_parameter()
             /* Reflectivity ? */
             else if (!strncmp(parameter[i][FORE].parameter_name, "DBZ", 3)) {
                 parameter[i][FORE].parameter_scale = 10.0;
-                parameter[i][FORE].parameter_bias = 350.0;
+                parameter[i][FORE].parameter_bias = 600.0;
             } else {
                 parameter[i][FORE].parameter_scale = -999.0;
                 parameter[i][FORE].parameter_bias = -999.0;
@@ -676,24 +680,31 @@ int calculate_parameter()
             else if (!strncmp(parameter[i][AFT].parameter_name, "VR", 2)) {
                 if (radar[AFT].num_ipps_trans == 1) {
                     parameter[i][AFT].parameter_scale = 1.0/RES;
-                    parameter[i][AFT].parameter_bias = v_unambigs/RES;
+ //                   parameter[i][AFT].parameter_bias = v_unambigs/RES;
+                    parameter[i][AFT].parameter_bias = 32767; /* max offset */
                 }
                 if (radar[AFT].num_ipps_trans == 2) {
                     parameter[i][AFT].parameter_scale = 1.0/RES;
-                    parameter[i][AFT].parameter_bias = v_unambigl*5.0/RES;
+//                    parameter[i][AFT].parameter_bias = v_unambigl*5.0/RES;                   
+                    parameter[i][AFT].parameter_bias = 32767; /* max offset */
+                    
                 }
             }
 
             /* Velocity? VS */
             else if (!strncmp(parameter[i][AFT].parameter_name, "VS", 2)) {
                 parameter[i][AFT].parameter_scale = 1.0/RES;
-                parameter[i][AFT].parameter_bias = v_unambigs/RES;
+//                parameter[i][AFT].parameter_bias = v_unambigs/RES;
+                parameter[i][AFT].parameter_bias = 32767; /* max offset */
+
             }
 
             /* Velocity? VL */
             else if (!strncmp(parameter[i][AFT].parameter_name, "VL", 2)) {
                 parameter[i][AFT].parameter_scale = 1.0/RES;
-                parameter[i][AFT].parameter_bias = v_unambigl/RES;
+//                parameter[i][AFT].parameter_bias = v_unambigl/RES;
+                parameter[i][AFT].parameter_bias = 32767; /* max offset */
+
             }
 
             /* Normalized Coherent Power ? */
@@ -704,7 +715,7 @@ int calculate_parameter()
             /* Reflectivity ? */
             else if (!strncmp(parameter[i][AFT].parameter_name, "DBZ", 3)) {
                 parameter[i][AFT].parameter_scale = 10.0;
-                parameter[i][AFT].parameter_bias = 350.0;
+                parameter[i][AFT].parameter_bias = 600.0;
             } else {
                 parameter[i][AFT].parameter_scale = -999.0;
                 parameter[i][AFT].parameter_bias = -999.0;
