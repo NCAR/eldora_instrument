@@ -648,6 +648,8 @@ void RR314::newABPData(int* src, int chan, int n) {
 	assert((chan & 1) && (chan < 8));
 
 	RRABPBuffer* pBuf = _currentABPBuffer[chan];
+	
+	double samples = _radarParams.wave_seqrep;
 
 	// loop through all src data
 	unsigned int nextData;
@@ -686,13 +688,15 @@ void RR314::newABPData(int* src, int chan, int n) {
 			break;
 		default:
 			nextData = pBuf->_posInRay - 3;
-			// A and B scaled by full scale
+			// A and B scaled by full scale.
 			if (((nextData) % 3) < 2) {
-				pBuf->_abp[nextData] = src[i]*ABSCALE;
+  			    //pBuf->_abp[nextData] = src[i]*ABSCALE*64/samples;
+                pBuf->_abp[nextData] = src[i]*ABSCALE;
 			} else {
 				// P is actually unsigned...
 				unsigned int* usrc = (unsigned int*)src;
-				pBuf->_abp[nextData] = usrc[i]*PSCALE;
+                //pBuf->_abp[nextData] = usrc[i]*PSCALE*64/samples;
+                pBuf->_abp[nextData] = usrc[i]*PSCALE;
 			}
 			pBuf->_posInRay++;
 			if (++nextData == pBuf->_abp.size()) {
