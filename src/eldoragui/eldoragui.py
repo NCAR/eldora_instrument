@@ -234,6 +234,7 @@ def status():
 
     except Exception, e:
         print ("Error contacting drx RPC (%s) for status: %s"%(drxrpc.URI,str(e)))
+	drxStatus = 2
         drxRates = []
         for i in range(16):
             drxRates.append(0)
