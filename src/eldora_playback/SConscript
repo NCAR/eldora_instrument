@@ -1,0 +1,31 @@
+import os
+tools = ['dorade', 'ddssvc', 'qtt_qtconfig', 'utilities', 'boost_program_options']
+env = Environment(tools = ['default'] + tools)
+
+# libraries:
+libs = Split("""
+ReliableMulticast 
+SimpleUnreliableDgram 
+SimpleTcp
+OpenDDS_Dcps
+TAO_PortableServer
+TAO_AnyTypeCode
+dl
+rt
+""")
+env.Append(LIBS = libs)
+
+sources = Split('''
+main.cpp
+EldoraPlaybackMain.cpp
+EldoraProducts.cpp
+''')
+
+# build eldoraprod
+eldoraplayback = env.Program('eldoraplayback', sources)
+inst = env.InstallProgram(eldoraplayback)
+
+env.Default(eldoraplayback)
+env.Alias('install',inst)
+
+
