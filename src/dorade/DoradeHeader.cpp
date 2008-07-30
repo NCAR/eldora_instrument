@@ -6,7 +6,8 @@
 # include "DoradeHeader.h"
 
 
-DoradeHeader::DoradeHeader(std::string fileName) throw(BadHeaderException) {
+DoradeHeader::DoradeHeader(std::string fileName, bool littleIn, bool fortranBlocking ) throw(BadHeaderException) {
+    
     std::ifstream infile(fileName.c_str());
     if (infile.fail())
         throw BadHeaderException(std::string() + "Failed to open header '" + 
@@ -22,13 +23,34 @@ DoradeHeader::DoradeHeader(std::string fileName) throw(BadHeaderException) {
     infile.close();
     
     unsigned char* data = buf;
-    int datalen = length;
+    unsigned char* ublock = (unsigned char*)buf;
+    unsigned int blocksize;
+    
 
-    bool littleIn = false;  // incoming data little-endian?
+    int datalen = length;
+    // if we're dealing with a Fortran blocked file - e.g. an Eldora
+    // Archive, we need to skip the record size (4 byte) before and after
+    // every record
+    // however, it seems safe to assume that the entire DORADE HEADER is
+    // contained in a single Fortran Blocked record, so we only have to
+    // skip a single 4 byte block length
+    
+    
+    int fortranBlockSize = 0;
+    if (fortranBlocking) {
+        fortranBlockSize = 4;
+        // decode the big-endinan record size
+        blocksize = (ublock[0] << 24) | (ublock[1] << 16) | 
+                (ublock[2] << 8) | ublock[3];
+        std::cerr << "blocksize = " << blocksize << std::endl;
+        data += fortranBlockSize;
+        datalen -= fortranBlockSize;
+    }
+    
     
     try {
         _vold = new DoradeVOLD(data, datalen, littleIn);
-        data += _vold->getDescLen();
+        data += _vold->getDescLen() ;
         datalen -= _vold->getDescLen();
 
         _wave = new DoradeWAVE(data, datalen, littleIn);
@@ -54,7 +76,6 @@ DoradeHeader::DoradeHeader(std::string fileName) throw(BadHeaderException) {
                 datalen -= _parm[r][p]->getDescLen();
             }
         }
-
         _ndds = new DoradeNDDS(data, datalen, littleIn);
         data += _ndds->getDescLen();
         datalen -= _ndds->getDescLen();

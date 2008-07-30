@@ -29,14 +29,14 @@
 class DoradeHeader {
 public:
     /**
-     * Class for exceptions from the DoradeHeader constructor.
+     * Class for exceptions from the DoradeHeader construc:tor.
      */
     class BadHeaderException : public std::string {
     public:
         BadHeaderException(std::string msg) : std::string(msg) {}
     };
     // Construct from a header file
-    DoradeHeader(std::string fileName) throw(BadHeaderException);
+    DoradeHeader(std::string fileName, bool littleIn = false, bool fortranBlocking= false) throw(BadHeaderException);
     
     ~DoradeHeader();
     

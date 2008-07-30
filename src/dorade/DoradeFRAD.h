@@ -70,6 +70,8 @@ public:
      * @return the array of short data from the FRAD.
      */
     const short* getShortData() const { return _shortData; }
+    int getSizeShortData() const { return _nShortData; }
+    
     
     /**
      * Add an array of strictly two-byte data to the FRAD.  The order of 

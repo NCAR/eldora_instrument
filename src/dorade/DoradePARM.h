@@ -25,7 +25,11 @@ public:
     
     // accessor methods
     // @TODO add accessor methods
-    std::string getParamName() { return _name; }
+    // nobody wants a blank filled name
+    std::string getParamName() {
+        _name.erase(_name.find_last_not_of(' ') + 1); return _name; }
+    float getScale() { return _scale; }
+    float getOffset() { return _offset; }
     int getParamType() { return _paramType; }
     
     std::ostream& printTo(std::ostream& stream) const;
