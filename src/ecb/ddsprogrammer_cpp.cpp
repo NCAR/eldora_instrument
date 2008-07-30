@@ -1,7 +1,8 @@
 //Drew Leung with help by Charlie Martin
 //June 21/22/23/26, 2007
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include "dds.h"
 #include "ddsmenu.h"
