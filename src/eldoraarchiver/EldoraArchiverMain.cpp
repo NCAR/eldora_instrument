@@ -51,8 +51,9 @@ public:
 
     void execute(XmlRpcValue& params, XmlRpcValue& result)
     {
-        std::string hdrFileName(EldoraConfigDir + std::string(params[0]));
-        EldoraArchiver::TheArchiver()->loadHeader(hdrFileName);
+        std::string hdrFileName(EldoraConfigDir + std::string(params[0][0]));
+        std::string flightName = std::string(params[0][1]);
+        EldoraArchiver::TheArchiver()->loadHeader(hdrFileName, flightName);
         // cast the unsigned checksum into a signed int
         // Return the CRC-32 checksum (cast into a signed int) as our result.
         // We hijack zero to use as a failure indicator.

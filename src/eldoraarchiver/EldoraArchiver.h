@@ -36,8 +36,9 @@ public:
     
     /// Load the named ELDORA header.
     /// @param hdrFileName the name of the header to be loaded
+    /// @param flightName the flight/IOP name to use for this header
     /// @return true iff the header was loaded successfully
-    bool loadHeader(std::string hdrFileName);
+    bool loadHeader(std::string hdrFileName, std::string flightName);
     
     /// Return the unsigned 32-bit checksum for the current header, or zero 
     /// if we do not have a valid header.

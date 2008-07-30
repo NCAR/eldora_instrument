@@ -579,7 +579,9 @@ def sendHeader():
     # necessary to interpret as unsigned.  Zero is returned on error.
     for rpc in [archiver1rpc, archiver2rpc]:
         try:
-            r = rpc.server.Header(os.path.basename(main.selectedHeader.headerFile))
+            # @todo: Change to use a real flight name
+            r = rpc.server.Header([os.path.basename(main.selectedHeader.headerFile),
+                                   'ChangeMe'])
             if (r < 0):
                 r = (1 << 32) + r
             if (r != main.selectedHeader.checksum):

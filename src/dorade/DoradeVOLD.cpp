@@ -128,6 +128,14 @@ DoradeVOLD::setGenerationDate(date genDate) {
     _genDay = genDate.day();
 }
 
+void
+DoradeVOLD::setFlightOrIOP(std::string flightOrIOP) {
+    _flightOrIOP = flightOrIOP;
+    // truncate if necessary
+    if (_flightOrIOP.length() > 8)
+        _flightOrIOP.resize(8);
+}
+
 std::ostream&
 DoradeVOLD::streamTo(std::ostream& os, bool asLittleEndian)
 {

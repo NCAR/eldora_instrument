@@ -70,7 +70,7 @@ EldoraArchiver::~EldoraArchiver() {
 
 // Load a new ELDORA header
 bool
-EldoraArchiver::loadHeader(std::string hdrFileName) {
+EldoraArchiver::loadHeader(std::string hdrFileName, std::string flightName) {
     std::cout << "Requested to load header " << hdrFileName << std::endl;
     // Bail out quickly if the file does not exist.
     struct stat statbuf;
@@ -122,6 +122,9 @@ EldoraArchiver::loadHeader(std::string hdrFileName) {
         boost::posix_time::second_clock::universal_time();
     _hdr->vold()->setVolumeDateTime(now);
     _hdr->vold()->setGenerationDate(now.date());
+    
+    // Set the flight name
+    _hdr->vold()->setFlightOrIOP(flightName);
 
     // Build the ByteBlock containing the DORADE representation of our header
     _hdrBlock.length(_hdr->size());

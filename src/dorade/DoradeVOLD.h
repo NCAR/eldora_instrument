@@ -47,6 +47,11 @@ public:
      * @param genDate boost::gregorian::date holding the generation date.
      */
     void setGenerationDate(boost::gregorian::date genDate);
+    /**
+     * Set flight/IOP name
+     * @param flightOrIOP the flight/IOP name
+     */
+    void setFlightOrIOP(std::string flightOrIOP);
 
     std::ostream& printTo(std::ostream& stream) const;
     std::ostream& streamTo(std::ostream& os, bool asLittleEndian);
