@@ -28,11 +28,9 @@ BEGIN SCHEMATIC
         SIGNAL Cntrl(2)
         SIGNAL ClkSelect
         SIGNAL XLXN_17
-        SIGNAL XLXN_18
         SIGNAL OnePPS
         SIGNAL AddrTrigger
         SIGNAL XLXN_23
-        SIGNAL XLXN_24
         PORT Input Enable
         PORT Output PulseOut
         PORT Input Timer_Rst
@@ -46,7 +44,7 @@ BEGIN SCHEMATIC
         PORT Input OnePPS
         PORT Input AddrTrigger
         BEGIN BLOCKDEF TimerDecoder
-            TIMESTAMP 2008 3 31 22 27 15
+            TIMESTAMP 2008 6 20 18 45 39
             LINE N 64 -544 0 -544 
             RECTANGLE N 0 -492 64 -468 
             LINE N 64 -480 0 -480 
@@ -68,7 +66,7 @@ BEGIN SCHEMATIC
             LINE N 416 -288 480 -288 
         END BLOCKDEF
         BEGIN BLOCKDEF TimerModule
-            TIMESTAMP 2008 3 31 22 27 15
+            TIMESTAMP 2008 6 20 18 45 39
             LINE N 64 -160 0 -160 
             LINE N 64 -672 0 -672 
             LINE N 64 -608 0 -608 
@@ -87,7 +85,7 @@ BEGIN SCHEMATIC
             RECTANGLE N 64 -704 320 -128 
         END BLOCKDEF
         BEGIN BLOCKDEF clockdivider
-            TIMESTAMP 2008 3 31 22 27 15
+            TIMESTAMP 2008 6 20 18 45 39
             RECTANGLE N 64 -128 320 0 
             LINE N 64 -96 0 -96 
             RECTANGLE N 0 -44 64 -20 
@@ -115,7 +113,7 @@ BEGIN SCHEMATIC
             LINE N 112 -48 48 -48 
         END BLOCKDEF
         BEGIN BLOCKDEF clockselect
-            TIMESTAMP 2008 3 31 22 27 15
+            TIMESTAMP 2008 6 20 18 45 39
             RECTANGLE N 64 -192 320 0 
             LINE N 64 -160 0 -160 
             LINE N 64 -96 0 -96 
