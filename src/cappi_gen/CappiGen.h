@@ -15,7 +15,7 @@
 class CappiGen : public QObject {
     Q_OBJECT
 public:
-    CappiGen(std::string storageDir, std::string nc_template);
+    CappiGen(std::string storageDir, std::string nc_template, double angleTol);
   virtual ~CappiGen();
     public slots:
         /// Feed product data via this slot. If the operating 
@@ -50,6 +50,10 @@ private:
   StringVec _extraNames;   // other variables we need to access in the netCDF file
   unsigned long _recordCount;
   unsigned long _maxCells;
+  double _angleTol; // angle tolerance for recording a particular beam
+                    // (is this angle close enough to horizontal?)
+  unsigned long _totalCount;
+  
   
 
 };

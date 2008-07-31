@@ -27,7 +27,7 @@ variables:
 	double groundSpeedEW(Time);
 	double groundSpeedNS(Time);
 	double airSpdCorr(Time);
-	double corRotAngle(Time);
+	double rotAngle(Time);
 
 // global attributes:
       	

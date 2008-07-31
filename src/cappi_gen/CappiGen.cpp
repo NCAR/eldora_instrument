@@ -6,9 +6,9 @@
 
 #define flteq(val1, val2, tol) (fabs(val1-val2) <= tol)
 
-CappiGen::CappiGen(std::string storageDir, std::string nc_template)
+CappiGen::CappiGen(std::string storageDir, std::string nc_template, double angleTol)
   : _storageDir(storageDir),_nc_template(nc_template), _nc_output(NULL),
-    _recordCount(0), _maxCells(0)
+    _recordCount(0), _maxCells(0), _angleTol(angleTol),_totalCount(0)
 {
   // list the variables to be copied to the netCDF output file 
 
@@ -17,7 +17,7 @@ CappiGen::CappiGen(std::string storageDir, std::string nc_template)
   // and must be the same names used in cappi.cdl
   _hskpVarNames.push_back("lon");
   _hskpVarNames.push_back("lat");
-  _hskpVarNames.push_back("corRotAngle");
+  _hskpVarNames.push_back("rotAngle");
   _hskpVarNames.push_back("gateSpacingMeters");
   _hskpVarNames.push_back("dwellWidth");
   _hskpVarNames.push_back("elevation");
@@ -65,7 +65,7 @@ int CappiGen::openOutput(std::string &oname)
     std::cerr << "locating netCDF variable: " << varName << std::endl;
     var = _nc_output->get_var(varName);
     if (!var) {
-      std::cerr << "can not locate " << varName << " in " << output;
+        std::cerr << "can not locate " << varName << " in " << output << std::endl;
       return 1;
     } 
     _ncVarMap [*si] = var;
@@ -101,10 +101,16 @@ void CappiGen::productSlot(
 {
   bool ok;
 
-  double rotAngle = hskpMap["corRotAngle"];
+  double corRotAngle = hskpMap["rotAngle"] + hskpMap["roll"];
   // only process horizontal beams 
 
-  if (flteq(rotAngle, 90.0, 1) || flteq(rotAngle, 270.0, 1.0)) {
+  // we record all beams that are "close enough" to horizontal, so we can
+  // apply a manual rotational correction later, and select the beams we
+  // really want.
+  
+  ++_totalCount;  // how many beams have we received?
+  
+  if (flteq(corRotAngle, 90.0, _angleTol) || flteq(corRotAngle, 270.0, _angleTol)) {
     int rc = 0;
     if (!_nc_output) {
       std::string output = "cappi.nc"; // XXX add date string to name
@@ -115,16 +121,28 @@ void CappiGen::productSlot(
       }
 
     }
+    long count=1;
 
     NcVar *prodTypeVar = _ncVarMap["prodType"];
-    ok = prodTypeVar->put(&prodType, _recordCount);
+    ok = prodTypeVar->set_cur(_recordCount);
+    if (!ok) {
+	std::cerr << "set_cur(" << "prodType" << ") failed" << std::endl;
+	exit(1);
+    }
+    ok = prodTypeVar->put(&prodType, count);
     if (!ok) {
       std::cerr << "put(" << "prodType" << ") failed" << std::endl;
       exit(1);
     }
     const int numCells = std::min(p.size(), (size_t) _maxCells);
     NcVar *numCellsVar = _ncVarMap["numCells"];
-    ok = numCellsVar->put(&numCells, _recordCount);
+
+    ok = numCellsVar->set_cur(_recordCount);
+    if (!ok) {
+	std::cerr << "set_cur(" << "numCells" << ") failed" << std::endl;
+	exit(1);
+    }
+    ok = numCellsVar->put(&numCells, count);
     if (!ok) {
       std::cerr << "put(" << "numCells" << ") failed" << std::endl;
       exit(1);
@@ -132,7 +150,7 @@ void CappiGen::productSlot(
 
     // copy the product into an array, and write to output file
     double product[_maxCells];
-    std::cerr << "copying " << numCells << " gates" << std::endl;
+    //    std::cerr << "copying " << numCells << " gates" << std::endl;
     int i;
     for (i = 0; i < numCells; ++i) {
       product[i] = p[i];
@@ -143,7 +161,12 @@ void CappiGen::productSlot(
       std::cerr << "product NcVar is NULL" << std::endl;
       exit(1);
     }
-    ok = pVar->put_rec(product,_recordCount);
+    ok = pVar->set_cur(_recordCount, 0);
+    if (!ok) {
+	std::cerr << "set_cur(" << "product" << ") failed" << std::endl;
+	exit(1);
+    }
+    ok = pVar->put(product,numCells);
     if (!ok) {
       std::cerr << "put_rec(" << "product" << ") failed" << std::endl;
       exit(1);
@@ -156,33 +179,61 @@ void CappiGen::productSlot(
     NcVar *unixTimeVar = _ncVarMap["unixTime"];
     NcVar *msTimeVar = _ncVarMap["microsec"];
 
-    ok = unixTimeVar->put(&unixTime,_recordCount);
+    ok = unixTimeVar->set_cur(_recordCount);
+    if (!ok) {
+	std::cerr << "set_cur(" << "unixTime" << ") failed" << std::endl;
+	exit(1);
+    }
+
+    ok = unixTimeVar->put(&unixTime,count);
     if (!ok) {
       std::cerr << "put(" << "unixTime" << ") failed" << std::endl;
       exit(1);
     }
-    ok = msTimeVar->put(&microsec,_recordCount);
+    ok = msTimeVar->set_cur(_recordCount);
     if (!ok) {
-      std::cerr << "put(" << "unixTime" << ") failed" << std::endl;
+	std::cerr << "set_cur(" << "microsec" << ") failed" << std::endl;
+	exit(1);
+    }
+    ok = msTimeVar->put(&microsec,count);
+    if (!ok) {
+      std::cerr << "put(" << "microsec" << ") failed" << std::endl;
       exit(1);
     }
 
     StringVecIter si;
     double value;
-
+    
+    std::cerr << "CappiGen::productSlot\n";
     for (si = _hskpVarNames.begin(); si != _hskpVarNames.end(); ++si){
       std::string varName = (*si);
       value = hskpMap[varName];
-      ok = _ncVarMap[varName]->put(&value,_recordCount);
+      std::cerr << varName << "=> " << value << std::endl;
+      NcVar *var = _ncVarMap[varName];
+      ok = var->set_cur(_recordCount);
+      if (!ok) {
+	std::cerr << "set_cur(" << *si << ") failed" << std::endl;
+	exit(1);
+      }
+      
+      ok = _ncVarMap[varName]->put(&value,count);
       if (!ok) {
 	std::cerr << "put(" << *si << ") failed" << std::endl;
 	exit(1);
       }
     }
     ++_recordCount;
-    // any readers want to see this record now
+    // any readers want to see these records on a regular basis
     _nc_output->sync();
+    if ((_recordCount % 100) == 1) {
+        std::cerr << "output " << _recordCount << " records\n";
+    }
+   
 
-    std::cerr << "radarId = " << radarId << ",rotAngle = " << rotAngle << std::endl;
+    //    std::cerr << "radarId = " << radarId << ",corRotAngle = " << corRotAngle << std::endl;
+  } // end if corrected rotation angle is close enough
+  if ((_totalCount % 100) == 1) {
+        std::cerr << "received " << _totalCount << " total records\n";
   }
+  
 }

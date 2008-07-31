@@ -29,7 +29,8 @@ void parseArgs(
         std::string& DCPS,
 	std::string& DCPSInfoRepo,
 	int &DCPSDebugLevel,
-	int &DCPSTransportDebugLevel) {
+	int &DCPSTransportDebugLevel,
+        double &angleTol) {
 
     int theDebugLevel=0; 
     int theTransportLevel=0;
@@ -39,6 +40,7 @@ void parseArgs(
 
     descripts.add_options() ("help", "describe options") 
     ("productstopic", po::value<std::string>(&productsTopic), "DDS products topic")
+    ("angleTolerance", po::value<double>(&angleTol), "Rotation Angle Tolerance ")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
@@ -85,6 +87,8 @@ int main(
 
     int DCPSDebugLevel = 0;
     int DCPSTransportDebugLevel = 0;
+    double angleTolerance = 5.0;
+    
 
     // set up the default configuration directory path
     char* e = getenv("ELDORADIR");
@@ -109,7 +113,7 @@ int main(
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
     parseArgs(argc, argv, productsTopic,  ORB, DCPS, DCPSInfoRepo,
-	      DCPSDebugLevel, DCPSTransportDebugLevel);
+	      DCPSDebugLevel, DCPSTransportDebugLevel, angleTolerance);
 
     // we have to do this bit of translation since the 
     // DDS routines want arguments starting with a single dash,
@@ -127,7 +131,7 @@ int main(
       subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
     }
     std::string nc_template = EldoraDir + "cappi_template.nc";
-    CappiGen cappi_gen("/tmp", nc_template);
+    CappiGen cappi_gen("/tmp", nc_template, angleTolerance);
 
 
     ///////////////////////////////////////////////////////////////
