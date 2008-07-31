@@ -96,7 +96,7 @@ void EldoraQtProductsSource::notify() {
 			hskpMap["gateSpacingMeters"] = gateSpacingMeters;
 			hskpMap["lat"] =pItem->hskp.latitude;
 			hskpMap["lon"] =pItem->hskp.longitude;
-			hskpMap["corRotAngle"] = pItem->rotAngle + pItem->hskp.roll;
+			hskpMap["rotAngle"] = pItem->rotAngle;
 			hskpMap["gateSpacingMeters"] = gateSpacingMeters;
 			hskpMap["dwellWidth"] = dWidth;
 			hskpMap["elevation"] = pItem->hskp.elevation;
