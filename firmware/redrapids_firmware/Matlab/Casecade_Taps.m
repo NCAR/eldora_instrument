@@ -21,8 +21,8 @@ f=-fs/2:fs/(N-1):fs/2;       % frequency range vector
 %---------------------------------------
 % Kaiser Window FIR 128 Tap
 %---------------------------------------
-wp = 2e6;
-ws = 3e6;
+wp = 4e6;
+ws = 4.5e6;
 error = 0.001;
 
 [n,Wn,bta,filtype] = kaiserord( [wp ws], [1 0], [error error], fs);
@@ -44,7 +44,7 @@ for x = 1:length(h_k_dec)
     end
 end
 
-%save('3MHz.kcf','h_k_dec','-ASCII');
+save('4MHz.kcf','h_k_dec','-ASCII');
 
 h_k = round(h_k*2^17)/2^17;
 %h_k(1:length(h_k)) = 1;
