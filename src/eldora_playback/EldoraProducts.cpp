@@ -144,6 +144,9 @@ void EldoraProducts::playback(std::string inputFileName)
 
     try {
         while (! ifile.eof() && (ifile.tellg() < fileLen)) {
+            if ( ( (_droppedRays % 100) == 1) || ((_publishedRays % 100) == 1) )
+                std::cerr << "Dropped rays = " << _droppedRays <<
+                    " published rays = " << _publishedRays << std::endl;
             unsigned int blockpos = 0;
             // FORTRAN blocking: 
             //      <4-byte big-endian block length>
@@ -155,7 +158,7 @@ void EldoraProducts::playback(std::string inputFileName)
             ifile.read(block, 4);
             blocksize = (ublock[0] << 24) | (ublock[1] << 16) | 
                 (ublock[2] << 8) | ublock[3];
-            std::cerr << "blocksize = " << blocksize << std::endl;
+            if (_verbose) std::cerr << "blocksize = " << blocksize << std::endl;
 
             assert(blocksize <= sizeof(block));
             
@@ -164,7 +167,7 @@ void EldoraProducts::playback(std::string inputFileName)
             ifile.read(block, blocksize);
             
             while (blockpos < blocksize) {
-                std::cerr << "##### Blockpos = " << blockpos << " filepos = " << ifile.tellg() << std::endl;
+                if (_verbose)                std::cerr << "##### Blockpos = " << blockpos << " filepos = " << ifile.tellg() << std::endl;
                 unsigned char* udata = (unsigned char*)block + blockpos;
                 DoradeDescriptor desc(udata, blocksize - blockpos, false);
                 std::string descName(desc.getDescName());
@@ -236,10 +239,12 @@ void EldoraProducts::playback(std::string inputFileName)
                     DoradeFRAD frad(udata, blocksize - blockpos, false);
                     parseFRAD(frad, ddsHskp);
                     const short* sdata = frad.getShortData();
-                    std::cout << "FRAD (" << frad.getRadarName() << ") data: ";
-                    for (int i = 0; i < 10; i++)
-                        std::cout << sdata[i] << ",";
-                    if (_verbose) std::cout << "..." << std::endl;
+                    if (_verbose) {
+                        std::cout << "FRAD (" << frad.getRadarName() << ") data: ";
+                        for (int i = 0; i < 10; i++)
+                            std::cout << sdata[i] << ",";
+                        std::cout << "..." << std::endl;
+                    }
                 } else if (desc.getDescName() == "ASIB"){
                     DoradeASIB asib(udata, blocksize - blockpos, false);
                     parseASIB(asib, ddsHskp);
@@ -258,7 +263,7 @@ void EldoraProducts::playback(std::string inputFileName)
             ifile.read(block, 4);
             endblocksize = (ublock[0] << 24) | (ublock[1] << 16) | 
                 (ublock[2] << 8) | ublock[3];
-            std::cerr << "endblocksize = " << endblocksize << std::endl;
+            //            std::cerr << "endblocksize = " << endblocksize << std::endl;
         }
     } 
     catch (DescriptorException dex) {
@@ -348,10 +353,12 @@ void EldoraProducts::parseFRAD(DoradeFRAD &frad, EldoraDDS::Housekeeping &ddsHsk
     
     EldoraDDS::housekeeping_::_radarName_copy(ddsHskp.radarName, frad.getRadarName().c_str());
     if (_products) {
+        //        std::cerr << "publishing: ";
         initProducts(_products, ddsHskp, nCells);
         // Now retrieve all of the data from the FRAD in the correct order
         // using the external DORADE representation 
         for (int p = 0; p < nParams; p++) {
+            //            std::cerr << _prodNames[p] << ",";
             Product *prod = _prodPtrMap[_prodNames[p]];
             for (int cell = 0; cell < nCells; cell++) {
                 (*prod)[cell] = fradData[cell * nParams + p];
