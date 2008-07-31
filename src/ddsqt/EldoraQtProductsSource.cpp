@@ -93,6 +93,7 @@ void EldoraQtProductsSource::notify() {
                                 rollAngle);
 
 			StrMapDouble hskpMap;
+                        
 			hskpMap["gateSpacingMeters"] = gateSpacingMeters;
 			hskpMap["lat"] =pItem->hskp.latitude;
 			hskpMap["lon"] =pItem->hskp.longitude;
@@ -107,6 +108,18 @@ void EldoraQtProductsSource::notify() {
 			hskpMap["groundSpeedEW"] = pItem->hskp.groundSpeedEW;
 			hskpMap["groundSpeedNS"] = pItem->hskp.groundSpeedNS;
 			hskpMap["airSpdCorr"] = airspdCorr;
+#ifdef DEBUG_HSKP_MAP
+                        std::cerr << "EldoraQtProductsSource - emit\n";
+                        StrMapDoubleIter si;
+                        double value;
+                        for (si = hskpMap.begin(); si != hskpMap.end(); ++si){
+                            std::string varName = (*si).first;
+                            value = (*si).second;
+                            std::cerr << varName << " => " << value <<
+                                std::endl;
+                        }
+#endif
+                        
 			emit newPDataHskpMap( P, 
 					  pItem->radarId, 
 					  *prodType, 
