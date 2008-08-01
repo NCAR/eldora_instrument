@@ -120,6 +120,11 @@ DDSWriter<WRITERSIG2>::svc() {
 
         while (1)
         {
+            if (_terminate) {
+                cerr << __FUNCTION__ << " terminating" << endl;
+                return 0;
+            }
+                
             _genericWriter->get_matched_subscriptions(handles);
             if (handles.length() > 0)
             break;

@@ -1,0 +1,49 @@
+# NOTE: we use some tools like ddsqt because they provide header files we need,
+# although we don't use the main tool itself.
+tools = Split("""
+utilities
+doxygen
+boost_program_options
+qtt_qtconfig
+qt4
+qtt_colorbar
+qtt_ppi
+ddsqt
+netcdf
+""")
+env = Environment(tools = ['default'] + tools)
+
+## copied from qttoolbox/PPI/tool_qtt_ppi.py
+#qt4modules = ['QtCore', 'QtOpenGL']
+#env.EnableQt4Modules(qt4modules)
+
+# libraries:
+libs = Split("""
+dl
+rt
+""")
+
+env.AppendUnique(LIBS = libs)
+
+# This will create ui_EldoraCappi.h
+env.Uic4(['EldoraCappi.ui',])
+
+# This will create ui_ColorBarsettings.h
+env.Uic4(['ColorBarSettings.ui',])
+
+sources = Split("""
+CAPPI.cpp
+CappiReader.cpp
+EldoraCappiMain.cpp
+EldoraCappi.cpp
+ProductInfo.cpp
+CappiManager.cpp
+ColorBarSettings.cpp
+""")
+
+eldoracappi = env.Program('eldoracappi', sources)
+	
+inst = env.InstallProgram(eldoracappi)
+env.Default([eldoracappi,])
+env.Alias('install',inst)
+

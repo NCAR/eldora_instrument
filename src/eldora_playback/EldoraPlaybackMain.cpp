@@ -168,6 +168,7 @@ int EldoraPlaybackMain::run() {
     while (1) {
         std::cerr << "calling playback\n";
         prodGenerator.playback(inputFileName);
+        exit(0);
     }
     
     

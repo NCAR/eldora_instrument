@@ -184,7 +184,7 @@ class EldoraProducts
         /// motion towards the receiver.
         EldoraProducts(DDSPublisher& publisher,
                        std::string productsTopic,
-                       bool reverseVelocity, int usPerBeam=10000);
+                       bool reverseVelocity, int usPerBeam=1000);
         virtual ~EldoraProducts();
 
         /// Called with a new set of rays for one radar for one ray number.

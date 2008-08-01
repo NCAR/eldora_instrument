@@ -53,8 +53,10 @@ private:
   double _angleTol; // angle tolerance for recording a particular beam
                     // (is this angle close enough to horizontal?)
   unsigned long _totalCount;
-  
-  
+  NcVar *_unixTimeVar;
+  NcVar *_msTimeVar;
+  NcVar *_prodTypeVar;
+
 
 };
 

@@ -114,8 +114,8 @@ EldoraPPI::EldoraPPI(std::string title,
     // setup the displays themselves.
     int decimation = _config.getInt("Decimation", 1);
     int ppiHeight = _config.getInt("Size/MinHeight", 300);
-    _upperManager.setup(ppiFor, 7, &_productMaps, decimation, ppiHeight);
-    _lowerManager.setup(ppiAft, 7, &_productMaps, decimation, ppiHeight);
+        _upperManager.setup(ppiFor, _productMaps.size(), &_productMaps, decimation, ppiHeight);
+    _lowerManager.setup(ppiAft, _productMaps.size(), &_productMaps, decimation, ppiHeight);
     
     // get the display clipping specifications
     _left = _config.getDouble("Clipping/Left", -1.0);

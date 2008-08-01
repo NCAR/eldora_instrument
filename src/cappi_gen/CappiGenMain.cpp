@@ -164,6 +164,7 @@ int main(
     // select the products that it will receive
     std::set<PRODUCT_TYPES> prodTypes;
     prodTypes.insert(PROD_DBZ);
+    prodTypes.insert(PROD_VR);
 
     // request products from forward radar. A rate of 0.0 means send all beams
     EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,

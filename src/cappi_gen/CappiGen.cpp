@@ -8,7 +8,8 @@
 
 CappiGen::CappiGen(std::string storageDir, std::string nc_template, double angleTol)
   : _storageDir(storageDir),_nc_template(nc_template), _nc_output(NULL),
-    _recordCount(0), _maxCells(0), _angleTol(angleTol),_totalCount(0)
+    _recordCount(0), _maxCells(0), _angleTol(angleTol),_totalCount(0),
+    _unixTimeVar(NULL), _msTimeVar(NULL), _prodTypeVar(NULL)
 {
   // list the variables to be copied to the netCDF output file 
 
@@ -62,7 +63,7 @@ int CappiGen::openOutput(std::string &oname)
   NcVar *var; 
   for (si = _hskpVarNames.begin(); si != _hskpVarNames.end(); ++si){
     const char *varName = (*si).c_str();
-    std::cerr << "locating netCDF variable: " << varName << std::endl;
+    //    std::cerr << "locating netCDF variable: " << varName << std::endl;
     var = _nc_output->get_var(varName);
     if (!var) {
         std::cerr << "can not locate " << varName << " in " << output << std::endl;
@@ -83,12 +84,16 @@ int CappiGen::openOutput(std::string &oname)
   // diagnostic - what are the dimensions?
   NcVar *product = _ncVarMap["product"];
   int num_dims = product->num_dims();
+  std::cerr << "Products dimension: ";
   for (int i = 0; i < num_dims; ++i) {
     NcDim *dim = product->get_dim(i);
     std::cerr << "dim name = " << dim->name() << " size = " << dim->size() 
 	      << std::endl;
   }
   _maxCells = product->get_dim(1)->size();
+  _unixTimeVar = _ncVarMap["unixTime"];
+  _msTimeVar = _ncVarMap["microsec"];
+  _prodTypeVar = _ncVarMap["prodType"];
   return 0;
 }
 
@@ -123,13 +128,12 @@ void CappiGen::productSlot(
     }
     long count=1;
 
-    NcVar *prodTypeVar = _ncVarMap["prodType"];
-    ok = prodTypeVar->set_cur(_recordCount);
+    ok = _prodTypeVar->set_cur(_recordCount);
     if (!ok) {
 	std::cerr << "set_cur(" << "prodType" << ") failed" << std::endl;
 	exit(1);
     }
-    ok = prodTypeVar->put(&prodType, count);
+    ok = _prodTypeVar->put(&prodType, count);
     if (!ok) {
       std::cerr << "put(" << "prodType" << ") failed" << std::endl;
       exit(1);
@@ -161,12 +165,7 @@ void CappiGen::productSlot(
       std::cerr << "product NcVar is NULL" << std::endl;
       exit(1);
     }
-    ok = pVar->set_cur(_recordCount, 0);
-    if (!ok) {
-	std::cerr << "set_cur(" << "product" << ") failed" << std::endl;
-	exit(1);
-    }
-    ok = pVar->put(product,numCells);
+    ok = pVar->put_rec(&product[0],_recordCount);
     if (!ok) {
       std::cerr << "put_rec(" << "product" << ") failed" << std::endl;
       exit(1);
@@ -176,26 +175,24 @@ void CappiGen::productSlot(
     long unixTime, microsec;
     unixTime = timetag / 1000000;
     microsec = timetag % 1000000;
-    NcVar *unixTimeVar = _ncVarMap["unixTime"];
-    NcVar *msTimeVar = _ncVarMap["microsec"];
 
-    ok = unixTimeVar->set_cur(_recordCount);
+    ok = _unixTimeVar->set_cur(_recordCount);
     if (!ok) {
 	std::cerr << "set_cur(" << "unixTime" << ") failed" << std::endl;
 	exit(1);
     }
 
-    ok = unixTimeVar->put(&unixTime,count);
+    ok = _unixTimeVar->put(&unixTime,count);
     if (!ok) {
       std::cerr << "put(" << "unixTime" << ") failed" << std::endl;
       exit(1);
     }
-    ok = msTimeVar->set_cur(_recordCount);
+    ok = _msTimeVar->set_cur(_recordCount);
     if (!ok) {
 	std::cerr << "set_cur(" << "microsec" << ") failed" << std::endl;
 	exit(1);
     }
-    ok = msTimeVar->put(&microsec,count);
+    ok = _msTimeVar->put(&microsec,count);
     if (!ok) {
       std::cerr << "put(" << "microsec" << ") failed" << std::endl;
       exit(1);
@@ -208,7 +205,7 @@ void CappiGen::productSlot(
     for (si = _hskpVarNames.begin(); si != _hskpVarNames.end(); ++si){
       std::string varName = (*si);
       value = hskpMap[varName];
-      std::cerr << varName << "=> " << value << std::endl;
+      //      std::cerr << varName << "=> " << value << std::endl;
       NcVar *var = _ncVarMap[varName];
       ok = var->set_cur(_recordCount);
       if (!ok) {
@@ -222,11 +219,14 @@ void CappiGen::productSlot(
 	exit(1);
       }
     }
+    std::cerr << "Record: " << _recordCount << " ,corRot = " <<corRotAngle <<
+        " ,groundSpeedEW = " << hskpMap["groundSpeedEW"] <<std::endl;
+    
     ++_recordCount;
     // any readers want to see these records on a regular basis
     _nc_output->sync();
     if ((_recordCount % 100) == 1) {
-        std::cerr << "output " << _recordCount << " records\n";
+        std::cerr << "Output " << _recordCount << " records\n";
     }
    
 

@@ -1,0 +1,19 @@
+
+Data flow for product data:
+
+EldoraCappi::productSlot( std::vector<double> p, int prodType, 
+        qlonglong timeTag, StrMapDouble hskpMap)
+
+is called when new data arrives.  
+
+calls
+CappiManager::newProduct(std::vector<double>& p, float rotAngle, int prodIndex) 
+
+calls
+CAPPPI::addBeam(startAng, stopAng, _gates, _productData, 1, *_colorMaps);
+
+creates CAPPI::beam(bx, by, startAngle, stopAngle, _maxGates, _nVars)
+
+calls fillColors(b, _beamData, gates, stride, maps);
+
+

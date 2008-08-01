@@ -1,0 +1,9 @@
+1) Change EldoraCappi::productSlot() to use a map for housekeeping parameters
+
+2) Write a CappiRead() class to read the netCDF data file produced by cappigen
+
+
+
+Cleanup:
+Share ColorBarSettings and ProductInfo and xpm's, rather than linking to them.
+

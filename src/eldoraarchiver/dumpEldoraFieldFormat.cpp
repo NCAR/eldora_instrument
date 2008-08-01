@@ -11,6 +11,7 @@
 #include <DoradeRAWD.h>
 #include <DoradeRYIB.h>
 #include <DoradeVOLD.h>
+#include <DoradeASIB.h>
 #include <unistd.h>
 
 int
@@ -119,6 +120,10 @@ main(int argc, char* argv[]) {
                     for (int i = 0; i < 10; i++)
                         std::cout << sdata[i] << ",";
                     std::cout << "..." << std::endl;
+                } else if (desc.getDescName() == "ASIB") {
+                    DoradeASIB asib(udata, blocksize - blockpos, false);
+                    std::cout << "ASIB (" << asib.getGroundSpeedEW() << "[EW]," <<
+                        asib.getGroundSpeedNS() << "[NS])" << std::endl;
                 } else {
                     std::cout << desc.getDescName() << " (" << 
                         desc.getDescLen() << " bytes)" << std::endl;
