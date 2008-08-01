@@ -630,17 +630,14 @@ void CAPPI::addBeam(double xPos,
 
     // create the new beam(s), to keep track of the display information
     // Beam start and stop angles are adjusted here so that they always 
-    // increase counterclockwise. Like wise, if a beam crosses the 0 degree
-    // boundary, it is split into two beams, each of them again obeying the
-    // counterclockwise rule. Prescribing these rules makes the beam culling
-    // logic a lot simpler.
+    // increase counterclockwise. 
 
     startAngle = startAngle - ((int)(startAngle/360.0))*360.0;
     stopAngle = stopAngle - ((int)(stopAngle/360.0))*360.0;
 
     if (startAngle <= stopAngle) {
         
-        beam* b = new beam(xPos, yPos, startAngle, stopAngle, _maxGates, _nVars);
+        b = new beam(xPos, yPos, startAngle, stopAngle, _maxGates, _nVars);
         _beams.push_back(b);
         newBeams.push_back(b);
     } else {
@@ -648,7 +645,7 @@ void CAPPI::addBeam(double xPos,
         _beams.push_back(b);
         newBeams.push_back(b);
 
-        b = new beam(0.0, 0.0, 0.0, stopAngle, _maxGates, _nVars);
+        b = new beam(xPos, yPos, 0.0, stopAngle, _maxGates, _nVars);
         _beams.push_back(b);
         newBeams.push_back(b);
     }

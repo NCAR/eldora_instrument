@@ -184,9 +184,12 @@ bool CappiReader::read(unsigned long index, std::vector<double> &p, int &prodTyp
     for (i = 0; i < numCells; i++){
         p.push_back(ncd->as_double(i));
     }
-    std::cerr << "CappiReader::read() time ="
-              << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<
-        std::endl;
+#ifdef DEBUG
+    std::cerr << "CappiReader::read() time =" << timeTag << " prodType = " <<prodType
+              << " p[0] =" << p[0]
+              << " groundSpeedNS = " << hskpMap["groundSpeedNS"]
+              << std::endl;
+#endif
     return true;
 }
 

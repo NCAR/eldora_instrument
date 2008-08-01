@@ -201,15 +201,15 @@ void EldoraCappi::productSlot(
     double airspdCorr = hskpMap["airSpdCorr"];
     double heading  = hskpMap["heading"];
     double radarTiltAngle = hskpMap["radarTiltAngle"];
-    double groundSpeedEW = hskpMap["groundSweepEW"];
-    double groundSpeedNS = hskpMap["groundSweepNS"];
+    double groundSpeedEW = hskpMap["groundSpeedEW"];
+    double groundSpeedNS = hskpMap["groundSpeedNS"];
     
 
     double adjustedAngle = rollAngle + rotAngle + _rollOffset;
-
-     std::cerr << "EldoraCappi::productSlot() time ="
-              << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<
-        std::endl;   
+#ifdef DEBUG
+    std::cerr << "EldoraCappi::productSlot() time =" << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<   " groundSpeedNS = " << hskpMap["groundSpeedNS"]
+              <<        std::endl;   
+#endif
     
     // is this an angle we want to look at?
     if (! flteq(adjustedAngle, 90.0, dwellWidth/2.0)
@@ -285,16 +285,26 @@ void EldoraCappi::productSlot(
     if (cartAngle >= 360.0)
     	cartAngle -= 360.0;
 
+#define TEST_MOVE
     // compute relative position, based on ground speed
     if (_lastTime) {
         double secs = (timeTag - _lastTime)/1.0e6;  // microseconds to seconds
+#ifdef TEST_MOVE
+        _lastXKm += (groundSpeedNS * secs/100);   // magnify the actual
+                                              // movement by NOT scaling
+                                              // to km
+        _lastYKm += (groundSpeedEW * secs/100.0);
+#else
         _lastXKm += (groundSpeedNS * secs)/1.0e3;   // m to km
         _lastYKm += (groundSpeedEW * secs)/1.0e3;
+#endif
     }
     _lastTime = timeTag;
     _lastProdType = prodType;
+#ifdef DEBUG
+    std::cerr << "EldoraCappi::productSlot : X = " << _lastXKm << " Y = " << _lastYKm << std::endl;
     
-    
+#endif
     
 
     // send the product to the appropriate ppi manager
@@ -778,9 +788,12 @@ void EldoraCappi::pollNewData()
     StrMapDouble hskpMap;
     std::vector<double> product;
     for (rec = _lastCappiRec; rec < lastRec; ++rec){
-        std::cerr  << "reading record # " << rec << std::endl;
         ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);
         if (ok) {
+#ifdef DEBUG
+            std::cerr  << "reading record # " << rec <<
+                " groundSpeedNS = " << hskpMap["groundSpeedNS"] << std::endl;
+#endif
             // emit signal
             emit newProductSignal(product, prodType, timeTag, hskpMap);
         }
