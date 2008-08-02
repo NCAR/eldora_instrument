@@ -1,6 +1,8 @@
 #include "EldoraQtProductsSource.h"
 #include <QMetaType>
 #include <iostream>
+#include <math.h>
+
 using namespace EldoraDDS;
 
 Q_DECLARE_METATYPE(std::vector<double>)
@@ -63,9 +65,9 @@ void EldoraQtProductsSource::notify() {
                 short* product;
                 float gateSpacingMeters = pItem->gateSpacingMeters;
                 double dWidth = dwellWidth(pItem);
-                double airspdCorr = airSpeedCorrection(pItem);
+                double airSpdCorr = airSpeedCorrection(pItem);
                 double rollAngle = pItem->hskp.roll;
-		qlonglong timetag = pItem->hskp.timetag;
+		        qlonglong timetag = pItem->hskp.timetag;
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -89,7 +91,7 @@ void EldoraQtProductsSource::notify() {
                                 *prodType, 
                                 gateSpacingMeters, 
                                 dWidth, 
-                                airspdCorr,
+                                airSpdCorr,
                                 rollAngle);
 
 			StrMapDouble hskpMap;
@@ -107,7 +109,7 @@ void EldoraQtProductsSource::notify() {
 			hskpMap["yaw"] = pItem->hskp.yaw;
 			hskpMap["groundSpeedEW"] = pItem->hskp.groundSpeedEW;
 			hskpMap["groundSpeedNS"] = pItem->hskp.groundSpeedNS;
-			hskpMap["airSpdCorr"] = airspdCorr;
+			hskpMap["airSpdCorr"] = airSpdCorr;
 #ifdef DEBUG_HSKP_MAP
                         std::cerr << "EldoraQtProductsSource - emit\n";
                         StrMapDoubleIter si;
@@ -125,7 +127,7 @@ void EldoraQtProductsSource::notify() {
 					  *prodType, 
 					  timetag,
 					  hskpMap);
-                        clearCapture();
+                      clearCapture();
                     }
                     break;
 
@@ -149,7 +151,7 @@ void EldoraQtProductsSource::notify() {
                                     *prodType, 
                                     gateSpacingMeters, 
                                     dWidth, 
-                                    airspdCorr,
+                                    airSpdCorr,
                                     rollAngle);
                             clearCapture();
                         }
@@ -280,8 +282,59 @@ void EldoraQtProductsSource::alongBeamSlot(
 ////////////////////////////////////////////////////////////
 double EldoraQtProductsSource::airSpeedCorrection(Products* pItem) {
     
-    EldoraDDS::Housekeeping* pHskp = &pItem->hskp;
-    return 0.0;
+    // compute the along beam ground speed.
+	
+	EldoraDDS::Housekeeping* pHskp = &pItem->hskp;
+    
+	// the correction is zero if we are operating in single prt mode
+	if (pHskp->prtLong < 0.0)
+		return 0.0;
+		
+    double tiltAngle = pHskp->radarTiltAngle;
+    
+    // these values come from the INS
+    double ns = pHskp->groundSpeedNS;
+    double ew = pHskp->groundSpeedEW;
+    
+    double groundSpeed = sqrt(ns*ns+ew*ew);
+    
+    // sanity checks
+    if (groundSpeed < 70.0 || groundSpeed > 200.0)
+    	groundSpeed = 130.0;
+    
+    double alongBeamGroundSpeed = groundSpeed * sin((M_PI/180.0)* tiltAngle);
+    
+    if (pItem->radarId == EldoraDDS::Aft)
+    	alongBeamGroundSpeed = -alongBeamGroundSpeed;
+    
+    return alongBeamGroundSpeed;
+}
+
+////////////////////////////////////////////////////////////
+double EldoraQtProductsSource::nyquistVelocity(Products* pItem) {
+	
+	EldoraDDS::Housekeeping* pHskp = &pItem->hskp;
+    
+	double prt;
+	if (pHskp->prtLong < 0.0) {
+		// single prt
+		prt = pHskp->prt;
+	} else {
+		prt = (pHskp->prt + pHskp->prtLong)/2.0;
+	}
+	// convert from ms to seconds.
+	prt /= 1000.0;
+
+	// just use the first radar frequency for the nyquist? 
+	// right now we can't be sure how many frequencies we
+	// are using.
+	double lambda;
+	lambda = pHskp->freqs[0];
+	
+	double nyquist;
+	nyquist = lambda/(4.0*M_PI*prt);
+	
+	return nyquist;
 }
 
 ////////////////////////////////////////////////////////////

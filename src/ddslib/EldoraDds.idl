@@ -70,9 +70,9 @@ module EldoraDDS {
         float radarConstant;    // radar constant (db)
         float rxGain[4];        // rx gain by channel (db)
         float lnaLoss;           // loss between lna and antenna (db)
-        float freqs[4];         // frequency by channel (hz)
-        float prt;              // prt in single mode, or short prt in dual mode (s)
-        float prtLong;          // long prt in dual prt mode (s)
+        float freqs[4];         // frequency by channel (ghz)
+        float prt;              // prt in single mode, or short prt in dual mode (ms)
+        float prtLong;          // long prt in dual prt mode (ms)
         float cellWidth[6];     // cell spacing in meters
         float firstGateDistance;// distance to the first gate in meters
         float rotationVel;      // radar rotational velocity, deg/s

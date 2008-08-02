@@ -131,7 +131,7 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 PRODUCT_TYPES prodType, Products* pItem, short** data,
                 float& gain, float& offset);
 
-        /// Calculate the airspeed correction that can added to the radial velocity
+        /// Calculate the groundspeed correction that can added to the radial velocity
         /// in order to remove the aircraft motion. Useful for ppi displays.
         /// Note that the operating mode of the radar is taken into consideration. Since 
         /// the correction is only applied in in dual prt mode, then in single prt
@@ -140,6 +140,10 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// used to determine the correction.
         /// @return The correction to be added to the radial (VR) velocity.
         double airSpeedCorrection(Products* pItem);
+        
+        /// Compute nyquist velocity
+        double nyquistVelocity(Products* pItem);
+        
         /// Compute the angle swept out by the Product.
         /// This is computed from factors contained in the housekeeping.
         /// The dwell angle is: rotation rate (deg/s) * repeat sequences per dwell 
