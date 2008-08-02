@@ -329,9 +329,10 @@ def stopProducts():
                 proc.kill()
                 killed = proc.waitForFinished(1500)
                 if not killed:
-                    msg = 'Could not kill ' + key
+                    msg = 'Could not kill ' + key + ', using kill -9'
                     main.logText(msg)
                     if Verbose: print(msg)
+                    pkill(key)
             # remove reference to the processes.
             del ourProcesses[key]
 
@@ -651,7 +652,7 @@ def pkill(name):
     the pkill exit status
     '''
     p = QProcess()
-    p.start('/usr/bin/kill', [name,])
+    p.start('/usr/bin/kill -s 9', [name,])
     p.waitForFinished(-1)
     return p.exitCode()
 
