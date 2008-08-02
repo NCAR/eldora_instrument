@@ -990,7 +990,7 @@ def createECB():
     # get the frequncy offset
     fOffGhz = ourConfig.getDouble('ECB/FreqOffsetGhz', 0.0001)
     
-    # creat ethe test pulse controller
+    # create the test pulse controller
     testPulse = TestPulseControl(testpulseapp=appDict['progtestpulse'],
 								ipddsfor=ipDdsFor,
 								ipddsaft=ipDdsAft,
