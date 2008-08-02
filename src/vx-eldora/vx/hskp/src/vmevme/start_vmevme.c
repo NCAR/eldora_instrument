@@ -56,7 +56,7 @@ ads_current_offset = FIRST_ADS_OFFSET;
    radar processors send it out over the mcpl.   
 Begin by calculating the number of lags the iru data will lag behind */
 
-iru_lags = 200/dwelltime_msec + 4;  /* +4 because this should lag
+iru_lags = 20/dwelltime_msec + 4;  /* +4 because this should lag
            at a safe distance */
 
 iru_lag_index = current_index - iru_lags;
@@ -69,7 +69,7 @@ printf("MSECS in a dwell = %d   iru_lag_index = %d\n",dwelltime_msec,
 
 /* Setup the platform data index and offset values */
 
-iru_lags = 200/dwelltime_msec;  /* 200 because we get longitude at 5 hertz */
+iru_lags = 20/dwelltime_msec;  /* 50 because we get roll,pitch,yaw at 50 Hz */
 
 current_platform_index = 2 - iru_lags;
 if(current_platform_index < 0) current_platform_index += 27;
