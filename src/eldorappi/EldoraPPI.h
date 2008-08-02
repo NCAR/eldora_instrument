@@ -80,10 +80,11 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// @param airspdCorr The airspeed correction that can be added to the 
         /// radial velocity if desired.
         /// @param rollAngle The aircraft roll angle.
+        /// @param nyquistVelocity The radar nyquist velocity, m/s.
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
                 int prodType, float gateSizeMeters, double dwellWidth, 
-                double airspdCorr, double rollAngle);
+                double airspdCorr, double rollAngle, double nyquistVelocity);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(

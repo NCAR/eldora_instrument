@@ -82,6 +82,8 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// @param dwellWidth The width of the dwell, in degrees
         /// @param airspdCorr The airspeed correction to the radial velocity
     	/// @param rollAngle The aircraft roll angle, in degrees.
+        /// @param nyquistVelocity The radar nyquist velocity, m/s. Required for
+        /// velocity unfolding along the beam.
         void newPData(
                 std::vector<double> P, 
                 int radarId, 
@@ -90,7 +92,8 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 float gateSpacingMeters, 
                 double dwellWidth, 
                 double airspdCorr,
-                double rollAngle);
+                double rollAngle,
+                double nyquistVelocity);
 
         /// This signal is emitted when new Product data are available.
         /// @param P P data values (at least 1).

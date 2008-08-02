@@ -174,7 +174,8 @@ void EldoraPPI::productSlot(
         float gateSizeMeters,
         double dwellWidth,
         double airspdCorr,
-        double rollAngle) {
+        double rollAngle,
+        double nyquistVel) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
@@ -208,13 +209,31 @@ void EldoraPPI::productSlot(
         dwellWidthText->setText(t);
         t.setNum(_gates);
         gatesText->setText(t);
+        t.setNum(airspdCorr, 'f',1);
+        vcorrText->setText(t);
+        t.setNum(nyquistVel, 'f',1);
+        nyquistText->setText(t);
         
     }
 
-    // apply the airspeed correction to VR
-    if (productType == PROD_VR) {
-        for (unsigned int i = 0; i < p.size(); i++)
-            p[i] += airspdCorr;
+    // apply the airspeed correction to VR.
+    // only apply it to VR
+    // only apply if it is greater than 0.0 (implies dualprt)
+    // only apply if correction is enabled for the PPI
+    	if (productType == PROD_VR &&
+    			airspdCorr > 0.0 &&
+    			vcorrCheck->isChecked()) {
+        for (unsigned int i = 0; i < p.size(); i++) {
+        	double vnew = p[i] + airspdCorr;
+        	if (vnew > nyquistVel) {
+        		vnew -= 2.0*nyquistVel;
+        	} else {
+        		if (vnew < nyquistVel) {
+        			vnew += 2.0*nyquistVel;
+        		}
+        	}
+            p[i] = vnew;
+        }
     }
     
     // Map the product type into the zero based index for the PPIManager.

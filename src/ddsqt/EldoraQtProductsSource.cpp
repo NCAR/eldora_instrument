@@ -66,6 +66,7 @@ void EldoraQtProductsSource::notify() {
                 float gateSpacingMeters = pItem->gateSpacingMeters;
                 double dWidth = dwellWidth(pItem);
                 double airSpdCorr = airSpeedCorrection(pItem);
+                double nyVelocity = nyquistVelocity(pItem);
                 double rollAngle = pItem->hskp.roll;
 		        qlonglong timetag = pItem->hskp.timetag;
                 
@@ -92,7 +93,8 @@ void EldoraQtProductsSource::notify() {
                                 gateSpacingMeters, 
                                 dWidth, 
                                 airSpdCorr,
-                                rollAngle);
+                                rollAngle,
+                                nyVelocity);
 
 			StrMapDouble hskpMap;
                         
@@ -152,7 +154,8 @@ void EldoraQtProductsSource::notify() {
                                     gateSpacingMeters, 
                                     dWidth, 
                                     airSpdCorr,
-                                    rollAngle);
+                                    rollAngle,
+                                    nyVelocity);
                             clearCapture();
                         }
                     }
@@ -320,16 +323,16 @@ double EldoraQtProductsSource::nyquistVelocity(Products* pItem) {
 		// single prt
 		prt = pHskp->prt;
 	} else {
-		prt = (pHskp->prt + pHskp->prtLong)/2.0;
+		prt = pHskp->prtLong - pHskp->prt;
 	}
-	// convert from ms to seconds.
+	// convert to seconds
 	prt /= 1000.0;
 
-	// just use the first radar frequency for the nyquist? 
+	// just use the first radar frequency for the nyquist.
 	// right now we can't be sure how many frequencies we
 	// are using.
 	double lambda;
-	lambda = pHskp->freqs[0];
+	lambda = 3.0e8/(pHskp->freqs[0]*1.0e9);
 	
 	double nyquist;
 	nyquist = lambda/(4.0*M_PI*prt);

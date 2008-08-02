@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>838</width>
-    <height>682</height>
+    <width>880</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -278,14 +278,14 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" >
+         <layout class="QGridLayout" >
           <property name="margin" >
            <number>0</number>
           </property>
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item>
+          <item row="0" column="0" >
            <widget class="QCheckBox" name="ringsCheck" >
             <property name="minimumSize" >
              <size>
@@ -304,7 +304,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1" >
            <widget class="QCheckBox" name="gridCheck" >
             <property name="minimumSize" >
              <size>
@@ -317,6 +317,25 @@
             </property>
             <property name="text" >
              <string>Grid</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QCheckBox" name="vcorrCheck" >
+            <property name="minimumSize" >
+             <size>
+              <width>1</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip" >
+             <string>Enable velocity correction</string>
+            </property>
+            <property name="text" >
+             <string>Vcorr</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -333,7 +352,7 @@
        <property name="sizeHint" >
         <size>
          <width>144</width>
-         <height>21</height>
+         <height>16</height>
         </size>
        </property>
       </spacer>
@@ -826,6 +845,72 @@
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>Nyquist V</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="nyquistText" >
+            <property name="toolTip" >
+             <string>Nyquist velocity (m/s)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_6" >
+            <property name="text" >
+             <string>V Corr</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="vcorrText" >
+            <property name="toolTip" >
+             <string>Along beam velocity correction (m/s)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </item>
@@ -835,14 +920,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PPI</class>
-   <extends>QWidget</extends>
-   <header>PPI.h</header>
-  </customwidget>
-  <customwidget>
    <class>ColorBar</class>
    <extends>QWidget</extends>
    <header>ColorBar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PPI</class>
+   <extends>QWidget</extends>
+   <header>PPI.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
