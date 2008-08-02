@@ -2,6 +2,7 @@
 #include "PPI.h"
 #include "Z.xpm"
 #include "Paw.xpm"
+#include <math.h>
 
 #include <QMessageBox>
 #include <QButtonGroup>
@@ -218,17 +219,17 @@ void EldoraPPI::productSlot(
 
     // apply the airspeed correction to VR.
     // only apply it to VR
-    // only apply if it is greater than 0.0 (implies dualprt)
+    // only apply if it is not equal 0.0 (implies dualprt)
     // only apply if correction is enabled for the PPI
     	if (productType == PROD_VR &&
-    			airspdCorr > 0.0 &&
+    			fabs(airspdCorr) > 0.0 &&
     			vcorrCheck->isChecked()) {
         for (unsigned int i = 0; i < p.size(); i++) {
         	double vnew = p[i] + airspdCorr;
         	if (vnew > nyquistVel) {
         		vnew -= 2.0*nyquistVel;
         	} else {
-        		if (vnew < nyquistVel) {
+        		if (vnew < -nyquistVel) {
         			vnew += 2.0*nyquistVel;
         		}
         	}

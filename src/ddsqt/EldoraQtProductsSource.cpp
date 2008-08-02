@@ -306,10 +306,7 @@ double EldoraQtProductsSource::airSpeedCorrection(Products* pItem) {
     	groundSpeed = 130.0;
     
     double alongBeamGroundSpeed = groundSpeed * sin((M_PI/180.0)* tiltAngle);
-    
-    if (pItem->radarId == EldoraDDS::Aft)
-    	alongBeamGroundSpeed = -alongBeamGroundSpeed;
-    
+       
     return alongBeamGroundSpeed;
 }
 
@@ -335,7 +332,7 @@ double EldoraQtProductsSource::nyquistVelocity(Products* pItem) {
 	lambda = 3.0e8/(pHskp->freqs[0]*1.0e9);
 	
 	double nyquist;
-	nyquist = lambda/(4.0*M_PI*prt);
+	nyquist = lambda/(4.0*prt);
 	
 	return nyquist;
 }
