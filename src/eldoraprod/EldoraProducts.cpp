@@ -12,10 +12,12 @@
 ////////////////////////////////////////////////////
 EldoraProducts::EldoraProducts(DDSPublisher& publisher,
                                std::string productsTopic,
+                               int nChan,
                                bool dualPrt,
                                bool reverseVelocity) :
     _rays(0), _publisher(publisher), _productsTopic(productsTopic),
             _productsWriter(publisher, productsTopic), _droppedRays(0),
+            _nChan(nChan),
             _dualPrt(dualPrt), _termsInitialized(false)
 {
     if (reverseVelocity)
@@ -38,6 +40,8 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
     static bool first = true;
     if (first) {
         std::cout << "Products hase received first ray " 
+        << " channels:"
+        << _nChan
         << " prt:"
         << rays[0][0]->hskp.prt 
         << " prtLong:"
@@ -119,16 +123,29 @@ void EldoraProducts::newRayData(std::vector<std::vector<EldoraDDS::Ray*> >& rays
 
         // Transfer the final results from _terms to products.
         for (int g = 0; g < gates; g++) {
-            products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
-            products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
-            products->p3[g] = TOSHORT(_terms.Praw_k[2][g], products->p3Scale, products->p3Offset);
-            products->p4[g] = TOSHORT(_terms.Praw_k[3][g], products->p4Scale, products->p4Offset);
-            products->dm[g] = TOSHORT(_terms.Pant[g], products->dmScale, products->dmOffset);
+            if (_nChan > 0)
+            	products->p1[g] = TOSHORT(_terms.Praw_k[0][g], products->p1Scale, products->p1Offset);
+            else
+            	products->p1[g] = TOSHORT(0.0, products->p1Scale, products->p1Offset);
+            if (_nChan > 1)
+            	products->p2[g] = TOSHORT(_terms.Praw_k[1][g], products->p2Scale, products->p2Offset);
+            else
+            	products->p2[g] = TOSHORT(0.0, products->p2Scale, products->p2Offset);
+            if (_nChan > 2 )
+            	products->p3[g] = TOSHORT(_terms.Praw_k[2][g], products->p3Scale, products->p3Offset);
+            else
+            	products->p3[g] = TOSHORT(0.0, products->p3Scale, products->p3Offset);
+            if (_nChan > 3)
+            	products->p4[g] = TOSHORT(_terms.Praw_k[3][g], products->p4Scale, products->p4Offset);
+            else
+            	products->p4[g] = TOSHORT(0.0, products->p4Scale, products->p4Offset);            
+            
+            products->dm[g]  = TOSHORT(_terms.Pant[g], products->dmScale, products->dmOffset);
             products->dbz[g] = TOSHORT(_terms.Dbz[g], products->dbzScale, products->dbzOffset);
-            products->vr[g] = TOSHORT(_terms.Vr[g], products->vrScale, products->vrOffset);
-            products->sw[g] = TOSHORT(_terms.W[g], products->swScale, products->swOffset);
-            products->vs[g] = TOSHORT(_terms.Vs[g], products->vsScale, products->vsOffset);
-            products->vl[g] = TOSHORT(_terms.Vl[g], products->vlScale, products->vlOffset);
+            products->vr[g]  = TOSHORT(_terms.Vr[g], products->vrScale, products->vrOffset);
+            products->sw[g]  = TOSHORT(_terms.W[g], products->swScale, products->swOffset);
+            products->vs[g]  = TOSHORT(_terms.Vs[g], products->vsScale, products->vsOffset);
+            products->vl[g]  = TOSHORT(_terms.Vl[g], products->vlScale, products->vlOffset);
             products->ncp[g] = TOSHORT(_terms.Ncp[g], products->ncpScale, products->ncpOffset);
         
             if (g == -1) {
@@ -169,7 +186,7 @@ void EldoraProducts::powerRaw(RayData& rays)
     case false:
         // single prt
         for (int g = 0; g < _gates; g++) {
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 // calculate Praw_k
@@ -184,7 +201,7 @@ void EldoraProducts::powerRaw(RayData& rays)
     case true:
         // dual prt
         for (int g = 0; g < _gates; g++) {
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
                 // pick the long and short p out of abp
                 double pks = rays[0][k]->abp[3*g+2];
                 double pkl = rays[1][k]->abp[3*g+2];
@@ -204,18 +221,15 @@ void EldoraProducts::powerAntenna(RayData& rays)
 {
     // Power at the antenna. Not dependent on single/dual prt.
     for (int g = 0; g < _gates; g++) {
-        for (unsigned int k = 0; k < 4; k++) {
+        for (unsigned int k = 0; k < _nChan; k++) {
             // calculate Praw_k
             _terms.Pant_k[k][g] = _terms.Praw_k[k][g] - _terms.a_k[k];
         }
     }
 }
-
-////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 void EldoraProducts::signalPower(RayData& rays)
 {
-
     // Signal power.  Dependent on single/dual prt.
     switch (_dualPrt)
     {
@@ -223,7 +237,7 @@ void EldoraProducts::signalPower(RayData& rays)
         // single prt
         for (int g = 0; g < _gates; g++) {
             double sum = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 p = p - _terms.b10_k[k];
@@ -232,7 +246,7 @@ void EldoraProducts::signalPower(RayData& rays)
                 _terms.Psig_k[k][g] = p;
                 sum += _terms.Psig_k[k][g];
             }
-            _terms.Psig[g] = sum/4.0;
+            _terms.Psig[g] = sum/_nChan;
         }
         break;
 
@@ -241,7 +255,7 @@ void EldoraProducts::signalPower(RayData& rays)
         for (int g = 0; g < _gates; g++) {
             double sumShort = 0.0;
             double sumLong = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
 
                 double pks = rays[0][k]->abp[3*g+2];
                 pks = pks - _terms.b10_k[k];
@@ -260,8 +274,8 @@ void EldoraProducts::signalPower(RayData& rays)
                 _terms.Psig_k[k][g] = (pks+pkl)/2;
             }
 
-            _terms.Psigs[g] = sumShort/4.0;
-            _terms.Psigl[g] = sumLong/4.0;
+            _terms.Psigs[g] = sumShort/_nChan;
+            _terms.Psigl[g] = sumLong/_nChan;
         }
         break;
     }
@@ -274,10 +288,10 @@ void EldoraProducts::totalSignalPower(RayData& rays)
     // Total signal power.  Not dependent on single/dual prt.
     for (int g = 0; g < _gates; g++) {
         double sum = 0.0;
-        for (unsigned int k = 0; k < 4; k++) {
+        for (unsigned int k = 0; k < _nChan; k++) {
             sum += _terms.Psig_k[k][g]/_terms.a10_k[k];
         }
-        _terms.Psigant[g] = sum/4.0;
+        _terms.Psigant[g] = sum/_nChan;
     }
 }
 
@@ -395,13 +409,13 @@ void EldoraProducts::totalPower(RayData& rays)
         // single prt
         for (int g = 0; g < _gates; g++) {
             double num = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 num += p/_terms.a10_k[k];
             }
             if (num > 0.0)
-                _terms.Pant[g] = 10.0*log10(num/4.0);
+                _terms.Pant[g] = 10.0*log10(num/_nChan);
             else
                 _terms.Pant[g] = 0.0;
         }
@@ -411,7 +425,7 @@ void EldoraProducts::totalPower(RayData& rays)
         // dual prt
         for (int g = 0; g < _gates; g++) {
             double num = 0.0;
-            for (unsigned int k = 0; k < 4; k++) {
+            for (unsigned int k = 0; k < _nChan; k++) {
                 // pick the long and short p out of abp
                 double pks = rays[0][k]->abp[3*g+2];
                 double pkl = rays[1][k]->abp[3*g+2];
@@ -419,7 +433,7 @@ void EldoraProducts::totalPower(RayData& rays)
                 num += p/_terms.a10_k[k];
             }
             if (num > 0.0)
-                _terms.Pant[g] = 10.0*log10(num/4.0);
+                _terms.Pant[g] = 10.0*log10(num/_nChan);
             else
                 _terms.Pant[g] = 0.0;
         }
@@ -435,8 +449,8 @@ void EldoraProducts::spectrumWidth(RayData& rays)
      case false:
          // single prt
          for (int g = 0; g < _gates; g++) {
-             double asum = _terms.SumA[0][g] / 4.0;
-             double bsum = _terms.SumB[0][g] / 4.0;
+             double asum = _terms.SumA[0][g] / _nChan;
+             double bsum = _terms.SumB[0][g] / _nChan;
              double denom = sqrt(asum*asum + bsum*bsum);
              double term;
              if (_terms.Psig[g] >= denom) {
@@ -451,12 +465,12 @@ void EldoraProducts::spectrumWidth(RayData& rays)
      case true:
          // dual prt
          for (int g = 0; g < _gates; g++) {
-             double asumShort = _terms.SumA[0][g] / 4.0;
-             double bsumShort = _terms.SumB[0][g] / 4.0;
+             double asumShort = _terms.SumA[0][g] / _nChan;
+             double bsumShort = _terms.SumB[0][g] / _nChan;
              double denomShort = sqrt(square(asumShort)+ square(bsumShort));
 
-             double asumLong = _terms.SumA[1][g] / 4.0;
-             double bsumLong = _terms.SumB[1][g] / 4.0;
+             double asumLong = _terms.SumA[1][g] / _nChan;
+             double bsumLong = _terms.SumB[1][g] / _nChan;
              double denomLong = sqrt(square(asumLong) + square(bsumLong));
              double termShort;
              double termLong;
@@ -482,18 +496,18 @@ void EldoraProducts::ncp(RayData& rays)
     {
     case false:
         for (int g = 0; g < _gates; g++) {
-            _terms.Ncp[g] = sqrt(square(_terms.SumA[0][g]/4.0)+square(_terms.SumB[0][g]/4.0))/(_terms.SumP[0][g]/4.0);
+            _terms.Ncp[g] = sqrt(square(_terms.SumA[0][g]/_nChan)+square(_terms.SumB[0][g]/_nChan))/(_terms.SumP[0][g]/_nChan);
         }
         break;
     case true:
         for (int g = 0; g < _gates; g++) {
         	_terms.Ncp[g] = 0.0;
         	
-            _terms.Ncp[g] += sqrt(square(_terms.SumA[0][g]/4.0) + square(_terms.SumB[0][g]/4.0))
-            		             / (_terms.SumP[0][g]/4.0);
+            _terms.Ncp[g] += sqrt(square(_terms.SumA[0][g]/_nChan) + square(_terms.SumB[0][g]/_nChan))
+            		             / (_terms.SumP[0][g]/_nChan);
             
-            _terms.Ncp[g] += sqrt(square(_terms.SumA[1][g]/4.0)+square(_terms.SumB[1][g]/4.0))
-                                 /(_terms.SumP[1][g]/4.0);
+            _terms.Ncp[g] += sqrt(square(_terms.SumA[1][g]/_nChan)+square(_terms.SumB[1][g]/_nChan))
+                                 /(_terms.SumP[1][g]/_nChan);
             
             _terms.Ncp[g] /= 2.0;
         }        
@@ -512,7 +526,7 @@ void EldoraProducts::computeSums(RayData& rays) {
             _terms.SumA[prtId][g] = 0.0;
             _terms.SumB[prtId][g] = 0.0;
             _terms.SumP[prtId][g] = 0.0;
-            for (int k = 0; k < 4; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 _terms.SumA[prtId][g] += rays[prtId][k]->abp[3*g+0];
                 _terms.SumB[prtId][g] += rays[prtId][k]->abp[3*g+1];
                 _terms.SumP[prtId][g] += rays[prtId][k]->abp[3*g+2];                
@@ -536,7 +550,8 @@ void EldoraProducts::initTerms(RayData& rays)
         return;
 
     // Initialize the terms
-    _terms.init(_gates,
+    _terms.init(_nChan,
+    		    _gates,
                 rays[0][0]->hskp.radarConstant,
                 rays[0][0]->hskp.xBandGain,
                 rays[0][0]->hskp.noisePower,
@@ -631,7 +646,8 @@ void EldoraProducts::initProducts(EldoraDDS::Products* p,
     p->hskp = hskp;
 }
 ////////////////////////////////////////////////////
-void ProductsTerms::init(int gates,
+void ProductsTerms::init(int nChan,
+						 int gates,
                          float radConstant,
                          float xBandGain,
                          float pNoise,
@@ -647,30 +663,30 @@ void ProductsTerms::init(int gates,
 {
 
     // resize vectors. 
-    // Some need space for 4 channels
+    // Some need space for _nChan channels
     // Some need space for gates
     // some need space for channels and gates
-    lambda_k.resize(4);
-    a_k.resize(4);
-    a10_k.resize(4);
-    b_k.resize(4);
-    b10_k.resize(4);
-    Vscale_k.resize(4);
+    lambda_k.resize(nChan);
+    a_k.resize(nChan);
+    a10_k.resize(nChan);
+    b_k.resize(nChan);
+    b10_k.resize(nChan);
+    Vscale_k.resize(nChan);
     phaseShort.resize(gates);
     phaseLong.resize(gates);
     SumA.resize(2);    // for short and long prts
     SumB.resize(2);    // for short and long prts
     SumP.resize(2);    // for short and long prts
     r.resize(gates);
-    Praw_k.resize(4);
-    Pant_k.resize(4);
+    Praw_k.resize(nChan);
+    Pant_k.resize(nChan);
     Pant.resize(gates);
-    Psig_k.resize(4);
+    Psig_k.resize(nChan);
     Psig.resize(gates);
     Psigant.resize(gates);
-    //V_k.resize(4);
-    Psigs_k.resize(4);
-    Psigl_k.resize(4);
+    //V_k.resize(_nChan);
+    Psigs_k.resize(nChan);
+    Psigl_k.resize(nChan);
     Psigs.resize(gates);
     Psigl.resize(gates);
     Thetas.resize(gates);
@@ -683,7 +699,7 @@ void ProductsTerms::init(int gates,
     Vs.resize(gates);
     Vl.resize(gates);
 
-    for (unsigned int k = 0; k < 4; k++) {
+    for (unsigned int k = 0; k < nChan; k++) {
         Praw_k[k].resize(gates);
         Pant_k[k].resize(gates);
         Psig_k[k].resize(gates);
@@ -708,13 +724,13 @@ void ProductsTerms::init(int gates,
     }
 
     lambda = 0.0;
-    for (unsigned int k = 0; k < 4; k++) {
+    for (int k = 0; k < nChan; k++) {
         lambda_k[k] = 3.0e8/(freqs[k]*1.0e9);
         lambda += lambda_k[k];
     }
-    lambda = lambda/4.0;
+    lambda = lambda/nChan;
 
-    for (unsigned int k = 0; k < 4; k++) {
+    for (int k = 0; k < nChan; k++) {
         a_k[k] = xBandGain + rxGain[k] - lnaLoss;
         a10_k[k] = pow(10.0, a_k[k]/10.0);
 
@@ -722,7 +738,7 @@ void ProductsTerms::init(int gates,
         b10_k[k] = pow(10.0, b_k[k]/10);
     }
 
-    for (unsigned int k = 0; k < 4; k++) {
+    for (int k = 0; k < nChan; k++) {
         Vscale_k[k] = lambda_k[k]/(4*M_PI*prt/1000.0);
     }
 

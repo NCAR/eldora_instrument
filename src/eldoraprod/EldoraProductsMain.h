@@ -32,6 +32,7 @@ class EldoraProductsMain {
                        std::string& ORB,
                        std::string& DCPS,
                        std::string& DCPSInfoRepo,
+                       int &nChan,
                        bool& dualPrt,
 		       int & DCPSDebugLevel,
 		       int & DCPSTransportDebugLevel);

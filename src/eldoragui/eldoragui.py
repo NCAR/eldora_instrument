@@ -476,14 +476,24 @@ def startProducts():
     if isRunning:
         return
 
+    # get the number of channels
+    nchan = ourConfig.getInt('Products/Channels', 3)
+    
     # find out if the current header specified single or dual prt
     isDual = dualPrt()
     # start a new instance
     productscmd = [appDict['eldoraprod'], ]
     if isDual:
         productscmd.append('--dualprt')
+    
+    productscmd.append('--nchan')
+    productscmd.append(str(nchan))
+    
+    # create the process
     ourProcesses['eldoraprod'] = EmitterProc(productscmd, emitText=True,
-    payload=nextTaskColor(),verbose=Verbose)
+       payload=nextTaskColor(),verbose=Verbose)
+    
+    # connect the output stream
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()

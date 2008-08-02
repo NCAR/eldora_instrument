@@ -18,7 +18,8 @@
 /// <br> lambda_k[channel]
 struct ProductsTerms
 {
-        void init(int gates,
+        void init(int nChan,
+        		  int gates,
                   float radarConstant,
                   float xBandGain,
                   float pNoise,
@@ -161,6 +162,9 @@ class EldoraProducts
     public:
         /// @param publisher The publisher for publishing products.
         /// @param productsTopic The topic that the products wll be published under.
+    	/// @param nChan The number of channels with signals. We expect 4 channels 
+    	/// of input, no matter what. nChan specifies how many we will use, starting with
+    	/// the first channel.
         /// @param dualPrt Set true if we are operating in dual prt mode
         /// @param reverseVelocity Set true if the velocity needs to be reverse. The
         /// phase relationship of A and B from a signal processor is arbitrary,
@@ -170,6 +174,7 @@ class EldoraProducts
         /// motion towards the receiver.
         EldoraProducts(DDSPublisher& publisher,
                        std::string productsTopic,
+                       int nChan,
                        bool dualPrt,
                        bool reverseVelocity);
         virtual ~EldoraProducts();
@@ -238,6 +243,8 @@ class EldoraProducts
         /// The number of rays which were not processed due to unavailable
         /// empty Products.
         int _droppedRays;
+        /// The number of channels to actually compute over.
+        int _nChan;
         /// True if we are in dual prt mode
         bool _dualPrt;
         /// Is filled in with calculation results as each 

@@ -24,6 +24,7 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
                                    std::string& ORB,
                                    std::string& DCPS,
                                    std::string& DCPSInfoRepo,
+                                   int& nChan,
                                    bool& dualPrt,
 				   int  &DCPSDebugLevel,
 				   int  &DCPSTransportDebugLevel) {
@@ -39,6 +40,7 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
+    ("nchan", po::value<int>(&nChan), "Number of channels containing signal (default 3)")
     ("dualprt", "Dual prt mode")
     ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
     ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
@@ -52,6 +54,7 @@ void EldoraProductsMain::parseArgs(std::string& rayTopic,
     DCPSTransportDebugLevel = theTransportLevel;
     
     po::notify(vm);
+    
     if (vm.count("dualprt"))
         dualPrt = true;
 
@@ -88,6 +91,7 @@ int EldoraProductsMain::run() {
     bool dualPrt = false;
     int DCPSDebugLevel = 0;
     int DCPSTransportDebugLevel = 0;
+    int nChan = 3;
     int numPrtIds;
 
     // set up the default configuration directory path
@@ -109,13 +113,14 @@ int EldoraProductsMain::run() {
     std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
     DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);
 
-
     rayTopic = config.getString("TopicRay", "EldoraRays");
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
     
     dualPrt = config.getBool("DualPrt", false);
+    
+    nChan = config.getInt("NumberOfChannels", 3);
 
-    parseArgs(rayTopic, productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt, DCPSDebugLevel,
+    parseArgs(rayTopic, productsTopic, ORB, DCPS, DCPSInfoRepo, nChan, dualPrt, DCPSDebugLevel,
 	      DCPSTransportDebugLevel);
 
     // determine how many prt ids we have.
@@ -152,7 +157,7 @@ int EldoraProductsMain::run() {
 
     // create the product generator
     // specify velocity reversal for the Eldora system
-    EldoraProducts prodGenerator(publisher, productsTopic, dualPrt, true);
+    EldoraProducts prodGenerator(publisher, productsTopic, nChan, dualPrt, true);
 
     // create the abp reader. prodGenerator will 
     // receive abp data from abpSource
