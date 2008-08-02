@@ -75,7 +75,8 @@ def start():
     '''
 
     # program the ECB devices
-    progECB()
+    # disable the ecb, since we are not using the eldora syntesizers anymore
+    # progECB()
 
     # start archivers
     startArchivers()
@@ -373,19 +374,19 @@ def startDcps():
 
     # just go ahead and kill DCPS. Old running instances have 
     # turned out to cause a lot of heartburn.
-    pkill('DCPSInfoRepo')
+    restart = True
     # see if it is already running
     isRunning = not pgrep('DCPSInfoRepo')
     if isRunning:
         if not restart:
-	    if Verbose: print 'start_DCPS - DCPS is running'
+	    if Verbose: print 'startDcps() - DCPS is running'
             return
         else:
-	    if Verbose: print 'start_DCPS - killing DCPS '
+	    if Verbose: print 'startDcps() - killing DCPS '
             pkill('DCPSInfoRepo')
 
     # start a new instance
-    if Verbose: print 'start_DCPS - starting new instance'
+    if Verbose: print 'startDcps() - starting new instance'
     dcpscmd = [
         os.path.join(ddsRoot, 'bin', 'DCPSInfoRepo'), 
         '-NOBITS', 
