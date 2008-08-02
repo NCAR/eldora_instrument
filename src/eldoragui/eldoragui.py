@@ -509,8 +509,8 @@ def startArchivers():
     port2 = ourConfig.getInt('Archiver/Archiver2RpcPort', 60004)
 
     # start the two servers if they aren't running
-    archiverList = [('EldoraArchiver1', dir1, port1),
-                    ('EldoraArchiver2', dir2, port2)]
+    archiverList = [('eldoraarchiver1', dir1, port1),
+                    ('eldoraarchiver2', dir2, port2)]
     for entry in archiverList:
         key, dir, port = entry
         if (ourProcesses.has_key(key) and 
@@ -519,7 +519,7 @@ def startArchivers():
                              str(ourProcesses[key].pid()) + ')')
                 continue
             
-        cmd = [appDict['EldoraArchiver'], dir, str(port)]
+        cmd = [appDict['eldoraarchiver'], dir, str(port)]
         ourProcesses[key] = EmitterProc(cmd, 
                                         emitText = True, 
                                         payload = nextTaskColor(),
@@ -742,7 +742,7 @@ def initConfig():
     appDict = ApplicationDict()
 
     # add apps that are found in eldoraDir/<appName>/<appName>
-    for app in ['EldoraArchiver', 'eldoradrx', 'eldoraprod', 'eldorappi', 
+    for app in ['eldoraarchiver', 'eldoradrx', 'eldoraprod', 'eldorappi', 
                 'eldorascope', 'dumpheader', 'progdds', 'progsa', 'progmux', 
                 'progtestpulse']:
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
@@ -788,7 +788,7 @@ def createRpcServers():
     url = 'http://' + host + ':' + str(port)
     global archiver1rpc
     if Verbose: print 'archiver1url =', url
-    archiver1rpc = EldoraRPC('EldoraArchiver1', url)
+    archiver1rpc = EldoraRPC('eldoraarchiver1', url)
     archiver1rpc.start()
     
     # create the rpc for the secondary archiver
@@ -797,7 +797,7 @@ def createRpcServers():
     url = 'http://' + host + ':' + str(port)
     global archiver2rpc
     if Verbose: print 'archiver2url =', url
-    archiver2rpc = EldoraRPC('EldoraArchiver2', url)
+    archiver2rpc = EldoraRPC('eldoraarchiver2', url)
     archiver2rpc.start()
     
     if Verbose: print 'CreateRpcServers finished'

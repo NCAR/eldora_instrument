@@ -29,7 +29,7 @@ DoradeHskp.cpp
 ''')
 
 # build eldoraprod
-eldoraarchiver = env.Program('EldoraArchiver', sources)
+eldoraarchiver = env.Program('eldoraarchiver', sources)
 inst = env.InstallProgram(eldoraarchiver)
 
 env.Default(eldoraarchiver)
