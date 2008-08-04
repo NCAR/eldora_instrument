@@ -171,10 +171,10 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
                 setRadarParams(&_radarParams[1], key, value);
                 break;
             case FORE:
-                setRadarParams(&_radarParams[0], key, value);
+                setRadarParams(&_radarParams[1], key, value);
                 break;
             case AFT:
-                setRadarParams(&_radarParams[1], key, value);
+                setRadarParams(&_radarParams[0], key, value);
                 break;
                 
         }
@@ -229,63 +229,105 @@ bool DrxRPC::setRadarParams(EldoraRadarParams* p,
 
     intMap["WAVENCHIPS"] = p->wave_nchips; // {2,2,2,2,0,2}
     nvalsMap["WAVENCHIPS"] = 6;
+    
     intMap["WAVECHPOFF"] = p->wave_chpoff; // {17,77,137,197,0,0} 
     nvalsMap["WAVECHPOFF"] = 6;
+    
     intMap["WAVECHPWID"] = p->wave_chpwid; // {60,60,60,60,0,257} 
     nvalsMap["WAVECHPWID"] = 6;
+    
     intMap["WAVENGATES"] = p->wave_ngates; // {376,376,376,376,0} 
     nvalsMap["WAVENGATES"] = 5;
+    
     intMap["WAVEGATE1"] = p->wave_gate1; // {90,60} 
     nvalsMap["WAVEGATE1"] = 2;
+    
     intMap["WAVEGATE2"] = p->wave_gate2; // {90,60} 
     nvalsMap["WAVEGATE2"] = 2;
+    
     intMap["WAVEGATE3"] = p->wave_gate3; // {90,60} 
     nvalsMap["WAVEGATE3"] = 2;
+    
     intMap["WAVEGATE4"] = p->wave_gate4; // {90,60} 
     nvalsMap["WAVEGATE4"] = 2;
+    
     intMap["WAVEGATE5"] = p->wave_gate5; // {-999,-999} 
     nvalsMap["WAVEGATE5"] = 2;
+    
     doubleMap["WAVEMSREP"] = &p->wave_msrep; // {1.125}
+    
     intMap["WAVESEQREP"]= &p->wave_seqrep; // {45}
 
     doubleMap["RADDCONST"] = &p->radd_const; // {-80.290924} 
+    
     doubleMap["RADDNOIPOW"] = &p->radd_noipow; // {-112.920517} 
+    
     doubleMap["RADDUNVEL"] = &p->radd_unvel; // {77.226303} 
+    
     doubleMap["RADDUNRNG"] = &p->radd_unrng; // {60.000000} 
+    
     intMap["RADDNFREQ"] = &p->radd_nfreq; // {4} 
+    
     intMap["RADDNIPP"] = &p->radd_nipp; // {2} 
+    
     doubleMap["RADDFREQ1"] = &p->radd_freq1; // {9.710000} 
+    
     doubleMap["RADDFREQ2"] = &p->radd_freq2; // {9.700000} 
+    
     doubleMap["RADDFREQ3"] = &p->radd_freq3; // {9.690000} 
+    
     doubleMap["RADDFREQ4"] = &p->radd_freq4; // {9.720000} 
+    
     doubleMap["RADDFREQ5"] = &p->radd_freq5; // {-999.000000} 
+    
     doubleMap["RADDIPP1"] = &p->radd_ipp1; // {0.400000} 
+    
     doubleMap["RADDIPP2"] = &p->radd_ipp2; // {0.500000} 
+    
     doubleMap["RADDIPP3"] = &p->radd_ipp3; // {-999.000000} 
+    
     doubleMap["RADDIPP4"] = &p->radd_ipp4; // {-999.000000} 
+    
     doubleMap["RADDIPP5"] = &p->radd_ipp5; // {-999.000000} 
+    
     doubleMap["RADDROTVEL"] = &p->radd_rotvel; // 50.00000
 
     doubleMap["FRIBLNALOS"] = &p->frib_lnalos; // {1.097910} 
+    
     doubleMap["FRIBXGAIN"] = &p->frib_xgain; // {21.100000} 
-    doubleMap["FRIBRXGAIN"] = p->frib_rxgain; // {30.770000,27.959999,30.480000,30.670000,30.000000} 
+    
+    doubleMap["FRIBRXGAIN"] = p->frib_rxgain; // {30.770000,27.959999,30.480000,30.670000,30.000000}     
+    nvalsMap["FRIBRXGAIN"] = 5;
+    
     doubleMap["FRIBENCANG"] = &p->frib_encang; // 276.538086
-
+   
     doubleMap["CSPDWIDTH"] = p->cspd_width; // 150 150 150 150 -999 -999
     nvalsMap["CSPDWIDTH"] = 6;
+
     doubleMap["CSPD1STGAT"] = &p->cspd_1stgat; // 225
     
     doubleMap["PARMSCALEVS"] = &p->parm_vs_scale; // {424.259552} 
+    
     doubleMap["PARMBIASVS"] = &p->parm_vs_bias; // {8191.000000} 
+    
     doubleMap["PARMSCALEVL"] = &p->parm_vl_scale; // {530.324463} 
+    
     doubleMap["PARMBIASVL"] = &p->parm_vl_bias; // {8191.000000} 
+    
     doubleMap["PARMSCALESW"] = &p->parm_sw_scale; // {65.425186} 
+    
     doubleMap["PARMBIASSW"] = &p->parm_sw_bias; // {0.000000} 
+    
     doubleMap["PARMSCALEVR"] = &p->parm_vr_scale; // {424.298431} 
+    
     doubleMap["PARMBIASVR"] = &p->parm_vr_bias; // {32767.000000} 
+    
     doubleMap["PARMSCALENCP"] = &p->parm_ncp_scale; // {1024.000000} 
+    
     doubleMap["PARMBIASNCP"] = &p->parm_ncp_bias; // {0.000000} 
+    
     doubleMap["PARMSCALEDBZ"] = &p->parm_dbz_scale; // {8.000000} 
+    
     doubleMap["PARMBIASDBZ"] = &p->parm_dbz_bias; // {280.000000} 
     
     // How many values do we expect for this key?  Default is 1.
