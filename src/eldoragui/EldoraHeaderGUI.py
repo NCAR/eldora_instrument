@@ -127,9 +127,9 @@ if __name__ == '__main__':
         combo.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         l1.addWidget(combo)
         
-        headerDirs = ['./',]
+        headerDirs = ['/opt/eldora/conf',]
         
-        gui = EldoraHeaderGUI(combo, headerDirs)
+        gui = EldoraHeaderGUI(combo, headerDirs, 'dumpheader')
         gui.connect(viewbtn, SIGNAL("released()"), gui.viewHeader)
     
         # run the event loop

@@ -76,7 +76,7 @@ def start():
 
     # program the ECB devices
     # disable the ecb, since we are not using the eldora syntesizers anymore
-    # progECB()
+    progECB()
 
     # start archivers
     startArchivers()
@@ -1027,7 +1027,7 @@ def progECB():
     mux.programMux(radar='aft',     muxchoice='transmit', channel='P')
     
     # start the testpulse cycle
-    testPulse.start()
+    # testPulse.start()
 
     return
 
