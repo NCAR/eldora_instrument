@@ -71,7 +71,8 @@ EldoraArchiver::~EldoraArchiver() {
 // Load a new ELDORA header
 bool
 EldoraArchiver::loadHeader(std::string hdrFileName, std::string flightName) {
-    std::cout << "Requested to load header " << hdrFileName << std::endl;
+    std::cout << "Requested to load header " << hdrFileName << 
+       ", flight name " << flightName << std::endl;
     // Bail out quickly if the file does not exist.
     struct stat statbuf;
     if (stat(hdrFileName.c_str(), &statbuf)) {

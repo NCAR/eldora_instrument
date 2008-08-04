@@ -580,7 +580,7 @@ def sendHeader():
         if (r < 0):
             r = (1 << 32) + r
         if (r != main.selectedHeader.checksum):
-            main.logText('Bad checksum from archiver1 for ' + src + ': ', r, 
+            main.logText('Bad checksum from housekeeper for ' + src + ': ', r, 
                          '!=', main.selectedHeader.checksum)
     except Exception, e:
         main.logText('Exception ' + str(e) + ' while calling housekeeper Header()')
@@ -591,9 +591,10 @@ def sendHeader():
     # necessary to interpret as unsigned.  Zero is returned on error.
     for rpc in [archiver1rpc, archiver2rpc]:
         try:
+            fltname = ourConfig.getString('Flight/FlightName','UNKNOWN')
             # @todo: Change to use a real flight name
             r = rpc.server.Header([os.path.basename(main.selectedHeader.headerFile),
-                                   'ChangeMe'])
+                                   fltname])
             if (r < 0):
                 r = (1 << 32) + r
             if (r != main.selectedHeader.checksum):
