@@ -25,15 +25,15 @@ hpa[0].peak_power[0] = 40.179;    /* nominal peak power in kw 9.3 GHz*/
 hpa[0].peak_power[1] = 40.17;    /* nominal peak power in kw 9.4 GHz*/
 hpa[0].peak_power[2] = 39.084;    /* nominal peak power in kw 9.5 GHz*/
 hpa[0].peak_power[3] = 39.86;    /* nominal peak power in kw 9.6 GHz*/
-hpa[0].peak_power[4] = 37.8;     /* nominal peak power in kw 9.7 GHz*/
+hpa[0].peak_power[4] = 39.80;     /* nominal peak power in kw 9.7 GHz*/
 hpa[0].peak_power[5] = 40.13;    /* nominal peak power in kw 9.8 GHz*/
 
-hpa[0].x_band_gain[0] = 23.0;          /* x-band gain in dB 9.3 GHz */
-hpa[0].x_band_gain[1] = 23.0;          /* x-band gain in dB 9.4 GHz */
-hpa[0].x_band_gain[2] = 23.0;          /* x-band gain in dB 9.5 GHz */
-hpa[0].x_band_gain[3] = 23.0;          /* x-band gain in dB 9.6 GHz */
-hpa[0].x_band_gain[4] = 22.1;          /* x-band gain in dB 9.7 GHz */
-hpa[0].x_band_gain[5] = 23.0;          /* x-band gain in dB 9.8 GHz */
+hpa[0].x_band_gain[0] = 0.0;          /* x-band gain in dB 9.3 GHz */
+hpa[0].x_band_gain[1] = 0.0;          /* x-band gain in dB 9.4 GHz */
+hpa[0].x_band_gain[2] = 0.0;          /* x-band gain in dB 9.5 GHz */
+hpa[0].x_band_gain[3] = 0.0;          /* x-band gain in dB 9.6 GHz */
+hpa[0].x_band_gain[4] = 0.0;          /* x-band gain in dB 9.7 GHz */
+hpa[0].x_band_gain[5] = 0.0;          /* x-band gain in dB 9.8 GHz */
 
 hpa[0].turn_on_time = 295;     /* in ns */
 hpa[0].turn_off_time = 295;    /* in ns */
@@ -43,7 +43,7 @@ hpa[0].peak_power_coupling = 70.35;   /* in dB */
 
 /* hpa[0].test_pulse_coupling = 41.8; */  /* in dB */
 hpa[0].test_pulse_coupling = 33.7;  /* in dB */
-hpa[0].r_noise_figure = 1.99;        /* in dB */
+hpa[0].r_noise_figure = 2.4;        /* in dB */
 
 /* Applied System Engineering Serial Number 2 */
 
@@ -59,16 +59,16 @@ hpa[1].serial_number[7] = ' ';
 hpa[1].peak_power[0] = 40.17;    /* nominal peak power in kw 9.3 GHz*/
 hpa[1].peak_power[1] = 46.45;    /* nominal peak power in kw 9.4 GHz*/
 hpa[1].peak_power[2] = 40.19;    /* nominal peak power in kw 9.5 GHz*/
-hpa[1].peak_power[3] = 38.60;    /* nominal peak power in kw 9.6 GHz*/
+hpa[1].peak_power[3] = 45.70;    /* nominal peak power in kw 9.6 GHz*/
 hpa[1].peak_power[4] = 40.20;    /* nominal peak power in kw 9.7 GHz*/
 hpa[1].peak_power[5] = 40.22;    /* nominal peak power in kw 9.8 GHz*/
 
-hpa[1].x_band_gain[0] = 23.0;          /* x-band gain in dB 9.3 GHz */
-hpa[1].x_band_gain[1] = 23.0;          /* x-band gain in dB 9.4 GHz */
-hpa[1].x_band_gain[2] = 23.0;          /* x-band gain in dB 9.5 GHz */
-hpa[1].x_band_gain[3] = 22.4;          /* x-band gain in dB 9.6 GHz */
-hpa[1].x_band_gain[4] = 23.0;          /* x-band gain in dB 9.7 GHz */
-hpa[1].x_band_gain[5] = 23.0;          /* x-band gain in dB 9.8 GHz */
+hpa[1].x_band_gain[0] = 0.0;          /* x-band gain in dB 9.3 GHz */
+hpa[1].x_band_gain[1] = 0.0;          /* x-band gain in dB 9.4 GHz */
+hpa[1].x_band_gain[2] = 0.0;          /* x-band gain in dB 9.5 GHz */
+hpa[1].x_band_gain[3] = 0.0;          /* x-band gain in dB 9.6 GHz */
+hpa[1].x_band_gain[4] = 0.0;          /* x-band gain in dB 9.7 GHz */
+hpa[1].x_band_gain[5] = 0.0;          /* x-band gain in dB 9.8 GHz */
 
 hpa[1].turn_on_time = 300;     /* in ns */
 hpa[1].turn_off_time = 300;    /* in ns */
@@ -1384,11 +1384,11 @@ actual_num_rcvrs = 2;
 
 rcvr[FORE].cntr_freq = 9.7;
 
-rcvr[FORE].receiver_gain[0] = 24.30;
-rcvr[FORE].receiver_gain[1] = 24.40;
-rcvr[FORE].receiver_gain[2] = 24.40;
-rcvr[FORE].receiver_gain[3] = 24.80;
-rcvr[FORE].receiver_gain[4] = 24.00;
+rcvr[FORE].receiver_gain[0] = 44.93;
+rcvr[FORE].receiver_gain[1] = 44.53;
+rcvr[FORE].receiver_gain[2] = 44.63;
+rcvr[FORE].receiver_gain[3] = 44.70;
+rcvr[FORE].receiver_gain[4] = 44.70;
 
 rcvr[FORE].if_gain[0] = 0.0;
 rcvr[FORE].if_gain[1] = 0.0;
@@ -1403,11 +1403,11 @@ rcvr[FORE].freq_indexs[i] = (rcvr[FORE].cntr_freq - 9.25) * 10.0;
 
 rcvr[AFT].cntr_freq = 9.6;
 
-rcvr[AFT].receiver_gain[0] = 24.30;
-rcvr[AFT].receiver_gain[1] = 25.50;
-rcvr[AFT].receiver_gain[2] = 25.30;
-rcvr[AFT].receiver_gain[3] = 25.80;
-rcvr[AFT].receiver_gain[4] = 25.00;
+rcvr[AFT].receiver_gain[0] = 48.40;
+rcvr[AFT].receiver_gain[1] = 48.20;
+rcvr[AFT].receiver_gain[2] = 48.40;
+rcvr[AFT].receiver_gain[3] = 48.33;
+rcvr[AFT].receiver_gain[4] = 48.33;
 
 rcvr[AFT].if_gain[0] = 0.0;
 rcvr[AFT].if_gain[1] = 0.0;

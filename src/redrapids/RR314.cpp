@@ -688,14 +688,14 @@ void RR314::newABPData(int* src, int chan, int n) {
 			break;
 		default:
 			nextData = pBuf->_posInRay - 3;
-			// A and B scaled by full scale.
+			// A and B scaled by full scale. 64 is fixed scaling in FPGA. 1.12202 accounts for 0.5 db loss in RR314
 			if (((nextData) % 3) < 2) {
-  			    pBuf->_abp[nextData] = src[i]*ABSCALE*64/samples;
+  			    pBuf->_abp[nextData] = src[i]*1.12202*ABSCALE*64/samples;
                 //pBuf->_abp[nextData] = src[i]*ABSCALE;
 			} else {
 				// P is actually unsigned...
 				unsigned int* usrc = (unsigned int*)src;
-                pBuf->_abp[nextData] = usrc[i]*PSCALE*64/samples;
+                pBuf->_abp[nextData] = usrc[i]*1.12202*PSCALE*64/samples;
                 //pBuf->_abp[nextData] = usrc[i]*PSCALE;
 			}
 			pBuf->_posInRay++;

@@ -674,8 +674,10 @@ int calculate_radar() {
     else if (engin_st.avg_freq_index[0] > 0) {
         radar[FORE].receiver_gain
                 = rcvr[FORE].receiver_gain[engin_win.avg_freq_index[FORE]];
+        printf("avg_freq_index = %d\n",engin_win.avg_freq_index[FORE]);
         radar[AFT].receiver_gain
                 = rcvr[AFT].receiver_gain[engin_win.avg_freq_index[AFT]];
+        printf("avg_freq_index = %d\n",engin_win.avg_freq_index[AFT]);
         radar_st.receiver_gain = 1;
         number_to_calculate--;
     }
