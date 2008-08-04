@@ -1050,6 +1050,11 @@ def nextTaskColor():
     return taskColors[currentColor]
 
 ####################################################################################
+def flightName(fltname):
+    ourConfig.setString('Flight/FlightName',fltname)
+
+
+####################################################################################
 def lastWindowClosed():
     if Verbose: print 'lastWindowClosed - calling stop'
     
@@ -1162,7 +1167,10 @@ if Verbose: print 'finished creating QApplication'
 HPA0device = ourConfig.getString('HPAs/Hpa0Device', '/dev/ttydp01')
 HPA1device = ourConfig.getString('HPAs/Hpa1Device', '/dev/ttydp02')
 
-main = EldoraMain(headersDir=headerDirs, 
+fltname = ourConfig.getString('Flight/FlightName','UNKNOWN')
+
+main = EldoraMain(flightName=fltname,
+                  headersDir=headerDirs, 
                   hdrDumpApp=appDict['dumpheader'],
                   hpa0Device=HPA0device,
                   hpa1Device=HPA1device)
@@ -1177,6 +1185,7 @@ QObject.connect(main, SIGNAL('ready'),              mainIsReady)
 QObject.connect(main, SIGNAL('ppi'),                ppi)
 QObject.connect(main, SIGNAL('scope'),              scope)
 QObject.connect(main, SIGNAL('header'),             headerSelected)
+QObject.connect(main, SIGNAL('flightname'),         flightName)
 QObject.connect(app,  SIGNAL('lastWindowClosed()'), lastWindowClosed)
 
 # start the event loop

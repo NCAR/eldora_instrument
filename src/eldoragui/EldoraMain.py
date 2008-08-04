@@ -12,6 +12,9 @@ from ProgressStrip   import *
 from EldoraHeaderGUI import *
 from HpaWidget       import *
 
+class FlightNameValidator:
+    pass
+
 ######################################################################################
 class EldoraMain(QDialog, Ui_EldoraMain):
     '''
@@ -28,9 +31,11 @@ class EldoraMain(QDialog, Ui_EldoraMain):
        ready:   the GUI is ready. This will be emitted once, on the first timer tick.
        scope:   scope has been requested
        ppi(for):ppi has been requested, for==true for forward scope
+       flight:  flight name has been changed
     '''
     ###############################################################################
     def __init__(self, 
+                 flightName,
                  headersDir,
                  hdrDumpApp,
                  hpa0Device,
@@ -39,6 +44,14 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         # initialize
         super(EldoraMain, self).__init__(parent)
         self.setupUi(self)
+        
+        # save the flight name
+        self.flightName = flightName
+        # and set the label
+        self.flightText.setText(flightName)
+        # apply a validator
+        self.flightNameValidator = FlightNameValidator(parent=self)
+        self.flightText.setValidator(self.flightNameValidator)
         
         # save the location of the headers
         self.headersDir = headersDir
@@ -103,6 +116,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.connect(self.expandButton, SIGNAL('released()'), self.showHide)
         # The 'header' signal indicates a new header has been chosen
         self.connect(self.headerGui, SIGNAL("header"), self.headerSelected)
+        
+        self.connect(self.flightText, SIGNAL('textEdited(QString)'), self.flightNameChange)
         
         # use our timer for a clock. Remember that the first tick will 
         # casue a ready signal to be emitted.
@@ -465,6 +480,29 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         g = self.gauges[name]
         g.allOn(False)
         g.on(index, True) 
-           
-    
+
+    ###############################################################################
+    def flightNameChange(self, text):
+       # emit a signal with the new name
+        self.emit(SIGNAL('flightname'), text)
+ 
+######################################################################################
+class FlightNameValidator(QValidator):
+    def __init__(self, parent=None):
+        super(FlightNameValidator, self).__init__(parent)
+        
+    def validate(self, input, pos):
+        ''' Validate the flight name. Force to upper case. Only
+        allow alpha numerice, dash, # and colon. Limit to 
+        8 characters.
+        '''
+        if input.length() > 8:
+            pos = 8
+            return (QValidator.Invalid, 8)
             
+        newtext = input.toUpper()
+        if newtext.compare(input):
+            input.replace(0,100,input.toUpper())
+            return (QValidator.Acceptable, pos)
+        
+        return (QValidator.Acceptable, pos)
