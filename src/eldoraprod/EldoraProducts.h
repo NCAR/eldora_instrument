@@ -232,6 +232,8 @@ class EldoraProducts
         /// Caculate normalized coherent power
         void ncp(RayData& rays);
 
+        /// The current radar id for the ray that was just received.
+        int _id;
         /// The number of rays that have been received.
         int _rays;
         /// The DDS publisher
@@ -249,15 +251,17 @@ class EldoraProducts
         bool _dualPrt;
         /// Is filled in with calculation results as each 
         /// step in the products computations are completed.
-        ProductsTerms _terms;
+        ProductsTerms _terms[2];
         /// Is initialized with scaling factors for the DDS data compression
         ProductsScaling _scaling;
         /// Contains the number of gates in the current set of rays
         int _gates;
         /// set to false if _terms still needs to be initialized.
-        /// Used by initterms().
-        bool _termsInitialized;
+        /// Used by initterms(). Ther is one for each radar.
+        bool _termsInitialized[2];
         /// Use this multiplier to reverse velocity if so specified.
         int _velSign;
+        /// set true until first ray is received for each radar.
+        bool _first[2];
 };
 #endif
