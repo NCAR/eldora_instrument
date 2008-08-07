@@ -1,5 +1,5 @@
 /* XPM */
-static char *Arrow[] = {
+static const char *Arrow[] = {
 /* columns rows colors chars-per-pixel */
 "30 30 60 1",
 "  c #284BFC",

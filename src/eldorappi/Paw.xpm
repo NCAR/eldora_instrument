@@ -1,5 +1,5 @@
 /* XPM */
-static char *Paw[] = {
+static const char *Paw[] = {
 /* columns rows colors chars-per-pixel */
 "30 30 77 1",
 "  c #284BFC",
