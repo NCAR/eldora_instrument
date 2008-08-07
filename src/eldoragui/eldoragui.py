@@ -429,9 +429,6 @@ def startDrx():
     # start a new instance with standard options
     drxcmd = [
            appDict['eldoradrx'], 
-           '--start0', 
-           '--start1', 
-           '--pub', 
            ]
 
     # get the rpc port number
