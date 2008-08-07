@@ -36,6 +36,7 @@ namespace po = boost::program_options;
 
 
 void EldoraPlaybackMain::parseArgs( std::string& inputFileName,
+                                    std::string& inputDirectory,
                                    std::string& productsTopic,
                                    std::string& ORB,
                                    std::string& DCPS,
@@ -51,6 +52,7 @@ void EldoraPlaybackMain::parseArgs( std::string& inputFileName,
 
     descripts.add_options() ("help", "describe options")
     ("inputFileName", po::value<std::string>(&inputFileName), "input file")
+    ("inputDirectory", po::value<std::string>(&inputDirectory), "input directory")
     ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -100,7 +102,8 @@ int EldoraPlaybackMain::run() {
     std::string ORB;
     std::string DCPS;
     std::string DCPSInfoRepo;
-    std::string inputFileName;
+    std::string inputFileName = "/";
+    std::string inputDirectory = "/tmp";
 
     bool dualPrt = false;
     int DCPSDebugLevel = 0;
@@ -131,7 +134,7 @@ int EldoraPlaybackMain::run() {
     
     dualPrt = config.getBool("DualPrt", false);
 
-    parseArgs(inputFileName, productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt, DCPSDebugLevel,
+    parseArgs(inputFileName, inputDirectory,productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt, DCPSDebugLevel,
 	      DCPSTransportDebugLevel);
 
     // determine how many prt ids we have.
@@ -167,7 +170,11 @@ int EldoraPlaybackMain::run() {
 
     while (1) {
         std::cerr << "calling playback\n";
-        prodGenerator.playback(inputFileName);
+        if (inputFileName != "/" ) {
+            prodGenerator.playback(inputFileName);
+        } else {
+            prodGenerator.playbackDirectory(inputDirectory);
+        }
         exit(0);
     }
     

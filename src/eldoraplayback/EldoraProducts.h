@@ -201,6 +201,7 @@ class EldoraProducts
         /// will hold the short prt ray data and the second vector will hold the long 
         /// prt ray data.
         void playback(std::string inputFileName);
+        void playbackDirectory(std::string inputDirectory);
 
         /// Return the number of rays procesed thus far.
         int numRays();

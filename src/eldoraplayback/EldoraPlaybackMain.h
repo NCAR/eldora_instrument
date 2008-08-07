@@ -27,7 +27,8 @@ class EldoraPlaybackMain {
         void status(int& numAbpBeams, int& numProductBeams, int &discardBeamsFor, int &discardBeamsAft);
 
     protected:
-        void parseArgs(std::string& inputFileName,
+        void parseArgs( std::string& inputFileName,
+                        std::string& inputDirectory,
                        std::string& productsTopic,
                        std::string& ORB,
                        std::string& DCPS,

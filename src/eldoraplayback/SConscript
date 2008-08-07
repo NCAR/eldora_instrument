@@ -1,5 +1,6 @@
 import os
-tools = ['dorade', 'ddssvc', 'qtt_qtconfig', 'utilities', 'boost_program_options']
+tools = ['dorade', 'ddssvc', 'qtt_qtconfig', 'utilities',
+'boost_program_options', 'boost_filesystem']
 env = Environment(tools = ['default'] + tools)
 
 # libraries:

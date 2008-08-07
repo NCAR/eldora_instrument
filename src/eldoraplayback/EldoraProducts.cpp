@@ -1,5 +1,7 @@
 #include <iostream>
 #include <math.h>
+#include <boost/filesystem/operations.hpp>
+namespace fs = boost::filesystem;
 
 #include <ace/Time_Value.h>
 #include <ace/Event.h>
@@ -115,11 +117,66 @@ void EldoraProducts::initProducts(EldoraDDS::Products * products, EldoraDDS::Hou
         
         
 }
+void EldoraProducts::playbackDirectory(std::string inputDirectory)
+{
+    fs::path path(inputDirectory);
+    
+    if (! fs::exists(path) ) {
+        cerr << "EldoraProducts::playback : " << inputDirectory << " does not exist\n";
+        return;
+    }
+    if ( ! fs::is_directory(path) ) {
+        cerr << "EldoraProducts::playback : " << inputDirectory << " is NOT a directory\n";
+        return;
+    }
+    fs::directory_iterator dir_iter(path);
+    fs::directory_iterator dir_end;
+    fs::path cur_path;
+    std::string cur_path_str;
+    std::vector<fs::path> path_list;
+    std::vector<fs::path>::iterator path_list_iter;
+    
+
+    // scan all the files
+    while (dir_iter != dir_end) {
+        cur_path = *dir_iter;
+        path_list.push_back(cur_path);
+        ++dir_iter;
+    }
+    // process them in sorted order
+    sort(path_list.begin(), path_list.end());
+    for (path_list_iter = path_list.begin(); path_list_iter != path_list.end(); ++path_list_iter){
+        cur_path = *path_list_iter;
+        std::string leaf = cur_path.leaf();
+
+        // verify suffix of file is correct
+        size_t sz = leaf.size();
+        size_t found = leaf.rfind(".raw.fb");
+        if (found != leaf.npos && (sz - found) == 7) {
+            cur_path_str = cur_path.string();
+            cerr << "Processing " << leaf << std::endl;
+            playback(cur_path_str);
+        }
+    }
+    
+}
 
 
 void EldoraProducts::playback(std::string inputFileName)
 {
+    boost::filesystem::path path(inputFileName);
+    
+    if (! boost::filesystem::exists(path) ) {
+        cerr << "EldoraProducts::playback : " << inputFileName << " does not exist\n";
+        return;
+    }
+    if ( boost::filesystem::is_directory(path) ) {
+        cerr << "EldoraProducts::playback : " << inputFileName << " is a directory\n";
+        return;
+    }
 
+    
+    
     EldoraDDS::Housekeeping ddsHskp;
 
     parseDoradeHeader(inputFileName, ddsHskp);
