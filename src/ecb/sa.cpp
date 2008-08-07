@@ -78,8 +78,8 @@ SA::ChgAttenVal(int attenval)
   int d = 0;
 
   //Brute Force method of changing the values
-  if(attenval >= 0 && attenval <= 7 || attenval >= 10 && attenval <= 17 || attenval >= 20 && attenval <= 27 || attenval >= 30 && attenval <= 37
-      || attenval >= 40 && attenval <= 47 || attenval >= 50 && attenval <= 57 || attenval >= 60 && attenval <= 67 || attenval >= 70 && attenval <= 77)
+  if((attenval >= 0 && attenval <= 7) || (attenval >= 10 && attenval <= 17) || (attenval >= 20 && attenval <= 27) || (attenval >= 30 && attenval <= 37)
+      || (attenval >= 40 && attenval <= 47) || (attenval >= 50 && attenval <= 57) || (attenval >= 60 && attenval <= 67) || (attenval >= 70 && attenval <= 77))
   {
     d = attenval/10;
     chgval = attenval + 6 * d;
@@ -93,7 +93,7 @@ SA::ChgAttenVal(int attenval)
   }
 
 
-  if(attenval >= 80 && attenval <= 87 || attenval >= 90 && attenval <= 97 || attenval >= 100 && attenval <= 107 || attenval >= 110 && attenval <= 117)
+  if((attenval >= 80 && attenval <= 87) || (attenval >= 90 && attenval <= 97) || (attenval >= 100 && attenval <= 107) || (attenval >= 110 && attenval <= 117))
   {
     d = attenval/10;
     chgval = attenval + 6 * (d-8) + 112;
