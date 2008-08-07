@@ -153,7 +153,7 @@ void CappiGen::productSlot(
     }
 
     // copy the product into an array, and write to output file
-    double product[_maxCells];
+    float product[_maxCells];
     //    std::cerr << "copying " << numCells << " gates" << std::endl;
     int i;
     for (i = 0; i < numCells; ++i) {

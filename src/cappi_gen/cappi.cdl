@@ -4,7 +4,7 @@ dimensions:
 	Time = UNLIMITED ;
 
 variables:
-	double product(Time,maxCells);
+	float product(Time,maxCells);
 	int prodType(Time);
         int numCells(Time);
 	double gateSpacingMeters(Time);
