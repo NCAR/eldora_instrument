@@ -23,7 +23,7 @@ public:
     int wave_nchips[6];///< waveform number of chips
     int wave_chpoff[6];///< waveform chip offset (60 Mhz counts)
     int wave_chpwid[6];///< waveform chip width (60 Mhz counts)
-    int wave_ngates[5];///< waveform number of sampled gates
+    int wave_ngates[6];///< waveform number of sampled gates
     int wave_gate1[2]; ///< waveform gate distance 1 (60 Mhz counts)
     int wave_gate2[2]; ///< waveform gate distance 2 (60 Mhz counts)
     int wave_gate3[2]; ///< waveform gate distance 3 (60 Mhz counts)
