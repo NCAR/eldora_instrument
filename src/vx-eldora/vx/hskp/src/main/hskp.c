@@ -50,8 +50,8 @@ First = 1;
 kill = 1;
 dumb_start = 0;
 dumb_index = 25;
-autocal = 1;
-
+// autocal = 1;
+autocal = 0; /* disable autocal until gpib is functional */ 
 //Tom 3/20/08
 fake_intrs = 0;
 
@@ -146,7 +146,7 @@ do{
     {
       autocal = 0;
       taskDelay(20);
-      stop_ieee(); 
+//      stop_ieee();  add back in when power meters are functional!
     }
     First = 0;
     /* Wait here to be (re)started by the control processor */
@@ -307,7 +307,7 @@ Edited by Tom 1/30/08
     
     // Now start the automatic testpulse calibration scheme //
    
-    autocal = 1;
+    // autocal = 1; disable autocal for T-PARC
     start_testpulse();
 
     
