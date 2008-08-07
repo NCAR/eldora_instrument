@@ -157,10 +157,8 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
             std::string s = value;
             if (!s.compare("AFT")) {
                 radarChoice = AFT;
-                std::cout << "processing forward radar header\n";
             } else { 
                 radarChoice = FORE;
-                std::cout << "processing aft radar header\n";
             }
             continue;
         }
@@ -200,9 +198,9 @@ void DrxRPC::params(XmlRpc::XmlRpcValue& params,
         _radarParams[r].vold_time[2] = now.time_of_day().seconds();
     }
 
-    std::cout << "**** forward radar:\n";
+    std::cout << "**** radarParams[0]\n";
     _radarParams[0].dump();
-    std::cout << "**** aft radar:\n";
+    std::cout << "**** radarParams[1]\n";
     _radarParams[1].dump();
     std::cout.flush();
 
