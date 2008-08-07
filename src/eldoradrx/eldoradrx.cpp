@@ -1309,7 +1309,7 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
 /// no system peer has been established yet, return -HUGE_VAL.
 static float
 getNTPOffset() {
-    char* cmd = "/usr/sbin/ntpq -p";
+    const char* cmd = "/usr/sbin/ntpq -p";
     FILE* ntpq = popen(cmd, "r");
     if (! ntpq) {
         std::cerr << "Error running '" << cmd << "': " << strerror(errno) << 
