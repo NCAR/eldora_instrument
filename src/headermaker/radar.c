@@ -1,5 +1,5 @@
 #define scope extern
-#define RX_MIS 1.8         /* Receiver Mismatch Loss in dB */
+#define RX_MIS 2.3         /* Receiver Mismatch Loss in dB */
 #include <stdlib.h>
 #include "mkrDef.h"
 #include "mkrGbl.h"
@@ -566,9 +566,9 @@ int calculate_radar() {
     int i, number_to_calculate, freq_mult[5];
     float logk, twoagain, pwrdbm, freqs[2][5], rx_mismatch;
     double delta_freq, tmp_dbl;
-
+    
     number_to_calculate = 15;
-    rx_mismatch = RX_MIS; /* 1.8 dB for matched filter */
+    rx_mismatch = RX_MIS; /* 2.3 dB for Gaussian filter */
 
     /* This is the world famous radar constant (in dB) no one really knows what
      this should be, but calculate it here, with respect to the HPA
@@ -642,7 +642,8 @@ int calculate_radar() {
         number_to_calculate--;
     else if (fradar_st.r_noise_figure > 0 && fradar_st.loss_in > 0
             && fradar_st.ant_noise_temp > 0 && engin_st.chipdur > 0) {
-        receiver_noise_temp = 290.0 * (pow(10.0,
+#ifdef CraigNP /* old way implemented by C.W. */
+       receiver_noise_temp = 290.0 * (pow(10.0,
                                            (double)(fradar[FORE].r_noise_figure
                                                    /10.0)) - 1.0);
         waveguide_loss = pow(10.0, (double)(fradar[FORE].loss_in/10.0));
@@ -661,7 +662,27 @@ int calculate_radar() {
         bandwidth = 1.0e6/engin_win.chipdur;
         radar[AFT].noise_power = 30 + 10
                 * log10((double)(BOLTZMAN * system_noise_temp * bandwidth));
+#endif
+            
+          receiver_noise_temp = 290.0 * (pow(10.0,
+                                             (double)(fradar[FORE].r_noise_figure
+                                                     /10.0)) - 1.0);
+          waveguide_loss = pow(10.0, (double)(fradar[FORE].loss_in/10.0));
+          system_noise_temp = fradar[FORE].ant_noise_temp + 290.0
+                  * (waveguide_loss - 1) + receiver_noise_temp;
+          bandwidth = 1.0e6/engin_win.chipdur;
+          radar[FORE].noise_power = 30 + 10
+                  * log10((double)(BOLTZMAN * system_noise_temp * bandwidth));
 
+          receiver_noise_temp = 290.0 * (pow(10.0,
+                                             (double)(fradar[AFT].r_noise_figure
+                                                     /10.0)) - 1.0);
+          waveguide_loss = pow(10.0, (double)(fradar[AFT].loss_in/10.0));
+          system_noise_temp = fradar[AFT].ant_noise_temp + 290.0
+                  * (waveguide_loss - 1) + receiver_noise_temp;
+          bandwidth = 1.0e6/engin_win.chipdur;
+          radar[AFT].noise_power = 30 + 10
+                  * log10((double)(BOLTZMAN * system_noise_temp * bandwidth));
         radar_st.noise_power = 3;
         number_to_calculate--;
     }
@@ -864,9 +885,9 @@ int calculate_radar() {
 #endif
         /* NOTE: Changed order of freq to fix fore/aft leakage problem in f2! */
 #ifndef LO_RT_SDLB
-        freq_mult[0] = 1;
+        freq_mult[0] = -1;
         freq_mult[1] = 0;
-        freq_mult[2] = -1;
+        freq_mult[2] = 1;
         freq_mult[3] = 2;
         freq_mult[4] = -2;
 #endif  

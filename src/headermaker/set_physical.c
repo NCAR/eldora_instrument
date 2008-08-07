@@ -25,7 +25,7 @@ hpa[0].peak_power[0] = 40.179;    /* nominal peak power in kw 9.3 GHz*/
 hpa[0].peak_power[1] = 40.17;    /* nominal peak power in kw 9.4 GHz*/
 hpa[0].peak_power[2] = 39.084;    /* nominal peak power in kw 9.5 GHz*/
 hpa[0].peak_power[3] = 39.86;    /* nominal peak power in kw 9.6 GHz*/
-hpa[0].peak_power[4] = 39.80;     /* nominal peak power in kw 9.7 GHz*/
+hpa[0].peak_power[4] = 39.50;     /* nominal peak power in kw 9.7 GHz*/
 hpa[0].peak_power[5] = 40.13;    /* nominal peak power in kw 9.8 GHz*/
 
 hpa[0].x_band_gain[0] = 0.0;          /* x-band gain in dB 9.3 GHz */
@@ -43,7 +43,7 @@ hpa[0].peak_power_coupling = 70.35;   /* in dB */
 
 /* hpa[0].test_pulse_coupling = 41.8; */  /* in dB */
 hpa[0].test_pulse_coupling = 33.7;  /* in dB */
-hpa[0].r_noise_figure = 2.4;        /* in dB */
+hpa[0].r_noise_figure = 4.6;        /* in dB, includes LNA,TR,circulator & adapter */
 
 /* Applied System Engineering Serial Number 2 */
 
@@ -59,8 +59,8 @@ hpa[1].serial_number[7] = ' ';
 hpa[1].peak_power[0] = 40.17;    /* nominal peak power in kw 9.3 GHz*/
 hpa[1].peak_power[1] = 46.45;    /* nominal peak power in kw 9.4 GHz*/
 hpa[1].peak_power[2] = 40.19;    /* nominal peak power in kw 9.5 GHz*/
-hpa[1].peak_power[3] = 45.70;    /* nominal peak power in kw 9.6 GHz*/
-hpa[1].peak_power[4] = 40.20;    /* nominal peak power in kw 9.7 GHz*/
+hpa[1].peak_power[3] = 41.90;    /* nominal peak power in kw 9.6 GHz*/
+hpa[1].peak_power[4] = 40.50;    /* nominal peak power in kw 9.7 GHz*/
 hpa[1].peak_power[5] = 40.22;    /* nominal peak power in kw 9.8 GHz*/
 
 hpa[1].x_band_gain[0] = 0.0;          /* x-band gain in dB 9.3 GHz */
@@ -77,7 +77,8 @@ hpa[1].tr_tube_loss = 0.3;            /* in dB */
 hpa[1].peak_power_coupling = 71.70;    /* in dB */
 /* hpa[1].test_pulse_coupling = 41.9;  */  /* in dB */
 hpa[1].test_pulse_coupling = 32.8 ;   /* in dB */
-hpa[1].r_noise_figure = 1.56;         /* in dB */
+hpa[1].r_noise_figure = 3.6;         /* in dB, includes LNA,TR,circulator & adapter */
+
 
 }
 void set_antenna()
