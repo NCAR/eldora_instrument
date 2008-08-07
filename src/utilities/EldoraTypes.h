@@ -2,6 +2,7 @@
 #define ELDORATYPES_H
 
 #include <vector>
+#include <string>
 #include <map>
 
 typedef std::vector<std::string> StringVec;

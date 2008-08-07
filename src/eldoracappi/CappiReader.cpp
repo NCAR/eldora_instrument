@@ -1,4 +1,5 @@
 #include "CappiReader.h"
+#include <cstdlib>
 
 CappiReader::CappiReader():
         _nc_input(NULL)
