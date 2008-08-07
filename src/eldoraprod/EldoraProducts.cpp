@@ -200,7 +200,7 @@ void EldoraProducts::powerRaw(RayData& rays)
     case false:
         // single prt
         for (int g = 0; g < _gates; g++) {
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 // calculate Praw_k
@@ -215,7 +215,7 @@ void EldoraProducts::powerRaw(RayData& rays)
     case true:
         // dual prt
         for (int g = 0; g < _gates; g++) {
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 // pick the long and short p out of abp
                 double pks = rays[0][k]->abp[3*g+2];
                 double pkl = rays[1][k]->abp[3*g+2];
@@ -235,7 +235,7 @@ void EldoraProducts::powerAntenna(RayData& rays)
 {
     // Power at the antenna. Not dependent on single/dual prt.
     for (int g = 0; g < _gates; g++) {
-        for (unsigned int k = 0; k < _nChan; k++) {
+        for (int k = 0; k < _nChan; k++) {
             // calculate Praw_k
             _terms[_id].Pant_k[k][g] = _terms[_id].Praw_k[k][g] - _terms[_id].a_k[k];
         }
@@ -251,7 +251,7 @@ void EldoraProducts::signalPower(RayData& rays)
         // single prt
         for (int g = 0; g < _gates; g++) {
             double sum = 0.0;
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 p = p - _terms[_id].b10_k[k];
@@ -269,7 +269,7 @@ void EldoraProducts::signalPower(RayData& rays)
         for (int g = 0; g < _gates; g++) {
             double sumShort = 0.0;
             double sumLong = 0.0;
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
 
                 double pks = rays[0][k]->abp[3*g+2];
                 pks = pks - _terms[_id].b10_k[k];
@@ -302,7 +302,7 @@ void EldoraProducts::totalSignalPower(RayData& rays)
     // Total signal power.  Not dependent on single/dual prt.
     for (int g = 0; g < _gates; g++) {
         double sum = 0.0;
-        for (unsigned int k = 0; k < _nChan; k++) {
+        for (int k = 0; k < _nChan; k++) {
             sum += _terms[_id].Psig_k[k][g]/_terms[_id].a10_k[k];
         }
         _terms[_id].Psigant[g] = sum/_nChan;
@@ -430,7 +430,7 @@ void EldoraProducts::totalPower(RayData& rays)
         // single prt
         for (int g = 0; g < _gates; g++) {
             double num = 0.0;
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 // pick the p out of abp
                 double p = rays[0][k]->abp[3*g+2];
                 num += p/_terms[_id].a10_k[k];
@@ -446,7 +446,7 @@ void EldoraProducts::totalPower(RayData& rays)
         // dual prt
         for (int g = 0; g < _gates; g++) {
             double num = 0.0;
-            for (unsigned int k = 0; k < _nChan; k++) {
+            for (int k = 0; k < _nChan; k++) {
                 // pick the long and short p out of abp
                 double pks = rays[0][k]->abp[3*g+2];
                 double pkl = rays[1][k]->abp[3*g+2];
@@ -720,7 +720,7 @@ void ProductsTerms::init(int nChan,
     Vs.resize(gates);
     Vl.resize(gates);
 
-    for (unsigned int k = 0; k < nChan; k++) {
+    for (int k = 0; k < nChan; k++) {
         Praw_k[k].resize(gates);
         Pant_k[k].resize(gates);
         Psig_k[k].resize(gates);
