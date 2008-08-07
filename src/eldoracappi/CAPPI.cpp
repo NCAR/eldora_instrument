@@ -92,19 +92,19 @@ GLfloat* CAPPI::beam::colors(int varN) {
 static bool glutInitialized = false;
 
 CAPPI::CAPPI(QWidget* parent) :
-	QGLWidget(parent), _decimationFactor(1), _selectedVar(0), _zoom(1.0),
-			_centerX(0.0), _centerY(0.0), _left(-1), _right(1),
-			_bottom(-1), _top(1),_gridRingsColor("black"),
-			_backgroundColor("lightblue"), _ringsEnabled(true),
-			_gridsEnabled(false), _resizing(false),
+	QGLWidget(parent), _decimationFactor(1), _gateWidthKm(0.150), 
+	        _selectedVar(0), _zoom(1.0), _centerX(0.0), _centerY(0.0), 
+	        _gridRingsColor("black"), _backgroundColor("lightblue"), 
+			_ringsEnabled(true), _gridsEnabled(false), _resizing(false),
 			_scaledLabel(ScaledLabel::DistanceEng), _configured(false),
-			_rubberBand(0), _cursorZoom(true), _gateWidthKm(0.150) {
+			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0), 
+			_cursorZoom(true) {
 	initializeGL();
 
 	if (!glutInitialized) {
 		int argc = 1;
 		char* argv[2];
-		argv[0] = "dummy";
+		argv[0] = (char*)("dummy");
 		argv[1] = 0;
 
 		glutInit(&argc, argv);
