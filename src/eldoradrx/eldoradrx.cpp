@@ -236,8 +236,8 @@ int main(int argc,
     // And set radar specific fields
     // set the radar names
     for (int i = 0; i < 4; i++) {
-        _radarParams[0].radd_name[i] = "FORE"[i];
-        _radarParams[1].radd_name[i] = "AFT "[i];
+        _radarParams[1].radd_name[i] = "FORE"[i];
+        _radarParams[0].radd_name[i] = "AFT "[i];
     }
 
     int loopCount = 0;
@@ -583,15 +583,15 @@ static void parseOptions(int argc,
     ("DCPSInfoRepo", po::value<std::string>(&_DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("simRR314", "run RR314 in simulation mode")
     ("simHskp", "generate fake housekeeping data")
-    ("start0", "start RR314 device 0")
-    ("start1", "start RR314 device 1")
+    ("stop0", "do not start start RR314 device 0")
+    ("stop1", "do not start start RR314 device 1")
     ("internaltimer", "use RR314 internal timer")
     ("xsvf", po::value<std::string>(&_xsvf), "path to xsvf file")
     ("kaiser", po::value<std::string>(&_kaiser), "path to kaiser coefficient file")
     ("gaussian", po::value<std::string>(&_gaussian),"path to gaussian coefficient file")
     ("binary", "binary capture")
     ("text", "text capture")
-    ("publish", "publish data")
+    ("nopublish", "do not publish data")
     ("rpcport", po::value<int>(&_rpcPort), "RPC port number")
     ("tpwidth", po::value<int>(&_tpWidth), "Test pulse width (gates)")
     ("DCPSDebugLevel", po::value<int>(&_DCPSDebugLevel), "DCPSDebugLevel ")
@@ -602,7 +602,7 @@ static void parseOptions(int argc,
     po::store(po::parse_command_line(argc, argv, descripts), vm);
     po::notify(vm);
 
-    _publish = vm.count("publish") != 0;
+    _publish = vm.count("nopublish") == 0;
     _capture = (vm.count("binary") != 0) || (vm.count("text") != 0);
     _textcapture = vm.count("text") != 0;
     _simulateRR314 = vm.count("simRR314") != 0;
@@ -617,10 +617,12 @@ static void parseOptions(int argc,
     }
 
     // see if this device was selected to be active
-    if (vm.count("start0"))
     _enabled[0] = true;
-    if (vm.count("start1"))
+    if (vm.count("stop0"))
+    _enabled[0] = false;
     _enabled[1] = true;
+    if (vm.count("stop1"))
+    _enabled[1] = false;
 
 }
 
