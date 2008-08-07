@@ -267,7 +267,7 @@ DoradeDescriptor::streamTo(std::ostream& os, bool asLittleEndian)
     putBytes(os, _descName.data(), 4, false);
     putInt(os, _descLen, asLittleEndian);
     // Fill the rest of the descriptor with nulls
-    for (int i = 0; i < _descLen - 8; i++)
+    for (unsigned int i = 0; i < _descLen - 8; i++)
         putBytes(os, &null, 1, false);
     return os;
 }
