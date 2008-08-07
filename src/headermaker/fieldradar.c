@@ -32,7 +32,6 @@ void initialize_fieldradar(fradar_pntr)
     fradar_pntr->xmit_power[2] = -999.;
     fradar_pntr->xmit_power[3] = -999.;
     fradar_pntr->xmit_power[4] = -999.;
-    fradar_pntr->xmit_power[5] = -999.;
 
     fradar_pntr->x_band_gain = -999.;
 
@@ -41,14 +40,12 @@ void initialize_fieldradar(fradar_pntr)
     fradar_pntr->receiver_gain[2] = -999.;
     fradar_pntr->receiver_gain[3] = -999.;
     fradar_pntr->receiver_gain[4] = -999.;
-    fradar_pntr->receiver_gain[5] = -999.;
 
     fradar_pntr->if_gain[0] = -999.;
     fradar_pntr->if_gain[1] = -999.;
     fradar_pntr->if_gain[2] = -999.;
     fradar_pntr->if_gain[3] = -999.;
     fradar_pntr->if_gain[4] = -999.;
-    fradar_pntr->if_gain[5] = -999.;
 
     fradar_pntr->conversion_gain = -999.;
 
@@ -57,7 +54,6 @@ void initialize_fieldradar(fradar_pntr)
     fradar_pntr->scale_factor[2] = -999.;
     fradar_pntr->scale_factor[3] = -999.;
     fradar_pntr->scale_factor[4] = -999.;
-    fradar_pntr->scale_factor[5] = -999.;
 
     fradar_pntr->processor_const = -999;
 
