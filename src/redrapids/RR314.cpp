@@ -255,9 +255,9 @@ bool RR314::loadFilters(FilterSpec& gaussian, FilterSpec& kaiser) {
 
 	do {
 		gaussianLoaded = true;
-		std::cout << "gaussian coeffs:\n";
+		//std::cout << "gaussian coeffs:\n";
 		for (unsigned int i = 0; i< gaussian.size(); i++) {
-			std::cout << "    " << i << " " << gaussian[i] << std::endl;
+			//std::cout << "    " << i << " " << gaussian[i] << std::endl;
 
 			unsigned int readBack;
 			int ramAddr = i%12;
