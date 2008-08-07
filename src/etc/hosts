@@ -26,6 +26,8 @@
 192.168.1.101    etherio-aft	                     # etherio ethernet to digital forward rx/exc
 192.168.1.102    etherio-sa	                     # etherio ethernet to digital stepped attenuator
 
+192.168.1.151	 t-parmac                            # Bell's mac
+
 # 192.168.80.xxx: The P3 ADDS network. reachback provides access to the internet and DNS.
 #                 The ADDS data feed for aeros is provided by acserver
 
