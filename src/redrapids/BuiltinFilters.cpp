@@ -11,7 +11,7 @@ void BuiltinFilters::init(double key, unsigned int* coeffs, int n) {
 
 	(*this)[key].resize(n);
 
-	for (int i = 0; i < (*this)[key].size(); i++) {
+	for (unsigned int i = 0; i < (*this)[key].size(); i++) {
 		(*this)[key][i] = coeffs[i];
 	}
 }
