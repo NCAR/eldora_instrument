@@ -17,9 +17,6 @@ void CappiManager::setup(
     _colorMaps = colorMaps;
     _decimation = decimation;
     _minHeight = minHeight;
-    
-    // start off with a square display of the minimum height
-    _cappi->setMinimumSize(minHeight, minHeight);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -28,9 +25,11 @@ CappiManager::~CappiManager() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CappiManager::newProduct(
-                              std::vector<double>& p, double xPos, double yPos,
-                              float rotAngle, int prodIndex) {
+bool CappiManager::newProduct(std::vector<double>& p, 
+		double xPos, 
+		double yPos,
+		float rotAngle, 
+		int prodIndex) {
 
     bool retval = false;
     
@@ -49,8 +48,8 @@ bool CappiManager::newProduct(
     // if we have a complete set, send them to the display
     if (_currentProducts.size() == (unsigned int)_nProducts) {
         // calculate the start and end angle for the ray to be drawn
-        double startAng = rotAngle - 0.45;
-        double stopAng = rotAngle + 0.45;
+        double startAng = rotAngle - 0.72;
+        double stopAng = rotAngle + 0.72;
         if (startAng < 0.0) {
             startAng += 360.0;
             stopAng += 360.0;
@@ -60,6 +59,7 @@ bool CappiManager::newProduct(
                 stopAng -= 360.0;
             }
         }
+        
         _cappi->addBeam(xPos, yPos, startAng, stopAng, _gates, _productData, 1, *_colorMaps);
         // clear our collected products
         _currentProducts.clear();
@@ -86,13 +86,8 @@ void CappiManager::configureCAPPI(
     if (gates == 0)
         distance = 100.0;
 
-    int h = _minHeight;
-    int w = (int)(h * (right-left)/(top-bottom));
-    _cappi->setMinimumSize(w,h);
-    
-    _cappi->configure(numProducts, _gates,
-                      // beams,
-                      distance, _decimation, 
+   _cappi->configure(numProducts, _gates,
+                     500.0, 0.150, _decimation, 
                     left, right, bottom, top);
  
 }

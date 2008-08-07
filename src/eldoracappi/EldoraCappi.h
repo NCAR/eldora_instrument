@@ -88,6 +88,8 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
                 qlonglong timeTag,
                 StrMapDouble hskpMap);
 
+        void displayRecord(unsigned long rec);
+
         /// Call when the plot type is changed.  - unused!
         /// @param plotType One of the products from ProductTypes.h
         //                virtual void plotTypeSlot( int plotType);
@@ -168,6 +170,7 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
         void colorBarPopup(
                 bool forwardRadar);
         void pan(double x, double y);
+        CAPPI* _cappi;
         /// The manager for the upper PPI
         CappiManager _upperManager;
 #ifdef LOWER_WINDOW

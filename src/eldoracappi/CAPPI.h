@@ -119,6 +119,7 @@ class DLL_EXPORT CAPPI : public QGLWidget
             public:
 	  beam(double bx,   ///< horizontal dist from center of display (km)
 	       double by,   ///< vertical dist from center of display(km)
+	       double gateWidthKm, ///< width of a gate, in km
 	       double startAngle, ///< Start angle of the beam
                      double stopAngle, ///< Stop angle of the beam
                      int nGates, ///< Number of gates in the beam
@@ -128,15 +129,14 @@ class DLL_EXPORT CAPPI : public QGLWidget
 	  /// destructor
                 virtual ~beam();
 
-	  // move this beam to another location, when the airplane is too
-	  // close to the edge of the displayed area.
-	  void moveBeam(double bxKm,   ///< new horizontal dist from center of display
-		    double byKm);  ///< new vertical dist from center of display
+	  void moveBeam();
 
 	  /// horizontal distance from center of display(km)
 	        double _bxKm;
 	  /// vertical distance from center of display(km)
 	        double _byKm;
+	        /// The width of each gate, along the beam
+	        double _gateWidthKm;
                 /// The start angel of the beam.
                 double _startAngle;
                 /// The stop angle of the beam
@@ -176,7 +176,8 @@ class DLL_EXPORT CAPPI : public QGLWidget
         /// Configure the CAPPI for dynamically allocated beams. 
         void configure(int nVars, ///< Number of variables.
                        int maxGates, ///< Maximum number of gates in a beam.
-                       double distanceSpanKm=100.0, ///< The distance spanned by the complete CAPPI.
+                       double distanceSpanKm, ///< The distance spanned by the complete CAPPI.
+                       double gateWidthKm,
                        int decimationFactor=1, ///< The incoming data will be decimated in gates by this factor
                        double left = -1.0, ///< left clipping plane
                        double right = 1.0, ///< right clipping plane
@@ -312,6 +313,8 @@ class DLL_EXPORT CAPPI : public QGLWidget
         int _nVars;
         /// Maximum number of gates along a beam
         int _maxGates;
+        /// 
+        double _gateWidthKm;
         /// true if the beams have been preallocated.
         bool _preAllocate;
         /// The index of the variable selected for display

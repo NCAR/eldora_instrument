@@ -3,6 +3,7 @@
 #include "Z.xpm"
 #include "Paw.xpm"
 
+#include <QVBoxLayout>
 #include <QMessageBox>
 #include <QButtonGroup>
 #include <QLabel>
@@ -43,7 +44,11 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     {
     // Set up our form
     setupUi(parent);
-    CAPPI *cappi = new CAPPI(CAPPI_Parent);
+    
+    QVBoxLayout* l = new QVBoxLayout;
+    _cappi = new CAPPI(cappiFrame);
+    l->addWidget(_cappi);
+    cappiFrame->setLayout(l);
     
 
     // configure check buttons
@@ -52,13 +57,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     // set the title
     parent->setWindowTitle(title.c_str());
 
-    // initialize running statistics
-    for (int i = 0; i < 3; i++) {
-        _errorCount[i] = 0;
-        _lastPulseNum[i] = 0;
-    }
-
-    // creat the hot key action group
+     // creat the hot key action group
     fkeysActionGroup = new QActionGroup(parent);
     fkeysActionGroup->setEnabled(true);
     fkeysActionGroup->setExclusive(false);
@@ -66,14 +65,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     // fill in the product list
     _productList.insert(PROD_DBZ);
     _productList.insert(PROD_VR);
-#ifdef NOTDEF
-    _productList.insert(PROD_DM);
-    _productList.insert(PROD_VS);
-    _productList.insert(PROD_VL);
-    _productList.insert(PROD_SW);
-    _productList.insert(PROD_NCP);
-#endif
-    
+
     // create a couple of images to be used as button icons. They
     // are created from XPM arrays imported from the included
     // xpm files.
@@ -89,11 +81,9 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 
     // The color bar popup
     connect(colorBarFor, SIGNAL(released()), this, SLOT(colorBarUpperSlot()));
-    //    connect(colorBarAft, SIGNAL(released()), this, SLOT(colorBarLowerSlot()));
 
     // product selection buttons
     connect(&_upperButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeUpperSlot(int)));
-    //    connect(&_lowerButtonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeLowerSlot(int)));
     
     connect(pauseRunButton, SIGNAL(toggled(bool)), this, SLOT(pauseRunSlot(bool)));
 
@@ -121,10 +111,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     // setup the displays themselves.
     int decimation = _config.getInt("Decimation", 1);
     int ppiHeight = _config.getInt("Size/MinHeight", 300);
-    _upperManager.setup(cappi, _productMaps.size(), &_productMaps, decimation, ppiHeight);
-#ifdef LOWER_WINDOW
-    _lowerManager.setup(ppiAft, 7, &_productMaps, decimation, ppiHeight);
-#endif
+    _upperManager.setup(_cappi, _productMaps.size(), &_productMaps, decimation, ppiHeight);
     
     // get the display clipping specifications
     _left = _config.getDouble("Clipping/Left", -1.0);
@@ -137,9 +124,6 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     for (std::set<PRODUCT_TYPES>::iterator i = _productList.begin(); 
          i != _productList.end(); i++){
         productTypeUpperSlot(*i);
-#ifdef LOWER_WINDOW
-        productTypeLowerSlot(*i);
-#endif
     }
     
     // add hot keys 
@@ -163,24 +147,19 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 
     // and then set the initial display
     productTypeUpperSlot(PROD_DBZ);
-#ifdef LOWER_WINDOW
-    productTypeLowerSlot(PROD_DBZ);
-#endif
    
     // specify cursor zooming
     cursorZoomSlot();
     
     // start the statistics timer
-    _statusTimerId = startTimer(100);
-
-    _checkNewDataId = startTimer(500);
+    //_statusTimerId = startTimer(100);
 
     if (!_cappiReader.openFile(inputFile)) {
         std::cerr << "could not open " << inputFile << std::endl;
         exit(1);
     }
     
-
+    _checkNewDataId = startTimer(5000);
 }
 //////////////////////////////////////////////////////////////////////
 EldoraCappi::~EldoraCappi() {
@@ -206,11 +185,9 @@ void EldoraCappi::productSlot(
     
 
     double adjustedAngle = rollAngle + rotAngle + _rollOffset;
-#ifdef DEBUG
-    std::cerr << "EldoraCappi::productSlot() time =" << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<   " groundSpeedNS = " << hskpMap["groundSpeedNS"]
-              <<        std::endl;   
-#endif
-    
+    //std::cerr << "EldoraCappi::productSlot() time =" << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<   " groundSpeedNS = " << hskpMap["groundSpeedNS"]
+    //          <<        std::endl;   
+
     // is this an angle we want to look at?
     if (! flteq(adjustedAngle, 90.0, dwellWidth/2.0)
         && ! ( flteq(adjustedAngle, 270.0, dwellWidth/2.0)) )
@@ -223,8 +200,6 @@ void EldoraCappi::productSlot(
         return;
     }
     
-    
-  
     // ignore products that we are not interested in. Of course, the 
     // caller is not supposed to send them to us, but perform a
     // sanity check here anyway.
@@ -234,6 +209,7 @@ void EldoraCappi::productSlot(
     // ignore product if we are paused.
     if (_paused)
         return;
+
     // if the product size has changed, reconfigure the ppi displays
     if (p.size() != _gates || gateSizeMeters != _gateSizeMeters || dwellWidth != _dwellWidth) {
    	
@@ -241,13 +217,11 @@ void EldoraCappi::productSlot(
         _gates = p.size();
         _gateSizeMeters = gateSizeMeters;
         
+        std::cout << "calling configureCAPPI\n";
+        
         //        int nBeams = (int) nearbyint(360.0/_dwellWidth);
         _upperManager.configureCAPPI(_productList.size(), _gates,  _gateSizeMeters, 
                                    _left, _right, _bottom, _top);
-#ifdef LOWER_WINDOW
-        _lowerManager.configureCAPPI(_productList.size(), _gates,  _gateSizeMeters, 
-                                   _left, _right, _bottom, _top);
-#endif
         
         // display some of the vitals
         QString t;
@@ -259,6 +233,7 @@ void EldoraCappi::productSlot(
         gatesText->setText(t);
         
     }
+
     // apply the airspeed correction to VR
     if (productType == PROD_VR) {
         for (unsigned int i = 0; i < p.size(); i++)
@@ -270,6 +245,7 @@ void EldoraCappi::productSlot(
 
     double corRotAngle = rotAngle + rollAngle;
     double cartAngle;
+
     // convert the Eldora heading and radarTitleAngle pointing angle to a
     // cartesian pointing angle
     // is the horizontal beam pointed to the right of the plane?
@@ -302,22 +278,15 @@ void EldoraCappi::productSlot(
     _lastTime = timeTag;
     _lastProdType = prodType;
 #ifdef DEBUG
-    std::cerr << "EldoraCappi::productSlot : X = " << _lastXKm << " Y = " << _lastYKm << std::endl;
-    
+    std::cerr << "EldoraCappi::productSlot : X = " << _lastXKm << " Y = " << _lastYKm << std::endl;    
 #endif
     
-
     // send the product to the appropriate ppi manager
     if (_upperManager.newProduct(p, _lastXKm, _lastYKm, cartAngle, index)) {
         	_rotAngle = cartAngle;
         	_rollAngle = rollAngle;
     }
-#ifdef LOWER_WINDOW
-    _lowerManager.newProduct(p, cartAngle, index);
-#endif
 }
-
-
 //////////////////////////////////////////////////////////////////////
 void EldoraCappi::saveImageSlot() {
     QString f = _config.getString("imageSaveDirectory", "c:/").c_str();
@@ -337,8 +306,7 @@ void EldoraCappi::saveImageSlot() {
     d.selectFile(f);
     if (d.exec()) {
         QStringList saveNames = d.selectedFiles();
-        //ppiFore->saveImageToFile(saveNames[0].toStdString());
-        //ppiAft->saveImageToFile(saveNames[0].toStdString());
+        //_cappi->saveImageToFile(saveNames[0].toStdString());
         f = d.directory().absolutePath();
         _config.setString("imageSaveDirectory", f.toStdString());
     }
@@ -348,16 +316,8 @@ void EldoraCappi::saveImageSlot() {
 void EldoraCappi::initPlots() {
 
     int index = 0;
-    //    setProductInfo(PROD_DM, index++, "DM", "DM", "Power", -60.0, 20.0);
-
     setProductInfo(PROD_DBZ, index++, "DBZ", "DBZ", "Reflectivity", -60.0, 20.0, true);
     setProductInfo(PROD_VR, index++, "VR", "VR", "Velocity (radial)", -30.0, 30.0);
-#ifdef NOTDEF
-    setProductInfo(PROD_VS, index++, "VS", "VS", "Velocity (short pulse)", -30.0, 30.0);
-    setProductInfo(PROD_VL, index++, "VL", "VL", "Velocity (long pulse)", -30.0, 30.0);
-    setProductInfo(PROD_SW, index++, "SW", "SW", "Spectral width", 0.0, 30.0);
-    setProductInfo(PROD_NCP, index++, "NCP", "NCP", "Normalized coherent power", 0.0, 1.0);
-#endif
 
     // The buttons were created and assigned to layouts in setPpiInfo.
     // Attach these layouts to the button groups
@@ -489,26 +449,14 @@ void EldoraCappi::setProductInfo(
 void EldoraCappi::colorBarUpperSlot() {
     colorBarPopup(true);
 }
-#ifdef LOWER_WINDOW
-//////////////////////////////////////////////////////////////////////
-void EldoraCappi::colorBarLowerSlot() {
-    colorBarPopup(false);
-}
-#endif
+
 //////////////////////////////////////////////////////////////////////
 void EldoraCappi::colorBarPopup(bool upper) {
     
     // get the current settings for the selected product in
     // the selected colormap.
     PRODUCT_TYPES prodType;
-#ifdef LOWER_WINDOW
-    if (upper)
-        prodType = _prodTypeUpper;
-    else
-        prodType = _prodTypeLower;
-#else
     prodType = _prodTypeUpper;
-#endif
     
     double min = _productInfo[prodType].getScaleMin();
     double max = _productInfo[prodType].getScaleMax();
@@ -520,6 +468,7 @@ void EldoraCappi::colorBarPopup(bool upper) {
             != _colorMaps.end(); i++) {
         mapNames.push_back(i->first);
     }
+
     _colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, upper, this);
 
     // connect the finished slot so that the dialog status 
@@ -573,10 +522,7 @@ void EldoraCappi::colorBarSettingsFinishedSlot(
         _productMaps[index]->setRange(scaleMin, scaleMax);
         
         // configure the color bar with it
-        //       if (prodType == _prodTypeUpper) 
-            colorBarFor->configure(*_productMaps[index]);
-            // if (prodType == _prodTypeLower) 
-            // colorBarAft->configure(*_productMaps[index]);         
+        colorBarFor->configure(*_productMaps[index]);
 
         // assign the new scale values to the current product
         _productInfo[_prodTypeUpper].setScale(scaleMin, scaleMax);
@@ -607,23 +553,7 @@ void EldoraCappi::productTypeUpperSlot(int id) {
     // configure the color bar with it
     colorBarFor->configure(*_productMaps[index]);
 }
-#ifdef LOWER_WINDOW
-//////////////////////////////////////////////////////////////////////////////
-void EldoraCappi::productTypeLowerSlot(int id) {
-    // set the ppiType
-    _prodTypeLower = (PRODUCT_TYPES)id;
-    
-    // get the _productsMap index
-    int index = _productInfo[_prodTypeLower].getUserData();
-    
-    // inform the display
-    _lowerManager.selectVar(index);
-    
-    // configure the color bar with it
-    colorBarAft->configure(*_productMaps[index]);
-}
-//////////////////////////////////////////////////////////////////////////////
-#endif
+
 void EldoraCappi::fkeyTriggered(QAction* qa) {
 	
 	// ignore keys that we are not expecting
@@ -636,13 +566,6 @@ void EldoraCappi::fkeyTriggered(QAction* qa) {
 		i != _productInfo.end(); i++) {
 			if (i->second.getUserData() == numkey ) {
 				// Matched it.
-#ifdef LOWER_WINDOW
-                             	productTypeLowerSlot(i->second.getId());
-				QAbstractButton* button = 
-					_lowerButtonGroup.button(i->second.getId());
-				if(button)
-					button->setChecked(true);
-#endif
 			}
 		}
 	} else {
@@ -669,15 +592,13 @@ void EldoraCappi::fkeyTriggered(QAction* qa) {
 
 void EldoraCappi::ringsSlot(bool enabled)
 {
-    //    ppiFor->rings(enabled);
-    // ppiAft->rings(enabled);
+    _cappi->rings(enabled);
 }
 ///////////////////////////////////////////////////////////////////////
 
 void EldoraCappi::gridSlot(bool enabled)
 {
-    // ppiFor->grids(enabled);
-    // ppiAft->grids(enabled);
+    _cappi->grids(enabled);
 }
 ///////////////////////////////////////////////////////////////////////
 void
@@ -685,8 +606,7 @@ EldoraCappi::backgroundColorSlot()
 {
     QColor color = QColorDialog::getColor("blue");
 
-    // ppiFor->backgroundColor(color);
-    // ppiAft->backgroundColor(color);
+    _cappi->backgroundColor(color);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -695,41 +615,33 @@ EldoraCappi::ringColorSlot()
 {
     QColor color = QColorDialog::getColor("black");
 
-    // ppiFor->gridRingsColor(color);
-    // ppiAft->gridRingsColor(color);
+    _cappi->gridRingsColor(color);
 }
-
 ///////////////////////////////////////////////////////////////////////
 void
 EldoraCappi::pan(double x, double y)
 {
-    //  ppiFor->pan(x, y);
-    //   ppiAft->pan(x, y);
+     _cappi->pan(x, y);
 }
-
 ///////////////////////////////////////////////////////////////////////
-
 void 
 EldoraCappi::panUpSlot()
 {
     pan(0.0, 0.1);
 }
 ///////////////////////////////////////////////////////////////////////
-
 void 
 EldoraCappi::panDownSlot()
 {
     pan(0.0, -0.1);
 }
 ///////////////////////////////////////////////////////////////////////
-
 void 
 EldoraCappi::panLeftSlot()
 {
     pan(-0.1, 0.0);
 }
 ///////////////////////////////////////////////////////////////////////
-
 void 
 EldoraCappi::panRightSlot()
 {
@@ -739,39 +651,27 @@ EldoraCappi::panRightSlot()
 void
 EldoraCappi::resetViewSlot()
 {
-    // ppiFor->resetView();
-    // ppiAft->resetView();
+    _cappi->resetView();
 }
 ///////////////////////////////////////////////////////////////////////
-
 void EldoraCappi::zoomInSlot()
 {
-    // ppiFor->setZoom(ppiFor->getZoom()*2.0);
-    // ppiAft->setZoom(ppiAft->getZoom()*2.0);
+    _cappi->setZoom(_cappi->getZoom()*2.0);
 }
-
 ///////////////////////////////////////////////////////////////////////
-
 void EldoraCappi::zoomOutSlot()
 {
-    // ppiFor->setZoom(ppiFor->getZoom()*0.5);
-    // ppiAft->setZoom(ppiAft->getZoom()*0.5);
+    _cappi->setZoom(_cappi->getZoom()*0.5);
 }
-
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::cursorZoomSlot() {
-    // ppiFor->cursorZoom();
-    // ppiAft->cursorZoom();
+    _cappi->cursorZoom();
 }
-
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::cursorPanSlot() {
-    // ppiFor->cursorPan();
-    // ppiAft->cursorPan();
+    _cappi->cursorPan();
 }
-
-
-////
+///////////////////////////////////////////////////////////////////////
 void EldoraCappi::pollNewData() 
 {
     unsigned long lastRec ;
@@ -781,26 +681,26 @@ void EldoraCappi::pollNewData()
         std::cerr << "findLastRecord failed" << std::endl;
         return;
     }
+    std::cout << "lastRec is " << lastRec << "\n";
     
     unsigned long rec;
-    int prodType;
-    qlonglong timeTag;
-    StrMapDouble hskpMap;
-    std::vector<double> product;
     for (rec = _lastCappiRec; rec < lastRec; ++rec){
-        ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);
-        if (ok) {
-#ifdef DEBUG
-            std::cerr  << "reading record # " << rec <<
-                " groundSpeedNS = " << hskpMap["groundSpeedNS"] << std::endl;
-#endif
-            // emit signal
-            emit newProductSignal(product, prodType, timeTag, hskpMap);
-        }
+    	displayRecord(rec);
     }
     _lastCappiRec = lastRec-1;
     
 }
-
-
-
+///////////////////////////////////////////////////////////////////////
+void EldoraCappi::displayRecord(unsigned long rec) {
+	int prodType;
+	qlonglong timeTag;
+	StrMapDouble hskpMap;
+	std::vector<double> product;
+	bool ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);
+	if (ok) {
+	    // emit signal
+	    emit newProductSignal(product, prodType, timeTag, hskpMap);
+	} else {
+		std::cerr << "unable to get record " << rec << "\n";
+	}
+}
