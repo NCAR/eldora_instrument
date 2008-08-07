@@ -8,6 +8,8 @@ tparcheaders = Split("""
 tparc_clear_air1.hd
 tparc_clear_air2.hd
 tparc_conv.hd
+test_2khz_44s.hd
+test_2khz_64s.hd
 """)
 
 installheaders = env.InstallConfig(tparcheaders)
