@@ -104,7 +104,7 @@ main(int argc, char *argv[])
     char* e = getenv("ELDORADIR");
     if (! e) {
         // If ELDORADIR is not set, use a default
-        e = "/opt/eldora";
+        e = (char*)("/opt/eldora");
         std::cerr << "Environment variable ELDORADIR is not set.  Using " <<
             e << "." << std::endl;
     }
