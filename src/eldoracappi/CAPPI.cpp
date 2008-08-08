@@ -27,11 +27,11 @@ double CAPPI::_distanceSpanKm = 1000.0;
 
 CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm,
 		double startAngle, double stopAngle, int nGates, int nVars) :
-	_bxKm(bxKm), _byKm(byKm), _gateWidthKm(gateWidthKm),
-			_startAngle(startAngle), _stopAngle(stopAngle), _nVars(nVars),
-			_nGates(nGates) {
+	_nVars(nVars), _nGates(nGates) {
 
-	moveBeam();
+	// construct the geometry for a ray presentation
+	rayGeometry(bxKm, byKm, gateWidthKm, startAngle, stopAngle);
+
 	// Allocate space for the colors. Each vertex has an red, green and
 	// blue component, and there are 2 vertices per gate.
 	_varColors.resize(nVars);
@@ -46,18 +46,44 @@ CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm,
 	}
 }
 
-void CAPPI::beam::moveBeam() {
+////////////////////////////////////////////////////////////////
+CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm, double angle,
+		int nGates, int nVars, double stripWidthKm) :
+	_nVars(nVars), _nGates(nGates) {
+
+	// create the geometry for a strip presentation
+	stripGeometry(bxKm, byKm, gateWidthKm, angle, stripWidthKm);
+
+	// Allocate space for the colors. Each vertex has an red, green and
+	// blue component, and there are 2 vertices per gate.
+	_varColors.resize(nVars);
+	for (int v = 0; v < nVars; v++) {
+		_varColors[v].resize(_nGates*6);
+	}
+	// there will be one display list id for each variable
+	for (int i = 0; i < _nVars; i++) {
+		///@todo add test to insure that the list has been created
+		GLuint id = glGenLists(1);
+		_glListId.push_back(id);
+	}
+}
+
+////////////////////////////////////////////////////////////////
+void CAPPI::beam::rayGeometry(double bxKm, double byKm, double gateWidthKm,
+		double startAngle, double stopAngle) {
 	_triStripVertices.clear();
 	// compute offset in GL coordinates
-	float gl_x = (2.0 * _bxKm) / _distanceSpanKm;
-	float gl_y = (2.0 * _byKm) / _distanceSpanKm;
+	float gl_x = (2.0 * bxKm) / _distanceSpanKm;
+	float gl_y = (2.0 * byKm) / _distanceSpanKm;
 
 	// calculate the x and y displacement for each 
 	// tristrip edge of a single gate
-	float cos1 = cos(M_PI*_startAngle/180.0)*(_gateWidthKm/_distanceSpanKm);
-	float sin1 = sin(M_PI*_startAngle/180.0)*(_gateWidthKm/_distanceSpanKm);
-	float cos2 = cos(M_PI*_stopAngle/180.0) *(_gateWidthKm/_distanceSpanKm);
-	float sin2 = sin(M_PI*_stopAngle/180.0) *(_gateWidthKm/_distanceSpanKm);
+
+	double scaledGatewidth = gateWidthKm/_distanceSpanKm;
+	float cos1 = cos(M_PI*startAngle/180.0)*scaledGatewidth;
+	float sin1 = sin(M_PI*startAngle/180.0)*scaledGatewidth;
+	float cos2 = cos(M_PI*stopAngle/180.0) *scaledGatewidth;
+	float sin2 = sin(M_PI*stopAngle/180.0) *scaledGatewidth;
 
 	// now calculate the vertex values, to be used for all variables
 	for (int j = 0; j < _nGates; j++) {
@@ -65,6 +91,35 @@ void CAPPI::beam::moveBeam() {
 		_triStripVertices.push_back(j*sin1 + gl_x);
 		_triStripVertices.push_back(j*cos2 + gl_y);
 		_triStripVertices.push_back(j*sin2 + gl_x);
+	}
+}
+
+////////////////////////////////////////////////////////////////
+void CAPPI::beam::stripGeometry(double bxKm, double byKm, double gateWidthKm,
+		double angle, double stripWidthKm) {
+
+	_triStripVertices.clear();
+	// compute offset in GL coordinates
+	float gl_x = (2.0 * bxKm) / _distanceSpanKm;
+	float gl_y = (2.0 * byKm) / _distanceSpanKm;
+
+	// calculate the x and y displacement for each 
+	// tristrip edge of a single gate
+
+	double scaledGatewidth = gateWidthKm/_distanceSpanKm;
+
+	double xOffset = cos(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/_distanceSpanKm;
+	double yOffset = sin(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/_distanceSpanKm;
+
+	float cos1 = cos(M_PI*angle/180.0)*scaledGatewidth;
+	float sin1 = sin(M_PI*angle/180.0)*scaledGatewidth;
+
+	// now calculate the vertex values, to be used for all variables
+	for (int j = 0; j < _nGates; j++) {
+		_triStripVertices.push_back(j*cos1 + gl_y - xOffset);
+		_triStripVertices.push_back(j*sin1 + gl_x - yOffset);
+		_triStripVertices.push_back(j*cos1 + gl_y + xOffset);
+		_triStripVertices.push_back(j*sin1 + gl_x + yOffset);
 	}
 }
 ////////////////////////////////////////////////////////////////
@@ -92,9 +147,9 @@ GLfloat* CAPPI::beam::colors(int varN) {
 static bool glutInitialized = false;
 
 CAPPI::CAPPI(QWidget* parent) :
-	QGLWidget(parent), _decimationFactor(1), _gateWidthKm(0.150), 
-	        _selectedVar(0), _zoom(1.0), _centerX(0.0), _centerY(0.0), 
-	        _gridRingsColor("black"), _backgroundColor("lightblue"), 
+	QGLWidget(parent), _decimationFactor(1), _selectedVar(0), _zoom(1.0),
+			_centerX(0.0), _centerY(0.0),
+			_gridRingsColor("black"), _backgroundColor("lightblue"),
 			_ringsEnabled(true), _gridsEnabled(false), _resizing(false),
 			_scaledLabel(ScaledLabel::DistanceEng), _configured(false),
 			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0), 
@@ -202,7 +257,7 @@ void CAPPI::initializeGL() {
 ////////////////////////////////////////////////////////////////
 
 void CAPPI::resizeGL(int w, int h) {
-	
+
 	// setup viewport, projection etc.:
 	glViewport( 0, 0, (GLint)w, (GLint)h);
 
@@ -370,7 +425,7 @@ void CAPPI::pan(double deltax, double deltay) {
 
 ////////////////////////////////////////////////////////////////
 void CAPPI::resetView() {
-	
+
 	makeCurrent();
 
 	resizeGL(width(), height());
@@ -594,8 +649,7 @@ void CAPPI::addBeam(double xPos, double yPos, float startAngle,
 
 	if (startAngle <= stopAngle) {
 
-		b
-				= new beam(xPos, yPos, _gateWidthKm, startAngle, stopAngle, _maxGates, _nVars);
+		b = new beam(xPos, yPos, _gateWidthKm, startAngle, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	} else {
@@ -608,7 +662,59 @@ void CAPPI::addBeam(double xPos, double yPos, float startAngle,
 		newBeams.push_back(b);
 	}
 
+	fillBeams(newBeams, gates, _beamData, stride, maps);
+	
+}
+////////////////////////////////////////////////////////////////
+
+void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
+		std::vector<std::vector<double> >& _beamData, int stride,
+		std::vector<ColorMap*>& maps, double stripWidthKm) {
+
+	makeCurrent();
+
+	// add a new beam to the display. 
+	// The steps are:
+	// 1. preallocate mode: find the beam to be drawn, or dynamic mode:
+	//    create the beam(s) to be drawn.
+	// 2. fill the colors for all variables in the beams to be drawn
+	// 3. make the display list for the selected variables in the beams
+	//    to be drawn.
+	// 4. call the new display list(s)
+
+	beam* b;
+	std::vector<beam*> newBeams;
+
+	// the start and stop angle MUST specify a counterclockwise fill for the sector. Thus 
+	// if startAngle > stopAngle, we know that we have crossed the 0 boundary, and must
+	// break it up into 2 beams.
+
+	// create the new beam(s), to keep track of the display information
+	// Beam start and stop angles are adjusted here so that they always 
+	// increase counterclockwise. 
+
+	angle = angle - ((int)(angle/360.0))*360.0;
+	
+	b = new beam(xPos, yPos, _gateWidthKm, angle, _maxGates, _nVars, stripWidthKm);
+	
+	_beams.push_back(b);
+	
+	newBeams.push_back(b);
+
+	fillBeams(newBeams, gates, _beamData, stride, maps);
+
+}
+
+////////////////////////////////////////////////////////////////
+void CAPPI::fillBeams(std::vector<beam*>& newBeams,
+		int gates, 
+		std::vector<std::vector<double> >& _beamData, int stride,
+		std::vector<ColorMap*>& maps) {
+
+	beam* b;
+
 	// newBeams has collected the beams to be rendered; now fill in 
+
 	// their colors and draw them
 	for (unsigned int i = 0; i < newBeams.size(); i++) {
 		b = newBeams[i];
@@ -742,7 +848,7 @@ void CAPPI::makeRingsAndGrids() {
 
 	// ring spacing, in km
 	double ringDelta = ringSpacing();
-	
+
 	// label increment, in km
 	double ringLabelIncrement = ringDelta;
 	double ringLabelOffset = 0.02/_zoom; // used to move some of the labelling so that it does not overlap the rings.
@@ -774,7 +880,7 @@ void CAPPI::makeRingsAndGrids() {
 			std::vector<std::string> ringLabels;
 			// create the labels. Note that we are not creating a label at zero
 			for (int i = 0; i < _distanceSpanKm/ringLabelIncrement; i++) {
-				double value = (i+1)*ringLabelIncrement / 2.0;
+				double value = (i+1)*ringLabelIncrement;
 				ringLabels.push_back(_scaledLabel.scale(value));
 			}
 

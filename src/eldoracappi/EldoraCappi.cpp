@@ -169,7 +169,7 @@ EldoraCappi::~EldoraCappi() {
 void EldoraCappi::productSlot(
         std::vector<double> p, 
         int prodType, 
-        qlonglong timeTag,
+        double timeTag,
         StrMapDouble hskpMap) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
@@ -185,14 +185,30 @@ void EldoraCappi::productSlot(
     
 
     double adjustedAngle = rollAngle + rotAngle + _rollOffset;
-    //std::cerr << "EldoraCappi::productSlot() time =" << timeTag << " prodType = " <<prodType  << " p[0] =" << p[0] <<   " groundSpeedNS = " << hskpMap["groundSpeedNS"]
-    //          <<        std::endl;   
+    if (0) {
+    	std::cout << prodType << " " << (unsigned long long)timeTag << " " << rotAngle << "\n";
+    }
+    if (0) {
+    std::cerr << "EldoraCappi::productSlot() time:" << (unsigned long long)timeTag 
+    	<< " prodType:" << prodType  
+    	<< " p[0]:" << p[0] 
+    	<< " \n   groundSpeedEW:" << groundSpeedEW
+    	<< " groundSpeedNS:" << groundSpeedNS
+    	<< " \n   tilt:" << radarTiltAngle
+    	<< " heading:" << heading
+    	<< " rollAngle:" << rollAngle
+    	<< " rotAngle:" << rotAngle
+    	<< " \n   adjustedAngle:" << adjustedAngle
+    	<< " airspdCorr:" << airspdCorr
+        <<   std::endl;   
+    }
 
     // is this an angle we want to look at?
     if (! flteq(adjustedAngle, 90.0, dwellWidth/2.0)
         && ! ( flteq(adjustedAngle, 270.0, dwellWidth/2.0)) )
         return;
 
+    
     // did we already handle a beam with this product type that matched?
     // (there could be two beams that are equally close to the
     // dwellWidth/2.0 )
@@ -235,53 +251,53 @@ void EldoraCappi::productSlot(
     }
 
     // apply the airspeed correction to VR
-    if (productType == PROD_VR) {
-        for (unsigned int i = 0; i < p.size(); i++)
-            p[i] += airspdCorr;
-    }
+    /// @todo vr correction not done for cappi?
+    //if (productType == PROD_VR) {
+    //    for (unsigned int i = 0; i < p.size(); i++)
+    //        p[i] += airspdCorr;
+    //}
     
     // Map the product type into the zero based index for the CAPPIManager.
     int index = _productInfo[productType].getUserData();
 
     double corRotAngle = rotAngle + rollAngle;
     double cartAngle;
-
-    // convert the Eldora heading and radarTitleAngle pointing angle to a
-    // cartesian pointing angle
+   
+    cartAngle = 450 - heading;
     // is the horizontal beam pointed to the right of the plane?
     if ((80.0 <= corRotAngle)  && (corRotAngle <= 100.0)) {
-        cartAngle = heading + 90.0 - radarTiltAngle;
+        cartAngle = cartAngle + 90 - radarTiltAngle;
     } else {
         // no, it's pointing to the left side
-        cartAngle = heading + 270.0 + radarTiltAngle;
+        cartAngle = cartAngle - 90  + radarTiltAngle;
     }
     
-    if (cartAngle < 0.0) 
+    while (cartAngle < 0.0) 
     	cartAngle += 360.0;
-    if (cartAngle >= 360.0)
+    while (cartAngle >= 360.0)
     	cartAngle -= 360.0;
-
-#define TEST_MOVE
+    
     // compute relative position, based on ground speed
     if (_lastTime) {
-        double secs = (timeTag - _lastTime)/1.0e6;  // microseconds to seconds
-#ifdef TEST_MOVE
-        _lastXKm += (groundSpeedNS * secs/100);   // magnify the actual
-                                              // movement by NOT scaling
-                                              // to km
-        _lastYKm += (groundSpeedEW * secs/100.0);
-#else
+    	double secs = timeTag - _lastTime;
         _lastXKm += (groundSpeedNS * secs)/1.0e3;   // m to km
         _lastYKm += (groundSpeedEW * secs)/1.0e3;
-#endif
+        double groundSpeed = sqrt(groundSpeedNS*groundSpeedNS + groundSpeedEW*groundSpeedEW);
+        if (0) {
+        	std::cout << "ground speed:" << groundSpeed
+          << " deltaT:" << secs
+          << " distance:" << groundSpeed*secs/1000.0
+          << " _lastXKm:"      << _lastXKm
+          << " _lastYKm:"      << _lastYKm
+          << " EW:" << groundSpeedEW
+          << " NS:" << groundSpeedNS
+          << "\n";
+        }
     }
     _lastTime = timeTag;
     _lastProdType = prodType;
-#ifdef DEBUG
-    std::cerr << "EldoraCappi::productSlot : X = " << _lastXKm << " Y = " << _lastYKm << std::endl;    
-#endif
     
-    // send the product to the appropriate ppi manager
+   // send the product to the appropriate ppi manager
     if (_upperManager.newProduct(p, _lastXKm, _lastYKm, cartAngle, index)) {
         	_rotAngle = cartAngle;
         	_rollAngle = rollAngle;
@@ -681,7 +697,6 @@ void EldoraCappi::pollNewData()
         std::cerr << "findLastRecord failed" << std::endl;
         return;
     }
-    std::cout << "lastRec is " << lastRec << "\n";
     
     unsigned long rec;
     for (rec = _lastCappiRec; rec < lastRec; ++rec){
@@ -693,7 +708,7 @@ void EldoraCappi::pollNewData()
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::displayRecord(unsigned long rec) {
 	int prodType;
-	qlonglong timeTag;
+	double timeTag;
 	StrMapDouble hskpMap;
 	std::vector<double> product;
 	bool ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);

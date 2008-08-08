@@ -85,7 +85,7 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
                          //                std::vector<double> p, 
         void productSlot(DoubleVec p,
                 int prodType,
-                qlonglong timeTag,
+                double timeTag,
                 StrMapDouble hskpMap);
 
         void displayRecord(unsigned long rec);
@@ -138,7 +138,7 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
                               // std::vector<double> p, 
         void newProductSignal(DoubleVec p,
                 int prodType,
-                qlonglong timeTag,
+                double timeTag,
                 StrMapDouble hskpMap);
         
     protected:
@@ -173,10 +173,6 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
         CAPPI* _cappi;
         /// The manager for the upper PPI
         CappiManager _upperManager;
-#ifdef LOWER_WINDOW
-        /// The manager for the lower PPI
-        //        CappiManager _lowerManager;
-#endif
         /// The currently selected upper ppi type.
         PRODUCT_TYPES _prodTypeUpper;
         /// The currently selected lower ppi type.
@@ -268,7 +264,7 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
         double _lastXKm;
         double _lastYKm;
         /// time of last record;
-        qlonglong _lastTime;
+        double _lastTime;
         /// product type of last record
         int _lastProdType;
         

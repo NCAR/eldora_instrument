@@ -60,7 +60,8 @@ bool CappiManager::newProduct(std::vector<double>& p,
             }
         }
         
-        _cappi->addBeam(xPos, yPos, startAng, stopAng, _gates, _productData, 1, *_colorMaps);
+        _cappi->addBeam(xPos, yPos, rotAngle, _gates, _productData, 1, *_colorMaps, 2.2);
+        //_cappi->addBeam(xPos, yPos, startAng, stopAng, _gates, _productData, 1, *_colorMaps);
         // clear our collected products
         _currentProducts.clear();
         // indicate that we completed a set

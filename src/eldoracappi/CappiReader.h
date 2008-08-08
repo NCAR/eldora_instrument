@@ -16,7 +16,7 @@ class CappiReader {
     bool openFile(std::string inputFile);
     void closeFile();
     
-    bool read(unsigned long index, std::vector<double> &p, int &prodType, long long &timeTag, StrMapDouble &hskpMap);
+    bool read(unsigned long index, std::vector<double> &p, int &prodType, double &timeTag, StrMapDouble &hskpMap);
 
     bool findLastRecord(unsigned long &index);
     
