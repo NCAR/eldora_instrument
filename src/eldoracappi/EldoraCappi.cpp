@@ -77,7 +77,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     
      // connect the controls
     
-   connect(fkeysActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(fkeyTriggered(QAction*)));
+    connect(fkeysActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(fkeyTriggered(QAction*)));
 
     // The color bar popup
     connect(colorBarFor, SIGNAL(released()), this, SLOT(colorBarUpperSlot()));
@@ -113,11 +113,14 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     int ppiHeight = _config.getInt("Size/MinHeight", 300);
     _upperManager.setup(_cappi, _productMaps.size(), &_productMaps, decimation, ppiHeight);
     
-    // get the display clipping specifications
-    _left = _config.getDouble("Clipping/Left", -1.0);
-    _right = _config.getDouble("Clipping/Right", 1.0);
-    _bottom = _config.getDouble("Clipping/Bottom", -0.2);
-    _top = _config.getDouble("Clipping/Top", 0.8);
+    // get the display specifications
+    _left         = _config.getDouble("Clipping/Left", -1.0);
+    _right        = _config.getDouble("Clipping/Right", 1.0);
+    _bottom       = _config.getDouble("Clipping/Bottom", -0.2);
+    _top          = _config.getDouble("Clipping/Top", 0.8);
+    _spanKm       = _config.getDouble("Size/SpanKm", 1000.0);
+    _stripDisplay = _config.getBool("Display/StripDisplay", true);
+    _stripWidthKm = _config.getDouble("Display/StripWidthKm", 2.2);
     
     // run through all of the product types and configure the 
     // the for and aft displays.
@@ -233,13 +236,11 @@ void EldoraCappi::productSlot(
         _gates = p.size();
         _gateSizeMeters = gateSizeMeters;
         
-        std::cout << "calling configureCAPPI\n";
-        
-        //        int nBeams = (int) nearbyint(360.0/_dwellWidth);
         _upperManager.configureCAPPI(_productList.size(), _gates,  _gateSizeMeters, 
-                                   _left, _right, _bottom, _top);
+                                   _left, _right, _bottom, _top, _spanKm, _stripDisplay,
+                                   _stripWidthKm);
         
-        // display some of the vitals
+        // display sbome of the vitals
         QString t;
         //        t.setNum(nBeams);
         // beamsText->setText(t);

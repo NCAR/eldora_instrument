@@ -12,7 +12,6 @@
 #include <GL/glut.h>
 
 #include "CAPPI.h"
-double CAPPI::_distanceSpanKm = 1000.0;
 
 //
 //
@@ -25,12 +24,12 @@ double CAPPI::_distanceSpanKm = 1000.0;
 //
 ////////////////////////////////////////////////////////////////
 
-CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm,
+CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm,
 		double startAngle, double stopAngle, int nGates, int nVars) :
 	_nVars(nVars), _nGates(nGates) {
 
 	// construct the geometry for a ray presentation
-	rayGeometry(bxKm, byKm, gateWidthKm, startAngle, stopAngle);
+	rayGeometry(spanKm, bxKm, byKm, gateWidthKm, startAngle, stopAngle);
 
 	// Allocate space for the colors. Each vertex has an red, green and
 	// blue component, and there are 2 vertices per gate.
@@ -47,12 +46,12 @@ CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm,
 }
 
 ////////////////////////////////////////////////////////////////
-CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm, double angle,
+CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm, double angle,
 		int nGates, int nVars, double stripWidthKm) :
 	_nVars(nVars), _nGates(nGates) {
 
 	// create the geometry for a strip presentation
-	stripGeometry(bxKm, byKm, gateWidthKm, angle, stripWidthKm);
+	stripGeometry(spanKm, bxKm, byKm, gateWidthKm, angle, stripWidthKm);
 
 	// Allocate space for the colors. Each vertex has an red, green and
 	// blue component, and there are 2 vertices per gate.
@@ -69,17 +68,17 @@ CAPPI::beam::beam(double bxKm, double byKm, double gateWidthKm, double angle,
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::beam::rayGeometry(double bxKm, double byKm, double gateWidthKm,
+void CAPPI::beam::rayGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm,
 		double startAngle, double stopAngle) {
 	_triStripVertices.clear();
 	// compute offset in GL coordinates
-	float gl_x = (2.0 * bxKm) / _distanceSpanKm;
-	float gl_y = (2.0 * byKm) / _distanceSpanKm;
+	float gl_x = (2.0 * bxKm) / spanKm;
+	float gl_y = (2.0 * byKm) / spanKm;
 
 	// calculate the x and y displacement for each 
 	// tristrip edge of a single gate
 
-	double scaledGatewidth = gateWidthKm/_distanceSpanKm;
+	double scaledGatewidth = gateWidthKm/spanKm;
 	float cos1 = cos(M_PI*startAngle/180.0)*scaledGatewidth;
 	float sin1 = sin(M_PI*startAngle/180.0)*scaledGatewidth;
 	float cos2 = cos(M_PI*stopAngle/180.0) *scaledGatewidth;
@@ -95,21 +94,21 @@ void CAPPI::beam::rayGeometry(double bxKm, double byKm, double gateWidthKm,
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::beam::stripGeometry(double bxKm, double byKm, double gateWidthKm,
+void CAPPI::beam::stripGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm,
 		double angle, double stripWidthKm) {
 
 	_triStripVertices.clear();
 	// compute offset in GL coordinates
-	float gl_x = (2.0 * bxKm) / _distanceSpanKm;
-	float gl_y = (2.0 * byKm) / _distanceSpanKm;
+	float gl_x = (2.0 * bxKm) / spanKm;
+	float gl_y = (2.0 * byKm) / spanKm;
 
 	// calculate the x and y displacement for each 
 	// tristrip edge of a single gate
 
-	double scaledGatewidth = gateWidthKm/_distanceSpanKm;
+	double scaledGatewidth = gateWidthKm/spanKm;
 
-	double xOffset = cos(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/_distanceSpanKm;
-	double yOffset = sin(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/_distanceSpanKm;
+	double xOffset = cos(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/spanKm;
+	double yOffset = sin(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/spanKm;
 
 	float cos1 = cos(M_PI*angle/180.0)*scaledGatewidth;
 	float sin1 = sin(M_PI*angle/180.0)*scaledGatewidth;
@@ -153,6 +152,7 @@ CAPPI::CAPPI(QWidget* parent) :
 			_ringsEnabled(true), _gridsEnabled(false), _resizing(false),
 			_scaledLabel(ScaledLabel::DistanceEng), _configured(false),
 			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0), 
+			_spanKm(100),
 			_cursorZoom(true) {
 	initializeGL();
 
@@ -177,14 +177,14 @@ CAPPI::CAPPI(QWidget* parent) :
 }
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::configure(int nVars, int maxGates, double distanceSpanKm,
+void CAPPI::configure(int nVars, int maxGates, double spanKm,
 		double gateWidthKm, int decimationFactor, double left, double right,
 		double bottom, double top) {
 	// Configure for dynamically allocated beams
 	_nVars = nVars;
 	_maxGates = maxGates/decimationFactor;
 	_preAllocate = false;
-	_distanceSpanKm = distanceSpanKm;
+	_spanKm = spanKm;
 	_gateWidthKm = gateWidthKm;
 	_decimationFactor = decimationFactor;
 	_left = left;
@@ -649,15 +649,15 @@ void CAPPI::addBeam(double xPos, double yPos, float startAngle,
 
 	if (startAngle <= stopAngle) {
 
-		b = new beam(xPos, yPos, _gateWidthKm, startAngle, stopAngle, _maxGates, _nVars);
+		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, startAngle, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	} else {
-		b = new beam(xPos, yPos, _gateWidthKm, startAngle, 360.0, _maxGates, _nVars);
+		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, startAngle, 360.0, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 
-		b = new beam(xPos, yPos, _gateWidthKm, 0.0, stopAngle, _maxGates, _nVars);
+		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, 0.0, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	}
@@ -695,7 +695,7 @@ void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
 
 	angle = angle - ((int)(angle/360.0))*360.0;
 	
-	b = new beam(xPos, yPos, _gateWidthKm, angle, _maxGates, _nVars, stripWidthKm);
+	b = new beam(_spanKm, xPos, yPos, _gateWidthKm, angle, _maxGates, _nVars, stripWidthKm);
 	
 	_beams.push_back(b);
 	
@@ -867,25 +867,25 @@ void CAPPI::makeRingsAndGrids() {
 		// Get a new quadric object.
 		GLUquadricObj *quadObject = gluNewQuadric();
 
-		GLdouble radius = ringDelta/_distanceSpanKm;
+		GLdouble radius = ringDelta/_spanKm;
 
 		// Draw our range rings.
-		while (radius <= 1.0) {
+		while (radius <= 2.0) {
 			gluDisk(quadObject, radius-lineWidth/2, radius+lineWidth/2, 100, 1);
-			radius += ringDelta/_distanceSpanKm;
+			radius += ringDelta/_spanKm;
 		}
 
 		// label the rings
 		if (ringLabelIncrement > 0.0) {
 			std::vector<std::string> ringLabels;
 			// create the labels. Note that we are not creating a label at zero
-			for (int i = 0; i < _distanceSpanKm/ringLabelIncrement; i++) {
+			for (int i = 0; i < 2.0*_spanKm/ringLabelIncrement; i++) {
 				double value = (i+1)*ringLabelIncrement;
 				ringLabels.push_back(_scaledLabel.scale(value));
 			}
 
 			for (unsigned int j = 0; j < ringLabels.size(); j++) {
-				double d = 0.707*(j+1)*ringDelta/_distanceSpanKm;
+				double d = 0.707*(j+1)*ringDelta/_spanKm;
 				const char* cStart = ringLabels[j].c_str();
 				const char* c;
 
@@ -962,7 +962,7 @@ void CAPPI::makeRingsAndGrids() {
 double CAPPI::ringSpacing() {
 
 	// R is the visible distance from center to edge
-	double R = (_distanceSpanKm / _zoom);
+	double R = (_spanKm / _zoom);
 	double e = (int)floor(log10(R));
 	double Rn = R / pow(10.0, e);
 

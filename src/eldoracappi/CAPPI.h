@@ -116,6 +116,7 @@ Q_OBJECT
 	class beam {
     public:
 		/// Constructor for ray type beams
+		/// @param spanKm Display span in km.
 		/// @param bx horizontal dist from center of display (km)
 		/// @param by vertical dist from center of display(km)
 		/// @param gateWidthKm width of a gate, in km
@@ -123,10 +124,11 @@ Q_OBJECT
 		/// @param stopAngle Stop angle of the beam
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
-		beam(double bx, double by, double gateWidthKm, double startAngle,
+		beam(double spanKm, double bx, double by, double gateWidthKm, double startAngle,
 				double stopAngle, int nGates, int nVars);
 
 		/// Constructor for strip type beams
+		/// @param spanKm Display span in km.
 		/// @param bx horizontal dist from center of display (km)
 		/// @param by vertical dist from center of display(km)
 		/// @param gateWidthKm width of a gate, in km
@@ -134,15 +136,17 @@ Q_OBJECT
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
 		/// @param stripWidthKm The width of the strip in km
-		beam(double bx, double by, double gateWidthKm, double angle,
+		beam(double spanKm, double bx, double by, double gateWidthKm, double angle,
 				int nGates, int nVars, double stripWidthKm);
 
 		/// destructor
 		virtual ~beam();
 
-		void rayGeometry(double bxKm, double byKm, double gateWidthKm, double startAngle, double stopAngle);
+		/// @param spanKm Display span in km.
+		void rayGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm, double startAngle, double stopAngle);
 		
-		void stripGeometry(double bxKm, double byKm, double gateWidthKm, double angle, double stripWidthKm);
+		/// @param spanKm Display span in km.
+		void stripGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm, double angle, double stripWidthKm);
 
 		/// Vector of display list ids; one per variable
 		std::vector<GLuint> _glListId;
@@ -179,7 +183,7 @@ public:
 	/// Configure the CAPPI for dynamically allocated beams. 
 	void configure(int nVars, ///< Number of variables.
 			int maxGates, ///< Maximum number of gates in a beam.
-			double distanceSpanKm, ///< The distance spanned by the complete CAPPI.
+			double spanKm, ///< The distance spanned by the complete CAPPI.
 			double gateWidthKm, int decimationFactor=1, ///< The incoming data will be decimated in gates by this factor
 			double left = -1.0, ///< left clipping plane
 			double right = 1.0, ///< right clipping plane
@@ -300,11 +304,6 @@ protected:
 	/// @param b The beam.
 	/// @param varN The variable number
 	void makeDisplayList(CAPPI::beam* b, int varN);
-#ifdef NOTDEF
-	/// For dynamically allocated beams, cull the beam list, 
-	/// removing beams that are hidden.
-	void cullBeamList();
-#endif
 	/// Handle a resize event. A time is used to prevent refreshes until
 	/// the resize is finished.
 	virtual void resizeEvent(QResizeEvent * e);
@@ -369,7 +368,7 @@ protected:
 	ScaledLabel _scaledLabel;
 	/// The distance across the whole display, in km.
 	/// It affects the labelling of the range rings
-	static double _distanceSpanKm;
+	double _spanKm;
 	/// Last X location of the mouse during mouse move events; used for panning
 	int _oldMouseX;
 	/// Last Y location of the mouse during mouse move events; used for panning
@@ -390,6 +389,7 @@ protected:
 	QPoint _rubberBandOrigin;
 	/// Set true if the mouse motion effects zooming, otherwise it is used for panning
 	bool _cursorZoom;
+	
 };
 
 #endif

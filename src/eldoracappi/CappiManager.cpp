@@ -17,6 +17,8 @@ void CappiManager::setup(
     _colorMaps = colorMaps;
     _decimation = decimation;
     _minHeight = minHeight;
+    _stripDisplay = false;
+    _stripWidthKm = 2.2;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,8 +62,11 @@ bool CappiManager::newProduct(std::vector<double>& p,
             }
         }
         
-        _cappi->addBeam(xPos, yPos, rotAngle, _gates, _productData, 1, *_colorMaps, 2.2);
-        //_cappi->addBeam(xPos, yPos, startAng, stopAng, _gates, _productData, 1, *_colorMaps);
+        if (_stripDisplay) {
+        	_cappi->addBeam(xPos, yPos, rotAngle, _gates, _productData, 1, *_colorMaps, _stripWidthKm);
+        } else {
+            _cappi->addBeam(xPos, yPos, startAng, stopAng, _gates, _productData, 1, *_colorMaps);
+        }
         // clear our collected products
         _currentProducts.clear();
         // indicate that we completed a set
@@ -73,7 +78,12 @@ bool CappiManager::newProduct(std::vector<double>& p,
 //////////////////////////////////////////////////////////////////////
 void CappiManager::configureCAPPI(
         int numProducts, int gates,  double gateSizeMeters,
-        double left, double right, double bottom, double top) {
+        double left, double right, double bottom, double top,
+        double spanKm, bool stripDisplay, double stripWidthKm) {
+	
+	_stripDisplay = stripDisplay;
+	
+	_stripWidthKm = stripWidthKm;
 
     _gates = gates;
 
@@ -88,7 +98,7 @@ void CappiManager::configureCAPPI(
         distance = 100.0;
 
    _cappi->configure(numProducts, _gates,
-                     500.0, 0.150, _decimation, 
+                    spanKm, 0.150, _decimation, 
                     left, right, bottom, top);
  
 }

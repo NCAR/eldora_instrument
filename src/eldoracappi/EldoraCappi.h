@@ -267,7 +267,12 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
         double _lastTime;
         /// product type of last record
         int _lastProdType;
-        
+        /// The X and Y span of the CAPPI
+        double _spanKm;
+        /// Set true if the display will use strips for each beam
+        bool _stripDisplay;
+        /// The strip width of a strip type display
+        double _stripWidthKm;
         
 
 

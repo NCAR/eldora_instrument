@@ -44,9 +44,13 @@ class CappiManager {
         /// @param X coordinate of the right clipping plane (+/- 1.0)
         /// @param Y coordinate of the bottom clipping plane (+/- 1.0)
         /// @param Y coordinate of the top clipping plane (+/- 1.0)
+        /// @param spanKm The X and Y span acorss the display, in km.
+        /// @param stripDisplay True if the beams are to be displayed as strips
+        /// @param stripwidthKm The width of the strips in km.
         void configureCAPPI(int numProducts, int gates, double gateSizeMeters=150.0,
                           double left=-1.0, double right=1.0, 
-                          double bottom=-1.0, double top=1.0);
+                          double bottom=-1.0, double top=1.0,
+                          double spanKm=100.0, bool stripDisplay=false, double stripWidthKm=2.0);
         /// Select the product to display on the ppi
         /// @param The product index, zero based.
         void selectVar(int index);
@@ -72,6 +76,10 @@ class CappiManager {
         int _decimation;
         /// The minimum ppi height
         int _minHeight;
+        /// true if beams are to be displayed as strips.
+        bool _stripDisplay;
+        /// the width of beam strips
+        double _stripWidthKm;
 };
 
 #endif /*CAPPIMANAGER_H_*/
