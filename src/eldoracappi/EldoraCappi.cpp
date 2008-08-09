@@ -40,7 +40,8 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     _statsUpdateInterval(5), _config("NCAR", "EldoraCappi"), _paused(false), 
     _gates(0), _gateSizeMeters(0.0), _dwellWidth(0), _left(-1.0), _right(1.0), 
     _bottom(-1.0), _top(1.0), _rotAngle(0.0), _rollAngle(0.0),
-    _lastCappiRec(0),_rollOffset(0.0), _lastXKm(0.0), _lastYKm(0.0),_lastTime(0)
+    _lastCappiRec(0),_rollOffset(0.0), _lastXKm(0.0), _lastYKm(0.0),_lastTime(0),
+    _timeSpanHr(1.0)
     {
     // Set up our form
     setupUi(parent);
@@ -121,6 +122,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
     _spanKm       = _config.getDouble("Size/SpanKm", 1000.0);
     _stripDisplay = _config.getBool("Display/StripDisplay", true);
     _stripWidthKm = _config.getDouble("Display/StripWidthKm", 2.2);
+    _timeSpanHr   = _config.getDouble("Display/TimeSpanHrs", 1.0);
     
     // run through all of the product types and configure the 
     // the for and aft displays.
@@ -699,9 +701,29 @@ void EldoraCappi::pollNewData()
         return;
     }
     
-    unsigned long rec;
-    for (rec = _lastCappiRec; rec < lastRec; ++rec){
-    	displayRecord(rec);
+    double lastTime;
+    if (!_cappiReader.getTime(lastRec, lastTime)) {
+    	std::cerr << "unable to get time of last record\n";
+    	return;
+    }
+    
+    double startTime = lastTime - _timeSpanHr*3600.0;
+    std::cerr << "startTime:" << startTime << " lastTime:" << lastTime << "\n";
+
+    bool firstRec = true;
+    for (unsigned long rec = _lastCappiRec; rec < lastRec; ++rec){
+    	double recordTime;
+    	if (!_cappiReader.getTime(rec, recordTime)) {
+    		std::cerr << "unable to get tme for record " << rec << "\n";
+    		continue;
+    	}
+    	if (recordTime > startTime && firstRec) {
+    		firstRec = false;
+    		std::cerr << "   first rec:" << rec << " time:" << recordTime << "\n";
+    	}
+    	if (recordTime > startTime) {
+        	displayRecord(rec);    		
+    	}
     }
     _lastCappiRec = lastRec-1;
     

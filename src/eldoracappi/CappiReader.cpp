@@ -1,8 +1,11 @@
 #include "CappiReader.h"
 #include <cstdlib>
 
+////////////////////////////////////////////////////////////////////////////
 CappiReader::CappiReader() :
-	_nc_input(NULL) {
+	_nc_input(NULL),
+	_curRecordCount(0)
+	{
 	_hskpVarNames.push_back("lon");
 	_hskpVarNames.push_back("lat");
 	_hskpVarNames.push_back("rotAngle");
@@ -25,10 +28,13 @@ CappiReader::CappiReader() :
 
 }
 
+////////////////////////////////////////////////////////////////////////////
 CappiReader::~CappiReader() {
 	closeFile();
 
 }
+
+////////////////////////////////////////////////////////////////////////////
 void CappiReader::closeFile() {
 	if (_nc_input) {
 		delete _nc_input;
@@ -37,6 +43,7 @@ void CappiReader::closeFile() {
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////
 bool CappiReader::openFile(std::string inputFile) {
 	_fileName = inputFile; // remember the name, we'll need to re-open the
 	// file
@@ -82,6 +89,8 @@ bool CappiReader::openFile(std::string inputFile) {
 	return true;
 
 }
+
+////////////////////////////////////////////////////////////////////////////
 bool CappiReader::read(unsigned long index, std::vector<double> &p,
 		int &prodType, double &timeTag, StrMapDouble &hskpMap) {
 
@@ -192,9 +201,10 @@ bool CappiReader::read(unsigned long index, std::vector<double> &p,
 	return true;
 }
 
-// reopen the file, and determine which is the last record
-
+////////////////////////////////////////////////////////////////////////////
 bool CappiReader::findLastRecord(unsigned long &index) {
+
+	// reopen the file, and determine which is the last record
 	bool ok = openFile(_fileName);
 
 	if (!ok)
@@ -202,5 +212,48 @@ bool CappiReader::findLastRecord(unsigned long &index) {
 	index = _curRecordCount-1;
 	return true;
 
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool CappiReader::getTime(unsigned long rec, double& timeSec) {
+	
+	if (_curRecordCount < 1)
+		return false;
+	
+	if (rec >= _curRecordCount)
+		return false;
+	
+	long unixTime;
+	long microsec;
+	bool ok;
+	
+	NcVar *unixTimeVar = _ncVarMap["unixTime"];
+	ok = unixTimeVar->set_cur(rec);
+	if (!ok) {
+		std::cerr << "set_cur(" << "unixTime" << ") failed" << std::endl;
+		exit(1);
+	}
+	ok = unixTimeVar->get(&unixTime, 1);
+	if (!ok) {
+		std::cerr << "get(" << "unixTime" << ") failed" << std::endl;
+		exit(1);
+	}
+	
+	NcVar *msTimeVar = _ncVarMap["microsec"];
+	ok = msTimeVar->set_cur(rec);
+	if (!ok) {
+		std::cerr << "set_cur(" << "microsec" << ") failed" << std::endl;
+		exit(1);
+	}
+	ok = msTimeVar->get(&microsec, 1);
+	if (!ok) {
+		std::cerr << "get(" << "microsec" << ") failed" << std::endl;
+		exit(1);
+	}
+	
+	timeSec = ((double)unixTime) + ((double)microsec)/1.0e6;
+	
+	return true;
+	
 }
 

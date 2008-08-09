@@ -273,6 +273,8 @@ class EldoraCappi : public QDialog, public Ui::EldoraCappi {
         bool _stripDisplay;
         /// The strip width of a strip type display
         double _stripWidthKm;
+        /// The time span to display in hours.
+        double _timeSpanHr;
         
 
 

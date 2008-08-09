@@ -14,11 +14,18 @@ class CappiReader {
     ~CappiReader();
 
     bool openFile(std::string inputFile);
+    
     void closeFile();
     
     bool read(unsigned long index, std::vector<double> &p, int &prodType, double &timeTag, StrMapDouble &hskpMap);
 
     bool findLastRecord(unsigned long &index);
+    
+    /// get the time stamp for the specified record number
+    /// @param rec The record number.
+    /// @param timeSec The time stamp is returned here.
+    /// @return True if a timetag is availabel for this record, false otherwise.
+    bool getTime(unsigned long rec, double& timeSec);
     
 private:
     NcFile *_nc_input;
