@@ -1,13 +1,17 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <boost/filesystem/operations.hpp>
+namespace fs = boost::filesystem;
+
+
 #include "CappiGen.h"
 #include "math.h"
 
 #define flteq(val1, val2, tol) (fabs(val1-val2) <= tol)
 
-CappiGen::CappiGen(std::string storageDir, std::string nc_template, double angleTol)
-  : _storageDir(storageDir),_nc_template(nc_template), _nc_output(NULL),
+CappiGen::CappiGen(std::string outputFilename, std::string nc_template, double angleTol)
+  : _outputFilename(outputFilename),_nc_template(nc_template), _nc_output(NULL),
     _recordCount(0), _maxCells(0), _angleTol(angleTol),_totalCount(0),
     _unixTimeVar(NULL), _msTimeVar(NULL), _prodTypeVar(NULL)
 {
@@ -43,16 +47,20 @@ CappiGen::~CappiGen()
   delete _nc_output; // causes implicit close()
 }
 
-int CappiGen::openOutput(std::string &oname)
+int CappiGen::openOutput(std::string &output)
 {
-  _recordCount = 0;
-  std::string output = _storageDir + "/" + oname;  //XXX add date string
-  std::string cmd = "cp "+ _nc_template + " " + output;
-  int rc = system(cmd.c_str());
-  if (rc != 0) {
-    std::cerr << "couldn't create " << output << " from " << _nc_template 
-	 << std::endl;
-    return(1);
+  fs::path path(output);
+  
+  // if the file doesn't already exist, create it from the template
+  if (! fs::exists(path) ) {
+  
+      std::string cmd = "cp "+ _nc_template + " " + output;
+      int rc = system(cmd.c_str());
+      if (rc != 0) {
+          std::cerr << "couldn't create " << output << " from " << _nc_template 
+                    << std::endl;
+          return(1);
+      }
   }
   _nc_output = new NcFile(output.c_str(), NcFile::Write);
   if (! _nc_output->is_valid()) {
@@ -91,6 +99,8 @@ int CappiGen::openOutput(std::string &oname)
 	      << std::endl;
   }
   _maxCells = product->get_dim(1)->size();
+  // add new records after the current one
+  _recordCount =  product->get_dim(0)->size();
   _unixTimeVar = _ncVarMap["unixTime"];
   _msTimeVar = _ncVarMap["microsec"];
   _prodTypeVar = _ncVarMap["prodType"];
@@ -118,8 +128,7 @@ void CappiGen::productSlot(
   if (flteq(corRotAngle, 90.0, _angleTol) || flteq(corRotAngle, 270.0, _angleTol)) {
     int rc = 0;
     if (!_nc_output) {
-      std::string output = "cappi.nc"; // XXX add date string to name
-      rc = openOutput(output); 
+      rc = openOutput(_outputFilename); 
       if (rc != 0) {
 	std::cerr << "openOutput() failed" << std::endl;
 	exit(1);

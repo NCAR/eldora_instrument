@@ -24,6 +24,7 @@ Q_DECLARE_METATYPE(StrMapDouble)
 namespace po = boost::program_options;
 void parseArgs(
         int argc, char** argv, 
+        std::string& outputFile,
         std::string& productsTopic, 
         std::string& ORB,
         std::string& DCPS,
@@ -39,6 +40,7 @@ void parseArgs(
     po::options_description descripts("Options");
 
     descripts.add_options() ("help", "describe options") 
+    ("outputFile", po::value<std::string>(&outputFile), "name of output file")
     ("productstopic", po::value<std::string>(&productsTopic), "DDS products topic")
     ("angleTolerance", po::value<double>(&angleTol), "Rotation Angle Tolerance ")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
@@ -59,6 +61,12 @@ void parseArgs(
 
     std::cerr << argv[0] << "parse_args :DCPSDebugLevel = " << DCPSDebugLevel  << std::endl;
     std::cerr << argv[0] << "parse_args :DCPSTransportDebugLevel = " << DCPSTransportDebugLevel  << std::endl;
+    if (!vm.count("outputFile")) {
+        std::cout << "must specify output filename" << "\n";
+        std::cout << descripts << "\n";
+        exit(1);
+    }
+        
     if (vm.count("help")) {
         std::cout << descripts << "\n";
         exit(1);
@@ -82,6 +90,8 @@ int main(
     std::string ORB;
     // path to the DCPSConfigFile configuration file
     std::string DCPS;
+    // name of output file
+    std::string outputFilename;
 
     std::string DCPSInfoRepo;
 
@@ -112,7 +122,7 @@ int main(
     
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
-    parseArgs(argc, argv, productsTopic,  ORB, DCPS, DCPSInfoRepo,
+    parseArgs(argc, argv, outputFilename, productsTopic,  ORB, DCPS, DCPSInfoRepo,
 	      DCPSDebugLevel, DCPSTransportDebugLevel, angleTolerance);
 
     // we have to do this bit of translation since the 
@@ -131,7 +141,7 @@ int main(
       subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
     }
     std::string nc_template = EldoraDir + "cappi_template.nc";
-    CappiGen cappi_gen("/tmp", nc_template, angleTolerance);
+    CappiGen cappi_gen(outputFilename, nc_template, angleTolerance);
 
 
     ///////////////////////////////////////////////////////////////

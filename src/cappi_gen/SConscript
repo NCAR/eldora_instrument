@@ -5,6 +5,7 @@ qtt_qtconfig
 utilities
 doxygen
 boost_program_options
+boost_filesystem
 netcdf
 """)
 env = Environment(tools = ['default'] + tools)

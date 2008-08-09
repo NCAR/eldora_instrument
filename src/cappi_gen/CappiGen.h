@@ -15,7 +15,7 @@
 class CappiGen : public QObject {
     Q_OBJECT
 public:
-    CappiGen(std::string storageDir, std::string nc_template, double angleTol);
+    CappiGen(std::string outputFilename, std::string nc_template, double angleTol);
   virtual ~CappiGen();
     public slots:
         /// Feed product data via this slot. If the operating 
@@ -42,7 +42,7 @@ public:
   
 private:
   int openOutput(std::string &name);
-  std::string _storageDir;
+  std::string _outputFilename;
   std::string _nc_template;
   NcFile *_nc_output;
   NcVarMap _ncVarMap;
