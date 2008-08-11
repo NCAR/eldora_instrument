@@ -189,6 +189,17 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 
 	_lat = hskpMap["lat"];
 	_lon = hskpMap["lon"];
+	
+	/// @todo Be prepared to implement a different Q/C check
+	/// for position as necessary.
+	/// don't accept positions where lat/lon are close to zero/zero. This
+	/// is to weed out cases where the position feed (INS?) is not
+	/// working. I'm just making a guess at this right now.
+	if (fabs(_lat)< 0.1 && fabs(_lon) < 0.1) {
+		return;
+	}
+	
+	
 	if (_lastTime < 1.0) {
 		_firstLat = floor(_lat+0.5);
 		_firstLon = floor(_lon+0.5);
