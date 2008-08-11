@@ -23,7 +23,6 @@
 #include <QRubberBand>
 #include <QPoint>
 
-#include "ScaledLabel.h"
 #include "ColorMap.h"
 
 /// A Qt widget that will display a Constant Altitude  (CAPPI)
@@ -116,38 +115,41 @@ Q_OBJECT
 	class beam {
     public:
 		/// Constructor for ray type beams
-		/// @param spanKm Display span in km.
-		/// @param bx horizontal dist from center of display (km)
-		/// @param by vertical dist from center of display(km)
-		/// @param gateWidthKm width of a gate, in km
+		/// @param span Display span.
+		/// @param bx horizontal dist from center of display ()
+		/// @param by vertical dist from center of display()
+		/// @param gateWidth width of a gate, in 
 		/// @param startAngle Start angle of the beam
 		/// @param stopAngle Stop angle of the beam
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
-		beam(double spanKm, double bx, double by, double gateWidthKm, double startAngle,
+		beam(double span, double bx, double by, double gateWidth, double startAngle,
 				double stopAngle, int nGates, int nVars);
 
 		/// Constructor for strip type beams
-		/// @param spanKm Display span in km.
-		/// @param bx horizontal dist from center of display (km)
-		/// @param by vertical dist from center of display(km)
-		/// @param gateWidthKm width of a gate, in km
+		/// @param span Display span.
+		/// @param bx horizontal dist from center of display ()
+		/// @param by vertical dist from center of display()
+		/// @param gateWidth width of a gate, in 
 		/// @param angle angle of the beam
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
-		/// @param stripWidthKm The width of the strip in km
-		beam(double spanKm, double bx, double by, double gateWidthKm, double angle,
-				int nGates, int nVars, double stripWidthKm);
+		/// @param stripWidth The width of the strip in 
+		beam(double span, double bx, double by, double gateWidth, double angle,
+				int nGates, int nVars, double stripWidth);
 
 		/// destructor
 		virtual ~beam();
 
-		/// @param spanKm Display span in km.
-		void rayGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm, double startAngle, double stopAngle);
+		/// @param span Display span in .
+		void rayGeometry(double span, double bx, double by, double gateWidth, double startAngle, double stopAngle);
 		
-		/// @param spanKm Display span in km.
-		void stripGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm, double angle, double stripWidthKm);
+		/// @param span Display span in .
+		void stripGeometry(double span, double bx, double by, double gateWidth, double angle, double stripWidth);
 
+		/// remove al existing beams from the display
+		void emptyDisplay();
+		
 		/// Vector of display list ids; one per variable
 		std::vector<GLuint> _glListId;
 		/// Left end point store of segment(dynamic beams only).
@@ -167,13 +169,14 @@ Q_OBJECT
 		/// variable varN. This will be used to generate the display 
 		/// lists for the beam.
 		GLfloat* colors(int varN);
-protected:
+        protected:
 		/// internal storage for the colors for each variable.
 		std::vector<std::vector<GLfloat> > _varColors;
 		/// internal storage for the beam triangle strip vertices.
 		std::vector<GLfloat> _triStripVertices;
 	};
-
+    ///////////////////////////////////////////////////////////////////////////////////
+	
 public:
 	/// Constructor
 	CAPPI(QWidget* parent = 0 ///< parent widget
@@ -183,13 +186,9 @@ public:
 	/// Configure the CAPPI for dynamically allocated beams. 
 	void configure(int nVars, ///< Number of variables.
 			int maxGates, ///< Maximum number of gates in a beam.
-			double spanKm, ///< The distance spanned by the complete CAPPI.
-			double gateWidthKm, int decimationFactor=1, ///< The incoming data will be decimated in gates by this factor
-			double left = -1.0, ///< left clipping plane
-			double right = 1.0, ///< right clipping plane
-			double bottom = -1.0, ///< bottom clipping plane
-			double top = 1.0 ///< top clipping plane
-			);
+			double span, ///< The distance spanned by the complete CAPPI.
+			double gateWidth,
+			double xorigin, double yorigin);
 	/// Select the variable to display.
 	void selectVar(int index ///< Index of the variable to display, zero based.
 			);
@@ -228,7 +227,7 @@ public:
 			std::vector<std::vector<double> >& beamData, ///< Vectors of data, one for each variable
 			int stride, ///< The stride of the data in each vector.
 			std::vector<ColorMap*>& maps, ///< Colormaps, one for each variable.
-			double stripWidth ///< The width of the strip, in km
+			double stripWidth ///< The width of the strip
 			);
 
 	void fillBeams(std::vector<beam*>& newBeams, 
@@ -236,12 +235,12 @@ public:
 			std::vector<std::vector<double> >& _beamData, 
 			int stride,
 			std::vector<ColorMap*>& maps);
-	
+	void clearDisplay();
 	/// Specify the background color
 	void backgroundColor(QColor color ///< The background color.
 			);
 	/// Specify the background color
-	void gridRingsColor(QColor color ///< The grid/rings color.
+	void gridColor(QColor color ///< The grid color.
 			);
 	/// Find the index in the _beams array of the 
 	/// beam that corresponds to this angle. The
@@ -249,9 +248,6 @@ public:
 	/// i.e. cartessian, direction.
 	inline int beamIndex(double startAngle, ///< Beginning angle of the beam. 
 			double stopAngle); ///< Ending angle of the beam.
-	/// Set ring visibility.
-	void rings(bool enabled ///< True to show them, false otherwise
-			);
 	/// Set grids visibility.
 	void grids(bool enabled ///< True to show them, false otherwise
 			);
@@ -292,6 +288,11 @@ public slots:
 	void cursorZoom();
 	/// select panning with the cursor
 	void cursorPan();
+	
+signals:
+    /// Emit when the grid spacing is established.
+    /// @param spacing The distance between grid lines
+	void gridDelta(double spacing);
 
 protected:
 	///
@@ -315,16 +316,14 @@ protected:
 	void mousePan(QMouseEvent* event);
 	/// capture mouse release event which signals the start of panning/zooming
 	virtual void mouseReleaseEvent(QMouseEvent* event);
-	/// Create the display lists for the rings and grid. The current
-	/// value of _ringsGridColor will be used for the color.
-	void makeRingsAndGrids();
-	/// Dtermine a ring spacing which will give even distances,
-	/// and fit a reasonable number of rings in the display
-	double ringSpacing();
+	/// Create the display lists for the grid. The current
+	/// value of _gridColor will be used for the color.
+	void makeGrids();
+	/// Dtermine a grid spacing which will give even distances,
+	/// and fit a reasonable number of grid lines in the display
+	double gridSpacing();
 	/// Print the current display navigation factors.
 	void dump();
-	/// The incoming data will be decimated in gates by this factor
-	int _decimationFactor;
 	/// Pointers to all of the active beams are saved here.
 	std::vector<beam*> _beams;
 	/// The number of variables we are representing. A display list
@@ -333,13 +332,9 @@ protected:
 	/// Maximum number of gates along a beam
 	int _maxGates;
 	/// 
-	double _gateWidthKm;
-	/// true if the beams have been preallocated.
-	bool _preAllocate;
+	double _gateWidth;
 	/// The index of the variable selected for display
 	int _selectedVar;
-	/// The display list id for the rings
-	GLuint _ringsListId;
 	/// The display list id for the grid
 	GLuint _gridListId;
 	// The current zoom factor. as the zoom in increases, it will
@@ -349,12 +344,10 @@ protected:
 	double _centerX;
 	/// The model y coordinate that will be at the center of the view
 	double _centerY;
-	/// The color for the grid and rings
-	QColor _gridRingsColor;
+	/// The color for the grid
+	QColor _gridColor;
 	/// The color for the back ground
 	QColor _backgroundColor;
-	// True if the ring display is enabled.
-	bool _ringsEnabled;
 	/// True if the grids display is enabled.
 	bool _gridsEnabled;
 	/// A timer used to block redraws while the component is being resized.
@@ -363,12 +356,9 @@ protected:
 	/// with a timer in order to prevent many refresh cycles
 	/// during the resize.
 	bool _resizing;
-	/// This will create labels wiith nocely scaled values and
-	/// approriate units.
-	ScaledLabel _scaledLabel;
-	/// The distance across the whole display, in km.
-	/// It affects the labelling of the range rings
-	double _spanKm;
+	/// The distance across the 1/2 of display.
+	/// It affects position scaling and the labelling of the grid
+	double _span;
 	/// Last X location of the mouse during mouse move events; used for panning
 	int _oldMouseX;
 	/// Last Y location of the mouse during mouse move events; used for panning
@@ -389,6 +379,8 @@ protected:
 	QPoint _rubberBandOrigin;
 	/// Set true if the mouse motion effects zooming, otherwise it is used for panning
 	bool _cursorZoom;
+	double _xorigin;
+	double _yorigin;
 	
 };
 

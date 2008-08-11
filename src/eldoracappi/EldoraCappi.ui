@@ -44,7 +44,7 @@
     </widget>
    </item>
    <item>
-    <widget class="ColorBar" name="colorBarFor" >
+    <widget class="ColorBar" name="colorBar" >
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>13</hsizetype>
@@ -93,15 +93,7 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QPushButton" name="pauseRunButton" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>1</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QPushButton" name="gridColorButton" >
             <property name="minimumSize" >
              <size>
               <width>1</width>
@@ -109,29 +101,7 @@
              </size>
             </property>
             <property name="toolTip" >
-             <string>Pause real-time data display</string>
-            </property>
-            <property name="text" >
-             <string>Pause</string>
-            </property>
-            <property name="checkable" >
-             <bool>true</bool>
-            </property>
-            <property name="checked" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ringColorButton" >
-            <property name="minimumSize" >
-             <size>
-              <width>1</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="toolTip" >
-             <string>Select the color for rings and grid</string>
+             <string>Select the color for the grid</string>
             </property>
             <property name="text" >
              <string>Ring/grid color</string>
@@ -189,25 +159,6 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="ringsCheck" >
-            <property name="minimumSize" >
-             <size>
-              <width>1</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="toolTip" >
-             <string>Enable rings overlay</string>
-            </property>
-            <property name="text" >
-             <string>Rings</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="gridCheck" >
             <property name="minimumSize" >
              <size>
@@ -220,6 +171,9 @@
             </property>
             <property name="text" >
              <string>Grid</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -575,14 +529,14 @@
           <item>
            <widget class="QLabel" name="label_4" >
             <property name="text" >
-             <string>Gates</string>
+             <string>Grid</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="gatesText" >
+           <widget class="QLabel" name="gridText" >
             <property name="toolTip" >
-             <string>Number of gates</string>
+             <string>Grid spacing (deg)</string>
             </property>
             <property name="text" >
              <string>0.0</string>
@@ -608,14 +562,14 @@
           <item>
            <widget class="QLabel" name="label_3" >
             <property name="text" >
-             <string>Width</string>
+             <string>Lat</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="dwellWidthText" >
+           <widget class="QLabel" name="latText" >
             <property name="toolTip" >
-             <string>Angular width of one beam (deg)</string>
+             <string>Current latitude (deg)</string>
             </property>
             <property name="text" >
              <string>0.0</string>
@@ -641,80 +595,14 @@
           <item>
            <widget class="QLabel" name="label_2" >
             <property name="text" >
-             <string>Beams</string>
+             <string>Lon</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="beamsText" >
+           <widget class="QLabel" name="lonText" >
             <property name="toolTip" >
-             <string>Number of allocated beams</string>
-            </property>
-            <property name="text" >
-             <string>0.0</string>
-            </property>
-            <property name="textFormat" >
-             <enum>Qt::PlainText</enum>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_5" >
-            <property name="text" >
-             <string>Roll</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="rollText" >
-            <property name="toolTip" >
-             <string>Aircraft roll (deg)</string>
-            </property>
-            <property name="text" >
-             <string>0.0</string>
-            </property>
-            <property name="textFormat" >
-             <enum>Qt::PlainText</enum>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label" >
-            <property name="text" >
-             <string>Angle</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="angleText" >
-            <property name="toolTip" >
-             <string>Current pointing angle (deg)</string>
+             <string>Current longitude (deg)</string>
             </property>
             <property name="text" >
              <string>0.0</string>

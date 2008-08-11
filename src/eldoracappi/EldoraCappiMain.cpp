@@ -102,10 +102,10 @@ int main(
 
     EldoraCappi cappi(inputFile, title, dialog);
 
-    QObject::connect(&cappi,
-         SIGNAL(newProductSignal(DoubleVec,int, double, StrMapDouble)),
-                            &cappi,
-           SLOT(productSlot(DoubleVec,int, double, StrMapDouble)) );
+    //QObject::connect(&cappi,
+         //SIGNAL(newProductSignal(DoubleVec,int, double, StrMapDouble)),
+         //                   &cappi,
+         //  SLOT(productSlot(DoubleVec,int, double, StrMapDouble)) );
     
 
     // if we don't show() the dialog, nothing appears!

@@ -1,6 +1,8 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 
 #include <qtimer.h>
 #include <QResizeEvent>
@@ -12,7 +14,6 @@
 #include <GL/glut.h>
 
 #include "CAPPI.h"
-
 //
 //
 // Any drawing action must insure that the GL context is current. paintGL() and
@@ -24,12 +25,12 @@
 //
 ////////////////////////////////////////////////////////////////
 
-CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm,
+CAPPI::beam::beam(double span, double xpos, double ypos, double gateWidth,
 		double startAngle, double stopAngle, int nGates, int nVars) :
 	_nVars(nVars), _nGates(nGates) {
 
 	// construct the geometry for a ray presentation
-	rayGeometry(spanKm, bxKm, byKm, gateWidthKm, startAngle, stopAngle);
+	rayGeometry(span, xpos, ypos, gateWidth, startAngle, stopAngle);
 
 	// Allocate space for the colors. Each vertex has an red, green and
 	// blue component, and there are 2 vertices per gate.
@@ -46,12 +47,12 @@ CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm,
 }
 
 ////////////////////////////////////////////////////////////////
-CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm, double angle,
-		int nGates, int nVars, double stripWidthKm) :
+CAPPI::beam::beam(double span, double xpos, double ypos, double gateWidth,
+		double angle, int nGates, int nVars, double stripWidth) :
 	_nVars(nVars), _nGates(nGates) {
 
 	// create the geometry for a strip presentation
-	stripGeometry(spanKm, bxKm, byKm, gateWidthKm, angle, stripWidthKm);
+	stripGeometry(span, xpos, ypos, gateWidth, angle, stripWidth);
 
 	// Allocate space for the colors. Each vertex has an red, green and
 	// blue component, and there are 2 vertices per gate.
@@ -68,17 +69,17 @@ CAPPI::beam::beam(double spanKm, double bxKm, double byKm, double gateWidthKm, d
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::beam::rayGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm,
-		double startAngle, double stopAngle) {
+void CAPPI::beam::rayGeometry(double span, double xpos, double ypos,
+		double gateWidth, double startAngle, double stopAngle) {
 	_triStripVertices.clear();
 	// compute offset in GL coordinates
-	float gl_x = (2.0 * bxKm) / spanKm;
-	float gl_y = (2.0 * byKm) / spanKm;
+	float gl_x = xpos / span;
+	float gl_y = ypos / span;
 
 	// calculate the x and y displacement for each 
 	// tristrip edge of a single gate
 
-	double scaledGatewidth = gateWidthKm/spanKm;
+	double scaledGatewidth = gateWidth/span;
 	float cos1 = cos(M_PI*startAngle/180.0)*scaledGatewidth;
 	float sin1 = sin(M_PI*startAngle/180.0)*scaledGatewidth;
 	float cos2 = cos(M_PI*stopAngle/180.0) *scaledGatewidth;
@@ -86,39 +87,39 @@ void CAPPI::beam::rayGeometry(double spanKm, double bxKm, double byKm, double ga
 
 	// now calculate the vertex values, to be used for all variables
 	for (int j = 0; j < _nGates; j++) {
-		_triStripVertices.push_back(j*cos1 + gl_y);
-		_triStripVertices.push_back(j*sin1 + gl_x);
-		_triStripVertices.push_back(j*cos2 + gl_y);
-		_triStripVertices.push_back(j*sin2 + gl_x);
+		_triStripVertices.push_back(j*cos1 + gl_x);
+		_triStripVertices.push_back(j*sin1 + gl_y);
+		_triStripVertices.push_back(j*cos2 + gl_x);
+		_triStripVertices.push_back(j*sin2 + gl_y);
 	}
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::beam::stripGeometry(double spanKm, double bxKm, double byKm, double gateWidthKm,
-		double angle, double stripWidthKm) {
+void CAPPI::beam::stripGeometry(double span, double xpos, double ypos,
+		double gateWidth, double angle, double stripWidth) {
 
 	_triStripVertices.clear();
 	// compute offset in GL coordinates
-	float gl_x = (2.0 * bxKm) / spanKm;
-	float gl_y = (2.0 * byKm) / spanKm;
+	float gl_x = xpos / span;
+	float gl_y = ypos / span;
 
 	// calculate the x and y displacement for each 
 	// tristrip edge of a single gate
 
-	double scaledGatewidth = gateWidthKm/spanKm;
+	double scaledGatewidth = gateWidth/span;
 
-	double xOffset = cos(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/spanKm;
-	double yOffset = sin(M_PI*(angle+90.0)/180.0)*stripWidthKm/2.0/spanKm;
+	double xOffset = cos(M_PI*(angle+90.0)/180.0)*stripWidth/2.0/span;
+	double yOffset = sin(M_PI*(angle+90.0)/180.0)*stripWidth/2.0/span;
 
 	float cos1 = cos(M_PI*angle/180.0)*scaledGatewidth;
 	float sin1 = sin(M_PI*angle/180.0)*scaledGatewidth;
 
 	// now calculate the vertex values, to be used for all variables
 	for (int j = 0; j < _nGates; j++) {
-		_triStripVertices.push_back(j*cos1 + gl_y - xOffset);
-		_triStripVertices.push_back(j*sin1 + gl_x - yOffset);
-		_triStripVertices.push_back(j*cos1 + gl_y + xOffset);
-		_triStripVertices.push_back(j*sin1 + gl_x + yOffset);
+		_triStripVertices.push_back(j*cos1 + gl_x - xOffset);
+		_triStripVertices.push_back(j*sin1 + gl_y - yOffset);
+		_triStripVertices.push_back(j*cos1 + gl_x + xOffset);
+		_triStripVertices.push_back(j*sin1 + gl_y + yOffset);
 	}
 }
 ////////////////////////////////////////////////////////////////
@@ -146,14 +147,15 @@ GLfloat* CAPPI::beam::colors(int varN) {
 static bool glutInitialized = false;
 
 CAPPI::CAPPI(QWidget* parent) :
-	QGLWidget(parent), _decimationFactor(1), _selectedVar(0), _zoom(1.0),
-			_centerX(0.0), _centerY(0.0),
-			_gridRingsColor("black"), _backgroundColor("lightblue"),
-			_ringsEnabled(true), _gridsEnabled(false), _resizing(false),
-			_scaledLabel(ScaledLabel::DistanceEng), _configured(false),
-			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0), 
-			_spanKm(100),
-			_cursorZoom(true) {
+	QGLWidget(parent), _selectedVar(0), _zoom(1.0), _centerX(0.0),
+			_centerY(0.0), _gridColor("black"),
+			_backgroundColor("lightblue"),
+			_gridsEnabled(false), _resizing(false),
+			_configured(false),
+			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0),
+			_span(100), _cursorZoom(true),
+			_xorigin(0.0), _yorigin(0.0) {
+	
 	initializeGL();
 
 	if (!glutInitialized) {
@@ -177,23 +179,22 @@ CAPPI::CAPPI(QWidget* parent) :
 }
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::configure(int nVars, int maxGates, double spanKm,
-		double gateWidthKm, int decimationFactor, double left, double right,
-		double bottom, double top) {
+void CAPPI::configure(int nVars, int maxGates, double span, double gateWidth,
+		double xorigin, double yorigin) {
 	// Configure for dynamically allocated beams
 	_nVars = nVars;
-	_maxGates = maxGates/decimationFactor;
-	_preAllocate = false;
-	_spanKm = spanKm;
-	_gateWidthKm = gateWidthKm;
-	_decimationFactor = decimationFactor;
-	_left = left;
-	_right = right;
-	_bottom = bottom;
-	_top = top;
+	_maxGates = maxGates;
+	_span = span/2;
+	_gateWidth = gateWidth;
+	_left = -1.0;
+	_right = 1.0;
+	_bottom = -1.0;
+	_top = 1.0;
 	_centerX = _left + (_right-_left)/2.0;
 	_centerY = _bottom + (_top-_bottom)/2.0;
 	_zoom = 1.0;
+	_xorigin = xorigin;
+	_yorigin = yorigin;
 
 	_configured = true;
 
@@ -248,8 +249,8 @@ void CAPPI::initializeGL() {
 	// set the stencil buffer clear value.
 	glClearStencil((GLint)0);
 
-	// get a display list id for the rings
-	_ringsListId = glGenLists(1);
+	// get a display list id for the grids
+	_gridListId = glGenLists(1);
 	// get a display list id for the grid
 	_gridListId = glGenLists(1);
 }
@@ -293,12 +294,10 @@ void CAPPI::paintGL() {
 		glCallList(_beams[i]->_glListId[_selectedVar]);
 	}
 
-	// draw rings/grid
-	if (_ringsEnabled || _gridsEnabled) {
+	// draw grid
+	if (_gridsEnabled) {
 		//createStencil();
-		makeRingsAndGrids();
-		if (_ringsEnabled)
-			glCallList(_ringsListId);
+		makeGrids();
 		if (_gridsEnabled)
 			glCallList(_gridListId);
 	}
@@ -311,18 +310,8 @@ void CAPPI::paintGL() {
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::rings(bool enabled) {
-	_ringsEnabled = enabled;
-
-	//redraw
-	makeCurrent();
-	paintGL();
-}
-
-////////////////////////////////////////////////////////////////
 void CAPPI::grids(bool enabled) {
 	_gridsEnabled = enabled;
-
 	//redraw
 	makeCurrent();
 	paintGL();
@@ -381,7 +370,6 @@ void CAPPI::setZoom(double factor) {
 }
 
 ////////////////////////////////////////////////////////////////
-
 double CAPPI::getZoom() {
 	return _zoom;
 }
@@ -649,27 +637,30 @@ void CAPPI::addBeam(double xPos, double yPos, float startAngle,
 
 	if (startAngle <= stopAngle) {
 
-		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, startAngle, stopAngle, _maxGates, _nVars);
+		b
+				= new beam(_span, xPos, yPos, _gateWidth, startAngle, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	} else {
-		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, startAngle, 360.0, _maxGates, _nVars);
+		b
+				= new beam(_span, xPos, yPos, _gateWidth, startAngle, 360.0, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 
-		b = new beam(_spanKm, xPos, yPos, _gateWidthKm, 0.0, stopAngle, _maxGates, _nVars);
+		b
+				= new beam(_span, xPos, yPos, _gateWidth, 0.0, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	}
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
-	
+
 }
 ////////////////////////////////////////////////////////////////
 
 void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
 		std::vector<std::vector<double> >& _beamData, int stride,
-		std::vector<ColorMap*>& maps, double stripWidthKm) {
+		std::vector<ColorMap*>& maps, double stripWidth) {
 
 	makeCurrent();
 
@@ -694,11 +685,11 @@ void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
 	// increase counterclockwise. 
 
 	angle = angle - ((int)(angle/360.0))*360.0;
-	
-	b = new beam(_spanKm, xPos, yPos, _gateWidthKm, angle, _maxGates, _nVars, stripWidthKm);
-	
+	b
+			= new beam(_span, xPos, yPos, _gateWidth, angle, _maxGates, _nVars, stripWidth);
+
 	_beams.push_back(b);
-	
+
 	newBeams.push_back(b);
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
@@ -706,8 +697,7 @@ void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::fillBeams(std::vector<beam*>& newBeams,
-		int gates, 
+void CAPPI::fillBeams(std::vector<beam*>& newBeams, int gates,
 		std::vector<std::vector<double> >& _beamData, int stride,
 		std::vector<ColorMap*>& maps) {
 
@@ -732,12 +722,8 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams,
 			glCallList(b->_glListId[_selectedVar]);
 	}
 
-	// draw the rings and grid if they are enabled. Don't worry,
-	// it is only two display list calls. They are relative short
-	// lists compared to the beam drawing, and done on the graphics card anyway.
-	if (_ringsEnabled)
-		glCallList(_ringsListId);
-
+	// draw the grids if they are enabled. Don't worry,
+	// it is only a display list call. 
 	if (_gridsEnabled)
 		glCallList(_gridListId);
 
@@ -745,8 +731,8 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams,
 		glFlush();
 
 }
-////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////
 void CAPPI::fillColors(beam* beam,
 		std::vector<std::vector<double> >& _beamData, int gates, int stride,
 		std::vector<ColorMap*>& maps) {
@@ -759,7 +745,7 @@ void CAPPI::fillColors(beam* beam,
 		int cIndex = 0;
 
 		double* varData = &(_beamData[v][0]);
-		for (int gate = 0; gate < gates; gate += _decimationFactor) {
+		for (int gate = 0; gate < gates; gate++) {
 			double data = varData[gate];
 			map->dataColor(data, red, green, blue);
 			colors[cIndex++] = red;
@@ -785,7 +771,16 @@ void CAPPI::fillColors(beam* beam,
 }
 
 ////////////////////////////////////////////////////////////////
+void CAPPI::clearDisplay() {
+	for (unsigned int i = 0; i < _beams.size(); i++) {
+		delete _beams[i];
+	}
+	
+	_beams.clear();
+	
+}
 
+////////////////////////////////////////////////////////////////
 void CAPPI::makeDisplayList(beam* b, int v) {
 	//	glGenBuffers();
 
@@ -828,141 +823,100 @@ void CAPPI::backgroundColor(QColor color) {
 	updateGL();
 }
 ////////////////////////////////////////////////////////////////////////
-void CAPPI::gridRingsColor(QColor color) {
-	_gridRingsColor = color;
+void CAPPI::gridColor(QColor color) {
+	_gridColor = color;
 
 	makeCurrent();
 	updateGL();
 }
 
 ////////////////////////////////////////////////////////////////////////
-void CAPPI::makeRingsAndGrids() {
+void CAPPI::makeGrids() {
 
-	// don't try to draw rings if we haven't been configured yet
+	// don't try to draw grids if we haven't been configured yet
 	if (!_configured)
 		return;
 
-	// or if the rings or grids aren't enabled
-	if (!_ringsEnabled && !_gridsEnabled)
+	// or if the grids aren't enabled
+	if (!_gridsEnabled)
 		return;
 
-	// ring spacing, in km
-	double ringDelta = ringSpacing();
+	// grid spacing
+	double delta = gridSpacing();
 
-	// label increment, in km
-	double ringLabelIncrement = ringDelta;
-	double ringLabelOffset = 0.02/_zoom; // used to move some of the labelling so that it does not overlap the rings.
+	// tell the world about the grid spacing
+emit 	gridDelta(delta);
+
 	double lineWidth = 0.004/ _zoom;
-
-	// Do range rings?
-	if (ringDelta > 0 && _ringsEnabled) {
-
-		// create a display list to hold the gl commands
-		glNewList(_ringsListId, GL_COMPILE);
-
-		// set the color
-		glColor3f(_gridRingsColor.red()/255.0, _gridRingsColor.green()/255.0,
-				_gridRingsColor.blue()/255.0);
-
-		// Get a new quadric object.
-		GLUquadricObj *quadObject = gluNewQuadric();
-
-		GLdouble radius = ringDelta/_spanKm;
-
-		// Draw our range rings.
-		while (radius <= 2.0) {
-			gluDisk(quadObject, radius-lineWidth/2, radius+lineWidth/2, 100, 1);
-			radius += ringDelta/_spanKm;
-		}
-
-		// label the rings
-		if (ringLabelIncrement > 0.0) {
-			std::vector<std::string> ringLabels;
-			// create the labels. Note that we are not creating a label at zero
-			for (int i = 0; i < 2.0*_spanKm/ringLabelIncrement; i++) {
-				double value = (i+1)*ringLabelIncrement;
-				ringLabels.push_back(_scaledLabel.scale(value));
-			}
-
-			for (unsigned int j = 0; j < ringLabels.size(); j++) {
-				double d = 0.707*(j+1)*ringDelta/_spanKm;
-				const char* cStart = ringLabels[j].c_str();
-				const char* c;
-
-				// upper right qudrant lables
-				glRasterPos2d(d, d);
-				c = cStart;
-				while (*c)
-					glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,*c++);
-
-				// lower left quadrant labels
-				glRasterPos2d(-d, -d);
-				c = cStart;
-				while (*c)
-					glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,*c++);
-
-				// lower right quadrant labels
-				glRasterPos2d(d+ringLabelOffset, -d-ringLabelOffset);
-				c = cStart;
-				while (*c)
-					glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,*c++);
-
-				// upper left qudrant labels
-				glRasterPos2d(-d+ringLabelOffset, d-ringLabelOffset);
-				c = cStart;
-				while (*c)
-					glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,*c++);
-
-			}
-		}
-		// get rid of quad object
-		gluDeleteQuadric(quadObject);
-
-		glEndList();
-
-	}
-
+	GLdouble x;
+	GLdouble y;
+	
 	// do the grid
-	if (ringDelta > 0 && _gridsEnabled) {
+	if (delta > 0 && _gridsEnabled) {
 
 		// create a display list to hold the gl commands
 		glNewList(_gridListId, GL_COMPILE);
 
 		// set the color
-		glColor3f(_gridRingsColor.red()/255.0, _gridRingsColor.green()/255.0,
-				_gridRingsColor.blue()/255.0);
+		glColor3f(_gridColor.red()/255.0, _gridColor.green()/255.0,
+				_gridColor.blue()/255.0);
 
-		glLineWidth(2);
+		glLineWidth(1);
 
 		glBegin(GL_LINES);
 		// First the vertical lines.
 		// set the first x value
-		GLdouble x = (-(int)((1.0/ringDelta)/2)) * ringDelta;
-		while (x <= 1.0) {
-			glVertex2d(x, -1.0);
-			glVertex2d(x, 1.0);
-			x += ringDelta;
+		x = -2.0;
+		while (x <= 2.0) {
+			glVertex2d(x, -2.0);
+			glVertex2d(x, 2.0);
+			x += delta/_span;
 		}
 		// Now horizontial lines
 		// set the first y value to an even increment of the grid spacing.
-		GLdouble y = (-(int)((1.0/ringDelta)/2)) * ringDelta;
-		;
-		while (y <= 1.0) {
-			glVertex2d(-1.0, y);
-			glVertex2d( 1.0, y);
-			y += ringDelta;
+		y = -2.0;
+		while (y <= 2.0) {
+			glVertex2d(-2.0, y);
+			glVertex2d( 2.0, y);
+			y += delta/_span;
 		}
 		glEnd();
+
+		// label the grid
+		if (delta > 0.0) {
+			for (x = -2.0; x <= 2.0; x += delta/_span) {
+				for (y = -2.0; y <= 2.0; y += delta/_span) {
+
+					std::ostringstream xlabel;
+					std::ostringstream ylabel;
+					const char* c;
+
+					xlabel << std::fixed << std::setprecision(1) << x*_span + _xorigin;
+					ylabel << std::fixed << std::setprecision(1) << y*_span + _yorigin;
+
+					c = ylabel.str().c_str();
+					glRasterPos2d(x+0.01/_zoom, y+0.01/_zoom);
+					while (*c)
+						glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,*c++);
+
+					c = xlabel.str().c_str();
+					glRasterPos2d(x-0.12/_zoom, y-0.045/_zoom);
+					while (*c)
+						glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,*c++);
+
+				}
+			}
+		}
 
 		glEndList();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////
-double CAPPI::ringSpacing() {
+double CAPPI::gridSpacing() {
 
 	// R is the visible distance from center to edge
-	double R = (_spanKm / _zoom);
+	double R = 2.0*(_span / _zoom);
 	double e = (int)floor(log10(R));
 	double Rn = R / pow(10.0, e);
 
