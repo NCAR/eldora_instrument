@@ -71,7 +71,8 @@ def start():
     0: Program the ECB devices and start the test pulse controller
     1. Send the current header to the housekeepr and eldoradrx
     2. Send an RPC start() to eldoradrx
-    3. Send an RPC start() to the housekeepr
+    3. Send an RPC start() to the housekeeper
+    4. Start cappi_gen
     '''
 
     # program the ECB devices
@@ -104,6 +105,9 @@ def start():
 
     # run products
     startProducts()
+    
+    #run cappi_gen
+    startCappi()
 
 ####################################################################################
 def stop():
@@ -143,6 +147,11 @@ def stop():
     if 'eldoraprod' in ourProcesses.keys():
         # stop the products
         stopProducts()
+
+    # kill the cappi generator
+    if 'cappigen' in ourProcesses.keys():
+        # stop the products
+        stopCappi()
 
     # force any RPC threads to exit
     drxrpc.terminate()
@@ -338,6 +347,38 @@ def stopProducts():
             del ourProcesses[key]
 
 ####################################################################################
+def stopCappi():
+    ''' Stop the standard Eldora processing apps. Try first with a SIGTERM. If
+    that fails, try a SIGKILL. Remove them from ourProcesses. Note that 
+    removing a an entry from ourProcesses removes its reference, and it
+    will go out of scope. This causes the QProcess to kill the job.
+    '''
+    cappiProcesses = ['cappigen',]
+    global ourProcesses
+    for key in cappiProcesses:
+        if key in ourProcesses.keys():
+            msg = 'Terminating ' + key
+            main.logText(msg)
+            proc = ourProcesses[key]
+            proc.terminate() 
+            secs = 6
+            if Verbose: print 'waiting %f seconds for %s to terminate' % (secs, key)
+            terminated = proc.waitForFinished(secs*1000)
+            if not terminated:
+                msg = 'Killing ' + key
+                main.logText(msg)
+                if Verbose: print(msg)
+                proc.kill()
+                killed = proc.waitForFinished(1500)
+                if not killed:
+                    msg = 'Could not kill ' + key + ', using kill -9'
+                    main.logText(msg)
+                    if Verbose: print(msg)
+                    pkill(key)
+            # remove reference to the processes.
+            del ourProcesses[key]
+
+####################################################################################
 def startDcps():
     '''
     Run the DCPSInfoRepo, but only if the configuration has
@@ -496,6 +537,43 @@ def startProducts():
     s = ourProcesses['eldoraprod']
     QObject.connect(s, SIGNAL("text"), main.logText)
     s.start()
+    
+####################################################################################
+def startCappi():
+    '''
+    Run the cappi generator, if called for by the configuration. 
+
+    The configuration is checked to see if CAPPI/RunCappiGen is true.
+    '''
+    global ourConfig
+    global ourProcesses
+
+    # see if it is already running
+    isRunning = not pgrep('eldoraprod')
+    if isRunning:
+        pkill('cappigen')
+
+    doCappiGen = ourConfig.getBool('CAPPI/RunCappiGen', True)
+    if  not doCappiGen:
+        return
+
+    fltname = ourConfig.getString('Flight/FlightName','UNKNOWN')
+
+   # start a new instance
+    cappigencmd = [appDict['cappigen'], ]
+    cappigencmd.append('--output')
+    cappiOutputFile = '/cappi/cappi_'+fltname+'.nc'
+    cappigencmd.append(cappiOutputFile)
+    
+    # create the process
+    ourProcesses['cappigen'] = EmitterProc(cappigencmd, emitText=True,
+       payload=nextTaskColor(),verbose=Verbose)
+    
+    # connect the output stream
+    s = ourProcesses['cappigen']
+    QObject.connect(s, SIGNAL("text"), main.logText)
+    s.start()
+
 
 ####################################################################################
 def startArchivers():
@@ -752,7 +830,7 @@ def initConfig():
     appDict = ApplicationDict()
 
     # add apps that are found in eldoraDir/<appName>/<appName>
-    for app in ['eldoraarchiver', 'eldoradrx', 'eldoraprod', 'eldorappi', 
+    for app in ['eldoraarchiver', 'eldoradrx', 'eldoraprod', 'cappigen', 'eldorappi', 
                 'eldorascope', 'dumpheader', 'progdds', 'progsa', 'progmux', 
                 'progtestpulse']:
         appDict[app] = os.path.join(eldoraDir, 'bin', app)
