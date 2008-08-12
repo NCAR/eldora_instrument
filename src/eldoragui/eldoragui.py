@@ -549,7 +549,7 @@ def startCappi():
     global ourProcesses
 
     # see if it is already running
-    isRunning = not pgrep('eldoraprod')
+    isRunning = not pgrep('cappigen')
     if isRunning:
         pkill('cappigen')
 
