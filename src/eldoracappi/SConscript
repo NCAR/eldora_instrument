@@ -47,3 +47,6 @@ inst = env.InstallProgram(eldoracappi)
 env.Default([eldoracappi,])
 env.Alias('install',inst)
 
+runcappi = env.InstallProgram('runcappi.sh')
+env.Alias('install', runcappi)
+env.Default([runcappi,])

@@ -171,12 +171,14 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	// is this an angle we want to look at?
 	double adjustedAngle = hskpMap["roll"] + hskpMap["rotAngle"] + _rollOffset;
 	double dwellWidth = hskpMap["dwellWidth"];
+	
 	if (! flteq(adjustedAngle, 90.0, dwellWidth/2.0) && ! ( flteq(adjustedAngle, 270.0, dwellWidth/2.0)))
 		return;
 
 	// did we already handle a beam with this product type that matched?
 	// (there could be two beams that are equally close to the
 	// dwellWidth/2.0 )
+	
 	if ( (timeTag == _lastTime) && (prodType == _lastProdType)) {
 		return;
 	}
@@ -211,7 +213,9 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 
 		_gates = p.size();
 		_gateSizeDeg = gateSizeDeg;
-		std::cout << "reconfigure\n";
+		std::cout << "reconfigure "
+		  << " gateSizeDeg:" << gateSizeDeg << "  gates:" << _gates
+		  << "\n";
 		_manager.configureCAPPI(_productList.size(), _gates, _gateSizeDeg,
 				_spanDeg, _stripDisplay, _stripWidthDeg, _firstLon, _firstLat);
 	}
@@ -232,6 +236,12 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 
 	double cartAngle = pointingAngle(adjustedAngle, hskpMap["heading"],
 			hskpMap["radarTiltAngle"]);
+
+//	std::cout << "cart angle:" << cartAngle
+//	   << " lon offset:" << (_lon - _firstLon)
+//	   << " lat offset:" << (_lat - _firstLat)
+//	   << " size:" << p.size()
+//	   << "\n";
 
 	// send the product to the appropriate ppi manager
 	_manager.newProduct(p, (_lon - _firstLon), (_lat - _firstLat), cartAngle,
@@ -622,10 +632,10 @@ double EldoraCappi::pointingAngle(double rotAngle, double heading,
 	cartAngle = 450 - heading;
 	// is the horizontal beam pointed to the right of the plane?
 	if ((80.0 <= rotAngle) && (rotAngle <= 100.0)) {
-		cartAngle = cartAngle + 90 - tiltAngle;
+		cartAngle = cartAngle - 90 - tiltAngle;
 	} else {
 		// no, it's pointing to the left side
-		cartAngle = cartAngle - 90 + tiltAngle;
+		cartAngle = cartAngle + 90 + tiltAngle;
 	}
 
 	while (cartAngle < 0.0)
