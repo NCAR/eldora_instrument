@@ -45,4 +45,5 @@ env.Default([eldorappi,])
 env.Alias('install',inst)
 
 runppi = env.InstallProgram('runppi.sh')
+env.Default([runppi,])
 env.Alias('install', runppi)
