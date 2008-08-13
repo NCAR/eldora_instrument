@@ -276,10 +276,47 @@ void EldoraPPI::saveImageSlot() {
     d.selectFile(f);
     if (d.exec()) {
         QStringList saveNames = d.selectedFiles();
-        //ppiFore->saveImageToFile(saveNames[0].toStdString());
-        //ppiAft->saveImageToFile(saveNames[0].toStdString());
+        QImage* imagefor = ppiFor->getImage();
+        QImage* imageaft = ppiAft->getImage();
+        if (imagefor && imageaft) {
+        	// Add border and space between the images
+        	int padding = 10;
+        	int xoffset;
+        	int yoffset;
+        	// Determine dimensions. Don't assume the two 
+        	// sources are the same size (but don't do any fancy
+        	// positioning either).
+        	int w = imagefor->width();
+        	if (w < imageaft->width())
+        		w = imageaft->width();
+        	w += 2*padding;
+        	int h = imagefor->height() + imageaft->height() + 3*padding;
+        	
+        	// Allocate composite image
+        	QImage fullImage(w, h, imagefor->format());
+        	
+        	// Copy the upper display
+        	xoffset = padding;
+        	yoffset = padding;
+        	for (int x = 0; x < imagefor->width(); x++) {
+        		for (int y = 0; y < imagefor->height(); y++) {
+        			fullImage.setPixel(x+xoffset, y+yoffset, imagefor->pixel(x,y));
+        		}
+        	}
+        	// Copy the lower display
+        	xoffset = padding;
+        	yoffset = 2*padding + imagefor->height();
+        	for (int x = 0; x < imageaft->width(); x++) {
+        		for (int y = 0; y < imageaft->height(); y++) {
+        			fullImage.setPixel(x+xoffset, y+yoffset, imageaft->pixel(x,y));
+        		}
+        	}
+			fullImage.save(saveNames[0].toStdString().c_str(), "PNG", 100);
+			delete imagefor;
+			delete imageaft;
+        }
         f = d.directory().absolutePath();
-        _config.setString("imageSaveDirectory", f.toStdString());
+        _config.setString("ImageSaveDirectory", f.toStdString());
     }
 }
 
