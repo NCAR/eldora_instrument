@@ -26,7 +26,7 @@ CappiManager::~CappiManager() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CappiManager::newProduct(std::vector<double>& p, double xPos, double yPos,
+bool CappiManager::newProduct(std::vector<double>& p, double timetag, double xPos, double yPos,
 		float rotAngle, int prodIndex) {
 
 	bool retval = false;
@@ -59,10 +59,10 @@ bool CappiManager::newProduct(std::vector<double>& p, double xPos, double yPos,
 		}
 
 		if (_stripDisplay) {
-			_cappi->addBeam(xPos, yPos, rotAngle, _gates, _productData, 1,
+			_cappi->addBeam(timetag, xPos, yPos, rotAngle, _gates, _productData, 1,
 					*_colorMaps, _stripWidthDeg);
 		} else {
-			_cappi->addBeam(xPos, yPos, startAng, stopAng, _gates,
+			_cappi->addBeam(timetag, xPos, yPos, startAng, stopAng, _gates,
 					_productData, 1, *_colorMaps);
 		}
 		// clear our collected products
@@ -76,7 +76,7 @@ bool CappiManager::newProduct(std::vector<double>& p, double xPos, double yPos,
 //////////////////////////////////////////////////////////////////////
 void CappiManager::configureCAPPI(int numProducts, int gates,
 		double gateSizeDeg, double spanDeg, bool stripDisplay,
-		double stripWidthDeg, double xorigin, double yorigin) {
+		double stripWidthDeg, double xorigin, double yorigin, double timespan) {
 
 	_stripDisplay = stripDisplay;
 
@@ -90,7 +90,7 @@ void CappiManager::configureCAPPI(int numProducts, int gates,
 		_productData[i].resize(_gates);
 
 	_cappi->configure(numProducts, _gates, spanDeg, gateSizeDeg, xorigin,
-			yorigin);
+			yorigin, timespan);
 
 }
 /////////////////////////////////////////////////////////////////////////////

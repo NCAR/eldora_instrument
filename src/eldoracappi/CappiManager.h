@@ -30,10 +30,11 @@ public:
 	/// received, i.e. when _currentProducts.size() == _nProducts,
 	/// _productData are sent to _ppi.
 	/// @param p Data for a single product
+	/// @param timetag The timetag for this beam.
 	/// @param rotAngle The radar rotation angle in cartesian coordinates
 	/// @param prodIndex DEnotes which product in the display this belongs to.
 	/// @returns True if a complete set was assembled on this call.
-	bool newProduct(std::vector<double>& p, double xPos, double yPos,
+	bool newProduct(std::vector<double>& p, double timetag, double xPos, double yPos,
 			float rotAngle, int prodIndex);
 	/// Configure the CAPPI displays when there is a change in the operating
 	/// configuration, such as the number of gates, etc.
@@ -44,9 +45,10 @@ public:
 	/// @param spanDeg The X and Y span across the display, in degrees.
 	/// @param stripDisplay True if the beams are to be displayed as strips
 	/// @param stripWidthDeg The width of the strips in degrees.
+	/// @param timespan The time span for culling beams.
 	void configureCAPPI(int numProducts, int gates, double gateSizeDeg,
 			double spanDeg, bool stripDisplay, double stripWidthDeg,
-			double xorigin, double yorigin);
+			double xorigin, double yorigin, double timespan);
 	/// Select the product to display on the ppi
 	/// @param The product index, zero based.
 	void selectVar(int index);

@@ -114,7 +114,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	_spanDeg = _config.getDouble("Display/SpanDeg", 10.0);
 	_stripDisplay = _config.getBool("Display/StripDisplay", true);
 	_stripWidthDeg = _config.getDouble("Display/StripWidthKm", 2.2)/111.2;
-	
+
 	// and the radar specs that are provided in our configuration:
 	_radarTiltAngle = _config.getDouble("Radar/TiltAngleDegs", 15.57);
 
@@ -174,14 +174,14 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	// is this an angle we want to look at?
 	double adjustedAngle = hskpMap["roll"] + hskpMap["rotAngle"] + _rollOffset;
 	double dwellWidth = hskpMap["dwellWidth"];
-	
+
 	if (! flteq(adjustedAngle, 90.0, dwellWidth/2.0) && ! ( flteq(adjustedAngle, 270.0, dwellWidth/2.0)))
 		return;
 
 	// did we already handle a beam with this product type that matched?
 	// (there could be two beams that are equally close to the
 	// dwellWidth/2.0 )
-	
+
 	if ( (timeTag == _lastTime) && (prodType == _lastProdType)) {
 		return;
 	}
@@ -194,7 +194,7 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 
 	_lat = hskpMap["lat"];
 	_lon = hskpMap["lon"];
-	
+
 	/// @todo Be prepared to implement a different Q/C check
 	/// for position as necessary.
 	/// don't accept positions where lat/lon are close to zero/zero. This
@@ -203,8 +203,7 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	if (fabs(_lat)< 0.1 && fabs(_lon) < 0.1) {
 		return;
 	}
-	
-	
+
 	if (_lastTime < 1.0) {
 		_firstLat = floor(_lat+0.5);
 		_firstLon = floor(_lon+0.5);
@@ -213,14 +212,15 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	// if the product size has changed, reconfigure the ppi displays
 	double gateSizeDeg = hskpMap["gateSpacingMeters"]/111.2/1000.0;
 	if (p.size() != _gates || gateSizeDeg != _gateSizeDeg) {
-
+		// for some very strange reason, if this print is not here, then all zooms 
+		// cause a view reset which negates the zoom!
+		std::cout << "configure " << _gates << "  " << _gateSizeDeg << "\n";
+		
 		_gates = p.size();
 		_gateSizeDeg = gateSizeDeg;
-		std::cout << "reconfigure "
-		  << " gateSizeDeg:" << gateSizeDeg << "  gates:" << _gates
-		  << "\n";
 		_manager.configureCAPPI(_productList.size(), _gates, _gateSizeDeg,
-				_spanDeg, _stripDisplay, _stripWidthDeg, _firstLon, _firstLat);
+				_spanDeg, _stripDisplay, _stripWidthDeg, _firstLon, _firstLat,
+				_timeSpanHr*3600.0);
 	}
 
 	// apply the airspeed correction to VR
@@ -240,17 +240,12 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	double cartAngle = pointingAngle(adjustedAngle, hskpMap["heading"],
 			_radarTiltAngle);
 
-//	std::cout << "cart angle:" << cartAngle
-//	   << " lon offset:" << (_lon - _firstLon)
-//	   << " lat offset:" << (_lat - _firstLat)
-//	   << " size:" << p.size()
-//	   << "\n";
-
 	// send the product to the appropriate ppi manager
-	_manager.newProduct(p, (_lon - _firstLon), (_lat - _firstLat), cartAngle,
-			index);
+	_manager.newProduct(p, timeTag, (_lon - _firstLon), (_lat - _firstLat),
+			cartAngle, index);
 
 }
+
 //////////////////////////////////////////////////////////////////////
 void EldoraCappi::saveImageSlot() {
 	QString f = _config.getString("imageSaveDirectory", "c:/").c_str();
@@ -471,16 +466,16 @@ void EldoraCappi::colorBarSettingsFinishedSlot(int result) {
 		_config.setDouble(minKey, scaleMin);
 		_config.setDouble(maxKey, scaleMax);
 		_config.setString(mapKey, newMapName);
-		
+
 		// get rid of all of the existing beams
 		_cappi->clearDisplay();
-		
+
 		// force a redraw
 		_lastCappiRec = 0;
-		
+
 		// redraw
 		pollNewData();
-		
+
 	}
 }
 
@@ -621,16 +616,14 @@ void EldoraCappi::displayRecord(unsigned long rec) {
 	std::vector<double> product;
 	bool ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);
 	if (ok) {
-		// emit signal
-		//emit newProductSignal(product, prodType, timeTag, hskpMap);
 		this->productSlot(product, prodType, timeTag, hskpMap);
-
 	} else {
 		std::cerr << "unable to get record " << rec << "\n";
 	}
 	QCoreApplication::processEvents();
 }
 
+///////////////////////////////////////////////////////////////////////
 double EldoraCappi::pointingAngle(double rotAngle, double heading,
 		double tiltAngle) {
 

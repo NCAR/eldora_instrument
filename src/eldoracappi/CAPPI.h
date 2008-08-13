@@ -115,6 +115,7 @@ Q_OBJECT
 	class beam {
     public:
 		/// Constructor for ray type beams
+    	/// @param timetag Timetag of the beam, used for culling
 		/// @param span Display span.
 		/// @param bx horizontal dist from center of display ()
 		/// @param by vertical dist from center of display()
@@ -123,10 +124,11 @@ Q_OBJECT
 		/// @param stopAngle Stop angle of the beam
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
-		beam(double span, double bx, double by, double gateWidth, double startAngle,
+		beam(double timetag, double span, double bx, double by, double gateWidth, double startAngle,
 				double stopAngle, int nGates, int nVars);
 
 		/// Constructor for strip type beams
+		/// @param timetag Tmetag of the beam, used for culling
 		/// @param span Display span.
 		/// @param bx horizontal dist from center of display ()
 		/// @param by vertical dist from center of display()
@@ -135,7 +137,7 @@ Q_OBJECT
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
 		/// @param stripWidth The width of the strip in 
-		beam(double span, double bx, double by, double gateWidth, double angle,
+		beam(double timetag, double span, double bx, double by, double gateWidth, double angle,
 				int nGates, int nVars, double stripWidth);
 
 		/// destructor
@@ -169,6 +171,8 @@ Q_OBJECT
 		/// variable varN. This will be used to generate the display 
 		/// lists for the beam.
 		GLfloat* colors(int varN);
+        // The beam timetag
+        double _timetag;
         protected:
 		/// internal storage for the colors for each variable.
 		std::vector<std::vector<GLfloat> > _varColors;
@@ -184,11 +188,21 @@ public:
 	/// Destructor
 	virtual ~CAPPI();
 	/// Configure the CAPPI for dynamically allocated beams. 
-	void configure(int nVars, ///< Number of variables.
-			int maxGates, ///< Maximum number of gates in a beam.
+	/// @param nvars Number of data variables.
+	/// @param maxGates Maximum number of gates in a beam
+	/// @param gatewidth The width of each gate
+	/// @param xorigin The x origin offset to be used for labeling
+	/// @param yorigin The y origin offset to be used for labeling
+	/// @param timespan If greater than zero, beams will be culled 
+	/// if they are older than this value
+	void configure(int nVars, 
+			int maxGates,
 			double span, ///< The distance spanned by the complete CAPPI.
 			double gateWidth,
-			double xorigin, double yorigin);
+			double xorigin, 
+			double yorigin,
+			double timespan
+			);
 	/// Select the variable to display.
 	void selectVar(int index ///< Index of the variable to display, zero based.
 			);
@@ -206,7 +220,8 @@ public:
 	/// as well as color maps for all variables. addBeam() will map the variable values to 
 	/// the correct color, and create a wedge of triangle strips, one for each variable.
 	/// The existing wedge for this beam will be discarded.
-	void addBeam(double xPos, ///< xposition for beam
+	void addBeam(double timetag,
+			double xPos, ///< xposition for beam
 			double yPos, ///< yposition for beam
 			float startAngle, ///< The starting angle for the beam.
 			float stopAngle, ///< The ending angle for the beam.
@@ -220,7 +235,8 @@ public:
 	/// as well as color maps for all variables. addBeam() will map the variable values to 
 	/// the correct color, and create a wedge of triangle strips, one for each variable.
 	/// The existing wedge for this beam will be discarded.
-	void addBeam(double xPos, ///< xposition for beam
+	void addBeam(double timetag,
+			double xPos, ///< xposition for beam
 			double yPos, ///< yposition for beam
 			float angle, ///< The  angle for the beam.
 			int gates, ///< The number of gates (must match beamData vector sizes). 
@@ -230,11 +246,21 @@ public:
 			double stripWidth ///< The width of the strip
 			);
 
+	/// if _timespan > 0, remove beams that are older than
+	/// the youngest beam - timespan. Paint the removed beams with the
+	/// background color.
+	void cullbeams();
+	
 	void fillBeams(std::vector<beam*>& newBeams, 
 			int gates,
 			std::vector<std::vector<double> >& _beamData, 
 			int stride,
 			std::vector<ColorMap*>& maps);
+	/// Set the beam colors all to the background color, 
+	/// for the currently seleced variable. This is done 
+	/// so that the beam can be redawn in order to remove it from the display.
+	void backgroundBeam(beam* beam);
+	
 	void clearDisplay();
 	/// Specify the background color
 	void backgroundColor(QColor color ///< The background color.
@@ -333,6 +359,10 @@ protected:
 	int _maxGates;
 	/// 
 	double _gateWidth;
+	/// The timespan for beam culling
+	double _timespan;
+	/// The maximum timetag in the beam list
+	double _maxtime;
 	/// The index of the variable selected for display
 	int _selectedVar;
 	/// The display list id for the grid

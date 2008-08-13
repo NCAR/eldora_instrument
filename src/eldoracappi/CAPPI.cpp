@@ -25,9 +25,10 @@
 //
 ////////////////////////////////////////////////////////////////
 
-CAPPI::beam::beam(double span, double xpos, double ypos, double gateWidth,
-		double startAngle, double stopAngle, int nGates, int nVars) :
-	_nVars(nVars), _nGates(nGates) {
+CAPPI::beam::beam(double timetag, double span, double xpos, double ypos,
+		double gateWidth, double startAngle, double stopAngle, int nGates,
+		int nVars) :
+	_nVars(nVars), _nGates(nGates), _timetag(timetag) {
 
 	// construct the geometry for a ray presentation
 	rayGeometry(span, xpos, ypos, gateWidth, startAngle, stopAngle);
@@ -47,9 +48,9 @@ CAPPI::beam::beam(double span, double xpos, double ypos, double gateWidth,
 }
 
 ////////////////////////////////////////////////////////////////
-CAPPI::beam::beam(double span, double xpos, double ypos, double gateWidth,
-		double angle, int nGates, int nVars, double stripWidth) :
-	_nVars(nVars), _nGates(nGates) {
+CAPPI::beam::beam(double timetag, double span, double xpos, double ypos,
+		double gateWidth, double angle, int nGates, int nVars, double stripWidth) :
+	_nVars(nVars), _nGates(nGates), _timetag(timetag) {
 
 	// create the geometry for a strip presentation
 	stripGeometry(span, xpos, ypos, gateWidth, angle, stripWidth);
@@ -148,14 +149,12 @@ static bool glutInitialized = false;
 
 CAPPI::CAPPI(QWidget* parent) :
 	QGLWidget(parent), _selectedVar(0), _zoom(1.0), _centerX(0.0),
-			_centerY(0.0), _gridColor("black"),
-			_backgroundColor("lightblue"),
-			_gridsEnabled(false), _resizing(false),
-			_configured(false),
+			_centerY(0.0), _gridColor("black"), _backgroundColor("lightblue"),
+			_gridsEnabled(false), _resizing(false), _configured(false),
 			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0),
-			_span(100), _cursorZoom(true),
-			_xorigin(0.0), _yorigin(0.0) {
-	
+			_span(100), _cursorZoom(true), _xorigin(0.0), _yorigin(0.0),
+			_timespan(0.0), _maxtime(0.0) {
+
 	initializeGL();
 
 	if (!glutInitialized) {
@@ -180,7 +179,7 @@ CAPPI::CAPPI(QWidget* parent) :
 ////////////////////////////////////////////////////////////////
 
 void CAPPI::configure(int nVars, int maxGates, double span, double gateWidth,
-		double xorigin, double yorigin) {
+		double xorigin, double yorigin, double timespan) {
 	// Configure for dynamically allocated beams
 	_nVars = nVars;
 	_maxGates = maxGates;
@@ -195,6 +194,7 @@ void CAPPI::configure(int nVars, int maxGates, double span, double gateWidth,
 	_zoom = 1.0;
 	_xorigin = xorigin;
 	_yorigin = yorigin;
+	_timespan = timespan;
 
 	_configured = true;
 
@@ -605,10 +605,13 @@ void CAPPI::clearVar(int index) {
 
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::addBeam(double xPos, double yPos, float startAngle,
+void CAPPI::addBeam(double timetag, double xPos, double yPos, float startAngle,
 		float stopAngle, int gates,
 		std::vector<std::vector<double> >& _beamData, int stride,
 		std::vector<ColorMap*>& maps) {
+
+	if (timetag > _maxtime)
+		_maxtime = timetag;
 
 	makeCurrent();
 
@@ -638,29 +641,34 @@ void CAPPI::addBeam(double xPos, double yPos, float startAngle,
 	if (startAngle <= stopAngle) {
 
 		b
-				= new beam(_span, xPos, yPos, _gateWidth, startAngle, stopAngle, _maxGates, _nVars);
+				= new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	} else {
 		b
-				= new beam(_span, xPos, yPos, _gateWidth, startAngle, 360.0, _maxGates, _nVars);
+				= new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, 360.0, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 
 		b
-				= new beam(_span, xPos, yPos, _gateWidth, 0.0, stopAngle, _maxGates, _nVars);
+				= new beam(timetag, _span, xPos, yPos, _gateWidth, 0.0, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	}
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
 
+	cullbeams();
+
 }
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
-		std::vector<std::vector<double> >& _beamData, int stride,
+void CAPPI::addBeam(double timetag, double xPos, double yPos, float angle,
+		int gates, std::vector<std::vector<double> >& _beamData, int stride,
 		std::vector<ColorMap*>& maps, double stripWidth) {
+
+	if (timetag > _maxtime)
+		_maxtime = timetag;
 
 	makeCurrent();
 
@@ -686,13 +694,15 @@ void CAPPI::addBeam(double xPos, double yPos, float angle, int gates,
 
 	angle = angle - ((int)(angle/360.0))*360.0;
 	b
-			= new beam(_span, xPos, yPos, _gateWidth, angle, _maxGates, _nVars, stripWidth);
+			= new beam(timetag, _span, xPos, yPos, _gateWidth, angle, _maxGates, _nVars, stripWidth);
 
 	_beams.push_back(b);
 
 	newBeams.push_back(b);
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
+
+	cullbeams();
 
 }
 
@@ -704,7 +714,6 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams, int gates,
 	beam* b;
 
 	// newBeams has collected the beams to be rendered; now fill in 
-
 	// their colors and draw them
 	for (unsigned int i = 0; i < newBeams.size(); i++) {
 		b = newBeams[i];
@@ -731,7 +740,43 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams, int gates,
 		glFlush();
 
 }
+////////////////////////////////////////////////////////////////
+void CAPPI::cullbeams() {
+	if (_timespan == 0.0)
+		return;
 
+	// get rid of any beams with a timetag smaler than this
+	double earliest = _maxtime - _timespan;
+
+	bool doPaint = false;
+
+	// iterate the beam list, from back to front, 
+	// since we may be removing some of them.
+	for (int i = _beams.size()-1; i >= 0; i--) {
+		beam* b = _beams[i];
+		if (b->_timetag < earliest) {
+			// change all beam colors to background color
+			backgroundBeam(b);
+			// return existing display list
+			glDeleteLists(b->_glListId[_selectedVar], 1);
+			// make the new display list
+			makeDisplayList(b, _selectedVar);
+			// paint the current 
+			glCallList(b->_glListId[_selectedVar]);
+			// now get rid of the beam
+			_beams.erase(_beams.begin()+i);
+			delete b;
+
+			doPaint = true;
+		}
+	}
+
+	glFlush();
+
+	//	if (doPaint)
+	//		paintGL();
+
+}
 ////////////////////////////////////////////////////////////////
 void CAPPI::fillColors(beam* beam,
 		std::vector<std::vector<double> >& _beamData, int gates, int stride,
@@ -744,7 +789,7 @@ void CAPPI::fillColors(beam* beam,
 		GLfloat* colors = beam->colors(v);
 		int cIndex = 0;
 
-		double* varData = &(_beamData[v][0]);
+		double* varData = &(_beamData[_selectedVar][0]);
 		for (int gate = 0; gate < gates; gate++) {
 			double data = varData[gate];
 			map->dataColor(data, red, green, blue);
@@ -771,13 +816,33 @@ void CAPPI::fillColors(beam* beam,
 }
 
 ////////////////////////////////////////////////////////////////
+void CAPPI::backgroundBeam(beam* beam) {
+
+	int cIndex = 0;
+
+	GLfloat* colors = beam->colors(_selectedVar);
+	float r = _backgroundColor.red()/255.0;
+	float g = _backgroundColor.green()/255.0;
+	float b = _backgroundColor.blue()/255.0;
+
+	for (int gate = 0; gate < _maxGates; gate++) {
+		colors[cIndex++] = r;
+		colors[cIndex++] = g;
+		colors[cIndex++] = b;
+		colors[cIndex++] = r;
+		colors[cIndex++] = g;
+		colors[cIndex++] = b;
+	}
+}
+
+////////////////////////////////////////////////////////////////
 void CAPPI::clearDisplay() {
 	for (unsigned int i = 0; i < _beams.size(); i++) {
 		delete _beams[i];
 	}
-	
+
 	_beams.clear();
-	
+
 }
 
 ////////////////////////////////////////////////////////////////
@@ -845,12 +910,12 @@ void CAPPI::makeGrids() {
 	double delta = gridSpacing();
 
 	// tell the world about the grid spacing
-emit 	gridDelta(delta);
+emit 		gridDelta(delta);
 
 	double lineWidth = 0.004/ _zoom;
 	GLdouble x;
 	GLdouble y;
-	
+
 	// do the grid
 	if (delta > 0 && _gridsEnabled) {
 
@@ -891,8 +956,10 @@ emit 	gridDelta(delta);
 					std::ostringstream ylabel;
 					const char* c;
 
-					xlabel << std::fixed << std::setprecision(1) << x*_span + _xorigin;
-					ylabel << std::fixed << std::setprecision(1) << y*_span + _yorigin;
+					xlabel << std::fixed << std::setprecision(1) << x*_span
+							+ _xorigin;
+					ylabel << std::fixed << std::setprecision(1) << y*_span
+							+ _yorigin;
 
 					c = ylabel.str().c_str();
 					glRasterPos2d(x+0.01/_zoom, y+0.01/_zoom);
