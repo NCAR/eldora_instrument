@@ -114,6 +114,9 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	_spanDeg = _config.getDouble("Display/SpanDeg", 10.0);
 	_stripDisplay = _config.getBool("Display/StripDisplay", true);
 	_stripWidthDeg = _config.getDouble("Display/StripWidthKm", 2.2)/111.2;
+	
+	// and the radar specs that are provided in our configuration:
+	_radarTiltAngle = _config.getDouble("Radar/TiltAngleDegs", 15.57);
 
 	// run through all of the product types and configure the 
 	// the for and aft displays.
@@ -235,7 +238,7 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	_lastProdType = prodType;
 
 	double cartAngle = pointingAngle(adjustedAngle, hskpMap["heading"],
-			hskpMap["radarTiltAngle"]);
+			_radarTiltAngle);
 
 //	std::cout << "cart angle:" << cartAngle
 //	   << " lon offset:" << (_lon - _firstLon)
@@ -636,10 +639,10 @@ double EldoraCappi::pointingAngle(double rotAngle, double heading,
 	cartAngle = 450 - heading;
 	// is the horizontal beam pointed to the right of the plane?
 	if ((80.0 <= rotAngle) && (rotAngle <= 100.0)) {
-		cartAngle = cartAngle - 90 - tiltAngle;
+		cartAngle = cartAngle - 90 + tiltAngle;
 	} else {
 		// no, it's pointing to the left side
-		cartAngle = cartAngle + 90 + tiltAngle;
+		cartAngle = cartAngle + 90 - tiltAngle;
 	}
 
 	while (cartAngle < 0.0)

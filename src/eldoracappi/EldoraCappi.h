@@ -187,6 +187,8 @@ protected:
 	double _gateSizeDeg;
 	/// The angular width of one dwell
 	double _dwellWidth;
+	/// The tilt angle of the radar
+	double _radarTiltAngle;
 	/// For each PRODUCT_TYPES, there will be an entry in this map.
 	std::map<PRODUCT_TYPES, ProductInfo> _productInfo;
 	/// The layout which contains the radio buttons for product
