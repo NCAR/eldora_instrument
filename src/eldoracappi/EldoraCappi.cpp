@@ -267,9 +267,13 @@ void EldoraCappi::saveImageSlot() {
 	d.selectFile(f);
 	if (d.exec()) {
 		QStringList saveNames = d.selectedFiles();
-		//_cappi->saveImageToFile(saveNames[0].toStdString());
+		QImage* image = _cappi->getImage();
+		if (image) {
+			image->save(saveNames[0].toStdString().c_str(), "PNG", 100);
+			delete image;
+		}
 		f = d.directory().absolutePath();
-		_config.setString("imageSaveDirectory", f.toStdString());
+		_config.setString("ImageSaveDirectory", f.toStdString());
 	}
 }
 
