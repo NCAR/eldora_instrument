@@ -501,6 +501,7 @@ class FlightNameValidator(QValidator):
             return (QValidator.Invalid, 8)
             
         newtext = input.toUpper()
+        
         if newtext.compare(input):
             input.replace(0,100,input.toUpper())
             return (QValidator.Acceptable, pos)

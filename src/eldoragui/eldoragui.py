@@ -1127,7 +1127,7 @@ def nextTaskColor():
 
 ####################################################################################
 def flightName(fltname):
-    ourConfig.setString('Flight/FlightName',fltname)
+    ourConfig.setString('Flight/FlightName',fltname.simplified())
 
 
 ####################################################################################
