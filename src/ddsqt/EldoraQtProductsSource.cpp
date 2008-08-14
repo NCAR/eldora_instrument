@@ -69,6 +69,9 @@ void EldoraQtProductsSource::notify() {
                 double nyVelocity = nyquistVelocity(pItem);
                 double rollAngle = pItem->hskp.roll;
 		        qlonglong timetag = pItem->hskp.timetag;
+		        double altitudeMSL = pItem->hskp.altitudeMSL;
+		        double latitude = pItem->hskp.latitude;
+		        double longitude = pItem->hskp.longitude;
                 
                 // get the scaling and offset values for this product type
                 selectProduct(*prodType, pItem, &product, gain, offset);
@@ -94,7 +97,10 @@ void EldoraQtProductsSource::notify() {
                                 dWidth, 
                                 airSpdCorr,
                                 rollAngle,
-                                nyVelocity);
+                                nyVelocity,
+                                altitudeMSL,
+                                latitude,
+                                longitude);
 
 			StrMapDouble hskpMap;
                         
@@ -155,7 +161,10 @@ void EldoraQtProductsSource::notify() {
                                     dWidth, 
                                     airSpdCorr,
                                     rollAngle,
-                                    nyVelocity);
+                                    nyVelocity,
+                                    altitudeMSL,
+                                    latitude,
+                                    longitude);
                             clearCapture();
                         }
                     }

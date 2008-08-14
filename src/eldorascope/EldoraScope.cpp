@@ -199,7 +199,10 @@ void EldoraScope::productSlot(
         double dwellWidth,
         double airspdCorr,
         double rollAngle,
-        double nyquistVelocity) {
+        double nyquistVelocity,
+        double altitudeMSL,
+        double latitude,
+        double longitude) {
     if (_paused)
         return;
     processProduct(p);

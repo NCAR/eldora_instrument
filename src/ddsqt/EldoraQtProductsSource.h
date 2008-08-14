@@ -84,6 +84,9 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
     	/// @param rollAngle The aircraft roll angle, in degrees.
         /// @param nyquistVelocity The radar nyquist velocity, m/s. Required for
         /// velocity unfolding along the beam.
+        /// @param altitudeMSL Altitude, meters abocw sea level
+        /// @param latitude Latitude, degrees
+        /// @param longitude Longitude, degrees
         void newPData(
                 std::vector<double> P, 
                 int radarId, 
@@ -93,7 +96,10 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
                 double dwellWidth, 
                 double airspdCorr,
                 double rollAngle,
-                double nyquistVelocity);
+                double nyquistVelocity,
+                double altitudeMSL,
+                double latitude,
+                double longitude);
 
         /// This signal is emitted when new Product data are available.
         /// @param P P data values (at least 1).

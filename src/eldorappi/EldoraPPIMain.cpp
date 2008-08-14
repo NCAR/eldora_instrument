@@ -21,219 +21,217 @@ Q_DECLARE_METATYPE(std::vector<int>)
 #include "ArgvParams.h"
 
 namespace po = boost::program_options;
-void parseArgs(
-        int argc, char** argv, 
-        std::string& productsTopic, 
-        bool& forwardRadar,
-        std::string& ORB,
-        std::string& DCPS,
-	std::string& DCPSInfoRepo,
-	int &DCPSDebugLevel,
-	int &DCPSTransportDebugLevel) {
+void parseArgs(int argc, char** argv, std::string& productsTopic,
+		bool& forwardRadar, std::string& ORB, std::string& DCPS,
+		std::string& DCPSInfoRepo, int &DCPSDebugLevel,
+		int &DCPSTransportDebugLevel) {
 
-    int theDebugLevel=0;
-    int theTransportLevel=0;
+	int theDebugLevel=0;
+	int theTransportLevel=0;
 
-    // get the options
-    po::options_description descripts("Options");
+	// get the options
+	po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") 
-    ("productstopic", po::value<std::string>(&productsTopic), "DDS products topic")
-    ("forward", "View forward radar (--forward or --aft is required)")
+	descripts.add_options() ("help", "describe options") ("productstopic",
+			po::value<std::string>(&productsTopic), "DDS products topic")
+	("forward", "View forward radar (--forward or --aft is required)")
 	("aft", "View aft radar (--forward or --aft is required)")
-    ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
-    ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
-    ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
-    ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
-    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
-     "DCPSTransportDebugLevel")
-    ;
+	("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
+	("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
+	("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
+	("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
+	("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel),
+	"DCPSTransportDebugLevel")
+	;
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, descripts), vm);
-    po::notify(vm);
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, descripts), vm);
+	po::notify(vm);
 
-    // store parsed debug levels
-    DCPSDebugLevel = theDebugLevel;
-    DCPSTransportDebugLevel = theTransportLevel;
+	// store parsed debug levels
+	DCPSDebugLevel = theDebugLevel;
+	DCPSTransportDebugLevel = theTransportLevel;
 
-    std::cerr << argv[0] << "parse_args :DCPSDebugLevel = " << DCPSDebugLevel  << std::endl;
-    std::cerr << argv[0] << "parse_args :DCPSTransportDebugLevel = " << DCPSTransportDebugLevel  << std::endl;
-    if (vm.count("help")) {
-        std::cout << descripts << "\n";
-        exit(1);
-    }
+	std::cerr << argv[0] << "parse_args :DCPSDebugLevel = " << DCPSDebugLevel << std::endl;
+	std::cerr << argv[0] << "parse_args :DCPSTransportDebugLevel = " << DCPSTransportDebugLevel << std::endl;
+	if (vm.count("help")) {
+		std::cout << descripts << "\n";
+		exit(1);
+	}
 
-    // digest the radar choice option
-    if ((vm.count("forward")+vm.count("aft")) != 1) {
-        std::cout << descripts << "\n";
-        exit(1);    	
-    }
-    
-    if (vm.count("forward"))
-    	forwardRadar = true;
-    else
-    	forwardRadar = false;
-    
+	// digest the radar choice option
+	if ((vm.count("forward")+vm.count("aft")) != 1) {
+		std::cout << descripts << "\n";
+		exit(1);
+	}
+
+	if (vm.count("forward"))
+	forwardRadar = true;
+	else
+	forwardRadar = false;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-int main(
-        int argc, char** argv) {
+int main(int argc, char** argv) {
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Configuration
+	///////////////////////////////////////////////////////////////
+	//
+	// Configuration
 
 	// The EldoraPPI configuration 
-    QtConfig config("NCAR", "EldoraPPI");
-    // The products topic name
-    std::string productsTopic;
-    // path to the ORBSvcConf configuration file
-    std::string ORB;
-    // path to the DCPSConfigFile configuration file
-    std::string DCPS;
-    // set true if viewing forward radar, false otherwise
-    bool forwardRadar;
+	QtConfig config("NCAR", "EldoraPPI");
+	// The products topic name
+	std::string productsTopic;
+	// path to the ORBSvcConf configuration file
+	std::string ORB;
+	// path to the DCPSConfigFile configuration file
+	std::string DCPS;
+	// set true if viewing forward radar, false otherwise
+	bool forwardRadar;
 
-    std::string DCPSInfoRepo;
+	std::string DCPSInfoRepo;
 
-    int DCPSDebugLevel = 0;
-    int DCPSTransportDebugLevel = 0;
+	int DCPSDebugLevel = 0;
+	int DCPSTransportDebugLevel = 0;
 
-    // set up the default configuration directory path
-    char* e = getenv("ELDORADIR");
-    std::string EldoraDir("/conf/");
-    if (e) {
-    	EldoraDir = e + EldoraDir;
-    } else {
-        std::cerr << "Environment variable ELDORADIR must be set.\n";
-        exit(1);
-    }
-    
-    std::string orbFile = EldoraDir + "ORBSvc.conf";
-    ORB = config.getString("ORBConfigFile",orbFile);
-    
-    std::string dcpsFile = EldoraDir + "DDSClient.ini";
-    DCPS = config.getString( "DCPSConfigFile", dcpsFile);
+	// set up the default configuration directory path
+	char* e = getenv("ELDORADIR");
+	std::string EldoraDir("/conf/");
+	if (e) {
+		EldoraDir = e + EldoraDir;
+	} else {
+		std::cerr << "Environment variable ELDORADIR must be set.\n";
+		exit(1);
+	}
 
-    std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
-    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);  
+	std::string orbFile = EldoraDir + "ORBSvc.conf";
+	ORB = config.getString("ORBConfigFile", orbFile);
 
-    
-    productsTopic = config.getString("TopicProducts", "EldoraProducts");
+	std::string dcpsFile = EldoraDir + "DDSClient.ini";
+	DCPS = config.getString("DCPSConfigFile", dcpsFile);
 
-    parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS, DCPSInfoRepo,
-	      DCPSDebugLevel, DCPSTransportDebugLevel);
+	std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
+	DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);
 
-    // we have to do this bit of translation since the 
-    // DDS routines want arguments starting with a single dash,
-    // whereas boost::program_options uses double dashes.
-    ArgvParams subParams(argv[0]);
-    subParams["-ORBSvcConf"] = ORB;
-    subParams["-DCPSConfigFile"] = DCPS;
-    subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
-    if (DCPSDebugLevel > 0) {
-      std::cerr << "passing DCPSDebugLevel " << DCPSDebugLevel << std::endl;
-      subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
-    }
-    if (DCPSTransportDebugLevel > 0) {
-      std::cerr << "passing DCPSTransportDebugLevel " << DCPSTransportDebugLevel << std::endl;
-      subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
-    }
+	productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
+	parseArgs(argc, argv, productsTopic, forwardRadar, ORB, DCPS, DCPSInfoRepo,
+			DCPSDebugLevel, DCPSTransportDebugLevel);
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Qt User Interface Components
+	// we have to do this bit of translation since the 
+	// DDS routines want arguments starting with a single dash,
+	// whereas boost::program_options uses double dashes.
+	ArgvParams subParams(argv[0]);
+	subParams["-ORBSvcConf"] = ORB;
+	subParams["-DCPSConfigFile"] = DCPS;
+	subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
+	if (DCPSDebugLevel > 0) {
+		std::cerr << "passing DCPSDebugLevel " << DCPSDebugLevel << std::endl;
+		subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
+	}
+	if (DCPSTransportDebugLevel > 0) {
+		std::cerr << "passing DCPSTransportDebugLevel "
+				<< DCPSTransportDebugLevel << std::endl;
+		subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
+	}
 
-    // create the application
-    QApplication app(argc, argv);
+	///////////////////////////////////////////////////////////////
+	//
+	// Qt User Interface Components
 
-    // register our special signal data types
-    qRegisterMetaType<std::vector<double> >();
-    qRegisterMetaType<std::vector<int> >();
+	// create the application
+	QApplication app(argc, argv);
 
-    // create a dialog to serve as parent for eldorascope
-    QDialog* dialog = new QDialog;
+	// register our special signal data types
+	qRegisterMetaType<std::vector<double> >();
+	qRegisterMetaType<std::vector<int> >();
 
-    // create eldorappi
-    // get our title from the coniguration
-    std::string title = config.getString("title", "EldoraPPI");
-    title += " ";
-    title += SvnVersion::revision();
-    if (forwardRadar) 
-        title += " Forward Radar";
-    else
-        title += " Aft Radar";
-    EldoraPPI ppi(title, dialog);
+	// create a dialog to serve as parent for eldorascope
+	QDialog* dialog = new QDialog;
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Data source Infrastructure
+	// create eldorappi
+	// get our title from the coniguration
+	std::string title = config.getString("title", "EldoraPPI");
+	title += " ";
+	title += SvnVersion::revision();
+	if (forwardRadar)
+		title += " Forward Radar";
+	else
+		title += " Aft Radar";
+	EldoraPPI ppi(title, dialog);
 
-    // create the subscriber
-    DDSSubscriber subscriber(subParams.argc(), subParams.argv());
-    int subStatus = subscriber.status();
-    if (subStatus) {
-      std::cerr << argv[0] << " ERROR: subscriber returned error" << subStatus << std::endl;
-        return subStatus;
-    }
+	///////////////////////////////////////////////////////////////
+	//
+	// Data source Infrastructure
 
-    // create the reader
-    // select the products that it will receive
-    std::set<PRODUCT_TYPES> prodTypes;
-    prodTypes.insert(PROD_DM);
-    prodTypes.insert(PROD_DBZ);
-    prodTypes.insert(PROD_SW);
-    prodTypes.insert(PROD_NCP);
-    prodTypes.insert(PROD_VR);
-    prodTypes.insert(PROD_VS);
-    prodTypes.insert(PROD_VL);
+	// create the subscriber
+	DDSSubscriber subscriber(subParams.argc(), subParams.argv());
+	int subStatus = subscriber.status();
+	if (subStatus) {
+		std::cerr << argv[0] << " ERROR: subscriber returned error"
+				<< subStatus << std::endl;
+		return subStatus;
+	}
 
-    // request products from both radars. A rate of 0.0 means send all beams
-    EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,
-            (forwardRadar ? EldoraQtProductsSource::RADAR_FOR : EldoraQtProductsSource::RADAR_AFT), 
-            prodTypes);
+	// create the reader
+	// select the products that it will receive
+	std::set<PRODUCT_TYPES> prodTypes;
+	prodTypes.insert(PROD_DM);
+	prodTypes.insert(PROD_DBZ);
+	prodTypes.insert(PROD_SW);
+	prodTypes.insert(PROD_NCP);
+	prodTypes.insert(PROD_VR);
+	prodTypes.insert(PROD_VS);
+	prodTypes.insert(PROD_VL);
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Qt Signal Connections
+	// request products from both radars. A rate of 0.0 means send all beams
+	EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,
+			(forwardRadar ? EldoraQtProductsSource::RADAR_FOR
+					: EldoraQtProductsSource::RADAR_AFT), prodTypes);
 
-    // connect the aboutToQuit signal from Qt to our source,
-    // so that they can shut down DDS properly.
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
+	///////////////////////////////////////////////////////////////
+	//
+	// Qt Signal Connections
 
-    // now the products supply
-    QObject::connect(&productsSource, 
-    SIGNAL(newPData(std::vector<double>, int, float, int, float, double, double, double, double)), &ppi, 
-    SLOT(productSlot(std::vector<double>, int, float, int, float, double, double, double, double)));
+	// connect the aboutToQuit signal from Qt to our source,
+	// so that they can shut down DDS properly.
+	QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
 
-    // if we don't show() the dialog, nothing appears!
-    dialog->show();
+	// now the products supply
+	QObject::connect(
+			&productsSource,
+			SIGNAL(newPData(std::vector<double>, int, float, int, float, 
+					double, double, double, double, double, double, double)),
+			&ppi,
+			SLOT(productSlot(std::vector<double>, int, float, int, float, 
+					double, double, double, double, double, double, double)));
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Start all of the processes
+	// if we don't show() the dialog, nothing appears!
+	dialog->show();
 
-    // note that the sources may start emitting signals
-    // before the main application event loop is running,
-    // in which case the signals may be lost. This could be 
-    // a problem with the tsGates signal not being captured.
-    productsSource.start();
+	///////////////////////////////////////////////////////////////
+	//
+	// Start all of the processes
 
-    // run the whole thing
-    app.exec();
+	// note that the sources may start emitting signals
+	// before the main application event loop is running,
+	// in which case the signals may be lost. This could be 
+	// a problem with the tsGates signal not being captured.
+	productsSource.start();
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // Shutdown
+	// run the whole thing
+	app.exec();
 
-    // Tell the source threads to quit.
-    productsSource.quit();
+	///////////////////////////////////////////////////////////////
+	//
+	// Shutdown
 
-    // wait for them to quit
-    productsSource.wait();
+	// Tell the source threads to quit.
+	productsSource.quit();
 
-    return 0;
+	// wait for them to quit
+	productsSource.wait();
+
+	return 0;
 }

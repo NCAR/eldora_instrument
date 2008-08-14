@@ -81,10 +81,16 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         /// radial velocity if desired.
         /// @param rollAngle The aircraft roll angle.
         /// @param nyquistVelocity The radar nyquist velocity, m/s.
+    	/// @param altitudeMSL Altitude, meters abocw sea level
+    	/// @param latitude Latitude, degrees
+    	/// @param longitude Longitude, degrees
         void productSlot(
                 std::vector<double> p, int radarId, float elDegrees,
                 int prodType, float gateSizeMeters, double dwellWidth, 
-                double airspdCorr, double rollAngle, double nyquistVelocity);
+                double airspdCorr, double rollAngle, double nyquistVelocity,
+                double altitudeMSL,
+                double latitude,
+                double longitude);
         /// Call when the plot type is changed. 
         /// @param plotType One of the products from ProductTypes.h
         //        virtual void plotTypeSlot(
@@ -237,6 +243,12 @@ class EldoraPPI : public QDialog, public Ui::EldoraPPI {
         double _rotAngle;
         /// aircraft roll angle
         double _rollAngle;
+        /// aircraft altitude
+        double _altitude;
+        /// aircraft latitude
+        double _latitude;
+        /// aircraft longitude
+        double _longitude;
         /// Action group for the fkeys shortcuts
         QActionGroup* fkeysActionGroup;
 

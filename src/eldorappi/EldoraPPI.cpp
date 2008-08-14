@@ -176,7 +176,10 @@ void EldoraPPI::productSlot(
         double dwellWidth,
         double airspdCorr,
         double rollAngle,
-        double nyquistVel) {
+        double nyquistVel,
+        double altitudeMSL,
+        double latitude,
+        double longitude) {
     
     PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
   
@@ -252,6 +255,9 @@ void EldoraPPI::productSlot(
     if (_upperManager.newProduct(p, cartAngle, index)) {
         	_rotAngle = cartAngle;
         	_rollAngle = rollAngle;
+        	_altitude = altitudeMSL;
+        	_latitude = latitude;
+        	_longitude = longitude;
     }
     _lowerManager.newProduct(p, cartAngle, index);
 }
@@ -348,7 +354,12 @@ void EldoraPPI::timerEvent(
     angleText->setText(t);
     t.setNum(_rollAngle, 'f', 1);
     rollText->setText(t);
- 
+    t.setNum(_altitude,'f',0);
+    altText->setText(t);
+    t.setNum(_latitude,'f', 2);
+    latText->setText(t);
+    t.setNum(_longitude, 'f', 2);
+    lonText->setText(t);
 }
 
 //////////////////////////////////////////////////////////////////////

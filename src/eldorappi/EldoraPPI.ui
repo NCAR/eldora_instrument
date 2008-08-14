@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>880</width>
-    <height>791</height>
+    <height>804</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -911,6 +911,105 @@
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_10" >
+            <property name="text" >
+             <string>Altitude</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="altText" >
+            <property name="toolTip" >
+             <string>Altitude mean sea level (m)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_9" >
+            <property name="text" >
+             <string>Latitude</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="latText" >
+            <property name="toolTip" >
+             <string>Latitude (deg)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_8" >
+            <property name="text" >
+             <string>Longitude</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lonText" >
+            <property name="toolTip" >
+             <string>Longitude (deg)</string>
+            </property>
+            <property name="text" >
+             <string>0.0</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </item>
@@ -920,14 +1019,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ColorBar</class>
-   <extends>QWidget</extends>
-   <header>ColorBar.h</header>
-  </customwidget>
-  <customwidget>
    <class>PPI</class>
    <extends>QWidget</extends>
    <header>PPI.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ColorBar</class>
+   <extends>QWidget</extends>
+   <header>ColorBar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
