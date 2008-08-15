@@ -38,6 +38,7 @@ EldoraCappiMain.cpp
 EldoraCappi.cpp
 ProductInfo.cpp
 CappiManager.cpp
+CappiTime.cpp
 ColorBarSettings.cpp
 """)
 

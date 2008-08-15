@@ -190,10 +190,17 @@
        <property name="sizeHint" >
         <size>
          <width>144</width>
-         <height>21</height>
+         <height>16</height>
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="timeBox" >
+       <property name="title" >
+        <string>Time</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QGroupBox" name="groupBox_4" >
@@ -501,7 +508,7 @@
        <property name="sizeHint" >
         <size>
          <width>144</width>
-         <height>16</height>
+         <height>20</height>
         </size>
        </property>
       </spacer>

@@ -10,15 +10,16 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <boost/date_time/posix_time/posix_time.hpp>
+using boost::posix_time::ptime;
 
 #include "EldoraTypes.h"
-
 #include "ProductInfo.h"
-
 #include "CappiManager.h"
 #include "CAPPI.h"
-
 #include "CappiReader.h"
+#include "CappiTime.h"
+#include "utilities/TimetagUtils.h"
 
 // Coponents from the QtToolbox
 #include "ColorMap.h"
@@ -150,6 +151,8 @@ protected:
 	CAPPI* _cappi;
 	/// The manager for the CAPPI
 	CappiManager _manager;
+	/// The cappi time control interface
+	CappiTime* _cappiTime;
 	/// The currently selected product.
 	PRODUCT_TYPES _prodType;
 	/// This set contains PRODUCT_TYPESs identifiers for all desired 
@@ -226,6 +229,10 @@ protected:
 	double _stripWidthDeg;
 	/// The time span to display in hours.
 	double _timeSpanHr;
+	/// The earliest time in this file
+	ptime _earliestTime;
+	/// The latest time in this file
+	ptime _latestTime;
 
 };
 

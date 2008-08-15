@@ -51,6 +51,10 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	l->addWidget(_cappi);
 	cappiFrame->setLayout(l);
 
+	// create the time controller, inserting into the 
+	// box provided by the form.
+	_cappiTime = new CappiTime(this->timeBox);
+	
 	// set the title
 	parent->setWindowTitle(title.c_str());
 
@@ -221,6 +225,8 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 		_manager.configureCAPPI(_productList.size(), _gates, _gateSizeDeg,
 				_spanDeg, _stripDisplay, _stripWidthDeg, _firstLon, _firstLat,
 				_timeSpanHr*3600.0);
+		
+		
 	}
 
 	// apply the airspeed correction to VR
@@ -592,8 +598,20 @@ void EldoraCappi::pollNewData() {
 		std::cerr << "unable to get time of last record\n";
 		return;
 	}
-
+	_latestTime = timetagToPtime((long long)(lastTime*1.0e6));
+	_cappiTime->setStopTime(_latestTime);
+	
+	double firstTime;
+	if (!_cappiReader.getTime(0, firstTime)) {
+		std::cerr << "unable to get time of first record\n";
+		return;
+	}
+	_earliestTime = timetagToPtime((long long)(firstTime*1.0e6));
+	_cappiTime->setStartTime(_earliestTime);
+	
 	double startTime = lastTime - _timeSpanHr*3600.0;
+	boost::posix_time::ptime d = timetagToPtime((long long)(startTime*1.0e6));
+	std::cout << "startTime:" << d << "\n";
 
 	for (unsigned long rec = _lastCappiRec; rec < lastRec; ++rec) {
 		double recordTime;
