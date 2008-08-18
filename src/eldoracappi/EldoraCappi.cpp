@@ -2,7 +2,8 @@
 #include "CAPPI.h"
 #include "Z.xpm"
 #include "Paw.xpm"
-#include <algorithm>
+
+
 //////////////////////////////////////////////////////////////////////
 EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 		QDialog* parent) :
@@ -10,13 +11,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 			_gates(0), _gateSizeDeg(0.0), _dwellWidth(0), _lastCappiRec(-1),
 			_rollOffset(0.0), _lat(0.0),
 			_lon(0.0), _firstPos(true), _firstTimer(true),
-			_disableTimer(false),
-			_autoSaveImage(false),
-			_autoImageIndex(0),
-			_autoImageIncrement(1),
-			_autoImageFirstIndex(0),
-			_imageType(IMAGEPNG)
-{
+			_disableTimer(false){
 	// Set up our form
 	setupUi(parent);
 
@@ -63,7 +58,6 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	connect(&_buttonGroup, SIGNAL(buttonReleased(int)), this, SLOT(productTypeSlot(int)));
 
 	connect(gridCheck, SIGNAL(clicked(bool)), this, SLOT(gridSlot(bool)));
-	connect(autoSaveCheck, SIGNAL(clicked(bool)), this, SLOT(autoSaveSlot(bool)));
 	connect(zoomIn, SIGNAL(released()), this, SLOT(zoomInSlot()));
 	connect(zoomOut, SIGNAL(released()), this, SLOT(zoomOutSlot()));
 	connect(backgroundButton, SIGNAL(released()), this, SLOT(backgroundColorSlot()));
@@ -94,20 +88,6 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 
 	// get the display specifications
 	_imageTitle = _config.getString("ImageTitle", "NCAR/Eldora");
-	_autoImageIncrement = _config.getInt("AutoSaveIncrement", 1);
-	std::string imagetype = _config.getString("ImageType", "png");
-	std::transform(imagetype.begin(), imagetype.end(), imagetype.begin(), tolower);
-	if (!imagetype.compare("png")) {
-	} else {
-		_imageType = IMAGEPNG;
-		if (!imagetype.compare("jpg")) {
-			_imageType = IMAGEJPG;
-		} else {
-			std::cerr << "Unrecognized image type, must be jpg or png. Image type set to png." 
-				<< std::endl;
-			_imageType = IMAGEPNG;
-		}
-	}	
 	
 	double timeSpanHr = _config.getDouble("Display/TimeSpanHrs", 0.25);
 	_timeSpan = time_duration(seconds((int)(timeSpanHr*3600.0)));
@@ -275,28 +255,14 @@ void EldoraCappi::productSlot(std::vector<double> p, unsigned long rec, int prod
 	// send the product to the appropriate ppi manager
 	_manager.newProduct(p, timeTag, (_lon - _firstLon), (_lat - _firstLat),
 			cartAngle, index);
-			
-	if (_autoSaveImage) {
-		// save every _autoImageIncrement image. Note that the numbering
-		// still increses for every image, saved or not.
-		if (!(((_autoImageIndex-_autoImageFirstIndex)) % _autoImageIncrement)) {
-			saveImageAuto(_autoImageIndex);
-		}
-		_autoImageIndex++;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraCappi::saveImageSlot() 
-{
-	std::string imageFileExtension = (_imageType == IMAGEPNG) ? "png" : "jpg";
-	std::string dialogFilter = (_imageType == IMAGEPNG) ? 
-		"PNG files (*.png);;All files (*.*)" : "JPG files (*.jpg);;All files (*.*)";
-	
-	QString f = _config.getString("imageSaveDirectory", "./").c_str();
+void EldoraCappi::saveImageSlot() {
+	QString f = _config.getString("imageSaveDirectory", "c:/").c_str();
 
 	QFileDialog d( this, tr("Save EldoraCappi Image"), f,
-			tr(dialogFilter.c_str()));
+			tr("PNG files (*.png);;All files (*.*)"));
 	
 	d.setFileMode(QFileDialog::AnyFile);
 	d.setViewMode(QFileDialog::Detail);
@@ -307,131 +273,33 @@ void EldoraCappi::saveImageSlot()
 
 	f = "EldoraCappi-";
 	f += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
-	f += ".";
-	f += imageFileExtension.c_str();
+	f += ".png";
 	d.selectFile(f);
 	if (d.exec()) {
 		QStringList saveNames = d.selectedFiles();
-		
-		// get the cappi image
-		QImage* cappiimage = _cappi->getImage();
-		// annotate the cappi image
-		std::ostringstream s;
-		time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
-		std::ostringstream imageString;
-		imageString.imbue(std::locale(std::locale::classic(), timeFacet));
-		
-		QPainter painter(cappiimage);
-		painter.setPen(Qt::black);
-		painter.setFont(QFont("Arial", 14));
-		imageString << " " << _startTime << "   " << _stopTime;
-		painter.drawText(cappiimage->rect(), Qt::AlignRight | Qt::AlignTop, 
-				imageString.str().c_str());
-		imageString.str("");
-		imageString << _imageTitle << " ";
-		painter.drawText(cappiimage->rect(), Qt::AlignLeft | Qt::AlignTop, 
-				imageString.str().c_str());
-		painter.end();
-		
-		// get the colorbar image
-		QImage* barimage = colorBar->getImage();
-		
-		// combine them. The clorbar is taller than the cappi.
-		if (cappiimage && barimage) {
-        	int w = cappiimage->width() + barimage->width();
-        	int h = cappiimage->height();
-        	int deltay = (h-cappiimage->height())/2;
-        	
-        	// Allocate composite image
-        	QImage fullImage(w, h, cappiimage->format());
-        	fullImage.fill(0x808080);
-        	
-        	// Copy the cappi image
-        	for (int x = 0; x < cappiimage->width(); x++) {
-        		for (int y = 0; y < cappiimage->height(); y++) {
-        			fullImage.setPixel(x, y+deltay, cappiimage->pixel(x,y));
-        		}
-        	}
-
-        	// copy the color bar
-        	int xoffset = cappiimage->width();
-        	for (int x = 0; x < barimage->width(); x++) {
-        		for (int y = 0; y < cappiimage->height(); y++) {
-        			fullImage.setPixel(x+xoffset, y, barimage->pixel(x,y));
-        		}
-        	}
-
-			fullImage.save(saveNames[0].toStdString().c_str(), 
-			   (_imageType == IMAGEPNG) ? "PNG" : "JPG", 100);
-			delete cappiimage;
-			delete barimage;
+		QImage* image = _cappi->getImage();
+		if (image) {
+			std::ostringstream s;
+			time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
+			std::ostringstream imageString;
+			imageString.imbue(std::locale(std::locale::classic(), timeFacet));
+			
+			QPainter painter(image);
+			painter.setPen(Qt::black);
+			painter.setFont(QFont("Arial", 14));
+			imageString << " " << _startTime << "   " << _stopTime;
+			painter.drawText(image->rect(), Qt::AlignRight | Qt::AlignTop, 
+					imageString.str().c_str());
+			imageString.str("");
+			imageString << _imageTitle << " ";
+			painter.drawText(image->rect(), Qt::AlignLeft | Qt::AlignTop, 
+					imageString.str().c_str());
+			painter.end();
+			image->save(saveNames[0].toStdString().c_str(), "PNG", 100);
+			delete image;
 		}
 		f = d.directory().absolutePath();
 		_config.setString("ImageSaveDirectory", f.toStdString());
-	}
-}
-
-//////////////////////////////////////////////////////////////////////
-void EldoraCappi::saveImageAuto(int index) {
-
-	std::string imageFileExtension = (_imageType == IMAGEPNG) ? "png" : "jpg";
-	
-	QString f = "EldoraCappi-";
-	
-	QChar fillChar('0');
-	f += QString("%1").arg(index, 6, 10, fillChar);
-	f += ".";
-	f += imageFileExtension.c_str();
-	// get the cappi image
-	QImage* cappiimage = _cappi->getImage();
-	// annotate the cappi image
-	std::ostringstream s;
-	time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
-	std::ostringstream imageString;
-	imageString.imbue(std::locale(std::locale::classic(), timeFacet));
-	
-	QPainter painter(cappiimage);
-	painter.setPen(Qt::black);
-	painter.setFont(QFont("Arial", 14));
-	imageString << " " << _startTime << "   " << _stopTime;
-	painter.drawText(cappiimage->rect(), Qt::AlignRight | Qt::AlignTop, 
-			imageString.str().c_str());
-	imageString.str("");
-	imageString << _imageTitle << " ";
-	painter.drawText(cappiimage->rect(), Qt::AlignLeft | Qt::AlignTop, 
-			imageString.str().c_str());
-	painter.end();
-	
-	// get the colorbar image
-	QImage* barimage = colorBar->getImage();
-	
-	// combine them. The clorbar is taller than the cappi.
-	if (cappiimage && barimage) {
-    	int w = cappiimage->width() + barimage->width();
-    	int h = cappiimage->height();
-    	int deltay = (h-cappiimage->height())/2;
-    	
-    	// Allocate composite image
-    	QImage fullImage(w, h, cappiimage->format());
-    	fullImage.fill(0x808080);
-    	
-    	// Copy the cappi image
-    	for (int x = 0; x < cappiimage->width(); x++) {
-    		for (int y = 0; y < cappiimage->height(); y++) {
-    			fullImage.setPixel(x, y+deltay, cappiimage->pixel(x,y));
-    		}
-    	}
-
-    	// copy the color bar
-    	int xoffset = cappiimage->width();
-    	for (int x = 0; x < barimage->width(); x++) {
-    		for (int y = 0; y < cappiimage->height(); y++) {
-    			fullImage.setPixel(x+xoffset, y, barimage->pixel(x,y));
-    		}
-    	}
-		fullImage.save(f, (_imageType == IMAGEPNG) ? "PNG" : "JPG", 100);
-		delete cappiimage;
-		delete barimage;
 	}
 }
 
@@ -451,10 +319,10 @@ void EldoraCappi::initPlots() {
 void EldoraCappi::timerEvent(QTimerEvent*event) {
 
 	if (_statusTimerId == event->timerId()) {
-		//QString tlat = QString("%1").arg(_lat, 0, 'f', 2);
-		//this->latText->setText(tlat);
-		//QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
-		//this->lonText->setText(tlon);
+		QString tlat = QString("%1").arg(_lat, 0, 'f', 2);
+		this->latText->setText(tlat);
+		QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
+		this->lonText->setText(tlon);
 	} else if (_checkNewDataId == event->timerId()) {
 		if (_mode == CappiTime::REALTIME && !_disableTimer) {
 			pollNewData();
@@ -686,11 +554,7 @@ void EldoraCappi::fkeyTriggered(QAction* qa) {
 }
 
 ///////////////////////////////////////////////////////////////////////
-void EldoraCappi::autoSaveSlot(bool enabled) {
-	_autoSaveImage = enabled;
-}
 
-///////////////////////////////////////////////////////////////////////
 void EldoraCappi::gridSlot(bool enabled) {
 	_cappi->grids(enabled);
 }
@@ -759,23 +623,10 @@ void EldoraCappi::setTimeSlot(CappiTime::MODE mode, ptime startTime, ptime stopT
 	_stopTime = stopTime;
 	_mode = mode;
 	_lastCappiRec = 0;
-
 	_cappi->clearDisplay();
-
-	if (_autoSaveImage) {
-		// if we are auto saving, bump up the file counter every time the
-		// apply button is hit to regenerate a new cappi. This will make it easier 
-		// to group the files.
-		if (_autoImageIndex != 0) {
-			_autoImageIndex += 100;
-			_autoImageFirstIndex = _autoImageIndex;
-		}
-	}
-	
 	pollNewData();
 	
 	_disableTimer = false;
-	
 }
 
 ///////////////////////////////////////////////////////////////////////
