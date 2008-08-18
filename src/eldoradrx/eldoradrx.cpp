@@ -1233,6 +1233,12 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     hskp->radarRotAngle = rotAngle;
 
     strncpy(hskp->radarName, isFore ? "FORE" : "AFT", sizeof(hskp->radarName));
+    
+    // fake some lat/lon
+    hskp->latitude  = 40.0 - 0.1*secOfDay/(24*60*60);
+    hskp->longitude = -105.0 + 0.05*secOfDay/(24*60*60);
+    hskp->cellWidth[0] = 150.0;
+    hskp->heading = 100.0;
     return hskp;
 }
 //////////////////////////////////////////////////////////////////////
