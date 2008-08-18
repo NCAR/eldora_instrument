@@ -74,6 +74,14 @@
      </property>
      <item>
       <widget class="QGroupBox" name="groupBox_2" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>1</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title" >
         <string/>
        </property>
@@ -197,6 +205,14 @@
      </item>
      <item>
       <widget class="QGroupBox" name="timeBox" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>1</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title" >
         <string>Time</string>
        </property>
@@ -204,6 +220,14 @@
      </item>
      <item>
       <widget class="QGroupBox" name="groupBox_4" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>1</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title" >
         <string/>
        </property>
@@ -515,6 +539,14 @@
      </item>
      <item>
       <widget class="QGroupBox" name="groupBox" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>1</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title" >
         <string>Vitals</string>
        </property>

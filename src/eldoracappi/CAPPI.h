@@ -24,6 +24,9 @@
 #include <QPoint>
 
 #include "ColorMap.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+using boost::posix_time::ptime;
+using boost::posix_time::seconds;
 
 /// A Qt widget that will display a Constant Altitude  (CAPPI)
 /// display. 
@@ -124,7 +127,7 @@ Q_OBJECT
 		/// @param stopAngle Stop angle of the beam
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
-		beam(double timetag, double span, double bx, double by, double gateWidth, double startAngle,
+		beam(ptime timetag, double span, double bx, double by, double gateWidth, double startAngle,
 				double stopAngle, int nGates, int nVars);
 
 		/// Constructor for strip type beams
@@ -137,7 +140,7 @@ Q_OBJECT
 		/// @param nGates Number of gates in the beam
 		/// @param nVars  Number of variables for the beam
 		/// @param stripWidth The width of the strip in 
-		beam(double timetag, double span, double bx, double by, double gateWidth, double angle,
+		beam(ptime timetag, double span, double bx, double by, double gateWidth, double angle,
 				int nGates, int nVars, double stripWidth);
 
 		/// destructor
@@ -172,7 +175,7 @@ Q_OBJECT
 		/// lists for the beam.
 		GLfloat* colors(int varN);
         // The beam timetag
-        double _timetag;
+        ptime _timetag;
         protected:
 		/// internal storage for the colors for each variable.
 		std::vector<std::vector<GLfloat> > _varColors;
@@ -201,7 +204,7 @@ public:
 			double gateWidth,
 			double xorigin, 
 			double yorigin,
-			double timespan
+			seconds timespan
 			);
 	/// Select the variable to display.
 	void selectVar(int index ///< Index of the variable to display, zero based.
@@ -220,7 +223,7 @@ public:
 	/// as well as color maps for all variables. addBeam() will map the variable values to 
 	/// the correct color, and create a wedge of triangle strips, one for each variable.
 	/// The existing wedge for this beam will be discarded.
-	void addBeam(double timetag,
+	void addBeam(ptime timetag,
 			double xPos, ///< xposition for beam
 			double yPos, ///< yposition for beam
 			float startAngle, ///< The starting angle for the beam.
@@ -235,7 +238,7 @@ public:
 	/// as well as color maps for all variables. addBeam() will map the variable values to 
 	/// the correct color, and create a wedge of triangle strips, one for each variable.
 	/// The existing wedge for this beam will be discarded.
-	void addBeam(double timetag,
+	void addBeam(ptime timetag,
 			double xPos, ///< xposition for beam
 			double yPos, ///< yposition for beam
 			float angle, ///< The  angle for the beam.
@@ -250,7 +253,8 @@ public:
 	/// the youngest beam - timespan. Paint the removed beams with the
 	/// background color.
 	void cullbeams();
-	
+	/// remove all beams and repaint
+	void clear();
 	void fillBeams(std::vector<beam*>& newBeams, 
 			int gates,
 			std::vector<std::vector<double> >& _beamData, 
@@ -360,9 +364,9 @@ protected:
 	/// 
 	double _gateWidth;
 	/// The timespan for beam culling
-	double _timespan;
+	seconds _timespan;
 	/// The maximum timetag in the beam list
-	double _maxtime;
+	ptime _maxtime;
 	/// The index of the variable selected for display
 	int _selectedVar;
 	/// The display list id for the grid

@@ -2,44 +2,15 @@
 #include "CAPPI.h"
 #include "Z.xpm"
 #include "Paw.xpm"
-#include <iomanip>
 
-#include <QVBoxLayout>
-#include <QMessageBox>
-#include <QButtonGroup>
-#include <QLabel>
-#include <QTimer>
-#include <QSpinBox>	
-#include <QLCDNumber>
-#include <QSlider>
-#include <QLayout>
-#include <QTabWidget>
-#include <QWidget>
-#include <QRadioButton>
-#include <QButtonGroup>
-#include <QFrame>
-#include <QPushButton>
-#include <QPalette>
-#include <QDateTime>
-#include <QFileDialog>
-#include <QColorDialog>
-#include <QPixmap>
-#include <QIcon>
-
-#include <string>
-#include <algorithm>
-
-#include <iostream>
-#include <time.h>
-#include <math.h>
 
 //////////////////////////////////////////////////////////////////////
 EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 		QDialog* parent) :
 	QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraCappi"),
-			_gates(0), _gateSizeDeg(0.0), _dwellWidth(0), _lastCappiRec(0),
-			_rollOffset(0.0), _lastTime(0), _timeSpanHr(1.0), _lat(0.0),
-			_lon(0.0) {
+			_gates(0), _gateSizeDeg(0.0), _dwellWidth(0), _lastCappiRec(-1),
+			_rollOffset(0.0), _lat(0.0),
+			_lon(0.0), _firstPos(true), _firstTimer(true) {
 	// Set up our form
 	setupUi(parent);
 
@@ -77,7 +48,6 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	zoomButton->setChecked(true);
 
 	// connect the controls
-
 	connect(fkeysActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(fkeyTriggered(QAction*)));
 
 	// The color bar popup
@@ -100,6 +70,8 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	connect(zoomButton, SIGNAL(released()), this, SLOT(cursorZoomSlot()));
 	connect(panButton, SIGNAL(released()), this, SLOT(cursorPanSlot()));
 	connect(_cappi, SIGNAL(gridDelta(double)), this, SLOT(gridDeltaSlot(double)));
+	
+	connect(_cappiTime, SIGNAL(apply(CappiTime::MODE, ptime, ptime)), this, SLOT(setTimeSlot(CappiTime::MODE, ptime, ptime)));
 
 	// initialize the color maps
 	initColorMaps();
@@ -114,7 +86,11 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 			ppiHeight);
 
 	// get the display specifications
-	_timeSpanHr = _config.getDouble("Display/TimeSpanHrs", 1.0);
+	_imageTitle = _config.getString("ImageTitle", "NCAR/Eldora");
+	
+	double timeSpanHr = _config.getDouble("Display/TimeSpanHrs", 0.25);
+	_timeSpan = time_duration(seconds((int)(timeSpanHr*3600.0)));
+	
 	_spanDeg = _config.getDouble("Display/SpanDeg", 10.0);
 	_stripDisplay = _config.getBool("Display/StripDisplay", true);
 	_stripWidthDeg = _config.getDouble("Display/StripWidthKm", 2.2)/111.2;
@@ -138,13 +114,6 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 		F1->setShortcutContext(Qt::ApplicationShortcut);
 		F1->setActionGroup(fkeysActionGroup);
 		parent->addAction(F1);
-
-		F1 = new QAction(fkeysActionGroup);
-		F1->setEnabled(true);
-		F1->setShortcut('1' + i);
-		F1->setShortcutContext(Qt::ApplicationShortcut);
-		F1->setActionGroup(fkeysActionGroup);
-		parent->addAction(F1);
 	}
 
 	// and then set the initial display
@@ -158,11 +127,17 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 		exit(1);
 	}
 
+	// set the starting limits
+	getTimeLimits();
+	
+	// put us in realtime mode, to display the most recent data
+	_mode = CappiTime::REALTIME;
+	
 	// start the statistics timer
 	_statusTimerId = startTimer(5000);
 
 	// start the data polling timer
-	_checkNewDataId = startTimer(5000);
+	_checkNewDataId = startTimer(100);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -170,8 +145,39 @@ EldoraCappi::~EldoraCappi() {
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraCappi::productSlot(std::vector<double> p, int prodType,
-		double timeTag, StrMapDouble hskpMap) {
+void EldoraCappi::getTimeLimits() {
+	
+	unsigned long lastRec;
+	bool ok;
+	ok = _cappiReader.findLastRecord(lastRec);
+	if (!ok) {
+		std::cerr << "findLastRecord failed" << std::endl;
+		return;
+	}
+	
+	if (!_cappiReader.getTime(lastRec, _latestTime)) {
+		std::cerr << "unable to get time of last record\n";
+		return;
+	}
+	
+	if (!_cappiReader.getTime(0, _earliestTime)) {
+		std::cerr << "unable to get time of first record\n";
+		return;
+	}
+	
+	_stopTime = _latestTime;
+	_startTime = _stopTime - _timeSpan;
+	
+	// configure the capi time information
+	_cappiTime->setLimits(_earliestTime, _latestTime, _timeSpan);
+	_cappiTime->setStartTime(_startTime);
+	_cappiTime->setStopTime(_stopTime);
+
+}
+
+//////////////////////////////////////////////////////////////////////
+void EldoraCappi::productSlot(std::vector<double> p, unsigned long rec, int prodType,
+		ptime timeTag, StrMapDouble hskpMap) {
 
 	PRODUCT_TYPES productType = (PRODUCT_TYPES) prodType;
 
@@ -208,7 +214,8 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 		return;
 	}
 
-	if (_lastTime < 1.0) {
+	if (_firstPos) {
+		_firstPos = false;
 		_firstLat = floor(_lat+0.5);
 		_firstLon = floor(_lon+0.5);
 	}
@@ -224,9 +231,7 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 		_gateSizeDeg = gateSizeDeg;
 		_manager.configureCAPPI(_productList.size(), _gates, _gateSizeDeg,
 				_spanDeg, _stripDisplay, _stripWidthDeg, _firstLon, _firstLat,
-				_timeSpanHr*3600.0);
-		
-		
+				seconds(_timeSpan.seconds()));
 	}
 
 	// apply the airspeed correction to VR
@@ -249,7 +254,6 @@ void EldoraCappi::productSlot(std::vector<double> p, int prodType,
 	// send the product to the appropriate ppi manager
 	_manager.newProduct(p, timeTag, (_lon - _firstLon), (_lat - _firstLat),
 			cartAngle, index);
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -258,6 +262,7 @@ void EldoraCappi::saveImageSlot() {
 
 	QFileDialog d( this, tr("Save EldoraCappi Image"), f,
 			tr("PNG files (*.png);;All files (*.*)"));
+	
 	d.setFileMode(QFileDialog::AnyFile);
 	d.setViewMode(QFileDialog::Detail);
 	d.setAcceptMode(QFileDialog::AcceptSave);
@@ -273,6 +278,22 @@ void EldoraCappi::saveImageSlot() {
 		QStringList saveNames = d.selectedFiles();
 		QImage* image = _cappi->getImage();
 		if (image) {
+			std::ostringstream s;
+			time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
+			std::ostringstream imageString;
+			imageString.imbue(std::locale(std::locale::classic(), timeFacet));
+			
+			QPainter painter(image);
+			painter.setPen(Qt::black);
+			painter.setFont(QFont("Arial", 14));
+			imageString << " " << _startTime << "   " << _stopTime;
+			painter.drawText(image->rect(), Qt::AlignRight | Qt::AlignTop, 
+					imageString.str().c_str());
+			imageString.str("");
+			imageString << _imageTitle << " ";
+			painter.drawText(image->rect(), Qt::AlignLeft | Qt::AlignTop, 
+					imageString.str().c_str());
+			painter.end();
 			image->save(saveNames[0].toStdString().c_str(), "PNG", 100);
 			delete image;
 		}
@@ -302,7 +323,16 @@ void EldoraCappi::timerEvent(QTimerEvent*event) {
 		QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
 		this->lonText->setText(tlon);
 	} else if (_checkNewDataId == event->timerId()) {
-		pollNewData();
+		if (_mode == CappiTime::REALTIME) {
+			pollNewData();
+		}
+		// if this is the first time the timer has been called,
+		// reset it to a 5 second interval
+		if (_firstTimer) {
+			_firstTimer = false;
+			killTimer(_checkNewDataId);
+			_checkNewDataId = startTimer(5000);
+		}
 	}
 }
 
@@ -366,7 +396,7 @@ void EldoraCappi::setProductInfo(PRODUCT_TYPES t, int index, std::string key,
 	_productInfo[t] = ProductInfo(t, index, key, shortName, longName, mapName,
 			min, max);
 
-	// synchronoze the configuration. But why here?
+	// synchronize the configuration. But why here?
 	_config.sync();
 
 	// Put a new map into the color map vector. Remember that the 
@@ -582,59 +612,67 @@ void EldoraCappi::cursorPanSlot() {
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::gridDeltaSlot(double deltaDeg) {
 	this->gridText->setNum(deltaDeg);
+}	
+///////////////////////////////////////////////////////////////////////
+void EldoraCappi::setTimeSlot(CappiTime::MODE mode, ptime startTime, ptime stopTime) {
+	_startTime = startTime;
+	_stopTime = stopTime;
+	_mode = mode;
+	_lastCappiRec = 0;
+	_cappi->clear();
+	pollNewData();
 }
+
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::pollNewData() {
 	unsigned long lastRec;
+	ptime recordTime;
 	bool ok;
+	
 	ok = _cappiReader.findLastRecord(lastRec);
 	if (!ok) {
 		std::cerr << "findLastRecord failed" << std::endl;
 		return;
 	}
-
-	double lastTime;
-	if (!_cappiReader.getTime(lastRec, lastTime)) {
-		std::cerr << "unable to get time of last record\n";
-		return;
-	}
-	_latestTime = timetagToPtime((long long)(lastTime*1.0e6));
-	_cappiTime->setStopTime(_latestTime);
 	
-	double firstTime;
-	if (!_cappiReader.getTime(0, firstTime)) {
-		std::cerr << "unable to get time of first record\n";
-		return;
-	}
-	_earliestTime = timetagToPtime((long long)(firstTime*1.0e6));
-	_cappiTime->setStartTime(_earliestTime);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	
-	double startTime = lastTime - _timeSpanHr*3600.0;
-	boost::posix_time::ptime d = timetagToPtime((long long)(startTime*1.0e6));
-	std::cout << "startTime:" << d << "\n";
-
-	for (unsigned long rec = _lastCappiRec; rec < lastRec; ++rec) {
-		double recordTime;
+	for (unsigned long rec = _lastCappiRec+1; rec <= lastRec; ++rec) {
 		if (!_cappiReader.getTime(rec, recordTime)) {
 			std::cerr << "unable to get tme for record " << rec << "\n";
 			continue;
 		}
-		if (recordTime > startTime) {
+		if ( 
+			(recordTime >= _startTime && _mode == CappiTime::REALTIME) ||
+			(_mode == CappiTime::FIXED && recordTime >= _startTime && recordTime <= _stopTime))
+		{
 			displayRecord(rec);
-		}
+		} 
+		
 	}
-	_lastCappiRec = lastRec-1;
+	
+	// In real time mode, update the end of time in the time controller
+	if (_mode == CappiTime::REALTIME && recordTime != not_a_date_time) {
+		_latestTime = recordTime;
+		_stopTime = _latestTime;
+		_cappiTime->setLimits(_earliestTime, _latestTime, _timeSpan);
+		_cappiTime->setStopTime(_stopTime);
+	}
+	
+	_lastCappiRec = lastRec;
+	
+	QApplication::restoreOverrideCursor();
 
 }
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::displayRecord(unsigned long rec) {
 	int prodType;
-	double timeTag;
+	ptime timeTag;
 	StrMapDouble hskpMap;
 	std::vector<double> product;
 	bool ok = _cappiReader.read(rec, product, prodType, timeTag, hskpMap);
 	if (ok) {
-		this->productSlot(product, prodType, timeTag, hskpMap);
+		this->productSlot(product, rec, prodType, timeTag, hskpMap);
 	} else {
 		std::cerr << "unable to get record " << rec << "\n";
 	}

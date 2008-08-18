@@ -25,7 +25,7 @@
 //
 ////////////////////////////////////////////////////////////////
 
-CAPPI::beam::beam(double timetag, double span, double xpos, double ypos,
+CAPPI::beam::beam(ptime timetag, double span, double xpos, double ypos,
 		double gateWidth, double startAngle, double stopAngle, int nGates,
 		int nVars) :
 	_nVars(nVars), _nGates(nGates), _timetag(timetag) {
@@ -48,7 +48,7 @@ CAPPI::beam::beam(double timetag, double span, double xpos, double ypos,
 }
 
 ////////////////////////////////////////////////////////////////
-CAPPI::beam::beam(double timetag, double span, double xpos, double ypos,
+CAPPI::beam::beam(ptime timetag, double span, double xpos, double ypos,
 		double gateWidth, double angle, int nGates, int nVars, double stripWidth) :
 	_nVars(nVars), _nGates(nGates), _timetag(timetag) {
 
@@ -153,7 +153,7 @@ CAPPI::CAPPI(QWidget* parent) :
 			_gridsEnabled(false), _resizing(false), _configured(false),
 			_left(-1), _right(1), _bottom(-1), _top(1), _rubberBand(0),
 			_span(100), _cursorZoom(true), _xorigin(0.0), _yorigin(0.0),
-			_timespan(0.0), _maxtime(0.0) {
+			_timespan(seconds(600)){
 
 	initializeGL();
 
@@ -179,7 +179,7 @@ CAPPI::CAPPI(QWidget* parent) :
 ////////////////////////////////////////////////////////////////
 
 void CAPPI::configure(int nVars, int maxGates, double span, double gateWidth,
-		double xorigin, double yorigin, double timespan) {
+		double xorigin, double yorigin, seconds timespan) {
 	// Configure for dynamically allocated beams
 	_nVars = nVars;
 	_maxGates = maxGates;
@@ -605,7 +605,7 @@ void CAPPI::clearVar(int index) {
 
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::addBeam(double timetag, double xPos, double yPos, float startAngle,
+void CAPPI::addBeam(ptime timetag, double xPos, double yPos, float startAngle,
 		float stopAngle, int gates,
 		std::vector<std::vector<double> >& _beamData, int stride,
 		std::vector<ColorMap*>& maps) {
@@ -640,18 +640,15 @@ void CAPPI::addBeam(double timetag, double xPos, double yPos, float startAngle,
 
 	if (startAngle <= stopAngle) {
 
-		b
-				= new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, stopAngle, _maxGates, _nVars);
+		b = new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	} else {
-		b
-				= new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, 360.0, _maxGates, _nVars);
+		b = new beam(timetag, _span, xPos, yPos, _gateWidth, startAngle, 360.0, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 
-		b
-				= new beam(timetag, _span, xPos, yPos, _gateWidth, 0.0, stopAngle, _maxGates, _nVars);
+		b = new beam(timetag, _span, xPos, yPos, _gateWidth, 0.0, stopAngle, _maxGates, _nVars);
 		_beams.push_back(b);
 		newBeams.push_back(b);
 	}
@@ -663,7 +660,7 @@ void CAPPI::addBeam(double timetag, double xPos, double yPos, float startAngle,
 }
 ////////////////////////////////////////////////////////////////
 
-void CAPPI::addBeam(double timetag, double xPos, double yPos, float angle,
+void CAPPI::addBeam(ptime timetag, double xPos, double yPos, float angle,
 		int gates, std::vector<std::vector<double> >& _beamData, int stride,
 		std::vector<ColorMap*>& maps, double stripWidth) {
 
@@ -693,8 +690,7 @@ void CAPPI::addBeam(double timetag, double xPos, double yPos, float angle,
 	// increase counterclockwise. 
 
 	angle = angle - ((int)(angle/360.0))*360.0;
-	b
-			= new beam(timetag, _span, xPos, yPos, _gateWidth, angle, _maxGates, _nVars, stripWidth);
+	b = new beam(timetag, _span, xPos, yPos, _gateWidth, angle, _maxGates, _nVars, stripWidth);
 
 	_beams.push_back(b);
 
@@ -702,7 +698,7 @@ void CAPPI::addBeam(double timetag, double xPos, double yPos, float angle,
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
 
-	cullbeams();
+	//cullbeams();
 
 }
 
@@ -740,13 +736,27 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams, int gates,
 		glFlush();
 
 }
+
+////////////////////////////////////////////////////////////////
+void CAPPI::clear() {
+	// iterate the beam list, from back to front, 
+	// since we may be removing some of them.
+	for (int i = _beams.size()-1; i >= 0; i--) {
+		beam* b = _beams[i];
+		// return existing display list
+		glDeleteLists(b->_glListId[_selectedVar], 1);
+		// now get rid of the beam
+		_beams.erase(_beams.begin()+i);
+		delete b;
+	}
+	
+	refresh();
+}
 ////////////////////////////////////////////////////////////////
 void CAPPI::cullbeams() {
-	if (_timespan == 0.0)
-		return;
 
 	// get rid of any beams with a timetag smaler than this
-	double earliest = _maxtime - _timespan;
+	ptime earliest = _maxtime - _timespan;
 
 	bool doPaint = false;
 

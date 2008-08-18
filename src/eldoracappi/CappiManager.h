@@ -5,6 +5,9 @@
 
 #include "CAPPI.h"
 #include "ColorMap.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+using boost::posix_time::ptime;
+using boost::posix_time::seconds;
 
 /// Manage the Eldora data interaction with a CAPPI display.
 class CappiManager {
@@ -34,7 +37,7 @@ public:
 	/// @param rotAngle The radar rotation angle in cartesian coordinates
 	/// @param prodIndex DEnotes which product in the display this belongs to.
 	/// @returns True if a complete set was assembled on this call.
-	bool newProduct(std::vector<double>& p, double timetag, double xPos, double yPos,
+	bool newProduct(std::vector<double>& p, ptime timetag, double xPos, double yPos,
 			float rotAngle, int prodIndex);
 	/// Configure the CAPPI displays when there is a change in the operating
 	/// configuration, such as the number of gates, etc.
@@ -48,7 +51,7 @@ public:
 	/// @param timespan The time span for culling beams.
 	void configureCAPPI(int numProducts, int gates, double gateSizeDeg,
 			double spanDeg, bool stripDisplay, double stripWidthDeg,
-			double xorigin, double yorigin, double timespan);
+			double xorigin, double yorigin, seconds timespan);
 	/// Select the product to display on the ppi
 	/// @param The product index, zero based.
 	void selectVar(int index);

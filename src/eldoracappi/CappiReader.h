@@ -4,8 +4,9 @@
 #include "ProductTypes.h"
 
 #include "EldoraTypes.h"
-
 #include <string>
+#include <boost/date_time/posix_time/posix_time.hpp>
+using boost::posix_time::ptime;
 
 class CappiReader {
  public:
@@ -17,15 +18,15 @@ class CappiReader {
     
     void closeFile();
     
-    bool read(unsigned long index, std::vector<double> &p, int &prodType, double &timeTag, StrMapDouble &hskpMap);
+    bool read(unsigned long index, std::vector<double> &p, int &prodType, ptime &timeTag, StrMapDouble &hskpMap);
 
     bool findLastRecord(unsigned long &index);
     
     /// get the time stamp for the specified record number
     /// @param rec The record number.
-    /// @param timeSec The time stamp is returned here.
+    /// @param timeTag The time stamp is returned here.
     /// @return True if a timetag is availabel for this record, false otherwise.
-    bool getTime(unsigned long rec, double& timeSec);
+    bool getTime(unsigned long rec, ptime& timeTag);
     
 private:
     NcFile *_nc_input;
@@ -36,9 +37,7 @@ private:
     StringVec _otherVarNames;
     unsigned int _maxCells;
     std::string _fileName;
-    
-    
-    
+
 };
 
 

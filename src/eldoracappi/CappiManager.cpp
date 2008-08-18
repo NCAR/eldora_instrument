@@ -1,6 +1,7 @@
 #include "CappiManager.h"
 #include <QApplication>
 #include <iostream>
+
 /////////////////////////////////////////////////////////////////////////////
 CappiManager::CappiManager() :
 	_gates(0), _decimation(1), _minHeight(300) {
@@ -26,7 +27,7 @@ CappiManager::~CappiManager() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CappiManager::newProduct(std::vector<double>& p, double timetag, double xPos, double yPos,
+bool CappiManager::newProduct(std::vector<double>& p, ptime timetag, double xPos, double yPos,
 		float rotAngle, int prodIndex) {
 
 	bool retval = false;
@@ -76,7 +77,7 @@ bool CappiManager::newProduct(std::vector<double>& p, double timetag, double xPo
 //////////////////////////////////////////////////////////////////////
 void CappiManager::configureCAPPI(int numProducts, int gates,
 		double gateSizeDeg, double spanDeg, bool stripDisplay,
-		double stripWidthDeg, double xorigin, double yorigin, double timespan) {
+		double stripWidthDeg, double xorigin, double yorigin, seconds timespan) {
 
 	_stripDisplay = stripDisplay;
 

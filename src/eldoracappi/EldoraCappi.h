@@ -1,17 +1,51 @@
 #ifndef EldoraCappi_H
 #define EldoraCappi_H
 
+
+#include <deque>
+#include <map>
+#include <set>
+#include <sstream>
+#include <locale>
+#include <boost/date_time/posix_time/posix_time.hpp>
+using boost::posix_time::ptime;
+using boost::posix_time::seconds;
+using boost::posix_time::time_facet;
+#include <iomanip>
+#include <string>
+#include <algorithm>
+#include <iostream>
+#include <time.h>
+#include <math.h>
+
 #include <QDialog>
 #include <QPalette>
 #include <QVBoxLayout>
 #include <QEvent>
 #include <QAction>
 #include <QActionGroup>
-#include <deque>
-#include <map>
-#include <set>
-#include <boost/date_time/posix_time/posix_time.hpp>
-using boost::posix_time::ptime;
+#include <QVBoxLayout>
+#include <QMessageBox>
+#include <QButtonGroup>
+#include <QLabel>
+#include <QTimer>
+#include <QSpinBox>	
+#include <QLCDNumber>
+#include <QSlider>
+#include <QLayout>
+#include <QTabWidget>
+#include <QWidget>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QFrame>
+#include <QPushButton>
+#include <QPalette>
+#include <QDateTime>
+#include <QFileDialog>
+#include <QColorDialog>
+#include <QPixmap>
+#include <QIcon>
+#include <QPainter>
 
 #include "EldoraTypes.h"
 #include "ProductInfo.h"
@@ -75,7 +109,7 @@ public slots:
 	/// radial velocity if desired.
 	/// @param rollAngle The aircraft roll angle.
 	//                std::vector<double> p, 
-	void productSlot(DoubleVec p, int prodType, double timeTag,
+	void productSlot(DoubleVec p, unsigned long rec, int prodType, ptime timeTag,
 			StrMapDouble hskpMap);
 
 	void displayRecord(unsigned long rec);
@@ -102,6 +136,8 @@ public slots:
 	void cursorPanSlot();
 	/// Update the display of the grid spacing
 	void gridDeltaSlot(double spacingDeg);
+	/// receive a time specification
+	void setTimeSlot(CappiTime::MODE mode, ptime startTime, ptime stopTime);
 
 	void panUpSlot();
 	void panDownSlot();
@@ -115,13 +151,14 @@ public slots:
 	void zoomOutSlot();
 
 signals:
-	void newProductSignal(DoubleVec p, int prodType, double timeTag,
+	void newProductSignal(DoubleVec p, int prodType, ptime timeTag,
 			StrMapDouble hskpMap);
 
 protected:
 	/// poll for new data
 	void pollNewData();
-
+	/// Determine the earliest and lates times in the file
+	void getTimeLimits();
 	/// Initialize all of the color maps. It creates the master list of 
 	/// colormaps which are available. These are the combination of
 	/// the ColorMap builtin maps, and the ones specified in the
@@ -218,7 +255,7 @@ protected:
 	double _lat;
 	double _lon;
 	/// time of last record;
-	double _lastTime;
+	ptime _lastTime;
 	/// product type of last record
 	int _lastProdType;
 	/// The X and Y span of the CAPPI
@@ -227,12 +264,26 @@ protected:
 	bool _stripDisplay;
 	/// The strip width of a strip type display in  degrees
 	double _stripWidthDeg;
-	/// The time span to display in hours.
-	double _timeSpanHr;
+	/// The minimum time span to display.
+	time_duration _timeSpan;
 	/// The earliest time in this file
 	ptime _earliestTime;
 	/// The latest time in this file
 	ptime _latestTime;
+	/// The display mode we are in. If REALTIME,
+	/// all new data will be appended
+	CappiTime::MODE _mode;
+	/// The time of first data to display
+	ptime _startTime;
+	/// The time of the last data to display,
+	/// unless in REATLIME mode
+	ptime _stopTime;
+	/// set true until we have captured the origin position
+	bool _firstPos;
+	/// Set true until the first data timer triggers
+	bool _firstTimer;
+	/// The title to be placed on the image capture
+	std::string _imageTitle;
 
 };
 

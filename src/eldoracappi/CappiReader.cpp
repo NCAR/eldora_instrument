@@ -92,7 +92,7 @@ bool CappiReader::openFile(std::string inputFile) {
 
 ////////////////////////////////////////////////////////////////////////////
 bool CappiReader::read(unsigned long index, std::vector<double> &p,
-		int &prodType, double &timeTag, StrMapDouble &hskpMap) {
+		int &prodType, ptime& timeTag, StrMapDouble &hskpMap) {
 
 	if (index >= _curRecordCount) {
 		return false;
@@ -153,7 +153,9 @@ bool CappiReader::read(unsigned long index, std::vector<double> &p,
 		std::cerr << "put(" << "microsec" << ") failed" << std::endl;
 		exit(1);
 	}
-	timeTag = ((double)unixTime) + ((double)microsec)/1.0e6;
+	
+	// create the time tag.
+	timeTag = boost::posix_time::from_time_t(unixTime) + boost::posix_time::millisec(microsec/1000);
 	
 	// retrieve all housekeeping values and place into hskpMap
 	for (si = _hskpVarNames.begin(); si != _hskpVarNames.end(); ++si) {
@@ -215,7 +217,7 @@ bool CappiReader::findLastRecord(unsigned long &index) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-bool CappiReader::getTime(unsigned long rec, double& timeSec) {
+bool CappiReader::getTime(unsigned long rec, ptime& timeTag) {
 	
 	if (_curRecordCount < 1)
 		return false;
@@ -251,7 +253,7 @@ bool CappiReader::getTime(unsigned long rec, double& timeSec) {
 		exit(1);
 	}
 	
-	timeSec = ((double)unixTime) + ((double)microsec)/1.0e6;
+	timeTag = boost::posix_time::from_time_t(unixTime) + boost::posix_time::millisec(microsec/1000);
 	
 	return true;
 	
