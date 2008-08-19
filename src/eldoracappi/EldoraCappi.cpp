@@ -277,26 +277,58 @@ void EldoraCappi::saveImageSlot() {
 	d.selectFile(f);
 	if (d.exec()) {
 		QStringList saveNames = d.selectedFiles();
-		QImage* image = _cappi->getImage();
-		if (image) {
-			std::ostringstream s;
-			time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
-			std::ostringstream imageString;
-			imageString.imbue(std::locale(std::locale::classic(), timeFacet));
-			
-			QPainter painter(image);
-			painter.setPen(Qt::black);
-			painter.setFont(QFont("Arial", 14));
-			imageString << " " << _startTime << "   " << _stopTime;
-			painter.drawText(image->rect(), Qt::AlignRight | Qt::AlignTop, 
-					imageString.str().c_str());
-			imageString.str("");
-			imageString << _imageTitle << " ";
-			painter.drawText(image->rect(), Qt::AlignLeft | Qt::AlignTop, 
-					imageString.str().c_str());
-			painter.end();
-			image->save(saveNames[0].toStdString().c_str(), "PNG", 100);
-			delete image;
+		
+		// get the cappi image
+		QImage* cappiimage = _cappi->getImage();
+		// annotate the cappi image
+		std::ostringstream s;
+		time_facet* timeFacet = new time_facet("%m-%d-%y %H:%M");
+		std::ostringstream imageString;
+		imageString.imbue(std::locale(std::locale::classic(), timeFacet));
+		
+		QPainter painter(cappiimage);
+		painter.setPen(Qt::black);
+		painter.setFont(QFont("Arial", 14));
+		imageString << " " << _startTime << "   " << _stopTime;
+		painter.drawText(cappiimage->rect(), Qt::AlignRight | Qt::AlignTop, 
+				imageString.str().c_str());
+		imageString.str("");
+		imageString << _imageTitle << " ";
+		painter.drawText(cappiimage->rect(), Qt::AlignLeft | Qt::AlignTop, 
+				imageString.str().c_str());
+		painter.end();
+		
+		// get the colorbar image
+		QImage* barimage = colorBar->getImage();
+		
+		// combine them. The clorbar is taller than the cappi.
+		if (cappiimage && barimage) {
+        	int w = cappiimage->width() + barimage->width();
+        	int h = barimage->height();
+        	int deltay = (h-cappiimage->height())/2;
+        	
+        	// Allocate composite image
+        	QImage fullImage(w, h, cappiimage->format());
+        	fullImage.fill(1);
+        	
+        	// Copy the cappi image
+        	for (int x = 0; x < cappiimage->width(); x++) {
+        		for (int y = 0; y < cappiimage->height(); y++) {
+        			fullImage.setPixel(x, y+deltay, cappiimage->pixel(x,y));
+        		}
+        	}
+
+        	// copy the color bar
+        	int xoffset = cappiimage->width();
+        	for (int x = 0; x < barimage->width(); x++) {
+        		for (int y = 0; y < barimage->height(); y++) {
+        			fullImage.setPixel(x+xoffset, y, barimage->pixel(x,y));
+        		}
+        	}
+
+			fullImage.save(saveNames[0].toStdString().c_str(), "PNG", 100);
+			delete cappiimage;
+			delete barimage;
 		}
 		f = d.directory().absolutePath();
 		_config.setString("ImageSaveDirectory", f.toStdString());
