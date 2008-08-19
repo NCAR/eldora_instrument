@@ -411,8 +411,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         self.aftBytes = ProgressStrip(max=4000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.DRXRateBox,[self.forBytes,self.aftBytes])
         # 
-        self.forABP = ProgressStrip(max=2000,title='For',sumMode=sumMode)
-        self.aftABP = ProgressStrip(max=2000,title='Aft',sumMode=sumMode)
+        self.forABP = ProgressStrip(max=6000,title='For',sumMode=sumMode)
+        self.aftABP = ProgressStrip(max=6000,title='Aft',sumMode=sumMode)
         self.layoutRateBox(self.ABPRateBox,[self.forABP,self.aftABP])
         #
         self.forProducts = ProgressStrip(max=1000,title='For',sumMode=sumMode)
