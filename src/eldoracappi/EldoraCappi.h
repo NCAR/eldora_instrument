@@ -284,6 +284,8 @@ protected:
 	bool _firstTimer;
 	/// The title to be placed on the image capture
 	std::string _imageTitle;
+	/// set true to disable plotting via the timer.
+	bool _disableTimer;
 
 };
 

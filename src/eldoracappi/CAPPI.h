@@ -253,8 +253,7 @@ public:
 	/// the youngest beam - timespan. Paint the removed beams with the
 	/// background color.
 	void cullbeams();
-	/// remove all beams and repaint
-	void clear();
+
 	void fillBeams(std::vector<beam*>& newBeams, 
 			int gates,
 			std::vector<std::vector<double> >& _beamData, 

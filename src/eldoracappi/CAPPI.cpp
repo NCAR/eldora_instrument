@@ -655,7 +655,7 @@ void CAPPI::addBeam(ptime timetag, double xPos, double yPos, float startAngle,
 
 	fillBeams(newBeams, gates, _beamData, stride, maps);
 
-	cullbeams();
+	//cullbeams();
 
 }
 ////////////////////////////////////////////////////////////////
@@ -738,21 +738,6 @@ void CAPPI::fillBeams(std::vector<beam*>& newBeams, int gates,
 }
 
 ////////////////////////////////////////////////////////////////
-void CAPPI::clear() {
-	// iterate the beam list, from back to front, 
-	// since we may be removing some of them.
-	for (int i = _beams.size()-1; i >= 0; i--) {
-		beam* b = _beams[i];
-		// return existing display list
-		glDeleteLists(b->_glListId[_selectedVar], 1);
-		// now get rid of the beam
-		_beams.erase(_beams.begin()+i);
-		delete b;
-	}
-	
-	refresh();
-}
-////////////////////////////////////////////////////////////////
 void CAPPI::cullbeams() {
 
 	// get rid of any beams with a timetag smaler than this
@@ -781,6 +766,7 @@ void CAPPI::cullbeams() {
 		}
 	}
 
+	_beams.clear();
 	glFlush();
 
 	//	if (doPaint)
@@ -852,6 +838,8 @@ void CAPPI::clearDisplay() {
 	}
 
 	_beams.clear();
+	
+	refresh();
 
 }
 

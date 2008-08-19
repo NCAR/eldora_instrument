@@ -29,7 +29,7 @@ CappiManager::~CappiManager() {
 /////////////////////////////////////////////////////////////////////////////
 bool CappiManager::newProduct(std::vector<double>& p, ptime timetag, double xPos, double yPos,
 		float rotAngle, int prodIndex) {
-
+	
 	bool retval = false;
 
 	// See if we already have this product. If so, then we have dropped

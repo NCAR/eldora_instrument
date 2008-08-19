@@ -155,7 +155,8 @@ bool CappiReader::read(unsigned long index, std::vector<double> &p,
 	}
 	
 	// create the time tag.
-	timeTag = boost::posix_time::from_time_t(unixTime) + boost::posix_time::millisec(microsec/1000);
+	timeTag = boost::posix_time::from_time_t(unixTime) 
+	   + boost::posix_time::millisec(microsec/1000);
 	
 	// retrieve all housekeeping values and place into hskpMap
 	for (si = _hskpVarNames.begin(); si != _hskpVarNames.end(); ++si) {
@@ -190,10 +191,14 @@ bool CappiReader::read(unsigned long index, std::vector<double> &p,
 	}
 
 	int i;
-	p.clear(); // start empty
+	p.resize(numCells);
+	// start empty
 	for (i = 0; i < numCells; i++) {
-		p.push_back(ncd->as_double(i));
+		p[i] = ncd->as_double(i);
 	}
+	
+	delete ncd;
+	
 #ifdef DEBUG
 	std::cerr << "CappiReader::read() time =" << timeTag << " prodType = " <<prodType
 	<< " p[0] =" << p[0]

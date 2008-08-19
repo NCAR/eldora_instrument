@@ -10,7 +10,8 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	QDialog(parent), _statsUpdateInterval(5), _config("NCAR", "EldoraCappi"),
 			_gates(0), _gateSizeDeg(0.0), _dwellWidth(0), _lastCappiRec(-1),
 			_rollOffset(0.0), _lat(0.0),
-			_lon(0.0), _firstPos(true), _firstTimer(true) {
+			_lon(0.0), _firstPos(true), _firstTimer(true),
+			_disableTimer(false){
 	// Set up our form
 	setupUi(parent);
 
@@ -323,7 +324,7 @@ void EldoraCappi::timerEvent(QTimerEvent*event) {
 		QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
 		this->lonText->setText(tlon);
 	} else if (_checkNewDataId == event->timerId()) {
-		if (_mode == CappiTime::REALTIME) {
+		if (_mode == CappiTime::REALTIME && !_disableTimer) {
 			pollNewData();
 		}
 		// if this is the first time the timer has been called,
@@ -615,16 +616,22 @@ void EldoraCappi::gridDeltaSlot(double deltaDeg) {
 }	
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::setTimeSlot(CappiTime::MODE mode, ptime startTime, ptime stopTime) {
+
+	_disableTimer = true;
+	
 	_startTime = startTime;
 	_stopTime = stopTime;
 	_mode = mode;
 	_lastCappiRec = 0;
-	_cappi->clear();
+	_cappi->clearDisplay();
 	pollNewData();
+	
+	_disableTimer = false;
 }
 
 ///////////////////////////////////////////////////////////////////////
 void EldoraCappi::pollNewData() {
+	
 	unsigned long lastRec;
 	ptime recordTime;
 	bool ok;
