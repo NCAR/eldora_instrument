@@ -99,6 +99,8 @@ int main(
     std::string title = config.getString("title", "EldoraCappi");
     title += " ";
     title += SvnVersion::revision();
+    title += "    ";
+    title += inputFile;
 
     EldoraCappi cappi(inputFile, title, dialog);
 
