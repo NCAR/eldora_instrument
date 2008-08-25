@@ -26,7 +26,7 @@ static char rcsid[] = "$Date$ $RCSfile$ $Revision$";
    Honeywell to convert the binary words to standard IRU units. They
    are precomputed to increase runtine speed. */ 
 
-static float PIRAD_TO_DEG =        9.54e-7*180.0; /* Pirads to degrees */
+static float PIRAD_TO_DEG =        9.5367e-7*180.0; /* Pirads to degrees */
 static float WKNOTS_TO_MPERSEC =   2.44e-4*0.51449; /* knots to m/s (winds) */
 static float VKNOTS_TO_MPERSEC =   0.0039*0.51449; /* knots to m/s
                                                       (velocities) */
