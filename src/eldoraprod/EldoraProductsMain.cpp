@@ -164,17 +164,21 @@ int EldoraProductsMain::run() {
     ProductsRayReader abpSource(subscriber, rayTopic, prodGenerator, numPrtIds);
 
     while (1) {
-        _numAbpRays = abpSource.numSamples();
-        _numAbpDiscards = abpSource.discards();
-        _numProductRays = prodGenerator.numRays();
-
-        std::cout << "ABP rays: " << _numAbpRays 
-            << "  Product rays:" << _numProductRays 
-            << "  ABP discards:"
-            << _numAbpDiscards[0] << "," << _numAbpDiscards[1] << "\n";
-        std::cout.flush();
-
+    	// these sums accumlate for the 10 second diagnostic print
+    	int abpRays = 0;
+    	int productRays = 0;
+    	int abpDiscards[2] = {0,0};
+    	
         for (int i = 0; i < 10; i++) {
+	        _numAbpRays = abpSource.numSamples();
+	        _numAbpDiscards = abpSource.discards();
+	        _numProductRays = prodGenerator.numRays();
+	        
+	        abpRays += _numAbpRays;
+	        productRays += _numProductRays;
+	        abpDiscards[0] += _numAbpDiscards[0];
+	        abpDiscards[1] += _numAbpDiscards[1];
+	        
             sleep(1);
             if (sigNumber) {
                 std::cout << "Caught signal " << sigNumber << ", terminating\n";
@@ -183,6 +187,12 @@ int EldoraProductsMain::run() {
         }
         if (sigNumber)
             break;
+        std::cout << "ABP rays: " << abpRays 
+            << "  Product rays:" << productRays 
+            << "  ABP discards:"
+            << abpDiscards[0] << "," << abpDiscards[1] << "\n";
+        std::cout.flush();
+
     }
 
     return 0;
