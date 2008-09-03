@@ -185,10 +185,12 @@ def status():
             productRate = r['numProductBeams']
             numDiscards = r['discardBeamsAft'] + r['discardBeamsFor']
             productStatus = 0
-            if numDiscards > 0 or ABPrate < 2000 or productRate < 400:
+            if numDiscards > 0 or ABPrate < 200 or productRate < 40:
                 productStatus = 1
-            if numDiscards > 4 or ABPrate < 1000 or productRate < 300:
+                print r
+            if numDiscards > 4 or ABPrate < 100 or productRate < 30:
                 productStatus = 2
+                print r
         except Exception, e:
             print ("Error contacting products RPC for status:" + str(e))
 
