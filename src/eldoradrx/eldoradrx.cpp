@@ -1235,10 +1235,23 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     strncpy(hskp->radarName, isFore ? "FORE" : "AFT", sizeof(hskp->radarName));
     
     // fake some lat/lon
-    hskp->latitude  = 40.0 - 0.1*secOfDay/(24*60*60);
-    hskp->longitude = -105.0 + 0.05*secOfDay/(24*60*60);
+    static bool isFirst = true;
+    static double startFracDay;
+    if (isFirst) {
+    	startFracDay = secOfDay/(24*60*60);
+    	isFirst = false;
+    }
+    double fracDay  = secOfDay/(24*60*60);
+    double delta    = fracDay-startFracDay;
+    // allow for one day rollover
+    if (delta < 0.0)
+    	delta += 1.0;
+    
+    hskp->latitude  =   13.0 - 100.0*delta;
+    hskp->longitude =   130.0 + 100.0*delta;
+
     hskp->cellWidth[0] = 150.0;
-    hskp->heading = 100.0;
+    hskp->heading = 135.0;
     return hskp;
 }
 //////////////////////////////////////////////////////////////////////
