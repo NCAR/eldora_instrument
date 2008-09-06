@@ -29,6 +29,7 @@ class EldoraPlaybackMain {
     protected:
         void parseArgs( std::string& inputFileName,
                         std::string& inputDirectory,
+                        int& dwellUs,
                        std::string& productsTopic,
                        std::string& ORB,
                        std::string& DCPS,

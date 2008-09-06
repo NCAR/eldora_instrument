@@ -37,6 +37,7 @@ namespace po = boost::program_options;
 
 void EldoraPlaybackMain::parseArgs( std::string& inputFileName,
                                     std::string& inputDirectory,
+                                    int& dwellUs,
                                    std::string& productsTopic,
                                    std::string& ORB,
                                    std::string& DCPS,
@@ -53,6 +54,7 @@ void EldoraPlaybackMain::parseArgs( std::string& inputFileName,
     descripts.add_options() ("help", "describe options")
     ("inputFileName", po::value<std::string>(&inputFileName), "input file")
     ("inputDirectory", po::value<std::string>(&inputDirectory), "input directory")
+    ("dwell", po::value<int>(&dwellUs), "Beam dwell (default 10000)")
     ("productstopic",po::value<std::string>(&productsTopic), "DDS products topic")
     ("ORB", po::value<std::string>(&ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
@@ -72,6 +74,9 @@ void EldoraPlaybackMain::parseArgs( std::string& inputFileName,
     po::notify(vm);
     if (vm.count("dualprt"))
         dualPrt = true;
+    
+    if (!vm.count("dwell"))
+    	dwellUs = 10000;
 
     if (vm.count("help")) {
         std::cout << descripts << "\n";
@@ -98,6 +103,7 @@ int EldoraPlaybackMain::run() {
     SignalCatcher::instance()->configure(&sigNumber);
 
     QtConfig config("NCAR", "EldoraPlayback");
+    int dwellUs;
     std::string productsTopic;
     std::string ORB;
     std::string DCPS;
@@ -134,8 +140,16 @@ int EldoraPlaybackMain::run() {
     
     dualPrt = config.getBool("DualPrt", false);
 
-    parseArgs(inputFileName, inputDirectory,productsTopic, ORB, DCPS, DCPSInfoRepo, dualPrt, DCPSDebugLevel,
-	      DCPSTransportDebugLevel);
+    parseArgs(inputFileName, 
+    		  inputDirectory,
+    		  dwellUs,
+    		  productsTopic, 
+    		  ORB, 
+    		  DCPS, 
+    	      DCPSInfoRepo, 
+    	      dualPrt, 
+              DCPSDebugLevel,
+    		  DCPSTransportDebugLevel);
 
     // determine how many prt ids we have.
     if (dualPrt) {
@@ -166,7 +180,7 @@ int EldoraPlaybackMain::run() {
 
     // create the product generator
     // specify velocity reversal for the Eldora system
-    EldoraProducts prodGenerator(publisher, productsTopic, true);
+    EldoraProducts prodGenerator(publisher, productsTopic, true, dwellUs);
 
     while (1) {
         std::cerr << "calling playback\n";
