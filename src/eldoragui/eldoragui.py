@@ -563,6 +563,8 @@ def startCappi():
 
    # start a new instance
     cappigencmd = [appDict['cappigen'], ]
+    cappigencmd.append('--angle')
+    cappigencmd.append('1.0')
     cappigencmd.append('--output')
     cappiOutputFile = '/cappi/cappi_'+fltname+'.nc'
     cappigencmd.append(cappiOutputFile)
