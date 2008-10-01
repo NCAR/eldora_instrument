@@ -13,21 +13,16 @@ class StatusGauge(QWidget):
                  payload=None) :
         QWidget.__init__(self, parent)
         
-        self.cellPercent = cellPercent
-        self.orient = orient
-    
         self.setMinimumSize(30, 30)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
     
         # set the default inidicators
         if colors == None:
-            colors = []
-            colors.append("lightgreen")
-            colors.append("yellow")
-            colors.append("red")
-        
+            colors = ['lightgreen', 'yellow', 'red']
+
         # configure ourself
-        self.reconfigure(colors=colors, cellPercent=cellPercent, orient=orient, payload=payload)
+        self.reconfigure(colors=colors, cellPercent=cellPercent, orient=orient, 
+                         payload=payload)
 
 
 #################################################
@@ -81,11 +76,21 @@ class StatusGauge(QWidget):
 
 #################################################
     def on(self, index, ison):
-        if index < 0 or index >= len(self.ison):
-            return
-        
-        self.ison[index] = ison
-    
+#        if index < 0 or index >= len(self.ison):
+#            return
+        if (self.ison[index] != ison):
+            self.ison[index] = ison
+            self.repaint()
+            
+#################################################
+# Set the selected indicator on, and all others off (like a radio button)
+    def radioOn(self, index):
+        for i in range(len(self.ison)):
+            if (i == index):
+                self.ison[i] = True
+            else:
+                self.ison[i] = False
+                
         self.repaint()
                 
 #################################################

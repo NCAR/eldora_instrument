@@ -478,8 +478,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         other indicators.
         '''
         g = self.gauges[name]
-        g.allOn(False)
-        g.on(index, True) 
+        g.radioOn(index)
 
     ###############################################################################
     def flightNameChange(self, text):
