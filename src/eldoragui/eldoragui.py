@@ -69,7 +69,7 @@ global Verbose          # Set for diagnostics from eldoragui itself
 def start():
     ''' start the radar running:
     0: Program the ECB devices and start the test pulse controller
-    1. Send the current header to the housekeepr and eldoradrx
+    1. Send the current header to the housekeeper and eldoradrx
     2. Send an RPC start() to eldoradrx
     3. Send an RPC start() to the housekeeper
     4. Start cappi_gen
