@@ -32,11 +32,27 @@ Default(ui_eldorahdrview)
 
 main = 'eldoragui.py'
 
-libs = Split(""" EldoraMain.py EldoraHeaderGUI.py EldoraHeader.py 
-EldoraHeaderView.py EldoraRPC.py EldoraUtil.py EmitterProc.py 
-ProgressStrip.py QtConfig.py RPCtestServer.py StatusGauge.py 
-HpaWidget.py Hpa.py ECB.py
-Ui_EldoraHeaderView.py Ui_EldoraMain.py""")
+libs = Split("""
+ECB.py
+EldoraHeader.py 
+EldoraHeaderGUI.py
+EldoraHeaderView.py
+EldoraMain.py
+EldoraRPC.py
+EldoraUtil.py
+EmitterProc.py
+greenLED32.png
+Hpa.py
+HpaWidget.py
+ProgressStrip.py
+QtConfig.py
+redLED32.png
+RPCtestServer.py
+StatusGauge.py 
+Ui_EldoraHeaderView.py
+Ui_EldoraMain.py
+yellowLED32.png
+""")
 
 instl = env.InstallPythonLibrary(libs)
 instp = env.InstallProgram(main)

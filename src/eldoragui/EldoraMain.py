@@ -326,7 +326,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
                                                    callback=self.gaugeReleased)
          
     ###############################################################################
-    def addGauge(self, title, layout, initialOn=2, callback=None):
+    def addGauge(self, title, layout, initialState=2, callback=None):
         ''' Create a single StatusGauge. The gauge is placed
         in a QGroupBox, because that provides nice titling.
         A callback can be specified, which will be connected to
@@ -340,8 +340,11 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         vl = QVBoxLayout()
         g.setLayout(vl)
         s = StatusGauge(payload=title)
-        s.on(initialOn, True)
+        s.setState(initialState)
         vl.addWidget(s)
+        # Make sure stuff stays at the top of the GroupBox by adding stretch
+        # at the bottom
+        vl.addStretch()
         if callback != None:
             QObject.connect(s, SIGNAL('released'), callback)
         return s
@@ -479,7 +482,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         other indicators.
         '''
         g = self.gauges[name]
-        g.radioOn(index)
+        g.setState(index)
 
     ###############################################################################
     def flightNameChange(self, text):

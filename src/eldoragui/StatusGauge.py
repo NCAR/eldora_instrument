@@ -5,99 +5,45 @@ import sys
 from PyQt4.QtCore  import *
 from PyQt4.QtGui   import *
 
-class StatusGauge(QWidget):
+class StatusGauge(QLabel):
     def __init__(self, parent=None, 
-                 colors=None, 
-                 cellPercent=90.0, 
-                 orient='vertical', 
                  payload=None) :
-        QWidget.__init__(self, parent)
+        QLabel.__init__(self, parent)
         
         self.setMinimumSize(30, 30)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
     
-        # set the default inidicators
-        if colors == None:
-            colors = ['lightgreen', 'yellow', 'red']
-
-        # configure ourself
-        self.reconfigure(colors=colors, cellPercent=cellPercent, orient=orient, 
-                         payload=payload)
-
-
-#################################################
-    def paintEvent(self, e):
-
-        h = self.height();
-        w = self.width();
-    
-        n = len(self.ison)
-        # what is the height or width of our boxes, and the
-        # indicator diameter?
-        delta = 0.0
-        diameter = 0.0
-        fraction = self.cellPercent/100.0
-        if (self.orient == 'vertical'):
-            # divide vertical column into boxes
-            delta = h/n
-            diameter = delta*fraction
-            if diameter > w*fraction:
-                diameter = w*fraction
+        # Load the per-state images.  Try for our png-s if we can find them,
+        # else fall back to boring colored squares...
+        pixmapPath = os.path.join(os.environ['ELDORADIR'], 'lib', 'python', '')
+        if (os.path.exists(pixmapPath + 'greenLED.png')):
+            pixmaps = [QPixmap(pixmapPath + 'greenLED.png'),
+                       QPixmap(pixmapPath + 'yellowLED.png'),
+                       QPixmap(pixmapPath + 'redLED.png')]
         else:
-            # divide horizontal strip into boxes
-            delta = w/n;
-            diameter = delta*fraction
-            if diameter > h*fraction:
-                diameter = h*fraction
-        
-        p = QPainter()
-        p.setPen(Qt.SolidLine)
-        p.begin(self)
-        for i in range(len(self.ison)):
-            # if no color is specified, then the client didn't want an
-            # indicator in this position
-            if self.colors[i] != '':
-                if (self.orient == 'vertical'):
-                    leftX = ((w-diameter)/2)
-                    topY = (h-(i+1)*delta + (delta-diameter)/2)
-                else:
-                    leftX = (i*delta + delta/2-diameter/2)
-                    topY = (h-diameter)/2
-    
-                color = QColor (self.colors[i])
-                if self.ison[i] == False:
-                    color.setAlpha(30)
-                else:
-                    color.setAlpha(255)
-                brush = QBrush(color)
-                p.setBrush(brush)
-                p.drawEllipse(leftX, topY, diameter, diameter)
-        p.end()
+            print("StatusGauge: Could not find %s.  Using colored squares." %
+                  (pixmapPath + 'greenLED.png'))
+            pixmaps = []
+            width = 24
+            height = 24
+            img = QImage(width, height, QImage.Format_RGB888)
+            # for colorval in [green, yellow, red]:
+            for colorval in [0x00ff00, 0x00ffff, 0x0000ff]:
+                img.fill(colorval)
+                pixmaps.append(QPixmap.fromImage(img))
+                
+        # configure ourself
+        self.reconfigure(pixmaps=pixmaps, payload=payload)
 
 #################################################
-    def on(self, index, ison):
-#        if index < 0 or index >= len(self.ison):
-#            return
-        if (self.ison[index] != ison):
-            self.ison[index] = ison
-            self.repaint()
-            
-#################################################
-# Set the selected indicator on, and all others off (like a radio button)
-    def radioOn(self, index):
-        for i in range(len(self.ison)):
-            if (i == index):
-                self.ison[i] = True
-            else:
-                self.ison[i] = False
-                
-        self.repaint()
-                
-#################################################
-    def allOn(self, ison):
-        for i in range(len(self.ison)):
-            self.ison[i] = ison
-        self.repaint()
+# Change to the selected state
+    def setState(self, state):
+        if (state == self.state):
+            return
+        
+        self.state = state
+        self.setPixmap(self.pixmaps[self.state])
+        self.update()
         
 #################################################
     def mouseReleaseEvent(self, e):
@@ -107,25 +53,28 @@ class StatusGauge(QWidget):
             self.emit(SIGNAL('released'))
         
 #################################################
-    def reconfigure(self, colors,
-                    cellPercent=90.0,
-                    orient='vertical',
-                    payload=None):
-        self.colors = colors;
-        self.cellPercent = cellPercent
-        self.orient = orient
+    def reconfigure(self, pixmaps, payload=None):
+        self.pixmaps = pixmaps;
         self.payload = payload
-    
-        if (self.cellPercent < 0):
-            self.cellPercent = 0.0
-    
-        # initialize on/off status
-        self.ison = []
-        for i in range(len(self.colors)):
-            self.ison.append(False)
+
+        # Use the largest width and largest height from our pixmaps as
+        # the preferred size for the QLabel
+        maxW = 1
+        maxH = 1
+        for i in range(len(pixmaps)):
+            if (pixmaps[i].width() > maxW):
+                maxW = pixmaps[i].width()
+            if (pixmaps[i].height() > maxH):
+                maxH = pixmaps[i].height()
             
-        # redraw with the new configuration
-        self.repaint()
+        self.sizeHint = QSize(maxW, maxH)
+        
+        # Display pixmaps in the center of the QLabel
+        self.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+    
+        # initialize state
+        self.state = -1     # forces pixmap change in setState
+        self.setState(0)
         
 #################################################
     @staticmethod
@@ -139,50 +88,31 @@ class StatusGauge(QWidget):
         app = QApplication(sys.argv)
         
         d = QDialog()
-        d.show()
-        d.resize(100,400)
         
         l1 = QVBoxLayout()
         d.setLayout(l1)
         l = QLabel("Test StatusGauge")
         l1.addWidget(l)
         
-        # create horizontal and vertical layouts
-        l2 = QHBoxLayout()
-        l1.addLayout(l2)
-        l3 = QVBoxLayout()
-        l1.addLayout(l3)
-        
         gauges = []
         # put vertical gauges in the h layout
         s = StatusGauge(d, payload=d)
-        s.on(1, True)
-        l2.addWidget(s)
+        s.setState(1)
+        l1.addWidget(s)
         gauges.append(s)
         
         s = StatusGauge(d, payload=d)
-        s.on(0, True)
-        l2.addWidget(s)
+        s.setState(0)
+        l1.addWidget(s)
         gauges.append(s)
         
-        colors=['gold','', 'blue']
-        s = StatusGauge(colors=colors, payload=d)
-        s.on(2, True)
-        l2.addWidget(s)
+        s = StatusGauge(payload=d)
+        s.setState(2)
+        l1.addWidget(s)
         gauges.append(s)
         
-        # put horizontal gauges in the v layout
-        colors=['gold','red', 'blue', 'violet','maroon','wheat','grey']
-        s = StatusGauge(orient='horizontal', colors=colors, payload=d)
-        s.on(4, True)
-        l3.addWidget(s)
-        gauges.append(s)
-        
-        s = StatusGauge(orient='horizontal', colors=colors, payload=d)
-        s.allOn(True)
-        l3.addWidget(s)
-        gauges.append(s)
-        
+        d.show()
+
         for g in gauges:
             QObject.connect(g,SIGNAL("released"), StatusGauge.gaugePressed)
 
