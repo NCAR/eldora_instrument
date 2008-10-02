@@ -256,7 +256,7 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     ###############################################################################
     def showHide(self):
         # I had to fiddle around a bunch before hitting on the 
-        # sequence below to get the dilog to resize correctly.
+        # sequence below to get the dialog to resize correctly.
         # I honestly don't know why it works.
         if self.expandButton.isChecked():
             self.statusTab.hide()
@@ -328,8 +328,8 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     ###############################################################################
     def addGauge(self, title, layout, initialOn=2, callback=None):
         ''' Create a single StatusGauge. The gauge is placed
-        in a QGroupBox, becasue that provides nice titling.
-        A callback can be specified, which wil be connected to
+        in a QGroupBox, because that provides nice titling.
+        A callback can be specified, which will be connected to
         the gauge's released signal. The payload for the callback
         will be the gauge title.
         '''
@@ -458,9 +458,10 @@ class EldoraMain(QDialog, Ui_EldoraMain):
         text = The text to be displayed
         color = The text color
         '''
-        html = '<font color="' + color + '">' + text + '</font>'
+        now = QTime.currentTime().toString("HH:mm:ss")
+        html = now + ' <font color="' + color + '">' + text + '</font>'
         self.logBrowser.append(html)
-        self.logger.stream.write(text)
+        self.logger.stream.write(now + ' ' + text)
         self.logger.stream.flush()
 
     ###############################################################################
