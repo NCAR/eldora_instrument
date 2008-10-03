@@ -35,6 +35,9 @@ cappigen = env.Program('cappigen', sources)
 	
 inst = env.InstallProgram(cappigen)
 env.Default([cappigen,])
-env.Alias('install',inst)
+env.Alias('install', inst)
+
+template = env.InstallConfig('cappi_template.nc')
+env.Alias('install', template)
 
 
