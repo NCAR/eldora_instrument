@@ -74,9 +74,15 @@ public:
 	bool is_finished() const;
 
 	int get_timeout_writes() const;
-	/// Put the item on the _inQueue, where it will
-	/// be consumed for publishing. Ownership
-	/// of pItem is transferred to DDSWriter.
+	/// Register an instance and get a handle which can be used for 
+	/// faster publication of items with key(s) matching the instance.
+	DDS::InstanceHandle_t registerInstance(const DDSTYPE& instance) 
+	    ACE_THROW_SPEC((CORBA::SystemException));
+    /// Put the item on the _inQueue, for publication using the given
+    /// handle. Ownership of pItem is transferred to DDSWriter.
+    void publishItem(DDSTYPE* pItem, DDS::InstanceHandle_t handle);
+	/// Put the item on the _inQueue, for publication using an empty
+	/// handle. Ownership of pItem is transferred to DDSWriter.
 	void publishItem(DDSTYPE* pItem);
 	// @return The number of empty items available
 	/// on the _outQueue.
@@ -124,7 +130,7 @@ private:
 	void waitForItem();
 	/// Take the next item on the _inQueue, send it to the 
 	/// _publisher, and then return the item to the _outQueue.
-	bool publish(::DDS::InstanceHandle_t handle);
+	bool publish();
 
 	/// The initial writer, not specialized for a data type
 	DDS::DataWriter_var _genericWriter;
@@ -150,7 +156,14 @@ private:
 	int _queueSize;
 
 	/// A queue of incoming items, waiting to be published.
-	std::vector<DDSTYPE*> _inQueue;
+	class PublishQueueEntry {
+	public:
+	    PublishQueueEntry(DDSTYPE* pItem, ::DDS::InstanceHandle_t handle) :
+	        pItem(pItem), handle(handle) {}
+	    DDSTYPE* pItem;
+	    ::DDS::InstanceHandle_t handle;
+	};
+	std::vector<PublishQueueEntry> _inQueue;
 
 	/// A queue of empty items, available for clients to use.
 	std::vector<DDSTYPE*> _outQueue;

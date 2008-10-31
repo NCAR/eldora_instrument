@@ -76,6 +76,12 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
             << " for type name " << type_name << std::endl;
             exit(1);
         }
+        
+        _specificWriter = DDSDATAWRITER::_narrow(_genericWriter.in());
+        if (is_nil (_specificWriter.in ())) {
+            cerr << "Data Writer could not be narrowed"<< endl;
+            exit(1);
+        }
     }
     catch (Exception& e)
     {
@@ -115,7 +121,7 @@ int
 DDSWriter<WRITERSIG2>::svc() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%P|%t) Writer::svc begins.\n")));
 
-    InstanceHandleSeq handles;
+    DDS::InstanceHandleSeq handles;
     try {
 
         while (1)
@@ -127,19 +133,10 @@ DDSWriter<WRITERSIG2>::svc() {
                 
             _genericWriter->get_matched_subscriptions(handles);
             if (handles.length() > 0)
-            break;
+                break;
             else
-            ACE_OS::sleep(ACE_Time_Value(0,200000));
+                ACE_OS::sleep(ACE_Time_Value(0,200000));
         }
-
-        _specificWriter = DDSDATAWRITER::_narrow(_genericWriter.in());
-        if (is_nil (_specificWriter.in ())) {
-            cerr << "Data Writer could not be narrowed"<< endl;
-            exit(1);
-        }
-
-        DDSTYPE item;
-        InstanceHandle_t handle = _specificWriter->_cxx_register (item);
 
         ACE_DEBUG((LM_DEBUG,
                         ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
@@ -148,13 +145,13 @@ DDSWriter<WRITERSIG2>::svc() {
         while(1) {
 
             if (_terminate)
-            break;
+                break;
             // block until item(s) appears on the _inQueue.
             waitForItem();
 
             // publish the next items on the _inQueue.
             // publish() returns non-zero if more items remain on _inQueue.
-            while(publish(handle)) {};
+            while(publish()) {};
         }
 
     } catch (Exception& e) {
@@ -213,6 +210,16 @@ DDSWriter<WRITERSIG2>::getEmptyItem() {
     return pItem;
 
 }
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+DDS::InstanceHandle_t 
+DDSWriter<WRITERSIG2>::registerInstance(const DDSTYPE& instance) 
+    ACE_THROW_SPEC((CORBA::SystemException)){
+    return _specificWriter->_cxx_register(instance);
+}
+
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
@@ -220,9 +227,23 @@ void
 DDSWriter<WRITERSIG2>::publishItem(
         DDSTYPE* pItem) {
 
+    // Publish with an empty handle.  This works, but may be less efficient
+    // than a publish with a good handle.
+    publishItem(pItem, DDS::HANDLE_NIL);
+
+}
+
+////////////////////////////////////////////////////////////
+
+template<WRITERSIG1>
+void
+DDSWriter<WRITERSIG2>::publishItem(
+        DDSTYPE* pItem, DDS::InstanceHandle_t handle) {
+
     guard_t guard(_mutex);
 
-    _inQueue.push_back(pItem);
+    PublishQueueEntry entry(pItem, handle);
+    _inQueue.push_back(entry);
 
     _condition.broadcast();
 }
@@ -355,15 +376,16 @@ DDSWriter<WRITERSIG2>::on_connection_deleted(DDS::DataWriter_ptr writer)
 
 template<WRITERSIG1>
 bool
-DDSWriter<WRITERSIG2>::publish(
-        InstanceHandle_t handle) {
+DDSWriter<WRITERSIG2>::publish() {
 
     guard_t guard(_mutex);
 
     if (_inQueue.size() == 0)
     return false;
 
-    DDSTYPE* pItem = _inQueue[0];
+    PublishQueueEntry pEntry = _inQueue[0];
+    DDSTYPE* pItem = pEntry.pItem;
+    DDS::InstanceHandle_t handle = pEntry.handle;
 
     _inQueue.erase(_inQueue.begin());
 
