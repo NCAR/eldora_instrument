@@ -125,10 +125,10 @@ class EldoraMain(QDialog, Ui_EldoraMain):
     
     ####################################################################################
     def createHPAs(self, hpa0device, hpa1device):
-        '''Create the traqnsmitter (hpa) controllers
+        '''Create the transmitter (hpa) controllers
         '''
-        self.hpa0Box.setContentsMargins(0,0,0,0)
-        self.hpa1Box.setContentsMargins(0,0,0,0)
+#        self.hpa0Box.setContentsMargins(0,0,0,0)
+#        self.hpa1Box.setContentsMargins(0,0,0,0)
         l0 = QVBoxLayout(self.hpa0Box)
         l1 = QVBoxLayout(self.hpa1Box)
         self.HPAs = [None,None]
