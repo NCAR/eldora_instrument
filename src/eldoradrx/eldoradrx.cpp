@@ -294,7 +294,7 @@ int main(int argc,
     if (_bwtimer) {
         delete _bwtimer;
     }
-    std::cout << argv[0] << " was asked to terminate - exiting\n";
+    std::cout << argv[0] << " was asked to terminate - exiting" << std::endl;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -398,7 +398,7 @@ static void startAll()
         _bwtimer = new Bittware(0);
         _bwtimer->configure(_radarParams[0], _tpWidth);
         if (!_bwtimer->isok()) {
-            std::cerr << "Unable to create bittware timer\n";
+            std::cerr << "Unable to create bittware timer" << std::endl;
             _bwtimer->shutdown();
             exit(1);
         }
@@ -522,7 +522,7 @@ static void getConfigParams()
     if (e) {
         EldoraDir = e + EldoraDir;
     } else {
-        std::cerr << "Environment variable ELDORADIR must be set.\n";
+        std::cerr << "Environment variable ELDORADIR must be set." << std::endl;
         exit(1);
     }
 
@@ -612,7 +612,7 @@ static void parseOptions(int argc,
     if (vm.count("help") || (vm.count("binary") && vm.count("text"))) {
         std::cout << "Initialize two rr314 cards. If --start0 ond/or --start1 is specified,\n";
         std::cout << "that card will be started for data collection.\n";
-        std::cout << descripts << "\n";
+        std::cout << descripts << std::endl;
         exit(1);
     }
 
@@ -649,10 +649,10 @@ static void shutdownBoards()
     }
 
     if (_bwtimer) {
-        std::cout << "stopping Bittware device\n";
+        std::cout << "stopping Bittware device" << std::endl;
         _bwtimer->shutdown();
     } else {
-        std::cout << "no Bittware device active\n";
+        std::cout << "no Bittware device active" << std::endl;
     }
 }
 
@@ -666,7 +666,7 @@ static void shutdownBoards()
 ///
 static void signalHandler(int signo)
 {
-    std::cout << "Handling signal " << signo << "\n";
+    std::cout << "Handling signal " << signo << std::endl;
 
     // try to terminate the RR314 & timer boards
     shutdownBoards();
@@ -801,7 +801,7 @@ static void* rrReadTask(void* threadArg)
     std::set<ptime> sentFakeHskp;
     const unsigned int FAKE_HSKP_HISTORY_LEN = 50;
 
-    std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " samples:" << samples << "\n";
+    std::cout <<__FILE__ << " gates:" << gates << " iqpairs:" << numiq << " samples:" << samples << std::endl;
 
     // loop while waiting for new buffers
     while (1) {
@@ -1040,7 +1040,7 @@ static void showStats(int devNumber,
             << "   free ABP:" << _rr314[devNumber]->numFreeABPBuffers()
             << "   dropped rays:" << _droppedRays[devNumber]
             << "   dropped TS:" << _droppedTS[devNumber]
-            << std::setprecision(4) << "   t:" << temperature << "C" << "\n";
+            << std::setprecision(4) << "   t:" << temperature << "C" << std::endl;
 
     _droppedRays[devNumber] = 0;
     _droppedTS[devNumber] = 0;
@@ -1101,7 +1101,7 @@ void publishAndCapture(RREntry* rentry,
                 _rayWriter->publishItem(pDdsRay);
             } else {
                 _droppedRays[boardNum]++;
-                //std::cout << "can't get publisher ray\n";
+                //std::cout << "can't get publisher ray" << std::endl;
             }
         } else {
             // a time series dmaChan
@@ -1124,7 +1124,7 @@ void publishAndCapture(RREntry* rentry,
                 _tsWriter->publishItem(pDdsTS);
             } else {
                 _droppedTS[boardNum]++;
-                //std::cout << "can't get publisher TS\n";
+                //std::cout << "can't get publisher TS" << std::endl;
             }
         }
     }
@@ -1173,7 +1173,7 @@ void publishAndCapture(RREntry* rentry,
 /////////////////////////////////////////////////////////////////////
 static void createDDSservices()
 {
-    std::cout <<__FILE__ << " creating DDS services\n";
+    std::cout <<__FILE__ << " creating DDS services" << std::endl;
 
     ArgvParams argv("eldoradrx");
     argv["-ORBSvcConf"] = _ORB;
@@ -1193,7 +1193,7 @@ static void createDDSservices()
     _publisher = new DDSPublisher(argv.argc(), theArgv);
 #endif
     if (_publisher->status()) {
-        std::cout << "Unable to create a publisher, exiting.\n";
+        std::cerr << "Unable to create a publisher, exiting." << std::endl;
         exit(1);
     }
 
