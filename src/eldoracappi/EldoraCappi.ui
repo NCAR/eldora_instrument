@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>816</width>
-    <height>618</height>
+    <width>923</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -52,25 +52,103 @@
       </widget>
      </item>
      <item>
-      <widget class="ColorBar" name="colorBar" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>13</hsizetype>
-         <vsizetype>13</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
        </property>
-       <property name="minimumSize" >
-        <size>
-         <width>40</width>
-         <height>500</height>
-        </size>
+       <property name="spacing" >
+        <number>6</number>
        </property>
-       <property name="toolTip" >
-        <string>Click to set scale</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QFrame" name="frame_4" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape" >
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ColorBar" name="colorBar" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>13</hsizetype>
+           <vsizetype>13</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>40</width>
+           <height>500</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string>Click to set scale</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape" >
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="QFrame" name="frame_2" >
+          <property name="geometry" >
+           <rect>
+            <x>720</x>
+            <y>680</y>
+            <width>61</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QFrame" name="frame_3" >
+           <property name="geometry" >
+            <rect>
+             <x>730</x>
+             <y>690</y>
+             <width>61</width>
+             <height>61</height>
+            </rect>
+           </property>
+           <property name="frameShape" >
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow" >
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -169,33 +247,42 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
+         <widget class="QCheckBox" name="gridCheck" >
+          <property name="minimumSize" >
+           <size>
+            <width>1</width>
+            <height>0</height>
+           </size>
           </property>
-          <property name="spacing" >
-           <number>6</number>
+          <property name="toolTip" >
+           <string>Enable Grid overlay</string>
           </property>
-          <item>
-           <widget class="QCheckBox" name="gridCheck" >
-            <property name="minimumSize" >
-             <size>
-              <width>1</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="toolTip" >
-             <string>Enable Grid overlay</string>
-            </property>
-            <property name="text" >
-             <string>Grid</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          <property name="text" >
+           <string>Grid</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="autoSaveCheck" >
+          <property name="minimumSize" >
+           <size>
+            <width>1</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip" >
+           <string>Enable Grid overlay</string>
+          </property>
+          <property name="text" >
+           <string>Image Auto Save</string>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -207,8 +294,8 @@
        </property>
        <property name="sizeHint" >
         <size>
-         <width>144</width>
-         <height>16</height>
+         <width>101</width>
+         <height>20</height>
         </size>
        </property>
       </spacer>

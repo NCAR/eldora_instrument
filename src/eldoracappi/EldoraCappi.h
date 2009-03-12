@@ -144,6 +144,7 @@ public slots:
 	void panLeftSlot();
 	void panRightSlot();
 	void resetViewSlot();
+	void autoSaveSlot(bool);
 	void gridSlot(bool);
 	void backgroundColorSlot();
 	void gridColorSlot();
@@ -184,7 +185,9 @@ protected:
 	void pan(double x, double y);
 	/// compute the pojnting angle of an eldora beam
 	double pointingAngle(double rotangle, double heading, double tiltAngle);
-
+	/// Automatically save an image without prompting.
+	/// @param index A number that will be suffixed to the file name
+	void saveImageAuto(int index);
 	CAPPI* _cappi;
 	/// The manager for the CAPPI
 	CappiManager _manager;
@@ -286,6 +289,10 @@ protected:
 	std::string _imageTitle;
 	/// set true to disable plotting via the timer.
 	bool _disableTimer;
+	/// set true to enable auto image save
+	bool _autoSaveImage;
+	/// The current index for the auto image file name
+	int _autoImageIndex;
 
 };
 
