@@ -13,7 +13,9 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 			_lon(0.0), _firstPos(true), _firstTimer(true),
 			_disableTimer(false),
 			_autoSaveImage(false),
-			_autoImageIndex(0)
+			_autoImageIndex(0),
+			_autoImageIncrement(1),
+			_autoImageFirstIndex(0)
 {
 	// Set up our form
 	setupUi(parent);
@@ -92,6 +94,7 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 
 	// get the display specifications
 	_imageTitle = _config.getString("ImageTitle", "NCAR/Eldora");
+	_autoImageIncrement = _config.getInt("AutoSaveIncrement", 1);
 	
 	double timeSpanHr = _config.getDouble("Display/TimeSpanHrs", 0.25);
 	_timeSpan = time_duration(seconds((int)(timeSpanHr*3600.0)));
@@ -261,7 +264,11 @@ void EldoraCappi::productSlot(std::vector<double> p, unsigned long rec, int prod
 			cartAngle, index);
 			
 	if (_autoSaveImage) {
-		saveImageAuto(_autoImageIndex);
+		// save every _autoImageIncrement image. Note that the numbering
+		// still increses for every image, saved or not.
+		if (!(((_autoImageIndex-_autoImageFirstIndex)) % _autoImageIncrement)) {
+			saveImageAuto(_autoImageIndex);
+		}
 		_autoImageIndex++;
 	}
 }
@@ -737,8 +744,10 @@ void EldoraCappi::setTimeSlot(CappiTime::MODE mode, ptime startTime, ptime stopT
 		// if we are auto saving, bump up the file counter every time the
 		// apply button is hit to regenerate a new cappi. This will make it easier 
 		// to group the files.
-		if (_autoImageIndex != 0)
+		if (_autoImageIndex != 0) {
 			_autoImageIndex += 100;
+			_autoImageFirstIndex = _autoImageIndex;
+		}
 	}
 	
 	pollNewData();

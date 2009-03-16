@@ -293,6 +293,10 @@ protected:
 	bool _autoSaveImage;
 	/// The current index for the auto image file name
 	int _autoImageIndex;
+	/// auto save every nth image
+	int _autoImageIncrement;
+	/// the first auto image number of this series
+	int _autoImageFirstIndex;
 
 };
 
