@@ -90,6 +90,9 @@ using boost::posix_time::time_facet;
  **/
 class EldoraCappi : public QDialog, public Ui::EldoraCappi {
 Q_OBJECT
+
+enum IMAGETYPE {IMAGEPNG, IMAGEJPG};
+
 public:
 	EldoraCappi(std::string inputFile, std::string title, QDialog* parent = 0);
 	virtual ~EldoraCappi();
@@ -297,6 +300,8 @@ protected:
 	int _autoImageIncrement;
 	/// the first auto image number of this series
 	int _autoImageFirstIndex;
+	/// The type of image to save; either PNG or GIF
+	IMAGETYPE _imageType;
 
 };
 

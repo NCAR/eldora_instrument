@@ -39,10 +39,15 @@ void parseArgs(
 
     if (vm.count("inputFile") != 1) {
       std::cout << descripts << std::endl;
+      std::cout << "Configuration parameters may be set in ~/.config/NCAR/EldoraCappi.ini" 
+                << std::endl;
+      exit(1);
     }
 
     if (vm.count("help")) {
         std::cout << descripts << "\n";
+        std::cout << "Configuration parameters may be set in ~/.config/NCAR/EldoraCappi.ini" 
+                << std::endl;
         exit(1);
     }
 

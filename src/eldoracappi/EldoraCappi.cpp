@@ -2,8 +2,7 @@
 #include "CAPPI.h"
 #include "Z.xpm"
 #include "Paw.xpm"
-
-
+#include <algorithm>
 //////////////////////////////////////////////////////////////////////
 EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 		QDialog* parent) :
@@ -15,7 +14,8 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 			_autoSaveImage(false),
 			_autoImageIndex(0),
 			_autoImageIncrement(1),
-			_autoImageFirstIndex(0)
+			_autoImageFirstIndex(0),
+			_imageType(IMAGEPNG)
 {
 	// Set up our form
 	setupUi(parent);
@@ -95,6 +95,19 @@ EldoraCappi::EldoraCappi(std::string inputFile, std::string title,
 	// get the display specifications
 	_imageTitle = _config.getString("ImageTitle", "NCAR/Eldora");
 	_autoImageIncrement = _config.getInt("AutoSaveIncrement", 1);
+	std::string imagetype = _config.getString("ImageType", "png");
+	std::transform(imagetype.begin(), imagetype.end(), imagetype.begin(), tolower);
+	if (!imagetype.compare("png")) {
+	} else {
+		_imageType = IMAGEPNG;
+		if (!imagetype.compare("jpg")) {
+			_imageType = IMAGEJPG;
+		} else {
+			std::cerr << "Unrecognized image type, must be jpg or png. Image type set to png." 
+				<< std::endl;
+			_imageType = IMAGEPNG;
+		}
+	}	
 	
 	double timeSpanHr = _config.getDouble("Display/TimeSpanHrs", 0.25);
 	_timeSpan = time_duration(seconds((int)(timeSpanHr*3600.0)));
@@ -274,11 +287,16 @@ void EldoraCappi::productSlot(std::vector<double> p, unsigned long rec, int prod
 }
 
 //////////////////////////////////////////////////////////////////////
-void EldoraCappi::saveImageSlot() {
+void EldoraCappi::saveImageSlot() 
+{
+	std::string imageFileExtension = (_imageType == IMAGEPNG) ? "png" : "jpg";
+	std::string dialogFilter = (_imageType == IMAGEPNG) ? 
+		"PNG files (*.png);;All files (*.*)" : "JPG files (*.jpg);;All files (*.*)";
+	
 	QString f = _config.getString("imageSaveDirectory", "./").c_str();
 
 	QFileDialog d( this, tr("Save EldoraCappi Image"), f,
-			tr("PNG files (*.png);;All files (*.*)"));
+			tr(dialogFilter.c_str()));
 	
 	d.setFileMode(QFileDialog::AnyFile);
 	d.setViewMode(QFileDialog::Detail);
@@ -289,7 +307,8 @@ void EldoraCappi::saveImageSlot() {
 
 	f = "EldoraCappi-";
 	f += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
-	f += ".png";
+	f += ".";
+	f += imageFileExtension.c_str();
 	d.selectFile(f);
 	if (d.exec()) {
 		QStringList saveNames = d.selectedFiles();
@@ -342,7 +361,8 @@ void EldoraCappi::saveImageSlot() {
         		}
         	}
 
-			fullImage.save(saveNames[0].toStdString().c_str(), "PNG", 100);
+			fullImage.save(saveNames[0].toStdString().c_str(), 
+			   (_imageType == IMAGEPNG) ? "PNG" : "JPG", 100);
 			delete cappiimage;
 			delete barimage;
 		}
@@ -354,11 +374,14 @@ void EldoraCappi::saveImageSlot() {
 //////////////////////////////////////////////////////////////////////
 void EldoraCappi::saveImageAuto(int index) {
 
+	std::string imageFileExtension = (_imageType == IMAGEPNG) ? "png" : "jpg";
+	
 	QString f = "EldoraCappi-";
 	
 	QChar fillChar('0');
 	f += QString("%1").arg(index, 6, 10, fillChar);
-	f += ".png";
+	f += ".";
+	f += imageFileExtension.c_str();
 	// get the cappi image
 	QImage* cappiimage = _cappi->getImage();
 	// annotate the cappi image
@@ -406,8 +429,7 @@ void EldoraCappi::saveImageAuto(int index) {
     			fullImage.setPixel(x+xoffset, y, barimage->pixel(x,y));
     		}
     	}
-
-		fullImage.save(f, "PNG", 100);
+		fullImage.save(f, (_imageType == IMAGEPNG) ? "PNG" : "JPG", 100);
 		delete cappiimage;
 		delete barimage;
 	}
