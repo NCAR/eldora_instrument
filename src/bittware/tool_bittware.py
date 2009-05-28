@@ -25,7 +25,7 @@ def bittware(env):
     env.AppendUnique(LIBPATH = [dsp21ksfLibPath,])
     #
     # dsp21ksf libraries
-    dsp21kLibs = ['hil','bwregs']
+    dsp21kLibs = ['hil', 'bwregs', 'adlibelf']
     env.Append(LIBS = dsp21kLibs)
     #
     #
