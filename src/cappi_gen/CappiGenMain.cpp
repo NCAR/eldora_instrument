@@ -14,32 +14,29 @@ Q_DECLARE_METATYPE(StrMapDouble)
 #include "SvnVersion.h"
 #include "QtConfig.h"
 
-// To get the DDSSubscriber definition
-#include "DDSReader.h"
-
 #include "EldoraQtProductsSource.h"
 
 #include "ArgvParams.h"
 
 namespace po = boost::program_options;
 void parseArgs(
-        int argc, char** argv, 
+        int argc, char** argv,
         std::string& outputFile,
-        std::string& productsTopic, 
+        std::string& productsTopic,
         std::string& ORB,
         std::string& DCPS,
-	std::string& DCPSInfoRepo,
-	int &DCPSDebugLevel,
-	int &DCPSTransportDebugLevel,
+        std::string& DCPSInfoRepo,
+        int &DCPSDebugLevel,
+        int &DCPSTransportDebugLevel,
         double &angleTol) {
 
-    int theDebugLevel=0; 
+    int theDebugLevel=0;
     int theTransportLevel=0;
 
     // get the options
     po::options_description descripts("Options");
 
-    descripts.add_options() ("help", "describe options") 
+    descripts.add_options() ("help", "describe options")
     ("outputFile", po::value<std::string>(&outputFile), "name of output file")
     ("productstopic", po::value<std::string>(&productsTopic), "DDS products topic")
     ("angleTolerance", po::value<double>(&angleTol), "Rotation Angle Tolerance ")
@@ -47,7 +44,7 @@ void parseArgs(
     ("DCPS", po::value<std::string>(&DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
     ("DCPSDebugLevel", po::value<int>(&theDebugLevel), "DCPSDebugLevel ")
-    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel), 
+    ("DCPSTransportDebugLevel", po::value<int>(&theTransportLevel),
      "DCPSTransportDebugLevel")
     ;
 
@@ -66,7 +63,7 @@ void parseArgs(
         std::cout << descripts << "\n";
         exit(1);
     }
-        
+
     if (vm.count("help")) {
         std::cout << descripts << "\n";
         exit(1);
@@ -82,7 +79,7 @@ int main(
     //
     // Configuration
 
-	// The EldoraPPI configuration 
+    // The EldoraPPI configuration
     QtConfig config("NCAR", "CappiGen");
     // The products topic name
     std::string productsTopic;
@@ -98,34 +95,34 @@ int main(
     int DCPSDebugLevel = 0;
     int DCPSTransportDebugLevel = 0;
     double angleTolerance = 5.0;
-    
+
 
     // set up the default configuration directory path
     char* e = getenv("ELDORADIR");
     std::string EldoraDir("/conf/");
     if (e) {
-    	EldoraDir = e + EldoraDir;
+        EldoraDir = e + EldoraDir;
     } else {
         std::cerr << "Environment variable ELDORADIR must be set.\n";
         exit(1);
     }
-    
+
     std::string orbFile = EldoraDir + "ORBSvc.conf";
     ORB = config.getString("ORBConfigFile",orbFile);
-    
+
     std::string dcpsFile = EldoraDir + "DDSClient.ini";
     DCPS = config.getString( "DCPSConfigFile", dcpsFile);
 
     std::string dcpsInfoRepo = "iiop://archiver:50000/DCPSInfoRepo";
-    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);  
+    DCPSInfoRepo = config.getString("DCPSInfoRepo", dcpsInfoRepo);
 
-    
+
     productsTopic = config.getString("TopicProducts", "EldoraProducts");
 
     parseArgs(argc, argv, outputFilename, productsTopic,  ORB, DCPS, DCPSInfoRepo,
-	      DCPSDebugLevel, DCPSTransportDebugLevel, angleTolerance);
+            DCPSDebugLevel, DCPSTransportDebugLevel, angleTolerance);
 
-    // we have to do this bit of translation since the 
+    // we have to do this bit of translation since the
     // DDS routines want arguments starting with a single dash,
     // whereas boost::program_options uses double dashes.
     ArgvParams subParams(argv[0]);
@@ -133,12 +130,12 @@ int main(
     subParams["-DCPSConfigFile"] = DCPS;
     subParams["-DCPSInfoRepo"] = DCPSInfoRepo;
     if (DCPSDebugLevel > 0) {
-      std::cerr << "passing DCPSDebugLevel " << DCPSDebugLevel << std::endl;
-      subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
+        std::cerr << "passing DCPSDebugLevel " << DCPSDebugLevel << std::endl;
+        subParams["-DCPSDebugLevel"] = DCPSDebugLevel;
     }
     if (DCPSTransportDebugLevel > 0) {
-      std::cerr << "passing DCPSTransportDebugLevel " << DCPSTransportDebugLevel << std::endl;
-      subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
+        std::cerr << "passing DCPSTransportDebugLevel " << DCPSTransportDebugLevel << std::endl;
+        subParams["-DCPSTransportDebugLevel"] = DCPSTransportDebugLevel;
     }
     std::string nc_template = EldoraDir + "cappi_template.nc";
     CappiGen cappi_gen(outputFilename, nc_template, angleTolerance);
@@ -166,7 +163,7 @@ int main(
     DDSSubscriber subscriber(subParams.argc(), subParams.argv());
     int subStatus = subscriber.status();
     if (subStatus) {
-      std::cerr << argv[0] << " ERROR: subscriber returned error" << subStatus << std::endl;
+        std::cerr << argv[0] << " ERROR: subscriber creation error" << subStatus << std::endl;
         return subStatus;
     }
 
@@ -178,7 +175,15 @@ int main(
 
     // request products from forward radar. A rate of 0.0 means send all beams
     EldoraQtProductsSource productsSource(subscriber, productsTopic, 0.0,
-             EldoraQtProductsSource::RADAR_FOR , prodTypes);
+            EldoraQtProductsSource::RADAR_FOR, prodTypes);
+
+    // Set the quality of service to "best effort", so we don't hang up
+    // eldoraprod if we're slow.
+    DDS::DataReaderQos qos;
+    productsSource.get_qos(qos);
+    qos.reliability.kind = DDS::BEST_EFFORT_RELIABILITY_QOS;
+    productsSource.set_qos(qos);
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -189,14 +194,10 @@ int main(
     QObject::connect(&app, SIGNAL(aboutToQuit()), &productsSource, SLOT(shutdown()));
 
     // now the products supply
-    QObject::connect(&productsSource, 
-	 SIGNAL(newPDataHskpMap(std::vector<double>, int,  int, qlonglong,
-			     StrMapDouble)),
-		     &cappi_gen,
-		     SLOT(productSlot(std::vector<double>, 
-				      int,  int, 
-				      qlonglong , 
-				      StrMapDouble)) );
+    QObject::connect(&productsSource,
+            SIGNAL(newPDataHskpMap(std::vector<double>, int,  int, qlonglong, StrMapDouble)),
+            &cappi_gen,
+            SLOT(productSlot(std::vector<double>, int,  int, qlonglong, StrMapDouble)));
 
 
     ///////////////////////////////////////////////////////////////
@@ -205,7 +206,7 @@ int main(
 
     // note that the sources may start emitting signals
     // before the main application event loop is running,
-    // in which case the signals may be lost. This could be 
+    // in which case the signals may be lost. This could be
     // a problem with the tsGates signal not being captured.
     productsSource.start();
 
