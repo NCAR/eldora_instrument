@@ -8,7 +8,12 @@ using namespace CORBA;
 template<WRITERSIG1>
 DDSWriter<WRITERSIG2>::DDSWriter(DDSPublisher& ddsPublisher,
         std::string topicName, int queueSize) :
-finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topicName), _queueSize(queueSize), _terminate(false)
+finished_instances_(0),
+timeout_writes_(0),
+_condition(_mutex),
+_topicName(topicName),
+_queueSize(queueSize),
+_terminate(false)
 {
 
     // reserve the space in the queues
@@ -22,7 +27,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
 
     // get the domain participant, which we register our type with
     DomainParticipant_var& participant = ddsPublisher.getParticipant();
-    
+
     try {
         // register our type
         DDSTYPESUPPORT_VAR typeSupport = new DDSTYPESUPPORTIMPL();
@@ -49,26 +54,27 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
         // get the default quality of service
         TopicQos topic_qos;
         participant->get_default_topic_qos(topic_qos);
-        // specify reliable reliability. What a concept.
-        topic_qos.reliability.kind = DDS::RELIABLE_RELIABILITY_QOS;
 
-        // create our topic, using our type name and the default qos. 
+        // create our topic, using our type name and the default qos.
         // We will not be using a listener.
-        std::cout << "Creating topic " << topicName.c_str() << 
-            " for type name " << type_name << std::endl;
+        std::cout << "Creating topic " << topicName.c_str() <<
+        " for type name " << type_name << std::endl;
         Topic_var topic = participant->create_topic (topicName.c_str(),
                 type_name.in (),
                 topic_qos,
                 DDS::TopicListener::_nil());
         if (is_nil (topic.in ())) {
-            cerr << "create_topic failed for topic " << 
-                topicName.c_str() << " for type name " << type_name << std::endl;
+            cerr << "create_topic failed for topic " <<
+            topicName.c_str() << " for type name " << type_name << std::endl;
             exit(1);
         }
 
-        // Create the generic datawriter for our topic
+        // Default to "reliable" reliability.
         DataWriterQos dw_qos;
         publisher->get_default_datawriter_qos (dw_qos);
+        dw_qos.reliability.kind = DDS::RELIABLE_RELIABILITY_QOS;
+
+        // Create the generic datawriter for our topic
         _genericWriter = publisher->create_datawriter(topic.in (),
                 dw_qos, listener.in());
         if (is_nil (_genericWriter.in ())) {
@@ -76,7 +82,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
             << " for type name " << type_name << std::endl;
             exit(1);
         }
-        
+
         _specificWriter = DDSDATAWRITER::_narrow(_genericWriter.in());
         if (is_nil (_specificWriter.in ())) {
             cerr << "Data Writer could not be narrowed"<< endl;
@@ -97,7 +103,7 @@ finished_instances_(0), timeout_writes_(0), _condition(_mutex), _topicName(topic
         cerr << "Writer::start(): activate failed" << endl;
         exit(1);
     }
-}
+            }
 
 ////////////////////////////////////////////////////////////
 
@@ -130,7 +136,7 @@ DDSWriter<WRITERSIG2>::svc() {
                 cerr << __FUNCTION__ << " terminating" << endl;
                 return 0;
             }
-                
+
             _genericWriter->get_matched_subscriptions(handles);
             if (handles.length() > 0)
                 break;
@@ -139,7 +145,7 @@ DDSWriter<WRITERSIG2>::svc() {
         }
 
         ACE_DEBUG((LM_DEBUG,
-                        ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
+                ACE_TEXT("%T (%P|%t) Writer::svc starting to write.\n")));
 
         // this is where it all happens
         while(1) {
@@ -202,7 +208,7 @@ DDSWriter<WRITERSIG2>::getEmptyItem() {
     guard_t guard(_mutex);
 
     if (_outQueue.size() == 0)
-    return 0;
+        return 0;
 
     DDSTYPE* pItem = _outQueue[0];
     _outQueue.erase(_outQueue.begin());
@@ -214,8 +220,8 @@ DDSWriter<WRITERSIG2>::getEmptyItem() {
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-DDS::InstanceHandle_t 
-DDSWriter<WRITERSIG2>::registerInstance(const DDSTYPE& instance) 
+DDS::InstanceHandle_t
+DDSWriter<WRITERSIG2>::registerInstance(const DDSTYPE& instance)
     ACE_THROW_SPEC((CORBA::SystemException)){
     return _specificWriter->_cxx_register(instance);
 }
@@ -257,67 +263,67 @@ DDSWriter<WRITERSIG2>::waitForItem() {
     guard_t guard(_mutex);
 
     while (_inQueue.size() == 0)
-    _condition.wait();
+        _condition.wait();
 
 }
 
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
-DDSWriter<WRITERSIG2>::on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
+void
+DDSWriter<WRITERSIG2>::on_offered_deadline_missed(DDS::DataWriter_ptr writer,
         const DDS::OfferedDeadlineMissedStatus&)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) {
-    std::cout << "DDSWriter: offered deadline missed for topic " << 
-        _topicName << std::endl;
+    std::cout << "DDSWriter: offered deadline missed for topic " <<
+    _topicName << std::endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
         const DDS::OfferedIncompatibleQosStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException ))
 {
-    std::cout << "DDSWRiter: incompatible QoS was offered for topic " << 
-        _topicName << std::endl;
+    std::cout << "DDSWRiter: incompatible QoS was offered for topic " <<
+    _topicName << std::endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_liveliness_lost(DDS::DataWriter_ptr writer,
         const DDS::LivelinessLostStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) {
-    std::cout << "DDSWriter: liveliness lost for topic " << _topicName << 
-        std::endl;
+    std::cout << "DDSWriter: liveliness lost for topic " << _topicName <<
+    std::endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_publication_match(DDS::DataWriter_ptr writer,
         const DDS::PublicationMatchStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) {
 
     std::cout << "DDSWriter: Got new subscriber for topic " << _topicName <<
-        " (id " << status.last_subscription_handle << ")" << std::endl;
+    " (id " << status.last_subscription_handle << ")" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_publication_disconnected(DDS::DataWriter_ptr writer,
         const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) 
 {
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
-    std::cout << "DDSWriter: subscriber disconnected from topic " << 
-        _topicName << " (id ";
+    std::cout << "DDSWriter: subscriber disconnected from topic " <<
+    _topicName << " (id ";
     if (subscribers.length() == 1)
         std::cout << subscribers[0];
     else
@@ -328,14 +334,14 @@ DDSWriter<WRITERSIG2>::on_publication_disconnected(DDS::DataWriter_ptr writer,
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_publication_reconnected(DDS::DataWriter_ptr writer,
         const ::OpenDDS::DCPS::PublicationReconnectedStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) 
 {
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
-    std::cout << "DDSWriter: subscriber reconnected to topic " << 
-        _topicName << " (id ";
+    std::cout << "DDSWriter: subscriber reconnected to topic " <<
+    _topicName << " (id ";
     if (subscribers.length() == 1)
         std::cout << subscribers[0];
     else
@@ -346,14 +352,14 @@ DDSWriter<WRITERSIG2>::on_publication_reconnected(DDS::DataWriter_ptr writer,
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_publication_lost(DDS::DataWriter_ptr writer,
         const ::OpenDDS::DCPS::PublicationLostStatus& status)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) 
 {
     DDS::InstanceHandleSeq subscribers(status.subscription_handles);
-    std::cout << "DDSWriter: subscriber lost for topic " << _topicName << 
-        " (id ";
+    std::cout << "DDSWriter: subscriber lost for topic " << _topicName <<
+    " (id ";
     if (subscribers.length() == 1)
         std::cout << subscribers[0];
     else
@@ -364,12 +370,12 @@ DDSWriter<WRITERSIG2>::on_publication_lost(DDS::DataWriter_ptr writer,
 ////////////////////////////////////////////////////////////
 
 template<WRITERSIG1>
-void 
+void
 DDSWriter<WRITERSIG2>::on_connection_deleted(DDS::DataWriter_ptr writer)
     ACE_THROW_SPEC (( ::CORBA::SystemException )) 
 {
-    std::cout << "DDSWriter: a connection was deleted for topic " << 
-        _topicName << std::endl;
+    std::cout << "DDSWriter: a connection was deleted for topic " <<
+    _topicName << std::endl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -381,7 +387,7 @@ DDSWriter<WRITERSIG2>::publish() {
     guard_t guard(_mutex);
 
     if (_inQueue.size() == 0)
-    return false;
+        return false;
 
     PublishQueueEntry pEntry = _inQueue[0];
     DDSTYPE* pItem = pEntry.pItem;
@@ -395,9 +401,9 @@ DDSWriter<WRITERSIG2>::publish() {
 
     if (ret != DDS::RETCODE_OK) {
         ACE_ERROR ((LM_ERROR,
-                        ACE_TEXT("(%P|%t)ERROR  EldoraWriter::publish, ")
-                        ACE_TEXT ("write() returned %d.\n"),
-                        ret));
+                ACE_TEXT("(%P|%t)ERROR  EldoraWriter::publish, ")
+                ACE_TEXT ("write() returned %d.\n"),
+                ret));
         if (ret == DDS::RETCODE_TIMEOUT) {
             timeout_writes_ ++;
         }
