@@ -14,6 +14,7 @@
 #include <ace/streams.h>
 #include "ace/Get_Opt.h"
 
+#include <unistd.h>
 #include <iomanip>
 #include <ios>
 #include "EldoraDdsC.h"
@@ -64,12 +65,25 @@ int DDSSubscriber::run(
             char *argv[]) {
     try
     {
-        _dpf = TheParticipantFactoryWithArgs(argc, argv);
-        if (!_dpf) {
-            cerr << __FILE__ <<":" << __FUNCTION__ << " TheParticipantFactoryWithArgs() failed\n";
-            cerr << "Make sure that DCPSInfoRepo is running and that " <<
-                "you are looking for it in the right place." << endl;
-            return 1;
+        for (int ntries = 1; true; ntries++) {
+            _dpf = TheParticipantFactoryWithArgs(argc, argv);
+
+            if (_dpf) {
+                // Success!
+                break;
+            } else {
+                cerr << __FILE__ <<":" << __FUNCTION__ << 
+                    "(): TheParticipantFactoryWithArgs() failed\n";
+                // The errors can be transient, so try again a couple times
+                if (ntries < 3) {
+                    cerr << "..trying again.." << endl;
+                    sleep(1);
+                } else {
+                    cerr << "Make sure that DCPSInfoRepo is running and that " <<
+                    "you are looking for it in the right place." << endl;
+                    return 1;
+                }
+            }
         }
 
         _participant = _dpf->create_participant(411,
