@@ -106,6 +106,12 @@ public:
 	/// last call to droppedSamples()
 	unsigned int droppedSamples();
 
+	/// Get the quality of service from our DDS::DataReader
+	void get_qos(DDS::DataReaderQos qos);
+
+	/// Set the quality of service for our DDS::DataReader
+	DDS::ReturnCode_t set_qos(DDS::DataReaderQos qos);
+
 private:
 
 	DDS::DataReader_var _genericReader;
