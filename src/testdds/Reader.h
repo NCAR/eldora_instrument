@@ -2,13 +2,13 @@
 #define READER_H_
 
 #include "DDSReader.h"
-#include "RayTypeSupportC.h"
-#include "RayTypeSupportImpl.h"
+#include "EldoraDdsTypeSupportC.h"
+#include "EldoraDdsTypeSupportImpl.h"
 using namespace EldoraDDS;
 
 /// A templatized class derived from DDSreader based
 /// classes such as RayReader and TSReader. This
-/// class simply collects and reports statistics 
+/// class simply collects and reports statistics
 /// about the received sample stream from the given
 /// topic.
 template <class T>

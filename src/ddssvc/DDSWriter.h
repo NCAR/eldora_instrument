@@ -17,7 +17,7 @@ typedef ACE_Thread_Mutex mutex_t;
 typedef ACE_Condition_Thread_Mutex condition_t;
 typedef ACE_Guard<mutex_t> guard_t;
 
-/// The template signature for the class declaration. 
+/// The template signature for the class declaration.
 //#undef WRITERSIG1  // avoid "WRITERSIG1 redefined" warnings
 //#define WRITERSIG1 class DDSTYPE, class DDSTYPESUPPORTIMPL, class DDSTYPESUPPORT_VAR, class DDSDATAWRITER, class DDSDATAWRITER_VAR
 /// The template signature for the class member definitions
@@ -25,14 +25,14 @@ typedef ACE_Guard<mutex_t> guard_t;
 //#define WRITERSIG2 DDSTYPE, DDSTYPESUPPORTIMPL, DDSTYPESUPPORT_VAR, DDSDATAWRITER, DDSDATAWRITER_VAR
 
 /// A templatized writer for an arbitrary DDS datatype. A DDS
-/// publisher must be provided; it will perform 
+/// publisher must be provided; it will perform
 /// the data transfer on behalf of this writer.
 /// The template parameters define the datatype which
-/// will be written. Currently, five DDS class tye names 
-/// must be provided as the template parameters. 
+/// will be written. Currently, five DDS class tye names
+/// must be provided as the template parameters.
 /// DDSWriter provides a queue of buffers. Clients
 /// request an empty buffer via getEmptyItem(),
-/// fill their data into the item, and return it to the 
+/// fill their data into the item, and return it to the
 /// writer to be publish. Clients can query the number of empty
 /// items that are avaialable. Alternatively, they can be
 /// suspended in getNextItem() until an empty item becomes
@@ -41,8 +41,8 @@ typedef ACE_Guard<mutex_t> guard_t;
 /// @todo Find a way to build all of the required class names
 /// from a user supplied root. Simple CPP macros won't work here.
 template <WRITERSIG1>
-class DDSWriter : 
-    public ACE_Task_Base, 
+class DDSWriter :
+    public ACE_Task_Base,
     public virtual OpenDDS::DCPS::DataWriterListener {
 
 public:
@@ -60,7 +60,7 @@ public:
 
 	/// The service that interacts with the publisher, feeding
 	/// it items as they are provided by cleints in other threads.
-	/// svc() responds to requests for our topic. When the request 
+	/// svc() responds to requests for our topic. When the request
 	/// has been received, then svc() will loop, removing items from
 	/// _inQueue, sending them to the publisher, and placing the
 	/// empty items back on the _outQueue. If no items are available
@@ -74,9 +74,9 @@ public:
 	bool is_finished() const;
 
 	int get_timeout_writes() const;
-	/// Register an instance and get a handle which can be used for 
+	/// Register an instance and get a handle which can be used for
 	/// faster publication of items with key(s) matching the instance.
-	DDS::InstanceHandle_t registerInstance(const DDSTYPE& instance) 
+	DDS::InstanceHandle_t registerInstance(const DDSTYPE& instance)
 	    ACE_THROW_SPEC((CORBA::SystemException));
     /// Put the item on the _inQueue, for publication using the given
     /// handle. Ownership of pItem is transferred to DDSWriter.
@@ -88,28 +88,28 @@ public:
 	/// on the _outQueue.
 	int itemsAvailable();
 	/// Get the next empty item from the _outQueue. If the
-	/// _outQueue is empty, block the calling process until 
+	/// _outQueue is empty, block the calling process until
 	/// an item becomes available.
 	DDSTYPE* getEmptyItem();
 	/// Stop the writer task
 	void terminate();
 
-	virtual void on_offered_deadline_missed(DDS::DataWriter_ptr writer, 
+	virtual void on_offered_deadline_missed(DDS::DataWriter_ptr writer,
 	        const DDS::OfferedDeadlineMissedStatus&)
             ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
 
 	virtual void on_offered_incompatible_qos(DDS::DataWriter_ptr writer,
 	        const DDS::OfferedIncompatibleQosStatus& status)
             ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
-	
+
 	virtual void on_liveliness_lost(DDS::DataWriter_ptr writer,
 	        const DDS::LivelinessLostStatus& status)
             ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
-	
+
 	virtual void on_publication_match(DDS::DataWriter_ptr writer,
 	        const DDS::PublicationMatchStatus& status)
             ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
-	
+
 	virtual void on_publication_disconnected(DDS::DataWriter_ptr writer,
 	        const ::OpenDDS::DCPS::PublicationDisconnectedStatus& status)
             ACE_THROW_SPEC (( ::CORBA::SystemException )) ;
@@ -128,7 +128,7 @@ public:
 private:
 	/// block on _condition until the _inQueue is not empty.
 	void waitForItem();
-	/// Take the next item on the _inQueue, send it to the 
+	/// Take the next item on the _inQueue, send it to the
 	/// _publisher, and then return the item to the _outQueue.
 	bool publish();
 
@@ -145,13 +145,13 @@ private:
 	/// Mutex which protects access to _inQueue and _outQueue.
 	mutex_t _mutex;
 
-	/// Condition variable used to signal our task that 
+	/// Condition variable used to signal our task that
 	/// new data is available on _inQueue.
 	condition_t _condition;
-	
+
 	/// Our topic name
 	std::string _topicName;
-	
+
 	/// The total queue capacity (number of items)
 	int _queueSize;
 
@@ -167,20 +167,16 @@ private:
 
 	/// A queue of empty items, available for clients to use.
 	std::vector<DDSTYPE*> _outQueue;
-	
+
 	/// Set true to signal the svc() loop to terminate
 	bool _terminate;
 
 };
 
-// create typedefs for our common types. 
+// create typedefs for our common types.
 /// @todo These typedefs really belong somewhere else.
-#include "RayTypeSupportC.h"
-#include "RayTypeSupportImpl.h"
-#include "TimeSeriesTypeSupportC.h"
-#include "TimeSeriesTypeSupportImpl.h"
-#include "ProductsTypeSupportC.h"
-#include "ProductsTypeSupportImpl.h"
+#include "EldoraDdsTypeSupportC.h"
+#include "EldoraDdsTypeSupportImpl.h"
 
 using namespace EldoraDDS;
 /// A DDSWriter for the Ray data type.

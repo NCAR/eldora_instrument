@@ -26,10 +26,8 @@
 #include <DDSPublisher.h>
 #include <DDSWriter.h>
 // The types that go along with DDS
-#include <RayTypeSupportC.h>
-#include <RayTypeSupportImpl.h>
-#include <TimeSeriesTypeSupportC.h>
-#include <TimeSeriesTypeSupportImpl.h>
+#include <EldoraDdsTypeSupportC.h>
+#include <EldoraDdsTypeSupportImpl.h>
 // The XML-RPC interface.
 #include <DrxRPC.h>
 // Timetag handling
@@ -165,7 +163,7 @@ static void parseOptions(int argc,
                          char** argv);
 /// Used for an emergency stop of the rr314 boards.
 /// Must be done on a signal capture. If the rr314 boards
-/// are left running after the program exits, they will crash 
+/// are left running after the program exits, they will crash
 /// Linux. Big Time.
 static void shutdownBoards();
  /// signal handler to capture those unexpected signals
@@ -196,7 +194,7 @@ static void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp);
 static float getNTPOffset();
 
 // Report the absolute value of the current clock offset, in units
-// of the current dwell time.  A value greater than 0.5 indicates a problem, 
+// of the current dwell time.  A value greater than 0.5 indicates a problem,
 // as housekeeping data will likely not be merged with the correct RR314 data.
 float getClockOffsetInDwells() {
     if (_ntpOffset == -HUGE_VAL)
@@ -204,7 +202,7 @@ float getClockOffsetInDwells() {
     else if (_sysRunning)
         // Convert _ntpOffset to microseconds and divide by the dwell time
         // in microseconds.  Return the absolute value.
-        return (fabsf(_ntpOffset * 1000.0) / 
+        return (fabsf(_ntpOffset * 1000.0) /
                 _rr314[0]->dwellDuration().total_microseconds());
     else
         // If we're not running, report perfect synchronization.
@@ -258,7 +256,7 @@ int main(int argc,
             // consider our clock perfectly sync'ed with the housekeeper.
             _ntpOffset = 0.0;
         }
-        
+
         // poll once per second for commands to start or stop.
         // print the status every ten seconds
         for (int i = 0; i < 10; i++) {
@@ -272,8 +270,8 @@ int main(int argc,
             if (_sysStop) {
                 _sysStop = false;
                 // set _sysRunning to false immediately so
-                // that boardBytes does not try to access 
-                // rr314 instances while they are being destroyed in 
+                // that boardBytes does not try to access
+                // rr314 instances while they are being destroyed in
                 // stopAll()
                 /// @todo We need to mutex protect _sysRunning!
                 _sysRunning = false;
@@ -285,7 +283,7 @@ int main(int argc,
         }
         if (_terminate)
             break;
-        
+
         if (_sysRunning)
             printStatus(loopCount);
         loopCount++;
@@ -309,9 +307,9 @@ static void printStatus(int loopCount)
     // hskp merger info for 1
     _hskpMerger[1]->showStats(std::cout);
     // current clock offset, in dwells
-    std::cout << "System clock offset in dwells: " << 
+    std::cout << "System clock offset in dwells: " <<
         getClockOffsetInDwells() << std::endl;
-    // flush cout so that clients reading from 
+    // flush cout so that clients reading from
     // a pipe will see the output without buffering
     std::cout.flush();
 }
@@ -342,7 +340,7 @@ static void stopAll()
     cancelThread(&_rrThread[0]);
     cancelThread(&_rrThread[1]);
 
-    // As a little extra insurance, zero the references to our 
+    // As a little extra insurance, zero the references to our
     // objects before deleting them, because other routines(entered via other
     // threads) will often check to see if the pointer is zero before
     // trying to access the instance,
@@ -352,14 +350,14 @@ static void stopAll()
         _rr314[i] = 0;
         delete p314;
     }
-    
+
     for (int i = 0; i < 2; i++) {
         HskpMerger* pHskp;
         pHskp = _hskpMerger[i];
         _hskpMerger[i] = 0;
         delete pHskp;
     }
-    
+
     // Stop interrupts from the timer card as well
     delete _bwtimer;
     _bwtimer = 0;
@@ -426,7 +424,7 @@ static void startAll()
                 false // do not catch signals in RR314; we will do that ourselves
         );
 
-        // Create our housekeeping mergers, with 500 ms max retention time waiting to 
+        // Create our housekeeping mergers, with 500 ms max retention time waiting to
         // make matches
         _hskpMerger[0] = new HskpMerger(_rr314[0], 500, publishAndCapture);
         _hskpMerger[1] = new HskpMerger(_rr314[1], 500, publishAndCapture);
@@ -444,7 +442,7 @@ static void startAll()
         if (_simulateHskp)
         std::cout << "Housekeeping will be simulated" << std::endl;
 
-        // Shift the default port for simulated housekeeping off of the 
+        // Shift the default port for simulated housekeeping off of the
         // normal default, so that we can simulate even if the real housekeeper
         // is running.
         _hskpPort = (_simulateHskp) ?
@@ -456,7 +454,7 @@ static void startAll()
         // setup the signal handlers before we run the cards.
         setupSignalHandler();
 
-        // start the RR314 cards. They will not actually start 
+        // start the RR314 cards. They will not actually start
         // sending data until the bittware timer is started.
         if (_enabled[0]) {
             _rr314[0]->start();
@@ -467,14 +465,14 @@ static void startAll()
 
         // start the timer, if we are using it.
         if (_bwtimer) {
-            // 
+            //
             // Send the timer start command ~0.2 seconds after the
             // top of a second.  Xmit pulses start at the top of the
             // next second after the start command is sent, so staying
             // away from the *immediate* vicinity of the top of a second
-            // means we can determine the transmit start time with 
+            // means we can determine the transmit start time with
             // certainty (as long as our clock is reasonably accurate),
-            // and we can still allow plenty of time for the timer 
+            // and we can still allow plenty of time for the timer
             // card actually get things started before the top of the
             // next second.
             //
@@ -552,7 +550,7 @@ static void getConfigParams()
     _publish = config.getBool("DDS/Publish", true);
     _ORB = config.getString("DDS/ORBConfigFile", orbFile);
     _DCPS = config.getString("DDS/DCPSConfigFile", dcpsFile);
-    _DCPSInfoRepo = 
+    _DCPSInfoRepo =
       config.getString("DDS/DCPSInfoRepo", dcpsInfoRepo);
     std::cerr << "read DCPSInfoRepo = " << _DCPSInfoRepo << " from config" << std::endl;
     _rayTopic = config.getString("DDS/TopicRay", "EldoraRays");
@@ -560,13 +558,13 @@ static void getConfigParams()
 
     // RPC parameters
     _rpcPort = config.getInt("Rpc/RpcPort", 60000);
-    
+
     //test pulse width
     _tpWidth = config.getInt("Mode/TestPulseWidth", 5);
 }
 //////////////////////////////////////////////////////////////////////
 //
-/// Parse the command line options, and also set some options 
+/// Parse the command line options, and also set some options
 /// that are not specified on the command line.
 /// @return The runtime options that can be passed to the
 /// threads that interact with the RR314.
@@ -576,8 +574,8 @@ static void parseOptions(int argc,
 
     // get the option34
     po::options_description descripts("Options");
-    descripts.add_options() 
-    ("help", "describe options") 
+    descripts.add_options()
+    ("help", "describe options")
     ("ORB", po::value<std::string>(&_ORB), "ORB service configuration file (Corba ORBSvcConf arg)")
     ("DCPS", po::value<std::string>(&_DCPS), "DCPS configuration file (OpenDDS DCPSConfigFile arg)")
     ("DCPSInfoRepo", po::value<std::string>(&_DCPSInfoRepo), "DCPSInfoRepo URL (OpenDDS DCPSInfoRepo arg)")
@@ -595,7 +593,7 @@ static void parseOptions(int argc,
     ("rpcport", po::value<int>(&_rpcPort), "RPC port number")
     ("tpwidth", po::value<int>(&_tpWidth), "Test pulse width (gates)")
     ("DCPSDebugLevel", po::value<int>(&_DCPSDebugLevel), "DCPSDebugLevel ")
-    ("DCPSTransportDebugLevel", po::value<int>(&_DCPSTransportDebugLevel), 
+    ("DCPSTransportDebugLevel", po::value<int>(&_DCPSTransportDebugLevel),
      "DCPSTransportDebugLevel ");
 
     po::variables_map vm;
@@ -660,7 +658,7 @@ static void shutdownBoards()
 //
 /// Signal handler. If it is a benign signal, set the terminate
 /// flag and return. The polling loop will see the flag,
-/// and terminate with proper object cleanup. 
+/// and terminate with proper object cleanup.
 /// For catastrophic signals, such as segv,
 /// perform critical cleanup such as stopping the RR314 cards.
 ///
@@ -693,7 +691,7 @@ static void setRadarParams(EldoraRadarParams* radarParams,
 
     for (int i = 0; i < 4; i++)
         hskp->rxGain[i] = radarParams->frib_rxgain[i];
-    
+
     for (int i = 0; i < 6; i++)
         hskp->cellWidth[i] = radarParams->cspd_width[i];
 
@@ -715,7 +713,7 @@ static void setRadarParams(EldoraRadarParams* radarParams,
     hskp->xBandGain = radarParams->frib_xgain;
     hskp->lnaLoss = radarParams->frib_lnalos;
     hskp->encoderUpAngle = radarParams->frib_encang;
-    
+
     hskp->dbzScale = radarParams->parm_dbz_scale;
     hskp->dbzBias = radarParams->parm_dbz_bias;
 
@@ -794,9 +792,9 @@ static void* rrReadTask(void* threadArg)
 
     bool simulateHskp = _simulateHskp;
 
-    // When generating fake housekeeping, keep a set of the last few 
-    // housekeeping times we've sent, so that we don't send out duplicate 
-    // housekeeping.  The history only needs to be long enough to handle data 
+    // When generating fake housekeeping, keep a set of the last few
+    // housekeeping times we've sent, so that we don't send out duplicate
+    // housekeeping.  The history only needs to be long enough to handle data
     // times that arrive out of order.
     std::set<ptime> sentFakeHskp;
     const unsigned int FAKE_HSKP_HISTORY_LEN = 50;
@@ -918,7 +916,7 @@ static void* hskpReadTask(void* threadArg)
 
 //////////////////////////////////////////////////////////////////////
 /// Return a new EldoraDDS::Housekeeping built from the given buf
-/// sent by the housekeeper machine.  The returned struct should be deleted 
+/// sent by the housekeeper machine.  The returned struct should be deleted
 /// by the caller.  On error, NULL is returned.
 static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf,
                                                    int buflen)
@@ -946,7 +944,7 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
         asib = new DoradeASIB(data, datalen, false);
         data += asib->getDescLen();
         datalen -= asib->getDescLen();
-        
+
         // unpack the "header-only" FRAD descriptor from the housekeeper
         frad = new DoradeFRAD(data, datalen, false, true);
     } catch (DescriptorException dex) {
@@ -962,7 +960,7 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
     EldoraDDS::Housekeeping* hskp = new EldoraDDS::Housekeeping();
 
     // timetag is microseconds since 1970/1/1 00:00:00 UTC
-    boost::posix_time::ptime rayDateTime = 
+    boost::posix_time::ptime rayDateTime =
         ryib->getRayDateTime(_radarParams[0].getVolumeDateTime());
     hskp->timetag = ptimeToTimetag(rayDateTime);
 
@@ -1011,7 +1009,7 @@ static EldoraDDS::Housekeeping* newDDSHousekeeping(const unsigned char* hskprBuf
     hskp->rayCount = frad->getRayCount();
     hskp->firstRecGate = frad->getFirstGate();
     hskp->lastRecGate = frad->getLastGate();
-    
+
     delete ryib;
     delete asib;
     delete frad;
@@ -1179,9 +1177,9 @@ static void createDDSservices()
     argv["-ORBSvcConf"] = _ORB;
     argv["-DCPSConfigFile"] = _DCPS;
     argv["-DCPSInfoRepo"] = _DCPSInfoRepo;
-    if (_DCPSDebugLevel > 0) 
+    if (_DCPSDebugLevel > 0)
 	argv["-DCPSDebugLevel"] = _DCPSDebugLevel;
-    if (_DCPSTransportDebugLevel > 0) 
+    if (_DCPSTransportDebugLevel > 0)
 	argv["-DCPSTransportDebugLevel"] = _DCPSTransportDebugLevel;
 
     // create our DDS publisher
@@ -1233,7 +1231,7 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     hskp->radarRotAngle = rotAngle;
 
     strncpy(hskp->radarName, isFore ? "FORE" : "AFT", sizeof(hskp->radarName));
-    
+
     // fake some lat/lon
     static bool isFirst = true;
     static double startFracDay;
@@ -1246,7 +1244,7 @@ EldoraDDS::Housekeeping* newFakeDDSHousekeeping(ptime hskpTime,
     // allow for one day rollover
     if (delta < 0.0)
     	delta += 1.0;
-    
+
     hskp->latitude  =   13.0 - 100.0*delta;
     hskp->longitude =   130.0 + 100.0*delta;
 
@@ -1283,38 +1281,38 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
 
     // stringstream to hold the packet as we assemble it
     std::ostringstream ss;
-    
+
     // assemble the RYIB from the housekeeping
-    DoradeRYIB ryib(timetagToPtime(hskp->timetag), hskp->sweepNum, 
-        hskp->azimuth, hskp->elevation, hskp->peakXmitPower, hskp->trueScanRate, 
+    DoradeRYIB ryib(timetagToPtime(hskp->timetag), hskp->sweepNum,
+        hskp->azimuth, hskp->elevation, hskp->peakXmitPower, hskp->trueScanRate,
         hskp->rayStatus);
     ryib.streamTo(ss, false);
-    
+
     // assemble an ASIB from the housekeeping
-    DoradeASIB asib(hskp->longitude, hskp->latitude, 
-        hskp->altitudeMSL, hskp->altitudeAGL, 
-        hskp->groundSpeedEW, hskp->groundSpeedNS, hskp->vertVelocity, 
-        hskp->heading, hskp->roll, hskp->pitch, hskp->yaw, 
-        hskp->radarRotAngle, hskp->radarTiltAngle, 
-        hskp->windEW, hskp->windNS, hskp->windVert, 
+    DoradeASIB asib(hskp->longitude, hskp->latitude,
+        hskp->altitudeMSL, hskp->altitudeAGL,
+        hskp->groundSpeedEW, hskp->groundSpeedNS, hskp->vertVelocity,
+        hskp->heading, hskp->roll, hskp->pitch, hskp->yaw,
+        hskp->radarRotAngle, hskp->radarTiltAngle,
+        hskp->windEW, hskp->windNS, hskp->windVert,
         hskp->headingChangeRate, hskp->pitchChangeRate);
     asib.streamTo(ss, false);
-    
+
     // assemble a FRAD from the housekeeping
-    DoradeFRAD frad(hskp->dataSysStatus, hskp->radarName, 
-        hskp->testPulsePower, hskp->testPulseStart, hskp->testPulseWidth, 
-        hskp->testPulseFreq, hskp->testPulseAtten, hskp->testPulseFNum, 
-        hskp->noisePower, hskp->rayCount, hskp->firstRecGate, 
+    DoradeFRAD frad(hskp->dataSysStatus, hskp->radarName,
+        hskp->testPulsePower, hskp->testPulseStart, hskp->testPulseWidth,
+        hskp->testPulseFreq, hskp->testPulseAtten, hskp->testPulseFNum,
+        hskp->noisePower, hskp->rayCount, hskp->firstRecGate,
         hskp->lastRecGate);
     frad.streamTo(ss, false);
-    
+
     if (ss.str().size() != 176)
-        std::cerr << __FILE__ << ": assembled hskp @ " <<  
-            timetagToPtime(hskp->timetag).time_of_day() << " is " << 
-            ss.str().size() << 
+        std::cerr << __FILE__ << ": assembled hskp @ " <<
+            timetagToPtime(hskp->timetag).time_of_day() << " is " <<
+            ss.str().size() <<
             " bytes and not the expected 176.  Not sending." << std::endl;
 
-    // Now actually send the packet of housekeeping as if we were the 
+    // Now actually send the packet of housekeeping as if we were the
     // housekeeper machine
     int nwrote = sendto(outSocket, ss.str().data(), ss.str().size(), 0,
             (struct sockaddr*)&destAddr, sizeof(destAddr));
@@ -1323,7 +1321,7 @@ void sendFakeHousekeeping(const EldoraDDS::Housekeeping* hskp)
             ": error sending housekeeping: " << strerror(errno) << std::endl;
 }
 
-/// Get the time offset from the current system peer as reported by 
+/// Get the time offset from the current system peer as reported by
 /// the "ntpq -p" command.  The time is in milliseconds.  On error, or if
 /// no system peer has been established yet, return -HUGE_VAL.
 static float
@@ -1331,17 +1329,17 @@ getNTPOffset() {
     const char* cmd = "/usr/sbin/ntpq -p";
     FILE* ntpq = popen(cmd, "r");
     if (! ntpq) {
-        std::cerr << "Error running '" << cmd << "': " << strerror(errno) << 
+        std::cerr << "Error running '" << cmd << "': " << strerror(errno) <<
             std::endl;
         return -HUGE_VAL;
     }
-    
+
     char *line = NULL;
     size_t linelen = 0;
     float offset = -HUGE_VAL;
     while (getline(&line, &linelen, ntpq) != -1) {
         // Take the offset from the system peer (the line starting with
-        // a '*').  If no such line exists, a system peer hasn't been 
+        // a '*').  If no such line exists, a system peer hasn't been
         // established yet.
         if (line[0] == '*') {
             char peer[20];
@@ -1362,10 +1360,10 @@ getNTPOffset() {
         free(line);
     int status = pclose(ntpq);
     if (status != 0)
-        std::cerr << "Return value from '" << cmd << "' was " << status << 
+        std::cerr << "Return value from '" << cmd << "' was " << status <<
             std::endl;
     else if (offset == -HUGE_VAL)
         std::cerr << "NTP has no sys.peer (yet)" << std::endl;
-    
+
     return offset;
 }

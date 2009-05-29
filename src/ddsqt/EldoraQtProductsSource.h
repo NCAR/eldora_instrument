@@ -6,8 +6,8 @@
 
 #include "EldoraQtSource.h"
 #include "DDSReader.h"
-#include "ProductsTypeSupportC.h"
-#include "ProductsTypeSupportImpl.h"
+#include "EldoraDdsTypeSupportC.h"
+#include "EldoraDdsTypeSupportImpl.h"
 #include "ProductTypes.h"
 #include "EldoraTypes.h"
 
@@ -18,8 +18,8 @@ using namespace EldoraDDS;
 /// It is derived from EldoraQtSource and ProductsReader.
 /// When the DDS data notification is received via the notify()
 /// method, a Qt signal is emitted in order to deliver the
-/// data to other Qt components. Note that this scheme is utilizing 
-/// Qt4's capabilty to send signals between threads. See the 
+/// data to other Qt components. Note that this scheme is utilizing
+/// Qt4's capabilty to send signals between threads. See the
 /// Qt4 docuentation on threading and QObjects.
 ///
 /// The EldoraQtSource rate limiting mechanism (the _capture variable)
@@ -28,27 +28,27 @@ using namespace EldoraDDS;
 /// and all data are delivered.
 ///
 /// The organization of the desired products are specified via the
-/// AlongBeam and OneGate slots.These slots specify the desired data 
+/// AlongBeam and OneGate slots.These slots specify the desired data
 /// product. Note however that if more than one product is specified
 /// in the constructor, then the delivered products are always those
 /// specified in the constructor, and will not be changed by these slots.
 ///
 /// Notice that there are some very specific Eldora considerations
 /// in this class. In particular, it will extract a few parameters
-/// from the housekeeping information, that are needed by downstream 
+/// from the housekeeping information, that are needed by downstream
 /// consumers. It even computes some specific quantities, such as
-/// the along beam correction for airspeed. These are sent out 
-/// with the newPData signal. This is sort of a strange 
+/// the along beam correction for airspeed. These are sent out
+/// with the newPData signal. This is sort of a strange
 /// place to be doing this, but it is a compromise. An alternative
-/// would be to send the whole housekeeping payload to the 
-/// consumers. Maybe a redesign is called for. In any event, 
+/// would be to send the whole housekeeping payload to the
+/// consumers. Maybe a redesign is called for. In any event,
 /// it is clear that EldoraQtProductsSource is very Eldora specific.
 ///
 
 class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
     Q_OBJECT
     public:
-        /// Used to specify which (or both) radars 
+        /// Used to specify which (or both) radars
         enum RADAR_CHOICE {
             RADAR_FOR, ///< The forward radar
             RADAR_AFT, ///< The aft radar
@@ -57,9 +57,9 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// Constructor
         /// @param subscriber The DDS subscriber
         /// @param topicName  The DDS topic name for PRODUCTS
-        /// @param outputRate If greater than zero, limit data delivery rate to outputRate (Hz). 
+        /// @param outputRate If greater than zero, limit data delivery rate to outputRate (Hz).
         /// If outputRate==0, no rate limiting is performed.
-        /// @param radarChoice The initial radar choice, used to discrimnate between radars. If 
+        /// @param radarChoice The initial radar choice, used to discrimnate between radars. If
         /// RADAR_BOTH is specified, then data for both radars are delivered.
         /// @param productChoices The initial product type choices.
         EldoraQtProductsSource(
@@ -88,12 +88,12 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
         /// @param latitude Latitude, degrees
         /// @param longitude Longitude, degrees
         void newPData(
-                std::vector<double> P, 
-                int radarId, 
+                std::vector<double> P,
+                int radarId,
                 float elDegrees,
-                int prodType, 
-                float gateSpacingMeters, 
-                double dwellWidth, 
+                int prodType,
+                float gateSpacingMeters,
+                double dwellWidth,
                 double airspdCorr,
                 double rollAngle,
                 double nyquistVelocity,
@@ -108,9 +108,9 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
     	/// @param timetag  - microsecs since epoch
         /// @param hskpMap - housekeeping in STL map
         void newPDataHskpMap(
-                std::vector<double> P, 
-                int radarId, 
-                int prodType, 
+                std::vector<double> P,
+                int radarId,
+                int prodType,
 		qlonglong timetag,
 		StrMapDouble hskpMap
 		);
@@ -142,20 +142,20 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
 
         /// Calculate the groundspeed correction that can added to the radial velocity
         /// in order to remove the aircraft motion. Useful for ppi displays.
-        /// Note that the operating mode of the radar is taken into consideration. Since 
+        /// Note that the operating mode of the radar is taken into consideration. Since
         /// the correction is only applied in in dual prt mode, then in single prt
         /// mode the value will be zero.
         /// @param pItem The EldoraDDS::Products containing housekeeping data
         /// used to determine the correction.
         /// @return The correction to be added to the radial (VR) velocity.
         double airSpeedCorrection(Products* pItem);
-        
+
         /// Compute nyquist velocity
         double nyquistVelocity(Products* pItem);
-        
+
         /// Compute the angle swept out by the Product.
         /// This is computed from factors contained in the housekeeping.
-        /// The dwell angle is: rotation rate (deg/s) * repeat sequences per dwell 
+        /// The dwell angle is: rotation rate (deg/s) * repeat sequences per dwell
         ///    * ms per repeat sequence / 1000.0
         /// @param pItem The source of housekeeping data.
         double dwellWidth(Products* pItem);
@@ -173,4 +173,4 @@ class EldoraQtProductsSource : public EldoraQtSource, public ProductsReader {
 
 };
 
-#endif 
+#endif

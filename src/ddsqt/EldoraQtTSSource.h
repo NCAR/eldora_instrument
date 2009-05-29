@@ -4,8 +4,8 @@
 #include <vector>
 #include "EldoraQtSource.h"
 #include "DDSReader.h"
-#include "TimeSeriesTypeSupportC.h"
-#include "TimeSeriesTypeSupportImpl.h"
+#include "EldoraDdsTypeSupportC.h"
+#include "EldoraDdsTypeSupportImpl.h"
 using namespace EldoraDDS;
 
 /// A timeseries DDS subscriber for Eldora data,
@@ -13,8 +13,8 @@ using namespace EldoraDDS;
 /// It is derived from EldoraQtSource and TSReader.
 /// When the DDS data notification is received via the notify()
 /// method, a Qt signal is emitted in order to deliver the
-/// data to other Qt components. Note that this scheme is utilizing 
-/// Qt4's capabilty to send signals between threads. See the 
+/// data to other Qt components. Note that this scheme is utilizing
+/// Qt4's capabilty to send signals between threads. See the
 /// Qt4 docuentation on threading and QObjects.
 ///
 /// The EldoraQtSource rate limiting mechanism (the _capture variable)
@@ -34,7 +34,7 @@ Q_OBJECT
 
     signals:
         /// This signal is emitted when new IQ data is available.
-        /// I and Q will be of the same length, and will have at least 1 
+        /// I and Q will be of the same length, and will have at least 1
         /// value in them.
         /// @param I I data values.
         /// @param Q q data values.
@@ -45,9 +45,9 @@ Q_OBJECT
                     std::vector<double> Q,
                     double sampleRateHz,
                     double tuningFreqHz);
-        
+
          signals:
-        /// This signal is emitted to announce the list of possible 
+        /// This signal is emitted to announce the list of possible
         /// time series gate choices.
        void tsGateList(
                 std::vector<int> gates, unsigned short firstgate);
@@ -89,4 +89,4 @@ Q_OBJECT
 
 };
 
-#endif 
+#endif

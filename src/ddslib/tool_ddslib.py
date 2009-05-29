@@ -1,7 +1,7 @@
 #
 # Rules to build ddslib and export it as a SCons tool
 #
-tools = ['opendds', 'doxygen']
+tools = ['opendds12', 'doxygen']
 env = Environment(tools = ['default'] + tools)
 
 libEldoraDds, sources, headers = env.DdsLibrary('EldoraDds.idl', env)

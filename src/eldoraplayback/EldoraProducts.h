@@ -1,8 +1,7 @@
 #ifndef ELDORAPRODUCTS_INC
 #define ELDORAPRODUCTS_INC
 #include <string>
-// #include "RayTypeSupportC.h"
-#include "ProductsTypeSupportC.h"
+#include "EldoraDdsTypeSupportC.h"
 #include "DDSPublisher.h"
 #include "DDSWriter.h"
 
@@ -20,7 +19,7 @@
 #include "DoradeCSPD.h"
 #include "DoradeWAVE.h"
 
-/// A structure to hold intermediate terms and final values 
+/// A structure to hold intermediate terms and final values
 /// for the moments calculations. A vector is used which can
 /// be resized for the number of gates being processed. For
 /// some variables, the vector of gates is contained within a vector
@@ -95,24 +94,24 @@ struct ProductsTerms
 
 };
 
-/// Scale and bias values to be used for the data compression 
+/// Scale and bias values to be used for the data compression
 /// in the DDS stream.
 struct ProductsScaling
 {
         double dmScale;  ///< scale for dm
         double dmBias;   ///< Bias for dm
-        
+
         double pScale;   ///< scale for p1-p4
         double pBias;    ///< scale for p1-p4
-        
+
         double dbzScale; ///< scale for dbz
-        double dbzBias;  ///< bias for dbz   
+        double dbzBias;  ///< bias for dbz
 
         double swScale;  ///< scale for sw
-        double swBias;   ///< bias for sw     
+        double swBias;   ///< bias for sw
 
         double ncpScale; ///< scale for ncp
-        double ncpBias;  ///< bias for ncp     
+        double ncpBias;  ///< bias for ncp
 
         double vsScale;  ///< scale for vs
         double vsBias;   ///< bias for vs
@@ -128,15 +127,15 @@ struct ProductsScaling
 /// products computation are defined in "Eldora Moments" by Eric Loew.
 /// Nomenclature and methodology from that text are followed closely here.
 ///
-/// EldoraProducts is delivered a new collection of rays via newRayData. The collection contains 
+/// EldoraProducts is delivered a new collection of rays via newRayData. The collection contains
 /// all rays for a single ray number, for all channels and all prt ids. If operating
 /// in single prt mode, there will be a single set of rays for that prt. If operating
-/// in dual prt mode, there will be two sets of rays. The first set will be for the short 
+/// in dual prt mode, there will be two sets of rays. The first set will be for the short
 /// prt. The second set will be for the long prt.
 ///
 /// There are a number of constant factors which do not change for a given radar configuration.
 /// These are computed once, when the first set of rays is received. This initialization is performed
-/// in initTerms(). The radar configuration is read from the housekeeping data that is included 
+/// in initTerms(). The radar configuration is read from the housekeeping data that is included
 /// with the ray data.
 ///
 /// The computation procedure follws the linear sequence described in the Loew document.
@@ -144,7 +143,7 @@ struct ProductsScaling
 /// as the computations proceed. ProductsTerms also holds the precomputed constants described
 /// earlier.
 ///
-/// Once all of the computation steps have been completed, the results are transfered 
+/// Once all of the computation steps have been completed, the results are transfered
 /// from the ProductsTerms structure to a DDS Products object. Products is then published
 /// via a DDS publisher.
 ///
@@ -179,8 +178,8 @@ class EldoraProducts
         /// @param reverseVelocity Set true if the velocity needs to be reverse. The
         /// phase relationship of A and B from a signal processor is arbitrary,
         /// and this flag is used to make the sign of the velocity have the desired
-        /// relationship with the doppler frequency measurement. For instance, 
-        /// the standard radar convention is that positive velocity indicates 
+        /// relationship with the doppler frequency measurement. For instance,
+        /// the standard radar convention is that positive velocity indicates
         /// motion towards the receiver.
         EldoraProducts(DDSPublisher& publisher,
                        std::string productsTopic,
@@ -188,17 +187,17 @@ class EldoraProducts
         virtual ~EldoraProducts();
 
         /// Called with a new set of rays for one radar for one ray number.
-        /// All prt ids are included. Thus all of the rays are provided 
+        /// All prt ids are included. Thus all of the rays are provided
         /// that are needed to compute a product along all gates.
         ///
         /// RayData is a two dmensional array. The first index chooses the prtId.
         /// If in single mode, this index can only be zero. In dual prt
-        /// mode, it can be either 0 or 1. The second index covers the 
+        /// mode, it can be either 0 or 1. The second index covers the
         /// frequency channels 0-3.
         ///
-        /// @param ray Two dimnsional vector containing pointers to rays. If in 
+        /// @param ray Two dimnsional vector containing pointers to rays. If in
         /// staggered prt mode, the first vector, for prtId == 0,
-        /// will hold the short prt ray data and the second vector will hold the long 
+        /// will hold the short prt ray data and the second vector will hold the long
         /// prt ray data.
         void playback(std::string inputFileName);
         void playbackDirectory(std::string inputDirectory);
@@ -215,7 +214,7 @@ class EldoraProducts
                           int gates);
 
         void parseDoradeHeader(std::string filename, EldoraDDS::Housekeeping& hskp);
-        
+
         void parseVOLD(DoradeVOLD *vold, EldoraDDS::Housekeeping& hskp);
         void parseRYIB(DoradeRYIB &rhib, EldoraDDS::Housekeeping& hskp);
         void parseASIB(DoradeASIB &asib, EldoraDDS::Housekeeping& hskp);
@@ -226,8 +225,8 @@ class EldoraProducts
         void parseWAVE(DoradeWAVE *wave, EldoraDDS::Housekeeping& hskp);
         void parseCSPD(DoradeCSPD *cspd, EldoraDDS::Housekeeping& hskp);
         void parsePARMs(DoradeHeader &doradeHeader, EldoraDDS::Housekeeping& hskp);
-        
-        
+
+
 
         /// The number of rays that have been received.
         int _rays;
@@ -242,7 +241,7 @@ class EldoraProducts
         int _droppedRays;
         /// number of published rays
         int _publishedRays;
-        /// Is filled in with calculation results as each 
+        /// Is filled in with calculation results as each
         /// step in the products computations are completed.
         ProductsTerms _terms;
         /// Is initialized with scaling factors for the DDS data compression
@@ -260,7 +259,7 @@ class EldoraProducts
         /// map parameter name to Product
         std::map<std::string, EldoraDDS::Product *> _prodPtrMap;
 
-        /// maps parameter order to parameter name 
+        /// maps parameter order to parameter name
         std::vector<std::string> _prodNames;
 
         // output array
