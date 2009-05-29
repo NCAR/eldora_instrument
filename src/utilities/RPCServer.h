@@ -2,7 +2,7 @@
 #define UTILITIESRPC_H_
 
 #include <string>
-#include "xmlrpc++/XmlRpc.h"
+#include "XmlRpc.h"
 #include <pthread.h>
 using namespace XmlRpc;
 
@@ -11,10 +11,10 @@ using namespace XmlRpc;
 /// is called.
 ///
 /// RPCCmd is utilized to provide command hanndlers that will be called
-/// when RPCServer receives an incoming request. 
+/// when RPCServer receives an incoming request.
 ///
-/// Since RPCServer runs in its own thread, the command handlers will also 
-/// run in that thread. The command handlers must provide their own thread 
+/// Since RPCServer runs in its own thread, the command handlers will also
+/// run in that thread. The command handlers must provide their own thread
 /// synchronization functionality, as needed.
 class RPCServer : public XmlRpcServer {
     public:
@@ -27,7 +27,7 @@ class RPCServer : public XmlRpcServer {
         /// RPCServer::thr_run() calls RPCServer::run() to actually start
         /// the XmlRpcServer.
         void start();
-        /// Destroy the server. 
+        /// Destroy the server.
         virtual ~RPCServer();
 
     protected:
@@ -48,4 +48,4 @@ class RPCServer : public XmlRpcServer {
 
 };
 
-#endif 
+#endif

@@ -2,23 +2,23 @@
 #define ELDORARPCCMDS_H_
 
 #include <string>
-#include "xmlrpc++/XmlRpc.h"
+#include "XmlRpc.h"
 using namespace XmlRpc;
 
-/// This class acts as a proxy between an RPCServer and arbitrary 
-/// handlers which implement the desired RPC methods. 
-/// The RPC infrastructure is based on the XmlRpc++ 
-/// library (http://xmlrpcpp.sourceforge.net/). Refer to the 
+/// This class acts as a proxy between an RPCServer and arbitrary
+/// handlers which implement the desired RPC methods.
+/// The RPC infrastructure is based on the XmlRpc++
+/// library (http://xmlrpcpp.sourceforge.net/). Refer to the
 /// XmlRpc++ documentation for details about parameter passing and
 /// return value semantics.
 ///
-/// Let's look at the command handlers first. 
-/// Conveniently, the handler methods which implement the RPC methods 
+/// Let's look at the command handlers first.
+/// Conveniently, the handler methods which implement the RPC methods
 /// use the same XmlRpc++ signature and return value semantics. An example of
 /// handler methods follows:
 /// @code
 /// #include "xmlrpc++/XmlRpc.h"
-/// 
+///
 /// class Handler {
 /// public:
 ///    Handler();
@@ -35,10 +35,10 @@ using namespace XmlRpc;
 /// };
 /// @endcode
 ///
-/// Now let's examine how RPCCmd is used to connect an RPCServer and the 
+/// Now let's examine how RPCCmd is used to connect an RPCServer and the
 /// handler methods. The implementation trick is to use a pointer
-/// to a member function; this member function will be called to handle the 
-/// given command. The member function pointer is provided to the 
+/// to a member function; this member function will be called to handle the
+/// given command. The member function pointer is provided to the
 /// RPCCmd constructor:
 /// @code
 /// #include "RPCServer.h"
@@ -62,15 +62,15 @@ using namespace XmlRpc;
 ///     sleep(1);
 /// @endcode
 ///
-/// Recall that RPCServer runs in its own thread, and so the RPCCmd 
+/// Recall that RPCServer runs in its own thread, and so the RPCCmd
 /// handlers will also execute in that context. They must address
-/// thread synchronization issues that might exist between 
+/// thread synchronization issues that might exist between
 /// RPC command handling and other threads of the application.
 ///
-/// @note 
+/// @note
 /// The XmlRpcValue class provides a rich selection of assignment operators,
 /// so that it can be used as a variant type. Thus you can send data types
-/// that match the application needs, without having to make your own 
+/// that match the application needs, without having to make your own
 /// conversions into and out of a single type (such as string). In fact,
 /// even the data types for individual items can have different types within
 /// a map, e.g.:
@@ -88,12 +88,12 @@ template<class T> class RPCCmd : public XmlRpcServerMethod {
 
 public:
 	/// @param s The RPC server
-	/// @param cmdHandler The RPC command handler. 
+	/// @param cmdHandler The RPC command handler.
 	/// @param cmdName The RPC name of the method.
-	/// @param funcPtr The pointer to the member function of the handler object. Incoming RPC calls are forwarded to this method. 
+	/// @param funcPtr The pointer to the member function of the handler object. Incoming RPC calls are forwarded to this method.
 	/// @param helpMsg The RPC help string, used by the RPC introspection facility.
-	RPCCmd(XmlRpc::XmlRpcServer* s, 
-			T& cmdHandler, std::string cmdName, 
+	RPCCmd(XmlRpc::XmlRpcServer* s,
+			T& cmdHandler, std::string cmdName,
 			void (T::*funcPtr)(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result),
 			std::string helpMsg = "") :
 		XmlRpc::XmlRpcServerMethod(cmdName, s), _cmdHandler(cmdHandler),

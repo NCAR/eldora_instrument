@@ -1,6 +1,6 @@
 #include <ArgvParams.h>
 #include <QtConfig.h>
-#include <xmlrpc++/XmlRpc.h>
+#include <XmlRpc.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "EldoraArchiver.h"
 
@@ -57,7 +57,7 @@ public:
         // cast the unsigned checksum into a signed int
         // Return the CRC-32 checksum (cast into a signed int) as our result.
         // We hijack zero to use as a failure indicator.
-        unsigned int hdrChecksum = 
+        unsigned int hdrChecksum =
             EldoraArchiver::TheArchiver()->headerChecksum();
         result = *(int*)&hdrChecksum;
     }
@@ -74,7 +74,7 @@ public:
         XmlRpc::XmlRpcValue retval;
         retval["rate"] = WriteRate;
         // Return the CRC-32 checksum (cast into a signed int)
-        unsigned int hdrChecksum = 
+        unsigned int hdrChecksum =
             EldoraArchiver::TheArchiver()->headerChecksum();
         retval["headerChecksum"] = *(int*)&hdrChecksum;
         // Return the map
@@ -109,20 +109,20 @@ main(int argc, char *argv[])
             e << "." << std::endl;
     }
     EldoraConfigDir = std::string(e) + "/conf/";
-    
-    std::string orbConfigFile = 
-        eaConfig.getString("DDS/ORBConfigFile", EldoraConfigDir + "ORBSvc.conf");   
-    std::string dcpsConfigFile = 
+
+    std::string orbConfigFile =
+        eaConfig.getString("DDS/ORBConfigFile", EldoraConfigDir + "ORBSvc.conf");
+    std::string dcpsConfigFile =
         eaConfig.getString("DDS/DCPSConfigFile", EldoraConfigDir + "DDSClient.ini");
-    std::string dcpsInfoRepo = 
-        eaConfig.getString("DDS/DCPSInfoRepo", "iiop://archiver:50000/DCPSInfoRepo");  
-    std::string productsTopic = 
+    std::string dcpsInfoRepo =
+        eaConfig.getString("DDS/DCPSInfoRepo", "iiop://archiver:50000/DCPSInfoRepo");
+    std::string productsTopic =
         eaConfig.getString("TopicProducts", "EldoraProducts");
     std::string dataDir =
         eaConfig.getString("DataDir", "/data_first");
-    int rpcPort = 
+    int rpcPort =
         eaConfig.getInt("RpcPort", DefaultRPCPort);
-    
+
     // Override dataDir and rpcPort if we got command line args
     if (argc > 1) {
         std::cout << "Using data dir from command line: " << argv[1] << std::endl;
@@ -130,7 +130,7 @@ main(int argc, char *argv[])
         std::cout << "Using RPC port from command line: " << argv[2] << std::endl;
         rpcPort = atoi(argv[2]);
     }
-    
+
     // create the subscriber
     ArgvParams subParams(argv[0]);
     subParams["-ORBSvcConf"] = orbConfigFile;
@@ -145,29 +145,29 @@ main(int argc, char *argv[])
     }
 
     // Instantiate the singleton archiver
-    EldoraArchiver* theArchiver = 
+    EldoraArchiver* theArchiver =
         EldoraArchiver::TheArchiver(subscriber, productsTopic, dataDir);
 
     // Initialize our RPC server
     RpcSvr.bindAndListen(rpcPort);
     RpcSvr.enableIntrospection(true);
-    
+
     int prevRaysWritten = theArchiver->raysWritten();
-    boost::posix_time::ptime lastCheckTime = 
+    boost::posix_time::ptime lastCheckTime =
         boost::posix_time::microsec_clock::universal_time();
 
     while (1) {
         // Listen for RPC commands for a bit
         RpcSvr.work(1.0);   // 1 or 2 seconds (mostly 2)...
-        
+
         // Calculate write rate
-        boost::posix_time::ptime now = 
+        boost::posix_time::ptime now =
             boost::posix_time::microsec_clock::universal_time();
         int raysWritten = theArchiver->raysWritten();
         int rayDiff = raysWritten - prevRaysWritten;
         boost::posix_time::time_duration timeDiff = now - lastCheckTime;
         WriteRate = rayDiff / (1.0e-6 * timeDiff.total_microseconds());
-        
+
         // Save current numbers for next go-round
         prevRaysWritten = raysWritten;
         lastCheckTime = now;
