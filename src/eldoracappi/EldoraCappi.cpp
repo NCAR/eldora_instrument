@@ -451,10 +451,10 @@ void EldoraCappi::initPlots() {
 void EldoraCappi::timerEvent(QTimerEvent*event) {
 
 	if (_statusTimerId == event->timerId()) {
-		QString tlat = QString("%1").arg(_lat, 0, 'f', 2);
-		this->latText->setText(tlat);
-		QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
-		this->lonText->setText(tlon);
+		//QString tlat = QString("%1").arg(_lat, 0, 'f', 2);
+		//this->latText->setText(tlat);
+		//QString tlon = QString("%1").arg(_lon, 0, 'f', 2);
+		//this->lonText->setText(tlon);
 	} else if (_checkNewDataId == event->timerId()) {
 		if (_mode == CappiTime::REALTIME && !_disableTimer) {
 			pollNewData();
