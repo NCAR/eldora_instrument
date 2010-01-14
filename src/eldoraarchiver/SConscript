@@ -25,10 +25,9 @@ env.Append(LIBS = libs)
 sources = Split('''
 EldoraArchiverMain.cpp
 EldoraArchiver.cpp
-DoradeHskp.cpp
 ''')
 
-# build eldoraprod
+# build eldoraarchiver
 eldoraarchiver = env.Program('eldoraarchiver', sources)
 inst = env.InstallProgram(eldoraarchiver)
 
